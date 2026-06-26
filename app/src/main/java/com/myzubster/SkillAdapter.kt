@@ -3,17 +3,19 @@ package com.myzubster
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.myzubster.models.Skill
 
 class SkillAdapter(
-    private var skills: List<Skill> = emptyList()
+    private var skills: List<Skill> = emptyList(),
+    private val onContactClick: (Skill) -> Unit = {}
 ) : RecyclerView.Adapter<SkillAdapter.SkillViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SkillViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_skill, parent, false)
-        return SkillViewHolder(view)
+        return SkillViewHolder(view, onContactClick)
     }
 
     override fun onBindViewHolder(holder: SkillViewHolder, position: Int) {
@@ -27,17 +29,22 @@ class SkillAdapter(
         notifyDataSetChanged()
     }
 
-    class SkillViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class SkillViewHolder(
+        itemView: View,
+        private val onContactClick: (Skill) -> Unit
+    ) : RecyclerView.ViewHolder(itemView) {
         private val titleTextView = itemView.findViewById<TextView>(R.id.tvSkillTitle)
         private val categoryTextView = itemView.findViewById<TextView>(R.id.tvSkillCategory)
         private val distanceTextView = itemView.findViewById<TextView>(R.id.tvSkillDistance)
         private val priceTextView = itemView.findViewById<TextView>(R.id.tvSkillPrice)
+        private val contactButton = itemView.findViewById<Button>(R.id.btnContactSkillOwner)
 
         fun bind(skill: Skill) {
             titleTextView.text = skill.title
             categoryTextView.text = skill.category
             distanceTextView.text = skill.distanceKm?.let { "%.1f km".format(it) } ?: "Distanza non disponibile"
             priceTextView.text = skill.priceXmr?.let { "$it XMR" } ?: "Gratis"
+            contactButton.setOnClickListener { onContactClick(skill) }
         }
     }
 }

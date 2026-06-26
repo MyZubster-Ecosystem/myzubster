@@ -13,6 +13,11 @@ interface ChatApiService {
         @Path("userId") userId: String
     ): ChatsResponse
 
+    @POST("/api/chats/start")
+    suspend fun startChat(
+        @Body request: StartChatRequest
+    ): StartChatResponse
+
     @GET("/api/chats/{chatId}/messages")
     suspend fun getMessages(
         @Path("chatId") chatId: String
@@ -24,6 +29,20 @@ interface ChatApiService {
         @Body request: SendMessageRequest
     ): MessageResponse
 }
+
+data class StartChatRequest(
+    val requesterId: String,
+    val receiverId: String,
+    val skillId: String? = null
+)
+
+data class StartChatResponse(
+    val success: Boolean,
+    val message: String,
+    val chatId: String? = null,
+    val receiverId: String? = null,
+    val receiverName: String? = null
+)
 
 data class SendMessageRequest(
     val senderId: String,
