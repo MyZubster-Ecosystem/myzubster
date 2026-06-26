@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FAFAFA"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Crea competenza"
+            android:textColor="#212121"
+            android:textSize="26sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/etSkillTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:backgroundTint="#6200EE"
+            android:hint="Titolo"
+            android:inputType="textCapSentences"
+            android:padding="12dp"
+            android:textColor="#212121"
+            android:textColorHint="#757575" />
+
+        <EditText
+            android:id="@+id/etSkillDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="#6200EE"
+            android:gravity="top"
+            android:hint="Descrizione"
+            android:inputType="textMultiLine|textCapSentences"
+            android:minLines="4"
+            android:padding="12dp"
+            android:textColor="#212121"
+            android:textColorHint="#757575" />
+
+        <Spinner
+            android:id="@+id/spinnerCategory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:minHeight="48dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tvSkillTypeLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Tipo: Offerta"
+                android:textColor="#212121"
+                android:textSize="16sp" />
+
+            <Switch
+                android:id="@+id/switchSkillType"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Richiesta" />
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/etPriceXmr"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="#6200EE"
+            android:hint="Prezzo XMR opzionale"
+            android:inputType="numberDecimal"
+            android:padding="12dp"
+            android:textColor="#212121"
+            android:textColorHint="#757575" />
+
+        <EditText
+            android:id="@+id/etAddress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="#6200EE"
+            android:hint="Indirizzo"
+            android:inputType="textPostalAddress"
+            android:padding="12dp"
+            android:textColor="#212121"
+            android:textColorHint="#757575" />
+
+        <Button
+            android:id="@+id/btnCreateSkill"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:backgroundTint="#6200EE"
+            android:minHeight="48dp"
+            android:text="Salva competenza"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF" />
+
+    </LinearLayout>
+</ScrollView>

@@ -45,7 +45,7 @@ class LoginActivity : AppCompatActivity() {
         }
 
         registerLinkTextView.setOnClickListener {
-            startActivity(Intent().setClassName(this, "$packageName.RegisterActivity"))
+            startActivity(Intent(this, SignUpActivity::class.java))
         }
     }
 
@@ -58,6 +58,7 @@ class LoginActivity : AppCompatActivity() {
                     getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
                         .edit()
                         .putString(KEY_AUTH_TOKEN, response.token)
+                        .putString(KEY_USER_ID, response.user?.id)
                         .apply()
 
                     startActivity(Intent().setClassName(this@LoginActivity, "$packageName.MainActivity"))
@@ -83,5 +84,6 @@ class LoginActivity : AppCompatActivity() {
         private const val BASE_URL = "https://api.myzubster.com/"
         private const val PREFS_NAME = "myzubster_prefs"
         private const val KEY_AUTH_TOKEN = "auth_token"
+        private const val KEY_USER_ID = "user_id"
     }
 }
