@@ -11,4 +11,9 @@
         android:icon="@android:drawable/ic_input_add"
         android:title="Crea" />
 
+    <item
+        android:id="@+id/navProfileChat"
+        android:icon="@android:drawable/ic_dialog_email"
+        android:title="Chat" />
+
 </menu>

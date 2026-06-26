@@ -1,48 +1,34 @@
 package com.myzubster.network
 
-import com.myzubster.models.ChatSummary
 import com.myzubster.models.Message
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 
 interface ChatApiService {
-    @GET("/api/chats/user/{userId}")
-    suspend fun getUserChats(
-        @Path("userId") userId: String
-    ): ChatsResponse
-
-    @POST("/api/chats/start")
-    suspend fun startChat(
-        @Body request: StartChatRequest
-    ): StartChatResponse
-
-    @GET("/api/chats/{chatId}/messages")
-    suspend fun getMessages(
-        @Path("chatId") chatId: String
-    ): MessagesResponse
-
-    @POST("/api/chats/{chatId}/messages")
+    @POST("/api/messages")
     suspend fun sendMessage(
-        @Path("chatId") chatId: String,
         @Body request: SendMessageRequest
     ): MessageResponse
+
+    @GET("/api/messages/{userId}")
+    suspend fun getUserMessages(
+        @Path("userId") userId: String
+    ): MessagesResponse
+
+    @GET("/api/messages/{userId}/{otherUserId}")
+    suspend fun getChatMessages(
+        @Path("userId") userId: String,
+        @Path("otherUserId") otherUserId: String
+    ): MessagesResponse
+
+    @PUT("/api/messages/{messageId}/read")
+    suspend fun markMessageAsRead(
+        @Path("messageId") messageId: String
+    ): MessageResponse
 }
-
-data class StartChatRequest(
-    val requesterId: String,
-    val receiverId: String,
-    val skillId: String? = null
-)
-
-data class StartChatResponse(
-    val success: Boolean,
-    val message: String,
-    val chatId: String? = null,
-    val receiverId: String? = null,
-    val receiverName: String? = null
-)
 
 data class SendMessageRequest(
     val senderId: String,
@@ -60,10 +46,4 @@ data class MessagesResponse(
     val success: Boolean,
     val message: String,
     val messages: List<Message> = emptyList()
-)
-
-data class ChatsResponse(
-    val success: Boolean,
-    val message: String,
-    val chats: List<ChatSummary> = emptyList()
 )

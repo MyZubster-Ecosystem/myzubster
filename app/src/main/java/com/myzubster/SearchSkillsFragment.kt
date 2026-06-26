@@ -17,15 +17,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.myzubster.models.Skill
 import com.myzubster.network.ApiService
-import com.myzubster.network.ChatApiService
-import com.myzubster.network.StartChatRequest
 import kotlinx.coroutines.launch
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 class SearchSkillsFragment : Fragment() {
     private lateinit var apiService: ApiService
-    private lateinit var chatApiService: ChatApiService
     private lateinit var skillAdapter: SkillAdapter
 
     override fun onCreateView(
@@ -39,14 +36,12 @@ class SearchSkillsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val retrofit = Retrofit.Builder()
+        apiService = Retrofit.Builder()
             .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-
-        apiService = retrofit.create(ApiService::class.java)
-        chatApiService = retrofit.create(ChatApiService::class.java)
-        skillAdapter = SkillAdapter(onContactClick = ::startChatForSkill)
+            .create(ApiService::class.java)
+        skillAdapter = SkillAdapter(onContactClick = ::openChatForSkill)
 
         val categorySpinner = view.findViewById<Spinner>(R.id.spinnerSearchCategory)
         val radiusEditText = view.findViewById<EditText>(R.id.etSearchRadius)
@@ -94,7 +89,7 @@ class SearchSkillsFragment : Fragment() {
         }
     }
 
-    private fun startChatForSkill(skill: Skill) {
+    private fun openChatForSkill(skill: Skill) {
         val currentUserId = getCurrentUserId()
         if (currentUserId.isEmpty()) {
             Toast.makeText(requireContext(), "Effettua il login per contattare l'utente", Toast.LENGTH_SHORT).show()
@@ -106,44 +101,9 @@ class SearchSkillsFragment : Fragment() {
             return
         }
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            try {
-                val response = chatApiService.startChat(
-                    StartChatRequest(
-                        requesterId = currentUserId,
-                        receiverId = skill.userId,
-                        skillId = skill.id
-                    )
-                )
-
-                if (response.success && !response.chatId.isNullOrBlank()) {
-                    openChat(
-                        chatId = response.chatId,
-                        receiverId = response.receiverId ?: skill.userId,
-                        receiverName = response.receiverName ?: skill.title
-                    )
-                } else {
-                    Toast.makeText(
-                        requireContext(),
-                        response.message.ifBlank { "Impossibile avviare la chat" },
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            } catch (exception: Exception) {
-                Toast.makeText(
-                    requireContext(),
-                    "Errore apertura chat: ${exception.localizedMessage ?: "sconosciuto"}",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        }
-    }
-
-    private fun openChat(chatId: String, receiverId: String, receiverName: String) {
         val intent = Intent(requireContext(), ChatActivity::class.java).apply {
-            putExtra(ChatActivity.EXTRA_CHAT_ID, chatId)
-            putExtra(ChatActivity.EXTRA_RECEIVER_ID, receiverId)
-            putExtra(ChatActivity.EXTRA_RECEIVER_NAME, receiverName)
+            putExtra(ChatActivity.EXTRA_OTHER_USER_ID, skill.userId)
+            putExtra(ChatActivity.EXTRA_OTHER_USER_NAME, skill.title)
         }
         startActivity(intent)
     }

@@ -31,6 +31,13 @@ class MainActivity : AppCompatActivity() {
                     true
                 }
 
+                R.id.navProfileChat -> {
+                    supportFragmentManager.beginTransaction()
+                        .replace(R.id.mainFragmentContainer, ProfileFragment())
+                        .commit()
+                    true
+                }
+
                 else -> false
             }
         }

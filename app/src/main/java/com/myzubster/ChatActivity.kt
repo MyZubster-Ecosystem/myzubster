@@ -20,21 +20,23 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var messagesAdapter: MessagesAdapter
     private lateinit var messagesRecyclerView: RecyclerView
 
-    private lateinit var chatId: String
     private lateinit var currentUserId: String
-    private lateinit var receiverId: String
+    private lateinit var otherUserId: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat)
 
-        chatId = intent.getStringExtra(EXTRA_CHAT_ID).orEmpty()
-        receiverId = intent.getStringExtra(EXTRA_RECEIVER_ID).orEmpty()
-        val receiverName = intent.getStringExtra(EXTRA_RECEIVER_NAME) ?: "Chat"
         currentUserId = getCurrentUserId()
+        otherUserId = intent.getStringExtra(EXTRA_OTHER_USER_ID)
+            ?: intent.getStringExtra(EXTRA_RECEIVER_ID)
+            ?: DEFAULT_SUPPORT_USER_ID
+        val otherUserName = intent.getStringExtra(EXTRA_OTHER_USER_NAME)
+            ?: intent.getStringExtra(EXTRA_RECEIVER_NAME)
+            ?: "Chat"
 
-        if (chatId.isEmpty() || currentUserId.isEmpty() || receiverId.isEmpty()) {
-            Toast.makeText(this, "Dati chat mancanti", Toast.LENGTH_SHORT).show()
+        if (currentUserId.isEmpty()) {
+            Toast.makeText(this, "Effettua il login per usare la chat", Toast.LENGTH_SHORT).show()
             finish()
             return
         }
@@ -45,7 +47,7 @@ class ChatActivity : AppCompatActivity() {
             .build()
             .create(ChatApiService::class.java)
 
-        findViewById<TextView>(R.id.tvChatTitle).text = receiverName
+        findViewById<TextView>(R.id.tvChatTitle).text = otherUserName
 
         messagesAdapter = MessagesAdapter(currentUserId)
         messagesRecyclerView = findViewById(R.id.recyclerViewMessages)
@@ -74,9 +76,14 @@ class ChatActivity : AppCompatActivity() {
     private fun loadMessages() {
         lifecycleScope.launch {
             try {
-                val response = chatApiService.getMessages(chatId)
+                val response = chatApiService.getChatMessages(currentUserId, otherUserId)
                 if (response.success) {
                     messagesAdapter.submitList(response.messages)
+                    markUnreadMessagesAsRead(
+                        response.messages
+                            .filter { it.receiverId == currentUserId && !it.read }
+                            .map { it.id }
+                    )
                     scrollToLastMessage()
                 } else {
                     Toast.makeText(this@ChatActivity, response.message, Toast.LENGTH_SHORT).show()
@@ -95,10 +102,9 @@ class ChatActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 val response = chatApiService.sendMessage(
-                    chatId = chatId,
-                    request = SendMessageRequest(
+                    SendMessageRequest(
                         senderId = currentUserId,
-                        receiverId = receiverId,
+                        receiverId = otherUserId,
                         content = content
                     )
                 )
@@ -123,6 +129,14 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
+    private fun markUnreadMessagesAsRead(messageIds: List<String>) {
+        lifecycleScope.launch {
+            messageIds.forEach { messageId ->
+                runCatching { chatApiService.markMessageAsRead(messageId) }
+            }
+        }
+    }
+
     private fun scrollToLastMessage() {
         if (messagesAdapter.itemCount > 0) {
             messagesRecyclerView.scrollToPosition(messagesAdapter.itemCount - 1)
@@ -134,6 +148,10 @@ class ChatActivity : AppCompatActivity() {
     }
 
     companion object {
+        const val EXTRA_OTHER_USER_ID = "other_user_id"
+        const val EXTRA_OTHER_USER_NAME = "other_user_name"
+
+        // Compatibilita con il flusso precedente basato sulle card competenze.
         const val EXTRA_CHAT_ID = "chat_id"
         const val EXTRA_RECEIVER_ID = "receiver_id"
         const val EXTRA_RECEIVER_NAME = "receiver_name"
@@ -141,5 +159,6 @@ class ChatActivity : AppCompatActivity() {
         private const val BASE_URL = "https://api.myzubster.com/"
         private const val PREFS_NAME = "myzubster_prefs"
         private const val KEY_USER_ID = "user_id"
+        private const val DEFAULT_SUPPORT_USER_ID = "support"
     }
 }

@@ -7,6 +7,7 @@ import com.myzubster.models.SkillType
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -27,6 +28,27 @@ interface ApiService {
     suspend fun getUserSkills(
         @Path("userId") userId: String
     ): SkillsResponse
+
+    @POST("/api/messages")
+    suspend fun sendMessage(
+        @Body request: SendMessageRequest
+    ): MessageResponse
+
+    @GET("/api/messages/{userId}")
+    suspend fun getUserMessages(
+        @Path("userId") userId: String
+    ): MessagesResponse
+
+    @GET("/api/messages/{userId}/{otherUserId}")
+    suspend fun getChatMessages(
+        @Path("userId") userId: String,
+        @Path("otherUserId") otherUserId: String
+    ): MessagesResponse
+
+    @PUT("/api/messages/{messageId}/read")
+    suspend fun markMessageAsRead(
+        @Path("messageId") messageId: String
+    ): MessageResponse
 }
 
 data class CreateSkillRequest(
