@@ -27,10 +27,10 @@ class LoginActivity : AppCompatActivity() {
             .build()
             .create(UserApiService::class.java)
 
-        val emailEditText = findViewById<EditText>(R.id.emailEditText)
-        val passwordEditText = findViewById<EditText>(R.id.passwordEditText)
-        val loginButton = findViewById<Button>(R.id.loginButton)
-        val registerLinkTextView = findViewById<TextView>(R.id.registerLinkTextView)
+        val emailEditText = findViewById<EditText>(R.id.etEmail)
+        val passwordEditText = findViewById<EditText>(R.id.etPassword)
+        val loginButton = findViewById<Button>(R.id.btnLogin)
+        val registerLinkTextView = findViewById<TextView>(R.id.tvRegisterLink)
 
         loginButton.setOnClickListener {
             val email = emailEditText.text.toString().trim()
