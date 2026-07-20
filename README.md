@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🧩 MyZubster
 
 **Scambia competenze con i vicini, chatta in modo semplice e paga con Monero.**
@@ -247,3 +248,23 @@ Grazie ai progetti e alle librerie open-source che rendono possibile MyZubster:
 - GitHub e GitHub Releases
 
 E grazie a chi testerà, segnalerà bug, proporrà idee e contribuirà a far crescere MyZubster. 🚀
+=======
+# MyZubster – Ecosistema Open Source per lo Scambio di Servizi
+
+## Struttura
+- **backend-api**: Gateway API (Node.js + MongoDB)
+- **frontend-web**: Interfaccia utente web (React + Vite)
+- **marketplace**: Servizio di marketplace
+- **assets**: Risorse statiche
+- **mobile-app**: App React Native
+
+## Avvio rapido
+\`\`\`bash
+git clone --recursive git@github.com:DanielIoni-creator/MyZubster.git
+cd MyZubster
+# installa e avvia i componenti...
+\`\`\`
+
+## Licenza
+GPLv3
+>>>>>>> efbf83a3 (Struttura principale con submoduli)
