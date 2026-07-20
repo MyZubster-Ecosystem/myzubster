@@ -1,0 +1,6 @@
+[submodule "gateway"]
+	path = gateway
+	url = https://github.com/DanielIoni-creator/MyZubsterGateway.git
+[submodule "marketplace"]
+	path = marketplace
+	url = https://github.com/DanielIoni-creator/MyZubster-Marketplace.git
