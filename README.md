@@ -1,270 +1,78 @@
-<<<<<<< HEAD
-# 🧩 MyZubster
+# 🌍 MyZubster - Global Plant Map
 
-**Scambia competenze con i vicini, chatta in modo semplice e paga con Monero.**
+**Mapping Every Plant on Earth with Monero Blockchain**
 
-[![APK Download](https://img.shields.io/badge/APK-download-v1.0.0--beta-orange?style=for-the-badge&logo=android)](https://github.com/h4x0rmyzubster/MyZubsterh4x0r/releases/download/v1.0.0-beta/myzubster-reviews-test-debug.apk)
-[![Release](https://img.shields.io/badge/release-v1.0.0--beta-blue?style=for-the-badge&logo=github)](https://github.com/h4x0rmyzubster/MyZubsterh4x0r/releases/tag/v1.0.0-beta)
-[![License](https://img.shields.io/badge/license-Apache%202.0-green?style=for-the-badge)](#licenza)
-[![Build](https://img.shields.io/badge/build-Android%20%2B%20Node.js-success?style=for-the-badge)](#installazione-e-avvio)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Monero](https://img.shields.io/badge/Powered%20by-Monero-orange)](https://www.getmonero.org/)
 
-**Versione app:** 0.2.0  
-**Release GitHub:** v1.0.0-beta  
-**Ultimo aggiornamento:** 2026-06-29
+---
 
-## Cos'è MyZubster?
+## 🌱 What is MyZubster?
 
-MyZubster è un'app Android open-source per lo **scambio di competenze e servizi tra persone vicine**: riparazioni, lezioni, aiuto pratico, supporto digitale e molto altro.  
-L'app permette di pubblicare competenze, cercare servizi locali, chattare con altri utenti e gestire pagamenti tramite **Monero**, mantenendo la logica sensibile lato backend.
+MyZubster is the world's first decentralized, blockchain-based global plant map. Every plant registered becomes a permanent, verifiable record on the Monero blockchain.
 
-L'obiettivo è creare un piccolo marketplace locale, semplice e privacy-friendly, dove le persone possano aiutarsi e ricevere compensi in modo diretto.
+## ✨ Features
 
-## Download APK
+- 🌍 **Global Map** - See every registered plant worldwide
+- 🔗 **Blockchain Verified** - Immutable records on Monero
+- 💰 **Earn Rewards** - Get paid in XMR for registering and verifying plants
+- 🌿 **Conservation** - 5% of fees go to environmental projects
+- 📱 **Mobile Ready** - Register plants from anywhere
 
-Scarica la beta pubblicata su GitHub Releases:
+## 📊 Economics
 
-- [📦 Scarica MyZubster v1.0.0-beta APK](https://github.com/h4x0rmyzubster/MyZubsterh4x0r/releases/download/v1.0.0-beta/myzubster-reviews-test-debug.apk)
-- [🚀 Pagina release v1.0.0-beta](https://github.com/h4x0rmyzubster/MyZubsterh4x0r/releases/tag/v1.0.0-beta)
+| Fee Type | Percentage | Destination |
+|----------|------------|-------------|
+| Creator Fee | 2% | MyZubster platform creator |
+| Conservation Fund | 5% | Environmental projects |
+| Operations | 93% | Infrastructure, development |
 
-> Se stai leggendo una versione futura del README e l'asset APK non è ancora stato pubblicato, il badge resta un placeholder pronto per la release GitHub.
+## 💰 Creator Wallet
+45M4DW1ug8bdQowWpxucTpgsfjLbVxbYaAra79VewmBobuuhgqTjyD4R3DzpqLM2veiphcB16n24qN1QbLg3y2PYGK3Qkoe
 
-## ✨ Caratteristiche principali
+## 🚀 Getting Started
 
-- 🔐 **Autenticazione e profilo utente** — base utenti, registrazione token dispositivo e profilo con nome/nickname, zona, bio, competenze e wallet Monero opzionale.
-- 🛠️ **Competenze e servizi locali** — pubblica, cerca e visualizza competenze offerte da persone vicine, con prezzi in euro.
-- 📄 **Dettaglio servizio** — scheda competenza con descrizione, prezzo, informazioni venditore e azioni collegate.
-- 💬 **Chat integrata** — conversazione tra cliente e venditore, con possibilità di richiedere un pagamento dal flusso chat.
-- 🪙 **Pagamenti Monero** — checkout server-side con indirizzi one-shot, QR/URI, tracking conferme e commissione piattaforma configurabile.
-- ⭐ **Recensioni e reputazione** — rating e recensioni collegati agli utenti e ai servizi.
-- 🔔 **Notifiche push** — supporto Firebase Cloud Messaging per messaggi e conferme pagamento, quando configurato.
-- 🛡️ **Privacy-first** — wallet, credenziali e chiavi restano lato server; l'APK non deve contenere segreti.
-- 📣 **Banner sponsor** — spazi già predisposti per partner come Mullvad VPN e SimpleSwap.io.
+### Register a Plant
 
-## 🧰 Tecnologie utilizzate
+1. Find a plant/tree
+2. Take photos and note GPS coordinates
+3. Register on MyZubster platform
+4. Pay registration fee in XMR
+5. Plant appears on global map!
 
-- **Kotlin / Android** — app mobile nativa.
-- **Android Studio / Gradle** — sviluppo e build APK.
-- **Node.js / Express** — backend REST.
-- **MongoDB / Mongoose** — persistenza dati per utenti, messaggi, recensioni e transazioni.
-- **Monero / monero-wallet-rpc / MoneroPay** — pagamenti privacy-friendly gestiti server-side.
-- **Firebase Cloud Messaging** — notifiche push.
-- **Retrofit / OkHttp** — comunicazione HTTP dall'app Android.
-- **ZXing** — supporto QR code per pagamenti.
+## 🌱 Sant'Aquilina Field Project
 
-## 📸 Screenshot / Demo
+We're building a permaculture + training + coexistence project on a private field in Sant'Aquilina.
 
-> Placeholder per immagini future.
+**Goal:** €40,000
 
-| Home / Ricerca | Profilo | Pagamento Monero |
-| --- | --- | --- |
-| _Screenshot in arrivo_ | _Screenshot in arrivo_ | _Screenshot in arrivo_ |
+**How to contribute:**
+- 💰 Donate Monero (XMR): `45M4DW1ug8bdQ...`
+- 🌱 Register a plant on MyZubster
+- 🤝 Become a collaborator
 
-Suggerimento per il futuro:
+**Learn more:** [docs/field/FIELD.md](docs/field/FIELD.md)
 
-```text
-docs/screenshots/home.png
-docs/screenshots/profile.png
-docs/screenshots/payment.png
-```
+## 🏠 Housing Support
 
-## 🚀 Installazione e avvio
+The creator is currently searching for affordable housing in Rimini (peak season).
 
-### 1. Clonare il repository
+**Budget:** €400-€500/month
 
-```bash
-git clone https://github.com/h4x0rmyzubster/MyZubsterh4x0r.git
-cd MyZubsterh4x0r
-```
+**If you can help:** [docs/housing/HOUSING.md](docs/housing/HOUSING.md)
 
-Se stai lavorando sulla struttura locale attuale:
+## 🤝 Contribute
 
-```powershell
-cd C:\Users\user\Desktop\MyZubster\MyZubster
-```
+We welcome:
+- 🌳 Plant registrations
+- 👨‍💻 Code contributions
+- 💰 Donations to conservation fund
+- 🗺️ Mapping assistance
 
-### 2. Configurare il backend
+## 📄 License
 
-Entra nella cartella backend:
+MIT - Free for everyone to use.
 
-```bash
-cd backend
-```
+---
 
-Installa le dipendenze:
-
-```bash
-npm install
-```
-
-Crea il file `.env` partendo dall'esempio:
-
-```bash
-cp .env.example .env
-```
-
-Su Windows PowerShell:
-
-```powershell
-Copy-Item .env.example .env
-```
-
-Configura almeno queste variabili:
-
-```env
-PORT=3000
-MONGODB_URI=mongodb://localhost:27017/myzubster
-MONERO_WALLET_RPC_URL=http://127.0.0.1:38082/json_rpc
-MONERO_NODE_URL=http://127.0.0.1:18081/json_rpc
-PAYMENT_PLATFORM_FEE_RATE=0.02
-PLATFORM_FEE_WALLET_ADDRESS=
-FIREBASE_SERVICE_ACCOUNT_PATH=
-FIREBASE_SERVICE_ACCOUNT_JSON=
-```
-
-Controlla la sintassi:
-
-```bash
-npm run check
-```
-
-Avvia il backend:
-
-```bash
-npm start
-```
-
-Il backend parte di default su:
-
-```text
-http://localhost:3000
-```
-
-> Importante: non committare mai `.env`, wallet reali, seed phrase, token o credenziali RPC.
-
-### 3. Aprire l'app Android
-
-1. Apri **Android Studio**.
-2. Seleziona **Open**.
-3. Apri la root del progetto MyZubster.
-4. Attendi la sincronizzazione Gradle.
-
-Controlla l'URL API in `app/build.gradle`:
-
-```gradle
-buildConfigField 'String', 'API_BASE_URL', '"http://10.0.2.2:3000"'
-```
-
-- Usa `10.0.2.2` con l'emulatore Android.
-- Usa l'IP LAN del PC se installi l'app su un telefono fisico.
-
-### 4. Collegare dispositivo o usare emulatore
-
-**Emulatore Android:**
-
-1. Apri Device Manager in Android Studio.
-2. Crea o avvia un dispositivo virtuale.
-3. Premi Run sull'app.
-
-**Telefono fisico Android:**
-
-1. Abilita **Opzioni sviluppatore**.
-2. Abilita **Debug USB**.
-3. Collega il telefono via USB.
-4. Autorizza il PC sul telefono.
-5. Verifica con:
-
-```bash
-adb devices
-```
-
-### 5. Compilare APK manualmente
-
-Da root progetto:
-
-```bash
-./gradlew assembleDebug
-```
-
-Su Windows:
-
-```powershell
-.\gradlew.bat assembleDebug
-```
-
-APK generato:
-
-```text
-app/build/outputs/apk/debug/app-debug.apk
-```
-
-Installazione via ADB:
-
-```bash
-adb install -r app/build/outputs/apk/debug/app-debug.apk
-```
-
-## 🤝 Come contribuire
-
-MyZubster è un progetto **open-source**: contributi, bug report, idee e miglioramenti sono benvenuti.
-
-- Guida rapida: [CONTRIBUTING.md](CONTRIBUTING.md)
-- Guida estesa: [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md)
-- Strategia marketing/social: [docs/social-media-strategy.md](docs/social-media-strategy.md)
-
-In breve:
-
-1. Fai fork del repository.
-2. Crea un branch dedicato.
-3. Fai commit chiari e piccoli.
-4. Esegui i check backend/app.
-5. Apri una Pull Request spiegando cosa cambia e come hai testato.
-
-## 🔐 Note di sicurezza
-
-- Non mettere wallet reali o chiavi private nell'app Android.
-- Non committare `.env`, service account Firebase, token API o credenziali RPC.
-- I pagamenti Monero devono restare gestiti lato backend.
-- Se trovi un problema di sicurezza, non aprire una Issue pubblica con dettagli sensibili: contatta prima il maintainer.
-
-## 📜 Licenza
-
-Questo progetto è distribuito con licenza **Apache License 2.0**.
-
-```text
-Copyright 2026 MyZubster
-Licensed under the Apache License, Version 2.0
-```
-
-## 🙏 Ringraziamenti
-
-Grazie ai progetti e alle librerie open-source che rendono possibile MyZubster:
-
-- Android, Kotlin e Gradle
-- Node.js ed Express
-- MongoDB e Mongoose
-- Monero, monero-wallet-rpc e MoneroPay
-- Firebase Cloud Messaging
-- Retrofit, OkHttp e ZXing
-- GitHub e GitHub Releases
-
-E grazie a chi testerà, segnalerà bug, proporrà idee e contribuirà a far crescere MyZubster. 🚀
-=======
-# MyZubster – Ecosistema Open Source per lo Scambio di Servizi
-
-## Struttura
-- **backend-api**: Gateway API (Node.js + MongoDB)
-- **frontend-web**: Interfaccia utente web (React + Vite)
-- **marketplace**: Servizio di marketplace
-- **assets**: Risorse statiche
-- **mobile-app**: App React Native
-
-## Avvio rapido
-\`\`\`bash
-git clone --recursive git@github.com:DanielIoni-creator/MyZubster.git
-cd MyZubster
-# installa e avvia i componenti...
-\`\`\`
-
-## Licenza
-GPLv3
->>>>>>> efbf83a3 (Struttura principale con submoduli)
+**Built with ❤️ for the planet by DanielIoni-creator**
