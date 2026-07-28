@@ -1,0 +1,38 @@
+{
+  "name": "myzubster",
+  "version": "1.0.0",
+  "description": "MyZubster - Global Plant and Pet Map on Monero Blockchain",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "test": "jest",
+    "test:agents": "jest tests/agents/agents.test.js --transformIgnorePatterns 'node_modules/(?!(@jest|jest-)?)'",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "dotenv": "^16.3.1",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.2"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "transform": {}
+  },
+  "keywords": [
+    "monero",
+    "blockchain",
+    "plants",
+    "pets",
+    "ai",
+    "gemma-skills",
+    "sustainability"
+  ],
+  "author": "DanielIoni-creator",
+  "license": "MIT"
+}
