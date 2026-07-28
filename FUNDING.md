@@ -34,3 +34,15 @@
 | **Amount** | 0.06 XMR |
 | **TX ID** | `9ea22377ce9b4713dc16e89e991fd7f23c5069324d5a129dfa567f18f0bf2612` |
 | **Status** | ✅ Completato |
+
+### Payout to terminator-cmd - PR #12 & #50
+
+| Dato | Valore |
+|------|--------|
+| **Data** | 2026-07-28 |
+| **Contributor** | terminator-cmd |
+| **PR** | #12, #50 |
+| **Lavoro** | Token Balances, Webhook System |
+| **Amount** | 0.11 XMR |
+| **TX ID** | `e9c905f0eda2aeb901f563c7f38ff54e2ec30bd8c8eba453b589dd8cc8979432` |
+| **Status** | ✅ Completato |
