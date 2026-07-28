@@ -10,3 +10,6 @@
 [submodule "app"]
     path = app
     url = https://github.com/DanielIoni-creator/MyZubster-App.git
+[submodule "docs"]
+	path = docs
+	url = https://github.com/DanielIoni-creator/myzubster-docs.git
