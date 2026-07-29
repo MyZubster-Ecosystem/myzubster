@@ -46,3 +46,15 @@
 | **Amount** | 0.11 XMR |
 | **TX ID** | `e9c905f0eda2aeb901f563c7f38ff54e2ec30bd8c8eba453b589dd8cc8979432` |
 | **Status** | ✅ Completato |
+
+### Payout to terminator-cmd - PR #14
+
+| Dato | Valore |
+|------|--------|
+| **Data** | 2026-07-29 |
+| **Contributor** | terminator-cmd |
+| **PR** | #14 |
+| **Lavoro** | Monero Wallet RPC Integration |
+| **Amount** | 0.08 XMR |
+| **TX ID** | `576ffd4f754d55f0216d8361f985598bcfd09ff070ac3c8bb77b0a4d0f489628` |
+| **Status** | ✅ Completato |
