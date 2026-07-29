@@ -4,3 +4,4 @@ node_modules/
 .env*
 Downloading
 Overwriting
+frontend/build/
