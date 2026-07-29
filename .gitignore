@@ -1,2 +1,6 @@
 tari-nft-template/
 node_modules/
+.vercel
+.env*
+Downloading
+Overwriting
