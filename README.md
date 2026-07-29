@@ -1,61 +1,68 @@
-# 🌍 MyZubster
+# 🌱 MyZubster
 
-**Decentralized Ecosystem for Animal & Plant Registration on Monero Blockchain**
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Monero](https://img.shields.io/badge/Powered%20by-Monero-orange)](https://www.getmonero.org/)
-[![Status](https://img.shields.io/badge/Status-Alpha-yellow)](https://github.com/MyZubster-Ecosystem/myzubster)
+**Decentralized ecosystem for plant mapping, privacy-first payments, and human-centered AI.**
 
 ---
 
-## 📌 What is MyZubster?
+## 🌍 What is MyZubster?
 
-MyZubster is a **decentralized ecosystem** for registering and verifying **animals and plants** on the **Monero (XMR) blockchain**. Every registration becomes a permanent, verifiable record.
+MyZubster is an open-source ecosystem that combines three pillars:
 
-**Status:** Alpha - Active development. Features may change.
+- **🌿 Global Plant Map** – a participatory, verified map of plants around the world.
+- **🔒 Monero Payments** – privacy-first, feeless microtransactions for everyone.
+- **🤖 Human-Controlled AI** – AI as a tool, not a master.
+
+It is built for people who believe in a better, more transparent, and decentralized future.
 
 ---
 
-## 🚀 Quick Start
+## 🧱 Architecture
 
-```bash
-# Clone
-git clone git@github.com:MyZubster-Ecosystem/myzubster.git
-cd myzubster
+The ecosystem is composed of several services:
 
-# Backend
-cd backend && npm install && npm start
+| Component | Description | Tech Stack | Repo |
+|-----------|-------------|------------|------|
+| **Gateway** | Monero payment processor & API orchestrator | Node.js, Express, MongoDB, Monero RPC | [MyZubsterGateway](https://github.com/DanielIoni-creator/MyZubsterGateway) |
+| **Marketplace** | User-facing platform for plants, orders, and reputation | Node.js, SQLite | [MyZubster-Marketplace](https://github.com/DanielIoni-creator/MyZubster-Marketplace) |
+| **Mobile App** | Android app for plant mapping and payments | React Native / Kotlin | [MyZubster-App](https://github.com/DanielIoni-creator/MyZubster-App) |
+| **Web App** | React/Vite frontend for desktop users | React, Vite, Tailwind | [MyZubsterWeb](https://github.com/DanielIoni-creator/MyZubsterWeb) |
+| **Docs** | Centralized documentation for developers and users | Markdown, VitePress | [myzubster-docs](https://github.com/DanielIoni-creator/myzubster-docs) |
+| **Animal Registry** | Decentralized animal registry on blockchain | (Tari/Blockchain) | [myzubster-animal-registry](https://github.com/DanielIoni-creator/myzubster-animal-registry) |
+| **Animal Map** | Interactive map for animal registry | (Map/Visualization) | [myzubster-animal-map](https://github.com/DanielIoni-creator/myzubster-animal-map) |
 
-# Frontend
-cd frontend && npm install && npm start📊 Economics
+---
 
-Registration is FREE.
-Fund Allocation
-Destination	Percentage
-Bounties	90%
-Infrastructure	5%
-Conservation	5%
-Donate
+## 🚀 Getting Started
 
-Wallet: 45M4DW1ug8bdQowWpxucTpgsfjLbVxbYaAra79VewmBobuuhgqTjyD4R3DzpqLM2veiphcB16n24qN1QbLg3y2PYGK3Qkoe
-🤖 About This Project
+Each component has its own README with setup instructions. Start with the [Gateway](https://github.com/DanielIoni-creator/MyZubsterGateway) for the core payment system.
 
-    Nature: Partially developed and maintained by an AI agent alongside human contributors.
+---
 
-    Status: Alpha - Active development.
+## 🤝 How to Contribute
 
-    Bounties: Real Monero (XMR) payments.
+We welcome all kinds of contributions:
 
-    Transparency: All transactions are public.
+- 💻 **Code** – fix bugs, add features, improve performance
+- 🌿 **Data** – report plants, verify entries, expand the map
+- 🗣️ **Outreach** – write articles, talk about the project, bring new users
+- 💰 **Donations** – support development via Monero (address in the Gateway repo)
 
-🔗 Repositories
-Project	Link
-MyZubster (Monorepo)	→ GitHub
-MyZubster Gateway	→ GitHub
-Animal Registry	→ GitHub
-Animal Map	→ GitHub
-📄 License
+Check the [issues](https://github.com/DanielIoni-creator/MyZubsterGateway/issues) and the [roadmap](https://github.com/users/DanielIoni-creator/projects/1) to see where help is needed.
 
-MIT – Free for everyone to use and modify.
+---
 
-Built with ❤️ for the planet by DanielIoni-creator
+## 📜 License
+
+All components are licensed under the **MIT License** – free for everyone to use, modify, and distribute.
+
+---
+
+## 🙏 Support & Contact
+
+- **GitHub**: [DanielIoni-creator](https://github.com/DanielIoni-creator)
+- **Project Board**: [Roadmap](https://github.com/users/DanielIoni-creator/projects/1)
+- **Issues**: [Report a bug](https://github.com/DanielIoni-creator/MyZubsterGateway/issues)
+
+---
+
+*Built with ❤️ and ☕ by Daniel Ioni, with the help of the open-source community.*
