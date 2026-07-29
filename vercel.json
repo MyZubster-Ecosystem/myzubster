@@ -13,8 +13,5 @@
       "src": "/(.*)",
       "dest": "/frontend/build/$1"
     }
-  ],
-  "env": {
-    "REACT_APP_API_URL": "http://188.213.161.186:3002"
-  }
+  ]
 }
