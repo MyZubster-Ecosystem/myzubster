@@ -66,3 +66,8 @@ All components are licensed under the **MIT License** – free for everyone to u
 ---
 
 *Built with ❤️ and ☕ by Daniel Ioni, with the help of the open-source community.*
+
+
+## 💬 Community
+
+- **Telegram**: [@MyZubster_bot](https://t.me/MyZubster_bot) – for updates, support, and discussions.
