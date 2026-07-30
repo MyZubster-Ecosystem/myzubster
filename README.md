@@ -1,3 +1,8 @@
+![License](https://img.shields.io/github/license/MyZubster-Ecosystem/myzubster)
+![Stars](https://img.shields.io/github/stars/MyZubster-Ecosystem/myzubster)
+![Issues](https://img.shields.io/github/issues/MyZubster-Ecosystem/myzubster)
+![Last Commit](https://img.shields.io/github/last-commit/MyZubster-Ecosystem/myzubster)
+
 # 🌱 MyZubster
 
 **Decentralized ecosystem for plant mapping, privacy-first payments, and human-centered AI.**
