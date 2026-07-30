@@ -85,3 +85,5 @@ All components are licensed under the **MIT License** – free for everyone to u
 ## 💬 Community
 
 - **Telegram Channel**: [@myzubster](https://t.me/myzubster) – follow for updates, news, and discussions about the MyZubster ecosystem.
+
+[![CI](https://github.com/laurentketterle-hub/myzubster/actions/workflows/ci.yml/badge.svg)](https://github.com/laurentketterle-hub/myzubster/actions)
