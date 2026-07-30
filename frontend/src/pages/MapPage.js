@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PlantMap from '../components/Map/PlantMap';
-import { getPlants } from '../api/plants';
+import { getPlants, searchPlantsByArea } from '../api/plants';
 
 const MapPage = () => {
   const [plants, setPlants] = useState([]);
@@ -11,22 +11,37 @@ const MapPage = () => {
     size: '',
     status: 'verified'
   });
+  const [addressSearch, setAddressSearch] = useState('');
+  const [searchMode, setSearchMode] = useState('filters'); // 'filters' | 'address'
 
   useEffect(() => {
     fetchPlants();
-  }, [filters]);
+  }, [filters, addressSearch, searchMode]);
 
   const fetchPlants = async () => {
     setLoading(true);
     try {
-      const data = await getPlants(filters);
-      setPlants(data.plants || []);
+      let data;
+      if (searchMode === 'address' && addressSearch.trim()) {
+        data = await searchPlantsByArea(addressSearch.trim());
+        setPlants(data.plants || []);
+      } else {
+        data = await getPlants(filters);
+        setPlants(data.plants || []);
+      }
       setError(null);
     } catch (err) {
       setError('Failed to load plants');
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleAddressSearch = () => {
+    if (addressSearch.trim()) {
+      setSearchMode('address');
+      // Trigger fetch via useEffect dependency
     }
   };
 
@@ -67,6 +82,14 @@ const MapPage = () => {
           value={filters.species}
           onChange={(e) => handleFilterChange('species', e.target.value)}
           style={{ padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
+        />
+        <input
+          type="text"
+          placeholder="Cerca per indirizzo, quartiere o città..."
+          value={addressSearch}
+          onChange={(e) => { setAddressSearch(e.target.value); setSearchMode('address'); }}
+          onKeyDown={(e) => e.key === 'Enter' && fetchPlants()}
+          style={{ padding: '8px', border: '1px solid #4CAF50', borderRadius: '4px', flex: 1, minWidth: '200px' }}
         />
         <select
           value={filters.size}

@@ -12,6 +12,11 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 
+// Plant routes (geolocalizzazione)
+const plantRoutes = require('./routes/plants');
+app.use('/api/plants', plantRoutes);
+
+
 mongoose
   .connect(mongoUri)
   .then(() => {
