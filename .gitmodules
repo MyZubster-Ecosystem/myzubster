@@ -5,5 +5,5 @@
         path = marketplace
         url = https://github.com/DanielIoni-creator/MyZubster-Marketplace.git
 [submodule "docs"]
-        path = docs
-        url = https://github.com/MyZubster-Ecosystem/myzubster-docs.git
+	path = docs
+	url = https://github.com/MyZubster-Ecosystem/myzubster-docs.git

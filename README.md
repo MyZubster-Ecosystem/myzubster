@@ -269,3 +269,25 @@ La documentazione completa di MyZubster è disponibile nel repository [myzubster
 
 ### Template
 - [Template orto comunitario](docs/guides/TEMPLATE_ORTO_COMUNITARIO.md) - Setup e gestione
+
+## 📚 Documentazione
+
+La documentazione completa di MyZubster è disponibile nella cartella `docs/`.
+
+### Guide
+- [Guida pratica per l'uso dell'orto intelligente](docs/guides/GUIDA_ORTO_INTELLIGENTE.md) - IT/EN
+
+### Educazione
+- [Piano didattico per scuole](docs/education/PIANO_DIDATTICO_SCUOLE.md) - Programma STEM (11-18 anni)
+- [Progetto orti scolastici](docs/education/PROGETTO_ORTI_SCOLASITICI.md) - Toolkit sostenibile
+
+### Ricerca
+- [Protocollo di validazione sensori](docs/research/PROTOCOLLO_VALIDAZIONE.md) - Validazione scientifica
+
+### Template
+- [Template orto comunitario](docs/guides/TEMPLATE_ORTO_COMUNITARIO.md) - Setup e gestione
+
+### Altri documenti
+- [AI Contract](docs/AI_CONTRACT.md)
+- [Bot Contract](docs/BOT_CONTRACT.md)
+- [Documenti legali](docs/legal/)
