@@ -1,24 +1,29 @@
 /**
- * MyZubster AI Agents
- *
- * Powered by Google's Gemma Skills framework
- * Specialized agents for plants, pets, payments, and verification
+ * MyZubster AI Agents Index
+ * 
+ * This file exports all AI agents for the MyZubster system.
+ * Agents are organized by functionality:
+ * - PlantAgent: Plant identification and monitoring
+ * - PetAgent: Animal/NFC tracking and health monitoring
+ * - PaymentAgent: XMR transaction processing
+ * - VerificationAgent: Community verification and voting
+ * - NotificationAgent: Multi-channel notifications (Slack/Telegram)
  */
 
-const AgentOrchestrator = require('./orchestrator/agentOrchestrator');
-const LongTermMemory = require('./memory/longTermMemory');
+// Import agents
 const PlantAgent = require('./skills/plantAgent');
 const PetAgent = require('./skills/petAgent');
 const PaymentAgent = require('./skills/paymentAgent');
 const VerificationAgent = require('./skills/verificationAgent');
 const NotificationAgent = require('./skills/notificationAgent');
+const AgentOrchestrator = require('./orchestrator/agentOrchestrator');
 
+// Export all agents
 module.exports = {
-  AgentOrchestrator,
-  LongTermMemory,
   PlantAgent,
   PetAgent,
   PaymentAgent,
   VerificationAgent,
-  NotificationAgent
+  NotificationAgent,
+  AgentOrchestrator
 };

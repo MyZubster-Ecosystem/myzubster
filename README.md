@@ -1,126 +1,171 @@
-# 🌱 MyZubster
+ 🌱 MyZubster - AI Automation System
 
-**Decentralized ecosystem for plant mapping, privacy-first payments, and human-centered AI.**
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Node.js](https://img.shields.io/badge/Node.js-20.x-green.svg)](https://nodejs.org/)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
 
----
+## 📋 Overview
 
-## 🌍 What is MyZubster?
+MyZubster is an AI-powered automation system for managing bounties, issues, and notifications across GitHub, Telegram, and Slack. It uses intelligent agents to analyze, prioritize, and process tasks.
 
-MyZubster is an open-source ecosystem that combines three pillars:
+## 🚀 Features
 
-- **🌿 Global Plant Map** – a participatory, verified map of plants around the world.
-- **🔒 Monero Payments** – privacy-first, feeless microtransactions for everyone.
-- **🤖 Human-Controlled AI** – AI as a tool, not a master.
+- **AI Orchestrator**: Intelligent task routing and queue management
+- **Multi-Agent System**: Plant, Pet, Payment, Verification agents
+- **Notification System**: Multi-channel (Telegram + Slack) with automatic fallback
+- **Dashboard**: Real-time monitoring of services and issues
+- **GitHub Integration**: Automatic issue analysis and processing
+- **Monero (XMR) Support**: Payment processing and bounty management
+- **Long-Term Memory**: TTL-aware cache with store/retrieve/query operations
 
-It is built for people who believe in a better, more transparent, and decentralized future.
+## 📦 Installation
 
----
+### Prerequisites
+- Node.js 20.x
+- MongoDB 6.x
+- Git
 
-## 🧱 Architecture
-
-The ecosystem is composed of several services:
-
-| Component | Description | Tech Stack | Repo |
-|-----------|-------------|------------|------|
-| **Gateway** | Monero payment processor & API orchestrator | Node.js, Express, MongoDB, Monero RPC | [MyZubsterGateway](https://github.com/DanielIoni-creator/MyZubsterGateway) |
-| **Marketplace** | User-facing platform for plants, orders, and reputation | Node.js, SQLite | [MyZubster-Marketplace](https://github.com/DanielIoni-creator/MyZubster-Marketplace) |
-| **Mobile App** | Android app for plant mapping and payments | React Native / Kotlin | [MyZubster-App](https://github.com/DanielIoni-creator/MyZubster-App) |
-| **Web App** | React/Vite frontend for desktop users | React, Vite, Tailwind | [MyZubsterWeb](https://github.com/DanielIoni-creator/MyZubsterWeb) |
-| **Docs** | Centralized documentation for developers and users | Markdown, VitePress | [myzubster-docs](https://github.com/DanielIoni-creator/myzubster-docs) |
-| **Animal Registry** | Decentralized animal registry on blockchain | (Tari/Blockchain) | [myzubster-animal-registry](https://github.com/DanielIoni-creator/myzubster-animal-registry) |
-| **Animal Map** | Interactive map for animal registry | (Map/Visualization) | [myzubster-animal-map](https://github.com/DanielIoni-creator/myzubster-animal-map) |
-
----
-
-## 🚀 Getting Started
-
-Each component has its own README with setup instructions. Start with the [Gateway](https://github.com/DanielIoni-creator/MyZubsterGateway) for the core payment system.
-
----
-
-## 🤝 How to Contribute
-
-We welcome all kinds of contributions:
-
-- 💻 **Code** – fix bugs, add features, improve performance
-- 🌿 **Data** – report plants, verify entries, expand the map
-- 🗣️ **Outreach** – write articles, talk about the project, bring new users
-- 💰 **Donations** – support development via Monero (address in the Gateway repo)
-
-Check the [issues](https://github.com/DanielIoni-creator/MyZubsterGateway/issues) and the [roadmap](https://github.com/users/DanielIoni-creator/projects/1) to see where help is needed.
-
----
-
-## 📜 License
-
-All components are licensed under the **MIT License** – free for everyone to use, modify, and distribute.
-
----
-
-## 🙏 Support & Contact
-
-- **GitHub**: [DanielIoni-creator](https://github.com/DanielIoni-creator)
-- **Project Board**: [Roadmap](https://github.com/users/DanielIoni-creator/projects/1)
-- **Issues**: [Report a bug](https://github.com/DanielIoni-creator/MyZubsterGateway/issues)
-
----
-
-*Built with ❤️ and ☕ by Daniel Ioni, with the help of the open-source community.*
-
-
-## 💬 Community
-
-- **Telegram**: [@MyZubster_bot](https://t.me/MyZubster_bot) – for updates, support, and discussions.
-- **Slack**: [myzubster-updates](https://myzubster.slack.com) – join for real-time notifications and contributor chat.
-
-## 🔔 Notifications
-
-MyZubster supports **Slack** and **Telegram** notifications for AI Automation events.
-
-### Slack setup
-
-1. Create an **Incoming Webhook** in your Slack workspace.
-2. Set the environment variable:
+### Setup
 
 ```bash
-export SLACK_WEBHOOK_URL="https://hooks.slack.com/services/T.../B.../xxx"
-```
+# Clone the repository
+git clone https://github.com/MyZubster-Ecosystem/myzubster.git
+cd myzubster
 
-### Telegram setup
+# Install dependencies
+npm install
+cd backend && npm install
+cd ../services/ai-automation && npm install
 
-1. Create a bot with [@BotFather](https://t.me/BotFather) and set:
+# Configure environment
+cp .env.example .env
+cp backend/.env.example backend/.env
+cp services/ai-automation/.env.example services/ai-automation/.env
 
-```bash
-export TELEGRAM_BOT_TOKEN="123456:ABC-DEF..."
-export TELEGRAM_CHAT_ID="123456789"
-```
+# Start the system
+./start-backend.sh
 
-### Channel selection
+⚙️ Configuration
+Environment Variables
+env
 
-- If `SLACK_WEBHOOK_URL` is set, **Slack** is the default channel.
-- Otherwise, if Telegram env vars are set, **Telegram** is used.
-- You can also force a channel in code:
+# Server
+PORT=3009
+NODE_ENV=development
 
-```js
-const { NotificationAgent } = require('./src/agents');
+# MongoDB
+MONGODB_URI=mongodb://localhost:27017/myzubster
 
-const notifier = new NotificationAgent();
-await notifier.send('Build completata', { channel: 'slack' });
-await notifier.sendTelegram('Attenzione: errore');
-```
+# Telegram (fallback channel)
+TELEGRAM_BOT_TOKEN=your_bot_token
+TELEGRAM_CHAT_ID=your_chat_id
 
-When no channel is configured, notifications are logged and skipped without crashing the caller.
+# Slack (preferred channel)
+SLACK_WEBHOOK_URL=https://hooks.slack.com/services/...
 
+# GitHub
+GITHUB_TOKEN=your_github_token
+GITHUB_REPO=MyZubster-Ecosystem/myzubster
 
-## 🌐 Connect with Us
+# Monero (XMR)
+XMR_WALLET_ADDRESS=your_wallet_address
+XMR_RPC_URL=http://localhost:18081
 
-- **Telegram**: [@MyZubster_bot](https://t.me/MyZubster_bot) – updates, support, and discussions
-- **Twitter / X**: [@DanielIoni](https://twitter.com/DanielIoni) – project announcements and thoughts
-- **TikTok**: [@danielioni](https://tiktok.com/@danielioni) – behind the scenes and project updates
-- **Instagram**: [@danielioni](https://instagram.com/danielioni) – visuals and community stories
-- **dev.to**: [Daniel Ioni](https://dev.to/danielioni) – technical articles and project updates
+📚 Documentation
 
+Complete API documentation is available in the docs/ directory:
 
-## 💬 Community
+    API Reference
 
-- **Telegram Channel**: [@myzubster](https://t.me/myzubster) – follow for updates, news, and discussions about the MyZubster ecosystem.
+    AI Contract
+
+    Bot Contract
+
+🏗️ Architecture
+text
+
+┌─────────────────────────────────────────────────────────────┐
+│                    MyZubster System                        │
+├─────────────────────────────────────────────────────────────┤
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐│
+│  │   Express   │  │  AI        │  │   Notification      ││
+│  │   Backend   │  │Orchestrator│  │   System            ││
+│  │   Port 3009 │  │            │  │   (Slack/Telegram)  ││
+│  └─────────────┘  └─────────────┘  └─────────────────────┘│
+│         │              │                      │           │
+│  ┌──────▼──────┐  ┌────▼────┐  ┌────────────▼──────────┐│
+│  │  MongoDB   │  │ Agents  │  │  GitHub Integration   ││
+│  │  Database  │  │ Plant   │  │  (Issues/Bounties)    ││
+│  └────────────┘  │ Pet     │  └────────────────────────┘│
+│                  │ Payment │                              │
+│                  │Verific. │                              │
+│                  └─────────┘                              │
+└─────────────────────────────────────────────────────────────┘
+
+🧪 Testing
+bash
+
+# Run all tests
+npm test
+
+# Run backend tests
+cd backend && npm test
+
+# Run AI Automation tests
+cd services/ai-automation && npm test
+
+# Run dashboard tests
+node backend/test-dashboard.js
+
+📊 Dashboard
+
+Access the dashboard at: http://localhost:3009/dashboard
+
+The dashboard shows:
+
+    Service status (Telegram, Slack, GitHub, AI, MongoDB)
+
+    Recent issues
+
+    Active bounties
+
+    System statistics
+
+🤝 Contributing
+
+We welcome contributions! Please see:
+
+    Contributing Guide
+
+    Code of Conduct
+
+Development Workflow
+
+    Fork the repository
+
+    Create a feature branch (git checkout -b feat/amazing-feature)
+
+    Commit changes (git commit -m 'Add amazing feature')
+
+    Push to branch (git push origin feat/amazing-feature)
+
+    Open a Pull Request
+
+📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+🙏 Acknowledgments
+
+    Contributors and maintainers
+
+    Open-source community
+
+    All MyZubster users
+
+📞 Contact
+
+    GitHub: @MyZubster-Ecosystem
+
+    Telegram: @MyZubsterBot
+
+Built with ❤️ by the MyZubster Team

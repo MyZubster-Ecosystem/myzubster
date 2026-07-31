@@ -1,15 +1,6 @@
-[submodule "assets"]
-    path = assets
-    url = https://github.com/DanielIoni-creator/myzubster-assets.git
 [submodule "gateway"]
-    path = gateway
-    url = https://github.com/DanielIoni-creator/MyZubsterGateway.git
+        path = gateway
+        url = https://github.com/DanielIoni-creator/MyZubsterGateway.git
 [submodule "marketplace"]
-    path = marketplace
-    url = https://github.com/DanielIoni-creator/MyZubster-Marketplace.git
-[submodule "app"]
-    path = app
-    url = https://github.com/DanielIoni-creator/MyZubster-App.git
-[submodule "docs"]
-	path = docs
-	url = https://github.com/DanielIoni-creator/myzubster-docs.git
+        path = marketplace
+        url = https://github.com/DanielIoni-creator/MyZubster-Marketplace.git
