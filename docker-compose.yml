@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:6
+    container_name: myzubster-mongodb
+    restart: unless-stopped
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-myzubster_secure_password}
+      MONGO_INITDB_DATABASE: myzubster
+    networks:
+      - myzubster-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: myzubster-backend
+    restart: unless-stopped
+    ports:
+      - "3010:3009"
+    environment:
+      - PORT=3009
+      - MONGODB_URI=mongodb://admin:${MONGO_PASSWORD:-myzubster_secure_password}@mongodb:27017/myzubster?authSource=admin
+      - NODE_ENV=${NODE_ENV:-development}
+      - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL:-}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID:-}
+    depends_on:
+      - mongodb
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - myzubster-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: myzubster-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:3010
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - myzubster-network
+
+  ai-automation:
+    build:
+      context: ./services/ai-automation
+      dockerfile: Dockerfile
+    container_name: myzubster-ai
+    restart: unless-stopped
+    ports:
+      - "3004:3002"
+    environment:
+      - PORT=3002
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}
+      - MONGODB_URI=mongodb://admin:${MONGO_PASSWORD:-myzubster_secure_password}@mongodb:27017/myzubster?authSource=admin
+    depends_on:
+      - mongodb
+      - backend
+    networks:
+      - myzubster-network
+
+volumes:
+  mongodb_data:
+
+networks:
+  myzubster-network:
+    driver: bridge
