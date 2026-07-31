@@ -12,6 +12,7 @@ class AutomationOrchestrator {
         this.running = true;
         this.logger.info('Automation orchestrator started');
         
+        // Initialize tasks
         this.tasks = [
             {
                 name: 'Monitor GitHub Issues',
@@ -30,7 +31,10 @@ class AutomationOrchestrator {
             }
         ];
         
+        // Register event handlers
         this.registerHandlers();
+        
+        // Emetti un evento di test
         this.logger.info('Orchestrator ready, listening for events...');
     }
     
@@ -40,6 +44,7 @@ class AutomationOrchestrator {
     }
     
     registerHandlers() {
+        // Handle new GitHub issues
         if (this.githubMonitor && typeof this.githubMonitor.on === 'function') {
             this.githubMonitor.on('newIssue', async (issue) => {
                 await this.handleNewIssue(issue);
@@ -59,8 +64,10 @@ class AutomationOrchestrator {
         this.logger.info(`Processing new issue #${issue.number}: ${issue.title}`);
         
         try {
+            // Analyze with AI
             const analysis = await this.aiOrchestrator.analyzeIssue(issue);
             
+            // Determine if bounty should be created
             const shouldCreateBounty = this.shouldCreateBounty(issue, analysis);
             
             if (shouldCreateBounty) {
@@ -68,6 +75,7 @@ class AutomationOrchestrator {
                 await this.notifyBountyCreated(bounty);
             }
             
+            // Notify via Telegram
             if (this.telegramBot) {
                 await this.telegramBot.sendMessage(process.env.TELEGRAM_CHAT_ID || 'test', 
                     `📢 **New Issue Detected**\n\n` +
@@ -77,6 +85,7 @@ class AutomationOrchestrator {
                 );
             }
             
+            // Store in database
             await this.storeIssueAnalysis(issue, analysis);
             
         } catch (error) {
@@ -95,11 +104,13 @@ class AutomationOrchestrator {
     }
     
     shouldCreateBounty(issue, analysis) {
+        // Logic to determine if bounty should be created
         const keywords = ['bug', 'feature', 'enhancement', 'bounty'];
         const hasKeyword = issue.labels && issue.labels.some(label => 
             keywords.some(keyword => label.name.toLowerCase().includes(keyword))
         );
         
+        // Check if issue is tagged with bounty
         const isBounty = issue.labels && issue.labels.some(label => 
             label.name.toLowerCase().includes('bounty') || 
             label.name.toLowerCase().includes('💰')
@@ -109,6 +120,7 @@ class AutomationOrchestrator {
     }
     
     async createBounty(issue, analysis) {
+        // Create bounty in backend
         const bounty = {
             title: issue.title,
             description: issue.body || '',
@@ -120,50 +132,4 @@ class AutomationOrchestrator {
             created_at: new Date().toISOString()
         };
         
-        try {
-            const response = await fetch(`${process.env.BACKEND_URL || 'http://localhost:3002'}/api/bounties`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${process.env.BACKEND_API_KEY || 'test'}`
-                },
-                body: JSON.stringify(bounty)
-            }).catch(() => {
-                this.logger.debug('Backend not available, bounty saved locally');
-                return { ok: true, json: () => Promise.resolve(bounty) };
-            });
-            
-            if (response.ok) {
-                return await response.json();
-            }
-            return bounty;
-        } catch (error) {
-            this.logger.error('Error creating bounty:', error);
-            return bounty;
-        }
-    }
-    
-    async notifyBountyCreated(bounty) {
-        if (this.telegramBot) {
-            await this.telegramBot.sendMessage(
-                process.env.TELEGRAM_CHAT_ID || 'test',
-                `💰 **New Bounty Created!**\n\n` +
-                `**Issue:** ${bounty.title}\n` +
-                `**ID:** #${bounty.number}\n` +
-                `**Status:** ${bounty.status}\n\n` +
-                `View: ${bounty.url}`,
-                { parse_mode: 'Markdown' }
-            );
-        }
-    }
-    
-    async storeIssueAnalysis(issue, analysis) {
-        this.logger.info(`Stored analysis for issue #${issue.number}`);
-    }
-    
-    async cleanupTasks() {
-        this.logger.info('Cleaning up old tasks...');
-    }
-}
-
-module.exports = AutomationOrchestrator;
+       

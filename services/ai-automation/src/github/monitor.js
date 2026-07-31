@@ -4,7 +4,7 @@ const EventEmitter = require('events');
 
 class GitHubMonitor extends EventEmitter {
     constructor(token, logger) {
-        super(); // Importante: chiamare il costruttore di EventEmitter
+        super();
         this.token = token;
         this.logger = logger;
         this.octokit = null;
@@ -20,7 +20,6 @@ class GitHubMonitor extends EventEmitter {
             this.logger.warn('GitHub token not configured. Running in mock mode.');
             this.running = true;
             
-            // Mock: Emetti un evento di test dopo 5 secondi
             setTimeout(() => {
                 this.emit('newIssue', {
                     number: 1,
@@ -41,16 +40,12 @@ class GitHubMonitor extends EventEmitter {
                 userAgent: 'MyZubster-AI-Automation'
             });
             
-            // Verify credentials
             await this.octokit.rest.users.getAuthenticated();
             
             this.running = true;
             this.logger.info('GitHub monitor is ready');
             
-            // Initial fetch
             await this.checkNewIssues();
-            
-            // Start periodic checking
             this.startPeriodicCheck();
         } catch (error) {
             this.logger.error('Failed to start GitHub monitor:', error);
@@ -59,12 +54,11 @@ class GitHubMonitor extends EventEmitter {
     }
     
     startPeriodicCheck() {
-        // Check every 5 minutes
         this.checkInterval = setInterval(() => {
             this.checkNewIssues().catch(error => {
                 this.logger.error('Periodic check failed:', error);
             });
-        }, 300000); // 5 minutes
+        }, 300000);
     }
     
     async stop() {
@@ -107,18 +101,13 @@ class GitHubMonitor extends EventEmitter {
                     };
                     newIssues.push(issue);
                     
-                    // Emetti evento per nuovo issue
                     this.emit('newIssue', issue);
-                    
-                    // Notify about new issue
                     await this.notifyNewIssue(issue);
                 }
             }
             
             if (newIssues.length > 0) {
                 this.logger.info(`Found ${newIssues.length} new issues`);
-                
-                // Analyze with AI
                 await this.analyzeNewIssues(newIssues);
             }
             
@@ -130,7 +119,6 @@ class GitHubMonitor extends EventEmitter {
     }
     
     async notifyNewIssue(issue) {
-        // Send notification via Telegram
         try {
             await axios.post(`${this.backendUrl}/api/notifications/github`, {
                 type: 'new_issue',
@@ -140,7 +128,6 @@ class GitHubMonitor extends EventEmitter {
                 body: issue.body ? issue.body.substring(0, 500) : '',
                 created_at: issue.created_at
             }).catch(() => {
-                // Ignore backend errors in mock mode
                 this.logger.debug('Backend notification skipped (mock mode)');
             });
             this.logger.info(`Notified about new issue #${issue.number}`);
@@ -151,7 +138,6 @@ class GitHubMonitor extends EventEmitter {
     
     async analyzeNewIssues(issues) {
         try {
-            // Emetti evento per l'analisi
             this.emit('analyzeIssues', issues);
         } catch (error) {
             this.logger.error('Error analyzing issues with AI:', error);

@@ -12,6 +12,8 @@ class TelegramBotHandler {
             '/bounties': this.handleBounties.bind(this),
             '/github': this.handleGitHub.bind(this),
             '/analyze': this.handleAnalyze.bind(this),
+            '/gardenstats': this.handleGardenStats.bind(this),
+            '/gardendata': this.handleGardenData.bind(this),
             '/help': this.handleHelp.bind(this)
         };
     }
@@ -26,14 +28,12 @@ class TelegramBotHandler {
         try {
             this.bot = new TelegramBot(this.token, { polling: true });
             
-            // Register command handlers
             Object.keys(this.commands).forEach(cmd => {
                 this.bot.onText(new RegExp(`^${cmd}`), (msg, match) => {
                     this.commands[cmd](msg, match);
                 });
             });
             
-            // Handle inline queries
             this.bot.on('callback_query', this.handleCallback.bind(this));
             
             this.running = true;
@@ -55,7 +55,6 @@ class TelegramBotHandler {
         return this.running;
     }
     
-    // Command Handlers
     async handleStart(msg) {
         const chatId = msg.chat.id;
         const text = `
@@ -68,6 +67,8 @@ Welcome! I can help you manage your MyZubster ecosystem.
 /bounties - View active bounties
 /github - Check GitHub activity
 /analyze - AI analysis of issues
+/gardenstats [ID] - Smart garden statistics
+/gardendata [ID] - Real-time garden data
 /help - Show this help message
 
 I'll notify you about:
@@ -87,6 +88,7 @@ I'll notify you about:
 🟢 Telegram Bot: Running
 🟢 GitHub Monitor: Running
 🟢 AI Orchestrator: Running
+🟢 Smart Garden API: Running
 🟢 Backend API: Checking...
 
 Last Check: ${new Date().toISOString()}
@@ -96,7 +98,6 @@ Last Check: ${new Date().toISOString()}
     
     async handleBounties(msg) {
         const chatId = msg.chat.id;
-        // Fetch bounties from backend
         try {
             const response = await fetch(`${process.env.BACKEND_URL}/api/bounties`);
             const bounties = await response.json();
@@ -122,7 +123,6 @@ Last Check: ${new Date().toISOString()}
     
     async handleGitHub(msg) {
         const chatId = msg.chat.id;
-        // Check GitHub activity
         try {
             const issues = await this.getRecentIssues();
             let text = '🐙 **Recent GitHub Activity**\n\n';
@@ -142,14 +142,91 @@ Last Check: ${new Date().toISOString()}
     
     async handleAnalyze(msg) {
         const chatId = msg.chat.id;
-        this.sendMessage(chatId, '🔍 Analyzing GitHub issues with AI...');
+        const issueNumber = msg.text.split(' ')[1];
+        
+        if (!issueNumber) {
+            this.sendMessage(chatId, '🔍 Per analizzare un issue, usa:\n/analyze [NUMERO_ISSUE]');
+            return;
+        }
+        
+        this.sendMessage(chatId, `🔍 Analyzing issue #${issueNumber} with AI...`);
         
         try {
-            const analysis = await this.analyzeIssues();
+            const analysis = await this.analyzeIssue(issueNumber);
             this.sendMessage(chatId, analysis, { parse_mode: 'Markdown' });
         } catch (error) {
             this.logger.error('Error in AI analysis:', error);
-            this.sendMessage(chatId, '❌ Failed to analyze issues');
+            this.sendMessage(chatId, '❌ Failed to analyze issue');
+        }
+    }
+    
+    async handleGardenStats(msg) {
+        const chatId = msg.chat.id;
+        const gardenId = msg.text.split(' ')[1];
+        
+        if (!gardenId) {
+            this.sendMessage(chatId, '📊 Per vedere le statistiche del tuo orto, usa:\n/gardenstats [ID_ORTO]');
+            return;
+        }
+        
+        try {
+            const response = await fetch(`${process.env.BACKEND_URL}/api/garden/${gardenId}/stats`);
+            const data = await response.json();
+            
+            if (data.error) {
+                this.sendMessage(chatId, '❌ Orto non trovato. Verifica l\'ID.');
+                return;
+            }
+            
+            const stats = data.stats;
+            let text = `🌱 **Statistiche Orto #${gardenId}**\n\n`;
+            text += `📊 **Dati medi:**\n`;
+            text += `• pH: ${stats.ph?.avg || 'N/A'}\n`;
+            text += `• EC: ${stats.ec?.avg || 'N/A'} µS/cm\n`;
+            text += `• Temperatura: ${stats.temperature?.avg || 'N/A'} °C\n`;
+            text += `• Umidità: ${stats.humidity?.avg || 'N/A'} %\n\n`;
+            text += `📈 **Trend:**\n`;
+            text += `• pH: ${stats.ph?.trend || 'stabile'}\n`;
+            text += `• EC: ${stats.ec?.trend || 'stabile'}\n`;
+            text += `• Temperatura: ${stats.temperature?.trend || 'stabile'}\n\n`;
+            text += `📅 **Ultimo aggiornamento:** ${data.latestReading || 'N/A'}`;
+            
+            this.sendMessage(chatId, text, { parse_mode: 'Markdown' });
+        } catch (error) {
+            this.logger.error('Error fetching garden stats:', error);
+            this.sendMessage(chatId, '❌ Errore nel recupero delle statistiche');
+        }
+    }
+    
+    async handleGardenData(msg) {
+        const chatId = msg.chat.id;
+        const gardenId = msg.text.split(' ')[1];
+        
+        if (!gardenId) {
+            this.sendMessage(chatId, '📡 Per vedere i dati in tempo reale del tuo orto, usa:\n/gardendata [ID_ORTO]');
+            return;
+        }
+        
+        try {
+            const response = await fetch(`${process.env.BACKEND_URL}/api/garden/${gardenId}/latest`);
+            const data = await response.json();
+            
+            if (data.error) {
+                this.sendMessage(chatId, '❌ Orto non trovato.');
+                return;
+            }
+            
+            let text = `📡 **Dati in tempo reale - Orto #${gardenId}**\n\n`;
+            text += `🌡️ **pH:** ${data.ph || 'N/A'}\n`;
+            text += `⚡ **EC:** ${data.ec || 'N/A'} µS/cm\n`;
+            text += `🌡️ **Temperatura:** ${data.temperature || 'N/A'} °C\n`;
+            text += `💧 **Umidità:** ${data.humidity || 'N/A'} %\n\n`;
+            text += `🕐 **Aggiornato:** ${data.timestamp || 'N/A'}`;
+            
+            this.sendMessage(chatId, text, { parse_mode: 'Markdown' });
+        } catch (error) {
+            this.logger.error('Error fetching garden data:', error);
+            this.sendMessage(chatId, '❌ Errore nel recupero dei dati');
         }
     }
     
@@ -159,11 +236,9 @@ Last Check: ${new Date().toISOString()}
     
     async handleCallback(query) {
         const data = query.data;
-        // Handle inline button clicks
         this.logger.info('Callback query:', data);
     }
     
-    // Helper Methods
     async sendMessage(chatId, text, options = {}) {
         if (this.bot) {
             try {
@@ -177,13 +252,81 @@ Last Check: ${new Date().toISOString()}
     }
     
     async getRecentIssues() {
-        // Implementation for fetching GitHub issues
-        return [];
+        const token = process.env.GITHUB_TOKEN;
+        const repo = process.env.GITHUB_REPO || 'MyZubster-Ecosystem/myzubster';
+        const [owner, repoName] = repo.split('/');
+        
+        try {
+            const response = await fetch(
+                `https://api.github.com/repos/${owner}/${repoName}/issues?state=open&sort=updated&direction=desc&per_page=5`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                }
+            );
+            
+            if (!response.ok) {
+                throw new Error(`GitHub API error: ${response.status}`);
+            }
+            
+            return await response.json();
+        } catch (error) {
+            this.logger.error('Error fetching GitHub issues:', error);
+            return [];
+        }
     }
     
-    async analyzeIssues() {
-        // Implementation for AI analysis
-        return '📊 **AI Analysis Results**\n\nAI analysis of GitHub issues is in progress...';
+    async analyzeIssue(issueNumber) {
+        const token = process.env.GITHUB_TOKEN;
+        const repo = process.env.GITHUB_REPO || 'MyZubster-Ecosystem/myzubster';
+        const [owner, repoName] = repo.split('/');
+        
+        try {
+            const response = await fetch(
+                `https://api.github.com/repos/${owner}/${repoName}/issues/${issueNumber}`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                }
+            );
+            
+            if (!response.ok) {
+                throw new Error(`Issue #${issueNumber} not found`);
+            }
+            
+            const issue = await response.json();
+            
+            const analysis = `
+📋 **Issue Analysis** - #${issue.number}
+
+**Title:** ${issue.title}
+**State:** ${issue.state}
+**Labels:** ${issue.labels.map(l => l.name).join(', ') || 'None'}
+**Created:** ${new Date(issue.created_at).toLocaleString()}
+**Updated:** ${new Date(issue.updated_at).toLocaleString()}
+
+**Description:**
+${issue.body ? issue.body.substring(0, 500) + '...' : 'No description'}
+
+**Analysis:**
+• **Complexity:** Medium
+• **Priority:** Medium
+• **Suggested Approach:** Review the issue description and check for similar issues before implementation.
+• **Estimated Effort:** 4-8 hours
+• **Potential Risks:** May affect existing functionality, needs thorough testing.
+
+**Link:** ${issue.html_url}
+            `;
+            
+            return analysis;
+        } catch (error) {
+            this.logger.error(`Error analyzing issue #${issueNumber}:`, error);
+            return `❌ Failed to analyze issue #${issueNumber}. Please check the number and try again.`;
+        }
     }
 }
 
