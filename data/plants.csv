@@ -1,0 +1,34 @@
+scientificName,commonName,family,type,idealPhMin,idealPhMax,idealEcMin,idealEcMax,temperatureMin,temperatureMax,humidityIdeal,growthCycleDays,waterNeeds,sunlight
+Solanum lycopersicum,Tomato,Solanaceae,fruit,6.0,6.8,2.0,3.0,18,28,65,70,medium,full
+Capsicum annuum,Bell Pepper,Solanaceae,fruit,6.0,6.8,1.8,2.8,20,30,70,75,medium,full
+Cucumis sativus,Cucumber,Cucurbitaceae,fruit,6.0,7.0,1.8,2.5,18,30,70,60,high,full
+Lactuca sativa,Lettuce,Asteraceae,leafy,6.0,7.0,1.5,2.0,15,22,65,45,medium,partial
+Spinacia oleracea,Spinach,Amaranthaceae,leafy,6.5,7.5,1.5,2.2,10,22,70,40,medium,partial
+Brassica oleracea var. acephala,Kale,Brassicaceae,leafy,6.0,7.5,1.8,2.5,10,25,65,55,medium,full
+Beta vulgaris,Swiss Chard,Amaranthaceae,leafy,6.0,7.0,1.8,2.5,10,25,65,50,medium,full
+Brassica oleracea var. capitata,Cabbage,Brassicaceae,leafy,6.0,7.5,2.0,2.8,10,25,65,80,medium,full
+Daucus carota,Carrot,Apiaceae,root,6.0,7.0,1.6,2.2,10,25,65,70,medium,full
+Solanum tuberosum,Potato,Solanaceae,root,5.0,6.0,2.0,2.8,15,25,70,90,medium,full
+Raphanus sativus,Radish,Brassicaceae,root,6.0,7.0,1.5,2.0,10,22,60,25,medium,full
+Beta vulgaris,Beetroot,Amaranthaceae,root,6.0,7.0,1.8,2.5,10,25,65,60,medium,full
+Allium cepa,Onion,Amaryllidaceae,root,6.0,7.0,1.8,2.5,15,28,60,90,medium,full
+Ocimum basilicum,Basil,Lamiaceae,herb,6.0,7.5,1.5,2.0,18,28,70,30,medium,full
+Petroselinum crispum,Parsley,Apiaceae,herb,6.0,7.0,1.5,2.0,12,25,65,40,medium,partial
+Mentha spicata,Mint,Lamiaceae,herb,6.0,7.0,1.5,2.0,12,25,70,30,high,partial
+Rosmarinus officinalis,Rosemary,Lamiaceae,herb,6.0,7.5,1.5,2.0,15,30,55,30,low,full
+Thymus vulgaris,Thyme,Lamiaceae,herb,6.0,8.0,1.5,2.0,15,30,55,30,low,full
+Origanum vulgare,Oregano,Lamiaceae,herb,6.0,8.0,1.5,2.0,15,30,55,30,low,full
+Coriandrum sativum,Cilantro,Apiaceae,herb,6.0,7.0,1.5,2.0,15,25,65,30,medium,full
+Phaseolus vulgaris,Green Bean,Fabaceae,legume,6.0,7.0,2.0,2.8,15,28,65,60,medium,full
+Pisum sativum,Pea,Fabaceae,legume,6.0,7.5,1.8,2.5,10,22,65,65,medium,full
+Fragaria x ananassa,Strawberry,Rosaceae,berry,5.5,6.5,1.5,2.2,15,25,70,90,medium,full
+Vaccinium corymbosum,Blueberry,Ericaceae,berry,4.5,5.5,1.5,2.0,15,25,65,120,medium,full
+Zea mays,Corn,Poaceae,grain,6.0,7.0,2.0,3.0,20,30,70,80,high,full
+Cucurbita pepo,Zucchini,Cucurbitaceae,fruit,6.0,7.0,2.0,2.8,18,30,70,50,high,full
+Solanum melongena,Eggplant,Solanaceae,fruit,6.0,6.8,2.0,3.0,20,30,65,70,medium,full
+Allium sativum,Garlic,Amaryllidaceae,root,6.0,7.0,1.8,2.5,15,25,60,90,medium,full
+Asparagus officinalis,Asparagus,Asparagaceae,vegetable,6.5,7.5,2.0,2.8,15,28,65,90,medium,full
+Rheum rhabarbarum,Rhubarb,Polygonaceae,vegetable,6.0,7.0,2.0,2.8,10,22,65,90,medium,full
+Cynara cardunculus,Artichoke,Asteraceae,vegetable,6.0,7.0,2.0,2.8,15,25,65,120,medium,full
+Helianthus annuus,Sunflower,Asteraceae,grain,6.0,7.5,2.0,3.0,15,30,60,80,medium,full
+Cichorium intybus,Chicory,Asteraceae,leafy,6.0,7.0,1.5,2.0,10,22,65,60,medium,full
