@@ -5,6 +5,9 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
 
+// Import routes
+const gardenRoutes = require('./routes/gardens');
+
 const app = express();
 const PORT = process.env.PORT || 3009;
 
@@ -34,6 +37,9 @@ app.get('/health', (req, res) => {
     mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
   });
 });
+
+// Garden routes
+app.use('/api/gardens', gardenRoutes);
 
 // Dashboard API endpoint
 app.get('/api/dashboard', (req, res) => {
@@ -67,6 +73,13 @@ app.get('/api/dashboard', (req, res) => {
         latency: '200ms',
         description: 'AI Orchestrator service',
         endpoint: 'http://localhost:3009/api/ai'
+      },
+      {
+        name: 'geocoding',
+        status: 'online',
+        latency: '250ms',
+        description: 'OpenStreetMap Nominatim',
+        endpoint: 'https://nominatim.openstreetmap.org'
       },
       {
         name: 'mongodb',
@@ -113,6 +126,13 @@ app.get('/api/dashboard', (req, res) => {
         reward: '0.3 XMR',
         status: 'active',
         assignee: 'bob_coder'
+      },
+      {
+        id: 17,
+        title: 'Geolocalizzazione e ricerca per area gardens',
+        reward: '0.06 XMR',
+        status: 'merged',
+        assignee: 'leanworld7-netizen'
       }
     ],
     stats: {
@@ -121,7 +141,7 @@ app.get('/api/dashboard', (req, res) => {
       closedIssues: 133,
       totalBounties: 12,
       activeBounties: 4,
-      totalContributors: 18
+      totalContributors: 19
     }
   });
 });
@@ -150,7 +170,7 @@ app.get('/api/messages/:userId', async (req, res) => {
       {
         id: 'msg3',
         userId: userId,
-        content: 'Il tuo bounty "Fix security vulnerability" è stato approvato!',
+        content: 'Il tuo bounty "Geolocalizzazione gardens" è stato approvato!',
         timestamp: new Date(Date.now() - 7200000).toISOString(),
         type: 'bounty',
         read: false
@@ -225,6 +245,7 @@ app.get('/dashboard', (req, res) => {
           <div class="card"><h3>Slack</h3><p><span class="${process.env.SLACK_WEBHOOK_URL ? 'status-online' : 'status-offline'}">●</span> ${process.env.SLACK_WEBHOOK_URL ? 'Online (150ms)' : 'Offline (not configured)'}</p></div>
           <div class="card"><h3>GitHub</h3><p><span class="status-online">●</span> Online (80ms)</p></div>
           <div class="card"><h3>AI Orchestrator</h3><p><span class="status-online">●</span> Online (200ms)</p></div>
+          <div class="card"><h3>Geocoding</h3><p><span class="status-online">●</span> Online (250ms)</p></div>
           <div class="card"><h3>MongoDB</h3><p><span class="status-online">●</span> Connected</p></div>
         </div>
 
@@ -266,6 +287,7 @@ app.listen(PORT, () => {
   console.log(`📍 Dashboard: http://localhost:${PORT}/dashboard`);
   console.log(`📍 API Dashboard: http://localhost:${PORT}/api/dashboard`);
   console.log(`📍 Messages: http://localhost:${PORT}/api/messages/:userId`);
+  console.log(`📍 Gardens API: http://localhost:${PORT}/api/gardens`);
 });
 
 module.exports = app;
