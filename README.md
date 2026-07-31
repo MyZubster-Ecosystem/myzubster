@@ -1,5 +1,9 @@
-🤖 AI-powered automation system for MyZubster open-source ecosystem.
 
+🤖 AI-powered automation system for MyZubster open-source ecosystem.
+[![GitHub release](https://img.shields.io/github/release/MyZubster-Ecosystem/ai-automation.svg)](https://github.com/MyZubster-Ecosystem/ai-automation/releases)
+[![GitHub license](https://img.shields.io/github/license/MyZubster-Ecosystem/ai-automation.svg)](https://github.com/MyZubster-Ecosystem/ai-automation/blob/main/LICENSE)
+[![GitHub issues](https://img.shields.io/github/issues/MyZubster-Ecosystem/ai-automation.svg)](https://github.com/MyZubster-Ecosystem/ai-automation/issues)
+[![GitHub stars](https://img.shields.io/github/stars/MyZubster-Ecosystem/ai-automation.svg)](https://github.com/MyZubster-Ecosystem/ai-automation/stargazers
 ## 🚀 Features
 
 - **🤖 AI-Powered Analysis**: Uses local AI models (Gemma, Llama, DeepSeek) to analyze GitHub issues
