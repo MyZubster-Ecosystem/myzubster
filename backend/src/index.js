@@ -291,3 +291,19 @@ app.listen(PORT, () => {
 });
 
 module.exports = app;
+
+// Endpoint per le notifiche di pagamento
+app.post('/api/payments/record', async (req, res) => {
+  const { issueId, bounty, contributor, txid, address } = req.body;
+  
+  // Registra il pagamento
+  const { notifier } = require('../../services/notification/bot');
+  const payment = notifier.recordPayment(issueId, bounty, contributor, txid, address);
+  
+  res.json({ success: true, data: payment });
+});
+
+app.get('/api/payments/status', (req, res) => {
+  const { notifier } = require('../../services/notification/bot');
+  res.json(notifier.getPaymentStatus());
+});

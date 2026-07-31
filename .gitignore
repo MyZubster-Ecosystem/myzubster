@@ -79,3 +79,4 @@ monero-testnet/
 *.wallet.address
 ai-automation-backup/
 myzubster-merged/
+services/notification/node_modules/
