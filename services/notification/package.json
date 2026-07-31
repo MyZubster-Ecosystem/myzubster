@@ -1,0 +1,10 @@
+{
+  "name": "myzubster-payment-bot",
+  "version": "1.0.0",
+  "description": "Payment notification bot for MyZubster",
+  "main": "index.js",
+  "dependencies": {
+    "axios": "^1.6.0",
+    "dotenv": "^16.0.3"
+  }
+}
