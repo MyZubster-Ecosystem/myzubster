@@ -1,0 +1,21 @@
+[0;1;32m●[0m nginx.service - A high performance web server and a reverse proxy server
+     Loaded: loaded (]8;;file://myzubster/usr/lib/systemd/system/nginx.service/usr/lib/systemd/system/nginx.service]8;;; [0;1;32menabled[0m; preset: [0;1;32menabled[0m)
+     Active: [0;1;32mactive (running)[0m since Thu 2026-07-30 17:34:49 CEST; 12h ago
+       Docs: ]8;;man:nginx(8)man:nginx(8)]8;;
+    Process: 867 ExecStartPre=/usr/sbin/nginx -t -q -g daemon on; master_process on; (code=exited, status=0/SUCCESS)
+    Process: 908 ExecStart=/usr/sbin/nginx -g daemon on; master_process on; (code=exited, status=0/SUCCESS)
+   Main PID: 914 (nginx)
+      Tasks: 5 (limit: 9431)
+     Memory: 5.0M (peak: 6.5M)
+        CPU: 124ms
+     CGroup: /system.slice/nginx.service
+             ├─[0;38;5;245m914 "nginx: master process /usr/sbin/nginx -g daemon on; master_process on;"[0m
+             ├─[0;38;5;245m915 "nginx: worker process"[0m
+             ├─[0;38;5;245m916 "nginx: worker process"[0m
+             ├─[0;38;5;245m917 "nginx: worker process"[0m
+             └─[0;38;5;245m918 "nginx: worker process"[0m
+
+Jul 30 17:34:48 myzubster systemd[1]: Starting nginx.service - A high performance web server and a reverse proxy server...
+Jul 30 17:34:49 myzubster nginx[867]: 2026/07/30 17:34:49 [warn] 867#867: duplicate extension "svg", content type: "image/svg+xml", previous content type: "image/svg+xml" in /etc/nginx/conf.d/svg.conf:2
+Jul 30 17:34:49 myzubster nginx[908]: 2026/07/30 17:34:49 [warn] 908#908: duplicate extension "svg", content type: "image/svg+xml", previous content type: "image/svg+xml" in /etc/nginx/conf.d/svg.conf:2
+Jul 30 17:34:49 myzubster systemd[1]: Started nginx.service - A high performance web server and a reverse proxy server.
