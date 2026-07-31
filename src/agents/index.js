@@ -1,16 +1,16 @@
 /**
- * MyZubster AI Agents
+ * MyZubster AI Agents - Backward compatibility re-export
  *
- * Powered by Google's Gemma Skills framework
- * Specialized agents for plants, pets, payments, and verification
+ * The agents have been moved to services/ai-automation/src/agents/.
+ * This file preserves the original import path for backward compatibility.
  */
 
-const AgentOrchestrator = require('./orchestrator/agentOrchestrator');
-const LongTermMemory = require('./memory/longTermMemory');
-const PlantAgent = require('./skills/plantAgent');
-const PetAgent = require('./skills/petAgent');
-const PaymentAgent = require('./skills/paymentAgent');
-const VerificationAgent = require('./skills/verificationAgent');
+const AgentOrchestrator = require('../../services/ai-automation/src/agents/orchestrator/agentOrchestrator');
+const LongTermMemory = require('../../services/ai-automation/src/agents/memory/longTermMemory');
+const PlantAgent = require('../../services/ai-automation/src/agents/skills/plantAgent');
+const PetAgent = require('../../services/ai-automation/src/agents/skills/petAgent');
+const PaymentAgent = require('../../services/ai-automation/src/agents/skills/paymentAgent');
+const VerificationAgent = require('../../services/ai-automation/src/agents/skills/verificationAgent');
 
 module.exports = {
   AgentOrchestrator,

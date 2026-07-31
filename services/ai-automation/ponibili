@@ -1,0 +1,20 @@
+[0;1;32m●[0m ollama.service - Ollama Service
+     Loaded: loaded (]8;;file://myzubster/etc/systemd/system/ollama.service/etc/systemd/system/ollama.service]8;;; [0;1;32menabled[0m; preset: [0;1;32menabled[0m)
+     Active: [0;1;32mactive (running)[0m since Fri 2026-07-31 08:23:29 CEST; 29s ago
+   Main PID: 61990 (ollama)
+      Tasks: 24 (limit: 9431)
+     Memory: 1.6G (peak: 1.6G)
+        CPU: 9.853s
+     CGroup: /system.slice/ollama.service
+             └─[0;38;5;245m61990 /usr/local/bin/ollama serve[0m
+
+Jul 31 08:23:30 myzubster ollama[61990]: time=2026-07-31T08:23:30.234+02:00 level=INFO source=routes.go:2054 msg="vram-based default context" total_vram="0 B" default_num_ctx=4096
+Jul 31 08:23:30 myzubster ollama[61990]: [GIN] 2026/07/31 - 08:23:30 | 200 |     107.651µs |       127.0.0.1 | HEAD     "/"
+Jul 31 08:23:31 myzubster ollama[61990]: time=2026-07-31T08:23:31.600+02:00 level=INFO source=download.go:181 msg="downloading c1864a5eb193 in 16 104 MB part(s)"
+Jul 31 08:23:36 myzubster ollama[61990]: time=2026-07-31T08:23:36.181+02:00 level=INFO source=download.go:181 msg="downloading 097a36493f71 in 1 8.4 KB part(s)"
+Jul 31 08:23:36 myzubster ollama[61990]: time=2026-07-31T08:23:36.871+02:00 level=INFO source=download.go:181 msg="downloading 109037bec39c in 1 136 B part(s)"
+Jul 31 08:23:37 myzubster ollama[61990]: time=2026-07-31T08:23:37.518+02:00 level=INFO source=download.go:181 msg="downloading 22a838ceb7fb in 1 84 B part(s)"
+Jul 31 08:23:38 myzubster ollama[61990]: time=2026-07-31T08:23:38.168+02:00 level=INFO source=download.go:181 msg="downloading 887433b89a90 in 1 483 B part(s)"
+Jul 31 08:23:40 myzubster ollama[61990]: [GIN] 2026/07/31 - 08:23:40 | 200 |  9.784643768s |       127.0.0.1 | POST     "/api/pull"
+Jul 31 08:23:40 myzubster ollama[61990]: [GIN] 2026/07/31 - 08:23:40 | 200 |      54.772µs |       127.0.0.1 | HEAD     "/"
+Jul 31 08:23:40 myzubster ollama[61990]: [GIN] 2026/07/31 - 08:23:40 | 200 |     496.994µs |       127.0.0.1 | GET      "/api/tags"
