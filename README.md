@@ -1,59 +1,135 @@
-<<<<<<< HEAD
+# 🤖 MyZubster AI Automation Service
 
-🤖 AI-powered automation system for MyZubster open-source ecosystem.
-[![GitHub release](https://img.shields.io/github/release/MyZubster-Ecosystem/ai-automation.svg)](https://github.com/MyZubster-Ecosystem/ai-automation/releases)
-[![GitHub license](https://img.shields.io/github/license/MyZubster-Ecosystem/ai-automation.svg)](https://github.com/MyZubster-Ecosystem/ai-automation/blob/main/LICENSE)
-[![GitHub issues](https://img.shields.io/github/issues/MyZubster-Ecosystem/ai-automation.svg)](https://github.com/MyZubster-Ecosystem/ai-automation/issues)
-[![GitHub stars](https://img.shields.io/github/stars/MyZubster-Ecosystem/ai-automation.svg)](https://github.com/MyZubster-Ecosystem/ai-automation/stargazers
+AI-powered automation service for the MyZubster ecosystem.
+
 ## 🚀 Features
 
-- **🤖 AI-Powered Analysis**: Uses local AI models (Gemma, Llama, DeepSeek) to analyze GitHub issues
-- **📱 Telegram Bot**: Interactive bot for managing bounties, checking status, and receiving notifications
-- **🐙 GitHub Integration**: Automatic monitoring of issues and PRs
-- **💰 Bounty Management**: Automatic bounty creation and management
-- **🔔 Real-time Notifications**: Instant alerts for new issues and bounty updates
-- **🔄 Multi-Model Fallback**: Switches between AI models for reliability
+- **📱 Telegram Bot** - @myzubster_bot for notifications and commands
+- **🐙 GitHub Monitor** - Automatic monitoring of issues and PRs
+- **🧠 AI Orchestrator** - Analysis with Gemma, Llama, and DeepSeek
+- **💰 Bounty Creator** - Automatic bounty creation
+- **🔔 Notifications** - Real-time alerts on Telegram
+- **🔄 Multi-Model Fallback** - Automatic switching between AI models
 
 ## 📋 Prerequisites
 
 - Node.js (v18+)
-- MongoDB
+- MongoDB (for backend)
 - Ollama (for local AI models)
 - Telegram Bot Token
 - GitHub Personal Access Token
 
 ## 🛠️ Installation
 
-### 1. Clone the repository
-
 ```bash
-git clone https://github.com/MyZubster-Ecosystem/ai-automation.git
-cd ai-automation
+# Navigate to the service directory
+cd services/ai-automation
 
-2. Install dependencies
-bash
-
+# Install dependencies
 npm install
 
-3. Configure environment
-bash
-
+# Configure environment variables
 cp .env.example .env
 nano .env
+🔧 Configuration
+.env File
+env
 
-4. Start the system
+# Telegram Configuration
+TELEGRAM_BOT_TOKEN=your_telegram_bot_token_here
+TELEGRAM_CHAT_ID=your_chat_id_here
+
+# GitHub Configuration
+GITHUB_TOKEN=your_github_token_here
+GITHUB_REPO=MyZubster-Ecosystem/myzubster
+
+# AI Models - DeepSeek API (optional)
+DEEPSEEK_API_KEY=your_deepseek_api_key_here
+DEEPSEEK_API_URL=https://api.deepseek.com/v1
+
+# AI Models - Local Ollama
+GEMMA_API_URL=http://localhost:11434/api
+GEMMA_MODEL=gemma:2b
+LLAMA_MODEL=llama3.2:3b
+DEFAULT_AI_MODEL=gemma:2b
+
+# Backend API (optional)
+BACKEND_URL=http://localhost:3002
+BACKEND_API_KEY=your_backend_api_key_here
+
+# System Configuration
+PORT=5678
+MONITOR_INTERVAL=300000
+NODE_ENV=production
+
+# MongoDB (optional - if using backend)
+MONGODB_URI=mongodb://localhost:27017/myzubster
+
+🚀 Running
+Development
+bash
+
+npm run dev
+
+Production
 bash
 
 npm start
 
+As systemd service
+bash
+
+# Create service file
+sudo nano /etc/systemd/system/myzubster-ai.service
+
+# Service file content:
+[Unit]
+Description=MyZubster AI Automation Service
+After=network.target mongod.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/myzubster/myzubster-merged/services/ai-automation
+ExecStart=/usr/bin/node /root/myzubster/myzubster-merged/services/ai-automation/index.js
+Restart=always
+RestartSec=10
+Environment=NODE_ENV=production
+Environment=PORT=5678
+
+[Install]
+WantedBy=multi-user.target
+
+# Start the service
+sudo systemctl daemon-reload
+sudo systemctl enable myzubster-ai
+sudo systemctl start myzubster-ai
+sudo systemctl status myzubster-ai
+
+📱 Telegram Commands
+
+The @myzubster_bot responds to the following commands:
+Command	Description
+/start	Welcome message and guide
+/status	System and services status
+/github	Recent GitHub activity
+/bounties	List of active bounties
+/analyze	AI analysis of an issue
+/help	Show all available commands
+📊 API Endpoints
+Endpoint	Method	Description
+/health	GET	System health check
+/api/status	GET	Detailed service status
+/api/analyze	POST	AI analysis of an issue
+/api/github/issue	POST	Submit issue for analysis
 🧠 AI Models
 
-The system uses three AI models with automatic fallback:
-Model	Provider	Size	Purpose
+The system supports three models with automatic fallback:
+Model	Provider	Size	Usage
 Gemma 2B	Google	1.7 GB	Default - Fast and lightweight
-Llama 3.2	Meta	2.0 GB	Fallback - More powerful
-DeepSeek R1	DeepSeek	1.1 GB	Fallback - Reasoning
-Setup AI Models
+Llama 3.2 3B	Meta	2.0 GB	Fallback - More powerful
+DeepSeek R1 1.5B	DeepSeek	1.1 GB	Fallback - Reasoning
+AI Models Setup
 bash
 
 # Install Ollama
@@ -64,133 +140,83 @@ ollama pull gemma:2b
 ollama pull llama3.2:3b
 ollama pull deepseek-r1:1.5b
 
+# Verify installed models
+ollama list
+
+# Test a model
+ollama run gemma:2b "Hello, test!"
+
 📁 Project Structure
 text
 
-ai-automation/
+services/ai-automation/
 ├── src/
 │   ├── telegram/
-│   │   └── bot.js          # Telegram bot handler
+│   │   └── bot.js           # Telegram bot handler
 │   ├── github/
-│   │   └── monitor.js      # GitHub monitoring
+│   │   └── monitor.js       # GitHub monitor
 │   ├── ai/
-│   │   └── orchestrator.js # AI model orchestration
+│   │   └── orchestrator.js  # AI orchestrator
 │   └── orchestrator/
-│       └── index.js        # Main automation orchestrator
-├── logs/                   # Log files
-├── index.js               # Main entry point
+│       └── index.js         # Main orchestrator
+├── logs/
+│   ├── combined.log         # General log
+│   └── error.log            # Error log
+├── scripts/
+│   └── ...                  # Utility scripts
+├── .env.example             # Configuration template
+├── index.js                 # Entry point
 ├── package.json
-├── .env.example
+├── create-issues.js         # GitHub issues creator
 └── README.md
 
-🔧 Configuration
-Environment Variables
-env
-
-# Telegram
-TELEGRAM_BOT_TOKEN=your_bot_token
-TELEGRAM_CHAT_ID=your_chat_id
-
-# GitHub
-GITHUB_TOKEN=your_github_token
-GITHUB_REPO=MyZubster-Ecosystem/MyZubsterGateway
-
-# AI Models
-DEEPSEEK_API_KEY=your_deepseek_key
-DEEPSEEK_API_URL=https://api.deepseek.com/v1
-GEMMA_API_URL=http://localhost:11434/api
-GEMMA_MODEL=gemma:2b
-LLAMA_MODEL=llama3.2:3b
-DEFAULT_AI_MODEL=gemma:2b
-
-# Backend
-BACKEND_URL=http://localhost:3002
-BACKEND_API_KEY=your_backend_key
-
-# System
-PORT=5678
-MONITOR_INTERVAL=300000
-
-🚀 Usage
-Starting the System
+🔍 Monitoring
+Health Check
 bash
 
-# Development mode
-npm run dev
-
-# Production mode
-npm start
-
-# As a systemd service
-sudo systemctl start myzubster-ai
-
-Telegram Commands
-
-Once the bot is running, send these commands:
-
-    /start - Welcome message
-
-    /status - Check system status
-
-    /bounties - View active bounties
-
-    /github - Check GitHub activity
-
-    /analyze - AI analysis of issues
-
-    /help - Show help message
-
-API Endpoints
-
-The system exposes a REST API:
-
-    GET /health - System health check
-
-    GET /api/status - Service status
-
-    POST /api/github/issue - Submit issue for analysis
-
-📊 Monitoring
-bash
-
-# Check system health
 curl http://localhost:5678/health
 
-# View logs
-sudo journalctl -u myzubster-ai -f
-
-# Check service status
-sudo systemctl status myzubster-ai
-
-🏗️ Deployment
-Systemd Service
-
-Create a systemd service file:
-ini
-
-[Unit]
-Description=MyZubster AI Automation Service
-After=network.target mongod.service
-
-[Service]
-Type=simple
-User=root
-WorkingDirectory=/root/myzubster/ai-automation
-ExecStart=/usr/bin/node /root/myzubster/ai-automation/index.js
-Restart=always
-RestartSec=10
-Environment=NODE_ENV=production
-Environment=PORT=5678
-
-[Install]
-WantedBy=multi-user.target
-
-Enable and start:
+Logs
 bash
 
-sudo systemctl daemon-reload
-sudo systemctl enable myzubster-ai
-sudo systemctl start myzubster-ai
+# systemd service logs
+sudo journalctl -u myzubster-ai -f
+
+# File logs
+tail -f logs/combined.log
+
+🐛 Troubleshooting
+Port already in use
+bash
+
+sudo lsof -i :5678
+sudo kill -9 <PID>
+
+MongoDB not connected
+bash
+
+sudo systemctl restart mongod
+sudo systemctl status mongod
+
+Ollama not responding
+bash
+
+sudo systemctl restart ollama
+ollama list  # Verify installed models
+
+Invalid Telegram token
+bash
+
+curl "https://api.telegram.org/bot<TOKEN>/getMe"
+
+GitHub API errors
+bash
+
+# Verify token is valid
+curl -H "Authorization: token <GITHUB_TOKEN>" https://api.github.com/user
+
+# Check rate limit
+curl -H "Authorization: token <GITHUB_TOKEN>" https://api.github.com/rate_limit
 
 🤝 Contributing
 
@@ -206,7 +232,7 @@ sudo systemctl start myzubster-ai
 
 📝 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+MIT License - See the LICENSE file for details.
 🙏 Acknowledgments
 
     Ollama - Local AI model runner
@@ -219,99 +245,10 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 📧 Contact
 
-    Website: MyZubster.com
+    GitHub: MyZubster-Ecosystem
 
-    GitHub: @MyZubster-Ecosystem
+    Telegram: @myzubster_bot
 
-    Twitter: @MyZubster
+    Channel: @myzubster
 
-Made with ❤️ by the MyZubster Team
-=======
-# 🌱 MyZubster
-
-**Decentralized ecosystem for plant mapping, privacy-first payments, and human-centered AI.**
-
----
-
-## 🌍 What is MyZubster?
-
-MyZubster is an open-source ecosystem that combines three pillars:
-
-- **🌿 Global Plant Map** – a participatory, verified map of plants around the world.
-- **🔒 Monero Payments** – privacy-first, feeless microtransactions for everyone.
-- **🤖 Human-Controlled AI** – AI as a tool, not a master.
-
-It is built for people who believe in a better, more transparent, and decentralized future.
-
----
-
-## 🧱 Architecture
-
-The ecosystem is composed of several services:
-
-| Component | Description | Tech Stack | Repo |
-|-----------|-------------|------------|------|
-| **Gateway** | Monero payment processor & API orchestrator | Node.js, Express, MongoDB, Monero RPC | [MyZubsterGateway](https://github.com/DanielIoni-creator/MyZubsterGateway) |
-| **Marketplace** | User-facing platform for plants, orders, and reputation | Node.js, SQLite | [MyZubster-Marketplace](https://github.com/DanielIoni-creator/MyZubster-Marketplace) |
-| **Mobile App** | Android app for plant mapping and payments | React Native / Kotlin | [MyZubster-App](https://github.com/DanielIoni-creator/MyZubster-App) |
-| **Web App** | React/Vite frontend for desktop users | React, Vite, Tailwind | [MyZubsterWeb](https://github.com/DanielIoni-creator/MyZubsterWeb) |
-| **Docs** | Centralized documentation for developers and users | Markdown, VitePress | [myzubster-docs](https://github.com/DanielIoni-creator/myzubster-docs) |
-| **Animal Registry** | Decentralized animal registry on blockchain | (Tari/Blockchain) | [myzubster-animal-registry](https://github.com/DanielIoni-creator/myzubster-animal-registry) |
-| **Animal Map** | Interactive map for animal registry | (Map/Visualization) | [myzubster-animal-map](https://github.com/DanielIoni-creator/myzubster-animal-map) |
-
----
-
-## 🚀 Getting Started
-
-Each component has its own README with setup instructions. Start with the [Gateway](https://github.com/DanielIoni-creator/MyZubsterGateway) for the core payment system.
-
----
-
-## 🤝 How to Contribute
-
-We welcome all kinds of contributions:
-
-- 💻 **Code** – fix bugs, add features, improve performance
-- 🌿 **Data** – report plants, verify entries, expand the map
-- 🗣️ **Outreach** – write articles, talk about the project, bring new users
-- 💰 **Donations** – support development via Monero (address in the Gateway repo)
-
-Check the [issues](https://github.com/DanielIoni-creator/MyZubsterGateway/issues) and the [roadmap](https://github.com/users/DanielIoni-creator/projects/1) to see where help is needed.
-
----
-
-## 📜 License
-
-All components are licensed under the **MIT License** – free for everyone to use, modify, and distribute.
-
----
-
-## 🙏 Support & Contact
-
-- **GitHub**: [DanielIoni-creator](https://github.com/DanielIoni-creator)
-- **Project Board**: [Roadmap](https://github.com/users/DanielIoni-creator/projects/1)
-- **Issues**: [Report a bug](https://github.com/DanielIoni-creator/MyZubsterGateway/issues)
-
----
-
-*Built with ❤️ and ☕ by Daniel Ioni, with the help of the open-source community.*
-
-
-## 💬 Community
-
-- **Telegram**: [@MyZubster_bot](https://t.me/MyZubster_bot) – for updates, support, and discussions.
-
-
-## 🌐 Connect with Us
-
-- **Telegram**: [@MyZubster_bot](https://t.me/MyZubster_bot) – updates, support, and discussions
-- **Twitter / X**: [@DanielIoni](https://twitter.com/DanielIoni) – project announcements and thoughts
-- **TikTok**: [@danielioni](https://tiktok.com/@danielioni) – behind the scenes and project updates
-- **Instagram**: [@danielioni](https://instagram.com/danielioni) – visuals and community stories
-- **dev.to**: [Daniel Ioni](https://dev.to/danielioni) – technical articles and project updates
-
-
-## 💬 Community
-
-- **Telegram Channel**: [@myzubster](https://t.me/myzubster) – follow for updates, news, and discussions about the MyZubster ecosystem.
->>>>>>> 2d840d3138c125e8384e8db07ce71c667ea32607
+Built with ❤️ by the MyZubster Team
