@@ -77,3 +77,5 @@ monero-testnet/
 *.wallet
 *.wallet.keys
 *.wallet.address
+ai-automation-backup/
+myzubster-merged/

@@ -4,7 +4,7 @@
 
 const http = require('http');
 
-const BASE = 'http://localhost:3000';
+const BASE = 'http://localhost:3009';
 
 function request(path) {
   return new Promise((resolve, reject) => {
@@ -56,9 +56,9 @@ async function runTests() {
   await test('GET /api/dashboard has services', async () => {
     const res = await request('/api/dashboard');
     assert(res.body.services, 'Missing services');
-    assert(res.body.services.telegram, 'Missing telegram service');
-    assert(res.body.services.github, 'Missing github service');
-    assert(res.body.services.ai, 'Missing ai service');
+    assert(res.body.services.find(s => s.name === "telegram"), 'Missing telegram');
+    assert(res.body.services.find(s => s.name === "github"), 'Missing github service');
+    assert(res.body.services.find(s => s.name === "ai"), 'Missing ai service');
   });
 
   await test('GET /api/dashboard has recentIssues', async () => {
