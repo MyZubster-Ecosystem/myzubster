@@ -1,0 +1,430 @@
+{
+  "plants": [
+    {
+      "name": "Tomato",
+      "scientific": "Solanum lycopersicum",
+      "ph_min": 5.5,
+      "ph_max": 6.8,
+      "ec_min": 2.0,
+      "ec_max": 5.0,
+      "temp_min": 18,
+      "temp_max": 30,
+      "humidity_min": 60,
+      "humidity_max": 80,
+      "light_hours": 8,
+      "water_mm_week": 25,
+      "season": [
+        "spring",
+        "summer"
+      ],
+      "spacing_cm": 50,
+      "days_to_harvest": 70
+    },
+    {
+      "name": "Basil",
+      "scientific": "Ocimum basilicum",
+      "ph_min": 5.5,
+      "ph_max": 6.5,
+      "ec_min": 1.0,
+      "ec_max": 1.6,
+      "temp_min": 15,
+      "temp_max": 28,
+      "humidity_min": 50,
+      "humidity_max": 70,
+      "light_hours": 6,
+      "water_mm_week": 15,
+      "season": [
+        "spring",
+        "summer"
+      ],
+      "spacing_cm": 25,
+      "days_to_harvest": 60
+    },
+    {
+      "name": "Lettuce",
+      "scientific": "Lactuca sativa",
+      "ph_min": 6.0,
+      "ph_max": 7.0,
+      "ec_min": 0.8,
+      "ec_max": 1.4,
+      "temp_min": 10,
+      "temp_max": 22,
+      "humidity_min": 60,
+      "humidity_max": 80,
+      "light_hours": 6,
+      "water_mm_week": 20,
+      "season": [
+        "spring",
+        "autumn"
+      ],
+      "spacing_cm": 30,
+      "days_to_harvest": 45
+    },
+    {
+      "name": "Bell Pepper",
+      "scientific": "Capsicum annuum",
+      "ph_min": 5.5,
+      "ph_max": 6.8,
+      "ec_min": 2.0,
+      "ec_max": 4.5,
+      "temp_min": 20,
+      "temp_max": 30,
+      "humidity_min": 60,
+      "humidity_max": 75,
+      "light_hours": 8,
+      "water_mm_week": 25,
+      "season": [
+        "summer"
+      ],
+      "spacing_cm": 50,
+      "days_to_harvest": 80
+    },
+    {
+      "name": "Cucumber",
+      "scientific": "Cucumis sativus",
+      "ph_min": 5.5,
+      "ph_max": 6.8,
+      "ec_min": 1.5,
+      "ec_max": 2.5,
+      "temp_min": 18,
+      "temp_max": 30,
+      "humidity_min": 70,
+      "humidity_max": 90,
+      "light_hours": 8,
+      "water_mm_week": 30,
+      "season": [
+        "summer"
+      ],
+      "spacing_cm": 60,
+      "days_to_harvest": 55
+    },
+    {
+      "name": "Strawberry",
+      "scientific": "Fragaria x ananassa",
+      "ph_min": 5.5,
+      "ph_max": 6.5,
+      "ec_min": 1.0,
+      "ec_max": 1.8,
+      "temp_min": 10,
+      "temp_max": 25,
+      "humidity_min": 65,
+      "humidity_max": 80,
+      "light_hours": 6,
+      "water_mm_week": 20,
+      "season": [
+        "spring",
+        "summer"
+      ],
+      "spacing_cm": 30,
+      "days_to_harvest": 90
+    },
+    {
+      "name": "Spinach",
+      "scientific": "Spinacia oleracea",
+      "ph_min": 6.0,
+      "ph_max": 7.0,
+      "ec_min": 1.5,
+      "ec_max": 2.5,
+      "temp_min": 5,
+      "temp_max": 20,
+      "humidity_min": 60,
+      "humidity_max": 80,
+      "light_hours": 6,
+      "water_mm_week": 20,
+      "season": [
+        "spring",
+        "autumn",
+        "winter"
+      ],
+      "spacing_cm": 20,
+      "days_to_harvest": 40
+    },
+    {
+      "name": "Zucchini",
+      "scientific": "Cucurbita pepo",
+      "ph_min": 6.0,
+      "ph_max": 7.0,
+      "ec_min": 1.5,
+      "ec_max": 2.8,
+      "temp_min": 18,
+      "temp_max": 28,
+      "humidity_min": 60,
+      "humidity_max": 80,
+      "light_hours": 8,
+      "water_mm_week": 30,
+      "season": [
+        "summer"
+      ],
+      "spacing_cm": 80,
+      "days_to_harvest": 50
+    },
+    {
+      "name": "Green Bean",
+      "scientific": "Phaseolus vulgaris",
+      "ph_min": 6.0,
+      "ph_max": 6.8,
+      "ec_min": 1.5,
+      "ec_max": 2.5,
+      "temp_min": 15,
+      "temp_max": 28,
+      "humidity_min": 60,
+      "humidity_max": 75,
+      "light_hours": 8,
+      "water_mm_week": 25,
+      "season": [
+        "spring",
+        "summer"
+      ],
+      "spacing_cm": 40,
+      "days_to_harvest": 55
+    },
+    {
+      "name": "Carrot",
+      "scientific": "Daucus carota",
+      "ph_min": 5.5,
+      "ph_max": 6.8,
+      "ec_min": 1.0,
+      "ec_max": 2.0,
+      "temp_min": 10,
+      "temp_max": 25,
+      "humidity_min": 60,
+      "humidity_max": 80,
+      "light_hours": 6,
+      "water_mm_week": 15,
+      "season": [
+        "spring",
+        "autumn"
+      ],
+      "spacing_cm": 10,
+      "days_to_harvest": 70
+    },
+    {
+      "name": "Radish",
+      "scientific": "Raphanus sativus",
+      "ph_min": 6.0,
+      "ph_max": 7.0,
+      "ec_min": 0.8,
+      "ec_max": 1.6,
+      "temp_min": 10,
+      "temp_max": 25,
+      "humidity_min": 60,
+      "humidity_max": 80,
+      "light_hours": 6,
+      "water_mm_week": 15,
+      "season": [
+        "spring",
+        "autumn"
+      ],
+      "spacing_cm": 5,
+      "days_to_harvest": 30
+    },
+    {
+      "name": "Mint",
+      "scientific": "Mentha spp.",
+      "ph_min": 6.0,
+      "ph_max": 7.0,
+      "ec_min": 1.2,
+      "ec_max": 2.0,
+      "temp_min": 10,
+      "temp_max": 28,
+      "humidity_min": 60,
+      "humidity_max": 80,
+      "light_hours": 6,
+      "water_mm_week": 20,
+      "season": [
+        "spring",
+        "summer",
+        "autumn"
+      ],
+      "spacing_cm": 30,
+      "days_to_harvest": 60
+    },
+    {
+      "name": "Oregano",
+      "scientific": "Origanum vulgare",
+      "ph_min": 6.0,
+      "ph_max": 7.5,
+      "ec_min": 1.0,
+      "ec_max": 1.6,
+      "temp_min": 10,
+      "temp_max": 28,
+      "humidity_min": 40,
+      "humidity_max": 70,
+      "light_hours": 8,
+      "water_mm_week": 10,
+      "season": [
+        "spring",
+        "summer"
+      ],
+      "spacing_cm": 30,
+      "days_to_harvest": 70
+    },
+    {
+      "name": "Arugula",
+      "scientific": "Eruca vesicaria",
+      "ph_min": 6.0,
+      "ph_max": 7.0,
+      "ec_min": 0.8,
+      "ec_max": 1.4,
+      "temp_min": 10,
+      "temp_max": 25,
+      "humidity_min": 50,
+      "humidity_max": 70,
+      "light_hours": 6,
+      "water_mm_week": 15,
+      "season": [
+        "spring",
+        "autumn"
+      ],
+      "spacing_cm": 15,
+      "days_to_harvest": 35
+    },
+    {
+      "name": "Eggplant",
+      "scientific": "Solanum melongena",
+      "ph_min": 5.5,
+      "ph_max": 6.5,
+      "ec_min": 2.0,
+      "ec_max": 3.5,
+      "temp_min": 22,
+      "temp_max": 30,
+      "humidity_min": 65,
+      "humidity_max": 80,
+      "light_hours": 8,
+      "water_mm_week": 25,
+      "season": [
+        "summer"
+      ],
+      "spacing_cm": 60,
+      "days_to_harvest": 85
+    },
+    {
+      "name": "Kale",
+      "scientific": "Brassica oleracea var. sabellica",
+      "ph_min": 5.5,
+      "ph_max": 6.8,
+      "ec_min": 1.2,
+      "ec_max": 2.0,
+      "temp_min": 5,
+      "temp_max": 25,
+      "humidity_min": 60,
+      "humidity_max": 80,
+      "light_hours": 6,
+      "water_mm_week": 20,
+      "season": [
+        "spring",
+        "autumn",
+        "winter"
+      ],
+      "spacing_cm": 40,
+      "days_to_harvest": 60
+    },
+    {
+      "name": "Cherry Tomato",
+      "scientific": "Solanum lycopersicum var. cerasiforme",
+      "ph_min": 5.5,
+      "ph_max": 6.8,
+      "ec_min": 2.0,
+      "ec_max": 4.0,
+      "temp_min": 18,
+      "temp_max": 30,
+      "humidity_min": 60,
+      "humidity_max": 80,
+      "light_hours": 8,
+      "water_mm_week": 25,
+      "season": [
+        "spring",
+        "summer"
+      ],
+      "spacing_cm": 40,
+      "days_to_harvest": 65
+    },
+    {
+      "name": "Swiss Chard",
+      "scientific": "Beta vulgaris var. cicla",
+      "ph_min": 6.0,
+      "ph_max": 7.0,
+      "ec_min": 1.5,
+      "ec_max": 2.5,
+      "temp_min": 10,
+      "temp_max": 28,
+      "humidity_min": 60,
+      "humidity_max": 80,
+      "light_hours": 6,
+      "water_mm_week": 20,
+      "season": [
+        "spring",
+        "summer",
+        "autumn"
+      ],
+      "spacing_cm": 30,
+      "days_to_harvest": 55
+    },
+    {
+      "name": "Thyme",
+      "scientific": "Thymus vulgaris",
+      "ph_min": 6.0,
+      "ph_max": 7.5,
+      "ec_min": 0.8,
+      "ec_max": 1.4,
+      "temp_min": 10,
+      "temp_max": 28,
+      "humidity_min": 40,
+      "humidity_max": 70,
+      "light_hours": 8,
+      "water_mm_week": 10,
+      "season": [
+        "spring",
+        "summer"
+      ],
+      "spacing_cm": 25,
+      "days_to_harvest": 75
+    },
+    {
+      "name": "Sage",
+      "scientific": "Salvia officinalis",
+      "ph_min": 6.0,
+      "ph_max": 7.0,
+      "ec_min": 1.0,
+      "ec_max": 1.6,
+      "temp_min": 10,
+      "temp_max": 28,
+      "humidity_min": 40,
+      "humidity_max": 70,
+      "light_hours": 8,
+      "water_mm_week": 10,
+      "season": [
+        "spring",
+        "summer"
+      ],
+      "spacing_cm": 30,
+      "days_to_harvest": 75
+    }
+  ],
+  "metadata": {
+    "version": "1.0",
+    "total_plants": 20,
+    "fields": {
+      "name": "Common name",
+      "scientific": "Scientific name",
+      "ph_min": "Minimum soil pH",
+      "ph_max": "Maximum soil pH",
+      "ec_min": "Minimum EC (dS/m)",
+      "ec_max": "Maximum EC (dS/m)",
+      "temp_min": "Minimum temperature (\u00b0C)",
+      "temp_max": "Maximum temperature (\u00b0C)",
+      "humidity_min": "Minimum humidity (%)",
+      "humidity_max": "Maximum humidity (%)",
+      "light_hours": "Minimum daily light hours",
+      "water_mm_week": "Weekly water requirement (mm)",
+      "season": "Growing seasons",
+      "spacing_cm": "Plant spacing (cm)",
+      "days_to_harvest": "Days from transplant to harvest"
+    },
+    "sources": [
+      "FAO Plant Production Guidelines",
+      "USDA NRCS Plants Database",
+      "University Extension Services"
+    ]
+  }
+}
