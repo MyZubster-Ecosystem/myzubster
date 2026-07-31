@@ -1,293 +1,171 @@
-# 🤖 MyZubster AI Automation Service
+ 🌱 MyZubster - AI Automation System
 
-AI-powered automation service for the MyZubster ecosystem.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Node.js](https://img.shields.io/badge/Node.js-20.x-green.svg)](https://nodejs.org/)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
+
+## 📋 Overview
+
+MyZubster is an AI-powered automation system for managing bounties, issues, and notifications across GitHub, Telegram, and Slack. It uses intelligent agents to analyze, prioritize, and process tasks.
 
 ## 🚀 Features
 
-- **📱 Telegram Bot** - @myzubster_bot for notifications and commands
-- **🐙 GitHub Monitor** - Automatic monitoring of issues and PRs
-- **🧠 AI Orchestrator** - Analysis with Gemma, Llama, and DeepSeek
-- **💰 Bounty Creator** - Automatic bounty creation
-- **🔔 Notifications** - Real-time alerts on Telegram
-- **🔄 Multi-Model Fallback** - Automatic switching between AI models
+- **AI Orchestrator**: Intelligent task routing and queue management
+- **Multi-Agent System**: Plant, Pet, Payment, Verification agents
+- **Notification System**: Multi-channel (Telegram + Slack) with automatic fallback
+- **Dashboard**: Real-time monitoring of services and issues
+- **GitHub Integration**: Automatic issue analysis and processing
+- **Monero (XMR) Support**: Payment processing and bounty management
+- **Long-Term Memory**: TTL-aware cache with store/retrieve/query operations
 
-## 📋 Prerequisites
+## 📦 Installation
 
-- Node.js (v18+)
-- MongoDB (for backend)
-- Ollama (for local AI models)
-- Telegram Bot Token
-- GitHub Personal Access Token
+### Prerequisites
+- Node.js 20.x
+- MongoDB 6.x
+- Git
 
-## 🛠️ Installation
+### Setup
 
 ```bash
-# Navigate to the service directory
-cd services/ai-automation
+# Clone the repository
+git clone https://github.com/MyZubster-Ecosystem/myzubster.git
+cd myzubster
 
 # Install dependencies
 npm install
+cd backend && npm install
+cd ../services/ai-automation && npm install
 
-# Configure environment variables
+# Configure environment
 cp .env.example .env
-nano .env
-🔧 Configuration
-.env File
+cp backend/.env.example backend/.env
+cp services/ai-automation/.env.example services/ai-automation/.env
+
+# Start the system
+./start-backend.sh
+
+⚙️ Configuration
+Environment Variables
 env
 
-# Telegram Configuration
-TELEGRAM_BOT_TOKEN=your_telegram_bot_token_here
-TELEGRAM_CHAT_ID=your_chat_id_here
+# Server
+PORT=3009
+NODE_ENV=development
 
-# GitHub Configuration
-GITHUB_TOKEN=your_github_token_here
-GITHUB_REPO=MyZubster-Ecosystem/myzubster
-
-# AI Models - DeepSeek API (optional)
-DEEPSEEK_API_KEY=your_deepseek_api_key_here
-DEEPSEEK_API_URL=https://api.deepseek.com/v1
-
-# AI Models - Local Ollama
-GEMMA_API_URL=http://localhost:11434/api
-GEMMA_MODEL=gemma:2b
-LLAMA_MODEL=llama3.2:3b
-DEFAULT_AI_MODEL=gemma:2b
-
-# Backend API (optional)
-BACKEND_URL=http://localhost:3002
-BACKEND_API_KEY=your_backend_api_key_here
-
-# System Configuration
-PORT=5678
-MONITOR_INTERVAL=300000
-NODE_ENV=production
-
-# MongoDB (optional - if using backend)
+# MongoDB
 MONGODB_URI=mongodb://localhost:27017/myzubster
 
-🚀 Running
-Development
-bash
+# Telegram (fallback channel)
+TELEGRAM_BOT_TOKEN=your_bot_token
+TELEGRAM_CHAT_ID=your_chat_id
 
-npm run dev
+# Slack (preferred channel)
+SLACK_WEBHOOK_URL=https://hooks.slack.com/services/...
 
-Production
-bash
+# GitHub
+GITHUB_TOKEN=your_github_token
+GITHUB_REPO=MyZubster-Ecosystem/myzubster
 
-npm start
+# Monero (XMR)
+XMR_WALLET_ADDRESS=your_wallet_address
+XMR_RPC_URL=http://localhost:18081
 
-As systemd service
-bash
+📚 Documentation
 
-# Create service file
-sudo nano /etc/systemd/system/myzubster-ai.service
+Complete API documentation is available in the docs/ directory:
 
-# Service file content:
-[Unit]
-Description=MyZubster AI Automation Service
-After=network.target mongod.service
+    API Reference
 
-[Service]
-Type=simple
-User=root
-WorkingDirectory=/root/myzubster/myzubster-merged/services/ai-automation
-ExecStart=/usr/bin/node /root/myzubster/myzubster-merged/services/ai-automation/index.js
-Restart=always
-RestartSec=10
-Environment=NODE_ENV=production
-Environment=PORT=5678
+    AI Contract
 
-[Install]
-WantedBy=multi-user.target
+    Bot Contract
 
-# Start the service
-sudo systemctl daemon-reload
-sudo systemctl enable myzubster-ai
-sudo systemctl start myzubster-ai
-sudo systemctl status myzubster-ai
-
-📱 Telegram Commands
-
-The @myzubster_bot responds to the following commands:
-Command	Description
-/start	Welcome message and guide
-/status	System and services status
-/github	Recent GitHub activity
-/bounties	List of active bounties
-/analyze	AI analysis of an issue
-/help	Show all available commands
-📊 API Endpoints
-Endpoint	Method	Description
-/health	GET	System health check
-/api/status	GET	Detailed service status
-/api/analyze	POST	AI analysis of an issue
-/api/github/issue	POST	Submit issue for analysis
-🧠 AI Models
-
-The system supports three models with automatic fallback:
-Model	Provider	Size	Usage
-Gemma 2B	Google	1.7 GB	Default - Fast and lightweight
-Llama 3.2 3B	Meta	2.0 GB	Fallback - More powerful
-DeepSeek R1 1.5B	DeepSeek	1.1 GB	Fallback - Reasoning
-AI Models Setup
-bash
-
-# Install Ollama
-curl -fsSL https://ollama.com/install.sh | sh
-
-# Pull models
-ollama pull gemma:2b
-ollama pull llama3.2:3b
-ollama pull deepseek-r1:1.5b
-
-# Verify installed models
-ollama list
-
-# Test a model
-ollama run gemma:2b "Hello, test!"
-
-📁 Project Structure
+🏗️ Architecture
 text
 
-services/ai-automation/
-├── src/
-│   ├── telegram/
-│   │   └── bot.js           # Telegram bot handler
-│   ├── github/
-│   │   └── monitor.js       # GitHub monitor
-│   ├── ai/
-│   │   └── orchestrator.js  # AI orchestrator
-│   └── orchestrator/
-│       └── index.js         # Main orchestrator
-├── logs/
-│   ├── combined.log         # General log
-│   └── error.log            # Error log
-├── scripts/
-│   └── ...                  # Utility scripts
-├── .env.example             # Configuration template
-├── index.js                 # Entry point
-├── package.json
-├── create-issues.js         # GitHub issues creator
-└── README.md
+┌─────────────────────────────────────────────────────────────┐
+│                    MyZubster System                        │
+├─────────────────────────────────────────────────────────────┤
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐│
+│  │   Express   │  │  AI        │  │   Notification      ││
+│  │   Backend   │  │Orchestrator│  │   System            ││
+│  │   Port 3009 │  │            │  │   (Slack/Telegram)  ││
+│  └─────────────┘  └─────────────┘  └─────────────────────┘│
+│         │              │                      │           │
+│  ┌──────▼──────┐  ┌────▼────┐  ┌────────────▼──────────┐│
+│  │  MongoDB   │  │ Agents  │  │  GitHub Integration   ││
+│  │  Database  │  │ Plant   │  │  (Issues/Bounties)    ││
+│  └────────────┘  │ Pet     │  └────────────────────────┘│
+│                  │ Payment │                              │
+│                  │Verific. │                              │
+│                  └─────────┘                              │
+└─────────────────────────────────────────────────────────────┘
 
-🔍 Monitoring
-Health Check
+🧪 Testing
 bash
 
-curl http://localhost:5678/health
+# Run all tests
+npm test
 
-Logs
-bash
+# Run backend tests
+cd backend && npm test
 
-# systemd service logs
-sudo journalctl -u myzubster-ai -f
+# Run AI Automation tests
+cd services/ai-automation && npm test
 
-# File logs
-tail -f logs/combined.log
+# Run dashboard tests
+node backend/test-dashboard.js
 
-🐛 Troubleshooting
-Port already in use
-bash
+📊 Dashboard
 
-sudo lsof -i :5678
-sudo kill -9 <PID>
+Access the dashboard at: http://localhost:3009/dashboard
 
-MongoDB not connected
-bash
+The dashboard shows:
 
-sudo systemctl restart mongod
-sudo systemctl status mongod
+    Service status (Telegram, Slack, GitHub, AI, MongoDB)
 
-Ollama not responding
-bash
+    Recent issues
 
-sudo systemctl restart ollama
-ollama list  # Verify installed models
+    Active bounties
 
-Invalid Telegram token
-bash
-
-curl "https://api.telegram.org/bot<TOKEN>/getMe"
-
-GitHub API errors
-bash
-
-# Verify token is valid
-curl -H "Authorization: token <GITHUB_TOKEN>" https://api.github.com/user
-
-# Check rate limit
-curl -H "Authorization: token <GITHUB_TOKEN>" https://api.github.com/rate_limit
+    System statistics
 
 🤝 Contributing
 
+We welcome contributions! Please see:
+
+    Contributing Guide
+
+    Code of Conduct
+
+Development Workflow
+
     Fork the repository
 
-    Create your feature branch (git checkout -b feature/amazing-feature)
+    Create a feature branch (git checkout -b feat/amazing-feature)
 
-    Commit your changes (git commit -m 'Add some amazing feature')
+    Commit changes (git commit -m 'Add amazing feature')
 
-    Push to the branch (git push origin feature/amazing-feature)
+    Push to branch (git push origin feat/amazing-feature)
 
     Open a Pull Request
 
-📝 License
+📄 License
 
-MIT License - See the LICENSE file for details.
+This project is licensed under the MIT License - see the LICENSE file for details.
 🙏 Acknowledgments
 
-    Ollama - Local AI model runner
+    Contributors and maintainers
 
-    Google Gemma - Lightweight AI model
+    Open-source community
 
-    Meta Llama - Powerful language model
+    All MyZubster users
 
-    DeepSeek - Reasoning model
+📞 Contact
 
-📧 Contact
+    GitHub: @MyZubster-Ecosystem
 
-    GitHub: MyZubster-Ecosystem
-
-    Telegram: @myzubster_bot
-
-    Channel: @myzubster
+    Telegram: @MyZubsterBot
 
 Built with ❤️ by the MyZubster Team
-
-## 📚 Documentazione
-
-La documentazione completa di MyZubster è disponibile nel repository [myzubster-docs](https://github.com/MyZubster-Ecosystem/myzubster-docs).
-
-### Guide
-- [Guida pratica per l'uso dell'orto intelligente](docs/guides/GUIDA_ORTO_INTELLIGENTE.md) - IT/EN
-
-### Educazione
-- [Piano didattico per scuole](docs/education/PIANO_DIDATTICO_SCUOLE.md) - Programma STEM (11-18 anni)
-- [Progetto orti scolastici](docs/education/PROGETTO_ORTI_SCOLASITICI.md) - Toolkit sostenibile
-
-### Ricerca
-- [Protocollo di validazione sensori](docs/research/PROTOCOLLO_VALIDAZIONE.md) - Validazione scientifica
-
-### Template
-- [Template orto comunitario](docs/guides/TEMPLATE_ORTO_COMUNITARIO.md) - Setup e gestione
-
-## 📚 Documentazione
-
-La documentazione completa di MyZubster è disponibile nella cartella `docs/`.
-
-### Guide
-- [Guida pratica per l'uso dell'orto intelligente](docs/guides/GUIDA_ORTO_INTELLIGENTE.md) - IT/EN
-
-### Educazione
-- [Piano didattico per scuole](docs/education/PIANO_DIDATTICO_SCUOLE.md) - Programma STEM (11-18 anni)
-- [Progetto orti scolastici](docs/education/PROGETTO_ORTI_SCOLASITICI.md) - Toolkit sostenibile
-
-### Ricerca
-- [Protocollo di validazione sensori](docs/research/PROTOCOLLO_VALIDAZIONE.md) - Validazione scientifica
-
-### Template
-- [Template orto comunitario](docs/guides/TEMPLATE_ORTO_COMUNITARIO.md) - Setup e gestione
-
-### Altri documenti
-- [AI Contract](docs/AI_CONTRACT.md)
-- [Bot Contract](docs/BOT_CONTRACT.md)
-- [Documenti legali](docs/legal/)
