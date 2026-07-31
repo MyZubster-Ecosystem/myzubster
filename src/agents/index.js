@@ -11,6 +11,7 @@ const PlantAgent = require('./skills/plantAgent');
 const PetAgent = require('./skills/petAgent');
 const PaymentAgent = require('./skills/paymentAgent');
 const VerificationAgent = require('./skills/verificationAgent');
+const NotificationAgent = require('./skills/notificationAgent');
 
 module.exports = {
   AgentOrchestrator,
@@ -18,5 +19,6 @@ module.exports = {
   PlantAgent,
   PetAgent,
   PaymentAgent,
-  VerificationAgent
+  VerificationAgent,
+  NotificationAgent
 };

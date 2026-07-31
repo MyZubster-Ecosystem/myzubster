@@ -203,6 +203,19 @@ function getServiceStatus() {
       lastUpdate: new Date(Date.now() - 300000).toISOString()
     }
   };
+
+  // Slack service status - simulated
+  const slackStatus = {
+    name: 'Slack Incoming Webhook',
+    status: process.env.SLACK_WEBHOOK_URL ? 'online' : 'offline',
+    lastCheck: now,
+    latency: process.env.SLACK_WEBHOOK_URL ? Math.floor(Math.random() * 60) + 10 + 'ms' : 'N/A',
+    details: {
+      webhook: process.env.SLACK_WEBHOOK_URL ? 'configured' : 'not_configured',
+      channel: process.env.SLACK_WEBHOOK_URL ? '#myzubster-updates' : '-',
+      lastDelivery: process.env.SLACK_WEBHOOK_URL ? new Date(Date.now() - 120000).toISOString() : '-'
+    }
+  };
   
   // GitHub service status - simulated
   const githubStatus = {
@@ -240,6 +253,7 @@ function getServiceStatus() {
   }
   
   return {
+    slack: slackStatus,
     telegram: telegramStatus,
     github: githubStatus,
     ai: aiStatus

@@ -71,6 +71,45 @@ All components are licensed under the **MIT License** – free for everyone to u
 ## 💬 Community
 
 - **Telegram**: [@MyZubster_bot](https://t.me/MyZubster_bot) – for updates, support, and discussions.
+- **Slack**: [myzubster-updates](https://myzubster.slack.com) – join for real-time notifications and contributor chat.
+
+## 🔔 Notifications
+
+MyZubster supports **Slack** and **Telegram** notifications for AI Automation events.
+
+### Slack setup
+
+1. Create an **Incoming Webhook** in your Slack workspace.
+2. Set the environment variable:
+
+```bash
+export SLACK_WEBHOOK_URL="https://hooks.slack.com/services/T.../B.../xxx"
+```
+
+### Telegram setup
+
+1. Create a bot with [@BotFather](https://t.me/BotFather) and set:
+
+```bash
+export TELEGRAM_BOT_TOKEN="123456:ABC-DEF..."
+export TELEGRAM_CHAT_ID="123456789"
+```
+
+### Channel selection
+
+- If `SLACK_WEBHOOK_URL` is set, **Slack** is the default channel.
+- Otherwise, if Telegram env vars are set, **Telegram** is used.
+- You can also force a channel in code:
+
+```js
+const { NotificationAgent } = require('./src/agents');
+
+const notifier = new NotificationAgent();
+await notifier.send('Build completata', { channel: 'slack' });
+await notifier.sendTelegram('Attenzione: errore');
+```
+
+When no channel is configured, notifications are logged and skipped without crashing the caller.
 
 
 ## 🌐 Connect with Us

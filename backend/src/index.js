@@ -140,6 +140,18 @@ app.get('/dashboard', (_req, res) => {
             </div>
           </div>
           <div class="card">
+            <h2>💬 Slack</h2>
+            <span class="status-badge ${data.services.slack.status === 'online' ? 'status-online' : 'status-offline'}">
+              <span class="dot ${data.services.slack.status === 'online' ? 'dot-online' : 'dot-offline'}"></span>
+              ${data.services.slack.status.toUpperCase()}
+            </span>
+            <div class="service-details">
+              <div class="detail-row"><span class="detail-label">Webhook</span><span class="detail-value">${data.services.slack.details.webhook}</span></div>
+              <div class="detail-row"><span class="detail-label">Canale</span><span class="detail-value">${data.services.slack.details.channel}</span></div>
+              <div class="detail-row"><span class="detail-label">Latenza</span><span class="detail-value">${data.services.slack.latency}</span></div>
+            </div>
+          </div>
+          <div class="card">
             <h2>📱 Telegram</h2>
             <span class="status-badge \${data.services.telegram.status === 'online' ? 'status-online' : 'status-offline'}">
               <span class="dot \${data.services.telegram.status === 'online' ? 'dot-online' : 'dot-offline'}"></span>
