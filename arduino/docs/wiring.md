@@ -88,7 +88,134 @@ Questa guida mostra i collegamenti per due configurazioni comuni:
 [Relè]     <--- [Digital] <--- [MCU] ---> [Pompa]
 ```
 
-## 4. Linee guida di isolamento
-- Usare cavi schermati per i segnali analogici (pH/EC) se i cavi superano i 20-30 cm.
+## 4. Sensore capacitivo umidità suolo
+
+### Arduino Uno (5V)
+
+```
+                         +-----------------+
+                         |    Arduino Uno  |
+                         |                 |
+                         |                 |
+          Moisture ---- | A0              |
+                         |                 |
+          Moisture VCC -| 5V              |
+          Moisture GND -| GND             |
+                         |                 |
+          Alim. 5V/12V ---| VIN / 5V        |
+                         +-----------------+
+```
+
+### ESP32 DevKit (3.3V)
+
+```
+                         +-----------------+
+                         |     ESP32       |
+                         |                 |
+                         |                 |
+          Moisture ---- | GPIO36 (VP)     |
+                         |                 |
+          Moisture VCC -| 3V3             |
+          Moisture GND -| GND             |
+                         |                 |
+          Alim. 5V/12V ---| VIN / 5V        |
+                         +-----------------+
+```
+
+### Note
+- Il sensore capacitivo restituisce un valore analogico che diminuisce all'aumentare dell'umidità.
+- Calibrare i valori `DRY_VALUE` e `WET_VALUE` secondo il proprio sensore.
+- Evitare di immergere completamente la parte sensibile oltre la linea indicata dal produttore.
+
+## 5. Sensore di luce LDR (fotoresistore)
+
+### Arduino Uno (5V)
+
+```
+                         +-----------------+
+                         |    Arduino Uno  |
+                         |                 |
+                         |                 |
+          LDR    A0 ----| A0              |
+                         |                 |
+          LDR   VCC ----| 5V              |
+          LDR   GND ----| GND             |
+                         |                 |
+          R10k  A0 ----| A0 (partitore)  |
+          R10k  GND ----| GND             |
+                         |                 |
+          Alim. 5V/12V ---| VIN / 5V        |
+                         +-----------------+
+```
+
+### ESP32 DevKit (3.3V)
+
+```
+                         +-----------------+
+                         |     ESP32       |
+                         |                 |
+                         |                 |
+          LDR    A0 ----| GPIO36 (VP)     |
+                         |                 |
+          LDR   VCC ----| 3V3             |
+          LDR   GND ----| GND             |
+                         |                 |
+          R10k  A0 ----| GPIO36 (partitore)
+          R10k  GND ----| GND             |
+                         |                 |
+          Alim. 5V/12V ---| VIN / 5V        |
+                         +-----------------+
+```
+
+### Note
+- Configurazione partitore di tensione: VCC -> LDR -> A0 -> resistenza 10kΩ -> GND.
+- Su ESP32 la lettura analogica è a 12 bit; lo sketch usa `analogReadResolution(10)` per coerenza.
+- La curva lux/ADC è approssimativa; calibrare le costanti `LUX_K` e `LUX_EXPONENT` con un luxmetro.
+
+## 6. Sensore pressione BMP180
+
+### Arduino Uno (5V)
+
+```
+                         +-----------------+
+                         |    Arduino Uno  |
+                         |                 |
+                         |                 |
+          BMP180 SDA ----| A4              |
+          BMP180 SCL ----| A5              |
+                         |                 |
+          BMP180 VCC ----| 3V3             |  <-- NON usare 5V!
+          BMP180 GND ----| GND             |
+                         |                 |
+          Alim. 5V/12V ---| VIN / 5V        |
+                         +-----------------+
+```
+
+### ESP32 DevKit (3.3V)
+
+```
+                         +-----------------+
+                         |     ESP32       |
+                         |                 |
+                         |                 |
+          BMP180 SDA ----| GPIO21 (SDA)    |
+          BMP180 SCL ----| GPIO22 (SCL)    |
+                         |                 |
+          BMP180 VCC ----| 3V3             |  <-- NON usare 5V!
+          BMP180 GND ----| GND             |
+                         |                 |
+          Alim. 5V/12V ---| VIN / 5V        |
+                         +-----------------+
+```
+
+### Note
+- Il BMP180 comunica via I2C. Su ESP32 l'I2C hardware usa GPIO21 (SDA) e GPIO22 (SCL) di default.
+- Alimentare il sensore a 3.3V: l'alimentazione a 5V può danneggiarlo.
+- Verificare l'indirizzo I2C con uno scanner se il sensore non viene rilevato.
+- In caso di interferenze, aggiungere resistenze di pull-up (4.7kΩ) su SDA e SCL.
+
+## 7. Linee guida di isolamento
+- Usare cavi schermati per i segnali analogici (pH/EC/umidità/LDR) se i cavi superano i 20-30 cm.
 - Separare le alimentazioni di potenza (pompa) da quelle di segnale (sensori) se possibile.
 - Inserire un condensatore di filtro (100nF - 1uF) tra VCC e GND vicino ai sensori analogici per ridurre il rumore.
+- Per l'I2C, mantenere le linee SDA/SCL corte (< 30 cm) e usare terminazioni se necessario.

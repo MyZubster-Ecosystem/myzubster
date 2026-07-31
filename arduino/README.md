@@ -13,8 +13,14 @@ arduino/
 │   │   └── PhEcSensor.ino
 │   ├── WifiUpload/
 │   │   └── WifiUpload.ino
-│   └── SerialDashboard/
-│       └── SerialDashboard.ino
+│   ├── SerialDashboard/
+│   │   └── SerialDashboard.ino
+│   ├── SoilMoistureSensor/
+│   │   └── SoilMoistureSensor.ino
+│   ├── LightSensor/
+│   │   └── LightSensor.ino
+│   └── Bmp180Pressure/
+│       └── Bmp180Pressure.ino
 ├── docs/
 │   ├── wiring.md
 │   └── calibration.md
@@ -39,6 +45,7 @@ arduino/
 - `ArduinoJson` (by Benoit Blanchon) — v6.x o v7.x
 - `DHT sensor library` (by Adafruit) — v1.4.x
 - `Adafruit Unified Sensor` (dipendenza di DHT)
+- `Adafruit BMP085 Library` (by Adafruit) — per sensore BMP180
 - `HTTPClient` (inclusa nel core ESP32)
 - `WiFi` (inclusa nel core ESP32 / AVR)
 
@@ -61,7 +68,11 @@ Formato payload:
     "ph": 6.5,
     "ec": 1.2,
     "temperature": 22.4,
-    "humidity": 65.0
+    "humidity": 65.0,
+    "soil_moisture": 42.3,
+    "light_lux": 850.0,
+    "light_voltage": 1.85,
+    "pressure": 1013.25
   },
   "timestamp": 1690000000
 }

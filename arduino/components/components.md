@@ -19,6 +19,9 @@ Componenti minimi per un impianto di orto intelligente basato sugli sketch di es
 | Temperatura/umidità | DHT22 (AM2302)            | 1    | Digitale, 1-wire                                | 3 - 6                   |
 | Elettrodo pH        | Elettrodo di ricambio     | 1    | Compatibile con Gravity pH Sensor               | 8 - 15                  |
 | Sonda EC            | Sonda di ricambio K=1     | 1    | Per manutenzione periodica                      | 10 - 20                 |
+| Umidità suolo       | Capacitive Soil Moisture  | 1    | Analoga, richiede calibrazione                  | 3 - 8                   |
+| Luce LDR            | Fotoresistore 10kΩ + LDR  | 1    | Partitore di tensione, calibrazione consigliata | 1 - 3                   |
+| Pressione BMP180    | BMP180 / BMP085           | 1    | I2C, richiede libreria Adafruit                | 5 - 12                  |
 
 ## Attuatori
 
