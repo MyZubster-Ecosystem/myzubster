@@ -252,3 +252,20 @@ MIT License - See the LICENSE file for details.
     Channel: @myzubster
 
 Built with ❤️ by the MyZubster Team
+
+## 📚 Documentazione
+
+La documentazione completa di MyZubster è disponibile nel repository [myzubster-docs](https://github.com/MyZubster-Ecosystem/myzubster-docs).
+
+### Guide
+- [Guida pratica per l'uso dell'orto intelligente](docs/guides/GUIDA_ORTO_INTELLIGENTE.md) - IT/EN
+
+### Educazione
+- [Piano didattico per scuole](docs/education/PIANO_DIDATTICO_SCUOLE.md) - Programma STEM (11-18 anni)
+- [Progetto orti scolastici](docs/education/PROGETTO_ORTI_SCOLASITICI.md) - Toolkit sostenibile
+
+### Ricerca
+- [Protocollo di validazione sensori](docs/research/PROTOCOLLO_VALIDAZIONE.md) - Validazione scientifica
+
+### Template
+- [Template orto comunitario](docs/guides/TEMPLATE_ORTO_COMUNITARIO.md) - Setup e gestione
