@@ -3,6 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const morgan = require('morgan');
 const Message = require('./models/Message');
+const gardenRoutes = require('./routes/gardens');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -133,6 +134,8 @@ app.put('/api/messages/:messageId/read', async (req, res) => {
     });
   }
 });
+
+app.use('/api/gardens', gardenRoutes);
 
 app.listen(port, () => {
   console.log(`MyZubster backend listening on port ${port}`);
