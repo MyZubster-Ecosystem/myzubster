@@ -1,8 +1,28 @@
+<<<<<<< HEAD
 # Node modules
+=======
+# Secrets
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+*.crt
+*.p12
+*.pfx
+*.der
+
+# SSH
+.ssh/
+known_hosts
+
+# Node
+>>>>>>> 2d840d3138c125e8384e8db07ce71c667ea32607
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+<<<<<<< HEAD
 
 # Environment
 .env
@@ -22,21 +42,73 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+=======
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+>>>>>>> 2d840d3138c125e8384e8db07ce71c667ea32607
 
 # Build
 dist/
 build/
+<<<<<<< HEAD
+=======
+*.min.js
+*.min.css
+*.js.map
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+
+# IDE
+.vscode/
+.idea/
+*.iml
+.project
+.classpath
+.settings/
+>>>>>>> 2d840d3138c125e8384e8db07ce71c667ea32607
 
 # Temporary
 tmp/
 temp/
 *.tmp
+<<<<<<< HEAD
+=======
+.cache/
+>>>>>>> 2d840d3138c125e8384e8db07ce71c667ea32607
 
 # Coverage
 coverage/
 .nyc_output/
 
+<<<<<<< HEAD
 # Misc
 *.pid
 *.seed
 *.pid.lock
+=======
+# Vercel
+.vercel/
+
+# Docker
+docker-compose.override.yml
+*.dockerignore
+
+# Monero
+monero-wallet/
+monero-testnet/
+*.wallet
+*.wallet.keys
+*.wallet.address
+>>>>>>> 2d840d3138c125e8384e8db07ce71c667ea32607
