@@ -26,6 +26,7 @@ mongoose.connect(process.env.MONGODB_URI)
 // Route
 app.use('/api/auth', require('./src/routes/authRoutes'));
 app.use('/api/animals', require('./src/routes/animalRoutes'));
+app.use('/api/plants', require('./src/routes/plantRoutes'));
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -71,6 +72,11 @@ app.get('/', (req, res) => {
         list: '/api/animals',
         register: '/api/animals/register',
         detail: '/api/animals/:id'
+      },
+      plants: {
+        list: '/api/plants',
+        register: '/api/plants/register',
+        detail: '/api/plants/:id'
       }
     }
   });
@@ -102,6 +108,7 @@ const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`📋 Info: http://localhost:${PORT}/api/info`);
   console.log(`🔐 Auth: http://localhost:${PORT}/api/auth/register`);
   console.log(`🐾 Animals: http://localhost:${PORT}/api/animals`);
+  console.log(`🌿 Plants: http://localhost:${PORT}/api/plants`);
 });
 
 // Graceful shutdown
