@@ -19,15 +19,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Connessione a MongoDB
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
+mongoose.connect(process.env.MONGODB_URI)
 .then(() => console.log('✅ MongoDB connected'))
 .catch(err => console.error('❌ MongoDB connection error:', err));
 
 // Route
 app.use('/api/auth', require('./src/routes/authRoutes'));
+app.use('/api/animals', require('./src/routes/animalRoutes'));
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -68,9 +66,13 @@ app.get('/', (req, res) => {
         register: '/api/auth/register',
         login: '/api/auth/login',
         profile: '/api/auth/profile'
+      },
+      animals: {
+        list: '/api/animals',
+        register: '/api/animals/register',
+        detail: '/api/animals/:id'
       }
-    },
-    documentation: 'https://github.com/MyZubster-Ecosystem/MyZubsterGateway'
+    }
   });
 });
 
@@ -99,6 +101,7 @@ const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
   console.log(`📋 Info: http://localhost:${PORT}/api/info`);
   console.log(`🔐 Auth: http://localhost:${PORT}/api/auth/register`);
+  console.log(`🐾 Animals: http://localhost:${PORT}/api/animals`);
 });
 
 // Graceful shutdown
