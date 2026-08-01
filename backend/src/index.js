@@ -6,7 +6,8 @@ const morgan = require('morgan');
 const mongoose = require('mongoose');
 
 // Import routes
-const gardenRoutes = require('./routes/gardens');
+const gardenRoutes = require('./routes/gardens')
+const plantsRouter = require('./routes/plants');
 
 const app = express();
 const PORT = process.env.PORT || 3009;
@@ -39,7 +40,8 @@ app.get('/health', (req, res) => {
 });
 
 // Garden routes
-app.use('/api/gardens', gardenRoutes);
+app.use('/api/gardens'
+app.use('/api/plants', plantsRouter), gardenRoutes);
 
 // Dashboard API endpoint
 app.get('/api/dashboard', (req, res) => {
