@@ -83,3 +83,13 @@ services/notification/node_modules/
 
 # Local Netlify folder
 .netlify
+.env
+.env.*
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+*.env
+frontend/.env
+backend/.env
