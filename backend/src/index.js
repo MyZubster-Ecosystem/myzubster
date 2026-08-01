@@ -307,3 +307,114 @@ app.get('/api/payments/status', (req, res) => {
   const { notifier } = require('../../services/notification/bot');
   res.json(notifier.getPaymentStatus());
 });
+
+// ============================================
+// PAYMENT TRACKING API
+// ============================================
+
+/**
+ * Registra un pagamento
+ * POST /api/payments/record
+ */
+app.post('/api/payments/record', async (req, res) => {
+  try {
+    const { issueId, bounty, contributor, txid, address } = req.body;
+    
+    // Validazione
+    if (!issueId || !bounty || !contributor || !txid || !address) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required fields: issueId, bounty, contributor, txid, address'
+      });
+    }
+    
+    // Registra il pagamento
+    const { notifier } = require('../../services/notification/bot');
+    const payment = notifier.recordPayment(issueId, bounty, contributor, txid, address);
+    
+    res.json({
+      success: true,
+      data: payment,
+      message: `✅ Pagamento registrato per issue #${issueId}`
+    });
+  } catch (error) {
+    console.error('Errore registrazione pagamento:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * Ottieni lo stato dei pagamenti
+ * GET /api/payments/status
+ */
+app.get('/api/payments/status', (req, res) => {
+  try {
+    const { notifier } = require('../../services/notification/bot');
+    const status = notifier.getPaymentStatus();
+    res.json({
+      success: true,
+      data: status
+    });
+  } catch (error) {
+    console.error('Errore stato pagamenti:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * Ottieni lo storico completo
+ * GET /api/payments/history
+ */
+app.get('/api/payments/history', (req, res) => {
+  try {
+    const history = require('../../services/notification/history');
+    res.json({
+      success: true,
+      data: history
+    });
+  } catch (error) {
+    console.error('Errore storico pagamenti:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * Registra un wallet
+ * POST /api/payments/wallet
+ */
+app.post('/api/payments/wallet', async (req, res) => {
+  try {
+    const { contributor, address, issueId, bounty } = req.body;
+    
+    if (!contributor || !address || !issueId || !bounty) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required fields: contributor, address, issueId, bounty'
+      });
+    }
+    
+    const { notifier } = require('../../services/notification/bot');
+    const wallet = notifier.registerWallet(contributor, address, issueId, bounty);
+    
+    res.json({
+      success: true,
+      data: wallet,
+      message: `✅ Wallet registrato per ${contributor}`
+    });
+  } catch (error) {
+    console.error('Errore registrazione wallet:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});

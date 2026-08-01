@@ -80,3 +80,6 @@ monero-testnet/
 ai-automation-backup/
 myzubster-merged/
 services/notification/node_modules/
+
+# Local Netlify folder
+.netlify
