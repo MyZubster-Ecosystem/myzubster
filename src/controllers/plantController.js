@@ -56,7 +56,7 @@ exports.register = async (req, res) => {
 exports.getAll = async (req, res) => {
   try {
     const { 
-      species, family, type, verified,
+      species, family, type, verified, status,
       search, limit = 50, page = 1
     } = req.query;
 
@@ -65,6 +65,13 @@ exports.getAll = async (req, res) => {
     if (family) query.family = { $regex: family, $options: 'i' };
     if (type) query.type = type;
     if (verified !== undefined) query.verified = verified === 'true';
+    // Frontend sends status=verified|pending|rejected; map to verified flag
+    if (verified === undefined && status) {
+      const statusLower = status.toLowerCase();
+      if (statusLower === 'verified') query.verified = true;
+      else if (statusLower === 'pending' || statusLower === 'unverified') query.verified = false;
+      else if (statusLower === 'rejected') query.verified = false; // rejected not separately tracked
+    }
 
     if (search) {
       query.$text = { $search: search };
@@ -80,13 +87,21 @@ exports.getAll = async (req, res) => {
 
     const total = await Plant.countDocuments(query);
 
+    // Frontend expects `plants` array and per-item `status` string
+    const plantsWithStatus = plants.map((p) => {
+      const obj = p.toObject ? p.toObject() : p;
+      obj.status = obj.verified ? 'verified' : 'pending';
+      return obj;
+    });
+
     res.json({
       success: true,
-      count: plants.length,
+      count: plantsWithStatus.length,
       total,
       page: parseInt(page),
       totalPages: Math.ceil(total / parseInt(limit)),
-      data: plants
+      plants: plantsWithStatus,
+      data: plantsWithStatus
     });
 
   } catch (error) {
