@@ -3,9 +3,13 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+<<<<<<< HEAD
 const mongoose = require('mongoose');
 
 // Import routes
+=======
+const Message = require('./models/Message');
+>>>>>>> 6561d1d (feat: Geolocalizzazione bounty #17  Implementazione della funzionalità di geolocalizzazione per il bounty #17.  ## Novità - Modello Garden con indice 2dsphere (GeoJSON Point) e indice text - Integrazione OSM Nominatim per geocoding e reverse geocoding - Campo address per ogni garden - GET /api/gardens/search?q=... (ricerca testuale + fallback geocoding) - GET /api/gardens/nearby?lat=...&lng=...&radius=... (query geospaziali) - GET /api/gardens/geocode?q=... (utility di geocoding) - CRUD completo: POST, GET, GET/:id, PUT, DELETE /api/gardens - 36 test (coprono geocoding, search, nearby, CRUD, edge case)  Co-authored-by: CloudPaw-Master <cloud-orchestrator>)
 const gardenRoutes = require('./routes/gardens');
 
 const app = express();
@@ -269,6 +273,7 @@ app.get('/dashboard', (req, res) => {
   `);
 });
 
+<<<<<<< HEAD
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error('Error:', err.stack);
@@ -317,6 +322,26 @@ app.get('/api/payments/status', (req, res) => {
  * POST /api/payments/record
  */
 app.post('/api/payments/record', async (req, res) => {
+=======
+// Rotta benvenuto / stato
+app.get('/', (_req, res) => {
+  res.json({
+    success: true,
+    message: 'MyZubster backend',
+    version: '1.0.0',
+    endpoints: {
+      health: '/health',
+      messages: '/api/messages',
+      gardens: '/api/gardens',
+    },
+  });
+});
+
+// Rotta Garden (geolocalizzazione)
+app.use('/api/gardens', gardenRoutes);
+
+app.put('/api/messages/:messageId/read', async (req, res) => {
+>>>>>>> 6561d1d (feat: Geolocalizzazione bounty #17  Implementazione della funzionalità di geolocalizzazione per il bounty #17.  ## Novità - Modello Garden con indice 2dsphere (GeoJSON Point) e indice text - Integrazione OSM Nominatim per geocoding e reverse geocoding - Campo address per ogni garden - GET /api/gardens/search?q=... (ricerca testuale + fallback geocoding) - GET /api/gardens/nearby?lat=...&lng=...&radius=... (query geospaziali) - GET /api/gardens/geocode?q=... (utility di geocoding) - CRUD completo: POST, GET, GET/:id, PUT, DELETE /api/gardens - 36 test (coprono geocoding, search, nearby, CRUD, edge case)  Co-authored-by: CloudPaw-Master <cloud-orchestrator>)
   try {
     const { issueId, bounty, contributor, txid, address } = req.body;
     
