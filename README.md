@@ -38,6 +38,97 @@ Each component has its own README with setup instructions. Start with the [Gatew
 
 ---
 
+## 🐳 Docker One-Command Deployment
+
+The entire MyZubster ecosystem can be launched with a single Docker Compose command.
+
+### Prerequisites
+
+- [Docker](https://docs.docker.com/get-docker/) (v24+)
+- [Docker Compose](https://docs.docker.com/compose/install/) (v2.20+)
+
+### Quick Start
+
+```bash
+# 1. Clone the main repository
+git clone https://github.com/MyZubster-Ecosystem/myzubster.git
+cd myzubster
+
+# 2. (Optional) Configure environment
+cp .env.docker .env
+# Edit .env to set passwords, tokens, etc.
+
+# 3. Launch everything with one command
+docker compose up -d
+
+# 4. Check service status
+docker compose ps
+docker compose logs -f
+
+# 5. Verify health endpoints
+curl http://localhost:3009/health   # Backend
+curl http://localhost:3000          # Frontend
+curl http://localhost:3001/health   # Gateway
+curl http://localhost:4000/api/health # Marketplace
+curl http://localhost:5000/health   # AI Automation
+```
+
+### Services Overview
+
+| Service | Port | Description | Health Check |
+|---------|------|-------------|--------------|
+| **mongodb** | 27017 | Database (MongoDB 7) with persistent volume | `mongosh ping` |
+| **backend** | 3009 | Node.js + Express + Mongoose API | `GET /health` |
+| **frontend** | 3000 | React 18 + react-leaflet map (nginx-served) | `GET /` |
+| **gateway** | 3001 | Express API Gateway (MongoDB + Monero) | `GET /health` |
+| **marketplace** | 4000 | Express + SQLite marketplace | `GET /api/health` |
+| **ai-automation** | 5000 | AI service with GitHub + Telegram + cron | `GET /health` |
+
+### Environment Variables
+
+Key variables (see `.env.docker` for the full template):
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `MONGO_INITDB_ROOT_PASSWORD` | `changeme_in_production` | MongoDB root password |
+| `BACKEND_MONGODB_URI` | `mongodb://...` | Backend MongoDB connection string |
+| `REACT_APP_API_URL` | `http://localhost:3009` | Backend URL from frontend |
+| `JWT_SECRET` | `changeme_in_production` | Gateway JWT signing secret |
+| `TELEGRAM_BOT_TOKEN` | _(empty)_ | AI Automation Telegram bot token |
+| `GITHUB_TOKEN` | _(empty)_ | AI Automation GitHub API token |
+
+### Data Persistence
+
+- **MongoDB data** stored in Docker volumes `mongodb_data` and `mongodb_config`
+- **Marketplace SQLite** stored in Docker volume `marketplace_data`
+- All volumes survive container restarts and `docker compose down`
+
+### Centralized Logging
+
+```bash
+# View logs from all services
+docker compose logs -f
+
+# View logs from a specific service
+docker compose logs -f backend
+docker compose logs -f ai-automation
+
+# Tail with timestamps
+docker compose logs -f --tail=100
+```
+
+### Shutdown
+
+```bash
+# Stop all services (preserves data)
+docker compose down
+
+# Stop all services and delete volumes (⚠️ destroys data)
+docker compose down -v
+```
+
+---
+
 ## 🤝 How to Contribute
 
 We welcome all kinds of contributions:

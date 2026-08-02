@@ -1,0 +1,159 @@
+# ============================================================
+# MyZubster Ecosystem — Docker Compose
+# One-command deployment for the entire ecosystem
+# Usage: docker compose up -d
+# ============================================================
+
+services:
+
+  # ── MongoDB ────────────────────────────────────────────
+  mongodb:
+    image: mongo:7
+    container_name: myzubster-mongodb
+    restart: unless-stopped
+    ports:
+      - "${MONGO_PORT:-27017}:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:-myzubster}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:-changeme_in_production}
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE:-myzubster}
+    volumes:
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
+      - ./docker-entrypoint.sh:/docker-entrypoint-initdb.d/init-myzubster.sh:ro
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh --quiet
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  # ── Backend ────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: myzubster-backend
+    restart: unless-stopped
+    ports:
+      - "${BACKEND_PORT:-3009}:3009"
+    environment:
+      PORT: 3009
+      MONGODB_URI: ${BACKEND_MONGODB_URI:-mongodb://myzubster:changeme_in_production@mongodb:27017/myzubster?authSource=admin}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    healthcheck:
+      test: curl -f http://localhost:3009/health || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # ── Frontend ───────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        REACT_APP_API_URL: ${REACT_APP_API_URL:-http://localhost:3009}
+    container_name: myzubster-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+    depends_on:
+      - backend
+    healthcheck:
+      test: curl -f http://localhost:80 || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+
+  # ── Gateway ────────────────────────────────────────────
+  # Note: Dockerfile.gateway lives at repo root because
+  # gateway/ is a git submodule (can't add files inside it).
+  gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.gateway
+    container_name: myzubster-gateway
+    restart: unless-stopped
+    ports:
+      - "${GATEWAY_PORT:-3001}:3001"
+    environment:
+      PORT: 3001
+      MONGODB_URI: ${GATEWAY_MONGODB_URI:-mongodb://myzubster:changeme_in_production@mongodb:27017/myzubster?authSource=admin}
+      JWT_SECRET: ${JWT_SECRET:-changeme_in_production}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    healthcheck:
+      test: curl -f http://localhost:3001/health || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # ── Marketplace ────────────────────────────────────────
+  # Note: Dockerfile.marketplace lives at repo root because
+  # marketplace/ is a git submodule (can't add files inside it).
+  marketplace:
+    build:
+      context: .
+      dockerfile: Dockerfile.marketplace
+    container_name: myzubster-marketplace
+    restart: unless-stopped
+    ports:
+      - "${MARKETPLACE_PORT:-4000}:4000"
+    environment:
+      PORT: 4000
+      DB_PATH: ${MARKETPLACE_DB_PATH:-/app/data/marketplace.db}
+    volumes:
+      - marketplace_data:/app/data
+    depends_on:
+      - backend
+    healthcheck:
+      test: curl -f http://localhost:4000/api/health || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # ── AI Automation ──────────────────────────────────────
+  ai-automation:
+    build:
+      context: ./services/ai-automation
+      dockerfile: Dockerfile
+    container_name: myzubster-ai-automation
+    restart: unless-stopped
+    ports:
+      - "${AI_AUTOMATION_PORT:-5000}:5000"
+    environment:
+      PORT: 5000
+      MONGODB_URI: ${AI_AUTOMATION_MONGODB_URI:-mongodb://myzubster:changeme_in_production@mongodb:27017/myzubster?authSource=admin}
+      NODE_ENV: production
+      # Telegram Bot Token (set in .env for production)
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      # GitHub Token (set in .env for production)
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      backend:
+        condition: service_started
+    healthcheck:
+      test: curl -f http://localhost:5000/health || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+# ── Volumes ──────────────────────────────────────────────
+volumes:
+  mongodb_data:
+    driver: local
+  mongodb_config:
+    driver: local
+  marketplace_data:
+    driver: local

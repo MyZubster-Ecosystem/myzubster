@@ -1,0 +1,14 @@
+# Ensure shell scripts always have LF line endings
+docker-entrypoint.sh text eol=lf
+*.sh text eol=lf
+
+# Dockerfiles should have LF too (best practice for Linux containers)
+Dockerfile* text eol=lf
+backend/Dockerfile text eol=lf
+frontend/Dockerfile text eol=lf
+
+# YAML files
+docker-compose.yml text eol=lf
+
+# Environment template
+.env.docker text eol=lf
