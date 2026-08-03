@@ -60,3 +60,5 @@ In a single hour, @foxxx009 claimed 19 issues across 3 repositories.
 | myzubster-docs | #40 | Guide 'How to start with MyZubster without already having Monero' | 🟡 Assigned |
 | myzubster-docs | #35 | Update CONTRIBUTING.md with automation guidelines | 🟡 Assigned |
 
+
+| 2026-08-03 | @SourceProofLabs | #75 / PR #94 | Robot chassis and BOM (MyZubster-Robot) | 0.04 XMR | 4B3v5k44b8pQTzqfAdxDCgZD8MZBVsX3qGDHGE5T94ZccEgv49nauhg7BzJj8dNBwAikguvTYqW5QRGDb7xSuEDVH4EfXAc |
