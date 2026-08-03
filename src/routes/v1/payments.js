@@ -1,93 +1,56 @@
 /**
- * Payment Routes - v1
+ * Payment Routes - v1 (Completa)
  * Gestisce le richieste di pagamento
  */
 
 const express = require('express');
 const router = express.Router();
-const AgentCoreService = require('../../services/aws/agentCore');
-const BosonEscrowService = require('../../services/boson/escrow');
+const PaymentFlowService = require('../../services/paymentFlow');
 
 /**
- * POST /api/v1/payments/create-payment
- * Crea un intento di pagamento
+ * POST /api/v1/payments/process
+ * Processa un pagamento completo
  */
-router.post('/create-payment', async (req, res) => {
+router.post('/process', async (req, res) => {
   try {
-    const { fromWallet, toWallet, amount, jobId } = req.body;
+    const paymentData = req.body;
     
-    if (!fromWallet || !toWallet || !amount) {
-      return res.status(400).json({ 
-        error: 'Parametri mancanti: fromWallet, toWallet, amount' 
-      });
+    // Verifica parametri obbligatori
+    const required = ['robotId', 'ownerAddress', 'clientWallet', 'amount', 'jobId'];
+    for (const field of required) {
+      if (!paymentData[field]) {
+        return res.status(400).json({
+          success: false,
+          error: `Campo mancante: ${field}`
+        });
+      }
     }
     
-    const paymentIntent = await AgentCoreService.createPaymentIntent(
-      fromWallet, toWallet, amount, jobId
-    );
+    const result = await PaymentFlowService.executeFullPaymentFlow(paymentData);
     
-    res.json({ success: true, data: paymentIntent });
-  } catch (error) {
-    console.error('❌ Errore:', error.message);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-/**
- * POST /api/v1/payments/create-escrow
- * Crea un escrow per un lavoro
- */
-router.post('/create-escrow', async (req, res) => {
-  try {
-    const { jobId, buyer, seller, amount, terms } = req.body;
-    
-    if (!jobId || !buyer || !seller || !amount) {
-      return res.status(400).json({ 
-        error: 'Parametri mancanti: jobId, buyer, seller, amount' 
-      });
-    }
-    
-    const escrow = await BosonEscrowService.createEscrow({
-      jobId, buyer, seller, amount, terms
+    res.json({
+      success: true,
+      message: 'Pagamento processato con successo!',
+      data: result
     });
     
-    res.json({ success: true, data: escrow });
   } catch (error) {
     console.error('❌ Errore:', error.message);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
   }
 });
 
 /**
- * POST /api/v1/payments/release-funds
- * Rilascia i fondi dall'escrow
+ * GET /api/v1/payments/robot/:robotId/reputation
+ * Ottieni reputazione di un robot
  */
-router.post('/release-funds', async (req, res) => {
+router.get('/robot/:robotId/reputation', async (req, res) => {
   try {
-    const { escrowId, signature } = req.body;
-    
-    if (!escrowId || !signature) {
-      return res.status(400).json({ 
-        error: 'Parametri mancanti: escrowId, signature' 
-      });
-    }
-    
-    const result = await BosonEscrowService.releaseFunds(escrowId, signature);
-    res.json({ success: true, data: result });
-  } catch (error) {
-    console.error('❌ Errore:', error.message);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-/**
- * GET /api/v1/payments/escrow/:id
- * Ottieni lo stato di un escrow
- */
-router.get('/escrow/:id', async (req, res) => {
-  try {
-    const escrow = await BosonEscrowService.getEscrowStatus(req.params.id);
-    res.json({ success: true, data: escrow });
+    const reputation = await ReputationService.getReputation(req.params.robotId);
+    res.json({ success: true, data: reputation });
   } catch (error) {
     console.error('❌ Errore:', error.message);
     res.status(500).json({ error: error.message });

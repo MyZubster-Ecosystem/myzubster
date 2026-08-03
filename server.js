@@ -135,3 +135,7 @@ process.on('SIGTERM', () => {
 });
 
 module.exports = app;
+
+// ---- v1 Routes ----
+const v1PaymentRoutes = require('./src/routes/v1/payments');
+app.use('/api/v1/payments', v1PaymentRoutes);
