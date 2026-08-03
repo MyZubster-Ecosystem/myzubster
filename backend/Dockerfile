@@ -12,8 +12,8 @@ WORKDIR /app
 RUN apk add --no-cache dumb-init
 
 # Install dependencies first (layer caching)
-COPY package.json package-lock.json ./
-RUN npm ci --omit=dev --ignore-scripts
+COPY package.json package-lock.json* ./
+RUN npm ci --omit=dev --ignore-scripts 2>/dev/null || npm install --omit=dev --ignore-scripts
 
 # Run npm audit to check for vulnerabilities
 RUN npm audit --audit-level=high || true
@@ -34,6 +34,10 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY package.json ./
 COPY src/ ./src/
 
+# Create uploads directory with proper permissions
+RUN mkdir -p /app/uploads/gardens /app/uploads/profiles && \
+    chown -R appuser:appgroup /app
+
 # Set NODE_ENV for production
 ENV NODE_ENV=production
 
@@ -43,7 +47,7 @@ USER appuser
 EXPOSE 3009
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-  CMD curl -f http://localhost:3009/api/health || exit 1
+  CMD curl -f http://localhost:3009/health || exit 1
 
 # Use dumb-init for proper signal handling
 ENTRYPOINT ["dumb-init", "--"]

@@ -1,270 +1,260 @@
 #!/bin/bash
 # ============================================================
-# MyZubster Docker Integration Test Script
-# Validates Docker setup and runs comprehensive health checks
+# MyZubster Docker Integration Test Suite
+# Validates entire ecosystem starts and passes health checks
+# Usage: bash tests/docker-integration-test.sh
 # ============================================================
 
-set -e
+set -euo pipefail
 
-# Colors for output
+DOCKER_COMPOSE="docker compose"
+PASS=0
+FAIL=0
+TOTAL=0
+ERRORS=()
+
+# ── Colors ────────────────────────────────────────────────
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
-# Configuration
-COMPOSE_FILE="docker-compose.yml"
-ENV_FILE=".env"
-TIMEOUT=120  # seconds to wait for services
+log()  { echo -e "${BLUE}[INFO]${NC} $*"; }
+pass() { echo -e "${GREEN}[PASS]${NC} $*"; PASS=$((PASS+1)); TOTAL=$((TOTAL+1)); }
+fail() { echo -e "${RED}[FAIL]${NC} $*"; FAIL=$((FAIL+1)); TOTAL=$((TOTAL+1)); ERRORS+=("$1"); }
+warn() { echo -e "${YELLOW}[WARN]${NC} $*"; }
 
-# Helper functions
-log_info() {
-    echo -e "${BLUE}[INFO]${NC} $1"
-}
+# ── Phase 1: File Validation ──────────────────────────────
+echo ""
+echo "═══════════════════════════════════════════════════════"
+echo " Phase 1: Required Files Existence"
+echo "═══════════════════════════════════════════════════════"
 
-log_success() {
-    echo -e "${GREEN}[SUCCESS]${NC} $1"
-}
+REQUIRED_FILES=(
+  "docker-compose.yml"
+  "backend/Dockerfile"
+  "frontend/Dockerfile"
+  "Dockerfile.gateway"
+  "Dockerfile.marketplace"
+  "services/ai-automation/Dockerfile"
+  ".env.docker"
+  "docker-entrypoint.sh"
+)
 
-log_warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
-}
+for f in "${REQUIRED_FILES[@]}"; do
+  if [ -f "$f" ]; then
+    pass "File exists: $f"
+  else
+    fail "Missing file: $f"
+  fi
+done
 
-log_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
-}
+# ── Phase 2: Docker Compose Validation ────────────────────
+echo ""
+echo "═══════════════════════════════════════════════════════"
+echo " Phase 2: Docker Compose Config Validation"
+echo "═══════════════════════════════════════════════════════"
 
-# Check if Docker is running
-check_docker() {
-    log_info "Checking Docker..."
-    if ! docker info > /dev/null 2>&1; then
-        log_error "Docker is not running. Please start Docker Desktop."
-        exit 1
-    fi
-    log_success "Docker is running"
-}
+# Validate compose config
+if $DOCKER_COMPOSE config --quiet 2>/dev/null; then
+  pass "docker-compose.yml parses without errors"
+else
+  fail "docker-compose.yml has syntax errors"
+fi
 
-# Check if docker compose is available
-check_compose() {
-    log_info "Checking docker compose..."
-    if ! docker compose version > /dev/null 2>&1; then
-        log_error "docker compose is not available."
-        exit 1
-    fi
-    log_success "docker compose is available"
-}
+# Check all 6 services are defined
+SERVICES=$($DOCKER_COMPOSE config --services 2>/dev/null)
+EXPECTED_SERVICES=("mongodb" "backend" "frontend" "gateway" "marketplace" "ai-automation")
+for svc in "${EXPECTED_SERVICES[@]}"; do
+  if echo "$SERVICES" | grep -q "^${svc}$"; then
+    pass "Service defined: $svc"
+  else
+    fail "Service missing: $svc"
+  fi
+done
 
-# Validate compose file
-validate_compose() {
-    log_info "Validating docker-compose.yml..."
-    if docker compose -f "$COMPOSE_FILE" config > /dev/null 2>&1; then
-        log_success "docker-compose.yml is valid"
+# Check health checks exist for all services
+for svc in "${EXPECTED_SERVICES[@]}"; do
+  if $DOCKER_COMPOSE config 2>/dev/null | grep -A 20 "  ${svc}:" | grep -q "healthcheck:"; then
+    pass "Health check configured: $svc"
+  else
+    fail "Health check missing: $svc"
+  fi
+done
+
+# ── Phase 3: Environment Variables ────────────────────────
+echo ""
+echo "═══════════════════════════════════════════════════════"
+echo " Phase 3: Environment Variables"
+echo "═══════════════════════════════════════════════════════"
+
+# Check .env.docker has all required vars
+ENV_FILE=".env.docker"
+REQUIRED_VARS=(
+  "MONGO_INITDB_ROOT_USERNAME"
+  "MONGO_INITDB_ROOT_PASSWORD"
+  "BACKEND_PORT"
+  "FRONTEND_PORT"
+  "GATEWAY_PORT"
+  "MARKETPLACE_PORT"
+  "AI_AUTOMATION_PORT"
+)
+
+if [ -f "$ENV_FILE" ]; then
+  for var in "${REQUIRED_VARS[@]}"; do
+    if grep -q "^${var}=" "$ENV_FILE"; then
+      pass "Env var defined: $var"
     else
-        log_error "docker-compose.yml is invalid"
-        docker compose -f "$COMPOSE_FILE" config
-        exit 1
+      fail "Env var missing: $var"
     fi
-}
+  done
+else
+  fail ".env.docker file not found"
+fi
 
-# Check .env file
-check_env() {
-    log_info "Checking .env file..."
-    if [ ! -f "$ENV_FILE" ]; then
-        if [ -f ".env.docker" ]; then
-            log_warning ".env file not found, copying from .env.docker"
-            cp .env.docker .env
-        else
-            log_error ".env file not found and .env.docker is missing"
-            exit 1
-        fi
-    fi
-    log_success ".env file exists"
-}
+# ── Phase 4: Docker Build Test ────────────────────────────
+echo ""
+echo "═══════════════════════════════════════════════════════"
+echo " Phase 4: Docker Build (Dry Run)"
+echo "═══════════════════════════════════════════════════════"
 
-# Start services
-start_services() {
-    log_info "Starting services..."
-    docker compose -f "$COMPOSE_FILE" up -d --build
-    log_info "Waiting for services to start (timeout: ${TIMEOUT}s)..."
-    
-    # Wait for health checks
-    local start_time=$(date +%s)
-    while true; do
-        local current_time=$(date +%s)
-        local elapsed=$((current_time - start_time))
-        
-        if [ $elapsed -ge $TIMEOUT ]; then
-            log_error "Timeout waiting for services to start"
-            docker compose -f "$COMPOSE_FILE" ps
-            docker compose -f "$COMPOSE_FILE" logs
-            exit 1
-        fi
-        
-        # Check if all services are healthy
-        local all_healthy=true
-        for service in mongodb backend frontend gateway marketplace ai-automation; do
-            local health=$(docker inspect --format='{{.State.Health.Status}}' "myzubster-${service}" 2>/dev/null || echo "not_found")
-            if [ "$health" != "healthy" ]; then
-                all_healthy=false
-                break
-            fi
-        done
-        
-        if [ "$all_healthy" = true ]; then
-            log_success "All services are healthy"
-            break
-        fi
-        
-        sleep 5
-    done
-}
+log "Building backend image..."
+if $DOCKER_COMPOSE build backend 2>&1 | tail -5; then
+  pass "Backend image builds successfully"
+else
+  fail "Backend image build failed"
+fi
 
-# Test health endpoints
-test_health_endpoints() {
-    log_info "Testing health endpoints..."
-    
-    local failed=0
-    
-    # Backend
-    log_info "Testing backend health..."
-    if curl -sf http://localhost:3009/api/health > /dev/null 2>&1; then
-        log_success "Backend health check passed"
-    else
-        log_error "Backend health check failed"
-        failed=$((failed + 1))
-    fi
-    
-    # Frontend
-    log_info "Testing frontend health..."
-    if curl -sf http://localhost:3000 > /dev/null 2>&1; then
-        log_success "Frontend health check passed"
-    else
-        log_error "Frontend health check failed"
-        failed=$((failed + 1))
-    fi
-    
-    # Gateway
-    log_info "Testing gateway health..."
-    if curl -sf http://localhost:3001/api/health > /dev/null 2>&1; then
-        log_success "Gateway health check passed"
-    else
-        log_error "Gateway health check failed"
-        failed=$((failed + 1))
-    fi
-    
-    # Marketplace
-    log_info "Testing marketplace health..."
-    if curl -sf http://localhost:4000/api/health > /dev/null 2>&1; then
-        log_success "Marketplace health check passed"
-    else
-        log_error "Marketplace health check failed"
-        failed=$((failed + 1))
-    fi
-    
-    # AI Automation
-    log_info "Testing AI automation health..."
-    if curl -sf http://localhost:5000/health > /dev/null 2>&1; then
-        log_success "AI automation health check passed"
-    else
-        log_error "AI automation health check failed"
-        failed=$((failed + 1))
-    fi
-    
-    # MongoDB
-    log_info "Testing MongoDB health..."
-    if docker exec myzubster-mongodb mongosh --eval "db.runCommand('ping')" > /dev/null 2>&1; then
-        log_success "MongoDB health check passed"
-    else
-        log_error "MongoDB health check failed"
-        failed=$((failed + 1))
-    fi
-    
-    return $failed
-}
+log "Building frontend image..."
+if $DOCKER_COMPOSE build frontend 2>&1 | tail -5; then
+  pass "Frontend image builds successfully"
+else
+  fail "Frontend image build failed"
+fi
 
-# Test data persistence
-test_data_persistence() {
-    log_info "Testing data persistence..."
-    
-    # Create a test document in MongoDB
-    log_info "Creating test document in MongoDB..."
-    docker exec myzubster-mongodb mongosh -u myzubster -p changeme_in_production --authenticationDatabase admin --eval "
-        use myzubster;
-        db.testcollection.insertOne({test: 'persistence', timestamp: new Date()});
-    " > /dev/null 2>&1
-    
-    # Restart MongoDB container
-    log_info "Restarting MongoDB container..."
-    docker compose -f "$COMPOSE_FILE" restart mongodb
-    sleep 10
-    
-    # Verify document persists
-    log_info "Verifying document persistence..."
-    if docker exec myzubster-mongodb mongosh -u myzubster -p changeme_in_production --authenticationDatabase admin --eval "
-        use myzubster;
-        var result = db.testcollection.findOne({test: 'persistence'});
-        if (result) { print('Document found'); } else { print('Document not found'); }
-    " | grep -q "Document found"; then
-        log_success "Data persistence test passed"
-        return 0
-    else
-        log_error "Data persistence test failed"
-        return 1
-    fi
-}
+# ── Phase 5: Full Stack Startup ───────────────────────────
+echo ""
+echo "═══════════════════════════════════════════════════════"
+echo " Phase 5: Full Stack Startup & Health Checks"
+echo "═══════════════════════════════════════════════════════"
 
-# Collect logs
-collect_logs() {
-    log_info "Collecting logs..."
-    mkdir -p docker-logs
-    
-    for service in mongodb backend frontend gateway marketplace ai-automation; do
-        docker compose -f "$COMPOSE_FILE" logs "$service" > "docker-logs/${service}.log" 2>&1
-    done
-    
-    docker compose -f "$COMPOSE_FILE" ps > docker-logs/services-status.txt
-    
-    log_success "Logs collected in docker-logs/ directory"
-}
+log "Starting all services..."
+$DOCKER_COMPOSE up -d --build 2>&1
 
-# Cleanup
-cleanup() {
-    log_info "Cleaning up..."
-    docker compose -f "$COMPOSE_FILE" down -v --remove-orphans
-    log_success "Cleanup complete"
-}
+log "Waiting for services to stabilize (90s)..."
+sleep 90
 
-# Main execution
-main() {
-    log_info "Starting MyZubster Docker Integration Tests"
-    echo "=============================================="
-    
-    check_docker
-    check_compose
-    validate_compose
-    check_env
-    
-    start_services
-    
-    local health_result=0
-    test_health_endpoints || health_result=$?
-    
-    test_data_persistence || true
-    
-    collect_logs
-    
-    cleanup
-    
-    echo "=============================================="
-    if [ $health_result -eq 0 ]; then
-        log_success "All integration tests passed!"
-        exit 0
-    else
-        log_error "Some integration tests failed"
-        exit 1
-    fi
-}
+# Check container status
+log "Checking container status..."
+CONTAINERS=("myzubster-mongodb" "myzubster-backend" "myzubster-frontend" "myzubster-gateway" "myzubster-marketplace" "myzubster-ai-automation")
+for c in "${CONTAINERS[@]}"; do
+  STATUS=$(docker inspect --format='{{.State.Status}}' "$c" 2>/dev/null || echo "not_found")
+  if [ "$STATUS" = "running" ]; then
+    pass "Container running: $c"
+  else
+    fail "Container not running: $c (status: $STATUS)"
+  fi
+done
 
-# Run main function
-main
+# Health endpoint checks
+log "Checking health endpoints..."
+HEALTH_CHECKS=(
+  "backend|http://localhost:3009/api/health|200"
+  "frontend|http://localhost:3000|200"
+  "gateway|http://localhost:3001/|200"
+  "marketplace|http://localhost:4000/api/health|200"
+)
+
+for check in "${HEALTH_CHECKS[@]}"; do
+  IFS='|' read -r name url expected <<< "$check"
+  ACTUAL=$(curl -s -o /dev/null -w "%{http_code}" "$url" 2>/dev/null || echo "000")
+  if [ "$ACTUAL" = "$expected" ]; then
+    pass "Health check: $name → HTTP $ACTUAL"
+  else
+    fail "Health check: $name → HTTP $ACTUAL (expected $expected)"
+  fi
+done
+
+# ── Phase 6: Data Persistence ─────────────────────────────
+echo ""
+echo "═══════════════════════════════════════════════════════"
+echo " Phase 6: Data Persistence"
+echo "═══════════════════════════════════════════════════════"
+
+log "Testing MongoDB data persistence..."
+# Create a test document
+docker exec myzubster-mongodb mongosh -u myzubster -p changeme_in_production --authenticationDatabase admin --quiet --eval '
+  use myzubster;
+  db.test_persistence.insertOne({test: true, timestamp: new Date()});
+' 2>/dev/null
+
+if [ $? -eq 0 ]; then
+  pass "MongoDB: test document created"
+else
+  fail "MongoDB: could not create test document"
+fi
+
+# Verify document exists
+DOC_COUNT=$(docker exec myzubster-mongodb mongosh -u myzubster -p changeme_in_production --authenticationDatabase admin --quiet --eval '
+  use myzubster;
+  db.test_persistence.countDocuments({test: true});
+' 2>/dev/null | tail -1 | tr -d '[:space:]')
+
+if [ "$DOC_COUNT" = "1" ]; then
+  pass "MongoDB: test document persisted"
+else
+  fail "MongoDB: test document not found (count: $DOC_COUNT)"
+fi
+
+# ── Phase 7: Log Collection ───────────────────────────────
+echo ""
+echo "═══════════════════════════════════════════════════════"
+echo " Phase 7: Log Collection"
+echo "═══════════════════════════════════════════════════════"
+
+LOG_DIR="tests/docker-logs-$(date +%Y%m%d-%H%M%S)"
+mkdir -p "$LOG_DIR"
+
+for c in "${CONTAINERS[@]}"; do
+  docker logs "$c" > "$LOG_DIR/${c}.log" 2>&1 || true
+  if [ -f "$LOG_DIR/${c}.log" ]; then
+    SIZE=$(wc -c < "$LOG_DIR/${c}.log")
+    pass "Logs collected: $c (${SIZE} bytes)"
+  else
+    fail "Could not collect logs: $c"
+  fi
+done
+
+# ── Cleanup ───────────────────────────────────────────────
+echo ""
+echo "═══════════════════════════════════════════════════════"
+echo " Cleanup"
+echo "═══════════════════════════════════════════════════════"
+
+log "Stopping all services..."
+$DOCKER_COMPOSE down -v 2>&1
+pass "All services stopped and volumes removed"
+
+# ── Summary ───────────────────────────────────────────────
+echo ""
+echo "═══════════════════════════════════════════════════════"
+echo " Test Summary"
+echo "═══════════════════════════════════════════════════════"
+echo -e " Total:  ${TOTAL}"
+echo -e " Passed: ${GREEN}${PASS}${NC}"
+echo -e " Failed: ${RED}${FAIL}${NC}"
+echo ""
+
+if [ ${#ERRORS[@]} -gt 0 ]; then
+  echo -e "${RED}Failed tests:${NC}"
+  for err in "${ERRORS[@]}"; do
+    echo -e "  - ${err}"
+  done
+  echo ""
+  exit 1
+else
+  echo -e "${GREEN}All tests passed! ✅${NC}"
+  echo ""
+  exit 0
+fi

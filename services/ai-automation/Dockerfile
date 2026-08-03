@@ -12,8 +12,8 @@ WORKDIR /app
 RUN apk add --no-cache dumb-init
 
 # Install dependencies first (layer caching)
-COPY package.json package-lock.json ./
-RUN npm ci --omit=dev --ignore-scripts
+COPY package.json package-lock.json* ./
+RUN npm ci --omit=dev --ignore-scripts 2>/dev/null || npm install --omit=dev --ignore-scripts
 
 # ---- Runtime stage ----
 FROM node:20-alpine AS runtime
