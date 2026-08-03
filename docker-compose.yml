@@ -21,6 +21,18 @@ services:
       - mongodb_data:/data/db
       - mongodb_config:/data/configdb
       - ./docker-entrypoint.sh:/docker-entrypoint-initdb.d/init-myzubster.sh:ro
+    networks:
+      - myzubster-network
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongosh --quiet
       interval: 30s
@@ -39,12 +51,25 @@ services:
       - "${BACKEND_PORT:-3009}:3009"
     environment:
       PORT: 3009
+      NODE_ENV: production
       MONGODB_URI: ${BACKEND_MONGODB_URI:-mongodb://myzubster:changeme_in_production@mongodb:27017/myzubster?authSource=admin}
+    networks:
+      - myzubster-network
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "0.5"
     depends_on:
       mongodb:
         condition: service_healthy
     healthcheck:
-      test: curl -f http://localhost:3009/health || exit 1
+      test: curl -f http://localhost:3009/api/health || exit 1
       interval: 30s
       timeout: 10s
       retries: 5
@@ -61,8 +86,21 @@ services:
     restart: unless-stopped
     ports:
       - "${FRONTEND_PORT:-3000}:80"
+    networks:
+      - myzubster-network
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: "0.5"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     healthcheck:
       test: curl -f http://localhost:80 || exit 1
       interval: 30s
@@ -83,13 +121,26 @@ services:
       - "${GATEWAY_PORT:-3001}:3001"
     environment:
       PORT: 3001
+      NODE_ENV: production
       MONGODB_URI: ${GATEWAY_MONGODB_URI:-mongodb://myzubster:changeme_in_production@mongodb:27017/myzubster?authSource=admin}
       JWT_SECRET: ${JWT_SECRET:-changeme_in_production}
+    networks:
+      - myzubster-network
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "0.5"
     depends_on:
       mongodb:
         condition: service_healthy
     healthcheck:
-      test: curl -f http://localhost:3001/health || exit 1
+      test: curl -f http://localhost:3001/api/health || exit 1
       interval: 30s
       timeout: 10s
       retries: 5
@@ -108,11 +159,25 @@ services:
       - "${MARKETPLACE_PORT:-4000}:4000"
     environment:
       PORT: 4000
+      NODE_ENV: production
       DB_PATH: ${MARKETPLACE_DB_PATH:-/app/data/marketplace.db}
     volumes:
       - marketplace_data:/app/data
+    networks:
+      - myzubster-network
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: "0.5"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     healthcheck:
       test: curl -f http://localhost:4000/api/health || exit 1
       interval: 30s
@@ -131,23 +196,41 @@ services:
       - "${AI_AUTOMATION_PORT:-5000}:5000"
     environment:
       PORT: 5000
-      MONGODB_URI: ${AI_AUTOMATION_MONGODB_URI:-mongodb://myzubster:changeme_in_production@mongodb:27017/myzubster?authSource=admin}
       NODE_ENV: production
+      MONGODB_URI: ${AI_AUTOMATION_MONGODB_URI:-mongodb://myzubster:changeme_in_production@mongodb:27017/myzubster?authSource=admin}
       # Telegram Bot Token (set in .env for production)
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
       # GitHub Token (set in .env for production)
       GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+    networks:
+      - myzubster-network
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "0.5"
     depends_on:
       mongodb:
         condition: service_healthy
       backend:
-        condition: service_started
+        condition: service_healthy
     healthcheck:
       test: curl -f http://localhost:5000/health || exit 1
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 30s
+
+# ── Networks ──────────────────────────────────────────────
+networks:
+  myzubster-network:
+    driver: bridge
+    name: myzubster-network
 
 # ── Volumes ──────────────────────────────────────────────
 volumes:
