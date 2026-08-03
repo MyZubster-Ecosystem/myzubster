@@ -9,6 +9,7 @@ const path = require('path');
 // Import routes
 const gardenRoutes = require('./routes/gardens');
 const photoRoutes = require('./routes/photos');
+const reminderRoutes = require('./routes/reminders');
 
 const app = express();
 const PORT = process.env.PORT || 3009;
@@ -43,7 +44,8 @@ app.get('/health', (req, res) => {
 
 // Garden routes
 app.use('/api/gardens', gardenRoutes);
-app.use('/api/photos', photoRoutes);
+app.use('/api/photos', require('./routes/photos'));
+app.use('/api/reminders', require('./routes/reminders'));
 
 // Dashboard API endpoint
 app.get('/api/dashboard', (req, res) => {
