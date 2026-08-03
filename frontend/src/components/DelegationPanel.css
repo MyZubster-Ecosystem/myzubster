@@ -1,0 +1,15 @@
+.delegation-panel { font-family: system-ui, sans-serif; }
+.dp-loading, .dp-empty { text-align: center; padding: 1.5rem; color: #888; }
+.dp-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+.dp-header h2 { margin: 0; }
+.dp-header button { padding: 0.5rem 1rem; background: #9c27b0; color: #fff; border: none; border-radius: 8px; cursor: pointer; }
+.dp-form { background: #f3e5f5; border-radius: 10px; padding: 1rem; margin-bottom: 1rem; display: flex; flex-direction: column; gap: 0.5rem; }
+.dp-form input, .dp-form select { padding: 0.5rem; border: 1px solid #ccc; border-radius: 6px; }
+.dp-form button { padding: 0.5rem; background: #9c27b0; color: #fff; border: none; border-radius: 6px; cursor: pointer; }
+.dp-list { display: flex; flex-direction: column; gap: 0.5rem; }
+.dp-card { display: flex; justify-content: space-between; align-items: center; border: 1px solid #e0e0e0; border-radius: 10px; padding: 0.75rem 1rem; background: #fafafa; }
+.dp-card-info { display: flex; align-items: center; gap: 0.75rem; }
+.dp-arrow { font-size: 1.5rem; color: #9c27b0; }
+.dp-delegate { font-weight: 600; display: block; }
+.dp-meta { font-size: 0.8rem; color: #888; }
+.dp-revoke { padding: 0.3rem 0.8rem; background: #ffebee; color: #c62828; border: 1px solid #ef9a9a; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
