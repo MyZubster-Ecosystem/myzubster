@@ -28,6 +28,7 @@ app.use('/api/auth', require('./src/routes/authRoutes'));
 app.use('/api/animals', require('./src/routes/animalRoutes'));
 app.use('/api/plants', require('./src/routes/plantRoutes'));
 app.use('/api/bounties', require('./src/routes/bountyRoutes'));
+app.use('/api/voting', require('./src/routes/votingRoutes'));
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -49,7 +50,8 @@ app.get('/api/info', (req, res) => {
       payments: process.env.ENABLE_PAYMENTS === 'true',
       animals: process.env.ENABLE_ANIMAL_REGISTRY === 'true',
       plants: process.env.ENABLE_PLANT_REGISTRY === 'true',
-      bounty: process.env.ENABLE_BOUNTY_PROGRAM === 'true'
+      bounty: process.env.ENABLE_BOUNTY_PROGRAM === 'true',
+      voting: true
     },
     monero_wallet: process.env.MONERO_MAIN_WALLET_ADDRESS
   });
@@ -84,6 +86,13 @@ app.get('/', (req, res) => {
         create: '/api/bounties/create',
         claim: '/api/bounties/:id/claim',
         stats: '/api/bounties/stats'
+      },
+      voting: {
+        list: '/api/voting',
+        create: '/api/voting',
+        vote: '/api/voting/:id/vote',
+        results: '/api/voting/:id/results',
+        history: '/api/voting/history'
       }
     }
   });
