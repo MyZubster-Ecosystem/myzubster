@@ -1,0 +1,16 @@
+FROM node:20-alpine
+
+ARG SERVICE_NAME
+
+WORKDIR /app
+
+COPY package*.json ./
+COPY services/${SERVICE_NAME}/package*.json ./services/${SERVICE_NAME}/
+RUN npm ci --omit=dev
+
+COPY services/${SERVICE_NAME}/ ./services/${SERVICE_NAME}/
+COPY src/ ./src/
+
+EXPOSE ${SERVICE_PORT:-3000}
+
+CMD ["node", "services/${SERVICE_NAME}/index.js"]

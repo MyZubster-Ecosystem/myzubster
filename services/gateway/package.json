@@ -1,0 +1,17 @@
+{
+  "name": "@myzubster/gateway",
+  "version": "1.0.0",
+  "description": "MyZubster API Gateway",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.1.5",
+    "helmet": "^7.1.0",
+    "http-proxy-middleware": "^2.0.6"
+  }
+}
