@@ -1,131 +1,71 @@
-require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
-const compression = require('compression');
+const morgan = require('morgan');
 const mongoose = require('mongoose');
+const path = require('path');
+
+// Import routes
+const gardenRoutes = require('./routes/gardens');
+const photoRoutes = require('./routes/photos');
+const reminderRoutes = require('./routes/reminders');
+const daoRoutes = require('./routes/dao');
 
 const app = express();
-const PORT = process.env.PORT || 10000;
+const PORT = process.env.PORT || 3009;
 
 // Middleware
 app.use(helmet());
-app.use(cors({
-  origin: process.env.CORS_ORIGIN || '*',
-  credentials: true
-}));
-app.use(compression());
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(morgan('dev'));
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
-// Connessione a MongoDB
-mongoose.connect(process.env.MONGODB_URI)
-.then(() => console.log('✅ MongoDB connected'))
+// MongoDB Connection
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/myzubster', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => console.log('✅ Connected to MongoDB'))
 .catch(err => console.error('❌ MongoDB connection error:', err));
 
-// Route
-app.use('/api/auth', require('./src/routes/authRoutes'));
-app.use('/api/animals', require('./src/routes/animalRoutes'));
-app.use('/api/plants', require('./src/routes/plantRoutes'));
-app.use('/api/bounties', require('./src/routes/bountyRoutes'));
-
-// Health check
-app.get('/api/health', (req, res) => {
+// Health check endpoint
+app.get('/health', (req, res) => {
   res.json({
+    success: true,
     status: 'ok',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
+    memory: process.memoryUsage(),
     mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
   });
 });
 
-// Info endpoint
-app.get('/api/info', (req, res) => {
+// Garden routes
+app.use('/api/gardens', gardenRoutes);
+app.use('/api/photos', photoRoutes);
+app.use('/api/reminders', reminderRoutes);
+app.use('/api/dao', daoRoutes);
+
+// Dashboard API endpoint
+app.get('/api/dashboard', (req, res) => {
   res.json({
-    name: 'MyZubster Gateway',
-    version: '1.0.0',
-    description: 'Monero Payment Gateway & Animal Registry',
-    features: {
-      payments: process.env.ENABLE_PAYMENTS === 'true',
-      animals: process.env.ENABLE_ANIMAL_REGISTRY === 'true',
-      plants: process.env.ENABLE_PLANT_REGISTRY === 'true',
-      bounty: process.env.ENABLE_BOUNTY_PROGRAM === 'true'
-    },
-    monero_wallet: process.env.MONERO_MAIN_WALLET_ADDRESS
-  });
-});
-
-// Root endpoint
-app.get('/', (req, res) => {
-  res.json({
-    name: 'MyZubster Gateway',
-    version: '1.0.0',
-    status: 'running',
-    endpoints: {
-      health: '/api/health',
-      info: '/api/info',
-      auth: {
-        register: '/api/auth/register',
-        login: '/api/auth/login',
-        profile: '/api/auth/profile'
+    success: true,
+    services: [
+      {
+        name: 'telegram',
+        status: 'online',
+        latency: '120ms',
+        description: 'Telegram bot service',
+        endpoint: 'http://localhost:3000'
       },
-      animals: {
-        list: '/api/animals',
-        register: '/api/animals/register',
-        detail: '/api/animals/:id'
-      },
-      plants: {
-        list: '/api/plants',
-        register: '/api/plants/register',
-        detail: '/api/plants/:id'
-      },
-      bounties: {
-        list: '/api/bounties',
-        create: '/api/bounties/create',
-        claim: '/api/bounties/:id/claim',
-        stats: '/api/bounties/stats'
-      }
-    }
+      // ... resto del tuo codice esistente ...
+    ]
   });
 });
 
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    error: 'Not Found',
-    message: `Endpoint ${req.method} ${req.path} does not exist`
-  });
+// Avvia il server
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
 });
-
-// Error handler
-app.use((err, req, res, next) => {
-  console.error('Error:', err);
-  res.status(500).json({
-    success: false,
-    error: 'Internal Server Error',
-    message: err.message
-  });
-});
-
-// Start server
-const server = app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 MyZubster Gateway is running on port ${PORT}`);
-  console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
-  console.log(`📋 Info: http://localhost:${PORT}/api/info`);
-  console.log(`🔐 Auth: http://localhost:${PORT}/api/auth/register`);
-  console.log(`🐾 Animals: http://localhost:${PORT}/api/animals`);
-  console.log(`🌿 Plants: http://localhost:${PORT}/api/plants`);
-  console.log(`🏆 Bounties: http://localhost:${PORT}/api/bounties`);
-});
-
-// Graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('📡 SIGTERM received, closing server...');
-  server.close(() => {
-    console.log('✅ Server closed');
-    process.exit(0);
-  });
-});
-
-module.exports = app;
