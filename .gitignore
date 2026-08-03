@@ -94,3 +94,5 @@ services/notification/node_modules/
 frontend/.env
 backend/.env
 gateway/
+.vercel
+.env*
