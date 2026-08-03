@@ -1,95 +1,21 @@
-# Secrets
-.env
-.env.local
-.env.*.local
-*.key
-*.pem
-*.crt
-*.p12
-*.pfx
-*.der
-
-# SSH
-.ssh/
-known_hosts
-
-# Node
 node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
-
-# Environment
 .env
+.env.docker
 .env.local
 .env.*.local
-
-# Logs
-logs/
 *.log
-
-# OS files
 .DS_Store
-Thumbs.db
-
-# IDE
+dist/
+build/
+coverage/
 .vscode/
 .idea/
 *.swp
 *.swo
-*~
-
-# Build
-dist/
-build/
-*.min.js
-*.min.css
-*.js.map
-
-# Temporary
-tmp/
-temp/
-*.tmp
-.cache/
-
-# Coverage
-coverage/
-.nyc_output/
-
-# Misc
-*.pid
-*.seed
-*.pid.lock
-
-# Vercel
-.vercel/
-
-# Docker
-docker-compose.override.yml
-*.dockerignore
-
-# Monero
+gateway/
 monero-wallet/
-monero-testnet/
-*.wallet
-*.wallet.keys
-*.wallet.address
-ai-automation-backup/
-myzubster-merged/
-services/notification/node_modules/
-
-# Local Netlify folder
-.netlify
-.env
-.env.*
-
-# Environment variables
-.env
-.env.local
-.env.*.local
-*.env
-frontend/.env
-backend/.env
+MyZubster-Robot/
+arduino-robot-sdk/
+robot-marketplace/
+x402-gateway/
+*.tmp

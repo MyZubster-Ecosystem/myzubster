@@ -303,3 +303,59 @@ exports.getStats = async (req, res) => {
     });
   }
 };
+
+// Assegna bounty a un utente (admin)
+exports.assign = async (req, res) => {
+  try {
+    if (req.userRole !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Solo gli amministratori possono assegnare i bounty'
+      });
+    }
+
+    const { assignedToUsername, walletAddress } = req.body;
+
+    if (!assignedToUsername) {
+      return res.status(400).json({
+        success: false,
+        message: 'Nome utente obbligatorio'
+      });
+    }
+
+    const bounty = await Bounty.findById(req.params.id);
+    if (!bounty) {
+      return res.status(404).json({
+        success: false,
+        message: 'Bounty non trovato'
+      });
+    }
+
+    if (bounty.status !== 'open') {
+      return res.status(400).json({
+        success: false,
+        message: `Questo bounty non è più disponibile (stato: ${bounty.status})`
+      });
+    }
+
+    bounty.status = 'in-progress';
+    bounty.assignedToUsername = assignedToUsername;
+    if (walletAddress) bounty.assignedToWallet = walletAddress;
+    bounty.claimedAt = new Date();
+    await bounty.save();
+
+    res.json({
+      success: true,
+      message: 'Bounty assegnato con successo',
+      data: bounty
+    });
+
+  } catch (error) {
+    console.error('Assign bounty error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Errore durante l\'assegnazione del bounty',
+      error: error.message
+    });
+  }
+};

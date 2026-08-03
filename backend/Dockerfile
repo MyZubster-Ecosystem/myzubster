@@ -8,9 +8,14 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+<<<<<<< HEAD
 # Install dependencies first (layer caching)
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev --ignore-scripts
+=======
+COPY package*.json ./
+RUN npm install --only=production
+>>>>>>> f26104b8 (chore: sync all changes - issue updates, labels, cleanup)
 
 # ---- Runtime stage ----
 FROM node:20-alpine AS runtime

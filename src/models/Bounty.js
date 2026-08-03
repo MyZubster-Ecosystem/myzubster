@@ -23,7 +23,7 @@ const BountySchema = new mongoose.Schema({
   repository: {
     type: String,
     required: true,
-    enum: ['myzubster', 'MyZubster-App', 'MyZubsterWeb', 'MyZubsterGateway']
+    enum: ['myzubster', 'MyZubster-App', 'MyZubsterWeb', 'MyZubsterGateway', 'my-monero-bounty']
   },
   amount: {
     type: Number,

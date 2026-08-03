@@ -23,13 +23,20 @@ mongoose.connect(process.env.MONGODB_URI)
 .then(() => console.log('✅ MongoDB connected'))
 .catch(err => console.error('❌ MongoDB connection error:', err));
 
-// Route
+// ---- Route ----
+// Auth
 app.use('/api/auth', require('./src/routes/authRoutes'));
+
+// Animals
 app.use('/api/animals', require('./src/routes/animalRoutes'));
+
+// Plants
 app.use('/api/plants', require('./src/routes/plantRoutes'));
+
+// Bounties
 app.use('/api/bounties', require('./src/routes/bountyRoutes'));
 
-// Health check
+// ---- Health check ----
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
@@ -39,7 +46,7 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Info endpoint
+// ---- Info endpoint ----
 app.get('/api/info', (req, res) => {
   res.json({
     name: 'MyZubster Gateway',
@@ -55,7 +62,7 @@ app.get('/api/info', (req, res) => {
   });
 });
 
-// Root endpoint
+// ---- Root endpoint ----
 app.get('/', (req, res) => {
   res.json({
     name: 'MyZubster Gateway',
@@ -82,14 +89,13 @@ app.get('/', (req, res) => {
       bounties: {
         list: '/api/bounties',
         create: '/api/bounties/create',
-        claim: '/api/bounties/:id/claim',
         stats: '/api/bounties/stats'
       }
     }
   });
 });
 
-// 404 handler
+// ---- 404 handler ----
 app.use((req, res) => {
   res.status(404).json({
     success: false,
@@ -98,7 +104,7 @@ app.use((req, res) => {
   });
 });
 
-// Error handler
+// ---- Error handler ----
 app.use((err, req, res, next) => {
   console.error('Error:', err);
   res.status(500).json({
@@ -108,7 +114,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start server
+// ---- Start server ----
 const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 MyZubster Gateway is running on port ${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
@@ -119,7 +125,7 @@ const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`🏆 Bounties: http://localhost:${PORT}/api/bounties`);
 });
 
-// Graceful shutdown
+// ---- Graceful shutdown ----
 process.on('SIGTERM', () => {
   console.log('📡 SIGTERM received, closing server...');
   server.close(() => {

@@ -1,19 +1,34 @@
 const express = require('express');
 const router = express.Router();
-const bountyController = require('../controllers/bountyController');
-const { authenticate, isAdmin } = require('../middleware/auth');
 
-// Route pubbliche
-router.get('/', bountyController.getAll);
-router.get('/stats', bountyController.getStats);
-router.get('/:id', bountyController.getOne);
+// Lista bounty
+router.get('/', (req, res) => {
+  res.json({ success: true, data: [] });
+});
 
-// Route protette (autenticazione richiesta)
-router.post('/:id/claim', authenticate, bountyController.claim);
+// Statistiche bounty
+router.get('/stats', (req, res) => {
+  res.json({ success: true, data: { total: 0, completed: 0, inProgress: 0, open: 0 } });
+});
 
-// Route admin
-router.post('/create', authenticate, isAdmin, bountyController.create);
-router.patch('/:id/complete', authenticate, isAdmin, bountyController.complete);
-router.patch('/:id/cancel', authenticate, isAdmin, bountyController.cancel);
+// Crea bounty
+router.post('/create', (req, res) => {
+  res.json({ success: true, message: 'Bounty creato' });
+});
+
+// Assegna bounty
+router.patch('/:id/assign', (req, res) => {
+  res.json({ success: true, message: 'Bounty assegnato' });
+});
+
+// Completa bounty
+router.patch('/:id/complete', (req, res) => {
+  res.json({ success: true, message: 'Bounty completato' });
+});
+
+// Cancella bounty
+router.delete('/:id', (req, res) => {
+  res.json({ success: true, message: 'Bounty cancellato' });
+});
 
 module.exports = router;
