@@ -1,0 +1,25 @@
+.reminder-dashboard { font-family: system-ui, sans-serif; }
+.rd-loading, .rd-empty { text-align: center; padding: 2rem; color: #888; }
+.rd-tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+.rd-tabs button { padding: 0.5rem 1.2rem; border: 1px solid #ddd; border-radius: 8px; background: #fff; cursor: pointer; font-size: 0.95rem; }
+.rd-tabs button.active { background: #4caf50; color: #fff; border-color: #4caf50; }
+.rd-list { display: flex; flex-direction: column; gap: 0.75rem; }
+.rd-card { border: 1px solid #e0e0e0; border-radius: 10px; padding: 0.75rem 1rem; background: #fafafa; }
+.rd-card.rd-type-watering { border-left: 4px solid #2196f3; }
+.rd-card.rd-type-fertilizing { border-left: 4px solid #ff9800; }
+.rd-card.rd-type-harvesting { border-left: 4px solid #8bc34a; }
+.rd-card.rd-type-pruning { border-left: 4px solid #9c27b0; }
+.rd-card-header { display: flex; align-items: center; gap: 0.75rem; }
+.rd-icon { font-size: 1.6rem; }
+.rd-card-info { flex: 1; display: flex; flex-direction: column; }
+.rd-type-label { font-weight: 600; font-size: 0.95rem; }
+.rd-due, .rd-date { font-size: 0.8rem; color: #666; }
+.rd-channel { font-size: 0.75rem; background: #eee; padding: 2px 8px; border-radius: 12px; }
+.rd-notes { font-size: 0.85rem; color: #555; margin: 0.4rem 0; font-style: italic; }
+.rd-card-actions { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+.rd-card-actions button { padding: 0.3rem 0.8rem; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+.rd-btn-complete { background: #4caf50; color: #fff; }
+.rd-btn-skip { background: #ffc107; color: #333; }
+.rd-btn-delete { background: transparent; border: 1px solid #ddd !important; }
+.rd-card-history { display: flex; align-items: center; gap: 0.75rem; }
+.rd-history-status { font-size: 0.85rem; }
