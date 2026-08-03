@@ -4,6 +4,12 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
+const { createMonitoringRouter } = require('./routes/monitoring');
+const { createRequestLoggerStream } = require('./services/logAggregator');
+const {
+  createMonitoringSnapshot,
+  startAutoRecoveryLoop
+} = require('./services/monitoringService');
 
 // Import routes
 const gardenRoutes = require('./routes/gardens');
@@ -17,6 +23,8 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
+app.use(morgan('combined', { stream: createRequestLoggerStream() }));
+app.use(createMonitoringRouter({ mongoose }));
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/myzubster', {
@@ -281,13 +289,17 @@ app.use((req, res) => {
 });
 
 // Start server
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`✅ MyZubster backend listening on port ${PORT}`);
   console.log(`📍 Health check: http://localhost:${PORT}/health`);
   console.log(`📍 Dashboard: http://localhost:${PORT}/dashboard`);
   console.log(`📍 API Dashboard: http://localhost:${PORT}/api/dashboard`);
   console.log(`📍 Messages: http://localhost:${PORT}/api/messages/:userId`);
   console.log(`📍 Gardens API: http://localhost:${PORT}/api/gardens`);
+});
+
+const recoveryLoop = startAutoRecoveryLoop({
+  getSnapshot: () => createMonitoringSnapshot({ mongooseConnection: mongoose.connection })
 });
 
 module.exports = app;
@@ -418,3 +430,6 @@ app.post('/api/payments/wallet', async (req, res) => {
     });
   }
 });
+
+module.exports.server = server;
+module.exports.recoveryLoop = recoveryLoop;
