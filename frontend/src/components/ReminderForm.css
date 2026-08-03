@@ -1,0 +1,8 @@
+.reminder-form { background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 1.25rem; max-width: 400px; }
+.reminder-form h3 { margin: 0 0 1rem; font-size: 1.1rem; }
+.form-row { margin-bottom: 0.75rem; }
+.form-row label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.25rem; }
+.form-row select, .form-row input, .form-row textarea { width: 100%; padding: 0.45rem; border: 1px solid #ccc; border-radius: 6px; font-size: 0.9rem; box-sizing: border-box; }
+.form-error { background: #ffeaea; color: #c62828; padding: 0.5rem; border-radius: 6px; font-size: 0.85rem; margin-bottom: 0.75rem; }
+.form-submit { width: 100%; padding: 0.6rem; background: #4caf50; color: #fff; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+.form-submit:disabled { background: #aaa; }
