@@ -1,0 +1,83 @@
+# Artillery Load Test Configuration
+# Install: npm install -g artillery
+# Run: artillery run loadtest/artillery/load-test.yml
+# Report: artillery run loadtest/artillery/load-test.yml --reporters json
+
+config:
+  target: "http://localhost:3000"
+  phases:
+    - duration: 30
+      arrivalRate: 5
+      name: "Warm up"
+    - duration: 60
+      arrivalRate: 10
+      name: "Normal load"
+    - duration: 30
+      arrivalRate: 25
+      name: "High load"
+    - duration: 30
+      arrivalRate: 5
+      name: "Cool down"
+  defaults:
+    headers:
+      Content-Type: "application/json"
+  ensure:
+    p95: 500
+    maxErrorRate: 10
+
+scenarios:
+  - name: "Browse Plants"
+    weight: 30
+    flow:
+      - get:
+          url: "/api/health"
+      - get:
+          url: "/api/plants"
+      - think: 1
+      - get:
+          url: "/api/plants?search=tomato"
+
+  - name: "Browse Animals"
+    weight: 20
+    flow:
+      - get:
+          url: "/api/animals"
+      - think: 1
+      - get:
+          url: "/api/animals/1"
+
+  - name: "Browse Bounties"
+    weight: 20
+    flow:
+      - get:
+          url: "/api/bounties"
+      - think: 1
+      - get:
+          url: "/api/bounties/1"
+
+  - name: "User Registration"
+    weight: 10
+    flow:
+      - post:
+          url: "/api/auth/register"
+          json:
+            username: "loadtest_{{ $randomNumber() }}"
+            email: "loadtest_{{ $randomNumber() }}@test.com"
+            password: "TestPassword123!"
+          expect:
+            - statusCode: [201, 409]
+
+  - name: "Full User Flow"
+    weight: 20
+    flow:
+      - get:
+          url: "/api/health"
+      - get:
+          url: "/api/plants"
+      - think: 1
+      - get:
+          url: "/api/plants?search=rose"
+      - get:
+          url: "/api/animals"
+      - get:
+          url: "/api/bounties"

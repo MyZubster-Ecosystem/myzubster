@@ -1,0 +1,24 @@
+{
+  "name": "myzubster-loadtest",
+  "version": "1.0.0",
+  "description": "Load testing and performance optimization for MyZubster",
+  "main": "performance-test.js",
+  "scripts": {
+    "test": "node performance-test.js",
+    "test:health": "node -e \"const t = require('./performance-test'); t.makeRequest('/api/health').then(r => console.log(r));\"",
+    "lint": "eslint .",
+    "format": "prettier --write ."
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "eslint": "^8.0.0",
+    "prettier": "^3.0.0"
+  },
+  "keywords": [
+    "load-testing",
+    "performance",
+    "myzubster"
+  ],
+  "author": "MyZubster Team",
+  "license": "MIT"
+}

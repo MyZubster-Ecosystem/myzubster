@@ -1,0 +1,25 @@
+# Prometheus Configuration for MyZubster
+# Scrapes metrics from the application and exports to Grafana
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'myzubster'
+    static_configs:
+      - targets: ['myzubster:3000']
+    metrics_path: '/metrics'
+    scrape_interval: 5s
+
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis:6379']
+
+  - job_name: 'nginx'
+    static_configs:
+      - targets: ['nginx:80']

@@ -1,0 +1,59 @@
+{
+  "dashboard": {
+    "title": "MyZubster Performance Dashboard",
+    "tags": ["myzubster", "performance"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "title": "Request Rate (req/s)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(myzubster_http_requests_total[5m])",
+            "legendFormat": "{{method}} {{route}}"
+          }
+        ]
+      },
+      {
+        "title": "Response Time (p95)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(myzubster_http_request_duration_seconds_bucket[5m]))",
+            "legendFormat": "p95"
+          }
+        ]
+      },
+      {
+        "title": "Error Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(myzubster_http_request_errors_total[5m])",
+            "legendFormat": "{{method}} {{route}}"
+          }
+        ]
+      },
+      {
+        "title": "Active Connections",
+        "type": "gauge",
+        "targets": [
+          {
+            "expr": "myzubster_active_connections",
+            "legendFormat": "Active"
+          }
+        ]
+      },
+      {
+        "title": "Cache Hit Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(myzubster_cache_hits_total[5m]) / (rate(myzubster_cache_hits_total[5m]) + rate(myzubster_cache_misses_total[5m]))",
+            "legendFormat": "{{cache_name}}"
+          }
+        ]
+      }
+    ]
+  }
+}
