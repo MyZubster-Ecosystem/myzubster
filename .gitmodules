@@ -4,3 +4,7 @@
 [submodule "marketplace"]
         path = marketplace
         url = https://github.com/DanielIoni-creator/MyZubster-Marketplace.git
+[submodule "tari"]
+	path = tari
+	url = https://github.com/MyZubster-Ecosystem/tari.git
+	branch = development
