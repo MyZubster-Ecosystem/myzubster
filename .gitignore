@@ -19,3 +19,4 @@ arduino-robot-sdk/
 robot-marketplace/
 x402-gateway/
 *.tmp
+gateway/
