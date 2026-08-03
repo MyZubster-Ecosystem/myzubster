@@ -1,7 +1,7 @@
 {
   "name": "myzubster-backend",
   "version": "1.0.0",
-  "description": "MyZubster Backend API with Garden Photos & Care Reminders",
+  "description": "MyZubster Backend API with Garden Photos",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
@@ -18,7 +18,9 @@
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^6.9.0",
     "morgan": "^1.10.0",
-    "node-cron": "^3.0.3"
+    "multer": "^1.4.5-lts.1",
+    "sharp": "^0.33.2",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "jest": "^29.4.0",
