@@ -1,0 +1,122 @@
+# ============================================================
+# MyZubster Ecosystem — Production Override
+# Usage: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+#
+# This file overrides development defaults with production-safe
+# settings. All secrets MUST be set in a .env file — never
+# commit real credentials.
+# ============================================================
+
+services:
+
+  # ── MongoDB (production) ────────────────────────────────
+  mongodb:
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:?Set MONGO_INITDB_ROOT_USERNAME in .env}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:?Set MONGO_INITDB_ROOT_PASSWORD in .env}
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "5"
+
+  # ── Backend (production) ────────────────────────────────
+  backend:
+    restart: always
+    environment:
+      MONGODB_URI: ${BACKEND_MONGODB_URI:?Set BACKEND_MONGODB_URI in .env}
+      NODE_ENV: production
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "5"
+
+  # ── Frontend (production) ───────────────────────────────
+  frontend:
+    restart: always
+    build:
+      args:
+        REACT_APP_API_URL: ${REACT_APP_API_URL:?Set REACT_APP_API_URL in .env}
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+        reservations:
+          cpus: "0.1"
+          memory: 64M
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "3"
+
+  # ── Gateway (production) ────────────────────────────────
+  gateway:
+    restart: always
+    environment:
+      MONGODB_URI: ${GATEWAY_MONGODB_URI:?Set GATEWAY_MONGODB_URI in .env}
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env}
+      NODE_ENV: production
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "5"
+
+  # ── Marketplace (production) ────────────────────────────
+  marketplace:
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+        reservations:
+          cpus: "0.1"
+          memory: 64M
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "3"
+
+  # ── AI Automation (production) ──────────────────────────
+  ai-automation:
+    restart: always
+    environment:
+      MONGODB_URI: ${AI_AUTOMATION_MONGODB_URI:?Set AI_AUTOMATION_MONGODB_URI in .env}
+      NODE_ENV: production
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:?Set TELEGRAM_BOT_TOKEN in .env}
+      GITHUB_TOKEN: ${GITHUB_TOKEN}
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "5"
