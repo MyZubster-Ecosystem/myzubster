@@ -15,6 +15,18 @@ MyZubster is an open-source ecosystem that combines three pillars:
 It is built for people who believe in a better, more transparent, and decentralized future.
 
 ---
+## 🪙 $MYZ Rewards System
+
+MyZubster now offers rewards in $MYZ tokens for various activities:
+
+- 🖥️ Open‑source contributions (bounties on merged PRs)
+- 🐛 QA and bug reporting
+- 🤖 Robot mission bonuses
+- 👥 User referrals
+- 🗳️ Governance participation
+- 📚 Educational content creation
+
+Check the labels `rewards` and `myz` for available reward opportunities.
 
 ## 🧱 Architecture
 
