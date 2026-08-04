@@ -28,6 +28,7 @@ app.use('/api/auth', require('./src/routes/authRoutes'));
 app.use('/api/animals', require('./src/routes/animalRoutes'));
 app.use('/api/plants', require('./src/routes/plantRoutes'));
 app.use('/api/bounties', require('./src/routes/bountyRoutes'));
+app.use('/api/garden', require('./src/routes/gardenActivityRoutes'));
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -84,6 +85,11 @@ app.get('/', (req, res) => {
         create: '/api/bounties/create',
         claim: '/api/bounties/:id/claim',
         stats: '/api/bounties/stats'
+      },
+      garden: {
+        activity: '/api/garden/activity',
+        activityStream: '/api/garden/activity/stream',
+        activityFilters: '/api/garden/activity/filters'
       }
     }
   });

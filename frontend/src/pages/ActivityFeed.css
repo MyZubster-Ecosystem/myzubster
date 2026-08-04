@@ -1,0 +1,204 @@
+/* Garden Activity Feed styles (#92) */
+.af-root {
+  min-height: 100vh;
+  background: radial-gradient(1200px 600px at 80% -10%, rgba(16, 185, 129, 0.12), transparent 60%),
+    radial-gradient(900px 500px at -10% 10%, rgba(59, 130, 246, 0.12), transparent 55%),
+    #0b1220;
+  color: #e2e8f0;
+  font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  padding: 28px 20px 60px;
+}
+
+.af-container {
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.af-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 22px;
+  flex-wrap: wrap;
+}
+
+.af-title {
+  font-size: 26px;
+  font-weight: 800;
+  margin: 0;
+  background: linear-gradient(135deg, #34d399, #60a5fa);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.af-sub {
+  font-size: 13px;
+  color: #94a3b8;
+  margin: 4px 0 0;
+}
+
+.af-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  color: #6ee7b7;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  padding: 5px 11px;
+  border-radius: 999px;
+}
+
+.af-live .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  animation: af-pulse 1.8s infinite;
+}
+
+@keyframes af-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
+  70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+.af-notify-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #e2e8f0;
+  background: #1e293b;
+  border: 1px solid #334155;
+  padding: 8px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.af-notify-btn:hover { border-color: #475569; transform: translateY(-1px); }
+.af-notify-btn.on { color: #6ee7b7; border-color: rgba(16, 185, 129, 0.5); background: rgba(16, 185, 129, 0.1); }
+
+.af-badge {
+  background: #ef4444;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.af-filters {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.af-field { display: flex; flex-direction: column; gap: 6px; }
+
+.af-field label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748b;
+}
+
+.af-field select {
+  background: #111c30;
+  color: #e2e8f0;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.af-field select:focus { border-color: #34d399; }
+
+.af-feed { display: flex; flex-direction: column; gap: 12px; }
+
+.af-item {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  background: rgba(30, 41, 59, 0.65);
+  border: 1px solid #233047;
+  border-radius: 16px;
+  padding: 14px 16px;
+  backdrop-filter: blur(8px);
+  animation: af-slidein 0.35s ease;
+}
+
+@keyframes af-slidein {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.af-avatar {
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  color: #06121f;
+}
+
+.af-body { flex: 1; min-width: 0; }
+
+.af-line { font-size: 14px; line-height: 1.45; }
+.af-actor { font-weight: 700; color: #f1f5f9; }
+.af-msg { color: #cbd5e1; }
+
+.af-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.af-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  background: #1e293b;
+  border: 1px solid #334155;
+  color: #cbd5e1;
+}
+
+.af-type-plant_added { color: #34d399; border-color: rgba(52, 211, 153, 0.4); }
+.af-type-plant_updated { color: #60a5fa; border-color: rgba(96, 165, 250, 0.4); }
+.af-type-harvest { color: #fbbf24; border-color: rgba(251, 191, 36, 0.4); }
+.af-type-comment { color: #c084fc; border-color: rgba(192, 132, 252, 0.4); }
+
+.af-empty {
+  text-align: center;
+  color: #64748b;
+  padding: 40px 0;
+}
+
+@media (max-width: 640px) {
+  .af-filters { grid-template-columns: 1fr; }
+  .af-title { font-size: 22px; }
+}
