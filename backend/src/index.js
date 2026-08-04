@@ -9,6 +9,7 @@ const path = require('path');
 // Import routes
 const gardenRoutes = require('./routes/gardens');
 const photoRoutes = require('./routes/photos');
+const activityRoutes = require('./routes/activities');
 
 const app = express();
 const PORT = process.env.PORT || 3009;
@@ -44,6 +45,7 @@ app.get('/health', (req, res) => {
 // Garden routes
 app.use('/api/gardens', gardenRoutes);
 app.use('/api/photos', photoRoutes);
+app.use('/api/activities', activityRoutes);
 
 // Dashboard API endpoint
 app.get('/api/dashboard', (req, res) => {
@@ -292,6 +294,7 @@ app.listen(PORT, () => {
   console.log(`📍 API Dashboard: http://localhost:${PORT}/api/dashboard`);
   console.log(`📍 Messages: http://localhost:${PORT}/api/messages/:userId`);
   console.log(`📍 Gardens API: http://localhost:${PORT}/api/gardens`);
+  console.log(`📍 Activities API: http://localhost:${PORT}/api/activities`);
 });
 
 module.exports = app;
