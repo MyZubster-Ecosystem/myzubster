@@ -15,6 +15,24 @@ MyZubster is an open-source ecosystem that combines three pillars:
 It is built for people who believe in a better, more transparent, and decentralized future.
 
 ---
+## 💰 Earn Your First XMR
+
+MyZubster rewards contributors with **real Monero (XMR)** — no capital needed. Whether you're registering the first plant in your neighborhood, verifying someone else's entry, or fixing a bug, you earn XMR for your efforts.
+
+### Quick Actions
+
+| Action | Reward | Difficulty |
+|--------|--------|------------|
+| 🌱 Register a plant | 0.001 XMR | 🟢 Easy |
+| 🐾 Register an animal | 0.001 XMR | 🟢 Easy |
+| ✅ Verify a registration | 0.002 XMR | 🟢 Easy |
+| 📚 Write documentation | 0.001 XMR | 🟢 Easy |
+| 🐛 Report a valid bug | 0.002 XMR | 🟡 Medium |
+| 💻 Fix a `good-first-issue` | 0.002–0.01 XMR | 🟢–🟡 |
+
+### 👉 [**Full Reward Guide → EARN_XMR.md**](EARN_XMR.md)
+
+Includes detailed instructions, all reward actions, tips for beginners, FAQ, and ecosystem repo links.
 
 ## 🧱 Architecture
 
