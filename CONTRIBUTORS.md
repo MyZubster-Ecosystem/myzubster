@@ -84,3 +84,5 @@ In a single hour, @foxxx009 claimed 19 issues across 3 repositories.
 | 2026-08-03 | @SourceProofLabs | #56 / PR #100 | FCMP++ research, protocol analysis (MyZubsterGateway) | 0.06 XMR | 4B3v5k44b8pQTzqfAdxDCgZD8MZBVsX3qGDHGE5T94ZccEgv49nauhg7BzJj8dNBwAikguvTYqW5QRGDb7xSuEDVH4EfXAc |
 
 | 2026-08-03 | @SourceProofLabs | #22 / PR #31 | Security audit for tokenization model (tokenization-singapore) | 0.06 XMR | 4B3v5k44b8pQTzqfAdxDCgZD8MZBVsX3qGDHGE5T94ZccEgv49nauhg7BzJj8dNBwAikguvTYqW5QRGDb7xSuEDVH4EfXAc |
+
+| 2026-08-04 | @SourceProofLabs | #41 / PR #61 | POI registration & verification infrastructure (one-time capability bounty) | 0.03 XMR | 4B3v5k44b8pQTzqfAdxDCgZD8MZBVsX3qGDHGE5T94ZccEgv49nauhg7BzJj8dNBwAikguvTYqW5QRGDb7xSuEDVH4EfXAc |
