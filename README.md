@@ -28,6 +28,16 @@ MyZubster now offers rewards in $MYZ tokens for various activities:
 
 Check the labels `rewards` and `myz` for available reward opportunities.
 
+---
+
+## 💰 Earn Your First XMR
+
+Want to start earning **Monero (XMR)** without any capital? Every reward-generating action across the ecosystem is collected in one place:
+
+→ **[Earn Your First XMR — full guide & action list](docs/EARN_YOUR_FIRST_XMR.md)**
+
+It covers plant/animal registrations, verification, free documentation, valid bug reports, open-source bounties, community contributions, payout mechanics, and a zero-capital step-by-step.
+
 ## 🧱 Architecture
 
 The ecosystem is composed of several services:
