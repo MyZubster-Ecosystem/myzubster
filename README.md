@@ -34,7 +34,7 @@ Check the labels `rewards` and `myz` for available reward opportunities.
 
 Want to start earning **Monero (XMR)** without any capital? Every reward-generating action across the ecosystem is collected in one place:
 
-👉 **[Earn Your First XMR — full guide & action list](docs/EARN_YOUR_FIRST_XMR.md)**
+→ **[Earn Your First XMR — full guide & action list](docs/EARN_YOUR_FIRST_XMR.md)**
 
 It covers plant/animal registrations, verification, free documentation, valid bug reports, open-source bounties, community contributions, payout mechanics, and a zero-capital step-by-step.
 
