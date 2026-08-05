@@ -52,11 +52,6 @@ router.post('/', async (req, res) => {
   }
 });
 
-module.exports = router;r) {
-    return res.status(500).json({ success: false, message: err.message });
-  }
-});
-
 // GET /api/reminders — list reminders (filters: ownerId, gardenId, status, type)
 router.get('/', async (req, res) => {
   try {
