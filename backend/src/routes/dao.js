@@ -183,7 +183,77 @@ router.post('/vote', async (req, res) => {
     // Check existing vote
     const existing = await Vote.findOne({ proposalId, voterId });
     if (existing) {
-      return res.status(409).json({ success: false, message: 'Already voted. Use PUT to change vote.' });
+      return res.status(409).json({ success: false, message: 'You have already voted on this proposal' });
+    }
+
+    // Get voter weight (user tokens + any delegations)
+    const baseWeight = await getUserTokens(voterId);
+    const delegations = await Delegation.find({
+      $or: [{ delegatee: voterId }, { delegateeId: voterId }]
+    });
+
+    let delegatedWeight = 0;
+    for (const d of delegations) {
+      const delegatorId = d.delegator || d.delegatorId;
+      if (delegatorId) {
+        delegatedWeight += await getUserTokens(delegatorId);
+      }
+    }
+
+    const totalWeight = baseWeight + delegatedWeight;
+
+    const vote = await Vote.create({
+      proposalId,
+      voterId,
+      choice,
+      weight: totalWeight,
+      reason: reason || ''
+    });
+
+    // Recompute tally & update proposal status if necessary
+    await recomputeTally(proposal);
+    await proposal.save();
+
+    return res.status(201).json({ success: true, data: vote });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// GET /api/dao/treasury — get current treasury status
+router.get('/treasury', async (req, res) => {
+  try {
+    const treasury = await Treasury.findOne() || { balance: 10000, transactions: [] };
+    return res.json({ success: true, data: treasury });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// POST /api/dao/delegate — delegate voting power
+router.post('/delegate', async (req, res) => {
+  try {
+    const { delegatorId, delegateeId } = req.body;
+    if (!delegatorId || !delegateeId) {
+      return res.status(400).json({ success: false, message: 'delegatorId and delegateeId required' });
+    }
+    if (delegatorId === delegateeId) {
+      return res.status(400).json({ success: false, message: 'Cannot delegate to yourself' });
+    }
+
+    const delegation = await Delegation.findOneAndUpdate(
+      { delegatorId },
+      { delegateeId, updatedAt: new Date() },
+      { upsert: true, new: true }
+    );
+
+    return res.json({ success: true, data: delegation });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+module.exports = router;lse, message: 'Already voted. Use PUT to change vote.' });
     }
 
     // Check delegation — if someone delegated their vote, check if delegate already voted
