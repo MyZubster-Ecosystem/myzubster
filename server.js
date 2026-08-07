@@ -15,9 +15,17 @@ app.use(cors({
   origin: process.env.CORS_ORIGIN || '*',
   credentials: true
 }));
+<<<<<<< HEAD
 app.use(morgan('dev'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+=======
+app.use(compression());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use('/api/', apiLimiter);
+app.use('/api/auth/', authLimiter);
+>>>>>>> 8dcbf38 (feat: add rate limiting and admin dashboard routes to server.js)
 
 // Rate Limiting
 const limiter = rateLimit({
@@ -27,6 +35,7 @@ const limiter = rateLimit({
 });
 app.use('/api', limiter);
 
+<<<<<<< HEAD
 // Routes
 const authRoutes = require('./src/routes/authRoutes');
 const userRoutes = require('./src/routes/userRoutes');
@@ -39,6 +48,15 @@ const adminDashboardRoutes = require('./src/routes/adminDashboardRoutes');
 const mapRoutes = require('./src/routes/mapRoutes');
 const urbanGardenRoutes = require('./src/routes/urbanGardenRoutes');
 const carbonCreditRoutes = require('./src/routes/carbonCreditRoutes');
+=======
+// Route
+app.use('/api/auth', require('./src/routes/authRoutes'));
+app.use('/api/animals', require('./src/routes/animalRoutes'));
+app.use('/api/plants', require('./src/routes/plantRoutes'));
+app.use('/api/bounties', require('./src/routes/bountyRoutes'));
+app.use('/api/admin', require('./src/routes/adminDashboardRoutes'));
+const { apiLimiter, authLimiter, paymentLimiter, adminLimiter } = require('./src/middleware/rateLimitMiddleware');
+>>>>>>> 8dcbf38 (feat: add rate limiting and admin dashboard routes to server.js)
 
 // API Routes
 app.use('/api/auth', authRoutes);
