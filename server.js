@@ -17,6 +17,8 @@ app.use(cors({
 app.use(compression());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use('/api/', apiLimiter);
+app.use('/api/auth/', authLimiter);
 
 // Connessione a MongoDB
 mongoose.connect(process.env.MONGODB_URI)
@@ -28,6 +30,8 @@ app.use('/api/auth', require('./src/routes/authRoutes'));
 app.use('/api/animals', require('./src/routes/animalRoutes'));
 app.use('/api/plants', require('./src/routes/plantRoutes'));
 app.use('/api/bounties', require('./src/routes/bountyRoutes'));
+app.use('/api/admin', require('./src/routes/adminDashboardRoutes'));
+const { apiLimiter, authLimiter, paymentLimiter, adminLimiter } = require('./src/middleware/rateLimitMiddleware');
 
 // Health check
 app.get('/api/health', (req, res) => {
