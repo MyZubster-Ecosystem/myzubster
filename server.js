@@ -28,6 +28,7 @@ app.use('/api/auth', require('./src/routes/authRoutes'));
 app.use('/api/animals', require('./src/routes/animalRoutes'));
 app.use('/api/plants', require('./src/routes/plantRoutes'));
 app.use('/api/bounties', require('./src/routes/bountyRoutes'));
+app.use('/api/bounty-system', require('./src/routes/bountySystemRoutes'));
 
 // Health check
 app.get('/api/health', (req, res) => {
