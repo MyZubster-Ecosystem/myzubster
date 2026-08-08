@@ -1,0 +1,79 @@
+# ============================================================
+# MyZubster Ecosystem — .dockerignore
+# Exclude files/dirs from Docker build context
+# ============================================================
+
+# ── Dependencies ──────────────────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-error.log*
+.pnp/
+.pnp.js
+
+# ── Build artifacts ───────────────────────────────────────
+build/
+dist/
+.cache/
+*.tsbuildinfo
+
+# ── Version control ───────────────────────────────────────
+.git/
+.gitignore
+.github/
+.gitmodules
+
+# ── Documentation ─────────────────────────────────────────
+docs/
+*.md
+!README.md
+LICENSE
+CHANGELOG.md
+
+# ── Testing ───────────────────────────────────────────────
+__tests__/
+*.test.js
+*.test.ts
+*.spec.js
+*.spec.ts
+coverage/
+.nyc_output/
+jest.config.*
+vitest.config.*
+
+# ── IDE / Editor ──────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ── Environment / Secrets ─────────────────────────────────
+.env
+.env.local
+.env.*.local
+.env.docker
+
+# ── Docker (avoid recursive builds) ──────────────────────
+docker-compose*.yml
+Dockerfile*
+.dockerignore
+.docker/
+
+# ── CI / Scripts ──────────────────────────────────────────
+scripts/
+ci/
+.github/
+Makefile
+*.sh
+!docker-entrypoint.sh
+
+# ── Monorepo subdirectories (build context is per-service) ─
+# Each Dockerfile uses its own build context, so exclude
+# sibling directories to keep contexts small.
+frontend/
+backend/
+services/
+gateway/
+marketplace/
