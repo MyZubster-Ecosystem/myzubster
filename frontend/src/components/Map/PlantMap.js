@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import React, { useEffect } from 'react';
+import { Circle, MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -19,30 +19,79 @@ const plantIcon = new L.Icon({
   popupAnchor: [0, -32],
 });
 
+const userIcon = L.divIcon({
+  className: 'myzubster-user-location',
+  html: '<span style="display:block;width:18px;height:18px;border-radius:50%;background:#2563eb;border:3px solid white;box-shadow:0 0 0 2px rgba(37,99,235,0.35);"></span>',
+  iconSize: [24, 24],
+  iconAnchor: [12, 12],
+});
+
+const searchIcon = L.divIcon({
+  className: 'myzubster-search-center',
+  html: '<span style="display:block;width:18px;height:18px;border-radius:50%;background:#f59e0b;border:3px solid white;box-shadow:0 0 0 2px rgba(245,158,11,0.35);"></span>',
+  iconSize: [24, 24],
+  iconAnchor: [12, 12],
+});
+
+const getPoint = (plant) => {
+  const source = plant.gps || plant.coordinates || {};
+  const lat = Number(source.lat);
+  const lng = Number(source.lng);
+
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  return { lat, lng };
+};
+
+const getCenterPoint = (point) => {
+  if (!point) return null;
+
+  const lat = Number(point.lat);
+  const lng = Number(point.lng);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+
+  return { lat, lng };
+};
+
 // Componente per centrare la mappa
-const MapController = ({ plants }) => {
+const MapController = ({ plants, searchCenter, userLocation }) => {
   const map = useMap();
   
   useEffect(() => {
-    if (plants && plants.length > 0) {
-      const bounds = plants
-        .filter(p => p.gps && p.gps.lat && p.gps.lng)
-        .map(p => [p.gps.lat, p.gps.lng]);
-      
-      if (bounds.length > 0) {
-        map.fitBounds(bounds, { padding: [50, 50] });
-      }
+    const bounds = (plants || [])
+      .map(getPoint)
+      .filter(Boolean)
+      .map((point) => [point.lat, point.lng]);
+    const center = getCenterPoint(searchCenter) || getCenterPoint(userLocation);
+
+    if (center) {
+      bounds.push([center.lat, center.lng]);
     }
-  }, [map, plants]);
+
+    if (bounds.length > 1) {
+      map.fitBounds(bounds, { padding: [50, 50], maxZoom: 13 });
+      return;
+    }
+
+    if (bounds.length === 1) {
+      map.setView(bounds[0], center ? 13 : 8);
+    }
+  }, [map, plants, searchCenter, userLocation]);
   
   return null;
 };
 
-const PlantMap = ({ plants = [], onPlantClick }) => {
-  const [selectedPlant, setSelectedPlant] = useState(null);
+const PlantMap = ({
+  plants = [],
+  onPlantClick,
+  searchCenter,
+  searchRadiusKm,
+  userLocation,
+}) => {
+  const center = getCenterPoint(searchCenter);
+  const userPoint = getCenterPoint(userLocation);
+  const radiusMeters = Number(searchRadiusKm) > 0 ? Number(searchRadiusKm) * 1000 : 0;
 
   const handleMarkerClick = (plant) => {
-    setSelectedPlant(plant);
     if (onPlantClick) onPlantClick(plant);
   };
 
@@ -58,15 +107,55 @@ const PlantMap = ({ plants = [], onPlantClick }) => {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
         
-        <MapController plants={plants} />
+        <MapController plants={plants} searchCenter={center} userLocation={userPoint} />
+
+        {center && radiusMeters > 0 && (
+          <Circle
+            center={[center.lat, center.lng]}
+            radius={radiusMeters}
+            pathOptions={{
+              color: '#f59e0b',
+              fillColor: '#fbbf24',
+              fillOpacity: 0.12,
+              weight: 2,
+            }}
+          />
+        )}
+
+        {center && (
+          <Marker position={[center.lat, center.lng]} icon={searchIcon} zIndexOffset={800}>
+            <Popup>
+              <div>
+                <strong>Search center</strong>
+                <p style={{ margin: '4px 0' }}>
+                  {center.lat.toFixed(5)}, {center.lng.toFixed(5)}
+                </p>
+              </div>
+            </Popup>
+          </Marker>
+        )}
+
+        {userPoint && (
+          <Marker position={[userPoint.lat, userPoint.lng]} icon={userIcon} zIndexOffset={900}>
+            <Popup>
+              <div>
+                <strong>Your location</strong>
+                <p style={{ margin: '4px 0' }}>
+                  {userPoint.lat.toFixed(5)}, {userPoint.lng.toFixed(5)}
+                </p>
+              </div>
+            </Popup>
+          </Marker>
+        )}
         
         {plants.map((plant) => {
-          if (!plant.gps || !plant.gps.lat || !plant.gps.lng) return null;
+          const point = getPoint(plant);
+          if (!point) return null;
           
           return (
             <Marker
               key={plant._id || plant.id}
-              position={[plant.gps.lat, plant.gps.lng]}
+              position={[point.lat, point.lng]}
               icon={plantIcon}
               eventHandlers={{
                 click: () => handleMarkerClick(plant)
@@ -83,6 +172,16 @@ const PlantMap = ({ plants = [], onPlantClick }) => {
                   {plant.commonName && (
                     <p style={{ margin: '4px 0' }}>
                       <strong>Common Name:</strong> {plant.commonName}
+                    </p>
+                  )}
+                  {plant.locationLabel && (
+                    <p style={{ margin: '4px 0' }}>
+                      <strong>Area:</strong> {plant.locationLabel}
+                    </p>
+                  )}
+                  {plant.address && (
+                    <p style={{ margin: '4px 0' }}>
+                      <strong>Address:</strong> {plant.address}
                     </p>
                   )}
                   {plant.age && (
