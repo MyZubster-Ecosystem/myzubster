@@ -36,7 +36,9 @@ const referralRoutes = require('./src/routes/referralRoutes');
 const paymentRoutes = require('./src/routes/paymentRoutes');
 const dashboardRoutes = require('./src/routes/dashboardRoutes');
 const adminDashboardRoutes = require('./src/routes/adminDashboardRoutes');
-const rateLimitMiddleware = require('./src/middleware/rateLimitMiddleware');
+const mapRoutes = require('./src/routes/mapRoutes');
+const urbanGardenRoutes = require('./src/routes/urbanGardenRoutes');
+const carbonCreditRoutes = require('./src/routes/carbonCreditRoutes');
 
 // API Routes
 app.use('/api/auth', authRoutes);
@@ -47,7 +49,9 @@ app.use('/api/referrals', referralRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/admin', adminDashboardRoutes);
-app.use('/api/rate-limit', rateLimitMiddleware);
+app.use('/api/map', mapRoutes);
+app.use('/api/urban-garden', urbanGardenRoutes);
+app.use('/api/carbon-credits', carbonCreditRoutes);
 
 // Health Check
 app.get('/health', (req, res) => {

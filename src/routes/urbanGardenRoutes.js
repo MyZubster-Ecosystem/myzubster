@@ -1,0 +1,9 @@
+const express = require('express');
+const router = express.Router();
+const c = require('../controllers/urbanGardenController');
+const jwt = require('jsonwebtoken');
+const auth = (req,res,next) => { const t = req.header('Authorization')?.replace('Bearer ',''); if(!t) return res.status(401).json({error:'No token'}); try{req.user=jwt.verify(t,process.env.JWT_SECRET||'secret');next();}catch(e){return res.status(401).json({error:'Invalid'});} };
+router.post('/', auth, c.createGarden);
+router.get('/', c.getGardens);
+router.get('/:gardenId', c.getGarden);
+module.exports = router;
