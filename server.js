@@ -1,130 +1,107 @@
 require('dotenv').config();
 const express = require('express');
+const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
-const compression = require('compression');
-const mongoose = require('mongoose');
+const morgan = require('morgan');
+const rateLimit = require('express-rate-limit');
 
 const app = express();
-const PORT = process.env.PORT || 10000;
+const PORT = process.env.PORT || 5000;
 
-// Middleware
+// Security Middleware
 app.use(helmet());
 app.use(cors({
   origin: process.env.CORS_ORIGIN || '*',
   credentials: true
 }));
-app.use(compression());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(morgan('dev'));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Connessione a MongoDB
-mongoose.connect(process.env.MONGODB_URI)
-.then(() => console.log('✅ MongoDB connected'))
-.catch(err => console.error('❌ MongoDB connection error:', err));
+// Rate Limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  message: 'Too many requests from this IP, please try again later.'
+});
+app.use('/api', limiter);
 
-// Route
-app.use('/api/auth', require('./src/routes/authRoutes'));
-app.use('/api/animals', require('./src/routes/animalRoutes'));
-app.use('/api/plants', require('./src/routes/plantRoutes'));
-app.use('/api/bounties', require('./src/routes/bountyRoutes'));
-app.use('/api/dashboard', require('./src/routes/dashboardRoutes'));
+// Routes
+const authRoutes = require('./src/routes/authRoutes');
+const userRoutes = require('./src/routes/userRoutes');
+const bountyRoutes = require('./src/routes/bountyRoutes');
+const rewardRoutes = require('./src/routes/rewardRoutes');
+const referralRoutes = require('./src/routes/referralRoutes');
+const paymentRoutes = require('./src/routes/paymentRoutes');
+const dashboardRoutes = require('./src/routes/dashboardRoutes');
 
-// Health check
-app.get('/api/health', (req, res) => {
-  res.json({
+// API Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/bounties', bountyRoutes);
+app.use('/api/rewards', rewardRoutes);
+app.use('/api/referrals', referralRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/dashboard', dashboardRoutes);
+
+// Health Check
+app.get('/health', (req, res) => {
+  res.status(200).json({
     status: 'ok',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+    memory: process.memoryUsage()
   });
 });
 
-// Info endpoint
-app.get('/api/info', (req, res) => {
-  res.json({
-    name: 'MyZubster Gateway',
-    version: '1.0.0',
-    description: 'Monero Payment Gateway & Animal Registry',
-    features: {
-      payments: process.env.ENABLE_PAYMENTS === 'true',
-      animals: process.env.ENABLE_ANIMAL_REGISTRY === 'true',
-      plants: process.env.ENABLE_PLANT_REGISTRY === 'true',
-      bounty: process.env.ENABLE_BOUNTY_PROGRAM === 'true'
-    },
-    monero_wallet: process.env.MONERO_MAIN_WALLET_ADDRESS
-  });
-});
-
-// Root endpoint
-app.get('/', (req, res) => {
-  res.json({
-    name: 'MyZubster Gateway',
-    version: '1.0.0',
-    status: 'running',
-    endpoints: {
-      health: '/api/health',
-      info: '/api/info',
-      auth: {
-        register: '/api/auth/register',
-        login: '/api/auth/login',
-        profile: '/api/auth/profile'
-      },
-      animals: {
-        list: '/api/animals',
-        register: '/api/animals/register',
-        detail: '/api/animals/:id'
-      },
-      plants: {
-        list: '/api/plants',
-        register: '/api/plants/register',
-        detail: '/api/plants/:id'
-      },
-      bounties: {
-        list: '/api/bounties',
-        create: '/api/bounties/create',
-        claim: '/api/bounties/:id/claim',
-        stats: '/api/bounties/stats'
-      }
-    }
-  });
-});
-
-// 404 handler
+// 404 Handler
 app.use((req, res) => {
   res.status(404).json({
     success: false,
-    error: 'Not Found',
-    message: `Endpoint ${req.method} ${req.path} does not exist`
+    error: 'Endpoint not found'
   });
 });
 
-// Error handler
+// Error Handler
 app.use((err, req, res, next) => {
-  console.error('Error:', err);
-  res.status(500).json({
+  console.error('Error:', err.stack);
+  res.status(err.status || 500).json({
     success: false,
-    error: 'Internal Server Error',
-    message: err.message
+    error: err.message || 'Internal Server Error'
   });
 });
 
-// Start server
-const server = app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 MyZubster Gateway is running on port ${PORT}`);
-  console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
-  console.log(`📋 Info: http://localhost:${PORT}/api/info`);
-  console.log(`🔐 Auth: http://localhost:${PORT}/api/auth/register`);
-  console.log(`🐾 Animals: http://localhost:${PORT}/api/animals`);
-  console.log(`🌿 Plants: http://localhost:${PORT}/api/plants`);
-  console.log(`🏆 Bounties: http://localhost:${PORT}/api/bounties`);
+// Database Connection
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/myzubster', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => {
+  console.log('✅ Connected to MongoDB');
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`🔗 Health check: http://localhost:${PORT}/health`);
+  });
+})
+.catch(err => {
+  console.error('❌ MongoDB connection error:', err);
+  process.exit(1);
 });
 
-// Graceful shutdown
+// Graceful Shutdown
 process.on('SIGTERM', () => {
-  console.log('📡 SIGTERM received, closing server...');
-  server.close(() => {
-    console.log('✅ Server closed');
+  console.log('🛑 SIGTERM received, closing server...');
+  mongoose.connection.close(() => {
+    console.log('✅ MongoDB connection closed');
+    process.exit(0);
+  });
+});
+
+process.on('SIGINT', () => {
+  console.log('🛑 SIGINT received, closing server...');
+  mongoose.connection.close(() => {
+    console.log('✅ MongoDB connection closed');
     process.exit(0);
   });
 });
