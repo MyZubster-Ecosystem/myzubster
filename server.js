@@ -21,8 +21,8 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Rate Limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000,
+  max: 100,
   message: 'Too many requests from this IP, please try again later.'
 });
 app.use('/api', limiter);
@@ -33,6 +33,8 @@ const userRoutes = require('./src/routes/userRoutes');
 const bountyRoutes = require('./src/routes/bountyRoutes');
 const rewardRoutes = require('./src/routes/rewardRoutes');
 const referralRoutes = require('./src/routes/referralRoutes');
+const paymentRoutes = require('./src/routes/paymentRoutes');
+const dashboardRoutes = require('./src/routes/dashboardRoutes');
 
 // API Routes
 app.use('/api/auth', authRoutes);
@@ -40,6 +42,8 @@ app.use('/api/users', userRoutes);
 app.use('/api/bounties', bountyRoutes);
 app.use('/api/rewards', rewardRoutes);
 app.use('/api/referrals', referralRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 // Health Check
 app.get('/health', (req, res) => {
