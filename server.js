@@ -35,6 +35,8 @@ const rewardRoutes = require('./src/routes/rewardRoutes');
 const referralRoutes = require('./src/routes/referralRoutes');
 const paymentRoutes = require('./src/routes/paymentRoutes');
 const dashboardRoutes = require('./src/routes/dashboardRoutes');
+const adminDashboardRoutes = require('./src/routes/adminDashboardRoutes');
+const rateLimitMiddleware = require('./src/middleware/rateLimitMiddleware');
 
 // API Routes
 app.use('/api/auth', authRoutes);
@@ -44,6 +46,8 @@ app.use('/api/rewards', rewardRoutes);
 app.use('/api/referrals', referralRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/admin', adminDashboardRoutes);
+app.use('/api/rate-limit', rateLimitMiddleware);
 
 // Health Check
 app.get('/health', (req, res) => {
