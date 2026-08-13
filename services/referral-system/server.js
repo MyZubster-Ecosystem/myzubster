@@ -260,6 +260,36 @@ app.post('/referrals/first-purchase', async (req, res) => {
   });
 });
 
+// GET /referrals/stats — vista admin sulle statistiche aggregate
+// NB: registrata PRIMA di /referrals/:userId per non essere catturata dal parametro.
+app.get('/referrals/stats', (req, res) => {
+  const totalUsers = db.prepare('SELECT COUNT(*) AS c FROM users').get().c;
+  const totalReferred = db.prepare(
+    'SELECT COUNT(*) AS c FROM users WHERE referred_by_code IS NOT NULL'
+  ).get().c;
+  const totalFirstPurchases = db.prepare(
+    'SELECT COUNT(*) AS c FROM users WHERE first_purchase_at IS NOT NULL'
+  ).get().c;
+  const totalRewarded = db.prepare(
+    `SELECT COALESCE(SUM(amount), 0) AS total FROM referral_events WHERE status = 'completed'`
+  ).get().total;
+
+  const topReferrers = db.prepare(
+    `SELECT referrer_user_id, COUNT(*) AS referrals, COALESCE(SUM(amount), 0) AS rewarded_myz
+     FROM referral_events WHERE event = 'first_purchase_reward'
+     GROUP BY referrer_user_id
+     ORDER BY referrals DESC LIMIT 20`
+  ).all();
+
+  return res.json({
+    total_users: totalUsers,
+    total_referred: totalReferred,
+    total_first_purchases: totalFirstPurchases,
+    total_rewarded_myz: totalRewarded,
+    top_referrers: topReferrers
+  });
+});
+
 // GET /referrals/:userId — statistiche referral di un utente
 app.get('/referrals/:userId', (req, res) => {
   const userId = req.params.userId;
@@ -291,35 +321,6 @@ app.get('/referrals/:userId', (req, res) => {
     referred_users: referredUsers,
     total_rewarded_myz: completedRewards,
     events
-  });
-});
-
-// GET /referrals/stats — vista admin sulle statistiche aggregate
-app.get('/referrals/stats', (req, res) => {
-  const totalUsers = db.prepare('SELECT COUNT(*) AS c FROM users').get().c;
-  const totalReferred = db.prepare(
-    'SELECT COUNT(*) AS c FROM users WHERE referred_by_code IS NOT NULL'
-  ).get().c;
-  const totalFirstPurchases = db.prepare(
-    'SELECT COUNT(*) AS c FROM users WHERE first_purchase_at IS NOT NULL'
-  ).get().c;
-  const totalRewarded = db.prepare(
-    `SELECT COALESCE(SUM(amount), 0) AS total FROM referral_events WHERE status = 'completed'`
-  ).get().total;
-
-  const topReferrers = db.prepare(
-    `SELECT referrer_user_id, COUNT(*) AS referrals, COALESCE(SUM(amount), 0) AS rewarded_myz
-     FROM referral_events WHERE event = 'first_purchase_reward'
-     GROUP BY referrer_user_id
-     ORDER BY referrals DESC LIMIT 20`
-  ).all();
-
-  return res.json({
-    total_users: totalUsers,
-    total_referred: totalReferred,
-    total_first_purchases: totalFirstPurchases,
-    total_rewarded_myz: totalRewarded,
-    top_referrers: topReferrers
   });
 });
 
