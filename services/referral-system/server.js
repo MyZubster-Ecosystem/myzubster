@@ -305,7 +305,7 @@ app.get('/referrals/:userId', (req, res) => {
 
   const completedRewards = db.prepare(
     `SELECT COALESCE(SUM(amount), 0) AS total FROM referral_events
-     WHERE referrer_user_id = ? AND status = 'completed'`
+     WHERE referrer_user_id = ? AND event = 'first_purchase_reward' AND status = 'completed'`
   ).get(userId).total;
 
   const events = db.prepare(
