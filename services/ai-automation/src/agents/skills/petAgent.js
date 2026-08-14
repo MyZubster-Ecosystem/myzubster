@@ -119,7 +119,7 @@ class PetAgent {
       const recovery = await this.skills.lostPetRecovery.process({
         petId,
         radius: options.radius || 10,
-        alert: options.alert || true
+        alert: options.alert !== undefined ? options.alert : true
       });
       return {
         success: true,
