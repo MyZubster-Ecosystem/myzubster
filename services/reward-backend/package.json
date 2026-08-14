@@ -1,0 +1,14 @@
+{
+  "name": "reward-backend",
+  "version": "1.0.0",
+  "description": "Automatic MYZ reward assignment + minting service (Bounty #252)",
+  "main": "reward-backend.js",
+  "scripts": {
+    "start": "node reward-backend.js"
+  },
+  "dependencies": {
+    "axios": "^1.7.2",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2"
+  }
+}
