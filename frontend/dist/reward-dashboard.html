@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyZubster Reward Dashboard</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #0a0a1a; color: #e0e0e0; font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+canvas#stars { position: fixed; top: 0; left: 0; z-index: 0; }
+.container { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 20px; }
+header { text-align: center; padding: 30px 0; }
+header h1 { font-size: 2rem; background: linear-gradient(135deg, #f9d423, #ff4e50); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+header p { color: #888; font-size: 0.95rem; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin: 20px 0; }
+.stat-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 20px; text-align: center; transition: transform 0.2s; }
+.stat-card:hover { transform: translateY(-2px); border-color: #f9d42344; }
+.stat-value { font-size: 2rem; font-weight: bold; background: linear-gradient(135deg, #f9d423, #ff4e50); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.stat-label { color: #888; font-size: 0.85rem; margin-top: 5px; }
+.progress-bar { background: rgba(255,255,255,0.1); border-radius: 8px; height: 8px; margin-top: 8px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 8px; background: linear-gradient(90deg, #f9d423, #ff4e50); transition: width 0.5s; }
+.rewards { margin-top: 30px; }
+.rewards h2 { font-size: 1.3rem; margin-bottom: 15px; color: #ccc; }
+.reward-item { display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 12px 16px; margin-bottom: 8px; }
+.reward-item .reason { flex: 1; }
+.reward-item .amount { font-weight: bold; background: linear-gradient(135deg, #f9d423, #ff4e50); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0 15px; }
+.reward-item .date { color: #666; font-size: 0.85rem; }
+.badge-area { display: flex; gap: 12px; margin: 20px 0; flex-wrap: wrap; }
+.badge { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 8px 16px; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; }
+.badge.earned { border-color: #f9d42366; background: rgba(249,212,35,0.1); }
+.badge.locked { opacity: 0.5; }
+.badge-icon { font-size: 1.2rem; }
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+<div class="container">
+  <header>
+    <h1>🏆 MyZubster Rewards</h1>
+    <p>Il tuo storico ricompense e progressi</p>
+  </header>
+
+  <div class="stats">
+    <div class="stat-card">
+      <div class="stat-value" id="total-myz">0</div>
+      <div class="stat-label">MYZ Guadagnati</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="reward-count">0</div>
+      <div class="stat-label">Ricompense Ricevute</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="streak">0</div>
+      <div class="stat-label">Giorni Consecutivi</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="rank">#1</div>
+      <div class="stat-label">Classifica Contributor</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Livello Cacciatore</div>
+      <div class="stat-value" style="font-size:1.2rem" id="hunter-level">🥉 Bronze</div>
+      <div class="progress-bar"><div class="progress-fill" style="width:65%" id="level-progress"></div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Prossimo Traguardo</div>
+      <div class="stat-value" style="font-size:1rem" id="next-milestone">100 MYZ</div>
+      <div class="progress-bar"><div class="progress-fill" style="width:42%" id="milestone-progress"></div></div>
+    </div>
+  </div>
+
+  <div class="badge-area">
+    <div class="badge earned"><span class="badge-icon">🐣</span> Prima Ricompensa</div>
+    <div class="badge earned"><span class="badge-icon">⚡</span> Quick Merge</div>
+    <div class="badge earned"><span class="badge-icon">🔧</span> 10 Bug Fix</div>
+    <div class="badge locked"><span class="badge-icon">🏅</span> 50 MYZ Milestone</div>
+    <div class="badge locked"><span class="badge-icon">👑</span> Top Contributor</div>
+    <div class="badge locked"><span class="badge-icon">🎯</span> 7-Day Streak</div>
+  </div>
+
+  <div class="rewards">
+    <h2>📋 Storico Ricompense</h2>
+    <div id="reward-list">
+      <div class="reward-item"><span class="reason">🔧 Bug fix critico #1234</span><span class="amount">+20 MYZ</span><span class="date">10/08/2026</span></div>
+      <div class="reward-item"><span class="reason">📄 Documentazione API Gateway</span><span class="amount">+5 MYZ</span><span class="date">09/08/2026</span></div>
+      <div class="reward-item"><span class="reason">🖥️ Dashboard Tokenizzazione</span><span class="amount">+15 MYZ</span><span class="date">08/08/2026</span></div>
+      <div class="reward-item"><span class="reason">🤖 Bot Telegram Agricolo</span><span class="amount">+10 MYZ</span><span class="date">07/08/2026</span></div>
+    </div>
+  </div>
+</div>
+<script>
+const canvas = document.getElementById('stars');
+const ctx = canvas.getContext('2d');
+function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+resize(); window.addEventListener('resize', resize);
+const stars = Array.from({length: 100}, () => ({x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*1.5, v: 0.2+Math.random()*0.3}));
+function draw() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle = '#fff';
+  stars.forEach(s => { ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2); ctx.fill(); s.y += s.v; if(s.y > canvas.height) { s.y = 0; s.x = Math.random()*canvas.width; } });
+  requestAnimationFrame(draw);
+}
+draw();
+// Simulate data (replace with API call)
+document.getElementById('total-myz').textContent = '50';
+document.getElementById('reward-count').textContent = '4';
+document.getElementById('streak').textContent = '3';
+</script>
+</body>
+</html>
