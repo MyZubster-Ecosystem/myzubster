@@ -1,111 +1,101 @@
-
-/**
- * Bounty Model
- * Mongoose schema for bounties with reward assignment and minting support
- */
-
 const mongoose = require('mongoose');
 
-const BountySchema = new mongoose.Schema(
-  {
-    title: {
-      type: String,
-      required: [true, 'Title is required'],
-      trim: true
-    },
-    description: {
-      type: String,
-      required: [true, 'Description is required'],
-      trim: true
-    },
-    reward: {
-      type: Number,
-      required: [true, 'Reward amount is required'],
-      min: [0, 'Reward must be non-negative']
-    },
-    currency: {
-      type: String,
-      default: 'XMR',
-      enum: ['XMR', 'BTC', 'ETH', 'USD', 'EUR']
-    },
-    status: {
-      type: String,
-      enum: ['open', 'assigned', 'completed', 'cancelled'],
-      default: 'open'
-    },
-    // Assignment fields
-    assignee: {
-      type: String,
-      default: null
-    },
-    assignedAt: {
-      type: Date,
-      default: null
-    },
-    // Minting fields
-    minted: {
-      type: Boolean,
-      default: false
-    },
-    mintTxHash: {
-      type: String,
-      default: null
-    },
-    mintedAt: {
-      type: Date,
-      default: null
-    },
-    walletAddress: {
-      type: String,
-      default: null
-    },
-    // Optional metadata
-    tags: {
-      type: [String],
-      default: []
-    },
-    githubIssueUrl: {
-      type: String,
-      default: null
-    },
-    createdBy: {
-      type: String,
-      default: null
-    }
+const BountySchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: true,
+    trim: true
   },
-  {
-    timestamps: true
+  description: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  issueNumber: {
+    type: Number,
+    required: true,
+    unique: true
+  },
+  issueUrl: {
+    type: String,
+    required: true
+  },
+  repository: {
+    type: String,
+    required: true,
+    enum: ['myzubster', 'MyZubster-App', 'MyZubsterWeb', 'MyZubsterGateway']
+  },
+  amount: {
+    type: Number,
+    required: true,
+    min: 0.0001
+  },
+  currency: {
+    type: String,
+    default: 'XMR'
+  },
+  status: {
+    type: String,
+    enum: ['open', 'in-progress', 'review', 'completed', 'cancelled'],
+    default: 'open'
+  },
+  assignedTo: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  assignedToUsername: {
+    type: String,
+    trim: true
+  },
+  assignedToWallet: {
+    type: String,
+    trim: true
+  },
+  claimedAt: {
+    type: Date
+  },
+  completedAt: {
+    type: Date
+  },
+  paymentTxHash: {
+    type: String,
+    trim: true
+  },
+  paidAt: {
+    type: Date
+  },
+  prNumber: {
+    type: Number
+  },
+  prUrl: {
+    type: String
+  },
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
   }
-);
-
-// Index for efficient querying
-BountySchema.index({ status: 1 });
-BountySchema.index({ assignee: 1 });
-BountySchema.index({ minted: 1 });
-BountySchema.index({ createdAt: -1 });
-
-/**
- * Virtual: isEligibleForMinting
- * A bounty is eligible for minting if it has an assignee and hasn't been minted yet
- */
-BountySchema.virtual('isEligibleForMinting').get(function () {
-  return !!this.assignee && !this.minted;
 });
 
-/**
- * Static: findEligibleForAutoMint
- * Find all assigned-but-not-yet-minted bounties
- */
-BountySchema.statics.findEligibleForAutoMint = function () {
-  return this.find({ status: 'assigned', minted: false, assignee: { $ne: null } });
-};
+// Middleware pre-save per aggiornare updatedAt
+BountySchema.pre('save', function(next) {
+  this.updatedAt = new Date();
+  next();
+});
 
-/**
- * Static: findOpenBounties
- */
-BountySchema.statics.findOpenBounties = function () {
-  return this.find({ status: 'open' });
-};
+// Indici per ricerche rapide
+BountySchema.index({ status: 1 });
+BountySchema.index({ issueNumber: 1 });
+BountySchema.index({ repository: 1 });
+BountySchema.index({ assignedTo: 1 });
+BountySchema.index({ createdAt: -1 });
 
 module.exports = mongoose.model('Bounty', BountySchema);
-    
