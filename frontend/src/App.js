@@ -1,5 +1,4 @@
 import React from 'react';
-import ActivityFeed from './components/ActivityFeed';
 
 function App() {
   return (
@@ -8,9 +7,6 @@ function App() {
       <p>Decentralized Gardening Platform</p>
       <p>Backend: <a href="http://localhost:3009/dashboard">Dashboard</a></p>
       <p>API: <a href="http://localhost:3009/api/dashboard">API Dashboard</a></p>
-      <div style={{ maxWidth: '640px', margin: '24px auto 0', textAlign: 'left' }}>
-        <ActivityFeed />
-      </div>
     </div>
   );
 }

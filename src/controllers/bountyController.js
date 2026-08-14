@@ -1,358 +1,305 @@
-
-/**
- * Bounty Controller
- * Handles bounty CRUD operations and reward assignment/minting
- */
-
 const Bounty = require('../models/Bounty');
 
-/**
- * Get all bounties
- */
-const getBounties = async (req, res) => {
+// Crea un nuovo bounty (solo admin)
+exports.create = async (req, res) => {
   try {
-    const bounties = await Bounty.find({}).lean();
-    res.json({ success: true, data: bounties });
-  } catch (error) {
-    console.error('Error fetching bounties:', error);
-    res.status(500).json({ success: false, error: error.message });
-  }
-};
-
-/**
- * Get a single bounty by ID
- */
-const getBountyById = async (req, res) => {
-  try {
-    const bounty = await Bounty.findById(req.params.id).lean();
-    if (!bounty) {
-      return res.status(404).json({ success: false, error: 'Bounty not found' });
-    }
-    res.json({ success: true, data: bounty });
-  } catch (error) {
-    console.error('Error fetching bounty:', error);
-    res.status(500).json({ success: false, error: error.message });
-  }
-};
-
-/**
- * Create a new bounty
- */
-const createBounty = async (req, res) => {
-  try {
-    const { title, description, reward, currency, assignee } = req.body;
-
-    if (!title || !description || reward === undefined) {
-      return res.status(400).json({
+    if (req.userRole !== 'admin') {
+      return res.status(403).json({
         success: false,
-        error: 'title, description, and reward are required'
+        message: 'Solo gli amministratori possono creare bounty'
       });
     }
 
-    const bounty = await Bounty.create({
+    const { title, description, issueNumber, issueUrl, repository, amount, prNumber, prUrl } = req.body;
+
+    if (!title || !description || !issueNumber || !issueUrl || !repository || !amount) {
+      return res.status(400).json({
+        success: false,
+        message: 'Tutti i campi obbligatori devono essere compilati'
+      });
+    }
+
+    // Verifica se il bounty esiste già
+    const existing = await Bounty.findOne({ issueNumber });
+    if (existing) {
+      return res.status(400).json({
+        success: false,
+        message: `Bounty per l'issue #${issueNumber} già esistente`
+      });
+    }
+
+    const bounty = new Bounty({
       title,
       description,
-      reward: Number(reward),
-      currency: currency || 'XMR',
-      assignee: assignee || null,
-      status: 'open',
-      minted: false,
-      createdAt: new Date(),
-      updatedAt: new Date()
+      issueNumber,
+      issueUrl,
+      repository,
+      amount,
+      prNumber,
+      prUrl,
+      createdBy: req.userId
     });
 
-    res.status(201).json({ success: true, data: bounty });
+    await bounty.save();
+
+    res.status(201).json({
+      success: true,
+      message: 'Bounty creato con successo',
+      data: bounty
+    });
+
   } catch (error) {
-    console.error('Error creating bounty:', error);
-    res.status(500).json({ success: false, error: error.message });
+    console.error('Create bounty error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Errore durante la creazione del bounty',
+      error: error.message
+    });
   }
 };
 
-/**
- * Automatically assign a bounty to a user
- */
-const assignBounty = async (req, res) => {
+// Lista tutti i bounty
+exports.getAll = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { assignee, userId } = req.body;
+    const { status, repository, limit = 50, page = 1 } = req.query;
 
-    const recipient = assignee || userId;
-    if (!recipient) {
-      return res.status(400).json({
-        success: false,
-        error: 'assignee or userId is required'
-      });
-    }
+    const query = {};
+    if (status) query.status = status;
+    if (repository) query.repository = repository;
 
-    const bounty = await Bounty.findById(id);
-    if (!bounty) {
-      return res.status(404).json({ success: false, error: 'Bounty not found' });
-    }
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const bounties = await Bounty.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit))
+      .populate('assignedTo', 'username email')
+      .populate('createdBy', 'username email');
 
-    if (bounty.status === 'completed' || bounty.status === 'assigned') {
-      return res.status(409).json({
-        success: false,
-        error: `Bounty is already ${bounty.status}`
-      });
-    }
-
-    bounty.assignee = recipient;
-    bounty.status = 'assigned';
-    bounty.assignedAt = new Date();
-    bounty.updatedAt = new Date();
-    await bounty.save();
-
-    console.log(`[BountyController] Bounty ${id} assigned to ${recipient}`);
+    const total = await Bounty.countDocuments(query);
 
     res.json({
       success: true,
-      data: bounty,
-      message: `Bounty successfully assigned to ${recipient}`
+      count: bounties.length,
+      total,
+      page: parseInt(page),
+      totalPages: Math.ceil(total / parseInt(limit)),
+      data: bounties
     });
+
   } catch (error) {
-    console.error('Error assigning bounty:', error);
-    res.status(500).json({ success: false, error: error.message });
+    console.error('Get bounties error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Errore durante il recupero dei bounty',
+      error: error.message
+    });
   }
 };
 
-/**
- * Mint reward for a completed bounty (automatic reward minting)
- */
-const mintReward = async (req, res) => {
+// Dettaglio bounty
+exports.getOne = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { txHash, walletAddress } = req.body;
+    const bounty = await Bounty.findById(req.params.id)
+      .populate('assignedTo', 'username email moneroWallet')
+      .populate('createdBy', 'username email');
 
-    const bounty = await Bounty.findById(id);
     if (!bounty) {
-      return res.status(404).json({ success: false, error: 'Bounty not found' });
-    }
-
-    if (!bounty.assignee) {
-      return res.status(400).json({
+      return res.status(404).json({
         success: false,
-        error: 'Bounty must be assigned before minting reward'
+        message: 'Bounty non trovato'
       });
     }
 
-    if (bounty.minted) {
-      return res.status(409).json({
-        success: false,
-        error: 'Reward has already been minted for this bounty'
-      });
-    }
-
-    // Perform automatic reward minting
-    const mintResult = await performMinting({
-      bountyId: id,
-      reward: bounty.reward,
-      currency: bounty.currency || 'XMR',
-      assignee: bounty.assignee,
-      walletAddress: walletAddress || bounty.walletAddress,
-      txHash
+    res.json({
+      success: true,
+      data: bounty
     });
 
-    bounty.minted = true;
+  } catch (error) {
+    console.error('Get bounty error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Errore durante il recupero del bounty',
+      error: error.message
+    });
+  }
+};
+
+// Claim bounty (utente)
+exports.claim = async (req, res) => {
+  try {
+    const { walletAddress, username } = req.body;
+
+    if (!walletAddress) {
+      return res.status(400).json({
+        success: false,
+        message: 'Indirizzo wallet Monero obbligatorio'
+      });
+    }
+
+    const bounty = await Bounty.findById(req.params.id);
+    if (!bounty) {
+      return res.status(404).json({
+        success: false,
+        message: 'Bounty non trovato'
+      });
+    }
+
+    if (bounty.status !== 'open') {
+      return res.status(400).json({
+        success: false,
+        message: `Questo bounty non è più disponibile (stato: ${bounty.status})`
+      });
+    }
+
+    bounty.status = 'in-progress';
+    bounty.assignedTo = req.userId;
+    bounty.assignedToUsername = username || req.username;
+    bounty.assignedToWallet = walletAddress;
+    bounty.claimedAt = new Date();
+    await bounty.save();
+
+    res.json({
+      success: true,
+      message: 'Bounty reclamato con successo',
+      data: bounty
+    });
+
+  } catch (error) {
+    console.error('Claim bounty error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Errore durante il reclamo del bounty',
+      error: error.message
+    });
+  }
+};
+
+// Completa bounty (admin)
+exports.complete = async (req, res) => {
+  try {
+    if (req.userRole !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Solo gli amministratori possono completare i bounty'
+      });
+    }
+
+    const { paymentTxHash, prNumber, prUrl } = req.body;
+
+    const bounty = await Bounty.findById(req.params.id);
+    if (!bounty) {
+      return res.status(404).json({
+        success: false,
+        message: 'Bounty non trovato'
+      });
+    }
+
+    if (bounty.status !== 'in-progress') {
+      return res.status(400).json({
+        success: false,
+        message: `Il bounty deve essere in stato "in-progress" per essere completato`
+      });
+    }
+
     bounty.status = 'completed';
-    bounty.mintedAt = new Date();
-    bounty.mintTxHash = mintResult.txHash;
-    bounty.updatedAt = new Date();
+    bounty.completedAt = new Date();
+    if (paymentTxHash) bounty.paymentTxHash = paymentTxHash;
+    if (paymentTxHash) bounty.paidAt = new Date();
+    if (prNumber) bounty.prNumber = prNumber;
+    if (prUrl) bounty.prUrl = prUrl;
     await bounty.save();
-
-    console.log(`[BountyController] Reward minted for bounty ${id}: ${mintResult.txHash}`);
 
     res.json({
       success: true,
-      data: bounty,
-      mint: mintResult,
-      message: `Reward of ${bounty.reward} ${bounty.currency || 'XMR'} minted successfully`
+      message: 'Bounty completato con successo',
+      data: bounty
     });
+
   } catch (error) {
-    console.error('Error minting reward:', error);
-    res.status(500).json({ success: false, error: error.message });
+    console.error('Complete bounty error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Errore durante il completamento del bounty',
+      error: error.message
+    });
   }
 };
 
-/**
- * Automatically assign and mint reward in one step
- */
-const assignAndMint = async (req, res) => {
+// Cancella bounty (admin)
+exports.cancel = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { assignee, userId, walletAddress, txHash } = req.body;
-
-    const recipient = assignee || userId;
-    if (!recipient) {
-      return res.status(400).json({
+    if (req.userRole !== 'admin') {
+      return res.status(403).json({
         success: false,
-        error: 'assignee or userId is required'
+        message: 'Solo gli amministratori possono cancellare i bounty'
       });
     }
 
-    const bounty = await Bounty.findById(id);
+    const bounty = await Bounty.findById(req.params.id);
     if (!bounty) {
-      return res.status(404).json({ success: false, error: 'Bounty not found' });
-    }
-
-    if (bounty.minted) {
-      return res.status(409).json({
+      return res.status(404).json({
         success: false,
-        error: 'Reward has already been minted for this bounty'
+        message: 'Bounty non trovato'
       });
     }
 
-    // Assign
-    bounty.assignee = recipient;
-    bounty.assignedAt = new Date();
-
-    // Mint
-    const mintResult = await performMinting({
-      bountyId: id,
-      reward: bounty.reward,
-      currency: bounty.currency || 'XMR',
-      assignee: recipient,
-      walletAddress: walletAddress || bounty.walletAddress,
-      txHash
-    });
-
-    bounty.minted = true;
-    bounty.status = 'completed';
-    bounty.mintedAt = new Date();
-    bounty.mintTxHash = mintResult.txHash;
-    bounty.walletAddress = walletAddress || bounty.walletAddress;
-    bounty.updatedAt = new Date();
+    bounty.status = 'cancelled';
     await bounty.save();
-
-    console.log(`[BountyController] Bounty ${id} auto-assigned to ${recipient} and reward minted: ${mintResult.txHash}`);
 
     res.json({
       success: true,
-      data: bounty,
-      mint: mintResult,
-      message: `Bounty assigned to ${recipient} and reward of ${bounty.reward} ${bounty.currency || 'XMR'} minted successfully`
+      message: 'Bounty cancellato con successo',
+      data: bounty
     });
+
   } catch (error) {
-    console.error('Error in assignAndMint:', error);
-    res.status(500).json({ success: false, error: error.message });
+    console.error('Cancel bounty error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Errore durante la cancellazione del bounty',
+      error: error.message
+    });
   }
 };
 
-/**
- * Get reward status for a bounty
- */
-const getRewardStatus = async (req, res) => {
+// Statistiche bounty
+exports.getStats = async (req, res) => {
   try {
-    const bounty = await Bounty.findById(req.params.id).lean();
-    if (!bounty) {
-      return res.status(404).json({ success: false, error: 'Bounty not found' });
-    }
+    const total = await Bounty.countDocuments();
+    const open = await Bounty.countDocuments({ status: 'open' });
+    const inProgress = await Bounty.countDocuments({ status: 'in-progress' });
+    const completed = await Bounty.countDocuments({ status: 'completed' });
+    const cancelled = await Bounty.countDocuments({ status: 'cancelled' });
+
+    const totalAmount = await Bounty.aggregate([
+      { $match: { status: 'completed' } },
+      { $group: { _id: null, total: { $sum: '$amount' } } }
+    ]);
+
+    const byRepository = await Bounty.aggregate([
+      { $group: { _id: '$repository', count: { $sum: 1 } } }
+    ]);
 
     res.json({
       success: true,
       data: {
-        bountyId: bounty._id,
-        status: bounty.status,
-        minted: bounty.minted || false,
-        assignee: bounty.assignee || null,
-        reward: bounty.reward,
-        currency: bounty.currency || 'XMR',
-        mintTxHash: bounty.mintTxHash || null,
-        mintedAt: bounty.mintedAt || null,
-        assignedAt: bounty.assignedAt || null
+        total,
+        open,
+        inProgress,
+        completed,
+        cancelled,
+        totalPaid: totalAmount.length > 0 ? totalAmount[0].total : 0,
+        byRepository
       }
     });
+
   } catch (error) {
-    console.error('Error fetching reward status:', error);
-    res.status(500).json({ success: false, error: error.message });
+    console.error('Get stats error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Errore durante il recupero delle statistiche',
+      error: error.message
+    });
   }
 };
-
-/**
- * Update bounty status
- */
-const updateBounty = async (req, res) => {
-  try {
-    const bounty = await Bounty.findByIdAndUpdate(
-      req.params.id,
-      { ...req.body, updatedAt: new Date() },
-      { new: true }
-    );
-    if (!bounty) {
-      return res.status(404).json({ success: false, error: 'Bounty not found' });
-    }
-    res.json({ success: true, data: bounty });
-  } catch (error) {
-    console.error('Error updating bounty:', error);
-    res.status(500).json({ success: false, error: error.message });
-  }
-};
-
-/**
- * Delete a bounty
- */
-const deleteBounty = async (req, res) => {
-  try {
-    const bounty = await Bounty.findByIdAndDelete(req.params.id);
-    if (!bounty) {
-      return res.status(404).json({ success: false, error: 'Bounty not found' });
-    }
-    res.json({ success: true, message: 'Bounty deleted successfully' });
-  } catch (error) {
-    console.error('Error deleting bounty:', error);
-    res.status(500).json({ success: false, error: error.message });
-  }
-};
-
-/**
- * Internal helper: perform the actual minting logic
- * In production this would interact with the Monero/blockchain backend
- */
-async function performMinting({ bountyId, reward, currency, assignee, walletAddress, txHash }) {
-  // If a txHash is provided externally, use it (manual/external mint confirmation)
-  if (txHash) {
-    return {
-      txHash,
-      bountyId,
-      reward,
-      currency,
-      assignee,
-      walletAddress,
-      mintedAt: new Date().toISOString(),
-      source: 'external'
-    };
-  }
-
-  // Auto-generate a deterministic placeholder tx hash for tracking
-  // In production, this would call the Monero RPC or smart contract
-  const crypto = require('crypto');
-  const autoTxHash = crypto
-    .createHash('sha256')
-    .update(`${bountyId}-${assignee}-${reward}-${Date.now()}`)
-    .digest('hex');
-
-  console.log(`[BountyController] Auto-minting ${reward} ${currency} to ${assignee} (bounty: ${bountyId})`);
-
-  return {
-    txHash: autoTxHash,
-    bountyId,
-    reward,
-    currency,
-    assignee,
-    walletAddress: walletAddress || null,
-    mintedAt: new Date().toISOString(),
-    source: 'auto'
-  };
-}
-
-module.exports = {
-  getBounties,
-  getBountyById,
-  createBounty,
-  assignBounty,
-  mintReward,
-  assignAndMint,
-  getRewardStatus,
-  updateBounty,
-  deleteBounty
-};
-    
