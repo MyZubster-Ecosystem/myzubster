@@ -4,6 +4,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
+const path = require('path');
 const { createMonitoringRouter } = require('./routes/monitoring');
 const { createRequestLoggerStream } = require('./services/logAggregator');
 const {
@@ -13,6 +14,7 @@ const {
 
 // Import routes
 const gardenRoutes = require('./routes/gardens');
+const photoRoutes = require('./routes/photos');
 
 const app = express();
 const PORT = process.env.PORT || 3009;
@@ -25,6 +27,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 app.use(morgan('combined', { stream: createRequestLoggerStream() }));
 app.use(createMonitoringRouter({ mongoose }));
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/myzubster', {
@@ -48,6 +51,7 @@ app.get('/health', (req, res) => {
 
 // Garden routes
 app.use('/api/gardens', gardenRoutes);
+app.use('/api/photos', photoRoutes);
 
 // Dashboard API endpoint
 app.get('/api/dashboard', (req, res) => {

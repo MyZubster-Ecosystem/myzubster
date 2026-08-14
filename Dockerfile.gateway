@@ -1,0 +1,45 @@
+# ============================================================
+# MyZubster Gateway — Dockerfile
+# Express API Gateway with MongoDB + Monero payment processor
+# Clones from GitHub (submodule constraint — gateway/ is a
+# git submodule, so this Dockerfile lives at repo root)
+# ============================================================
+
+# ---- Build stage ----
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# Install git to clone the repository
+RUN apk add --no-cache git
+
+# Clone the gateway repository
+RUN git clone https://github.com/DanielIoni-creator/MyZubsterGateway.git . \
+    && git checkout main 2>/dev/null || true
+
+# Install production dependencies
+RUN npm ci --omit=dev --ignore-scripts 2>/dev/null || npm install --omit=dev --ignore-scripts
+
+# ---- Runtime stage ----
+FROM node:20-alpine AS runtime
+
+WORKDIR /app
+
+# Install curl for healthcheck
+RUN apk add --no-cache curl
+
+# Create non-root user
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+# Copy app from builder
+COPY --from=builder /app /app
+
+# Switch to non-root user
+USER appuser
+
+EXPOSE 3001
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+  CMD curl -f http://localhost:3001/health || exit 1
+
+CMD ["node", "server.js"]

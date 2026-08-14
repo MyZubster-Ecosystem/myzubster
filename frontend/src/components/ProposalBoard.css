@@ -1,0 +1,23 @@
+.proposal-board { font-family: system-ui, sans-serif; }
+.dao-loading, .pb-empty { text-align: center; padding: 2rem; color: #888; }
+.pb-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+.pb-header h2 { margin: 0; }
+.pb-new-btn { padding: 0.5rem 1rem; background: #2196f3; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 0.95rem; }
+.pb-form { background: #f5f5f5; border-radius: 10px; padding: 1rem; margin-bottom: 1rem; display: flex; flex-direction: column; gap: 0.5rem; }
+.pb-form input, .pb-form textarea, .pb-form select { padding: 0.5rem; border: 1px solid #ccc; border-radius: 6px; }
+.pb-form-row { display: flex; gap: 0.5rem; }
+.pb-submit { padding: 0.5rem; background: #4caf50; color: #fff; border: none; border-radius: 6px; cursor: pointer; }
+.pb-filters { display: flex; gap: 0.4rem; margin-bottom: 1rem; flex-wrap: wrap; }
+.pb-filters button { padding: 0.35rem 0.8rem; border: 1px solid #ddd; border-radius: 16px; background: #fff; cursor: pointer; font-size: 0.85rem; }
+.pb-filters button.active { background: #2196f3; color: #fff; border-color: #2196f3; }
+.pb-list { display: flex; flex-direction: column; gap: 0.75rem; }
+.pb-card { border: 1px solid #e0e0e0; border-radius: 10px; padding: 1rem; background: #fafafa; }
+.pb-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+.pb-cat { font-size: 1.4rem; }
+.pb-status { padding: 2px 10px; border-radius: 12px; color: #fff; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; }
+.pb-title { margin: 0 0 0.3rem; font-size: 1.05rem; }
+.pb-desc { font-size: 0.85rem; color: #555; margin: 0 0 0.5rem; }
+.pb-stats { display: flex; gap: 1rem; font-size: 0.85rem; color: #666; }
+.pb-actions { display: flex; gap: 0.4rem; margin-top: 0.5rem; }
+.pb-actions button { padding: 0.3rem 0.8rem; border: none; border-radius: 6px; cursor: pointer; background: #e3f2fd; font-size: 0.85rem; }
+.pb-comments { font-size: 0.8rem; color: #888; margin-top: 0.4rem; }

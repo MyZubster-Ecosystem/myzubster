@@ -1,14 +1,36 @@
 {
   "name": "myzubster-ai-automation",
   "version": "1.0.0",
-  "description": "AI Automation service for MyZubster",
-  "main": "index.js",
+  "description": "MyZubster AI Automation Service — autonomous task processing, GitHub integration, Telegram bot, and scheduled jobs",
+  "main": "src/index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "test": "jest"
   },
+  "keywords": [
+    "myzubster",
+    "ai",
+    "automation",
+    "telegram",
+    "github"
+  ],
+  "license": "MIT",
   "dependencies": {
+    "@octokit/rest": "^20.0.0",
     "axios": "^1.6.0",
+    "axios-retry": "^3.5.0",
+    "cors": "^2.8.5",
     "dotenv": "^16.0.3",
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "mongoose": "^7.0.0",
+    "node-cron": "^3.0.2",
+    "node-telegram-bot-api": "^0.64.0",
+    "octokit": "^3.0.0",
+    "winston": "^3.11.0"
+  },
+  "devDependencies": {
+    "jest": "^30.4.2",
+    "nodemon": "^3.0.0"
   }
 }

@@ -1,0 +1,23 @@
+.treasury-view { font-family: system-ui, sans-serif; }
+.tv-loading { text-align: center; padding: 2rem; color: #888; }
+.tv-create { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+.tv-create input, .tv-create select { padding: 0.5rem; border: 1px solid #ccc; border-radius: 6px; }
+.tv-create button { padding: 0.5rem 1rem; background: #4caf50; color: #fff; border: none; border-radius: 6px; cursor: pointer; }
+.tv-tabs { display: flex; gap: 0.4rem; margin-bottom: 1rem; flex-wrap: wrap; }
+.tv-tabs button { padding: 0.4rem 1rem; border: 1px solid #ddd; border-radius: 8px; background: #fff; cursor: pointer; }
+.tv-tabs button.active { background: #ff9800; color: #fff; border-color: #ff9800; }
+.tv-detail { border: 1px solid #e0e0e0; border-radius: 10px; padding: 1rem; }
+.tv-balance { text-align: center; padding: 1rem 0; }
+.tv-balance-amount { font-size: 2.5rem; font-weight: 700; color: #ff9800; }
+.tv-balance-currency { font-size: 1.2rem; color: #888; margin-left: 0.5rem; }
+.tv-forms { display: flex; gap: 1rem; margin: 1rem 0; }
+.tv-forms form { flex: 1; display: flex; flex-direction: column; gap: 0.4rem; padding: 0.75rem; background: #f9f9f9; border-radius: 8px; }
+.tv-forms h4 { margin: 0; font-size: 0.9rem; }
+.tv-forms input { padding: 0.4rem; border: 1px solid #ccc; border-radius: 6px; }
+.tv-forms button { padding: 0.4rem; background: #ff9800; color: #fff; border: none; border-radius: 6px; cursor: pointer; }
+.tv-tx-list { display: flex; flex-direction: column; gap: 0.3rem; margin-top: 0.5rem; }
+.tv-tx { display: flex; align-items: center; gap: 0.6rem; padding: 0.4rem; border-bottom: 1px solid #f0f0f0; font-size: 0.85rem; }
+.tv-tx-icon { font-size: 1.1rem; }
+.tv-tx-type { color: #666; min-width: 80px; }
+.tv-tx-amount { font-weight: 600; }
+.tv-tx-date { color: #999; margin-left: auto; }
