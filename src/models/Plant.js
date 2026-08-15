@@ -101,20 +101,9 @@ PlantSchema.pre('save', function(next) {
   next();
 });
 
-// Virtual field: expose location as gps for frontend compatibility
-PlantSchema.virtual('gps').get(function() {
-  if (this.location && typeof this.location.lat === 'number' && typeof this.location.lng === 'number') {
-    return { lat: this.location.lat, lng: this.location.lng };
-  }
-  return null;
-});
-
-// Ensure virtuals are included in JSON responses
-PlantSchema.set('toJSON', { virtuals: true });
-PlantSchema.set('toObject', { virtuals: true });
-
 // Indici per ricerche rapide
 PlantSchema.index({ name: 'text', scientificName: 'text', species: 'text' });
+PlantSchema.index({ location: '2dsphere' });
 PlantSchema.index({ species: 1 });
 PlantSchema.index({ family: 1 });
 PlantSchema.index({ verified: 1 });
