@@ -1,6 +1,6 @@
 /**
  * 🌐 MyZubster - Main Server
- * Urban Lab Integration - Escrow, Bounties, Plants, Geolocalizzazione, Trip Rewards
+ * Urban Lab Integration - Escrow, Bounties, Plants, Geolocalizzazione, Trip Rewards, Coupons, AI Forward
  */
 
 require('dotenv').config();
@@ -10,6 +10,7 @@ const helmet = require('helmet');
 const mongoose = require('mongoose');
 const morgan = require('morgan');
 
+// Inizializza app
 const app = express();
 const PORT = process.env.PORT || 5003;
 
@@ -50,8 +51,10 @@ const plantRoutes = require('./src/routes/plantRoutes');
 const searchRoutes = require('./src/routes/searchRoutes');
 const nearbyRoutes = require('./src/routes/nearbyRoutes');
 const tripRoutes = require('./src/routes/tripRoutes');
+const couponRoutes = require('./src/routes/couponRoutes');
+const aiForwardRoutes = require('./src/routes/aiForwardRoutes');
 
-// ---- Controllers ----
+// ---- Controllers per bounty e conversione ----
 const githubWebhookController = require('./src/controllers/githubWebhookController');
 const conversionController = require('./src/controllers/conversionController');
 
@@ -75,6 +78,8 @@ app.use('/api/plants', plantRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/nearby', nearbyRoutes);
 app.use('/api/trips', tripRoutes);
+app.use('/api/coupons', couponRoutes);
+app.use('/api/ai-forward', aiForwardRoutes);
 
 // ============================================
 // 🌿 URBAN LAB ESCROW PROXY
@@ -135,7 +140,7 @@ app.post('/api/send-pec', async (req, res) => {
     try {
         const { to, subject, text } = req.body;
         if (!to || !subject || !text) {
-            return res.status(400).json({ error: 'Mancano campi obbligatori' });
+            return res.status(400).json({ error: 'Mancano campi obbligatori (to, subject, text)' });
         }
         const info = await sendPEC(to, subject, text);
         res.json({ success: true, messageId: info.messageId });
@@ -169,6 +174,8 @@ app.listen(PORT, '0.0.0.0', () => {
     console.log(`🔍 Search: http://localhost:${PORT}/api/search`);
     console.log(`📍 Nearby: http://localhost:${PORT}/api/nearby`);
     console.log(`🛴 Trips: http://localhost:${PORT}/api/trips`);
+    console.log(`🎟️ Coupons: http://localhost:${PORT}/api/coupons`);
+    console.log(`🧠 AI Forward: http://localhost:${PORT}/api/ai-forward`);
     console.log(`✅ Connected to MongoDB`);
 });
 

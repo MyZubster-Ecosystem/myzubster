@@ -79,3 +79,5 @@ module.exports = {
     res.json({ success: true, githubUsername, walletAddress: user.walletAddress, myzBalance: user.myzBalance });
   }
 };
+module.exports.users = users;
+module.exports.users = users;
