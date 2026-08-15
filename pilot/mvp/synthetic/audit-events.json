@@ -1,0 +1,15 @@
+{
+  "synthetic": true,
+  "events": [
+    {"id":"EVT-001","interventionId":"SYN-001","at":"2026-08-10T08:00:00Z","actor":"citizen-synthetic","action":"created","from":null,"to":"open"},
+    {"id":"EVT-002","interventionId":"SYN-001","at":"2026-08-10T08:35:00Z","actor":"OP-01","action":"take_ownership","from":"open","to":"assigned"},
+    {"id":"EVT-003","interventionId":"SYN-001","at":"2026-08-10T09:10:00Z","actor":"OP-01","action":"start_work","from":"assigned","to":"in_progress"},
+    {"id":"EVT-004","interventionId":"SYN-001","at":"2026-08-10T11:20:00Z","actor":"OP-01","action":"submit_verification","from":"in_progress","to":"verification"},
+    {"id":"EVT-005","interventionId":"SYN-001","at":"2026-08-10T11:45:00Z","actor":"OP-01","action":"close","from":"verification","to":"closed"},
+    {"id":"EVT-006","interventionId":"SYN-002","at":"2026-08-11T10:00:00Z","actor":"citizen-synthetic","action":"created","from":null,"to":"open"},
+    {"id":"EVT-007","interventionId":"SYN-002","at":"2026-08-11T11:20:00Z","actor":"OP-02","action":"take_ownership","from":"open","to":"assigned"},
+    {"id":"EVT-008","interventionId":"SYN-002","at":"2026-08-11T13:00:00Z","actor":"OP-02","action":"start_work","from":"assigned","to":"in_progress"},
+    {"id":"EVT-009","interventionId":"SYN-002","at":"2026-08-11T15:30:00Z","actor":"OP-02","action":"submit_verification","from":"in_progress","to":"verification"},
+    {"id":"EVT-010","interventionId":"SYN-002","at":"2026-08-11T15:50:00Z","actor":"OP-02","action":"close","from":"verification","to":"closed"}
+  ]
+}
