@@ -5,6 +5,7 @@ on:
     branches: [ main, develop ]
   push:
     branches: [ main ]
+  workflow_dispatch:  # Permette l'esecuzione manuale
 
 jobs:
   test:
