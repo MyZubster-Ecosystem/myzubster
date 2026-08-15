@@ -1,32 +1,58 @@
-import React, { useMemo, useState } from 'react';
-import { INITIAL_INTERVENTIONS, INITIAL_AUDIT, STATUS_LABELS, advance, calculateMetrics } from '../data/pilotSyntheticData';
+import React, { useEffect, useMemo, useState } from 'react';
+import { STATUS_LABELS, calculateMetrics } from '../data/pilotSyntheticData';
+
+const API_URL = process.env.REACT_APP_PILOT_API_URL || 'http://localhost:3001';
 
 export default function PilotDashboardPage() {
-  const [items, setItems] = useState(INITIAL_INTERVENTIONS);
-  const [audit, setAudit] = useState(INITIAL_AUDIT);
+  const [items, setItems] = useState([]);
+  const [audit, setAudit] = useState([]);
   const [selectedId, setSelectedId] = useState('INT-001');
+  const [apiState, setApiState] = useState('connecting');
   const metrics = useMemo(() => calculateMetrics(items), [items]);
 
-  const advanceItem = (id) => {
-    setItems(current => current.map(item => {
-      if (item.id !== id) return item;
-      const next = advance(item);
-      if (next.status === item.status) return item;
-      const event = {
-        at: next.closedAt || next.assignedAt || '2026-08-15T09:45:00Z',
-        actor: next.status === 'closed' ? 'reviewer-demo' : 'operator-demo',
-        from: item.status,
-        to: next.status,
-        action: next.status === 'closed' ? 'CLOSED' : 'STATUS_CHANGED',
-      };
-      setAudit(currentAudit => ({ ...currentAudit, [id]: [...(currentAudit[id] || []), event] }));
-      return next;
-    }));
+  const loadItems = async () => {
+    try {
+      const response = await fetch(`${API_URL}/interventions`);
+      if (!response.ok) throw new Error('API error');
+      setItems(await response.json());
+      setApiState('connected');
+    } catch (_error) {
+      setApiState('offline');
+    }
+  };
+
+  const loadAudit = async (id) => {
+    try {
+      const response = await fetch(`${API_URL}/interventions/${id}/audit`);
+      if (!response.ok) throw new Error('API error');
+      setAudit(await response.json());
+    } catch (_error) {
+      setAudit([]);
+    }
+  };
+
+  useEffect(() => { loadItems(); }, []);
+  useEffect(() => { loadAudit(selectedId); }, [selectedId]);
+
+  const advanceItem = async (id) => {
+    const role = id === selectedId ? 'operator' : 'operator';
+    const response = await fetch(`${API_URL}/interventions/${id}/advance`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ actor: 'demo-operator', role }),
+    });
+    if (!response.ok) return;
+    await loadItems();
+    if (selectedId === id) await loadAudit(id);
   };
 
   return (
     <main style={{ padding: 24, maxWidth: 1100, margin: '0 auto', fontFamily: 'sans-serif' }}>
-      <div style={{ marginBottom: 24 }}><h2>🧩 Pilot Dashboard</h2><p>Dati sintetici — workflow + audit trail MyZubster MVP</p></div>
+      <div style={{ marginBottom: 24 }}>
+        <h2>🧩 Pilot Dashboard</h2>
+        <p>Dati sintetici — workflow + API + audit trail MyZubster MVP</p>
+        <small>API: {apiState}</small>
+      </div>
       <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(180px,1fr))', gap: 16 }}>
         {[[ 'Interventi', metrics.total ], [ 'Chiusi', metrics.closed ], [ 'Completion rate', `${metrics.completionRate}%` ], [ 'Tempo medio chiusura', `${metrics.avgCloseMinutes} min` ]].map(([label, value]) => (
           <div key={label} style={{ border: '1px solid #ddd', borderRadius: 10, padding: 18 }}><div style={{ fontSize: 13, opacity: .7 }}>{label}</div><strong style={{ fontSize: 30 }}>{value}</strong></div>
@@ -39,7 +65,7 @@ export default function PilotDashboardPage() {
       </section>
       <section style={{ marginTop: 28, border: '1px solid #ddd', borderRadius: 10, padding: 18 }}>
         <h3>Audit trail — {selectedId}</h3>
-        <ol>{(audit[selectedId] || []).map((event, index) => <li key={`${event.at}-${index}`} style={{ marginBottom: 10 }}><strong>{event.action}</strong> — {STATUS_LABELS[event.from] || '—'} → {STATUS_LABELS[event.to]} — {event.actor} — {event.at}</li>)}</ol>
+        {audit.length === 0 ? <p>Nessun evento registrato.</p> : <ol>{audit.map((event, index) => <li key={`${event.seq}-${index}`} style={{ marginBottom: 10 }}><strong>{event.action}</strong> — {STATUS_LABELS[event.from] || '—'} → {STATUS_LABELS[event.to]} — {event.actor} — {event.at}</li>)}</ol>}
       </section>
       <p style={{ marginTop: 20, fontSize: 13, opacity: .7 }}>Solo dati sintetici. Nessun dato reale, integrazione esterna o dato personale utilizzato.</p>
     </main>
