@@ -1,131 +1,175 @@
+/**
+ * 🌐 MyZubster - Main Server
+ * Urban Lab Integration - Escrow, Bounties, Plants, Geolocalizzazione, Trip Rewards
+ */
+
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
-const compression = require('compression');
 const mongoose = require('mongoose');
+const morgan = require('morgan');
 
 const app = express();
-const PORT = process.env.PORT || 10000;
+const PORT = process.env.PORT || 5003;
 
-// Middleware
-app.use(helmet());
-app.use(cors({
-  origin: process.env.CORS_ORIGIN || '*',
-  credentials: true
+// ---- MIDDLEWARE ----
+app.use(helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
-app.use(compression());
+app.use(cors({ origin: process.env.CORS_ORIGIN || '*' }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(morgan('combined'));
 
-// Connessione a MongoDB
-mongoose.connect(process.env.MONGODB_URI)
-.then(() => console.log('✅ MongoDB connected'))
-.catch(err => console.error('❌ MongoDB connection error:', err));
+// ---- MONGODB ----
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/myzubster', {
+    dbName: process.env.MONGODB_DB_NAME || 'myzubster',
+    serverSelectionTimeoutMS: 5000
+})
+.then(() => console.log('✅ Connected to MongoDB'))
+.catch(err => console.error('❌ MongoDB error:', err));
 
-// Route
-app.use('/api/auth', require('./src/routes/authRoutes'));
-app.use('/api/animals', require('./src/routes/animalRoutes'));
-app.use('/api/plants', require('./src/routes/plantRoutes'));
-app.use('/api/bounties', require('./src/routes/bountyRoutes'));
+// ============================================
+// 📦 ROUTES IMPORT
+// ============================================
+const authRoutes = require('./src/routes/authRoutes');
+const userRoutes = require('./src/routes/userRoutes');
+const bountyRoutes = require('./src/routes/bountyRoutes');
+const rewardRoutes = require('./src/routes/rewardRoutes');
+const referralRoutes = require('./src/routes/referralRoutes');
+const paymentRoutes = require('./src/routes/paymentRoutes');
+const dashboardRoutes = require('./src/routes/dashboardRoutes');
+const adminDashboardRoutes = require('./src/routes/adminDashboardRoutes');
+const mapRoutes = require('./src/routes/mapRoutes');
+const urbanGardenRoutes = require('./src/routes/urbanGardenRoutes');
+const carbonCreditRoutes = require('./src/routes/carbonCreditRoutes');
+const listingRoutes = require('./src/routes/listingRoutes');
+const bountySystemRoutes = require('./src/routes/bountySystemRoutes');
+const plantRoutes = require('./src/routes/plantRoutes');
+const searchRoutes = require('./src/routes/searchRoutes');
+const nearbyRoutes = require('./src/routes/nearbyRoutes');
+const tripRoutes = require('./src/routes/tripRoutes');
 
-// Health check
-app.get('/api/health', (req, res) => {
-  res.json({
-    status: 'ok',
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-    mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
-  });
-});
+// ---- Controllers ----
+const githubWebhookController = require('./src/controllers/githubWebhookController');
+const conversionController = require('./src/controllers/conversionController');
 
-// Info endpoint
-app.get('/api/info', (req, res) => {
-  res.json({
-    name: 'MyZubster Gateway',
-    version: '1.0.0',
-    description: 'Monero Payment Gateway & Animal Registry',
-    features: {
-      payments: process.env.ENABLE_PAYMENTS === 'true',
-      animals: process.env.ENABLE_ANIMAL_REGISTRY === 'true',
-      plants: process.env.ENABLE_PLANT_REGISTRY === 'true',
-      bounty: process.env.ENABLE_BOUNTY_PROGRAM === 'true'
-    },
-    monero_wallet: process.env.MONERO_MAIN_WALLET_ADDRESS
-  });
-});
+// ============================================
+// 📍 ROUTES USE
+// ============================================
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/bounties', bountyRoutes);
+app.use('/api/rewards', rewardRoutes);
+app.use('/api/referrals', referralRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/admin', adminDashboardRoutes);
+app.use('/api/map', mapRoutes);
+app.use('/api/garden', urbanGardenRoutes);
+app.use('/api/carbon', carbonCreditRoutes);
+app.use('/api/listings', listingRoutes);
+app.use('/api/bounty-system', bountySystemRoutes);
+app.use('/api/plants', plantRoutes);
+app.use('/api/search', searchRoutes);
+app.use('/api/nearby', nearbyRoutes);
+app.use('/api/trips', tripRoutes);
 
-// Root endpoint
-app.get('/', (req, res) => {
-  res.json({
-    name: 'MyZubster Gateway',
-    version: '1.0.0',
-    status: 'running',
-    endpoints: {
-      health: '/api/health',
-      info: '/api/info',
-      auth: {
-        register: '/api/auth/register',
-        login: '/api/auth/login',
-        profile: '/api/auth/profile'
-      },
-      animals: {
-        list: '/api/animals',
-        register: '/api/animals/register',
-        detail: '/api/animals/:id'
-      },
-      plants: {
-        list: '/api/plants',
-        register: '/api/plants/register',
-        detail: '/api/plants/:id'
-      },
-      bounties: {
-        list: '/api/bounties',
-        create: '/api/bounties/create',
-        claim: '/api/bounties/:id/claim',
-        stats: '/api/bounties/stats'
-      }
+// ============================================
+// 🌿 URBAN LAB ESCROW PROXY
+// ============================================
+const ESCROW_API = process.env.ESCROW_API_URL || 'http://localhost:5002';
+
+app.get('/api/escrow/status/:id', async (req, res) => {
+    try {
+        const response = await fetch(`${ESCROW_API}/api/escrow/status/${req.params.id}`);
+        const data = await response.json();
+        res.json(data);
+    } catch (error) {
+        res.status(500).json({ error: 'Escrow API unreachable' });
     }
-  });
 });
 
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    error: 'Not Found',
-    message: `Endpoint ${req.method} ${req.path} does not exist`
-  });
+app.get('/api/escrow/list', async (req, res) => {
+    try {
+        const response = await fetch(`${ESCROW_API}/api/escrow/list`);
+        const data = await response.json();
+        res.json(data);
+    } catch (error) {
+        res.status(500).json({ error: 'Escrow API unreachable' });
+    }
 });
 
-// Error handler
-app.use((err, req, res, next) => {
-  console.error('Error:', err);
-  res.status(500).json({
-    success: false,
-    error: 'Internal Server Error',
-    message: err.message
-  });
+// ============================================
+// 🤖 GITHUB WEBHOOK PER BOUNTY
+// ============================================
+
+app.post('/webhook/github', async (req, res) => {
+    const signature = req.headers['x-hub-signature-256'];
+    const secret = process.env.GITHUB_WEBHOOK_SECRET;
+    if (secret && !githubWebhookController.verifySignature(JSON.stringify(req.body), signature, secret)) {
+        return res.status(401).send('Firma non valida');
+    }
+    await githubWebhookController.handleIssueClosed(req, res);
 });
 
-// Start server
-const server = app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 MyZubster Gateway is running on port ${PORT}`);
-  console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
-  console.log(`📋 Info: http://localhost:${PORT}/api/info`);
-  console.log(`🔐 Auth: http://localhost:${PORT}/api/auth/register`);
-  console.log(`🐾 Animals: http://localhost:${PORT}/api/animals`);
-  console.log(`🌿 Plants: http://localhost:${PORT}/api/plants`);
-  console.log(`🏆 Bounties: http://localhost:${PORT}/api/bounties`);
+app.post('/api/register-github', githubWebhookController.registerUser);
+app.get('/api/bounty-history', githubWebhookController.getBountyHistory);
+app.get('/api/user-balance/:githubUsername', githubWebhookController.getUserBalance);
+
+// ============================================
+// 💱 CONVERSIONE MYZ → XMR
+// ============================================
+
+app.get('/api/exchange-rate', conversionController.getExchangeRate);
+app.post('/api/convert-myz-to-xmr', conversionController.convertMyzToXmr);
+app.get('/api/conversion-history', conversionController.getConversionHistory);
+
+// ============================================
+// 📧 INVIO PEC
+// ============================================
+const { sendPEC } = require('./src/utils/email');
+
+app.post('/api/send-pec', async (req, res) => {
+    try {
+        const { to, subject, text } = req.body;
+        if (!to || !subject || !text) {
+            return res.status(400).json({ error: 'Mancano campi obbligatori' });
+        }
+        const info = await sendPEC(to, subject, text);
+        res.json({ success: true, messageId: info.messageId });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
-// Graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('📡 SIGTERM received, closing server...');
-  server.close(() => {
-    console.log('✅ Server closed');
-    process.exit(0);
-  });
+// ============================================
+// 🏥 HEALTH CHECK
+// ============================================
+app.get('/health', (req, res) => {
+    res.json({
+        status: 'ok',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+        memory: process.memoryUsage()
+    });
+});
+
+// ============================================
+// 🚀 AVVIO SERVER
+// ============================================
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`📊 Health: http://localhost:${PORT}/health`);
+    console.log(`📋 Listings: http://localhost:${PORT}/api/listings`);
+    console.log(`💰 Bounties: http://localhost:${PORT}/api/bounties`);
+    console.log(`🔐 Escrow proxy: ${ESCROW_API}/api/escrow`);
+    console.log(`🌿 Plants: http://localhost:${PORT}/api/plants`);
+    console.log(`🔍 Search: http://localhost:${PORT}/api/search`);
+    console.log(`📍 Nearby: http://localhost:${PORT}/api/nearby`);
+    console.log(`🛴 Trips: http://localhost:${PORT}/api/trips`);
+    console.log(`✅ Connected to MongoDB`);
 });
 
 module.exports = app;
