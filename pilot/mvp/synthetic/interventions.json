@@ -1,0 +1,11 @@
+{
+  "generatedAt": "2026-08-15T00:00:00Z",
+  "synthetic": true,
+  "notice": "No real personal, location, organization, or operational data.",
+  "interventions": [
+    {"id":"SYN-001","category":"streetlight","priority":"high","area":"Rimini-North","assignee":"OP-01","openedAt":"2026-08-10T08:00:00Z","takenAt":"2026-08-10T08:35:00Z","startedAt":"2026-08-10T09:10:00Z","verifiedAt":"2026-08-10T11:20:00Z","closedAt":"2026-08-10T11:45:00Z","slaMinutes":240},
+    {"id":"SYN-002","category":"road-maintenance","priority":"medium","area":"Rimini-Center","assignee":"OP-02","openedAt":"2026-08-11T10:00:00Z","takenAt":"2026-08-11T11:20:00Z","startedAt":"2026-08-11T13:00:00Z","verifiedAt":"2026-08-11T15:30:00Z","closedAt":"2026-08-11T15:50:00Z","slaMinutes":360},
+    {"id":"SYN-003","category":"waste-container","priority":"low","area":"Rimini-South","assignee":"OP-03","openedAt":"2026-08-12T07:30:00Z","takenAt":"2026-08-12T08:05:00Z","startedAt":"2026-08-12T08:40:00Z","verifiedAt":"2026-08-12T09:25:00Z","closedAt":"2026-08-12T09:40:00Z","slaMinutes":240},
+    {"id":"SYN-004","category":"building-maintenance","priority":"high","area":"Rimini-West","assignee":"OP-01","openedAt":"2026-08-13T09:00:00Z","takenAt":"2026-08-13T09:20:00Z","startedAt":"2026-08-13T10:00:00Z","verifiedAt":null,"closedAt":null,"slaMinutes":480}
+  ]
+}
