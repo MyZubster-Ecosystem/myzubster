@@ -1,0 +1,22 @@
+.photo-upload { margin: 1rem 0; }
+.dropzone {
+  border: 2px dashed #ccc;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.dropzone.active { border-color: #4caf50; background: #f1fff1; }
+.dropzone-label { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; cursor: pointer; }
+.dropzone-icon { font-size: 2rem; }
+.dropzone-hint { font-size: 0.8rem; color: #888; }
+.preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0.5rem; margin-top: 1rem; }
+.preview-item { position: relative; }
+.preview-item img { width: 100%; height: 120px; object-fit: cover; border-radius: 8px; }
+.remove-btn { position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.6); color: #fff; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; }
+.file-name { font-size: 0.7rem; display: block; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.upload-controls { display: flex; gap: 0.5rem; margin-top: 1rem; }
+.caption-input { flex: 1; padding: 0.5rem; border: 1px solid #ccc; border-radius: 8px; }
+.upload-btn { padding: 0.5rem 1.5rem; background: #4caf50; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+.upload-btn:disabled { background: #aaa; }

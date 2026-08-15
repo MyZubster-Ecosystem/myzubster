@@ -1,0 +1,11 @@
+const express = require('express');
+const router = express.Router();
+const c = require('../controllers/carbonCreditController');
+const jwt = require('jsonwebtoken');
+const auth = (req,res,next) => { const t = req.header('Authorization')?.replace('Bearer ',''); if(!t) return res.status(401).json({error:'No token'}); try{req.user=jwt.verify(t,process.env.JWT_SECRET||'secret');next();}catch(e){return res.status(401).json({error:'Invalid'});} };
+const admin = (req,res,next) => { if(req.user.role!=='admin') return res.status(403).json({error:'Admin'}); next(); };
+router.post('/', auth, c.createCredit);
+router.get('/', c.getCredits);
+router.post('/:creditId/verify', auth, admin, c.verifyCredit);
+router.post('/:creditId/retire', auth, c.retireCredit);
+module.exports = router;
