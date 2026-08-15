@@ -1,0 +1,33 @@
+name: Pilot API Tests
+
+on:
+  pull_request:
+    paths:
+      - 'pilot-api/**'
+      - '.github/workflows/pilot-api-tests.yml'
+  push:
+    branches:
+      - pilot/mvp-synthetic-data
+    paths:
+      - 'pilot-api/**'
+      - '.github/workflows/pilot-api-tests.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: pilot-api
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: pilot-api/package.json
+      - name: Install dependencies
+        run: npm install
+      - name: Run tests
+        run: npm test
