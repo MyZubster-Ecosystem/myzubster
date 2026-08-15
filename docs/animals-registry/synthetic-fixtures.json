@@ -1,0 +1,39 @@
+{
+  "animals": [
+    {
+      "id": "animal-0001",
+      "species": "dog",
+      "breed": "Labrador Retriever",
+      "sex": "female",
+      "birthDate": "2022-04-12",
+      "status": "active",
+      "microchipId": "SYNTH-MC-000001",
+      "keeperId": "keeper-0001"
+    },
+    {
+      "id": "animal-0002",
+      "species": "cat",
+      "breed": "European Shorthair",
+      "sex": "male",
+      "birthDate": "2021-09-03",
+      "status": "missing",
+      "microchipId": "SYNTH-MC-000002",
+      "keeperId": "keeper-0002"
+    },
+    {
+      "id": "animal-0003",
+      "species": "rabbit",
+      "breed": "Mini Rex",
+      "sex": "female",
+      "birthDate": "2023-02-18",
+      "status": "found",
+      "microchipId": "SYNTH-MC-000003",
+      "keeperId": "keeper-0003"
+    }
+  ],
+  "keepers": [
+    {"id": "keeper-0001", "displayName": "Synthetic Keeper 001", "contactRef": "SYNTH-CONTACT-001"},
+    {"id": "keeper-0002", "displayName": "Synthetic Keeper 002", "contactRef": "SYNTH-CONTACT-002"},
+    {"id": "keeper-0003", "displayName": "Synthetic Keeper 003", "contactRef": "SYNTH-CONTACT-003"}
+  ]
+}
