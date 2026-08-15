@@ -1,190 +1,171 @@
-# 🌱 MyZubster
+ 🌱 MyZubster - AI Automation System
 
-**Decentralized ecosystem for plant mapping, privacy-first payments, and human-centered AI.**
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Node.js](https://img.shields.io/badge/Node.js-20.x-green.svg)](https://nodejs.org/)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
 
----
+## 📋 Overview
 
-## 🌍 What is MyZubster?
+MyZubster is an AI-powered automation system for managing bounties, issues, and notifications across GitHub, Telegram, and Slack. It uses intelligent agents to analyze, prioritize, and process tasks.
 
-MyZubster is an open-source ecosystem that combines three pillars:
+## 🚀 Features
 
-- **🌿 Global Plant Map** – a participatory, verified map of plants around the world.
-- **🔒 Monero Payments** – privacy-first, feeless microtransactions for everyone.
-- **🤖 Human-Controlled AI** – AI as a tool, not a master.
+- **AI Orchestrator**: Intelligent task routing and queue management
+- **Multi-Agent System**: Plant, Pet, Payment, Verification agents
+- **Notification System**: Multi-channel (Telegram + Slack) with automatic fallback
+- **Dashboard**: Real-time monitoring of services and issues
+- **GitHub Integration**: Automatic issue analysis and processing
+- **Monero (XMR) Support**: Payment processing and bounty management
+- **Long-Term Memory**: TTL-aware cache with store/retrieve/query operations
 
-It is built for people who believe in a better, more transparent, and decentralized future.
-
----
-## 🪙 $MYZ Rewards System
-
-MyZubster now offers rewards in $MYZ tokens for various activities:
-
-- 🖥️ Open‑source contributions (bounties on merged PRs)
-- 🐛 QA and bug reporting
-- 🤖 Robot mission bonuses
-- 👥 User referrals
-- 🗳️ Governance participation
-- 📚 Educational content creation
-
-Check the labels `rewards` and `myz` for available reward opportunities.
-
-## 🧱 Architecture
-
-The ecosystem is composed of several services:
-
-| Component | Description | Tech Stack | Repo |
-|-----------|-------------|------------|------|
-| **Gateway** | Monero payment processor & API orchestrator | Node.js, Express, MongoDB, Monero RPC | [MyZubsterGateway](https://github.com/DanielIoni-creator/MyZubsterGateway) |
-| **Marketplace** | User-facing platform for plants, orders, and reputation | Node.js, SQLite | [MyZubster-Marketplace](https://github.com/DanielIoni-creator/MyZubster-Marketplace) |
-| **Mobile App** | Android app for plant mapping and payments | React Native / Kotlin | [MyZubster-App](https://github.com/DanielIoni-creator/MyZubster-App) |
-| **Web App** | React/Vite frontend for desktop users | React, Vite, Tailwind | [MyZubsterWeb](https://github.com/DanielIoni-creator/MyZubsterWeb) |
-| **Docs** | Centralized documentation for developers and users | Markdown, VitePress | [myzubster-docs](https://github.com/DanielIoni-creator/myzubster-docs) |
-| **Animal Registry** | Decentralized animal registry on blockchain | (Tari/Blockchain) | [myzubster-animal-registry](https://github.com/DanielIoni-creator/myzubster-animal-registry) |
-| **Animal Map** | Interactive map for animal registry | (Map/Visualization) | [myzubster-animal-map](https://github.com/DanielIoni-creator/myzubster-animal-map) |
-
----
-
-## 🚀 Getting Started
-
-Each component has its own README with setup instructions. Start with the [Gateway](https://github.com/DanielIoni-creator/MyZubsterGateway) for the core payment system.
-
----
-
-## 🐳 Docker One-Command Deployment
-
-The entire MyZubster ecosystem can be launched with a single Docker Compose command.
+## 📦 Installation
 
 ### Prerequisites
+- Node.js 20.x
+- MongoDB 6.x
+- Git
 
-- [Docker](https://docs.docker.com/get-docker/) (v24+)
-- [Docker Compose](https://docs.docker.com/compose/install/) (v2.20+)
-
-### Quick Start
+### Setup
 
 ```bash
-# 1. Clone the main repository
+# Clone the repository
 git clone https://github.com/MyZubster-Ecosystem/myzubster.git
 cd myzubster
 
-# 2. (Optional) Configure environment
-cp .env.docker .env
-# Edit .env to set passwords, tokens, etc.
+# Install dependencies
+npm install
+cd backend && npm install
+cd ../services/ai-automation && npm install
 
-# 3. Launch everything with one command
-docker compose up -d
+# Configure environment
+cp .env.example .env
+cp backend/.env.example backend/.env
+cp services/ai-automation/.env.example services/ai-automation/.env
 
-# 4. Check service status
-docker compose ps
-docker compose logs -f
+# Start the system
+./start-backend.sh
 
-# 5. Verify health endpoints
-curl http://localhost:3009/health   # Backend
-curl http://localhost:3000          # Frontend
-curl http://localhost:3001/health   # Gateway
-curl http://localhost:4000/api/health # Marketplace
-curl http://localhost:5000/health   # AI Automation
-```
+⚙️ Configuration
+Environment Variables
+env
 
-### Services Overview
+# Server
+PORT=3009
+NODE_ENV=development
 
-| Service | Port | Description | Health Check |
-|---------|------|-------------|--------------|
-| **mongodb** | 27017 | Database (MongoDB 7) with persistent volume | `mongosh ping` |
-| **backend** | 3009 | Node.js + Express + Mongoose API | `GET /health` |
-| **frontend** | 3000 | React 18 + react-leaflet map (nginx-served) | `GET /` |
-| **gateway** | 3001 | Express API Gateway (MongoDB + Monero) | `GET /health` |
-| **marketplace** | 4000 | Express + SQLite marketplace | `GET /api/health` |
-| **ai-automation** | 5000 | AI service with GitHub + Telegram + cron | `GET /health` |
+# MongoDB
+MONGODB_URI=mongodb://localhost:27017/myzubster
 
-### Environment Variables
+# Telegram (fallback channel)
+TELEGRAM_BOT_TOKEN=your_bot_token
+TELEGRAM_CHAT_ID=your_chat_id
 
-Key variables (see `.env.docker` for the full template):
+# Slack (preferred channel)
+SLACK_WEBHOOK_URL=https://hooks.slack.com/services/...
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `MONGO_INITDB_ROOT_PASSWORD` | `changeme_in_production` | MongoDB root password |
-| `BACKEND_MONGODB_URI` | `mongodb://...` | Backend MongoDB connection string |
-| `REACT_APP_API_URL` | `http://localhost:3009` | Backend URL from frontend |
-| `JWT_SECRET` | `changeme_in_production` | Gateway JWT signing secret |
-| `TELEGRAM_BOT_TOKEN` | _(empty)_ | AI Automation Telegram bot token |
-| `GITHUB_TOKEN` | _(empty)_ | AI Automation GitHub API token |
+# GitHub
+GITHUB_TOKEN=your_github_token
+GITHUB_REPO=MyZubster-Ecosystem/myzubster
 
-### Data Persistence
+# Monero (XMR)
+XMR_WALLET_ADDRESS=your_wallet_address
+XMR_RPC_URL=http://localhost:18081
 
-- **MongoDB data** stored in Docker volumes `mongodb_data` and `mongodb_config`
-- **Marketplace SQLite** stored in Docker volume `marketplace_data`
-- All volumes survive container restarts and `docker compose down`
+📚 Documentation
 
-### Centralized Logging
+Complete API documentation is available in the docs/ directory:
 
-```bash
-# View logs from all services
-docker compose logs -f
+    API Reference
 
-# View logs from a specific service
-docker compose logs -f backend
-docker compose logs -f ai-automation
+    AI Contract
 
-# Tail with timestamps
-docker compose logs -f --tail=100
-```
+    Bot Contract
 
-### Shutdown
+🏗️ Architecture
+text
 
-```bash
-# Stop all services (preserves data)
-docker compose down
+┌─────────────────────────────────────────────────────────────┐
+│                    MyZubster System                        │
+├─────────────────────────────────────────────────────────────┤
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐│
+│  │   Express   │  │  AI        │  │   Notification      ││
+│  │   Backend   │  │Orchestrator│  │   System            ││
+│  │   Port 3009 │  │            │  │   (Slack/Telegram)  ││
+│  └─────────────┘  └─────────────┘  └─────────────────────┘│
+│         │              │                      │           │
+│  ┌──────▼──────┐  ┌────▼────┐  ┌────────────▼──────────┐│
+│  │  MongoDB   │  │ Agents  │  │  GitHub Integration   ││
+│  │  Database  │  │ Plant   │  │  (Issues/Bounties)    ││
+│  └────────────┘  │ Pet     │  └────────────────────────┘│
+│                  │ Payment │                              │
+│                  │Verific. │                              │
+│                  └─────────┘                              │
+└─────────────────────────────────────────────────────────────┘
 
-# Stop all services and delete volumes (⚠️ destroys data)
-docker compose down -v
-```
+🧪 Testing
+bash
 
----
+# Run all tests
+npm test
 
-## 🤝 How to Contribute
+# Run backend tests
+cd backend && npm test
 
-We welcome all kinds of contributions:
+# Run AI Automation tests
+cd services/ai-automation && npm test
 
-- 💻 **Code** – fix bugs, add features, improve performance
-- 🌿 **Data** – report plants, verify entries, expand the map
-- 🗣️ **Outreach** – write articles, talk about the project, bring new users
-- 💰 **Donations** – support development via Monero (address in the Gateway repo)
+# Run dashboard tests
+node backend/test-dashboard.js
 
-Check the [issues](https://github.com/DanielIoni-creator/MyZubsterGateway/issues) and the [roadmap](https://github.com/users/DanielIoni-creator/projects/1) to see where help is needed.
+📊 Dashboard
 
----
+Access the dashboard at: http://localhost:3009/dashboard
 
-## 📜 License
+The dashboard shows:
 
-All components are licensed under the **MIT License** – free for everyone to use, modify, and distribute.
+    Service status (Telegram, Slack, GitHub, AI, MongoDB)
 
----
+    Recent issues
 
-## 🙏 Support & Contact
+    Active bounties
 
-- **GitHub**: [DanielIoni-creator](https://github.com/DanielIoni-creator)
-- **Project Board**: [Roadmap](https://github.com/users/DanielIoni-creator/projects/1)
-- **Issues**: [Report a bug](https://github.com/DanielIoni-creator/MyZubsterGateway/issues)
+    System statistics
 
----
+🤝 Contributing
 
-*Built with ❤️ and ☕ by Daniel Ioni, with the help of the open-source community.*
+We welcome contributions! Please see:
 
+    Contributing Guide
 
-## 💬 Community
+    Code of Conduct
 
-- **Telegram**: [@MyZubster_bot](https://t.me/MyZubster_bot) – for updates, support, and discussions.
+Development Workflow
 
+    Fork the repository
 
-## 🌐 Connect with Us
+    Create a feature branch (git checkout -b feat/amazing-feature)
 
-- **Telegram**: [@MyZubster_bot](https://t.me/MyZubster_bot) – updates, support, and discussions
-- **Twitter / X**: [@DanielIoni](https://twitter.com/DanielIoni) – project announcements and thoughts
-- **TikTok**: [@danielioni](https://tiktok.com/@danielioni) – behind the scenes and project updates
-- **Instagram**: [@danielioni](https://instagram.com/danielioni) – visuals and community stories
-- **dev.to**: [Daniel Ioni](https://dev.to/danielioni) – technical articles and project updates
+    Commit changes (git commit -m 'Add amazing feature')
 
+    Push to branch (git push origin feat/amazing-feature)
 
-## 💬 Community
+    Open a Pull Request
 
-- **Telegram Channel**: [@myzubster](https://t.me/myzubster) – follow for updates, news, and discussions about the MyZubster ecosystem.
+📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+🙏 Acknowledgments
+
+    Contributors and maintainers
+
+    Open-source community
+
+    All MyZubster users
+
+📞 Contact
+
+    GitHub: @MyZubster-Ecosystem
+
+    Telegram: @MyZubsterBot
+
+Built with ❤️ by the MyZubster Team
