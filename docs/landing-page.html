@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Urban Lab Auto – Kit Open Source</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0a0a0f; color: #00ffcc; margin: 0; padding: 0; }
+        .container { max-width: 800px; margin: auto; padding: 40px 20px; text-align: center; }
+        h1 { font-size: 3rem; margin-bottom: 10px; }
+        .subtitle { font-size: 1.2rem; color: #66ffcc; opacity: 0.8; margin-bottom: 30px; }
+        .card { background: #111; border: 1px solid #00ffcc33; border-radius: 12px; padding: 30px; margin: 20px 0; }
+        .price { font-size: 2.5rem; color: #00ffcc; font-weight: bold; }
+        .btn { background: #00ffcc; color: #0a0a0f; padding: 15px 40px; border: none; border-radius: 8px; font-size: 1.2rem; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-block; }
+        .btn:hover { opacity: 0.8; }
+        .features { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin: 20px 0; }
+        .feature { background: #0a0a1a; border: 1px solid #00ffcc22; padding: 15px; border-radius: 8px; }
+        .bounty { color: #ffcc00; font-size: 1.5rem; }
+        .footer { margin-top: 40px; color: #66ffcc66; font-size: 0.8rem; }
+        a { color: #00ffcc; }
+        @media (max-width: 600px) { .features { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚗 Urban Lab Auto</h1>
+        <div class="subtitle">L'auto elettrica open source che guadagna MYZ per ogni km</div>
+
+        <div class="card">
+            <p style="font-size: 0.9rem; color: #66ffcc99;">🧩 Kit di assemblaggio</p>
+            <div class="price">€ 2.500 <span style="font-size: 1rem; color: #66ffcc66;">(IVA esclusa)</span></div>
+            <p style="color: #66ffcc99;">Ricevi il kit con tutti i componenti per costruire la tua auto.</p>
+            <br>
+            <a href="#" class="btn">📦 Preordina il kit</a>
+            <p style="font-size: 0.8rem; color: #66ffcc66; margin-top: 10px;">Pagamento in XMR · Spedizione in 4-6 settimane</p>
+        </div>
+
+        <div class="features">
+            <div class="feature">⚡ Autonomia 150-200 km</div>
+            <div class="feature">🏎️ Velocità max 80 km/h</div>
+            <div class="feature">🔋 Batteria LiFePO4 72V 100Ah</div>
+            <div class="feature">🧠 AI & GPS integrati</div>
+            <div class="feature">💰 Guadagni 0.5 MYZ/km</div>
+            <div class="feature">🔐 Pagamenti in XMR con escrow</div>
+        </div>
+
+        <div class="card">
+            <h2>💰 Guadagna MYZ con l'auto</h2>
+            <p>Ogni chilometro percorso genera <strong>0.5 MYZ</strong>. Convertili in XMR o usali per sconti.</p>
+            <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin: 20px 0;">
+                <div><strong style="font-size: 2rem;">0.5</strong><br>MYZ/km</div>
+                <div><strong style="font-size: 2rem;">50</strong><br>MYZ ogni 500 km</div>
+                <div><strong style="font-size: 2rem;">10%</strong><br>di referral</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🧩 Costruisci la tua auto</h2>
+            <p>Hardware open source. File CAD, BOM, firmware e guide disponibili su GitHub.</p>
+            <a href="https://github.com/DanielIoni-creator/urban-lab-auto" target="_blank" class="btn" style="background: #333; color: #fff;">🔗 Vedi su GitHub</a>
+        </div>
+
+        <div class="card" style="border-color: #ffcc00;">
+            <h2>🏆 Contribuisci e guadagna</h2>
+            <p>Stiamo cercando collaboratori per sviluppare l'auto. Bounty attivi fino a <strong>40 MYZ</strong>.</p>
+            <a href="https://github.com/DanielIoni-creator/urban-lab-auto/issues" target="_blank" class="btn" style="background: #ffcc00; color: #0a0a0f;">💰 Vedi i bounty</a>
+        </div>
+
+        <div class="footer">
+            📧 urbanlab@myzubster.org &nbsp;·&nbsp; 💬 @UrbanLabRimini &nbsp;·&nbsp; 🐦 @Myzubster
+            <br>
+            <span style="font-size: 0.7rem;">Urban Lab – Mobilità sostenibile open source</span>
+        </div>
+    </div>
+</body>
+</html>
