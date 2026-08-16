@@ -1,83 +1,19 @@
 const mongoose = require('mongoose');
 
-<<<<<<< HEAD
-=======
 const pointSchema = new mongoose.Schema(
   {
-    type: {
-      type: String,
-      enum: ['Point'],
-      default: 'Point',
-    },
-    coordinates: {
-      type: [Number], // [lng, lat]
-      required: true,
-    },
+    type: { type: String, enum: ['Point'], default: 'Point' },
+    coordinates: { type: [Number], required: true },
   },
   { _id: false }
 );
 
->>>>>>> 6561d1d (feat: Geolocalizzazione bounty #17  Implementazione della funzionalità di geolocalizzazione per il bounty #17.  ## Novità - Modello Garden con indice 2dsphere (GeoJSON Point) e indice text - Integrazione OSM Nominatim per geocoding e reverse geocoding - Campo address per ogni garden - GET /api/gardens/search?q=... (ricerca testuale + fallback geocoding) - GET /api/gardens/nearby?lat=...&lng=...&radius=... (query geospaziali) - GET /api/gardens/geocode?q=... (utility di geocoding) - CRUD completo: POST, GET, GET/:id, PUT, DELETE /api/gardens - 36 test (coprono geocoding, search, nearby, CRUD, edge case)  Co-authored-by: CloudPaw-Master <cloud-orchestrator>)
 const gardenSchema = new mongoose.Schema(
   {
-    name: {
-      type: String,
-      required: true,
-      trim: true,
-<<<<<<< HEAD
-      maxlength: 120,
-=======
-      index: true,
->>>>>>> 6561d1d (feat: Geolocalizzazione bounty #17  Implementazione della funzionalità di geolocalizzazione per il bounty #17.  ## Novità - Modello Garden con indice 2dsphere (GeoJSON Point) e indice text - Integrazione OSM Nominatim per geocoding e reverse geocoding - Campo address per ogni garden - GET /api/gardens/search?q=... (ricerca testuale + fallback geocoding) - GET /api/gardens/nearby?lat=...&lng=...&radius=... (query geospaziali) - GET /api/gardens/geocode?q=... (utility di geocoding) - CRUD completo: POST, GET, GET/:id, PUT, DELETE /api/gardens - 36 test (coprono geocoding, search, nearby, CRUD, edge case)  Co-authored-by: CloudPaw-Master <cloud-orchestrator>)
-    },
-    description: {
-      type: String,
-      trim: true,
-      default: '',
-    },
-    address: {
-      type: String,
-<<<<<<< HEAD
-      required: true,
-      trim: true,
-      maxlength: 300,
-    },
-    neighborhood: {
-      type: String,
-      trim: true,
-      default: '',
-    },
-    city: {
-      type: String,
-      trim: true,
-      default: '',
-    },
-    coordinates: {
-      lat: { type: Number, required: true, min: -90, max: 90 },
-      lng: { type: Number, required: true, min: -180, max: 180 },
-    },
-    ownerId: {
-      type: String,
-      trim: true,
-      default: '',
-    },
-    isActive: {
-      type: Boolean,
-      default: true,
-    },
-  },
-  {
-    versionKey: false,
-    timestamps: true,
-=======
-      trim: true,
-      default: '',
-      index: true,
-    },
-    gps: {
-      type: pointSchema,
-      required: true,
-    },
+    name: { type: String, required: true, trim: true, maxlength: 120, index: true },
+    description: { type: String, trim: true, default: '' },
+    address: { type: String, trim: true, default: '', index: true },
+    gps: { type: pointSchema, required: true },
     geocoding: {
       displayName: { type: String, default: '' },
       type: { type: String, default: '' },
@@ -86,30 +22,22 @@ const gardenSchema = new mongoose.Schema(
       osmType: { type: String, default: '' },
       importance: { type: Number, default: 0 },
     },
-    size: {
-      type: String,
-      enum: ['small', 'medium', 'large'],
-      default: 'medium',
+    size: { type: String, enum: ['small', 'medium', 'large'], default: 'medium' },
+    status: { type: String, enum: ['active', 'inactive', 'pending'], default: 'active', index: true },
+    photos: { type: [String], default: [] },
+    ownerId: { type: String, default: '', index: true },
+    // Legacy fields retained for compatibility with older consumers.
+    neighborhood: { type: String, trim: true, default: '' },
+    city: { type: String, trim: true, default: '' },
+    coordinates: {
+      lat: { type: Number, min: -90, max: 90 },
+      lng: { type: Number, min: -180, max: 180 },
     },
-    status: {
-      type: String,
-      enum: ['active', 'inactive', 'pending'],
-      default: 'active',
-      index: true,
-    },
-    photos: {
-      type: [String],
-      default: [],
-    },
-    ownerId: {
-      type: String,
-      index: true,
-    },
+    isActive: { type: Boolean, default: true },
   },
   {
     timestamps: true,
     versionKey: false,
->>>>>>> 6561d1d (feat: Geolocalizzazione bounty #17  Implementazione della funzionalità di geolocalizzazione per il bounty #17.  ## Novità - Modello Garden con indice 2dsphere (GeoJSON Point) e indice text - Integrazione OSM Nominatim per geocoding e reverse geocoding - Campo address per ogni garden - GET /api/gardens/search?q=... (ricerca testuale + fallback geocoding) - GET /api/gardens/nearby?lat=...&lng=...&radius=... (query geospaziali) - GET /api/gardens/geocode?q=... (utility di geocoding) - CRUD completo: POST, GET, GET/:id, PUT, DELETE /api/gardens - 36 test (coprono geocoding, search, nearby, CRUD, edge case)  Co-authored-by: CloudPaw-Master <cloud-orchestrator>)
     toJSON: {
       virtuals: true,
       transform: (_doc, ret) => {
@@ -121,25 +49,24 @@ const gardenSchema = new mongoose.Schema(
   }
 );
 
-<<<<<<< HEAD
-gardenSchema.index({ coordinates: '2dsphere' });
-gardenSchema.index({ name: 'text', description: 'text', address: 'text', neighborhood: 'text', city: 'text' });
-gardenSchema.index({ city: 1, neighborhood: 1 });
-=======
-// Virtual properties for backward compatibility (lat/lng access)
 gardenSchema.virtual('lat').get(function () {
-  return this.gps && this.gps.coordinates ? this.gps.coordinates[1] : undefined;
+  return this.gps?.coordinates?.[1];
 });
 
 gardenSchema.virtual('lng').get(function () {
-  return this.gps && this.gps.coordinates ? this.gps.coordinates[0] : undefined;
+  return this.gps?.coordinates?.[0];
 });
 
-// Indice 2dsphere per query geospaziali
 gardenSchema.index({ gps: '2dsphere' });
-
-// Indice text per ricerca full-text
 gardenSchema.index({ name: 'text', description: 'text', address: 'text' });
->>>>>>> 6561d1d (feat: Geolocalizzazione bounty #17  Implementazione della funzionalità di geolocalizzazione per il bounty #17.  ## Novità - Modello Garden con indice 2dsphere (GeoJSON Point) e indice text - Integrazione OSM Nominatim per geocoding e reverse geocoding - Campo address per ogni garden - GET /api/gardens/search?q=... (ricerca testuale + fallback geocoding) - GET /api/gardens/nearby?lat=...&lng=...&radius=... (query geospaziali) - GET /api/gardens/geocode?q=... (utility di geocoding) - CRUD completo: POST, GET, GET/:id, PUT, DELETE /api/gardens - 36 test (coprono geocoding, search, nearby, CRUD, edge case)  Co-authored-by: CloudPaw-Master <cloud-orchestrator>)
+
+gardenSchema.pre('validate', function (next) {
+  if (this.gps?.coordinates?.length === 2) {
+    this.coordinates = { lat: this.gps.coordinates[1], lng: this.gps.coordinates[0] };
+  } else if (this.coordinates?.lat != null && this.coordinates?.lng != null) {
+    this.gps = { type: 'Point', coordinates: [this.coordinates.lng, this.coordinates.lat] };
+  }
+  next();
+});
 
 module.exports = mongoose.model('Garden', gardenSchema);
