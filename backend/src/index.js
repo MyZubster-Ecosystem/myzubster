@@ -4,6 +4,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const bountyPaymentRoutes = require('./routes/bounty-payments');
 const mongoose = require('mongoose');
 
 const gardenRoutes = require('./routes/gardens');
@@ -64,6 +65,8 @@ app.get('/api/dashboard', (_req, res) => {
     }
   });
 });
+
+app.use('/api/bounty-payments', bountyPaymentRoutes);
 
 app.get('/api/messages/:userId', (req, res) => {
   const { userId } = req.params;
