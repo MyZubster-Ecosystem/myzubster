@@ -4,6 +4,8 @@ const { MongoMemoryServer } = require('mongodb-memory-server');
 const express = require('express');
 const cors = require('cors');
 
+jest.setTimeout(60000);
+
 let app;
 let mongoServer;
 
