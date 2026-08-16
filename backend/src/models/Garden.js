@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-// Schema per il punto geografico (usato per l'indice 2dsphere)
+// Schema per il punto geografico (indice 2dsphere)
 const pointSchema = new mongoose.Schema(
   {
     type: {
@@ -22,7 +22,7 @@ const gardenSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: true,
+      required: [true, 'Il nome è obbligatorio'],
       trim: true,
     },
     description: {
@@ -35,7 +35,7 @@ const gardenSchema = new mongoose.Schema(
     },
     gps: {
       type: pointSchema,
-      required: true,
+      required: [true, 'Le coordinate GPS sono obbligatorie'],
     },
     size: {
       type: String,
@@ -47,29 +47,17 @@ const gardenSchema = new mongoose.Schema(
       enum: ['active', 'inactive', 'pending'],
       default: 'pending',
     },
-    createdBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+    geocoding: {
+      displayName: { type: String, default: '' },
+      importance: { type: Number, default: 0 },
     },
-    images: [String],
-    createdAt: {
-      type: Date,
-      default: Date.now,
-    },
-    updatedAt: {
-      type: Date,
-      default: Date.now,
-    },
+    // Aggiungi qui altri campi se necessario
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
-// Indici per ricerca testuale e geospaziale
-gardenSchema.index({ name: 'text', description: 'text', address: 'text' });
+// Indici
 gardenSchema.index({ gps: '2dsphere' });
+gardenSchema.index({ name: 'text', description: 'text', address: 'text' });
 
-const Garden = mongoose.model('Garden', gardenSchema);
-
-module.exports = Garden;
+module.exports = mongoose.model('Garden', gardenSchema);
