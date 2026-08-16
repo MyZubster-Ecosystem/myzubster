@@ -7,6 +7,7 @@ const morgan = require('morgan');
 const mongoose = require('mongoose');
 
 const gardenRoutes = require('./routes/gardens');
+const robotRoutes = require('./routes/robot');
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3009;
@@ -42,6 +43,7 @@ app.get('/health', (_req, res) => {
 });
 
 app.use('/api/gardens', gardenRoutes);
+app.use('/api/robot', robotRoutes);
 
 app.get('/api/dashboard', (_req, res) => {
   res.json({
