@@ -29,7 +29,6 @@ function geocodingPayload(coords) {
   };
 }
 
-// GET /api/gardens
 router.get('/', async (req, res) => {
   try {
     const filter = {};
@@ -42,11 +41,9 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET /api/gardens/search?q=...
 router.get('/search', async (req, res) => {
   const q = String(req.query.q || '').trim();
   if (!q) return res.status(400).json({ success: false, message: 'Query parameter "q" is required' });
-
   try {
     const gardens = await Garden.find({
       $or: [
@@ -55,64 +52,36 @@ router.get('/search', async (req, res) => {
         { address: { $regex: q, $options: 'i' } },
       ],
     });
-
     if (gardens.length) {
       return res.json({ success: true, mode: 'text', total: gardens.length, gardens: gardens.map(serializeGarden) });
     }
-
     const coords = await geocodeAddress(q);
     if (!coords) return res.json({ success: true, mode: 'no_results', total: 0, gardens: [] });
-
     const gardensNear = await Garden.find({
-      gps: {
-        $near: {
-          $geometry: { type: 'Point', coordinates: [coords.lng, coords.lat] },
-          $maxDistance: 5000,
-        },
-      },
+      gps: { $near: { $geometry: { type: 'Point', coordinates: [coords.lng, coords.lat] }, $maxDistance: 5000 } },
     });
-
-    return res.json({
-      success: true,
-      mode: 'geocoded_fallback',
-      total: gardensNear.length,
-      gardens: gardensNear.map(serializeGarden),
-      geocoding: geocodingPayload(coords),
-    });
+    return res.json({ success: true, mode: 'geocoded_fallback', total: gardensNear.length, gardens: gardensNear.map(serializeGarden), geocoding: geocodingPayload(coords) });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 });
 
-// GET /api/gardens/nearby?lat=...&lng=...&radius=...
 router.get('/nearby', async (req, res) => {
   const lat = Number(req.query.lat);
   const lng = Number(req.query.lng);
   const radius = Number(req.query.radius || 1000);
-
   if (req.query.lat == null || req.query.lng == null || !Number.isFinite(lat) || !Number.isFinite(lng)) {
     return res.status(400).json({ success: false, message: 'Latitude and longitude are required and must be numbers' });
   }
-  if (!Number.isFinite(radius) || radius < 0) {
-    return res.status(400).json({ success: false, message: 'Radius must be a non-negative number' });
-  }
-
+  if (!Number.isFinite(radius) || radius < 0) return res.status(400).json({ success: false, message: 'Radius must be a non-negative number' });
   try {
-    const gardens = await Garden.find({
-      gps: {
-        $near: {
-          $geometry: { type: 'Point', coordinates: [lng, lat] },
-          $maxDistance: radius,
-        },
-      },
-    });
+    const gardens = await Garden.find({ gps: { $near: { $geometry: { type: 'Point', coordinates: [lng, lat] }, $maxDistance: radius } } });
     res.json({ success: true, center: { lat, lng }, radius, total: gardens.length, gardens: gardens.map(serializeGarden) });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 });
 
-// GET /api/gardens/geocode?q=...
 router.get('/geocode', async (req, res) => {
   const q = String(req.query.q || '').trim();
   if (!q) return res.status(400).json({ success: false, message: 'Query parameter "q" is required' });
@@ -125,12 +94,10 @@ router.get('/geocode', async (req, res) => {
   }
 });
 
-// POST /api/gardens
 router.post('/', async (req, res) => {
   try {
     const { name, address = '', description = '', size = 'medium', status = 'active', ownerId = '' } = req.body || {};
     if (!name) return res.status(400).json({ success: false, message: 'Name is required' });
-
     let gps = normalizeGps(req.body);
     let geocoding;
     if (!gps && address) {
@@ -141,7 +108,6 @@ router.post('/', async (req, res) => {
       }
     }
     if (!gps) return res.status(400).json({ success: false, message: 'Impossibile determinare le coordinate: fornire gps o un indirizzo valido' });
-
     const garden = await Garden.create({ name, address, description, gps, size, status, ownerId, geocoding });
     res.status(201).json({ success: true, data: serializeGarden(garden) });
   } catch (error) {
@@ -149,7 +115,6 @@ router.post('/', async (req, res) => {
   }
 });
 
-// GET /api/gardens/:id
 router.get('/:id', async (req, res) => {
   try {
     const garden = await Garden.findById(req.params.id);
@@ -160,12 +125,10 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// PUT /api/gardens/:id
 router.put('/:id', async (req, res) => {
   try {
     const garden = await Garden.findById(req.params.id);
     if (!garden) return res.status(404).json({ success: false, message: 'Garden not found' });
-
     const { name, address, description, size, status, ownerId } = req.body || {};
     if (name !== undefined) garden.name = name;
     if (address !== undefined) garden.address = address;
@@ -173,17 +136,15 @@ router.put('/:id', async (req, res) => {
     if (size !== undefined) garden.size = size;
     if (status !== undefined) garden.status = status;
     if (ownerId !== undefined) garden.ownerId = ownerId;
-
-    let gps = normalizeGps(req.body);
-    if (gps) garden.gps = gps;
-    else if (address) {
+    const gps = normalizeGps(req.body);
+    if (gps) {
+      garden.gps = gps;
+    } else if (address) {
       const coords = await geocodeAddress(address);
-      if (coords) {
-        garden.gps = { type: 'Point', coordinates: [coords.lng, coords.lat] };
-        garden.geocoding = geocodingPayload(coords);
-      }
+      if (!coords) return res.status(400).json({ success: false, message: 'Impossibile determinare le coordinate per il nuovo indirizzo' });
+      garden.gps = { type: 'Point', coordinates: [coords.lng, coords.lat] };
+      garden.geocoding = geocodingPayload(coords);
     }
-
     await garden.save();
     res.json({ success: true, data: serializeGarden(garden) });
   } catch (error) {
@@ -191,7 +152,6 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// DELETE /api/gardens/:id
 router.delete('/:id', async (req, res) => {
   try {
     const garden = await Garden.findByIdAndDelete(req.params.id);
