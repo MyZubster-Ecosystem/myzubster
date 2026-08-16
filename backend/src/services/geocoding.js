@@ -52,9 +52,23 @@ async function geocodeAddress(address) {
   const results = await requestJson(url);
   if (!Array.isArray(results) || results.length === 0) return null;
   const first = results[0];
+  const lat = parseFloat(first.lat);
+  const lng = parseFloat(first.lon);
+
+  if (
+    !Number.isFinite(lat) ||
+    !Number.isFinite(lng) ||
+    lat < -90 ||
+    lat > 90 ||
+    lng < -180 ||
+    lng > 180
+  ) {
+    return null;
+  }
+
   return {
-    lat: parseFloat(first.lat),
-    lng: parseFloat(first.lon),
+    lat,
+    lng,
     displayName: first.display_name || '',
     osmId: first.osm_id || null,
     osmType: first.osm_type || null,
