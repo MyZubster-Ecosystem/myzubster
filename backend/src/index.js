@@ -5,6 +5,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
+const gatewayRoutes = require('./routes/gateway');
 
 const gardenRoutes = require('./routes/gardens');
 
@@ -42,6 +43,8 @@ app.get('/health', (_req, res) => {
 });
 
 app.use('/api/gardens', gardenRoutes);
+
+app.use('/api/gateway', gatewayRoutes);
 
 app.get('/api/dashboard', (_req, res) => {
   res.json({
