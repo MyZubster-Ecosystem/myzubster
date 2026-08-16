@@ -19,7 +19,6 @@ app.use(express.json({ limit: '2mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan(process.env.NODE_ENV === 'test' ? 'tiny' : 'dev'));
 
-// MongoDB lifecycle
 async function connectDatabase() {
   if (mongoose.connection.readyState === 1) return;
   await mongoose.connect(MONGODB_URI);
@@ -32,7 +31,6 @@ async function disconnectDatabase() {
   }
 }
 
-// Health check
 app.get('/health', (_req, res) => {
   res.json({
     success: true,
@@ -43,10 +41,8 @@ app.get('/health', (_req, res) => {
   });
 });
 
-// Gardens API
 app.use('/api/gardens', gardenRoutes);
 
-// Dashboard API
 app.get('/api/dashboard', (_req, res) => {
   res.json({
     success: true,
@@ -69,7 +65,6 @@ app.get('/api/dashboard', (_req, res) => {
   });
 });
 
-// Messages API
 app.get('/api/messages/:userId', (req, res) => {
   const { userId } = req.params;
   const messages = [
@@ -92,7 +87,6 @@ app.get('/api/messages/:userId', (req, res) => {
   });
 });
 
-// Payment notification API (optional service integration)
 app.post('/api/payments/record', (req, res) => {
   try {
     const { issueId, bounty, contributor, txid, address } = req.body || {};
@@ -115,7 +109,6 @@ app.get('/api/payments/status', (_req, res) => {
   }
 });
 
-// Minimal dashboard page
 app.get('/dashboard', (_req, res) => {
   res.type('html').send(`<!doctype html>
 <html lang="it">
@@ -141,12 +134,10 @@ app.get('/dashboard', (_req, res) => {
 </html>`);
 });
 
-// 404 handler
 app.use((_req, res) => {
   res.status(404).json({ success: false, error: 'Route not found' });
 });
 
-// Central error handler
 app.use((err, _req, res, _next) => {
   console.error('Unhandled server error:', err);
   res.status(500).json({
@@ -176,4 +167,10 @@ if (require.main === module) {
   });
 }
 
-module.exports = { app, startServer, connectDatabase, disconnectDatabase };
+// Export the Express app directly so Supertest/Jest can require() it.
+// Keep lifecycle helpers attached for callers that need explicit DB/server control.
+app.startServer = startServer;
+app.connectDatabase = connectDatabase;
+app.disconnectDatabase = disconnectDatabase;
+
+module.exports = app;
