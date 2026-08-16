@@ -1,5 +1,5 @@
 const request = require('supertest');
-const app = require('./app'); // o il percorso corretto del tuo server
+const app = require('./server'); // o il percorso corretto del tuo server
 
 describe('Synthetic Pilot API', () => {
   test('health endpoint identifies synthetic environment', async () => {
