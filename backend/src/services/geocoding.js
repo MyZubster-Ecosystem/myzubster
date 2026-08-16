@@ -67,7 +67,6 @@ async function geocodeAddress(address) {
           first.address.village ||
           first.address.municipality)) ||
       '',
-
   };
 }
 
