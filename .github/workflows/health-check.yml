@@ -1,0 +1,19 @@
+name: Production Health Check
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check API Health
+        run: |
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" ${{ secrets.APP_URL }}/)
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "❌ Health check FAILED"
+            exit 1
+          fi
+          echo "✅ Health check OK"
