@@ -1,131 +1,151 @@
 const express = require('express');
 const Garden = require('../models/Garden');
-const { geocodeAddress, reverseGeocode } = require('../services/geocoding');
+const { geocodeAddress } = require('../services/geocoding');
+
 const router = express.Router();
 
-// GET /api/gardens - Elenco di tutti gli orti
+function serializeGarden(garden) {
+  return garden?.toJSON ? garden.toJSON() : garden;
+}
+
+function normalizeGps(body) {
+  if (body?.gps?.lat != null && body?.gps?.lng != null) {
+    return { type: 'Point', coordinates: [Number(body.gps.lng), Number(body.gps.lat)] };
+  }
+  if (body?.latitude != null && body?.longitude != null) {
+    return { type: 'Point', coordinates: [Number(body.longitude), Number(body.latitude)] };
+  }
+  return null;
+}
+
+function geocodingPayload(coords) {
+  if (!coords) return null;
+  return {
+    displayName: coords.displayName || '',
+    lat: coords.lat,
+    lng: coords.lng,
+    neighborhood: coords.neighborhood || '',
+    city: coords.city || '',
+  };
+}
+
+// GET /api/gardens
 router.get('/', async (req, res) => {
   try {
-    const gardens = await Garden.find();
-    res.json(gardens);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    const filter = {};
+    if (req.query.status) filter.status = req.query.status;
+    if (req.query.size) filter.size = req.query.size;
+    const gardens = await Garden.find(filter).sort({ createdAt: 1 });
+    res.json({ success: true, total: gardens.length, gardens: gardens.map(serializeGarden) });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 
-// GET /api/gardens/search?q=... - Ricerca testuale e geocoding
+// GET /api/gardens/search?q=...
 router.get('/search', async (req, res) => {
-  const { q } = req.query;
-  if (!q) {
-    return res.status(400).json({ error: 'Query parameter "q" is required' });
-  }
+  const q = String(req.query.q || '').trim();
+  if (!q) return res.status(400).json({ success: false, message: 'Query parameter "q" is required' });
+
   try {
     const gardens = await Garden.find({
       $or: [
         { name: { $regex: q, $options: 'i' } },
         { description: { $regex: q, $options: 'i' } },
-        { address: { $regex: q, $options: 'i' } }
-      ]
+        { address: { $regex: q, $options: 'i' } },
+      ],
     });
-    if (gardens.length === 0) {
-      try {
-        const coords = await geocodeAddress(q);
-        if (coords) {
-          const nearby = await Garden.find({
-            location: {
-              $near: {
-                $geometry: { type: 'Point', coordinates: [coords.lng, coords.lat] },
-                $maxDistance: 5000
-              }
-            }
-          });
-          return res.json(nearby);
-        }
-      } catch (geocodeErr) {}
-      return res.json([]);
+
+    if (gardens.length) {
+      return res.json({ success: true, mode: 'text', total: gardens.length, gardens: gardens.map(serializeGarden) });
     }
-    res.json(gardens);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+
+    const coords = await geocodeAddress(q);
+    if (!coords) return res.json({ success: true, mode: 'no_results', total: 0, gardens: [] });
+
+    const gardensNear = await Garden.find({
+      gps: {
+        $near: {
+          $geometry: { type: 'Point', coordinates: [coords.lng, coords.lat] },
+          $maxDistance: 5000,
+        },
+      },
+    });
+
+    return res.json({
+      success: true,
+      mode: 'geocoded_fallback',
+      total: gardensNear.length,
+      gardens: gardensNear.map(serializeGarden),
+      geocoding: geocodingPayload(coords),
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 
 // GET /api/gardens/nearby?lat=...&lng=...&radius=...
 router.get('/nearby', async (req, res) => {
-  const { lat, lng, radius = 1000 } = req.query;
-  if (!lat || !lng) {
-    return res.status(400).json({ error: 'Latitude and longitude are required' });
+  const lat = Number(req.query.lat);
+  const lng = Number(req.query.lng);
+  const radius = Number(req.query.radius || 1000);
+
+  if (req.query.lat == null || req.query.lng == null || !Number.isFinite(lat) || !Number.isFinite(lng)) {
+    return res.status(400).json({ success: false, message: 'Latitude and longitude are required and must be numbers' });
   }
-  const latNum = parseFloat(lat);
-  const lngNum = parseFloat(lng);
-  if (isNaN(latNum) || isNaN(lngNum)) {
-    return res.status(400).json({ error: 'Latitude and longitude must be numbers' });
+  if (!Number.isFinite(radius) || radius < 0) {
+    return res.status(400).json({ success: false, message: 'Radius must be a non-negative number' });
   }
+
   try {
     const gardens = await Garden.find({
-      location: {
+      gps: {
         $near: {
-          $geometry: { type: 'Point', coordinates: [lngNum, latNum] },
-          $maxDistance: parseInt(radius, 10)
-        }
-      }
+          $geometry: { type: 'Point', coordinates: [lng, lat] },
+          $maxDistance: radius,
+        },
+      },
     });
-    res.json(gardens);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.json({ success: true, center: { lat, lng }, radius, total: gardens.length, gardens: gardens.map(serializeGarden) });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 
 // GET /api/gardens/geocode?q=...
 router.get('/geocode', async (req, res) => {
-  const { q } = req.query;
-  if (!q) {
-    return res.status(400).json({ error: 'Query parameter "q" is required' });
-  }
+  const q = String(req.query.q || '').trim();
+  if (!q) return res.status(400).json({ success: false, message: 'Query parameter "q" is required' });
   try {
     const coords = await geocodeAddress(q);
-    if (!coords) {
-      return res.status(404).json({ error: 'Address not found' });
-    }
-    res.json(coords);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    if (!coords) return res.status(404).json({ success: false, message: 'Address not found' });
+    res.json({ success: true, data: geocodingPayload(coords) });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 
 // POST /api/gardens
 router.post('/', async (req, res) => {
   try {
-    const { name, address, latitude, longitude } = req.body;
-    if (!name) {
-      return res.status(400).json({ error: 'Name is required' });
-    }
-    if (!address && (latitude === undefined || longitude === undefined)) {
-      return res.status(400).json({ error: 'Either address or coordinates must be provided' });
-    }
-    let location = null;
-    if (latitude !== undefined && longitude !== undefined) {
-      location = { type: 'Point', coordinates: [parseFloat(longitude), parseFloat(latitude)] };
-    } else if (address) {
+    const { name, address = '', description = '', size = 'medium', status = 'active', ownerId = '' } = req.body || {};
+    if (!name) return res.status(400).json({ success: false, message: 'Name is required' });
+
+    let gps = normalizeGps(req.body);
+    let geocoding;
+    if (!gps && address) {
       const coords = await geocodeAddress(address);
       if (coords) {
-        location = { type: 'Point', coordinates: [coords.lng, coords.lat] };
-      } else {
-        return res.status(400).json({ error: 'Unable to geocode address' });
+        gps = { type: 'Point', coordinates: [coords.lng, coords.lat] };
+        geocoding = geocodingPayload(coords);
       }
     }
-    const garden = new Garden({
-      name,
-      address,
-      location,
-      description: req.body.description || '',
-      size: req.body.size || 'medium',
-      status: req.body.status || 'active'
-    });
-    await garden.save();
-    res.status(201).json(garden);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
+    if (!gps) return res.status(400).json({ success: false, message: 'Impossibile determinare le coordinate: fornire gps o un indirizzo valido' });
+
+    const garden = await Garden.create({ name, address, description, gps, size, status, ownerId, geocoding });
+    res.status(201).json({ success: true, data: serializeGarden(garden) });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
   }
 });
 
@@ -133,35 +153,41 @@ router.post('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const garden = await Garden.findById(req.params.id);
-    if (!garden) {
-      return res.status(404).json({ error: 'Garden not found' });
-    }
-    res.json(garden);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    if (!garden) return res.status(404).json({ success: false, message: 'Garden not found' });
+    res.json({ success: true, data: serializeGarden(garden) });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 
 // PUT /api/gardens/:id
 router.put('/:id', async (req, res) => {
   try {
-    const { name, address, latitude, longitude, description, size, status } = req.body;
-    const updateData = { name, address, description, size, status };
-    if (latitude !== undefined && longitude !== undefined) {
-      updateData.location = { type: 'Point', coordinates: [parseFloat(longitude), parseFloat(latitude)] };
-    } else if (address) {
+    const garden = await Garden.findById(req.params.id);
+    if (!garden) return res.status(404).json({ success: false, message: 'Garden not found' });
+
+    const { name, address, description, size, status, ownerId } = req.body || {};
+    if (name !== undefined) garden.name = name;
+    if (address !== undefined) garden.address = address;
+    if (description !== undefined) garden.description = description;
+    if (size !== undefined) garden.size = size;
+    if (status !== undefined) garden.status = status;
+    if (ownerId !== undefined) garden.ownerId = ownerId;
+
+    let gps = normalizeGps(req.body);
+    if (gps) garden.gps = gps;
+    else if (address) {
       const coords = await geocodeAddress(address);
       if (coords) {
-        updateData.location = { type: 'Point', coordinates: [coords.lng, coords.lat] };
+        garden.gps = { type: 'Point', coordinates: [coords.lng, coords.lat] };
+        garden.geocoding = geocodingPayload(coords);
       }
     }
-    const garden = await Garden.findByIdAndUpdate(req.params.id, updateData, { new: true, runValidators: true });
-    if (!garden) {
-      return res.status(404).json({ error: 'Garden not found' });
-    }
-    res.json(garden);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
+
+    await garden.save();
+    res.json({ success: true, data: serializeGarden(garden) });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
   }
 });
 
@@ -169,12 +195,10 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   try {
     const garden = await Garden.findByIdAndDelete(req.params.id);
-    if (!garden) {
-      return res.status(404).json({ error: 'Garden not found' });
-    }
-    res.json({ message: 'Garden deleted' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    if (!garden) return res.status(404).json({ success: false, message: 'Garden not found' });
+    res.json({ success: true, message: 'Garden deleted' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 
