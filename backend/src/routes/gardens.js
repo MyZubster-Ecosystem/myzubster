@@ -24,6 +24,8 @@ function geocodingPayload(coords) {
     displayName: coords.displayName || '',
     lat: coords.lat,
     lng: coords.lng,
+    osmId: coords.osmId || null,
+    osmType: coords.osmType || null,
     neighborhood: coords.neighborhood || '',
     city: coords.city || '',
   };

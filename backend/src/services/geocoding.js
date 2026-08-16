@@ -40,6 +40,8 @@ async function geocodeAddress(address) {
     lat: parseFloat(first.lat),
     lng: parseFloat(first.lon),
     displayName: first.display_name,
+    osmId: first.osm_id || null,
+    osmType: first.osm_type || null,
     neighborhood: (first.address && (first.address.suburb || first.address.neighbourhood)) || '',
     city: (first.address && (first.address.city || first.address.town || first.address.village || first.address.municipality)) || '',
   };
