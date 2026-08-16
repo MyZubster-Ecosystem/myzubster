@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Space Station &mdash; Telemetry Dashboard</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --panel: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --accent: #58a6ff;
+      --ok: #3fb950;
+      --warn: #d29922;
+      --danger: #f85149;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    header h1 { margin: 0; font-size: 1.3rem; }
+    header .status-dot { font-size: 0.85rem; color: var(--muted); }
+    .container {
+      max-width: 1100px;
+      margin: 24px auto;
+      padding: 0 16px;
+    }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+    .card .label { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .card .value { font-size: 1.9rem; font-weight: 600; margin-top: 6px; }
+    .card .sub { font-size: 0.8rem; color: var(--muted); margin-top: 4px; }
+    .bar { height: 8px; background: #21262d; border-radius: 6px; margin-top: 10px; overflow: hidden; }
+    .bar > span { display: block; height: 100%; background: var(--accent); border-radius: 6px; transition: width 0.4s ease; }
+    table { width: 100%; border-collapse: collapse; margin-top: 24px; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+    th, td { padding: 10px 14px; text-align: left; font-size: 0.9rem; border-bottom: 1px solid var(--border); }
+    th { color: var(--muted); text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; }
+    tr:last-child td { border-bottom: none; }
+    .banner { display: none; margin: 16px 0; padding: 14px 16px; border-radius: 10px; border: 1px solid var(--danger); background: rgba(248,81,73,0.1); color: var(--danger); }
+    .banner.visible { display: block; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.75rem; }
+    .badge.ok { background: rgba(63,185,80,0.15); color: var(--ok); }
+    .badge.warn { background: rgba(210,153,34,0.15); color: var(--warn); }
+    .badge.danger { background: rgba(248,81,73,0.15); color: var(--danger); }
+    @media (max-width: 640px) {
+      .cards { grid-template-columns: 1fr 1fr; }
+      th, td { padding: 8px; font-size: 0.8rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Space Station &mdash; Telemetry Dashboard</h1>
+    <span class="status-dot" id="status">Connecting&hellip;</span>
+  </header>
+
+  <div class="container">
+    <div class="banner" id="banner">Unable to reach the Space Station telemetry API. Retrying&hellip;</div>
+
+    <div class="cards" id="cards">
+      <div class="card">
+        <div class="label">Robot</div>
+        <div class="value" id="robot">&mdash;</div>
+        <div class="sub" id="robotStatus">&mdash;</div>
+      </div>
+      <div class="card">
+        <div class="label">Temperature</div>
+        <div class="value" id="temperature">&mdash;</div>
+        <div class="bar"><span id="temperatureBar" style="width:0%"></span></div>
+      </div>
+      <div class="card">
+        <div class="label">Humidity</div>
+        <div class="value" id="humidity">&mdash;</div>
+        <div class="bar"><span id="humidityBar" style="width:0%"></span></div>
+      </div>
+      <div class="card">
+        <div class="label">Battery</div>
+        <div class="value" id="battery">&mdash;</div>
+        <div class="bar"><span id="batteryBar" style="width:0%"></span></div>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr><th>Time</th><th>Robot</th><th>Temp</th><th>Humidity</th><th>Battery</th><th>Status</th></tr>
+      </thead>
+      <tbody id="rows"><tr><td colspan="6" style="color:var(--muted)">No telemetry yet</td></tr></tbody>
+    </table>
+  </div>
+
+  <script>
+    var API_URL = (window.TELEMETRY_API_URL) || '/api/telemetry';
+    var REFRESH_MS = 5000;
+
+    function statusBadge(value) {
+      if (value === 'exploring' || value === 'charging') return '<span class="badge ok">' + value + '</span>';
+      if (value === 'idle') return '<span class="badge warn">' + value + '</span>';
+      return '<span class="badge danger">' + (value || 'unknown') + '</span>';
+    }
+
+    function fmtTime(ts) {
+      var d = new Date(ts);
+      if (isNaN(d.getTime())) return String(ts || '-');
+      return d.toLocaleTimeString();
+    }
+
+    function render(sample, list) {
+      var banner = document.getElementById('banner');
+      var status = document.getElementById('status');
+      if (!sample) {
+        banner.classList.add('visible');
+        status.textContent = 'Offline';
+        status.style.color = 'var(--danger)';
+        return;
+      }
+      banner.classList.remove('visible');
+      status.textContent = 'Online';
+      status.style.color = 'var(--ok)';
+
+      document.getElementById('robot').textContent = sample.robotId || '-';
+      document.getElementById('robotStatus').innerHTML = statusBadge(sample.status);
+
+      document.getElementById('temperature').textContent = (sample.temperature != null ? sample.temperature.toFixed(1) + ' &deg;C' : '-');
+      document.getElementById('temperatureBar').style.width = Math.min(100, Math.max(0, (sample.temperature / 50) * 100)) + '%';
+
+      document.getElementById('humidity').textContent = (sample.humidity != null ? sample.humidity.toFixed(0) + ' %' : '-');
+      document.getElementById('humidityBar').style.width = Math.min(100, Math.max(0, sample.humidity)) + '%';
+
+      document.getElementById('battery').textContent = (sample.battery != null ? sample.battery.toFixed(0) + ' %' : '-');
+      document.getElementById('batteryBar').style.width = Math.min(100, Math.max(0, sample.battery)) + '%';
+
+      var rows = document.getElementById('rows');
+      if (!list || list.length === 0) {
+        rows.innerHTML = '<tr><td colspan="6" style="color:var(--muted)">No telemetry yet</td></tr>';
+        return;
+      }
+      var html = '';
+      for (var i = 0; i < list.length; i++) {
+        var s = list[i];
+        html += '<tr><td>' + fmtTime(s.timestamp) + '</td><td>' + (s.robotId || '-') + '</td><td>' +
+          (s.temperature != null ? s.temperature.toFixed(1) : '-') + '</td><td>' +
+          (s.humidity != null ? s.humidity.toFixed(0) : '-') + '</td><td>' +
+          (s.battery != null ? s.battery.toFixed(0) : '-') + '</td><td>' + statusBadge(s.status) + '</td></tr>';
+      }
+      rows.innerHTML = html;
+    }
+
+    function load() {
+      fetch(API_URL)
+        .then(function (res) {
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          return res.json();
+        })
+        .then(function (data) {
+          var latest = data.latest || (data.data && data.data[0]) || null;
+          render(latest, data.data || []);
+        })
+        .catch(function () {
+          render(null, []);
+        });
+    }
+
+    load();
+    setInterval(load, REFRESH_MS);
+  </script>
+</body>
+</html>
