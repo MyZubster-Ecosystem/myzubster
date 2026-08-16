@@ -1,445 +1,176 @@
 require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
-<<<<<<< HEAD
 const mongoose = require('mongoose');
 
-// Import routes
-=======
-const Message = require('./models/Message');
->>>>>>> 6561d1d (feat: Geolocalizzazione bounty #17  Implementazione della funzionalità di geolocalizzazione per il bounty #17.  ## Novità - Modello Garden con indice 2dsphere (GeoJSON Point) e indice text - Integrazione OSM Nominatim per geocoding e reverse geocoding - Campo address per ogni garden - GET /api/gardens/search?q=... (ricerca testuale + fallback geocoding) - GET /api/gardens/nearby?lat=...&lng=...&radius=... (query geospaziali) - GET /api/gardens/geocode?q=... (utility di geocoding) - CRUD completo: POST, GET, GET/:id, PUT, DELETE /api/gardens - 36 test (coprono geocoding, search, nearby, CRUD, edge case)  Co-authored-by: CloudPaw-Master <cloud-orchestrator>)
 const gardenRoutes = require('./routes/gardens');
 
 const app = express();
-const PORT = process.env.PORT || 3009;
+const PORT = Number(process.env.PORT) || 3009;
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/myzubster';
 
-// Middleware
+app.disable('x-powered-by');
 app.use(helmet());
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '2mb' }));
 app.use(express.urlencoded({ extended: true }));
-app.use(morgan('dev'));
+app.use(morgan(process.env.NODE_ENV === 'test' ? 'tiny' : 'dev'));
 
-// MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/myzubster', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
-.then(() => console.log('✅ Connected to MongoDB'))
-.catch(err => console.error('❌ MongoDB connection error:', err));
+async function connectDatabase() {
+  if (mongoose.connection.readyState === 1) return;
+  await mongoose.connect(MONGODB_URI);
+  console.log('✅ Connected to MongoDB');
+}
 
-// Health check endpoint
-app.get('/health', (req, res) => {
+async function disconnectDatabase() {
+  if (mongoose.connection.readyState !== 0) {
+    await mongoose.disconnect();
+  }
+}
+
+app.get('/health', (_req, res) => {
   res.json({
     success: true,
     status: 'ok',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    memory: process.memoryUsage(),
     mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
   });
 });
 
-// Garden routes
 app.use('/api/gardens', gardenRoutes);
 
-// Dashboard API endpoint
-app.get('/api/dashboard', (req, res) => {
+app.get('/api/dashboard', (_req, res) => {
   res.json({
     success: true,
-    services: [
-      {
-        name: 'telegram',
-        status: 'online',
-        latency: '120ms',
-        description: 'Telegram bot service',
-        endpoint: 'http://localhost:3000'
-      },
-      {
-        name: 'slack',
-        status: process.env.SLACK_WEBHOOK_URL ? 'online' : 'offline',
-        latency: process.env.SLACK_WEBHOOK_URL ? '150ms' : 'N/A',
-        description: 'Slack notification service',
-        endpoint: process.env.SLACK_WEBHOOK_URL || 'Not configured'
-      },
-      {
-        name: 'github',
-        status: 'online',
-        latency: '80ms',
-        description: 'GitHub API integration',
-        endpoint: 'https://api.github.com'
-      },
-      {
-        name: 'ai',
-        status: 'online',
-        latency: '200ms',
-        description: 'AI Orchestrator service',
-        endpoint: 'http://localhost:3009/api/ai'
-      },
-      {
-        name: 'geocoding',
-        status: 'online',
-        latency: '250ms',
-        description: 'OpenStreetMap Nominatim',
-        endpoint: 'https://nominatim.openstreetmap.org'
-      },
-      {
-        name: 'mongodb',
+    services: {
+      github: { status: 'online', endpoint: 'https://api.github.com' },
+      geocoding: { status: 'online', endpoint: 'https://nominatim.openstreetmap.org' },
+      mongodb: {
         status: mongoose.connection.readyState === 1 ? 'online' : 'offline',
-        latency: '10ms',
-        description: 'Database service',
         endpoint: 'mongodb://localhost:27017'
       }
-    ],
-    recentIssues: [
-      {
-        id: 48,
-        title: '[Enhancement] Migliorare l\'analisi AI con prompt engineering',
-        status: 'closed',
-        created_at: '2026-07-31T10:00:00.000Z',
-        priority: 'high'
-      },
-      {
-        id: 47,
-        title: 'Dashboard web per monitorare il sistema',
-        status: 'closed',
-        created_at: '2026-07-30T15:30:00.000Z',
-        priority: 'medium'
-      },
-      {
-        id: 45,
-        title: 'Bug: Mappa non si carica correttamente',
-        status: 'open',
-        created_at: '2026-07-29T12:00:00.000Z',
-        priority: 'critical'
-      }
-    ],
-    activeBounties: [
-      {
-        id: 3,
-        title: 'Fix security vulnerability in authentication',
-        reward: '0.5 XMR',
-        status: 'active',
-        assignee: 'alice_dev'
-      },
-      {
-        id: 5,
-        title: 'Implement rate limiting for API',
-        reward: '0.3 XMR',
-        status: 'active',
-        assignee: 'bob_coder'
-      },
-      {
-        id: 17,
-        title: 'Geolocalizzazione e ricerca per area gardens',
-        reward: '0.06 XMR',
-        status: 'merged',
-        assignee: 'leanworld7-netizen'
-      }
-    ],
+    },
     stats: {
-      totalIssues: 156,
-      openIssues: 23,
-      closedIssues: 133,
-      totalBounties: 12,
-      activeBounties: 4,
-      totalContributors: 19
+      totalIssues: 0,
+      openIssues: 0,
+      closedIssues: 0,
+      totalBounties: 0,
+      activeBounties: 0,
+      totalContributors: 0
     }
   });
 });
 
-// Messages endpoint
-app.get('/api/messages/:userId', async (req, res) => {
+app.get('/api/messages/:userId', (req, res) => {
+  const { userId } = req.params;
+  const messages = [
+    {
+      id: 'msg1',
+      userId,
+      content: 'Benvenuto su MyZubster! 🌱',
+      timestamp: new Date().toISOString(),
+      type: 'welcome',
+      read: false
+    }
+  ];
+
+  res.json({
+    success: true,
+    userId,
+    messages,
+    count: messages.length,
+    unread: messages.filter((message) => !message.read).length
+  });
+});
+
+app.post('/api/payments/record', (req, res) => {
   try {
-    const { userId } = req.params;
-    const messages = [
-      {
-        id: 'msg1',
-        userId: userId,
-        content: 'Benvenuto su MyZubster! 🌱',
-        timestamp: new Date().toISOString(),
-        type: 'welcome',
-        read: false
-      },
-      {
-        id: 'msg2',
-        userId: userId,
-        content: 'Hai nuovi aggiornamenti disponibili per il sistema',
-        timestamp: new Date(Date.now() - 3600000).toISOString(),
-        type: 'update',
-        read: true
-      },
-      {
-        id: 'msg3',
-        userId: userId,
-        content: 'Il tuo bounty "Geolocalizzazione gardens" è stato approvato!',
-        timestamp: new Date(Date.now() - 7200000).toISOString(),
-        type: 'bounty',
-        read: false
-      }
-    ];
-    res.json({
-      success: true,
-      userId: userId,
-      messages: messages,
-      count: messages.length,
-      unread: messages.filter(m => !m.read).length
-    });
+    const { issueId, bounty, contributor, txid, address } = req.body || {};
+    const { notifier } = require('../../services/notification/bot');
+    const payment = notifier.recordPayment(issueId, bounty, contributor, txid, address);
+    res.json({ success: true, data: payment });
   } catch (error) {
-    console.error('Errore nel recupero dei messaggi:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Errore nel recupero dei messaggi',
-      message: error.message
-    });
+    console.error('Payment notification error:', error);
+    res.status(500).json({ success: false, error: 'Unable to record payment' });
   }
 });
 
-// Dashboard HTML page
-app.get('/dashboard', (req, res) => {
-  res.send(`
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <title>MyZubster Dashboard</title>
-      <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; color: #333; }
-        .container { max-width: 1200px; margin: 0 auto; }
-        h1 { color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px; }
-        .status-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 20px 0; }
-        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .status-online { color: #27ae60; }
-        .status-offline { color: #e74c3c; }
-        .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; }
-        .badge-open { background: #3498db; color: white; }
-        .badge-closed { background: #95a5a6; color: white; }
-        .badge-critical { background: #e74c3c; color: white; }
-        .badge-high { background: #e67e22; color: white; }
-        .badge-medium { background: #f39c12; color: white; }
-        .badge-active { background: #27ae60; color: white; }
-        .issue-list, .bounty-list { list-style: none; padding: 0; }
-        .issue-item, .bounty-item { background: white; margin: 10px 0; padding: 15px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin: 20px 0; }
-        .stat-card { background: white; padding: 15px; border-radius: 8px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .stat-number { font-size: 28px; font-weight: bold; color: #2c3e50; }
-        .stat-label { color: #7f8c8d; font-size: 14px; margin-top: 5px; }
-        .footer { margin-top: 30px; text-align: center; color: #7f8c8d; font-size: 12px; }
-        .refresh-btn { background: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin-bottom: 20px; }
-        .refresh-btn:hover { background: #2980b9; }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <h1>🚀 MyZubster Dashboard</h1>
-        <p>Last updated: <span id="timestamp">${new Date().toISOString()}</span></p>
-        <button class="refresh-btn" onclick="location.reload()">🔄 Refresh</button>
-
-        <div class="stats-grid">
-          <div class="stat-card"><div class="stat-number">156</div><div class="stat-label">Total Issues</div></div>
-          <div class="stat-card"><div class="stat-number">23</div><div class="stat-label">Open Issues</div></div>
-          <div class="stat-card"><div class="stat-number">133</div><div class="stat-label">Closed Issues</div></div>
-          <div class="stat-card"><div class="stat-number">4</div><div class="stat-label">Active Bounties</div></div>
-        </div>
-
-        <h2>🔧 Service Status</h2>
-        <div class="status-grid">
-          <div class="card"><h3>Telegram</h3><p><span class="status-online">●</span> Online (120ms)</p></div>
-          <div class="card"><h3>Slack</h3><p><span class="${process.env.SLACK_WEBHOOK_URL ? 'status-online' : 'status-offline'}">●</span> ${process.env.SLACK_WEBHOOK_URL ? 'Online (150ms)' : 'Offline (not configured)'}</p></div>
-          <div class="card"><h3>GitHub</h3><p><span class="status-online">●</span> Online (80ms)</p></div>
-          <div class="card"><h3>AI Orchestrator</h3><p><span class="status-online">●</span> Online (200ms)</p></div>
-          <div class="card"><h3>Geocoding</h3><p><span class="status-online">●</span> Online (250ms)</p></div>
-          <div class="card"><h3>MongoDB</h3><p><span class="status-online">●</span> Connected</p></div>
-        </div>
-
-        <h2>📋 Recent Issues</h2>
-        <ul class="issue-list">
-          <li class="issue-item"><strong>[Enhancement] Migliorare l'analisi AI con prompt engineering</strong> <span class="badge badge-closed">Closed</span> <span style="float:right; color:#7f8c8d;">2026-07-31</span></li>
-          <li class="issue-item"><strong>Dashboard web per monitorare il sistema</strong> <span class="badge badge-closed">Closed</span> <span style="float:right; color:#7f8c8d;">2026-07-30</span></li>
-          <li class="issue-item"><strong>Bug: Mappa non si carica correttamente</strong> <span class="badge badge-open">Open</span> <span class="badge badge-critical">Critical</span> <span style="float:right; color:#7f8c8d;">2026-07-29</span></li>
-        </ul>
-
-        <h2>💰 Active Bounties</h2>
-        <ul class="bounty-list">
-          <li class="bounty-item"><strong>Fix security vulnerability in authentication</strong> <span class="badge badge-active">0.5 XMR</span> <span style="margin-left:10px; color:#7f8c8d;">Assignee: alice_dev</span></li>
-          <li class="bounty-item"><strong>Implement rate limiting for API</strong> <span class="badge badge-active">0.3 XMR</span> <span style="margin-left:10px; color:#7f8c8d;">Assignee: bob_coder</span></li>
-        </ul>
-
-        <div class="footer"><p>MyZubster Dashboard v1.0.0 | <a href="/api/dashboard">API JSON</a></p></div>
-      </div>
-    </body>
-    </html>
-  `);
+app.get('/api/payments/status', (_req, res) => {
+  try {
+    const { notifier } = require('../../services/notification/bot');
+    res.json(notifier.getPaymentStatus());
+  } catch (error) {
+    console.error('Payment status error:', error);
+    res.status(500).json({ success: false, error: 'Unable to read payment status' });
+  }
 });
 
-<<<<<<< HEAD
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error('Error:', err.stack);
-  res.status(500).json({ success: false, error: err.message || 'Internal Server Error' });
+app.get('/dashboard', (_req, res) => {
+  res.type('html').send(`<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MyZubster Dashboard</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 1000px; margin: 40px auto; padding: 0 20px; background: #f6f7f9; color: #172033; }
+    .card { background: white; border: 1px solid #e1e5ea; border-radius: 12px; padding: 20px; margin: 16px 0; }
+    code { background: #eef1f5; padding: 2px 6px; border-radius: 5px; }
+  </style>
+</head>
+<body>
+  <h1>🚀 MyZubster Dashboard</h1>
+  <div class="card">
+    <strong>Backend:</strong> online<br>
+    <strong>Health:</strong> <a href="/health"><code>/health</code></a><br>
+    <strong>Dashboard API:</strong> <a href="/api/dashboard"><code>/api/dashboard</code></a><br>
+    <strong>Gardens API:</strong> <a href="/api/gardens"><code>/api/gardens</code></a>
+  </div>
+</body>
+</html>`);
 });
 
-// 404 handler
-app.use((req, res) => {
+app.use((_req, res) => {
   res.status(404).json({ success: false, error: 'Route not found' });
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`✅ MyZubster backend listening on port ${PORT}`);
-  console.log(`📍 Health check: http://localhost:${PORT}/health`);
-  console.log(`📍 Dashboard: http://localhost:${PORT}/dashboard`);
-  console.log(`📍 API Dashboard: http://localhost:${PORT}/api/dashboard`);
-  console.log(`📍 Messages: http://localhost:${PORT}/api/messages/:userId`);
-  console.log(`📍 Gardens API: http://localhost:${PORT}/api/gardens`);
-});
-
-module.exports = app;
-
-// Endpoint per le notifiche di pagamento
-app.post('/api/payments/record', async (req, res) => {
-  const { issueId, bounty, contributor, txid, address } = req.body;
-  
-  // Registra il pagamento
-  const { notifier } = require('../../services/notification/bot');
-  const payment = notifier.recordPayment(issueId, bounty, contributor, txid, address);
-  
-  res.json({ success: true, data: payment });
-});
-
-app.get('/api/payments/status', (req, res) => {
-  const { notifier } = require('../../services/notification/bot');
-  res.json(notifier.getPaymentStatus());
-});
-
-// ============================================
-// PAYMENT TRACKING API
-// ============================================
-
-/**
- * Registra un pagamento
- * POST /api/payments/record
- */
-app.post('/api/payments/record', async (req, res) => {
-=======
-// Rotta benvenuto / stato
-app.get('/', (_req, res) => {
-  res.json({
-    success: true,
-    message: 'MyZubster backend',
-    version: '1.0.0',
-    endpoints: {
-      health: '/health',
-      messages: '/api/messages',
-      gardens: '/api/gardens',
-    },
+app.use((err, _req, res, _next) => {
+  console.error('Unhandled server error:', err);
+  res.status(500).json({
+    success: false,
+    error: 'Internal Server Error',
+    message: process.env.NODE_ENV === 'production' ? undefined : err.message
   });
 });
 
-// Rotta Garden (geolocalizzazione)
-app.use('/api/gardens', gardenRoutes);
+async function startServer() {
+  await connectDatabase();
 
-app.put('/api/messages/:messageId/read', async (req, res) => {
->>>>>>> 6561d1d (feat: Geolocalizzazione bounty #17  Implementazione della funzionalità di geolocalizzazione per il bounty #17.  ## Novità - Modello Garden con indice 2dsphere (GeoJSON Point) e indice text - Integrazione OSM Nominatim per geocoding e reverse geocoding - Campo address per ogni garden - GET /api/gardens/search?q=... (ricerca testuale + fallback geocoding) - GET /api/gardens/nearby?lat=...&lng=...&radius=... (query geospaziali) - GET /api/gardens/geocode?q=... (utility di geocoding) - CRUD completo: POST, GET, GET/:id, PUT, DELETE /api/gardens - 36 test (coprono geocoding, search, nearby, CRUD, edge case)  Co-authored-by: CloudPaw-Master <cloud-orchestrator>)
-  try {
-    const { issueId, bounty, contributor, txid, address } = req.body;
-    
-    // Validazione
-    if (!issueId || !bounty || !contributor || !txid || !address) {
-      return res.status(400).json({
-        success: false,
-        error: 'Missing required fields: issueId, bounty, contributor, txid, address'
-      });
-    }
-    
-    // Registra il pagamento
-    const { notifier } = require('../../services/notification/bot');
-    const payment = notifier.recordPayment(issueId, bounty, contributor, txid, address);
-    
-    res.json({
-      success: true,
-      data: payment,
-      message: `✅ Pagamento registrato per issue #${issueId}`
+  return new Promise((resolve) => {
+    const server = app.listen(PORT, () => {
+      console.log(`✅ MyZubster backend listening on port ${PORT}`);
+      console.log(`📍 Health check: http://localhost:${PORT}/health`);
+      console.log(`📍 Dashboard: http://localhost:${PORT}/dashboard`);
+      resolve(server);
     });
-  } catch (error) {
-    console.error('Errore registrazione pagamento:', error);
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
+  });
+}
 
-/**
- * Ottieni lo stato dei pagamenti
- * GET /api/payments/status
- */
-app.get('/api/payments/status', (req, res) => {
-  try {
-    const { notifier } = require('../../services/notification/bot');
-    const status = notifier.getPaymentStatus();
-    res.json({
-      success: true,
-      data: status
-    });
-  } catch (error) {
-    console.error('Errore stato pagamenti:', error);
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
+if (require.main === module) {
+  startServer().catch((error) => {
+    console.error('❌ Failed to start MyZubster backend:', error);
+    process.exit(1);
+  });
+}
 
-/**
- * Ottieni lo storico completo
- * GET /api/payments/history
- */
-app.get('/api/payments/history', (req, res) => {
-  try {
-    const history = require('../../services/notification/history');
-    res.json({
-      success: true,
-      data: history
-    });
-  } catch (error) {
-    console.error('Errore storico pagamenti:', error);
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
+// Export the Express app directly so Supertest/Jest can require() it.
+// Keep lifecycle helpers attached for callers that need explicit DB/server control.
+app.startServer = startServer;
+app.connectDatabase = connectDatabase;
+app.disconnectDatabase = disconnectDatabase;
 
-/**
- * Registra un wallet
- * POST /api/payments/wallet
- */
-app.post('/api/payments/wallet', async (req, res) => {
-  try {
-    const { contributor, address, issueId, bounty } = req.body;
-    
-    if (!contributor || !address || !issueId || !bounty) {
-      return res.status(400).json({
-        success: false,
-        error: 'Missing required fields: contributor, address, issueId, bounty'
-      });
-    }
-    
-    const { notifier } = require('../../services/notification/bot');
-    const wallet = notifier.registerWallet(contributor, address, issueId, bounty);
-    
-    res.json({
-      success: true,
-      data: wallet,
-      message: `✅ Wallet registrato per ${contributor}`
-    });
-  } catch (error) {
-    console.error('Errore registrazione wallet:', error);
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
+module.exports = app;

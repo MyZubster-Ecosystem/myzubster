@@ -1,5 +1,5 @@
 const request = require('supertest');
-const app = require('./server'); // o il percorso corretto del tuo server
+const app = require('./backend/src/index');
 
 describe('Synthetic Pilot API', () => {
   test('health endpoint identifies synthetic environment', async () => {
@@ -13,15 +13,12 @@ describe('Synthetic Pilot API', () => {
   });
 
   test('operator cannot close an intervention', async () => {
-    // Primo avanzamento
     const res = await request(app).post('/interventions/INT-003/advance').send({ actor: 'test-operator', role: 'operator' });
     expect(res.status).toBe(200);
-    // Secondo avanzamento
     const second = await request(app).post('/interventions/INT-003/advance').send({ actor: 'test-operator', role: 'operator' });
     expect(second.status).toBe(200);
-    // Terzo avanzamento (proibito – 403)
     const third = await request(app).post('/interventions/INT-003/advance').send({ actor: 'test-operator', role: 'operator' });
-    expect(third.status).toBe(403);  // ✅ CORRETTO: il terzo tentativo è proibito
+    expect(third.status).toBe(403);
   });
 
   test('reviewer can close a verification item', async () => {
