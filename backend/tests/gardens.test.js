@@ -79,6 +79,8 @@ jest.mock('https', () => {
           return res;
         },
         setEncoding: jest.fn(),
+        setTimeout: jest.fn(),
+        destroy: jest.fn(),
       };
 
       // Handle both (url, cb) and (url, opts, cb) signatures
@@ -90,6 +92,8 @@ jest.mock('https', () => {
       return {
         on: jest.fn(),
         setEncoding: jest.fn(),
+        setTimeout: jest.fn(),
+        destroy: jest.fn(),
       };
     }),
   };
