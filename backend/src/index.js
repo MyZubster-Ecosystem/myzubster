@@ -9,6 +9,7 @@ const mongoose = require('mongoose');
 const gatewayRoutes = require('./routes/gateway');
 
 const gardenRoutes = require('./routes/gardens');
+const telemetryRoutes = require('./routes/telemetry');
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3009;
@@ -44,6 +45,7 @@ app.get('/health', (_req, res) => {
 });
 
 app.use('/api/gardens', gardenRoutes);
+app.use('/api/telemetry', telemetryRoutes);
 
 app.use('/api/gateway', gatewayRoutes);
 
