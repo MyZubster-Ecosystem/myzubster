@@ -23,6 +23,12 @@ function transition(current, next) {
 
 function paymentRequest(bounty) {
   if (!bounty.paymentRecipient) throw new Error('payment recipient is required');
+  if (!bounty.paymentAsset && !bounty.currency) throw new Error('payment asset is required');
+  if (!bounty.paymentNetwork) throw new Error('payment network is required');
+  if (bounty.rewardAmount === undefined || bounty.rewardAmount === null) {
+    throw new Error('payment amount is required');
+  }
+
   return {
     amount: bounty.rewardAmount,
     asset: bounty.paymentAsset || bounty.currency,
@@ -47,10 +53,13 @@ function requireVerifier(verifier) {
   }
 }
 
-function verificationPassed(verification, request) {
+function verificationPassed(verification, request, txId) {
   const checks = verification?.checks;
   return verification?.valid === true
+    && typeof verification.transactionStatus === 'string'
     && verification.transactionStatus === 'confirmed'
+    && typeof verification.txId === 'string'
+    && verification.txId === txId
     && checks?.recipient === true
     && checks?.asset === true
     && checks?.network === true
@@ -72,13 +81,18 @@ async function processPayment({ bounty, adapter, verifier }) {
   if (bounty.paymentStatus === PAYMENT_STATES.SUBMITTED && bounty.paymentTxId) {
     const request = paymentRequest(bounty);
     const verification = await verifier.verify({ ...request, txId: bounty.paymentTxId });
-    if (verificationPassed(verification, request)) {
+    if (verificationPassed(verification, request, bounty.paymentTxId)) {
       applyState(bounty, PAYMENT_STATES.CONFIRMED);
       bounty.status = 'paid';
       return { state: PAYMENT_STATES.CONFIRMED, verification };
     }
-    applyState(bounty, PAYMENT_STATES.FAILED, verification.reason || 'verification failed');
+    applyState(bounty, PAYMENT_STATES.FAILED, verification?.reason || 'verification failed');
     return { state: PAYMENT_STATES.FAILED, verification };
+  }
+
+  if (!adapter || typeof adapter.submit !== 'function') {
+    applyState(bounty, PAYMENT_STATES.FAILED, 'payment adapter is not configured');
+    return { state: PAYMENT_STATES.FAILED, error: 'payment adapter is not configured' };
   }
 
   try {
@@ -95,8 +109,8 @@ async function processPayment({ bounty, adapter, verifier }) {
 
   const request = paymentRequest(bounty);
   const verification = await verifier.verify({ ...request, txId: bounty.paymentTxId });
-  if (!verificationPassed(verification, request)) {
-    applyState(bounty, PAYMENT_STATES.FAILED, verification.reason || 'verification failed');
+  if (!verificationPassed(verification, request, bounty.paymentTxId)) {
+    applyState(bounty, PAYMENT_STATES.FAILED, verification?.reason || 'verification failed');
     return { state: PAYMENT_STATES.FAILED, verification };
   }
   applyState(bounty, PAYMENT_STATES.CONFIRMED);
