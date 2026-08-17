@@ -1,5 +1,6 @@
 const BountyConfig = require('../models/bountyConfigModel');
 const axios = require('axios');
+const { PAYMENT_STATES, processPayment } = require('../services/paymentLifecycle');
 
 const GATEWAY_URL = process.env.GATEWAY_URL || 'https://myzubsterapp.onrender.com';
 
@@ -17,12 +18,15 @@ exports.createBounty = async (req, res) => {
       bounty.rewardAmount = amount;
       bounty.repository = repository;
       bounty.status = 'open';
+      bounty.paymentStatus = PAYMENT_STATES.PENDING;
       await bounty.save();
     } else {
       bounty = new BountyConfig({
         issueNumber,
         repository,
-        rewardAmount: amount
+        rewardAmount: amount,
+        paymentAsset: process.env.MYZ_PAYMENT_ASSET || 'MYZ',
+        paymentNetwork: process.env.MYZ_PAYMENT_NETWORK || 'Tari'
       });
       await bounty.save();
     }
@@ -120,33 +124,40 @@ exports.processMerge = async (req, res) => {
       bounty.claimedBy = contributor;
       bounty.prNumber = pr.number;
       
-      // Credit MYZ via Gateway /mint endpoint
       try {
-        const mintResponse = await axios.post(`${GATEWAY_URL}/api/bounties/mint`, {
-          walletAddress: contributor,
-          amount: bounty.rewardAmount,
-          reason: `PR #${pr.number} merged for issue #${issueNumber}`,
-          issueNumber: issueNumber,
-          prNumber: pr.number
-        }, { timeout: 10000 });
-        
-        bounty.status = 'paid';
-        bounty.paidAt = new Date();
+        const adapter = { submit: async request => {
+          const response = await axios.post(`${GATEWAY_URL}/api/bounties/mint`, {
+            walletAddress: request.recipient,
+            amount: request.amount,
+            asset: request.asset,
+            network: request.network,
+            issueNumber: request.issueNumber,
+            prNumber: request.prNumber
+          }, { timeout: 10000 });
+          return { txId: response.data?.txId, simulated: response.data?.simulated === true };
+        }};
+        // The real chain/RPC verifier is intentionally not bundled in this first PR.
+        // Without one, an adapter response must never become a paid state.
+        const verifier = { verify: async () => ({
+          valid: false,
+          reason: 'payment verifier is not configured'
+        })};
+        const result = await processPayment({ bounty, adapter, verifier });
+        bounty.paidAt = result.state === PAYMENT_STATES.CONFIRMED ? new Date() : null;
         await bounty.save();
         processed.push({
           issueNumber,
           rewardAmount: bounty.rewardAmount,
           currency: bounty.currency,
-          mintTxId: mintResponse.data?.txId || null
+          paymentStatus: result.state,
+          mintTxId: bounty.paymentTxId || null,
+          error: result.error || result.verification?.reason
         });
-      } catch (mintError) {
-        bounty.status = 'completed';
+      } catch (paymentError) {
+        bounty.paymentStatus = PAYMENT_STATES.FAILED;
+        bounty.paymentFailureReason = paymentError.message;
         await bounty.save();
-        processed.push({
-          issueNumber,
-          rewardAmount: bounty.rewardAmount,
-          error: 'Mint failed: ' + (mintError.response?.data?.error || mintError.message)
-        });
+        processed.push({ issueNumber, rewardAmount: bounty.rewardAmount, paymentStatus: PAYMENT_STATES.FAILED, error: paymentError.message });
       }
     }
     

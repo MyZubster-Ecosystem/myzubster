@@ -10,6 +10,7 @@ jest.mock('axios', () => ({ post: jest.fn() }));
 
 const axios = require('axios');
 const controller = require('../src/controllers/bountySystemController');
+const { PAYMENT_STATES, processPayment, transition } = require('../src/services/paymentLifecycle');
 
 function response() {
   return {
@@ -46,9 +47,14 @@ describe('bounty system', () => {
     expect(mockBountyConfig.findOne).not.toHaveBeenCalled();
   });
 
-  test('merged PR mints and marks the matching bounty paid', async () => {
+  test('merged PR submits but does not mark paid without an independent verifier', async () => {
     const bounty = {
       status: 'open',
+      paymentStatus: 'PENDING',
+      paymentRecipient: '12abc',
+      paymentAsset: 'MYZ',
+      paymentNetwork: 'Tari',
+      issueNumber: 289,
       rewardAmount: 25,
       currency: 'MYZ',
       save: jest.fn().mockResolvedValue(undefined),
@@ -80,7 +86,8 @@ describe('bounty system', () => {
       expect.objectContaining({ amount: 25, issueNumber: 289, prNumber: 300 }),
       { timeout: 10000 },
     );
-    expect(bounty.status).toBe('paid');
+    expect(bounty.status).toBe('completed');
+    expect(bounty.paymentStatus).toBe('FAILED');
     expect(bounty.claimedBy).toBe('contributor');
     expect(bounty.save).toHaveBeenCalledTimes(1);
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
@@ -90,7 +97,9 @@ describe('bounty system', () => {
         issueNumber: 289,
         rewardAmount: 25,
         currency: 'MYZ',
+        paymentStatus: 'FAILED',
         mintTxId: 'mint-123',
+        error: 'payment verifier is not configured',
       }],
     }));
   });
@@ -98,6 +107,11 @@ describe('bounty system', () => {
   test('mint failure leaves the bounty completed for retry', async () => {
     const bounty = {
       status: 'open',
+      paymentStatus: 'PENDING',
+      paymentRecipient: '12abc',
+      paymentAsset: 'MYZ',
+      paymentNetwork: 'Tari',
+      issueNumber: 289,
       rewardAmount: 10,
       currency: 'MYZ',
       save: jest.fn().mockResolvedValue(undefined),
@@ -121,12 +135,48 @@ describe('bounty system', () => {
     }, res);
 
     expect(bounty.status).toBe('completed');
+    expect(bounty.paymentStatus).toBe('FAILED');
     expect(bounty.save).toHaveBeenCalledTimes(1);
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
       bountiesProcessed: [expect.objectContaining({
         issueNumber: 289,
-        error: 'Mint failed: gateway unavailable',
+        error: 'gateway unavailable',
       })],
     }));
+  });
+
+  test('rejects invalid lifecycle transitions', () => {
+    expect(() => transition(PAYMENT_STATES.CONFIRMED, PAYMENT_STATES.SUBMITTED)).toThrow('Invalid payment transition');
+  });
+
+  test('does not confirm simulated adapter responses', async () => {
+    const bounty = { paymentStatus: 'PENDING', paymentRecipient: '12abc', paymentAsset: 'MYZ', paymentNetwork: 'Tari', rewardAmount: 25 };
+    const result = await processPayment({
+      bounty,
+      adapter: { submit: jest.fn().mockResolvedValue({ simulated: true }) },
+      verifier: { verify: jest.fn() }
+    });
+    expect(result.state).toBe('FAILED');
+    expect(bounty.paymentStatus).toBe('FAILED');
+  });
+
+  test('reconciles a submitted payment without submitting twice', async () => {
+    const bounty = { paymentStatus: 'SUBMITTED', paymentTxId: 'tx-1', paymentRecipient: '12abc', paymentAsset: 'MYZ', paymentNetwork: 'Tari', rewardAmount: 25 };
+    const adapter = { submit: jest.fn() };
+    const verifier = { verify: jest.fn().mockResolvedValue({ valid: true }) };
+    const result = await processPayment({ bounty, adapter, verifier });
+    expect(result.state).toBe('CONFIRMED');
+    expect(adapter.submit).not.toHaveBeenCalled();
+    expect(bounty.status).toBe('paid');
+  });
+
+  test('is replay-safe after confirmation', async () => {
+    const bounty = { paymentStatus: 'CONFIRMED', paymentTxId: 'tx-1' };
+    const adapter = { submit: jest.fn() };
+    const verifier = { verify: jest.fn() };
+    const result = await processPayment({ bounty, adapter, verifier });
+    expect(result).toEqual({ state: 'CONFIRMED', replay: true });
+    expect(adapter.submit).not.toHaveBeenCalled();
+    expect(verifier.verify).not.toHaveBeenCalled();
   });
 });

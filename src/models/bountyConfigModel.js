@@ -25,6 +25,18 @@ const bountyConfigSchema = new mongoose.Schema({
     enum: ['open', 'claimed', 'completed', 'paid'],
     default: 'open'
   },
+  paymentStatus: {
+    type: String,
+    enum: ['PENDING', 'SUBMITTED', 'CONFIRMED', 'FAILED', 'CANCELLED'],
+    default: 'PENDING'
+  },
+  paymentNetwork: { type: String, default: 'Tari' },
+  paymentAsset: { type: String, default: 'MYZ' },
+  paymentRecipient: { type: String, default: null },
+  paymentTxId: { type: String, default: null },
+  paymentFailureReason: { type: String, default: null },
+  paymentSubmittedAt: { type: Date, default: null },
+  paymentConfirmedAt: { type: Date, default: null },
   claimedBy: {
     type: String,
     default: null
