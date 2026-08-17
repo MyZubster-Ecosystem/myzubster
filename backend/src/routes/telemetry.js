@@ -10,6 +10,7 @@ const NUMERIC_RANGES = {
   humidity: { min: 0, max: 100 },
   battery: { min: 0, max: 100 },
   cpuTemperature: { min: -20, max: 150 },
+  signalStrength: { min: -200, max: 100 },
 };
 
 function validateSample(body) {
@@ -22,11 +23,17 @@ function validateSample(body) {
   for (const key of Object.keys(NUMERIC_RANGES)) {
     if (body[key] !== undefined && body[key] !== null) {
       const value = Number(body[key]);
-      if (Number.isNaN(value)) {
+      if (!Number.isFinite(value)) {
         errors.push(key + ' must be numeric');
       } else if (value < NUMERIC_RANGES[key].min || value > NUMERIC_RANGES[key].max) {
         errors.push(key + ' must be between ' + NUMERIC_RANGES[key].min + ' and ' + NUMERIC_RANGES[key].max);
       }
+    }
+  }
+  if (body.timestamp !== undefined && body.timestamp !== null && body.timestamp !== '') {
+    const timestamp = new Date(body.timestamp);
+    if (Number.isNaN(timestamp.getTime())) {
+      errors.push('timestamp must be a valid date');
     }
   }
   return errors;
