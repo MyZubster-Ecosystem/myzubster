@@ -31,10 +31,10 @@ jobs:
       - name: Install locked dependencies
         run: npm ci --ignore-scripts
 
-      - name: Audit production dependencies
+      - name: Audit all dependencies
         run: |
           set +e
-          npm audit --omit=dev --json > npm-audit.json
+          npm audit --json > npm-audit.json
           status=$?
           cat npm-audit.json
           exit $status
