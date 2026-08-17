@@ -1,9 +1,8 @@
 const Payment = require('../models/Payment');
+const { verifyXmrPayment } = require('./xmrVerifier');
 
 const PAYMENT_STATES = ['PENDING', 'SUBMITTED', 'CONFIRMED', 'FAILED', 'CANCELLED'];
 
-// A payment can only move forward through a strict, explicit state machine.
-// Confirmed (paid) is a terminal state and requires a real transaction hash.
 const VALID_TRANSITIONS = {
   PENDING: ['SUBMITTED', 'CANCELLED'],
   SUBMITTED: ['CONFIRMED', 'FAILED'],
@@ -12,9 +11,6 @@ const VALID_TRANSITIONS = {
   CANCELLED: [],
 };
 
-// MYZ is currently a project-specific internal accounting unit. It is not yet
-// tokenized on-chain. This metadata documents the payment rails explicitly so
-// a MYZ payment is never mistaken for a settled blockchain transfer.
 const MYZ_METADATA = {
   network: 'Tari (project-specific internal accounting unit - not tokenized on-chain)',
   contract: null,
@@ -55,9 +51,7 @@ async function submitPayment(id, txid) {
   return payment;
 }
 
-// A real payment is only CONFIRMED with a genuine transaction hash. Simulated
-// payments can never be confirmed - this is the core integrity guarantee.
-async function confirmPayment(id, txid) {
+async function confirmPayment(id, txid, verifier = verifyXmrPayment) {
   const payment = await Payment.findById(id);
   if (!payment) throw new Error('Payment not found');
   if (payment.kind === 'simulated') {
@@ -67,8 +61,32 @@ async function confirmPayment(id, txid) {
   if (!isValidTransition(payment.state, 'CONFIRMED')) {
     throw new Error('Cannot confirm from state ' + payment.state);
   }
+
+  if (payment.currency !== 'XMR') {
+    throw new Error('No independent verifier is configured for ' + payment.currency);
+  }
+
+  const verification = await verifier({
+    txid,
+    address: payment.address,
+    amount: payment.amount,
+    currency: payment.currency,
+    issueId: payment.issueId,
+  });
+
+  if (!verification || verification.verified !== true) {
+    throw new Error('Payment transaction could not be independently verified');
+  }
+
   payment.state = 'CONFIRMED';
   payment.txid = txid;
+  payment.metadata = Object.assign({}, payment.metadata || {}, {
+    verification: {
+      verified: true,
+      confirmations: verification.confirmations,
+      verifiedAt: new Date().toISOString(),
+    },
+  });
   await payment.save();
   return payment;
 }
