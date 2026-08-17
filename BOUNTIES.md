@@ -2,11 +2,31 @@
 
 Questo documento descrive il sistema di bounty del progetto MyZubster, il ciclo di vita delle issue e le regole per contributor e pagamenti.
 
----
+## Reward multi-asset
 
-## 📌 Mappatura bounty
+Una bounty può avere una o più componenti di reward esplicite:
 
-Le bounty originariamente descritte nella documentazione dello Space Station MVP sono state formalizzate come issue pubbliche nel repository principale.
+- `MYZ` — rail disponibile subito;
+- `XMR` — selezionabile anche prima del lancio del Treasury/payment rail XMR, ma resta `pending` fino all'attivazione e verifica;
+- `TOKEN` — token blockchain identificato da chain/network ID e contract address; resta `pending` finché il relativo payment rail non è abilitato;
+- combinazioni `MYZ + XMR`, `MYZ + TOKEN`, `XMR + TOKEN` o `MYZ + XMR + TOKEN`.
+
+Non sono ammesse conversioni implicite tra asset.
+
+Per ogni componente vengono registrati asset, quantità canonica, stato, network (se applicabile), contract address (token), wallet del contributor, transaction ID e riferimenti di funding/verifica.
+
+## Wallet contributor
+
+Il contributor fornisce il wallet di destinazione per ogni asset selezionato. Il wallet ricevuto è l'unico destinatario della payment attempt.
+
+- Nessun fallback silenzioso a un wallet della piattaforma.
+- Wallet mancante o non valido blocca il settlement.
+- Dopo l'inizio del settlement, il wallet è immutabile per quella attempt.
+- Una correzione richiede cancellazione/reissue e audit trail.
+
+Non pubblicare mai private key, seed phrase, password o altri segreti.
+
+## Mappatura bounty
 
 | Originale | Issue | Titolo | Ricompensa | Stato |
 |-----------|-------|--------|------------|-------|
@@ -16,92 +36,86 @@ Le bounty originariamente descritte nella documentazione dello Space Station MVP
 | #004 | [#393](https://github.com/MyZubster-Ecosystem/myzubster/issues/393) | Gateway API Integration | 250 MYZ | `AVAILABLE` |
 | #005 | [#394](https://github.com/MyZubster-Ecosystem/myzubster/issues/394) | MYZ/XMR Payment Integration | 250 MYZ | `AVAILABLE` |
 
----
+## Ciclo di vita
 
-## 🔄 Ciclo di vita di una bounty
-
-Ogni bounty segue questa sequenza di stati:
+```text
 AVAILABLE
 ↓
-CLAIMED (contributor dichiara di volerla prendere in carico)
+CLAIMED
 ↓
-IN PROGRESS (il lavoro è iniziato)
+IN PROGRESS
 ↓
-PR OPEN (pull request aperta per revisione)
+PR OPEN
 ↓
-MERGED (PR approvata e mergiata)
+MERGED
 ↓
-PAYMENT PENDING (pagamento in corso di elaborazione)
+PAYMENT PENDING
 ↓
-PAYMENT VERIFIED (pagamento confermato e verificabile)
-text
+PAYMENT SUBMITTED
+↓
+PAYMENT VERIFIED
+↓
+PAID
+```
 
+Per reward multi-asset, ogni componente ha il proprio settlement state. La bounty diventa `PAID` solo quando tutte le componenti previste hanno completato la verifica richiesta.
 
-Il label `bounty:paid` viene applicato **solo** quando il pagamento è stato verificato.
+Il label `bounty:paid` viene applicato solo quando il pagamento è verificato.
 
----
+## Claim e wallet
 
-## 📝 Come fare claim di una bounty
+Il claim deve dichiarare contributor, issue, PR quando disponibile, reward richiesto e destinazioni wallet per gli asset selezionati.
 
-1. **Commenta** sull'issue con il template:
-   ```markdown
-   ## Bounty claim
+Esempio:
 
-   **Contributor:** @TUO_USERNAME
-   **Issue:** #XXX
-   **PR:** #XXX (dopo averlo aperto)
-   **Requested reward:** 250 MYZ
-   **Wallet / payment destination:** [indirizzo pubblico]
-   **Payment network:** [XMR / MYZ]
-   **Payment status:** PENDING
+```markdown
+## Bounty claim
 
-   > Never post private keys, seed phrases, passwords, or other secrets.
+**Contributor:** @TUO_USERNAME
+**Issue:** #XXX
+**PR:** #XXX
+**Requested reward:** MYZ + XMR
+**Wallet MYZ:** [indirizzo pubblico]
+**Wallet XMR:** [indirizzo pubblico]
+**Payment status:** PENDING
 
-    Apri una pull request che risolve l'issue.
+> Never post private keys, seed phrases, passwords, or other secrets.
+```
 
-    Attendi la review e le eventuali modifiche richieste.
+## Verifica pagamento
 
-    Dopo il merge, il pagamento verrà elaborato e registrato pubblicamente.
+Il merge della PR non costituisce prova di pagamento.
 
-💰 Pagamento e verifica
+Prima di `CONFIRMED`/`PAID`, una verifica indipendente deve controllare almeno:
 
-    Il pagamento viene effettuato dopo il merge della PR.
+- recipient/wallet;
+- asset;
+- network/chain ID;
+- contract address per i token;
+- quantità canonica;
+- transaction ID/hash;
+- stato della transazione e conferme richieste.
 
-    La bounty non è considerata pagata fino a quando non viene registrato un transaction ID verificabile.
+Un response dell'adapter da solo non è sufficiente per segnare `PAID`.
 
-    Per pagamenti in XMR, il TXID deve essere pubblicato nella issue.
+## Treasury
 
-    Per pagamenti in MYZ, devono essere documentati blockchain/network, contratto/token e TXID.
+Per XMR e token il flusso economico è:
 
-Esempio di verifica pagamento
-markdown
+```text
+Market revenue
+    ↓
+Treasury
+    ↓
+Bounty allocation / reservation
+    ↓
+Contributor wallet
+    ↓
+Payment submission
+    ↓
+Independent verification
+    ↓
+PAID
+```
 
-## Payment verification
-
-**Bounty:** #XXX
-**Contributor:** @USERNAME
-**Amount:** 250 MYZ
-**Currency:** XMR
-**Network:** Monero mainnet
-**Transaction ID:** [TXID]
-**Status:** CONFIRMED
-**Verification:** [link a explorer o evidenza verificabile]
-
-⚠️ Regole importanti
-
-    Nessuna chiave privata, seed phrase o segreto deve essere mai committato o pubblicato.
-
-    Solo indirizzi pubblici e TXID possono essere inclusi nella documentazione delle issue.
-
-    Il merge di una PR non costituisce prova di pagamento.
-
-    La bounty è una ricompensa dichiarata dal progetto; il pagamento deve essere separatamente registrato e verificabile.
-
-🔗 Riferimenti
-
-    Space Station README
-
-    Repository principale
-
-    Issue aperte
-
+L'allocazione dei fondi non equivale al pagamento e il pagamento inviato non equivale alla conferma.
