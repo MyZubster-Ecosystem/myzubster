@@ -1,126 +1,106 @@
-# 🚀 MyZubster Space Station MVP
+# MyZubster Space Station MVP
 
-Space Station è il sistema centrale di MyZubster per la gestione di missioni, telemetria, dashboard e integrazione con il gateway e i pagamenti.
+Sistema centrale di MyZubster per missioni, telemetria, dashboard e integrazione con Gateway e servizi di pagamento.
 
----
+## Stato del progetto
 
-## 📌 Stato del progetto
+**MVP in sviluppo e validazione.** Il core del repository è coperto da CI con test e build su Node.js 18 e 20. Le integrazioni Gateway, settlement e pagamento sono soggette a validazione progressiva e non devono essere considerate automaticamente production-ready.
 
-Questo repository contiene il **codice sorgente** e la **documentazione** del MVP di Space Station.
+### Componenti
 
-- **Backend**: Express.js + MongoDB
-- **Test**: Jest + Supertest
-- **Simulatore**: Eva Ioni (Python)
-- **Dashboard**: UI web (React / HTML + JS)
-- **Gateway**: Integrazione con MyZubster Gateway
-- **Payments**: XMR / MYZ (simulazione + reale)
+- **Backend:** Express.js + MongoDB
+- **Test:** Jest + Supertest
+- **Simulatore:** Eva Ioni (Python)
+- **Dashboard:** UI web
+- **Gateway:** integrazione con MyZubster Gateway
+- **Payments:** flussi MYZ/XMR con componenti simulate e/o in validazione, a seconda dell'ambiente
 
----
+## Struttura
 
-## 📂 Struttura del repository
+```text
 myzubster-space-station/
-├── backend/ # API e logica di business
-│ ├── src/
-│ │ ├── models/ # Modelli MongoDB
-│ │ ├── routes/ # Endpoint API
-│ │ ├── services/ # Servizi (geocoding, telemetry, ecc.)
-│ │ └── index.js # Entry point del server
-│ └── tests/ # Test di integrazione
-├── dashboard/ # UI web (React o HTML/JS)
-├── simulator/ # Eva Ioni Simulator (Python)
-├── gateway/ # Integrazione con Gateway
-├── docs/ # Documentazione aggiuntiva
-└── README.md # Questo file
-text
+├── backend/       # API e logica di business
+├── dashboard/     # UI web
+├── simulator/     # Eva Ioni Simulator
+├── gateway/       # Integrazione Gateway
+├── docs/          # Documentazione
+└── README.md
+```
 
-
----
-
-## 🚀 Avvio rapido
+## Avvio rapido
 
 ### Prerequisiti
 
-- Node.js (v20+)
-- MongoDB (locale o Atlas)
-- Python 3 (per il simulatore, opzionale)
+- Node.js 20+
+- MongoDB locale o Atlas
+- Python 3 (opzionale, per il simulatore)
 
 ### Installazione
 
 ```bash
-git clone https://github.com/MyZubster-Ecosystem/myzubster-space-station.git
-cd myzubster-space-station
-npm install
+git clone https://github.com/MyZubster-Ecosystem/myzubster.git
+cd myzubster
+npm ci
+```
 
-Variabili d'ambiente
+Crea un `.env` appropriato per l'ambiente, quindi avvia il backend:
 
-Crea un file .env nella root:
-env
-
-PORT=5003
-MONGODB_URI=mongodb://localhost:27017/myzubster
-NODE_ENV=development
-
-Avvio del server
-bash
-
+```bash
 node backend/src/index.js
+```
 
-Avvio del simulatore Eva Ioni (opzionale)
-bash
+Per il simulatore:
 
+```bash
 python simulator/eva_ioni_simulator.py
+```
 
-Dashboard (opzionale)
-bash
+## API principali
 
-cd dashboard
-npm start
+| Endpoint | Metodo | Descrizione |
+|---|---|---|
+| `/health` | GET | Stato del servizio |
+| `/api/telemetry` | GET/POST | Gestione telemetria |
+| `/api/gardens` | CRUD | Gestione orti |
+| `/api/gateway` | POST | Integrazione Gateway |
 
-📡 API principali
-Endpoint	Metodo	Descrizione
-/health	GET	Stato del servizio
-/api/telemetry	POST	Invia telemetria
-/api/telemetry	GET	Recupera telemetria
-/api/gardens	CRUD	Gestione orti (esempio)
-/api/gateway	POST	Integrazione Gateway
-🧪 Test
-bash
+La documentazione API dettagliata è in evoluzione e deve essere verificata contro l'ambiente in uso prima di integrazioni esterne.
 
-NODE_ENV=test npm test
+## Test e CI
 
-Per eseguire solo i test del backend:
-bash
+Localmente:
 
-NODE_ENV=test npx jest backend/tests/ --runInBand
+```bash
+npm test
+npm run build --if-present
+```
 
-🌱 Bounties
+La CI principale esegue installazione riproducibile, test e build su Node.js 18 e 20. Il lint viene eseguito quando è configurato nel repository.
 
-Il progetto MyZubster sostiene 5 bounty attive, formalizzate come issue pubbliche nel repository principale.
-Originale	GitHub Issue	Titolo	Ricompensa	Stato
-#001	#390	Eva Ioni Simulator	250 MYZ	AVAILABLE
-#002	#391	Space Station Telemetry System	250 MYZ	AVAILABLE
-#003	#392	Space Station Telemetry Dashboard	250 MYZ	AVAILABLE
-#004	#393	Gateway API Integration	250 MYZ	AVAILABLE
-#005	#394	MYZ/XMR Payment Integration	250 MYZ	AVAILABLE
+## Bounties
 
-Una bounty non è considerata pagata semplicemente perché l'issue è stata chiusa o la PR mergiata. Il pagamento deve essere separatamente registrato e verificabile.
+Le bounty pubbliche e il relativo ciclo di vita sono documentati nel repository principale tramite `BOUNTIES.md`.
 
-Per dettagli sul processo di bounty, consulta il file BOUNTIES.md nel repository principale.
-📖 Documentazione aggiuntiva
+Una bounty non è considerata pagata semplicemente perché un'issue è stata chiusa o una PR è stata mergiata: il pagamento deve essere registrato separatamente e verificabile.
 
-    BOUNTIES.md – Processo bounty
+## Sicurezza e production readiness
 
-    CONTRIBUTING.md – Linee guida per contribuire
+Il repository include attività di hardening delle dipendenze e controlli CI. Prima di un deployment production devono essere verificati almeno:
 
-    API Documentation – Dettaglio endpoint (WIP)
+- dipendenze e vulnerabilità;
+- secret e variabili d'ambiente;
+- health check e monitoring;
+- gestione degli errori e retry;
+- backup/rollback;
+- test dei flussi di settlement e pagamento;
+- comportamento in caso di timeout, duplicazione o fallimento del provider.
 
-🤝 Contribuire
+**Non inserire secret, seed, chiavi private o credenziali nei repository.**
 
-Siamo aperti a contributi! Segui la guida in CONTRIBUTING.md e consulta le issue aperte.
-📜 Licenza
+## Licenza
 
-[Specificare la licenza, es. MIT]
-⚠️ Nota importante
+MIT License. Vedi `LICENSE`.
 
-Questo è un progetto MVP in fase di sviluppo. Alcune funzionalità potrebbero essere simulate o in memoria. Non utilizzare in produzione senza opportuna verifica.
+## Nota
 
+Questo progetto è un MVP in fase di sviluppo e validazione. Alcune funzionalità possono essere simulate, in memoria o limitate all'ambiente di test. Non utilizzare in produzione senza una verifica specifica dell'ambiente e dei flussi coinvolti.
