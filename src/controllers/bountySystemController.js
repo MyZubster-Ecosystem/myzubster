@@ -1,5 +1,6 @@
 const BountyConfig = require('../models/bountyConfigModel');
 const axios = require('axios');
+const { PAYMENT_STATES, processPayment } = require('../services/paymentLifecycle');
 
 const GATEWAY_URL = process.env.GATEWAY_URL || 'https://myzubsterapp.onrender.com';
 const SUPPORTED_ASSETS = new Set(['MYZ', 'XMR', 'TOKEN']);
@@ -32,9 +33,10 @@ exports.createBounty = async (req, res) => {
       bounty.repository = repository;
       bounty.rewardComponents = components;
       bounty.status = 'open';
+      bounty.paymentStatus = PAYMENT_STATES.PENDING;
       await bounty.save();
     } else {
-      bounty = new BountyConfig({ issueNumber, repository, rewardAmount: amount, currency: components.length === 1 ? components[0].asset : 'MULTI', rewardComponents: components });
+      bounty = new BountyConfig({ issueNumber, repository, rewardAmount: amount, currency: components.length === 1 ? components[0].asset : 'MULTI', rewardComponents: components, paymentAsset: process.env.MYZ_PAYMENT_ASSET || components[0].asset, paymentNetwork: process.env.MYZ_PAYMENT_NETWORK || components[0].network || 'Tari' });
       await bounty.save();
     }
     res.json({ message: 'Bounty created/updated', bounty: { issueNumber: bounty.issueNumber, repository: bounty.repository, rewardAmount: bounty.rewardAmount, currency: bounty.currency, rewardComponents: bounty.rewardComponents, status: bounty.status } });
@@ -82,8 +84,7 @@ exports.setPaymentWallets = async (req, res) => {
 
 exports.processMerge = async (req, res) => {
   try {
-    const event = req.headers['x-github-event'];
-    if (event !== 'pull_request') return res.json({ message: 'Ignored: not a pull request event' });
+    if (req.headers['x-github-event'] !== 'pull_request') return res.json({ message: 'Ignored: not a pull request event' });
     if (req.body.action !== 'closed' || !req.body.pull_request?.merged) return res.json({ message: 'Ignored: PR not merged' });
     const pr = req.body.pull_request;
     const repository = req.body.repository?.full_name;
@@ -91,16 +92,14 @@ exports.processMerge = async (req, res) => {
     const closingIssuesRef = pr.body?.match(/(?:closes|fixes|resolves)\s+#(\d+)/gi) || [];
     const issueNumbers = closingIssuesRef.map(m => parseInt(m.match(/\d+/)[0]));
     const processed = [];
-
     for (const issueNumber of issueNumbers) {
       const bounty = await BountyConfig.findOne({ issueNumber, repository });
       if (!bounty || bounty.status === 'paid') continue;
-      const legacyReward = !bounty.rewardComponents?.length;
       bounty.status = 'completed';
       bounty.claimedBy = contributor;
       bounty.prNumber = pr.number;
+      const legacyReward = !bounty.rewardComponents?.length;
       const components = legacyReward ? normalizeRewardComponents(null, bounty.rewardAmount, bounty.currency) : bounty.rewardComponents;
-
       if (hasPendingNonMyz(components)) {
         bounty.rewardComponents = components;
         bounty.status = 'payment_pending';
@@ -108,24 +107,23 @@ exports.processMerge = async (req, res) => {
         processed.push({ issueNumber, rewardComponents: components, status: 'payment_pending', message: 'Non-MYZ reward rail is not yet online; no payment was submitted' });
         continue;
       }
-
+      const myz = components.find(component => component.asset === 'MYZ');
+      const walletAddress = myz?.walletAddress || bounty.paymentWallet || bounty.paymentRecipient || contributor;
+      bounty.paymentRecipient = walletAddress;
+      bounty.paymentAsset = myz?.asset || bounty.paymentAsset || 'MYZ';
+      bounty.paymentNetwork = myz?.network || bounty.paymentNetwork || 'Tari';
       try {
-        const myz = components.find(component => component.asset === 'MYZ');
-        const walletAddress = myz?.walletAddress || bounty.paymentWallet || contributor;
-        const mintResponse = await axios.post(`${GATEWAY_URL}/api/bounties/mint`, { walletAddress, amount: Number(myz.amount), reason: `PR #${pr.number} merged for issue #${issueNumber}`, issueNumber, prNumber: pr.number }, { timeout: 10000 });
-        myz.status = 'paid';
-        myz.txId = mintResponse.data?.txId || null;
-        bounty.rewardComponents = components;
-        bounty.status = 'paid';
-        bounty.paidAt = new Date();
+        const adapter = { submit: async request => { const response = await axios.post(`${GATEWAY_URL}/api/bounties/mint`, { walletAddress: request.recipient, amount: request.amount, asset: request.asset, network: request.network, issueNumber: request.issueNumber, prNumber: request.prNumber }, { timeout: 10000 }); return { txId: response.data?.txId, simulated: response.data?.simulated === true }; } };
+        const verifier = null;
+        const result = await processPayment({ bounty, adapter, verifier });
+        bounty.paidAt = result.state === PAYMENT_STATES.CONFIRMED ? new Date() : null;
         await bounty.save();
-        const result = { issueNumber, rewardAmount: bounty.rewardAmount, currency: bounty.currency, mintTxId: mintResponse.data?.txId || null };
-        if (!legacyReward) result.rewardComponents = components;
-        processed.push(result);
-      } catch (mintError) {
-        bounty.status = 'completed';
+        processed.push({ issueNumber, rewardAmount: bounty.rewardAmount, currency: bounty.currency, paymentStatus: result.state, mintTxId: bounty.paymentTxId || null, error: result.error || result.verification?.reason });
+      } catch (paymentError) {
+        bounty.paymentStatus = PAYMENT_STATES.FAILED;
+        bounty.paymentFailureReason = paymentError.message;
         await bounty.save();
-        processed.push({ issueNumber, rewardAmount: bounty.rewardAmount, error: 'Mint failed: ' + (mintError.response?.data?.error || mintError.message) });
+        processed.push({ issueNumber, rewardAmount: bounty.rewardAmount, paymentStatus: PAYMENT_STATES.FAILED, error: paymentError.message });
       }
     }
     res.json({ message: 'PR merge processed', contributor, prNumber: pr.number, bountiesProcessed: processed });
