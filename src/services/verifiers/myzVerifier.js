@@ -4,9 +4,7 @@ const DEFAULT_TIMEOUT_MS = 5000;
 
 function requireVerifierUrl() {
   const url = String(process.env.MYZ_VERIFIER_URL || '').trim();
-  if (!url) {
-    throw new Error('MYZ independent verifier is not configured');
-  }
+  if (!url) throw new Error('MYZ independent verifier is not configured');
   return url.replace(/\/$/, '');
 }
 
@@ -19,15 +17,12 @@ function createMyzVerifier() {
   return {
     async verify(request) {
       const url = requireVerifierUrl();
-      if (!request || typeof request !== 'object') {
-        throw new Error('MYZ verifier request is invalid');
-      }
-      if (!request.txId) {
-        throw new Error('MYZ verifier requires txId');
-      }
-      if (request.asset && request.asset !== 'MYZ') {
-        throw new Error('MYZ verifier only accepts MYZ payments');
-      }
+      if (!request || typeof request !== 'object') throw new Error('MYZ verifier request is invalid');
+      if (!request.txId) throw new Error('MYZ verifier requires txId');
+      if (request.asset && request.asset !== 'MYZ') throw new Error('MYZ verifier only accepts MYZ payments');
+      if (!request.recipient) throw new Error('MYZ verifier requires recipient');
+      if (request.network !== 'Tari') throw new Error('MYZ verifier requires Tari network');
+      if (request.amount === undefined || request.amount === null) throw new Error('MYZ verifier requires amount');
 
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), timeoutMs());
@@ -35,10 +30,7 @@ function createMyzVerifier() {
       try {
         const response = await fetch(url, {
           method: 'POST',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json'
-          },
+          headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
           body: JSON.stringify({
             txId: request.txId,
             recipient: request.recipient,
@@ -52,26 +44,17 @@ function createMyzVerifier() {
         });
 
         const body = await response.text();
-        let data = null;
+        let data;
         try {
           data = body ? JSON.parse(body) : null;
         } catch (_) {
           throw new Error('MYZ verifier returned invalid JSON');
         }
-
-        if (!response.ok) {
-          throw new Error(`MYZ verifier HTTP ${response.status}`);
-        }
-
-        if (!data || typeof data !== 'object') {
-          throw new Error('MYZ verifier returned an invalid response');
-        }
-
+        if (!response.ok) throw new Error(`MYZ verifier HTTP ${response.status}`);
+        if (!data || typeof data !== 'object') throw new Error('MYZ verifier returned an invalid response');
         return data;
       } catch (error) {
-        if (error.name === 'AbortError') {
-          throw new Error('MYZ verifier request timed out');
-        }
+        if (error.name === 'AbortError') throw new Error('MYZ verifier request timed out');
         throw error;
       } finally {
         clearTimeout(timer);
@@ -80,7 +63,4 @@ function createMyzVerifier() {
   };
 }
 
-module.exports = {
-  createMyzVerifier,
-  DEFAULT_TIMEOUT_MS
-};
+module.exports = { createMyzVerifier, DEFAULT_TIMEOUT_MS };
