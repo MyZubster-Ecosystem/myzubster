@@ -31,7 +31,7 @@ router.get('/', async (_req, res) => {
   }
 });
 
-// GET /api/bounty-payments/myz/metadata - MYZ payment rail documentation
+// Keep the static metadata route before /:id so "myz" is never treated as an id.
 router.get('/myz/metadata', (_req, res) => {
   res.json({ success: true, data: payments.MYZ_METADATA });
 });
@@ -57,7 +57,7 @@ router.post('/:id/submit', async (req, res) => {
   }
 });
 
-// POST /api/bounty-payments/:id/confirm - SUBMITTED -> CONFIRMED (requires real txid)
+// POST /api/bounty-payments/:id/confirm - SUBMITTED -> CONFIRMED after independent XMR verification
 router.post('/:id/confirm', async (req, res) => {
   try {
     const payment = await payments.confirmPayment(req.params.id, req.body && req.body.txid);
