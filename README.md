@@ -27,6 +27,18 @@ MYZ, XMR e/o TOKEN possono essere previsti come modalità di reward secondo l'am
 - **Gateway:** integrazione con MyZubster Gateway
 - **Payments:** flussi MYZ/XMR con componenti simulate e/o in validazione, a seconda dell'ambiente
 
+## Global XMR track
+
+MyZubster mantiene un **track internazionale** per individuare use case e potenziali progetti pilota nei paesi in cui esistono community, servizi o attività documentabili legate a Monero/XMR.
+
+Questo track non equivale ad adozione di MyZubster. Ogni paese segue il percorso:
+
+**DISCOVERED → VALIDATED → CONTACTED → PILOT PROPOSED → APPROVED → FUNDED → ACTIVE → VERIFIED → REWARDED → REPORTED**.
+
+XMR è considerato un possibile **rail di settlement** solo dove tecnicamente e legalmente appropriato. MYZ/TOKEN restano asset distinti e devono essere verificati separatamente per emissione, titolarità, disponibilità e compliance.
+
+Il riferimento operativo per la mappa internazionale è **issue #484 — Global XMR Track**.
+
 ## Progetti e bounty civici
 
 Il repository e le issue possono essere utilizzati per strutturare proposte di **progetti pilota civici**, inclusi casi d'uso relativi a ambiente, verde, servizi urbani, partecipazione, robotica e altri ambiti.
@@ -39,9 +51,9 @@ Queste proposte rappresentano un **framework operativo e una proposta di collabo
 myzubster-space-station/
 ├── backend/       # API e logica di business
 ├── dashboard/     # UI web
-├── simulator/     # Eva Ioni Simulator
-├── gateway/       # Integrazione Gateway
-├── docs/          # Documentazione
+├── simulator/    # Eva Ioni Simulator
+├── gateway/      # Integrazione Gateway
+├── docs/         # Documentazione
 └── README.md
 ```
 
