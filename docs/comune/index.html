@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MyZubster — Stato del piano comunale</title>
+<style>
+body{font-family:system-ui,-apple-system,Segoe UI,sans-serif;max-width:1000px;margin:0 auto;padding:32px;line-height:1.5;color:#18212b;background:#f7f8fa}main{background:white;padding:32px;border-radius:16px;box-shadow:0 4px 24px #00000012}h1{margin-top:0}table{width:100%;border-collapse:collapse;margin-top:24px}th,td{text-align:left;padding:12px;border-bottom:1px solid #ddd;vertical-align:top}th{background:#f0f2f5}.status{font-weight:700;white-space:nowrap}.green{color:#16733a}.yellow{color:#9a6500}.red{color:#b42318}.note{background:#fff8e1;padding:16px;border-radius:10px;margin-top:24px}.date{color:#667085}footer{margin-top:24px;color:#667085;font-size:.9rem}
+</style>
+</head>
+<body><main>
+<h1>MyZubster — Stato del piano comunale</h1>
+<p class="date">Aggiornamento: 17 agosto 2026</p>
+<p><strong>Stato complessivo:</strong> 🟡 Presentabile come proposta/pilota. Le componenti ancora in verifica non sono dichiarate production-ready.</p>
+<table><thead><tr><th>Area</th><th>Stato</th><th>Situazione</th><th>Prossimo passo</th></tr></thead><tbody>
+<tr><td>🏛️ Piano comunale</td><td class="status green">🟢</td><td>Proposta/pilota definita</td><td>Presentazione al Comune</td></tr>
+<tr><td>🔐 Payment security</td><td class="status green">🟢</td><td>Flusso fail-closed rafforzato</td><td>Revisione PR #491</td></tr>
+<tr><td>🧪 Test</td><td class="status green">🟢</td><td>Aggiunta copertura sui casi critici</td><td>Esecuzione CI</td></tr>
+<tr><td>🔎 Verifier indipendente</td><td class="status red">🔴</td><td>Non ancora operativo</td><td>Completare P0 #453</td></tr>
+<tr><td>💳 Pagamenti production</td><td class="status yellow">🟡</td><td>Non dichiarabili production-ready</td><td>Verifier + audit</td></tr>
+<tr><td>🚀 Deploy production</td><td class="status yellow">🟡</td><td>Da completare</td><td>Secrets, monitoring, rollback</td></tr>
+<tr><td>📊 Audit CI/Security</td><td class="status yellow">🟡</td><td>Da verificare sul branch</td><td>Attendere workflow verdi</td></tr>
+<tr><td>🤝 Adozione Comune</td><td class="status yellow">🟡</td><td>Proposta, non partnership</td><td>Validazione istituzionale</td></tr>
+<tr><td>📋 PR #491</td><td class="status yellow">🟡</td><td>Draft pronta per review</td><td>Review → CI → eventuale merge</td></tr>
+</tbody></table>
+<div class="note"><strong>Messaggio chiave:</strong> il progetto è presentabile come proposta/pilota. Le componenti tecniche ancora in verifica vanno dichiarate apertamente come tali.</div>
+<footer>Questa pagina descrive lo stato tecnico al momento dell'aggiornamento e non costituisce approvazione, partnership o impegno del Comune.</footer>
+</main></body></html>
