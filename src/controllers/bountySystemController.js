@@ -138,10 +138,7 @@ exports.processMerge = async (req, res) => {
         }};
         // The real chain/RPC verifier is intentionally not bundled in this first PR.
         // Without one, an adapter response must never become a paid state.
-        const verifier = { verify: async () => ({
-          valid: false,
-          reason: 'payment verifier is not configured'
-        })};
+        const verifier = null;
         const result = await processPayment({ bounty, adapter, verifier });
         bounty.paidAt = result.state === PAYMENT_STATES.CONFIRMED ? new Date() : null;
         await bounty.save();

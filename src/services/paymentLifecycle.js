@@ -41,14 +41,38 @@ function applyState(bounty, next, reason = null) {
   if (next === PAYMENT_STATES.CONFIRMED) bounty.paymentConfirmedAt = new Date();
 }
 
+function requireVerifier(verifier) {
+  if (!verifier || typeof verifier.verify !== 'function') {
+    throw new Error('payment verifier is not configured');
+  }
+}
+
+function verificationPassed(verification, request) {
+  const checks = verification?.checks;
+  return verification?.valid === true
+    && verification.transactionStatus === 'confirmed'
+    && checks?.recipient === true
+    && checks?.asset === true
+    && checks?.network === true
+    && checks?.amount === true
+    && checks?.transactionStatus === true
+    && verification.recipient === request.recipient
+    && verification.asset === request.asset
+    && verification.network === request.network
+    && verification.amount === request.amount;
+}
+
 async function processPayment({ bounty, adapter, verifier }) {
   if (bounty.paymentStatus === PAYMENT_STATES.CONFIRMED) {
     return { state: PAYMENT_STATES.CONFIRMED, replay: true };
   }
 
+  requireVerifier(verifier);
+
   if (bounty.paymentStatus === PAYMENT_STATES.SUBMITTED && bounty.paymentTxId) {
-    const verification = await verifier.verify({ ...paymentRequest(bounty), txId: bounty.paymentTxId });
-    if (verification.valid) {
+    const request = paymentRequest(bounty);
+    const verification = await verifier.verify({ ...request, txId: bounty.paymentTxId });
+    if (verificationPassed(verification, request)) {
       applyState(bounty, PAYMENT_STATES.CONFIRMED);
       bounty.status = 'paid';
       return { state: PAYMENT_STATES.CONFIRMED, verification };
@@ -69,8 +93,9 @@ async function processPayment({ bounty, adapter, verifier }) {
     return { state: PAYMENT_STATES.FAILED, error: error.message };
   }
 
-  const verification = await verifier.verify({ ...paymentRequest(bounty), txId: bounty.paymentTxId });
-  if (!verification.valid) {
+  const request = paymentRequest(bounty);
+  const verification = await verifier.verify({ ...request, txId: bounty.paymentTxId });
+  if (!verificationPassed(verification, request)) {
     applyState(bounty, PAYMENT_STATES.FAILED, verification.reason || 'verification failed');
     return { state: PAYMENT_STATES.FAILED, verification };
   }

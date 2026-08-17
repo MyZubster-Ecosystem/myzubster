@@ -47,7 +47,7 @@ describe('bounty system', () => {
     expect(mockBountyConfig.findOne).not.toHaveBeenCalled();
   });
 
-  test('merged PR submits but does not mark paid without an independent verifier', async () => {
+  test('merged PR fails closed before submission without an independent verifier', async () => {
     const bounty = {
       status: 'open',
       paymentStatus: 'PENDING',
@@ -60,7 +60,7 @@ describe('bounty system', () => {
       save: jest.fn().mockResolvedValue(undefined),
     };
     mockBountyConfig.findOne.mockResolvedValue(bounty);
-    axios.post.mockResolvedValue({ data: { txId: 'mint-123' } });
+
     const res = response();
 
     await controller.processMerge({
@@ -81,11 +81,7 @@ describe('bounty system', () => {
       issueNumber: 289,
       repository: 'MyZubster-Ecosystem/myzubster',
     });
-    expect(axios.post).toHaveBeenCalledWith(
-      expect.stringMatching(/\/api\/bounties\/mint$/),
-      expect.objectContaining({ amount: 25, issueNumber: 289, prNumber: 300 }),
-      { timeout: 10000 },
-    );
+    expect(axios.post).not.toHaveBeenCalled();
     expect(bounty.status).toBe('completed');
     expect(bounty.paymentStatus).toBe('FAILED');
     expect(bounty.claimedBy).toBe('contributor');
@@ -93,18 +89,11 @@ describe('bounty system', () => {
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
       contributor: 'contributor',
       prNumber: 300,
-      bountiesProcessed: [{
-        issueNumber: 289,
-        rewardAmount: 25,
-        currency: 'MYZ',
-        paymentStatus: 'FAILED',
-        mintTxId: 'mint-123',
-        error: 'payment verifier is not configured',
-      }],
+      bountiesProcessed: [{ issueNumber: 289, rewardAmount: 25, paymentStatus: 'FAILED', error: 'payment verifier is not configured' }],
     }));
   });
 
-  test('mint failure leaves the bounty completed for retry', async () => {
+  test('missing verifier takes precedence over gateway submission', async () => {
     const bounty = {
       status: 'open',
       paymentStatus: 'PENDING',
@@ -117,7 +106,6 @@ describe('bounty system', () => {
       save: jest.fn().mockResolvedValue(undefined),
     };
     mockBountyConfig.findOne.mockResolvedValue(bounty);
-    axios.post.mockRejectedValue(new Error('gateway unavailable'));
     const res = response();
 
     await controller.processMerge({
@@ -136,11 +124,12 @@ describe('bounty system', () => {
 
     expect(bounty.status).toBe('completed');
     expect(bounty.paymentStatus).toBe('FAILED');
+    expect(axios.post).not.toHaveBeenCalled();
     expect(bounty.save).toHaveBeenCalledTimes(1);
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
       bountiesProcessed: [expect.objectContaining({
         issueNumber: 289,
-        error: 'gateway unavailable',
+        error: 'payment verifier is not configured',
       })],
     }));
   });
@@ -163,11 +152,57 @@ describe('bounty system', () => {
   test('reconciles a submitted payment without submitting twice', async () => {
     const bounty = { paymentStatus: 'SUBMITTED', paymentTxId: 'tx-1', paymentRecipient: '12abc', paymentAsset: 'MYZ', paymentNetwork: 'Tari', rewardAmount: 25 };
     const adapter = { submit: jest.fn() };
-    const verifier = { verify: jest.fn().mockResolvedValue({ valid: true }) };
+    const verifier = { verify: jest.fn().mockResolvedValue({
+      valid: true,
+      recipient: '12abc',
+      asset: 'MYZ',
+      network: 'Tari',
+      amount: 25,
+      transactionStatus: 'confirmed',
+      checks: { recipient: true, asset: true, network: true, amount: true, transactionStatus: true },
+    }) };
     const result = await processPayment({ bounty, adapter, verifier });
     expect(result.state).toBe('CONFIRMED');
     expect(adapter.submit).not.toHaveBeenCalled();
     expect(bounty.status).toBe('paid');
+  });
+
+  test('does not confirm a verifier result with a false field check', async () => {
+    const bounty = { paymentStatus: 'SUBMITTED', paymentTxId: 'tx-1', paymentRecipient: '12abc', paymentAsset: 'MYZ', paymentNetwork: 'Tari', rewardAmount: 25 };
+    const verifier = { verify: jest.fn().mockResolvedValue({
+      valid: true,
+      recipient: '12abc',
+      asset: 'MYZ',
+      network: 'Tari',
+      amount: 25,
+      transactionStatus: 'confirmed',
+      checks: { recipient: true, asset: true, network: false, amount: true, transactionStatus: true },
+    }) };
+    const result = await processPayment({ bounty, adapter: { submit: jest.fn() }, verifier });
+    expect(result.state).toBe('FAILED');
+    expect(bounty.paymentStatus).toBe('FAILED');
+    expect(bounty.status).not.toBe('paid');
+  });
+
+  test('legacy bounty without payment recipient fails before adapter submission', async () => {
+    const bounty = { paymentStatus: 'PENDING', rewardAmount: 25, currency: 'MYZ' };
+    const adapter = { submit: jest.fn() };
+    const verifier = { verify: jest.fn() };
+    const result = await processPayment({ bounty, adapter, verifier });
+    expect(result.state).toBe('FAILED');
+    expect(bounty.paymentStatus).toBe('FAILED');
+    expect(adapter.submit).not.toHaveBeenCalled();
+    expect(verifier.verify).not.toHaveBeenCalled();
+  });
+
+  test('legacy model defaults keep payment fields nullable and pending', () => {
+    const BountyConfig = jest.requireActual('../src/models/bountyConfigModel');
+    const bounty = new BountyConfig({ issueNumber: 999, repository: 'example/repo' });
+    expect(bounty.paymentStatus).toBe('PENDING');
+    expect(bounty.paymentRecipient).toBeNull();
+    expect(bounty.paymentTxId).toBeNull();
+    expect(bounty.paymentNetwork).toBe('Tari');
+    expect(bounty.paymentAsset).toBe('MYZ');
   });
 
   test('is replay-safe after confirmation', async () => {
