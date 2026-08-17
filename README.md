@@ -1,6 +1,18 @@
 # MyZubster Space Station MVP
 
-Sistema centrale di MyZubster per missioni, telemetria, dashboard e integrazione con Gateway e servizi di pagamento.
+Sistema centrale dell'ecosistema MyZubster per missioni, telemetria, dashboard e integrazione con Gateway e servizi di pagamento.
+
+## Che cos'è MyZubster
+
+MyZubster è un **ecosistema software in sviluppo** che combina una piattaforma centrale con Gateway, Marketplace, applicazioni, componenti di robotica, servizi di escrow/pagamento e sistemi di bounty.
+
+L'obiettivo è fornire un'infrastruttura per coordinare **missioni e progetti, attività verificabili e relative ricompense**, con possibilità di applicazione anche a progetti civici e pilota.
+
+Il modello di bounty prevede, quando formalmente approvato e finanziato, un ciclo del tipo:
+
+**proposta → validazione → approvazione → funding → attività → verifica → reward → reporting**.
+
+MYZ, XMR e/o TOKEN possono essere previsti come modalità di reward secondo l'ambiente, il funding e le regole applicabili. La presenza di un'issue o di una bounty **non costituisce di per sé un pagamento, un finanziamento, una partnership o un'approvazione istituzionale**.
 
 ## Stato del progetto
 
@@ -14,6 +26,12 @@ Sistema centrale di MyZubster per missioni, telemetria, dashboard e integrazione
 - **Dashboard:** UI web
 - **Gateway:** integrazione con MyZubster Gateway
 - **Payments:** flussi MYZ/XMR con componenti simulate e/o in validazione, a seconda dell'ambiente
+
+## Progetti e bounty civici
+
+Il repository e le issue possono essere utilizzati per strutturare proposte di **progetti pilota civici**, inclusi casi d'uso relativi a ambiente, verde, servizi urbani, partecipazione, robotica e altri ambiti.
+
+Queste proposte rappresentano un **framework operativo e una proposta di collaborazione**. Comune, Urban Lab, Hera, Anthea, università, governi o altri soggetti citati nelle issue non devono essere considerati aderenti, finanziatori o partner finché non esiste una formalizzazione verificabile.
 
 ## Struttura
 
@@ -34,8 +52,6 @@ myzubster-space-station/
 - Node.js 20+
 - MongoDB locale o Atlas
 - Python 3 (opzionale, per il simulatore)
-
-### Installazione
 
 ```bash
 git clone https://github.com/MyZubster-Ecosystem/myzubster.git
