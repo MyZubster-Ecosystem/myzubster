@@ -71,6 +71,22 @@ function verificationPassed(verification, request, txId) {
     && verification.amount === request.amount;
 }
 
+async function verifySubmittedPayment({ bounty, verifier }) {
+  requireVerifier(verifier);
+  if (!bounty.paymentTxId) throw new Error('submitted payment has no transaction ID');
+
+  const request = paymentRequest(bounty);
+  const verification = await verifier.verify({ ...request, txId: bounty.paymentTxId });
+  if (verificationPassed(verification, request, bounty.paymentTxId)) {
+    applyState(bounty, PAYMENT_STATES.CONFIRMED);
+    bounty.status = 'paid';
+    return { state: PAYMENT_STATES.CONFIRMED, verification, reconciled: true };
+  }
+
+  applyState(bounty, PAYMENT_STATES.FAILED, verification?.reason || 'verification failed');
+  return { state: PAYMENT_STATES.FAILED, verification, reconciled: true };
+}
+
 async function processPayment({ bounty, adapter, verifier }) {
   if (bounty.paymentStatus === PAYMENT_STATES.CONFIRMED) {
     return { state: PAYMENT_STATES.CONFIRMED, replay: true };
@@ -78,16 +94,11 @@ async function processPayment({ bounty, adapter, verifier }) {
 
   requireVerifier(verifier);
 
-  if (bounty.paymentStatus === PAYMENT_STATES.SUBMITTED && bounty.paymentTxId) {
-    const request = paymentRequest(bounty);
-    const verification = await verifier.verify({ ...request, txId: bounty.paymentTxId });
-    if (verificationPassed(verification, request, bounty.paymentTxId)) {
-      applyState(bounty, PAYMENT_STATES.CONFIRMED);
-      bounty.status = 'paid';
-      return { state: PAYMENT_STATES.CONFIRMED, verification };
-    }
-    applyState(bounty, PAYMENT_STATES.FAILED, verification?.reason || 'verification failed');
-    return { state: PAYMENT_STATES.FAILED, verification };
+  // A persisted txId is proof that submission already happened. Always
+  // reconcile that transaction before allowing another submission. This
+  // prevents retries from creating a second payment for the same bounty.
+  if (bounty.paymentTxId) {
+    return verifySubmittedPayment({ bounty, verifier });
   }
 
   if (!adapter || typeof adapter.submit !== 'function') {
@@ -107,15 +118,15 @@ async function processPayment({ bounty, adapter, verifier }) {
     return { state: PAYMENT_STATES.FAILED, error: error.message };
   }
 
-  const request = paymentRequest(bounty);
-  const verification = await verifier.verify({ ...request, txId: bounty.paymentTxId });
-  if (!verificationPassed(verification, request, bounty.paymentTxId)) {
-    applyState(bounty, PAYMENT_STATES.FAILED, verification?.reason || 'verification failed');
-    return { state: PAYMENT_STATES.FAILED, verification };
-  }
-  applyState(bounty, PAYMENT_STATES.CONFIRMED);
-  bounty.status = 'paid';
-  return { state: PAYMENT_STATES.CONFIRMED, verification };
+  return verifySubmittedPayment({ bounty, verifier });
 }
 
-module.exports = { ALLOWED_TRANSITIONS, PAYMENT_STATES, paymentRequest, processPayment, transition };
+module.exports = {
+  ALLOWED_TRANSITIONS,
+  PAYMENT_STATES,
+  paymentRequest,
+  processPayment,
+  transition,
+  verificationPassed,
+  verifySubmittedPayment
+};
