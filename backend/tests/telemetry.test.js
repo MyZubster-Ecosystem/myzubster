@@ -56,6 +56,18 @@ describe('Space Station telemetry API', () => {
     expect(res.status).toBe(400);
   });
 
+  it('POST /api/telemetry rejects invalid signal strength', async () => {
+    const res = await request(app).post('/api/telemetry').send({ ...validSample, signalStrength: 101 });
+    expect(res.status).toBe(400);
+  });
+
+  it('POST /api/telemetry rejects invalid timestamps deterministically', async () => {
+    const res = await request(app).post('/api/telemetry').send({ ...validSample, timestamp: 'not-a-date' });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.details).toContain('timestamp must be a valid date');
+  });
+
   it('GET /api/telemetry lists stored telemetry', async () => {
     await request(app).post('/api/telemetry').send(validSample);
     const res = await request(app).get('/api/telemetry');
