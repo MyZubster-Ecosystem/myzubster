@@ -4,6 +4,13 @@ const { MongoMemoryServer } = require('mongodb-memory-server');
 const express = require('express');
 const cors = require('cors');
 
+jest.mock('../src/services/xmrVerifier', () => ({
+  verifyXmrPayment: jest.fn().mockResolvedValue({
+    verified: true,
+    confirmations: 20,
+  }),
+}));
+
 jest.setTimeout(60000);
 
 let app;
@@ -53,6 +60,7 @@ describe('Bounty payment integration', () => {
   it('requires a txid to confirm a real payment', async () => {
     const created = await request(app).post('/api/bounty-payments').send({
       issueId: '394', contributor: 'laurentketterle-hub', amount: 0.05, currency: 'XMR', kind: 'real',
+      address: '48xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
     });
     const id = created.body.data._id;
     const res = await request(app).post('/api/bounty-payments/' + id + '/confirm').send({});
@@ -60,9 +68,10 @@ describe('Bounty payment integration', () => {
     expect(res.body.success).toBe(false);
   });
 
-  it('moves a real payment PENDING -> SUBMITTED -> CONFIRMED with a txid', async () => {
+  it('moves a real payment PENDING -> SUBMITTED -> CONFIRMED only after verification', async () => {
     const created = await request(app).post('/api/bounty-payments').send({
       issueId: '394', contributor: 'laurentketterle-hub', amount: 0.05, currency: 'XMR', kind: 'real',
+      address: '48xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
     });
     expect(created.status).toBe(201);
     const id = created.body.data._id;
@@ -71,10 +80,29 @@ describe('Bounty payment integration', () => {
     expect(submitted.status).toBe(200);
     expect(submitted.body.data.state).toBe('SUBMITTED');
 
-    const confirmed = await request(app).post('/api/bounty-payments/' + id + '/confirm').send({ txid: 'tx-1234567890abcdef' });
+    const confirmed = await request(app).post('/api/bounty-payments/' + id + '/confirm').send({ txid: 'a'.repeat(64) });
     expect(confirmed.status).toBe(200);
     expect(confirmed.body.data.state).toBe('CONFIRMED');
-    expect(confirmed.body.data.txid).toBe('tx-1234567890abcdef');
+    expect(confirmed.body.data.txid).toBe('a'.repeat(64));
+    expect(confirmed.body.data.metadata.verification.verified).toBe(true);
+  });
+
+  it('keeps a failed independent verification from reaching CONFIRMED', async () => {
+    const verifier = require('../src/services/xmrVerifier');
+    verifier.verifyXmrPayment.mockResolvedValueOnce({ verified: false, reason: 'recipient mismatch' });
+
+    const created = await request(app).post('/api/bounty-payments').send({
+      issueId: '394', contributor: 'laurentketterle-hub', amount: 0.05, currency: 'XMR', kind: 'real',
+      address: '48xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+    });
+    const id = created.body.data._id;
+    await request(app).post('/api/bounty-payments/' + id + '/submit').send({ txid: 'pending-tx' });
+    const res = await request(app).post('/api/bounty-payments/' + id + '/confirm').send({ txid: 'b'.repeat(64) });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    const payment = await request(app).get('/api/bounty-payments/' + id);
+    expect(payment.body.data.state).toBe('SUBMITTED');
   });
 
   it('documents MYZ payment rails', async () => {
