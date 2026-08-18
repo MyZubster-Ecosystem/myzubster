@@ -1,5 +1,6 @@
 const {
   deriveLifecycle,
+  canAutoTransition,
   deriveRewardAssets,
   parseRewardDeclarations,
   deriveReviewMode,
@@ -20,6 +21,17 @@ describe('github bounty sync helpers', () => {
     expect(deriveLifecycle(['status:available'], 'open')).toBe('approved');
     expect(deriveLifecycle(['status:review'], 'open')).toBe('under_review');
     expect(deriveLifecycle(['status:under-review'], 'open')).toBe('under_review');
+  });
+
+  test('allows only non-financial automatic lifecycle transitions', () => {
+    expect(canAutoTransition('approved', 'active')).toBe(true);
+    expect(canAutoTransition('funded', 'active')).toBe(true);
+    expect(canAutoTransition('active', 'submitted')).toBe(true);
+    expect(canAutoTransition('submitted', 'under_review')).toBe(true);
+    expect(canAutoTransition('verified', 'active')).toBe(false);
+    expect(canAutoTransition('reward_recorded', 'submitted')).toBe(false);
+    expect(canAutoTransition('settled', 'under_review')).toBe(false);
+    expect(canAutoTransition('proposed', 'active')).toBe(false);
   });
 
   test('derives reward assets only from canonical reward labels', () => {
