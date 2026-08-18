@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MyZubster Distributed Onion Node Advertisement",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["node_id", "onion_address", "service", "protocol_version", "expires_at", "public_key", "capabilities", "sequence", "signature"],
+  "properties": {
+    "node_id": {"type": "string", "minLength": 16, "maxLength": 128, "pattern": "^[A-Za-z0-9._:-]+$"},
+    "onion_address": {"type": "string", "pattern": "^[a-z2-7]{56}\\.onion$"},
+    "service": {"type": "string", "minLength": 1, "maxLength": 128},
+    "protocol_version": {"type": "integer", "minimum": 1},
+    "expires_at": {"type": "string", "format": "date-time"},
+    "public_key": {"type": "string", "minLength": 16, "maxLength": 256},
+    "capabilities": {"type": "array", "items": {"type": "string", "minLength": 1, "maxLength": 128}, "uniqueItems": true},
+    "sequence": {"type": "integer", "minimum": 0},
+    "signature": {"type": "string", "minLength": 16, "maxLength": 2048}
+  }
+}
