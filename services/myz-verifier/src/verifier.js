@@ -56,9 +56,7 @@ function buildIndexerUrl(baseUrl, txid) {
 
 function extractTransferFromReceipt(receipt, { txid, resourceAddress, eventTopic }) {
   const finalized = receipt?.result?.Finalized;
-  if (!finalized || finalized.final_decision !== 'Commit') {
-    return null;
-  }
+  if (!finalized || finalized.final_decision !== 'Commit') return null;
 
   const executionResult = finalized.execution_result;
   const finalize = executionResult?.finalize;
@@ -67,11 +65,11 @@ function extractTransferFromReceipt(receipt, { txid, resourceAddress, eventTopic
   const events = Array.isArray(finalize.events) ? finalize.events : [];
   const event = events.find((candidate) => {
     if (!candidate || typeof candidate !== 'object') return false;
-    if (eventTopic && candidate.topic !== eventTopic) return false;
+    if (candidate.topic !== eventTopic) return false;
     const payload = candidate.payload;
     if (!payload || typeof payload !== 'object') return false;
     const candidateAsset = payload.asset ?? payload.resource_address ?? payload.resource;
-    return !resourceAddress || candidateAsset === resourceAddress;
+    return candidateAsset === resourceAddress;
   });
 
   if (!event) return null;
@@ -80,7 +78,7 @@ function extractTransferFromReceipt(receipt, { txid, resourceAddress, eventTopic
   return {
     txid,
     recipient: payload.recipient ?? payload.recipient_address ?? payload.to,
-    asset: payload.asset ?? payload.resource_address ?? payload.resource,
+    asset: 'MYZ',
     amount: payload.amount ?? payload.value,
     transactionStatus: 'confirmed',
   };
@@ -88,7 +86,12 @@ function extractTransferFromReceipt(receipt, { txid, resourceAddress, eventTopic
 
 async function fetchTariIndexerTransaction(txid, options = {}) {
   const indexerUrl = options.indexerUrl || process.env.MYZ_TARI_INDEXER_URL;
+  const resourceAddress = options.resourceAddress || process.env.MYZ_TARI_RESOURCE_ADDRESS;
+  const eventTopic = options.eventTopic || process.env.MYZ_TARI_EVENT_TOPIC;
+
   if (!indexerUrl) throw new Error('MYZ_TARI_INDEXER_URL is not configured');
+  if (!resourceAddress) throw new Error('MYZ_TARI_RESOURCE_ADDRESS is not configured');
+  if (!eventTopic) throw new Error('MYZ_TARI_EVENT_TOPIC is not configured');
 
   const url = buildIndexerUrl(indexerUrl, txid);
   const controller = new AbortController();
@@ -111,12 +114,7 @@ async function fetchTariIndexerTransaction(txid, options = {}) {
       return fail('Tari indexer returned invalid JSON');
     }
 
-    const observed = extractTransferFromReceipt(receipt, {
-      txid,
-      resourceAddress: options.resourceAddress || process.env.MYZ_TARI_RESOURCE_ADDRESS,
-      eventTopic: options.eventTopic || process.env.MYZ_TARI_EVENT_TOPIC,
-    });
-
+    const observed = extractTransferFromReceipt(receipt, { txid, resourceAddress, eventTopic });
     if (!observed) return fail('confirmed MYZ transfer event not found in Tari receipt');
     return observed;
   } catch (error) {
@@ -146,7 +144,7 @@ async function verifyMyzPayment(input, options = {}) {
 
   return validateObserved(
     { txid, recipient, asset, network, amount, transactionStatus: 'confirmed' },
-    { ...observed, asset: 'MYZ', network },
+    { ...observed, network },
   );
 }
 
