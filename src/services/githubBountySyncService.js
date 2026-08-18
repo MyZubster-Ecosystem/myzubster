@@ -5,6 +5,7 @@ const GitHubBounty = require('../models/githubBountyModel');
 const GITHUB_API = 'https://api.github.com';
 const GITHUB_ORG = process.env.GITHUB_ORG || 'MyZubster-Ecosystem';
 const EXCLUDED_REPOSITORIES = new Set(['MyZubster-Ecosystem/tari']);
+const repositoryVisibilityCache = new Map();
 
 const STATUS_LABELS = [
   ['settlement:settled', 'settled'],
@@ -107,7 +108,13 @@ function repositoryFromApiUrl(repositoryUrl) {
     : null;
 }
 
-function issueToDocument(issue, repositoryOverride) {
+function normalizeVisibility(repositoryPayload = {}) {
+  if (repositoryPayload.visibility === 'internal') return 'internal';
+  if (repositoryPayload.private === true || repositoryPayload.visibility === 'private') return 'private';
+  return 'public';
+}
+
+function issueToDocument(issue, repositoryOverride, sourceVisibility = 'public') {
   const repository =
     repositoryOverride ||
     issue.repository?.full_name ||
@@ -128,6 +135,7 @@ function issueToDocument(issue, repositoryOverride) {
   return {
     sourceKey: `${repository}#${issue.number}`,
     repository,
+    sourceVisibility,
     issueNumber: issue.number,
     githubIssueId: issue.id || null,
     githubNodeId: issue.node_id || null,
@@ -154,8 +162,8 @@ function issueToDocument(issue, repositoryOverride) {
   };
 }
 
-async function upsertIssue(issue, repositoryOverride) {
-  const doc = issueToDocument(issue, repositoryOverride);
+async function upsertIssue(issue, repositoryOverride, sourceVisibility = 'public') {
+  const doc = issueToDocument(issue, repositoryOverride, sourceVisibility);
 
   if (EXCLUDED_REPOSITORIES.has(doc.repository)) {
     return { skipped: true, reason: 'excluded-repository', repository: doc.repository };
@@ -180,6 +188,21 @@ function githubHeaders() {
   }
 
   return headers;
+}
+
+async function getRepositoryVisibility(repository) {
+  if (repositoryVisibilityCache.has(repository)) {
+    return repositoryVisibilityCache.get(repository);
+  }
+
+  const response = await axios.get(`${GITHUB_API}/repos/${repository}`, {
+    headers: githubHeaders(),
+    timeout: 10000
+  });
+
+  const visibility = normalizeVisibility(response.data || {});
+  repositoryVisibilityCache.set(repository, visibility);
+  return visibility;
 }
 
 async function syncOrganizationBounties() {
@@ -209,7 +232,8 @@ async function syncOrganizationBounties() {
         continue;
       }
 
-      const saved = await upsertIssue(issue, repository);
+      const sourceVisibility = await getRepositoryVisibility(repository);
+      const saved = await upsertIssue(issue, repository, sourceVisibility);
       touchedKeys.add(`${repository}#${issue.number}`);
       if (saved?.skipped) skipped++;
       else imported++;
@@ -280,6 +304,7 @@ async function applyPullRequestEvent(payload) {
       bounty.pullRequests.push(record);
     }
 
+    bounty.sourceVisibility = normalizeVisibility(payload.repository);
     if (pr.user?.login) bounty.claimedBy = pr.user.login;
     bounty.lastSyncedAt = new Date();
     await bounty.save();
@@ -325,6 +350,7 @@ async function applyReviewEvent(payload) {
     if (existing) Object.assign(existing, record);
     else bounty.reviewers.push(record);
 
+    bounty.sourceVisibility = normalizeVisibility(payload.repository);
     bounty.lastSyncedAt = new Date();
     await bounty.save();
     updated++;
@@ -347,7 +373,8 @@ async function processWebhook(eventName, payload) {
       return { ignored: true, reason: 'not-a-bounty' };
     }
 
-    const saved = await upsertIssue(issue, repository);
+    const sourceVisibility = normalizeVisibility(payload.repository);
+    const saved = await upsertIssue(issue, repository, sourceVisibility);
     return {
       ignored: false,
       sourceKey,
@@ -373,6 +400,7 @@ module.exports = {
   parseRewardDeclarations,
   deriveReviewMode,
   deriveSensitivity,
+  normalizeVisibility,
   issueToDocument,
   upsertIssue,
   syncOrganizationBounties,
