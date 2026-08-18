@@ -16,6 +16,12 @@ describe('github bounty sync helpers', () => {
     expect(deriveLifecycle([], 'closed')).toBe('closed');
   });
 
+  test('maps legacy and canonical review/availability labels safely', () => {
+    expect(deriveLifecycle(['status:available'], 'open')).toBe('approved');
+    expect(deriveLifecycle(['status:review'], 'open')).toBe('under_review');
+    expect(deriveLifecycle(['status:under-review'], 'open')).toBe('under_review');
+  });
+
   test('derives reward assets only from canonical reward labels', () => {
     expect(deriveRewardAssets(['reward:myz', 'reward:xmr'])).toEqual(['MYZ', 'XMR']);
     expect(deriveRewardAssets(['bounty', 'payments'])).toEqual([]);
