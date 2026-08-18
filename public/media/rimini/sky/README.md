@@ -24,3 +24,19 @@ Esempi:
 - `2026-08-18_rimini_sky_aircraft-trail_001.jpg`
 
 Quando disponibili, registrare data, ora, GPS, direzione di osservazione e condizioni meteorologiche nei metadati dell'osservazione.
+
+## Osservazioni registrate
+
+### rimini-sky-clouds-001
+
+- Data: 2026-08-18
+- Categoria: `sky-clouds`
+- GPS: `44.0665841, 12.5749680`
+- Sistema coordinate: WGS84
+- Scie aeronautiche visibili nella fotografia: no
+- Nota: nuvole visibili; nessuna scia aeronautica visibile nella fotografia.
+- Google Maps: https://www.google.com/maps?q=44.0665841,12.5749680
+- Google Drive: https://drive.google.com/file/d/1deA_iGdrteI0w6-6NfLzzwiFpPIiRQsQ/view?usp=drivesdk
+- Percorso repository previsto: `public/media/rimini/sky/clouds/rimini-sky-clouds-001.jpg`
+
+Il record geografico è indicizzato anche in `data/observations.geojson`.
