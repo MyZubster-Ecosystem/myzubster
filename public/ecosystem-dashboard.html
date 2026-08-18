@@ -21,23 +21,34 @@ main{max-width:1280px;margin:auto;padding:24px}
 .toolbar{display:flex;gap:12px;flex-wrap:wrap;margin:24px 0}
 input,select{background:#121923;color:#eef2f7;border:1px solid #334151;border-radius:9px;padding:11px 12px;font:inherit}
 input{flex:1;min-width:240px}
-.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:20px 0 26px}
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:20px 0 26px}
 .stat{background:#121923;border:1px solid #293442;border-radius:14px;padding:16px}
 .stat strong{display:block;font-size:1.8rem;margin-bottom:4px}
 .stat span{color:#93a0ad;font-size:.9rem}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:18px}
-.card{background:#121923;border:1px solid #293442;border-radius:15px;padding:18px;display:flex;flex-direction:column;gap:10px;min-height:235px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px}
+.card{background:#121923;border:1px solid #293442;border-radius:15px;padding:18px;display:flex;flex-direction:column;gap:12px;min-height:290px}
 .card h2{margin:0;font-size:1.25rem;word-break:break-word}
-.meta{color:#9aa6b2;font-size:.9rem}
-.role{line-height:1.5;color:#c7d0d9;flex:1}
+.role{line-height:1.5;color:#c7d0d9}
 .badges{display:flex;gap:7px;flex-wrap:wrap}
 .badge{font-size:.75rem;border:1px solid #3a495a;border-radius:999px;padding:5px 8px;color:#c3ced9}
 .badge.active{border-color:#5f8f70;color:#bde4c8}
+.badge.experimental{border-color:#806da8;color:#d8c7ff}
+.badge.maintenance{border-color:#557c92;color:#bfe6f7}
+.badge.deprecated{border-color:#8b644f;color:#ffd0b8}
+.badge.archived{border-color:#626b76;color:#c4ccd5}
 .badge.unclassified{border-color:#665b3d;color:#eadb9f}
-.card a{color:#9fd3ff;text-decoration:none;font-weight:700}
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;padding:10px 0;border-top:1px solid #27313d;border-bottom:1px solid #27313d}
+.fact{min-width:0}
+.fact .label{display:block;color:#7f8d9b;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.fact .value{color:#c3ced9;font-size:.88rem;word-break:break-word}
+details{background:#0e141c;border:1px solid #273442;border-radius:10px;padding:10px 12px}
+summary{cursor:pointer;color:#9fd3ff;font-weight:700}
+details p{margin:10px 0 0;color:#b8c2cc;font-size:.9rem;line-height:1.5}
+.card>a{color:#9fd3ff;text-decoration:none;font-weight:700;margin-top:auto}
 .notice{margin-top:26px;padding:16px;border-left:4px solid #6c7f96;background:#111821;color:#aeb9c5;line-height:1.55}
 #error{display:none;margin:20px 0;padding:16px;background:#2a1515;border:1px solid #6c3333;border-radius:10px;color:#ffc7c7}
 footer{text-align:center;color:#75808b;padding:44px 20px}
+@media(max-width:520px){.facts{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -53,7 +64,7 @@ footer{text-align:center;color:#75808b;padding:44px 20px}
 <main>
   <section class="hero">
     <img src="/media/ecosystem/repository-visualizations/MyZubster-Ecosystem-Visual-03.jpg" alt="MyZubster Ecosystem Visual 03">
-    <div class="copy">Visual 03 is the current architectural reference image. Repository cards below are generated from <code>/data/ecosystem.json</code>, so the dashboard can evolve without rewriting the page.</div>
+    <div class="copy">Visual 03 is the current architectural reference image. Repository cards below are generated from <code>/data/ecosystem.json</code>, including lifecycle evidence, observed activity and verified GitHub metadata.</div>
   </section>
 
   <div id="error"></div>
@@ -61,11 +72,14 @@ footer{text-align:center;color:#75808b;padding:44px 20px}
   <section class="summary">
     <div class="stat"><strong id="repoCount">—</strong><span>public repositories indexed</span></div>
     <div class="stat"><strong id="categoryCount">—</strong><span>categories</span></div>
-    <div class="stat"><strong id="activeCount">—</strong><span>explicitly ACTIVE</span></div>
+    <div class="stat"><strong id="activeCount">—</strong><span>ACTIVE</span></div>
+    <div class="stat"><strong id="experimentalCount">—</strong><span>EXPERIMENTAL</span></div>
+    <div class="stat"><strong id="maintenanceCount">—</strong><span>MAINTENANCE</span></div>
+    <div class="stat"><strong id="unclassifiedCount">—</strong><span>UNCLASSIFIED</span></div>
   </section>
 
   <section class="toolbar">
-    <input id="search" type="search" placeholder="Search repositories, roles or categories…" aria-label="Search repositories">
+    <input id="search" type="search" placeholder="Search repositories, roles, evidence or categories…" aria-label="Search repositories">
     <select id="category" aria-label="Filter by category"><option value="">All categories</option></select>
     <select id="status" aria-label="Filter by status"><option value="">All lifecycle states</option></select>
   </section>
@@ -73,7 +87,7 @@ footer{text-align:center;color:#75808b;padding:44px 20px}
   <section id="cards" class="grid" aria-live="polite"></section>
 
   <div class="notice">
-    <strong>Data policy:</strong> only public repositories are listed. Lifecycle labels are not inferred from GitHub existence alone. Repositories marked <em>UNCLASSIFIED</em> should be reviewed before being presented as active, deprecated or archived.
+    <strong>Data policy:</strong> only public repositories are listed. Lifecycle labels are curated from observable evidence. <strong>ACTIVE</strong> describes current project activity, not production readiness. Expand “Why this status?” on any card to see the recorded evidence.
   </div>
 </main>
 <footer>MyZubster — structured software, data and real-world observations.</footer>
@@ -90,31 +104,53 @@ function esc(value='') {
   return String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));
 }
 
+function statusClass(value='') {
+  return String(value).toLowerCase().replace(/[^a-z0-9_-]/g, '');
+}
+
+function formatSize(kb) {
+  const n = Number(kb);
+  if (!Number.isFinite(n)) return 'unknown';
+  if (n >= 1024 * 1024) return `${(n / (1024 * 1024)).toFixed(1)} GB`;
+  if (n >= 1024) return `${(n / 1024).toFixed(1)} MB`;
+  return `${n} KB`;
+}
+
 function render() {
   const q = search.value.trim().toLowerCase();
   const c = category.value;
   const s = status.value;
   const filtered = repos.filter(r => {
-    const hay = `${r.name} ${r.role} ${r.category} ${r.lifecycle_status}`.toLowerCase();
+    const hay = `${r.name} ${r.role} ${r.category} ${r.lifecycle_status} ${r.status_evidence || ''}`.toLowerCase();
     return (!q || hay.includes(q)) && (!c || r.category === c) && (!s || r.lifecycle_status === s);
   });
+
   cards.innerHTML = filtered.map(r => `
     <article class="card">
       <h2>${esc(r.name)}</h2>
       <div class="badges">
         <span class="badge">${esc(r.category)}</span>
-        <span class="badge ${r.lifecycle_status === 'ACTIVE' ? 'active' : 'unclassified'}">${esc(r.lifecycle_status)}</span>
-        <span class="badge">branch: ${esc(r.default_branch)}</span>
+        <span class="badge ${statusClass(r.lifecycle_status)}">${esc(r.lifecycle_status)}</span>
       </div>
       <div class="role">${esc(r.role)}</div>
-      <div class="meta">Visibility: ${esc(r.visibility)}</div>
+      <div class="facts">
+        <div class="fact"><span class="label">Branch</span><span class="value">${esc(r.default_branch || 'unknown')}</span></div>
+        <div class="fact"><span class="label">Visibility</span><span class="value">${esc(r.visibility || 'unknown')}</span></div>
+        <div class="fact"><span class="label">Repository size</span><span class="value">${esc(formatSize(r.size_kb))}</span></div>
+        <div class="fact"><span class="label">Last observed activity</span><span class="value">${esc(r.last_observed_activity || 'not recorded')}</span></div>
+      </div>
+      <details>
+        <summary>Why this status?</summary>
+        <p>${esc(r.status_evidence || 'No lifecycle evidence has been recorded yet.')}</p>
+      </details>
       <a href="${esc(r.github)}" target="_blank" rel="noopener noreferrer">Open repository →</a>
     </article>`).join('');
+
   if (!filtered.length) cards.innerHTML = '<p>No repositories match the current filters.</p>';
 }
 
 function addOptions(select, values) {
-  [...new Set(values)].sort().forEach(v => {
+  [...new Set(values.filter(Boolean))].sort().forEach(v => {
     const option = document.createElement('option');
     option.value = v;
     option.textContent = v;
@@ -131,6 +167,9 @@ fetch('/data/ecosystem.json', {cache:'no-store'})
     document.getElementById('repoCount').textContent = repos.length;
     document.getElementById('categoryCount').textContent = new Set(repos.map(r => r.category)).size;
     document.getElementById('activeCount').textContent = repos.filter(r => r.lifecycle_status === 'ACTIVE').length;
+    document.getElementById('experimentalCount').textContent = repos.filter(r => r.lifecycle_status === 'EXPERIMENTAL').length;
+    document.getElementById('maintenanceCount').textContent = repos.filter(r => r.lifecycle_status === 'MAINTENANCE').length;
+    document.getElementById('unclassifiedCount').textContent = repos.filter(r => r.lifecycle_status === 'UNCLASSIFIED').length;
     render();
   })
   .catch(err => {
