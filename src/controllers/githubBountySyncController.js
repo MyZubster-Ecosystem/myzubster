@@ -39,20 +39,31 @@ function verifyWebhookSignature(req) {
     : { ok: false, status: 401, error: 'Invalid GitHub webhook signature' };
 }
 
-exports.list = async (req, res) => {
+function buildFilter(req, includePrivate = false) {
+  const filter = {};
+
+  if (!includePrivate) filter.sourceVisibility = 'public';
+  if (req.query.repository) filter.repository = req.query.repository;
+  if (req.query.status) filter.lifecycleStatus = req.query.status;
+  if (req.query.state) filter.githubState = req.query.state;
+  if (req.query.visibility && includePrivate) filter.sourceVisibility = req.query.visibility;
+
+  if (req.query.tracked !== undefined) {
+    filter.tracked = String(req.query.tracked) !== 'false';
+  } else {
+    filter.tracked = true;
+  }
+
+  if (req.query.rewardAsset) {
+    filter.rewardAssets = String(req.query.rewardAsset).toUpperCase();
+  }
+
+  return filter;
+}
+
+async function listWithVisibility(req, res, includePrivate) {
   try {
-    const filter = {};
-
-    if (req.query.repository) filter.repository = req.query.repository;
-    if (req.query.status) filter.lifecycleStatus = req.query.status;
-    if (req.query.state) filter.githubState = req.query.state;
-    if (req.query.tracked !== undefined) {
-      filter.tracked = String(req.query.tracked) !== 'false';
-    } else {
-      filter.tracked = true;
-    }
-    if (req.query.rewardAsset) filter.rewardAssets = String(req.query.rewardAsset).toUpperCase();
-
+    const filter = buildFilter(req, includePrivate);
     const limit = Math.min(Math.max(Number(req.query.limit) || 100, 1), 500);
 
     const bounties = await GitHubBounty.find(filter)
@@ -63,14 +74,18 @@ exports.list = async (req, res) => {
     res.json({
       ok: true,
       count: bounties.length,
+      includesPrivate: includePrivate,
       bounties
     });
   } catch (error) {
     res.status(500).json({ ok: false, error: error.message });
   }
-};
+}
 
-exports.getOne = async (req, res) => {
+exports.list = (req, res) => listWithVisibility(req, res, false);
+exports.listAdmin = (req, res) => listWithVisibility(req, res, true);
+
+async function getOneWithVisibility(req, res, includePrivate) {
   try {
     const repository = String(req.query.repository || '').trim();
     const issueNumber = Number(req.params.issueNumber);
@@ -82,9 +97,13 @@ exports.getOne = async (req, res) => {
       });
     }
 
-    const bounty = await GitHubBounty.findOne({
+    const filter = {
       sourceKey: `${repository}#${issueNumber}`
-    }).lean();
+    };
+
+    if (!includePrivate) filter.sourceVisibility = 'public';
+
+    const bounty = await GitHubBounty.findOne(filter).lean();
 
     if (!bounty) {
       return res.status(404).json({ ok: false, error: 'GitHub bounty not found' });
@@ -94,27 +113,34 @@ exports.getOne = async (req, res) => {
   } catch (error) {
     res.status(500).json({ ok: false, error: error.message });
   }
-};
+}
+
+exports.getOne = (req, res) => getOneWithVisibility(req, res, false);
+exports.getOneAdmin = (req, res) => getOneWithVisibility(req, res, true);
 
 exports.stats = async (req, res) => {
   try {
+    const publicMatch = { sourceVisibility: 'public' };
+
     const [byStatus, byAsset, repositories, total, tracked] = await Promise.all([
       GitHubBounty.aggregate([
+        { $match: publicMatch },
         { $group: { _id: '$lifecycleStatus', count: { $sum: 1 } } },
         { $sort: { count: -1 } }
       ]),
       GitHubBounty.aggregate([
+        { $match: publicMatch },
         { $unwind: { path: '$rewardAssets', preserveNullAndEmptyArrays: false } },
         { $group: { _id: '$rewardAssets', count: { $sum: 1 } } },
         { $sort: { count: -1 } }
       ]),
       GitHubBounty.aggregate([
-        { $match: { tracked: true } },
+        { $match: { ...publicMatch, tracked: true } },
         { $group: { _id: '$repository', count: { $sum: 1 } } },
         { $sort: { count: -1 } }
       ]),
-      GitHubBounty.countDocuments(),
-      GitHubBounty.countDocuments({ tracked: true })
+      GitHubBounty.countDocuments(publicMatch),
+      GitHubBounty.countDocuments({ ...publicMatch, tracked: true })
     ]);
 
     res.json({
