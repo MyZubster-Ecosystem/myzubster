@@ -2,6 +2,8 @@
 
 **Date:** 2026-08-18  
 **Location:** Piazza Ferrari, Rimini, Italy  
+**Reference coordinates:** 44.06204, 12.56806 (WGS84)  
+**Coordinate status:** mapped reference; to be replaced by photo/user GPS when available  
 **Source:** field photo shared in ChatGPT  
 **Photo filename:** `20260818_104813.jpg`
 
@@ -13,4 +15,8 @@ Tree-lined public square / garden area at Piazza Ferrari in Rimini, photographed
 
 Potential urban biodiversity observation point for documenting mature trees, shade, vegetation, public green-space quality, and future plant/tree registrations around central Rimini.
 
-> Note: the GitHub connector used for this update can write text files but cannot upload the binary JPG itself. The original photo remains the source image for this observation.
+## Map
+
+Google Maps coordinate link: https://www.google.com/maps?q=44.06204,12.56806
+
+> Note: the reference coordinate is a mapped center point for Piazza Ferrari. If the original photo or contributor provides precise GPS, MyZubster should retain that GPS as the observation coordinate.
