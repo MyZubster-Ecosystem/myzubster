@@ -13,29 +13,24 @@ Request:
   "txid": "...",
   "recipient": "...",
   "asset": "MYZ",
-  "network": "tari-mainnet",
+  "network": "tari-esmeralda",
   "amount": 25
 }
 ```
 
-The verifier sends **only the txid** to the configured upstream read-only Tari/Ootle verification endpoint:
+The verifier now reads the **real Tari Ootle Indexer transaction-result endpoint** using the txid only:
 
-`MYZ_TARI_VERIFIER_RPC_URL`
+`GET ${MYZ_TARI_INDEXER_URL}/transactions/{txid}/result`
 
-Expected upstream response:
+The upstream endpoint is the Indexer API documented by Tari Ootle. The result contains a pending/finalized/rejected transaction result; a finalized result must have `final_decision: "Commit"` and a matching `finalize.transaction_hash`. citeturn71file0turn75file0
 
-```json
-{
-  "txid": "...",
-  "recipient": "...",
-  "asset": "MYZ",
-  "network": "tari-mainnet",
-  "amount": 25,
-  "transactionStatus": "confirmed"
-}
-```
+For payment verification, the receipt must also contain the configured MYZ transfer event. Configure both:
 
-The service then independently compares the observed transaction with the expected recipient, asset, network and amount. Any mismatch fails closed.
+- `MYZ_TARI_RESOURCE_ADDRESS` — the authoritative MYZ resource address.
+- `MYZ_TARI_EVENT_TOPIC` — the exact event topic emitted by the MYZ transfer template.
+- `MYZ_TARI_NETWORK` — the network name accepted by the payment API.
+
+The verifier extracts the recipient and amount from that committed event and compares them with the payment request. Any missing event, resource mismatch, recipient mismatch, amount mismatch, network mismatch, rejected transaction or non-finalized transaction fails closed.
 
 Successful response:
 
@@ -45,7 +40,7 @@ Successful response:
   "txid": "...",
   "recipient": "...",
   "asset": "MYZ",
-  "network": "tari-mainnet",
+  "network": "tari-esmeralda",
   "amount": 25,
   "transactionStatus": "confirmed",
   "checks": {
@@ -61,14 +56,17 @@ Successful response:
 
 ## Important deployment requirement
 
-This PR implements the **independent verification boundary and adapter contract**. It does not claim that a Tari/Ootle node is already available in this repository. `MYZ_TARI_VERIFIER_RPC_URL` must point to a separately operated, read-only verifier endpoint backed by the authoritative Tari/Ootle state before production payment confirmation is enabled.
+This service is now wired to the actual Ootle Indexer API shape, but **the MYZ resource address and transfer event topic must still be supplied from the deployed MYZ Tari/Ootle contract configuration**. Do not guess these values and do not enable production payment confirmation until they are verified against a real MYZ transfer on the target network.
 
-In production the upstream URL must use HTTPS. No wallet signing or payment submission belongs in this service.
+The Indexer transaction-result endpoint is read-only; this service does not sign or submit transactions. In production `MYZ_TARI_INDEXER_URL` must use HTTPS. Tari's current Ootle documentation describes the Indexer as the source used by wallets to read transactions and other on-chain state. citeturn1search3turn1search0
 
 ## Run
 
 ```bash
-MYZ_TARI_VERIFIER_RPC_URL=https://verifier.example.internal/transaction \
+MYZ_TARI_INDEXER_URL=https://<ootle-indexer> \
+MYZ_TARI_NETWORK=tari-esmeralda \
+MYZ_TARI_RESOURCE_ADDRESS=<verified-myz-resource-address> \
+MYZ_TARI_EVENT_TOPIC=<verified-myz-transfer-topic> \
   node src/index.js
 ```
 
