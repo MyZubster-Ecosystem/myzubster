@@ -21,7 +21,7 @@ function createMyzVerifier() {
       if (!request.txId) throw new Error('MYZ verifier requires txId');
       if (request.asset && request.asset !== 'MYZ') throw new Error('MYZ verifier only accepts MYZ payments');
       if (!request.recipient) throw new Error('MYZ verifier requires recipient');
-      if (request.network !== 'Tari') throw new Error('MYZ verifier requires Tari network');
+      if (!request.network || typeof request.network !== 'string') throw new Error('MYZ verifier requires network');
       if (request.amount === undefined || request.amount === null) throw new Error('MYZ verifier requires amount');
 
       const controller = new AbortController();
