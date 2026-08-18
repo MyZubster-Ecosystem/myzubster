@@ -45,14 +45,90 @@ function validateObserved({ txid, recipient, asset, network, amount, transaction
   };
 }
 
-async function verifyMyzPayment(input, options = {}) {
-  const {
+function buildIndexerUrl(baseUrl, txid) {
+  const base = new URL(baseUrl);
+  if (base.protocol !== 'https:' && process.env.NODE_ENV === 'production') {
+    throw new Error('MYZ_TARI_INDEXER_URL must use HTTPS in production');
+  }
+  const trimmed = base.toString().replace(/\/$/, '');
+  return `${trimmed}/transactions/${encodeURIComponent(txid)}/result`;
+}
+
+function extractTransferFromReceipt(receipt, { txid, resourceAddress, eventTopic }) {
+  const finalized = receipt?.result?.Finalized;
+  if (!finalized || finalized.final_decision !== 'Commit') {
+    return null;
+  }
+
+  const executionResult = finalized.execution_result;
+  const finalize = executionResult?.finalize;
+  if (!finalize || finalize.transaction_hash !== txid) return null;
+
+  const events = Array.isArray(finalize.events) ? finalize.events : [];
+  const event = events.find((candidate) => {
+    if (!candidate || typeof candidate !== 'object') return false;
+    if (eventTopic && candidate.topic !== eventTopic) return false;
+    const payload = candidate.payload;
+    if (!payload || typeof payload !== 'object') return false;
+    const candidateAsset = payload.asset ?? payload.resource_address ?? payload.resource;
+    return !resourceAddress || candidateAsset === resourceAddress;
+  });
+
+  if (!event) return null;
+
+  const payload = event.payload;
+  return {
     txid,
-    recipient,
-    asset,
-    network,
-    amount,
-  } = input || {};
+    recipient: payload.recipient ?? payload.recipient_address ?? payload.to,
+    asset: payload.asset ?? payload.resource_address ?? payload.resource,
+    amount: payload.amount ?? payload.value,
+    transactionStatus: 'confirmed',
+  };
+}
+
+async function fetchTariIndexerTransaction(txid, options = {}) {
+  const indexerUrl = options.indexerUrl || process.env.MYZ_TARI_INDEXER_URL;
+  if (!indexerUrl) throw new Error('MYZ_TARI_INDEXER_URL is not configured');
+
+  const url = buildIndexerUrl(indexerUrl, txid);
+  const controller = new AbortController();
+  const timeoutMs = Number(options.timeoutMs || process.env.MYZ_VERIFIER_TIMEOUT_MS || DEFAULT_TIMEOUT_MS);
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: { accept: 'application/json' },
+      signal: controller.signal,
+    });
+
+    if (!response.ok) return fail(`Tari indexer returned HTTP ${response.status}`);
+
+    let receipt;
+    try {
+      receipt = await response.json();
+    } catch {
+      return fail('Tari indexer returned invalid JSON');
+    }
+
+    const observed = extractTransferFromReceipt(receipt, {
+      txid,
+      resourceAddress: options.resourceAddress || process.env.MYZ_TARI_RESOURCE_ADDRESS,
+      eventTopic: options.eventTopic || process.env.MYZ_TARI_EVENT_TOPIC,
+    });
+
+    if (!observed) return fail('confirmed MYZ transfer event not found in Tari receipt');
+    return observed;
+  } catch (error) {
+    if (error && error.name === 'AbortError') return fail('Tari indexer timeout');
+    return fail('Tari indexer unavailable');
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function verifyMyzPayment(input, options = {}) {
+  const { txid, recipient, asset, network, amount } = input || {};
 
   if (!txid || typeof txid !== 'string') return fail('transaction ID is required');
   if (!recipient || typeof recipient !== 'string') return fail('recipient is required');
@@ -60,54 +136,23 @@ async function verifyMyzPayment(input, options = {}) {
   if (!network || typeof network !== 'string') return fail('network is required');
   if (!Number.isFinite(Number(amount)) || Number(amount) <= 0) return fail('amount must be positive');
 
-  const upstreamUrl = options.upstreamUrl || process.env.MYZ_TARI_VERIFIER_RPC_URL;
-  if (!upstreamUrl) throw new Error('MYZ_TARI_VERIFIER_RPC_URL is not configured');
-
-  let url;
-  try {
-    url = new URL(upstreamUrl);
-    if (url.protocol !== 'https:' && process.env.NODE_ENV === 'production') {
-      throw new Error('MYZ verifier upstream must use HTTPS in production');
-    }
-  } catch (error) {
-    throw new Error(`Invalid MYZ_TARI_VERIFIER_RPC_URL: ${error.message}`);
+  const configuredNetwork = options.network || process.env.MYZ_TARI_NETWORK;
+  if (!configuredNetwork || configuredNetwork !== network) {
+    return fail('network is not configured for this verifier');
   }
 
-  const controller = new AbortController();
-  const timeoutMs = Number(options.timeoutMs || process.env.MYZ_VERIFIER_TIMEOUT_MS || DEFAULT_TIMEOUT_MS);
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  const observed = await fetchTariIndexerTransaction(txid, options);
+  if (!observed || observed.verified === false) return observed;
 
-  try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json', accept: 'application/json' },
-      body: JSON.stringify({ txid }),
-      signal: controller.signal,
-    });
-
-    if (!response.ok) return fail(`upstream verifier returned HTTP ${response.status}`);
-
-    let observed;
-    try {
-      observed = await response.json();
-    } catch {
-      return fail('upstream verifier returned invalid JSON');
-    }
-
-    return validateObserved({
-      txid,
-      recipient,
-      asset,
-      network,
-      amount,
-      transactionStatus: 'confirmed',
-    }, observed);
-  } catch (error) {
-    if (error && error.name === 'AbortError') return fail('upstream verifier timeout');
-    return fail('upstream verifier unavailable');
-  } finally {
-    clearTimeout(timer);
-  }
+  return validateObserved(
+    { txid, recipient, asset, network, amount, transactionStatus: 'confirmed' },
+    { ...observed, asset: 'MYZ', network },
+  );
 }
 
-module.exports = { verifyMyzPayment, validateObserved };
+module.exports = {
+  verifyMyzPayment,
+  validateObserved,
+  extractTransferFromReceipt,
+  fetchTariIndexerTransaction,
+};
