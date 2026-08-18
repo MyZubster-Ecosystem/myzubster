@@ -18,75 +18,75 @@ describe('MYZ independent verifier', () => {
 
   test('fails closed when the independent verifier is not configured', async () => {
     delete process.env.MYZ_VERIFIER_URL;
-    await expect(createMyzVerifier().verify({ txId: 'tx-1', recipient: 'myz-recipient', asset: 'MYZ', network: 'Tari', amount: 10 }))
+    await expect(createMyzVerifier().verify({ txId: 'tx-1', recipient: 'myz-recipient', asset: 'MYZ', network: 'tari-esmeralda', amount: 10 }))
       .rejects.toThrow('MYZ independent verifier is not configured');
   });
 
-  test('requires recipient, Tari network and amount', async () => {
+  test('requires recipient, network and amount', async () => {
     process.env.MYZ_VERIFIER_URL = 'http://verifier.test/verify';
-    await expect(createMyzVerifier().verify({ txId: 'tx-1', asset: 'MYZ', network: 'Tari', amount: 10 }))
+    await expect(createMyzVerifier().verify({ txId: 'tx-1', asset: 'MYZ', network: 'tari-esmeralda', amount: 10 }))
       .rejects.toThrow('MYZ verifier requires recipient');
-    await expect(createMyzVerifier().verify({ txId: 'tx-1', recipient: 'recipient', asset: 'MYZ', network: 'XMR', amount: 10 }))
-      .rejects.toThrow('MYZ verifier requires Tari network');
-    await expect(createMyzVerifier().verify({ txId: 'tx-1', recipient: 'recipient', asset: 'MYZ', network: 'Tari' }))
+    await expect(createMyzVerifier().verify({ txId: 'tx-1', recipient: 'recipient', asset: 'MYZ', amount: 10 }))
+      .rejects.toThrow('MYZ verifier requires network');
+    await expect(createMyzVerifier().verify({ txId: 'tx-1', recipient: 'recipient', asset: 'MYZ', network: 'tari-esmeralda' }))
       .rejects.toThrow('MYZ verifier requires amount');
   });
 
-  test('submits the exact payment facts to the independent verifier', async () => {
+  test('submits the canonical payment facts to the independent verifier', async () => {
     process.env.MYZ_VERIFIER_URL = 'http://verifier.test/verify';
     const verification = {
-      valid: true,
+      verified: true,
       txId: 'tx-1',
       recipient: 'myz-recipient',
       asset: 'MYZ',
-      network: 'Tari',
+      network: 'tari-esmeralda',
       amount: 10,
       transactionStatus: 'confirmed',
-      checks: { recipient: true, asset: true, network: true, amount: true, transactionStatus: true }
+      checks: { txId: true, recipient: true, asset: true, network: true, amount: true, transactionStatus: true }
     };
     global.fetch = jest.fn().mockResolvedValue({ ok: true, status: 200, text: async () => JSON.stringify(verification) });
 
     const result = await createMyzVerifier().verify({
-      txId: 'tx-1', recipient: 'myz-recipient', asset: 'MYZ', network: 'Tari', amount: 10,
+      txId: 'tx-1', recipient: 'myz-recipient', asset: 'MYZ', network: 'tari-esmeralda', amount: 10,
       issueNumber: 289, prNumber: 300
     });
 
     expect(result).toEqual(verification);
     expect(global.fetch).toHaveBeenCalledWith('http://verifier.test/verify', expect.objectContaining({
       method: 'POST',
-      body: JSON.stringify({ txId: 'tx-1', recipient: 'myz-recipient', asset: 'MYZ', network: 'Tari', amount: 10, issueNumber: 289, prNumber: 300 })
+      body: JSON.stringify({ txId: 'tx-1', recipient: 'myz-recipient', asset: 'MYZ', network: 'tari-esmeralda', amount: 10, issueNumber: 289, prNumber: 300 })
     }));
   });
 
   test('rejects malformed verifier responses', async () => {
     process.env.MYZ_VERIFIER_URL = 'http://verifier.test/verify';
     global.fetch = jest.fn().mockResolvedValue({ ok: true, status: 200, text: async () => '{not-json}' });
-    await expect(createMyzVerifier().verify({ txId: 'tx-1', recipient: 'myz-recipient', asset: 'MYZ', network: 'Tari', amount: 10 }))
+    await expect(createMyzVerifier().verify({ txId: 'tx-1', recipient: 'myz-recipient', asset: 'MYZ', network: 'tari-esmeralda', amount: 10 }))
       .rejects.toThrow('MYZ verifier returned invalid JSON');
   });
 
   test('rejects non-success HTTP responses', async () => {
     process.env.MYZ_VERIFIER_URL = 'http://verifier.test/verify';
     global.fetch = jest.fn().mockResolvedValue({ ok: false, status: 503, text: async () => 'unavailable' });
-    await expect(createMyzVerifier().verify({ txId: 'tx-1', recipient: 'myz-recipient', asset: 'MYZ', network: 'Tari', amount: 10 }))
+    await expect(createMyzVerifier().verify({ txId: 'tx-1', recipient: 'myz-recipient', asset: 'MYZ', network: 'tari-esmeralda', amount: 10 }))
       .rejects.toThrow('MYZ verifier HTTP 503');
   });
 
   test('times out the independent verifier request', async () => {
     process.env.MYZ_VERIFIER_URL = 'http://verifier.test/verify';
     process.env.MYZ_VERIFIER_TIMEOUT_MS = '10';
-    global.fetch = jest.fn().mockImplementation(({ signal }) => new Promise((resolve, reject) => {
+    global.fetch = jest.fn().mockImplementation((_url, { signal }) => new Promise((resolve, reject) => {
       if (signal.aborted) reject(Object.assign(new Error('aborted'), { name: 'AbortError' }));
       else signal.addEventListener('abort', () => reject(Object.assign(new Error('aborted'), { name: 'AbortError' })));
     }));
 
-    await expect(createMyzVerifier().verify({ txId: 'tx-1', recipient: 'myz-recipient', asset: 'MYZ', network: 'Tari', amount: 10 }))
+    await expect(createMyzVerifier().verify({ txId: 'tx-1', recipient: 'myz-recipient', asset: 'MYZ', network: 'tari-esmeralda', amount: 10 }))
       .rejects.toThrow('MYZ verifier request timed out');
   });
 
   test('rejects non-MYZ requests', async () => {
     process.env.MYZ_VERIFIER_URL = 'http://verifier.test/verify';
-    await expect(createMyzVerifier().verify({ txId: 'tx-1', recipient: 'recipient', asset: 'XMR', network: 'Tari', amount: 10 }))
+    await expect(createMyzVerifier().verify({ txId: 'tx-1', recipient: 'recipient', asset: 'XMR', network: 'tari-esmeralda', amount: 10 }))
       .rejects.toThrow('MYZ verifier only accepts MYZ payments');
   });
 });
