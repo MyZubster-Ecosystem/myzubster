@@ -17,11 +17,13 @@ chmod 600 "$TORRC"
 
 tor -f "$TORRC" --RunAsDaemon 1
 
-# Wait for the local SOCKS listener before starting probes.
+# Wait for Tor to bootstrap enough to accept SOCKS requests.
 i=0
-while ! (exec 3<>/dev/tcp/127.0.0.1/9050) 2>/dev/null; do
+while ! curl --silent --show-error --max-time 2 --socks5-hostname 127.0.0.1:9050 \
+    https://example.com -o /dev/null 2>/dev/null; do
   i=$((i+1))
   [ "$i" -ge 60 ] && echo 'Tor SOCKS listener did not become ready' >&2 && exit 1
   sleep 1
 done
+
 exec /usr/local/bin/myzubster-onion-probe
