@@ -6,9 +6,6 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "test": "node --experimental-vm-modules ../../backend/node_modules/jest/bin/jest.js --runInBand"
-  },
-  "dependencies": {
-    "express": "^4.18.3"
+    "test": "node --test"
   }
 }
