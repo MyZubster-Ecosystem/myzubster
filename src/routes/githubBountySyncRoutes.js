@@ -25,6 +25,10 @@ function admin(req, res, next) {
 
 router.post('/webhook', controller.webhook);
 router.post('/sync', auth, admin, controller.sync);
+
+router.get('/admin', auth, admin, controller.listAdmin);
+router.get('/admin/:issueNumber', auth, admin, controller.getOneAdmin);
+
 router.get('/stats', controller.stats);
 router.get('/:issueNumber', controller.getOne);
 router.get('/', controller.list);
