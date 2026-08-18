@@ -118,7 +118,8 @@
         "coordinate_status": "mapped-reference",
         "coordinate_source": "Wikidata-OpenStreetMap-reference",
         "github_record": "https://github.com/MyZubster-Ecosystem/myzubster/blob/main/world/italy/emilia-romagna/rimini/heritage/fontana-della-pigna/README.md",
-        "google_maps": "https://www.google.com/maps?q=44.06063,12.56596"
+        "google_maps": "https://www.google.com/maps?q=44.06063,12.56596",
+        "image": "/media/rimini/landmarks/fontana-della-pigna/fontana-della-pigna-001.jpg"
       }
     },
     {
@@ -145,7 +146,8 @@
         "coordinate_status": "mapped-reference",
         "coordinate_source": "Wikidata-reference",
         "github_record": "https://github.com/MyZubster-Ecosystem/myzubster/blob/main/world/italy/emilia-romagna/rimini/heritage/palazzo-garampi-comune/README.md",
-        "google_maps": "https://www.google.com/maps?q=44.061115,12.566116"
+        "google_maps": "https://www.google.com/maps?q=44.061115,12.566116",
+        "image": "/media/rimini/civic/comune-di-rimini/comune-di-rimini-001.jpg"
       }
     }
   ]
