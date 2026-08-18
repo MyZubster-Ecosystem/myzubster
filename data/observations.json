@@ -1,0 +1,85 @@
+{
+  "schema_version": "1.0",
+  "name": "MyZubster Observation Registry",
+  "description": "Public registry for real-world observations documented by MyZubster. Media integrity, provenance and optional bounty/payment references are tracked separately from wallet secrets.",
+  "policy": {
+    "public_only": true,
+    "secret_fields_forbidden": [
+      "wallet_seed",
+      "private_spend_key",
+      "private_view_key",
+      "wallet_password"
+    ],
+    "lifecycle": [
+      "STAGED",
+      "VALIDATED",
+      "PUBLISHED",
+      "BOUNTY_LINKED",
+      "VERIFIED"
+    ],
+    "hash_algorithm": "SHA-256",
+    "media_naming": "lowercase kebab-case with stable subject and sequence number"
+  },
+  "observations": [
+    {
+      "observation_id": "rimini-sky-clouds-001",
+      "title": "Rimini Sky Clouds 001",
+      "description": "Photographic observation of sky and cloud conditions in Rimini.",
+      "city": "Rimini",
+      "country": "Italy",
+      "latitude": null,
+      "longitude": null,
+      "captured_at": null,
+      "imported_at": "2026-08-18",
+      "media_path": "/media/rimini/sky/clouds/rimini-sky-clouds-001.jpg",
+      "sha256": null,
+      "category": "sky",
+      "tags": ["rimini", "sky", "clouds"],
+      "source": "personal-photo-archive",
+      "status": "PUBLISHED",
+      "bounty_id": null,
+      "monero_txid": null,
+      "repository_commit": "dcda915"
+    },
+    {
+      "observation_id": "rimini-fontana-della-pigna-001",
+      "title": "Fontana della Pigna",
+      "description": "Photographic observation of the Fontana della Pigna landmark in Rimini.",
+      "city": "Rimini",
+      "country": "Italy",
+      "latitude": null,
+      "longitude": null,
+      "captured_at": null,
+      "imported_at": "2026-08-18",
+      "media_path": "/media/rimini/landmarks/fontana-della-pigna/fontana-della-pigna-001.jpg",
+      "sha256": null,
+      "category": "landmark",
+      "tags": ["rimini", "landmark", "fontana-della-pigna"],
+      "source": "personal-photo-archive",
+      "status": "PUBLISHED",
+      "bounty_id": null,
+      "monero_txid": null,
+      "repository_commit": null
+    },
+    {
+      "observation_id": "rimini-comune-di-rimini-001",
+      "title": "Comune di Rimini",
+      "description": "Photographic observation of the Comune di Rimini civic building.",
+      "city": "Rimini",
+      "country": "Italy",
+      "latitude": null,
+      "longitude": null,
+      "captured_at": null,
+      "imported_at": "2026-08-18",
+      "media_path": "/media/rimini/civic/comune-di-rimini/comune-di-rimini-001.jpg",
+      "sha256": null,
+      "category": "civic",
+      "tags": ["rimini", "civic", "comune-di-rimini"],
+      "source": "personal-photo-archive",
+      "status": "PUBLISHED",
+      "bounty_id": null,
+      "monero_txid": null,
+      "repository_commit": null
+    }
+  ]
+}
