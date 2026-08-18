@@ -25,6 +25,21 @@ const STATUS_LABELS = [
   ['status:cancelled', 'cancelled']
 ];
 
+const TERMINAL_OR_EVIDENCE_GATED_STATUSES = new Set([
+  'verified',
+  'reward_recorded',
+  'settlement_pending',
+  'settled',
+  'cancelled',
+  'closed'
+]);
+
+const AUTO_TRANSITIONS = {
+  active: new Set(['approved', 'funded']),
+  submitted: new Set(['active', 'approved', 'funded']),
+  under_review: new Set(['submitted', 'active'])
+};
+
 function labelNames(issue = {}) {
   return (issue.labels || [])
     .map(label => typeof label === 'string' ? label : label?.name)
@@ -39,6 +54,12 @@ function deriveLifecycle(labels, githubState = 'open') {
   }
 
   return githubState === 'closed' ? 'closed' : 'unknown';
+}
+
+function canAutoTransition(currentStatus, targetStatus) {
+  if (TERMINAL_OR_EVIDENCE_GATED_STATUSES.has(currentStatus)) return false;
+  const allowed = AUTO_TRANSITIONS[targetStatus];
+  return Boolean(allowed?.has(currentStatus));
 }
 
 function deriveRewardAssets(labels) {
@@ -207,6 +228,45 @@ async function getRepositoryVisibility(repository) {
   return visibility;
 }
 
+async function setGitHubLifecycle(repository, issueNumber, targetLabel, targetStatus) {
+  if (!process.env.GITHUB_TOKEN) {
+    return { changed: false, reason: 'github-token-missing' };
+  }
+
+  const response = await axios.get(
+    `${GITHUB_API}/repos/${repository}/issues/${issueNumber}`,
+    { headers: githubHeaders(), timeout: 10000 }
+  );
+
+  const issue = response.data || {};
+  const labels = labelNames(issue);
+  const currentStatus = deriveLifecycle(labels, issue.state);
+
+  if (!canAutoTransition(currentStatus, targetStatus)) {
+    return { changed: false, reason: 'transition-not-allowed', currentStatus, targetStatus };
+  }
+
+  if (labels.includes(targetLabel)) {
+    return { changed: false, reason: 'already-set', currentStatus, targetStatus };
+  }
+
+  const nextLabels = [
+    ...labels.filter(name => !String(name).startsWith('status:')),
+    targetLabel
+  ];
+
+  const updated = await axios.patch(
+    `${GITHUB_API}/repos/${repository}/issues/${issueNumber}`,
+    { labels: [...new Set(nextLabels)] },
+    { headers: githubHeaders(), timeout: 10000 }
+  );
+
+  const visibility = await getRepositoryVisibility(repository);
+  await upsertIssue(updated.data, repository, visibility);
+
+  return { changed: true, from: currentStatus, to: targetStatus, label: targetLabel };
+}
+
 async function syncOrganizationBounties() {
   const query = `org:${GITHUB_ORG} is:issue label:\"type:bounty\"`;
   let page = 1;
@@ -283,6 +343,7 @@ async function applyPullRequestEvent(payload) {
 
   const issueNumbers = extractClosingIssueNumbers(pr.body || '');
   let updated = 0;
+  const transitions = [];
 
   for (const issueNumber of issueNumbers) {
     const bounty = await GitHubBounty.findOne({
@@ -311,9 +372,17 @@ async function applyPullRequestEvent(payload) {
     bounty.lastSyncedAt = new Date();
     await bounty.save();
     updated++;
+
+    const submissionAction = ['opened', 'reopened', 'synchronize', 'ready_for_review'].includes(payload.action);
+    if (submissionAction && !pr.draft) {
+      transitions.push({
+        issueNumber,
+        ...(await setGitHubLifecycle(repository, issueNumber, 'status:submitted', 'submitted'))
+      });
+    }
   }
 
-  return { updated, issueNumbers };
+  return { updated, issueNumbers, transitions };
 }
 
 async function applyReviewEvent(payload) {
@@ -324,6 +393,7 @@ async function applyReviewEvent(payload) {
 
   const issueNumbers = extractClosingIssueNumbers(pr.body || '');
   let updated = 0;
+  const transitions = [];
 
   const stateMap = {
     approved: 'approved',
@@ -356,9 +426,16 @@ async function applyReviewEvent(payload) {
     bounty.lastSyncedAt = new Date();
     await bounty.save();
     updated++;
+
+    if (payload.action === 'submitted' && ['approved', 'changes_requested', 'commented'].includes(review.state)) {
+      transitions.push({
+        issueNumber,
+        ...(await setGitHubLifecycle(repository, issueNumber, 'status:review', 'under_review'))
+      });
+    }
   }
 
-  return { updated, issueNumbers };
+  return { updated, issueNumbers, transitions };
 }
 
 async function processWebhook(eventName, payload) {
@@ -377,10 +454,17 @@ async function processWebhook(eventName, payload) {
 
     const sourceVisibility = normalizeVisibility(payload.repository);
     const saved = await upsertIssue(issue, repository, sourceVisibility);
+    let transition = null;
+
+    if (payload.action === 'assigned' && (issue.assignees || []).length > 0) {
+      transition = await setGitHubLifecycle(repository, issue.number, 'status:active', 'active');
+    }
+
     return {
       ignored: false,
       sourceKey,
-      tracked: Boolean(saved?.tracked)
+      tracked: Boolean(saved?.tracked),
+      transition
     };
   }
 
@@ -398,6 +482,7 @@ async function processWebhook(eventName, payload) {
 module.exports = {
   labelNames,
   deriveLifecycle,
+  canAutoTransition,
   deriveRewardAssets,
   parseRewardDeclarations,
   deriveReviewMode,
@@ -405,6 +490,7 @@ module.exports = {
   normalizeVisibility,
   issueToDocument,
   upsertIssue,
+  setGitHubLifecycle,
   syncOrganizationBounties,
   extractClosingIssueNumbers,
   processWebhook
