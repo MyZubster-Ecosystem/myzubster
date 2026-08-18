@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "0.1",
+  "recordType": "botanical_observation",
+  "recordId": "MYZ-PLANT-IT-RN-MALATESTA-001",
+  "status": "OBSERVED_PENDING_VERIFICATION",
+  "taxon": {
+    "commonName": "Platano",
+    "genus": "Platanus",
+    "scientificName": "Platanus sp.",
+    "identificationConfidence": "provisional",
+    "notes": "Identificazione proposta da una singola fotografia; specie da confermare con immagini ravvicinate di foglie e corteccia."
+  },
+  "location": {
+    "name": "Piazza Malatesta",
+    "city": "Rimini",
+    "province": "RN",
+    "country": "Italia",
+    "coordinates": null,
+    "privacy": "public_place_no_precise_coordinates"
+  },
+  "observation": {
+    "source": "user_submitted_photo",
+    "imageRepositoryPath": null,
+    "visualNotes": "Grande albero urbano con chioma ampia. Una singola fotografia non consente una valutazione fitosanitaria affidabile.",
+    "verificationRequired": [
+      "close-up leaf photograph",
+      "bark photograph",
+      "species-level botanical verification"
+    ]
+  },
+  "provenance": {
+    "project": "MyZubster",
+    "createdFrom": "field observation",
+    "mediaPendingRepositoryUpload": true
+  }
+}
