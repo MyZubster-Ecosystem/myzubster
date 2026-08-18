@@ -11,13 +11,7 @@
   "features": [
     {
       "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          12.5678873,
-          44.0637353
-        ]
-      },
+      "geometry": {"type": "Point", "coordinates": [12.5678873, 44.0637353]},
       "properties": {
         "id": "rimini-via-clodia-20260818-001",
         "name": "Via Clodia",
@@ -39,13 +33,7 @@
     },
     {
       "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          12.5314941,
-          44.0643945
-        ]
-      },
+      "geometry": {"type": "Point", "coordinates": [12.5314941, 44.0643945]},
       "properties": {
         "id": "rimini-futura-ambiente-sede-20260818-001",
         "name": "Futura Ambiente — Sede di Rimini",
@@ -68,13 +56,7 @@
     },
     {
       "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          12.56806,
-          44.06204
-        ]
-      },
+      "geometry": {"type": "Point", "coordinates": [12.56806, 44.06204]},
       "properties": {
         "id": "rimini-piazza-ferrari-20260818-001",
         "name": "Piazza Ferrari",
@@ -96,13 +78,7 @@
     },
     {
       "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          12.56596,
-          44.06063
-        ]
-      },
+      "geometry": {"type": "Point", "coordinates": [12.56596, 44.06063]},
       "properties": {
         "id": "rimini-fontana-della-pigna-001",
         "name": "Fontana della Pigna",
@@ -124,13 +100,7 @@
     },
     {
       "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          12.566116,
-          44.061115
-        ]
-      },
+      "geometry": {"type": "Point", "coordinates": [12.566116, 44.061115]},
       "properties": {
         "id": "rimini-palazzo-garampi-comune-001",
         "name": "Palazzo Garampi — Comune di Rimini",
@@ -148,6 +118,30 @@
         "github_record": "https://github.com/MyZubster-Ecosystem/myzubster/blob/main/world/italy/emilia-romagna/rimini/heritage/palazzo-garampi-comune/README.md",
         "google_maps": "https://www.google.com/maps?q=44.061115,12.566116",
         "image": "/media/rimini/civic/comune-di-rimini/comune-di-rimini-001.jpg"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {"type": "Point", "coordinates": [12.5749680, 44.0665841]},
+      "properties": {
+        "id": "rimini-sky-clouds-001",
+        "name": "Rimini — osservazione nuvole 001",
+        "country": "Italy",
+        "region": "Emilia-Romagna",
+        "city": "Rimini",
+        "category": "sky-clouds",
+        "media_type": "photo",
+        "capture_date": "2026-08-18",
+        "latitude": 44.0665841,
+        "longitude": 12.5749680,
+        "coordinate_system": "WGS84",
+        "coordinate_status": "confirmed",
+        "coordinate_source": "user-confirmed-position",
+        "aircraft_trails_visible": false,
+        "observation_note": "Nuvole visibili; nessuna scia aeronautica visibile nella fotografia.",
+        "google_maps": "https://www.google.com/maps?q=44.0665841,12.5749680",
+        "drive_media": "https://drive.google.com/file/d/1deA_iGdrteI0w6-6NfLzzwiFpPIiRQsQ/view?usp=drivesdk",
+        "planned_repo_image": "/media/rimini/sky/clouds/rimini-sky-clouds-001.jpg"
       }
     }
   ]
