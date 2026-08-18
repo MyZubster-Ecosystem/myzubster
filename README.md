@@ -1,61 +1,81 @@
-# MyZubster Space Station MVP
+# MyZubster — osserva, documenta e collega il mondo reale
 
-Sistema centrale dell'ecosistema MyZubster per missioni, telemetria, dashboard e integrazione con Gateway e servizi di pagamento.
+**MyZubster è un ecosistema open-source collaborativo per mappare, documentare e collegare persone, luoghi, ambiente, tecnologia e servizi nel mondo reale.**
+
+Parte da osservazioni concrete — fotografie, coordinate GPS, piante, edifici, patrimonio storico, strade, panorami, servizi urbani e contributi degli utenti — e le organizza in una struttura pubblica, verificabile e progressivamente estendibile a livello mondiale.
 
 ## Che cos'è MyZubster
 
-MyZubster è un **ecosistema software in sviluppo** che combina una piattaforma centrale con Gateway, Marketplace, applicazioni, componenti di robotica, servizi di escrow/pagamento e sistemi di bounty.
+MyZubster costruisce una **mappa visuale e informativa del mondo reale**. Gli utenti possono contribuire documentando ciò che li circonda e associando alle osservazioni informazioni strutturate come posizione geografica, categoria, immagini e riferimenti verificabili.
 
-L'obiettivo è fornire un'infrastruttura per coordinare **missioni e progetti, attività verificabili e relative ricompense**, con possibilità di applicazione anche a progetti civici e pilota.
+Il progetto parte da Rimini come area iniziale di mappatura e può espandersi progressivamente ad altre città e paesi attraverso contributi della comunità.
 
-Il modello di bounty prevede, quando formalmente approvato e finanziato, un ciclo del tipo:
+### Cosa può documentare
 
-**proposta → validazione → approvazione → funding → attività → verifica → reward → reporting**.
+- luoghi, piazze, strade e panorami;
+- piante, alberi, giardini e biodiversità urbana;
+- edifici e patrimonio storico e culturale;
+- servizi urbani e ambientali;
+- fotografie e osservazioni geolocalizzate;
+- arte e altre forme di documentazione visuale;
+- progetti tecnologici, civici e sperimentali collegati al territorio.
 
-MYZ, XMR e/o TOKEN possono essere previsti come modalità di reward secondo l'ambiente, il funding e le regole applicabili. La presenza di un'issue o di una bounty **non costituisce di per sé un pagamento, un finanziamento, una partnership o un'approvazione istituzionale**.
+## Tecnologia al servizio della mappa
+
+La tecnologia è l'infrastruttura del progetto, non il suo unico scopo. MyZubster utilizza e sperimenta strumenti come:
+
+- **GitHub** per rendere codice, documentazione e dataset verificabili;
+- **mappe e coordinate WGS84** per organizzare le osservazioni geografiche;
+- **AI e automazione** per supportare classificazione, ricerca e gestione dei contributi;
+- **robotica e IoT** per possibili applicazioni e raccolte dati future;
+- **sistemi decentralizzati e strumenti orientati alla privacy** dove risultano utili;
+- **bounty e sistemi di reward** per attività che siano formalmente definite, approvate e finanziate.
+
+Monero/XMR, MYZ, Tor, robotica e altre tecnologie fanno parte di specifici filoni sperimentali dell'ecosistema: **non definiscono da soli MyZubster e non implicano che ogni funzionalità sia già disponibile o production-ready**.
+
+## Missione
+
+L'obiettivo è creare nel tempo una base aperta e collaborativa in cui osservazioni del mondo reale possano essere documentate, collegate geograficamente e rese utili alla comunità.
+
+**MyZubster — osserva, documenta e collega il mondo reale.**
 
 ## Stato del progetto
 
-**MVP in sviluppo e validazione.** Il core del repository è coperto da CI con test e build su Node.js 18 e 20. Le integrazioni Gateway, settlement e pagamento sono soggette a validazione progressiva e non devono essere considerate automaticamente production-ready.
+**MVP open-source in sviluppo e validazione.** Alcune funzionalità sono operative, altre sperimentali, simulate o ancora in fase di progettazione.
 
-### Componenti
+Il repository comprende componenti per mappatura, API, dashboard, Gateway, marketplace, robotica, IoT, sistemi civici e flussi di bounty/reward in differenti livelli di maturità.
+
+## Mappa mondiale e osservazioni
+
+Le osservazioni geografiche sono organizzate usando coordinate WGS84. Il dataset mondiale è mantenuto in `data/observations.geojson` e può collegare ogni punto a documentazione, media e riferimenti cartografici esterni.
+
+La mappatura iniziale include osservazioni di Rimini e costituisce il modello da estendere progressivamente ad altre città.
+
+## Bounty e ricompense
+
+Quando una bounty è formalmente approvata e finanziata, il modello previsto segue un ciclo del tipo:
+
+**proposta → validazione → approvazione → funding → attività → verifica → reward → reporting**.
+
+MYZ, XMR e/o altri asset possono essere previsti come modalità di reward secondo ambiente, disponibilità, funding e regole applicabili. La presenza di un'issue o di una bounty **non costituisce di per sé un pagamento, un finanziamento, una partnership o un'approvazione istituzionale**.
+
+Le bounty pubbliche e il relativo ciclo di vita sono documentati in `BOUNTIES.md`.
+
+## Progetti civici
+
+Il repository e le issue possono essere utilizzati per strutturare proposte di progetti pilota civici relativi, ad esempio, ad ambiente, verde, servizi urbani, partecipazione, robotica e altri ambiti.
+
+Comune, aziende, università, governi o altri soggetti eventualmente citati non devono essere considerati aderenti, finanziatori o partner finché non esiste una formalizzazione verificabile.
+
+## Componenti software
 
 - **Backend:** Express.js + MongoDB
 - **Test:** Jest + Supertest
-- **Simulatore:** Eva Ioni (Python)
-- **Dashboard:** UI web
-- **Gateway:** integrazione con MyZubster Gateway
-- **Payments:** flussi MYZ/XMR con componenti simulate e/o in validazione, a seconda dell'ambiente
-
-## Global XMR track
-
-MyZubster mantiene un **track internazionale** per individuare use case e potenziali progetti pilota nei paesi in cui esistono community, servizi o attività documentabili legate a Monero/XMR.
-
-Questo track non equivale ad adozione di MyZubster. Ogni paese segue il percorso:
-
-**DISCOVERED → VALIDATED → CONTACTED → PILOT PROPOSED → APPROVED → FUNDED → ACTIVE → VERIFIED → REWARDED → REPORTED**.
-
-XMR è considerato un possibile **rail di settlement** solo dove tecnicamente e legalmente appropriato. MYZ/TOKEN restano asset distinti e devono essere verificati separatamente per emissione, titolarità, disponibilità e compliance.
-
-Il riferimento operativo per la mappa internazionale è **issue #484 — Global XMR Track**.
-
-## Progetti e bounty civici
-
-Il repository e le issue possono essere utilizzati per strutturare proposte di **progetti pilota civici**, inclusi casi d'uso relativi a ambiente, verde, servizi urbani, partecipazione, robotica e altri ambiti.
-
-Queste proposte rappresentano un **framework operativo e una proposta di collaborazione**. Comune, Urban Lab, Hera, Anthea, università, governi o altri soggetti citati nelle issue non devono essere considerati aderenti, finanziatori o partner finché non esiste una formalizzazione verificabile.
-
-## Struttura
-
-```text
-myzubster-space-station/
-├── backend/       # API e logica di business
-├── dashboard/     # UI web
-├── simulator/    # Eva Ioni Simulator
-├── gateway/      # Integrazione Gateway
-├── docs/         # Documentazione
-└── README.md
-```
+- **Dashboard/UI:** interfacce web
+- **Gateway:** servizi di integrazione MyZubster
+- **Mappe:** dataset GeoJSON e visualizzazione geografica
+- **Simulatori e automazione:** componenti sperimentali
+- **Payments/rewards:** flussi MYZ/XMR e altri componenti, simulati e/o in validazione a seconda dell'ambiente
 
 ## Avvio rapido
 
@@ -63,7 +83,7 @@ myzubster-space-station/
 
 - Node.js 20+
 - MongoDB locale o Atlas
-- Python 3 (opzionale, per il simulatore)
+- Python 3 per i componenti che lo richiedono
 
 ```bash
 git clone https://github.com/MyZubster-Ecosystem/myzubster.git
@@ -71,59 +91,20 @@ cd myzubster
 npm ci
 ```
 
-Crea un `.env` appropriato per l'ambiente, quindi avvia il backend:
-
-```bash
-node backend/src/index.js
-```
-
-Per il simulatore:
-
-```bash
-python simulator/eva_ioni_simulator.py
-```
-
-## API principali
-
-| Endpoint | Metodo | Descrizione |
-|---|---|---|
-| `/health` | GET | Stato del servizio |
-| `/api/telemetry` | GET/POST | Gestione telemetria |
-| `/api/gardens` | CRUD | Gestione orti |
-| `/api/gateway` | POST | Integrazione Gateway |
-
-La documentazione API dettagliata è in evoluzione e deve essere verificata contro l'ambiente in uso prima di integrazioni esterne.
+Crea un `.env` appropriato per l'ambiente prima di avviare i servizi.
 
 ## Test e CI
-
-Localmente:
 
 ```bash
 npm test
 npm run build --if-present
 ```
 
-La CI principale esegue installazione riproducibile, test e build su Node.js 18 e 20. Il lint viene eseguito quando è configurato nel repository.
+## Sicurezza
 
-## Bounties
+Prima di un deployment production devono essere verificati dipendenze, vulnerabilità, secret, variabili d'ambiente, health check, monitoring, backup/rollback e i flussi esterni utilizzati.
 
-Le bounty pubbliche e il relativo ciclo di vita sono documentati nel repository principale tramite `BOUNTIES.md`.
-
-Una bounty non è considerata pagata semplicemente perché un'issue è stata chiusa o una PR è stata mergiata: il pagamento deve essere registrato separatamente e verificabile.
-
-## Sicurezza e production readiness
-
-Il repository include attività di hardening delle dipendenze e controlli CI. Prima di un deployment production devono essere verificati almeno:
-
-- dipendenze e vulnerabilità;
-- secret e variabili d'ambiente;
-- health check e monitoring;
-- gestione degli errori e retry;
-- backup/rollback;
-- test dei flussi di settlement e pagamento;
-- comportamento in caso di timeout, duplicazione o fallimento del provider.
-
-**Non inserire secret, seed, chiavi private o credenziali nei repository.**
+**Non inserire secret, seed, chiavi private, indirizzi privati o credenziali nei repository.**
 
 ## Licenza
 
@@ -131,4 +112,4 @@ MIT License. Vedi `LICENSE`.
 
 ## Nota
 
-Questo progetto è un MVP in fase di sviluppo e validazione. Alcune funzionalità possono essere simulate, in memoria o limitate all'ambiente di test. Non utilizzare in produzione senza una verifica specifica dell'ambiente e dei flussi coinvolti.
+MyZubster è un progetto in evoluzione. La documentazione distingue le funzionalità operative dalle proposte, dagli esperimenti e dai componenti ancora in validazione.
