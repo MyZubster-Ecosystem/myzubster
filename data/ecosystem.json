@@ -1,11 +1,13 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "name": "MyZubster Ecosystem",
-  "description": "Public repository index used by the MyZubster ecosystem dashboard. Entries are based on repositories currently visible in the MyZubster-Ecosystem organization. Lifecycle status is intentionally conservative and can be curated over time.",
+  "description": "Public repository index used by the MyZubster ecosystem dashboard. Entries are based on repositories currently visible in the MyZubster-Ecosystem organization. Lifecycle status is intentionally conservative and curated separately from GitHub repository metadata.",
   "generated_from": "GitHub organization inventory",
+  "inventory_date": "2026-08-18",
   "repository_policy": {
     "public_dashboard": "Only public repositories are listed here.",
-    "lifecycle_status": "Use ACTIVE, EXPERIMENTAL, MAINTENANCE, DEPRECATED, ARCHIVED, or UNCLASSIFIED. Do not infer lifecycle from repository existence alone."
+    "lifecycle_status": "Use ACTIVE, EXPERIMENTAL, MAINTENANCE, DEPRECATED, ARCHIVED, or UNCLASSIFIED. Do not infer lifecycle from repository existence, repository size, or branch name alone.",
+    "github_state": "GitHub metadata such as visibility, archived state, default branch and repository size is factual inventory data and is kept separate from lifecycle classification."
   },
   "visuals": {
     "primary": "/media/ecosystem/repository-visualizations/MyZubster-Ecosystem-Visual-03.jpg",
@@ -20,108 +22,156 @@
       "role": "Core ecosystem / gateway and real-world data hub",
       "category": "core",
       "lifecycle_status": "ACTIVE",
+      "lifecycle_status_source": "curated",
       "default_branch": "main",
       "github": "https://github.com/MyZubster-Ecosystem/myzubster",
-      "visibility": "public"
+      "visibility": "public",
+      "archived": false,
+      "size_kb": 7650
     },
     {
       "name": "MyZubsterGateway",
       "role": "Gateway repository",
       "category": "gateway",
       "lifecycle_status": "UNCLASSIFIED",
+      "lifecycle_status_source": "pending-curation",
       "default_branch": "main",
       "github": "https://github.com/MyZubster-Ecosystem/MyZubsterGateway",
-      "visibility": "public"
+      "visibility": "public",
+      "archived": false,
+      "size_kb": 393613
     },
     {
       "name": "MyZubster-App",
       "role": "Application client",
       "category": "app",
       "lifecycle_status": "UNCLASSIFIED",
+      "lifecycle_status_source": "pending-curation",
       "default_branch": "main",
       "github": "https://github.com/MyZubster-Ecosystem/MyZubster-App",
-      "visibility": "public"
+      "visibility": "public",
+      "archived": false,
+      "size_kb": 444
     },
     {
       "name": "MyZubster-Marketplace",
       "role": "Marketplace",
       "category": "marketplace",
       "lifecycle_status": "UNCLASSIFIED",
+      "lifecycle_status_source": "pending-curation",
       "default_branch": "main",
       "github": "https://github.com/MyZubster-Ecosystem/MyZubster-Marketplace",
-      "visibility": "public"
+      "visibility": "public",
+      "archived": false,
+      "size_kb": 388484
     },
     {
       "name": "MyZubster-Robot",
       "role": "Robotics",
       "category": "robotics",
       "lifecycle_status": "UNCLASSIFIED",
+      "lifecycle_status_source": "pending-curation",
       "default_branch": "master",
       "github": "https://github.com/MyZubster-Ecosystem/MyZubster-Robot",
-      "visibility": "public"
+      "visibility": "public",
+      "archived": false,
+      "size_kb": 600
+    },
+    {
+      "name": "tari",
+      "role": "Tari integration / upstream codebase",
+      "category": "payments",
+      "lifecycle_status": "UNCLASSIFIED",
+      "lifecycle_status_source": "pending-curation",
+      "default_branch": "development",
+      "github": "https://github.com/MyZubster-Ecosystem/tari",
+      "visibility": "public",
+      "archived": false,
+      "size_kb": 159570
     },
     {
       "name": "myzubster-docs",
       "role": "Documentation",
       "category": "docs",
       "lifecycle_status": "UNCLASSIFIED",
+      "lifecycle_status_source": "pending-curation",
       "default_branch": "main",
       "github": "https://github.com/MyZubster-Ecosystem/myzubster-docs",
-      "visibility": "public"
+      "visibility": "public",
+      "archived": false,
+      "size_kb": 337
     },
     {
       "name": "myzubster-manuals",
       "role": "Manuals and operational documentation",
       "category": "docs",
       "lifecycle_status": "UNCLASSIFIED",
+      "lifecycle_status_source": "pending-curation",
       "default_branch": "main",
       "github": "https://github.com/MyZubster-Ecosystem/myzubster-manuals",
-      "visibility": "public"
+      "visibility": "public",
+      "archived": false,
+      "size_kb": 0
     },
     {
       "name": "myzubster-animal-registry",
       "role": "Animal registry",
       "category": "registry",
       "lifecycle_status": "UNCLASSIFIED",
+      "lifecycle_status_source": "pending-curation",
       "default_branch": "main",
       "github": "https://github.com/MyZubster-Ecosystem/myzubster-animal-registry",
-      "visibility": "public"
+      "visibility": "public",
+      "archived": false,
+      "size_kb": 87
     },
     {
       "name": "MyZubsterWeb",
       "role": "Web frontend",
       "category": "frontend",
       "lifecycle_status": "UNCLASSIFIED",
+      "lifecycle_status_source": "pending-curation",
       "default_branch": "main",
       "github": "https://github.com/MyZubster-Ecosystem/MyZubsterWeb",
-      "visibility": "public"
+      "visibility": "public",
+      "archived": false,
+      "size_kb": 0
     },
     {
       "name": "myzubster-platform",
       "role": "Platform components",
       "category": "platform",
       "lifecycle_status": "UNCLASSIFIED",
+      "lifecycle_status_source": "pending-curation",
       "default_branch": "master",
       "github": "https://github.com/MyZubster-Ecosystem/myzubster-platform",
-      "visibility": "public"
+      "visibility": "public",
+      "archived": false,
+      "size_kb": 4382
     },
     {
       "name": "myzubster-space-station",
       "role": "Experimental space-station project",
       "category": "experiment",
-      "lifecycle_status": "UNCLASSIFIED",
+      "lifecycle_status": "EXPERIMENTAL",
+      "lifecycle_status_source": "role-explicit",
       "default_branch": "main",
       "github": "https://github.com/MyZubster-Ecosystem/myzubster-space-station",
-      "visibility": "public"
+      "visibility": "public",
+      "archived": false,
+      "size_kb": 13
     },
     {
       "name": "EVA-IONI",
       "role": "EVA / Ioni project",
       "category": "research",
       "lifecycle_status": "UNCLASSIFIED",
+      "lifecycle_status_source": "pending-curation",
       "default_branch": "main",
       "github": "https://github.com/MyZubster-Ecosystem/EVA-IONI",
-      "visibility": "public"
+      "visibility": "public",
+      "archived": false,
+      "size_kb": 58350
     }
   ]
 }
