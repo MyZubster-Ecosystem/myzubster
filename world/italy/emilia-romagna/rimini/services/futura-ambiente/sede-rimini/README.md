@@ -5,6 +5,7 @@ MyZubster urban/environmental services observation.
 - Country: Italy
 - Region: Emilia-Romagna
 - City: Rimini
+- Address: Via Portogallo 11, Rimini
 - Organization: Futura Ambiente
 - Record: Sede di Rimini
 - Coordinates: 44.0643945, 12.5314941
@@ -22,7 +23,7 @@ Expected image directory:
 
 Suggested filename:
 
-`2026-08-18_futura-ambiente_sede-rimini_44.0643945_12.5314941_001.jpg`
+`2026-08-18_futura-ambiente_sede-rimini_via-portogallo-11_44.0643945_12.5314941_001.jpg`
 
 ## GeoJSON
 
@@ -36,6 +37,7 @@ Suggested filename:
   "properties": {
     "id": "rimini-futura-ambiente-sede-20260818-001",
     "name": "Futura Ambiente — Sede di Rimini",
+    "address": "Via Portogallo 11, Rimini",
     "city": "Rimini",
     "country": "Italy",
     "category": "urban-environmental-service",
