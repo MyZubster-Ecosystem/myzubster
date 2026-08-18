@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const { validateObserved, extractTransferFromReceipt } = require('../src/verifier');
 
 const expected = {
-  txid: 'tx-123',
+  txId: 'tx-123',
   recipient: 'recipient-1',
   asset: 'MYZ',
   network: 'tari-mainnet',
@@ -14,14 +14,14 @@ const expected = {
 test('accepts an exact confirmed transaction', () => {
   const result = validateObserved(expected, { ...expected });
   assert.equal(result.verified, true);
-  assert.equal(result.txid, expected.txid);
+  assert.equal(result.txId, expected.txId);
   assert.equal(result.recipient, expected.recipient);
   assert.equal(result.asset, 'MYZ');
   assert.equal(result.network, expected.network);
   assert.equal(result.amount, 25);
   assert.equal(result.transactionStatus, 'confirmed');
   assert.deepEqual(result.checks, {
-    txid: true,
+    txId: true,
     recipient: true,
     asset: true,
     network: true,
@@ -31,7 +31,7 @@ test('accepts an exact confirmed transaction', () => {
 });
 
 for (const [name, change] of [
-  ['txid', { txid: 'other' }],
+  ['txId', { txId: 'other' }],
   ['recipient', { recipient: 'other' }],
   ['asset', { asset: 'XMR' }],
   ['network', { network: 'tari-testnet' }],
@@ -46,7 +46,7 @@ for (const [name, change] of [
 
 test('rejects malformed upstream data', () => {
   assert.equal(validateObserved(expected, null).verified, false);
-  assert.equal(validateObserved(expected, { txid: expected.txid }).verified, false);
+  assert.equal(validateObserved(expected, { txId: expected.txId }).verified, false);
 });
 
 test('extracts a committed MYZ transfer from the Tari Ootle indexer receipt', () => {
@@ -73,12 +73,12 @@ test('extracts a committed MYZ transfer from the Tari Ootle indexer receipt', ()
 
   assert.deepEqual(
     extractTransferFromReceipt(receipt, {
-      txid: 'tx-123',
+      txId: 'tx-123',
       resourceAddress: 'resource_myz',
       eventTopic: 'MYZ_TRANSFER',
     }),
     {
-      txid: 'tx-123',
+      txId: 'tx-123',
       recipient: 'recipient-1',
       asset: 'MYZ',
       amount: '25',
@@ -106,7 +106,7 @@ test('does not accept a different resource or event topic', () => {
   };
 
   assert.equal(extractTransferFromReceipt(receipt, {
-    txid: 'tx-123',
+    txId: 'tx-123',
     resourceAddress: 'resource_myz',
     eventTopic: 'MYZ_TRANSFER',
   }), null);
@@ -123,7 +123,7 @@ test('does not accept an aborted transaction', () => {
   };
 
   assert.equal(extractTransferFromReceipt(receipt, {
-    txid: 'tx-123',
+    txId: 'tx-123',
     resourceAddress: 'resource_myz',
     eventTopic: 'MYZ_TRANSFER',
   }), null);
