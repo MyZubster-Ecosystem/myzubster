@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "0.1",
+  "collectionId": "MYZ-URBAN-IT-RN-RIMINI-001",
+  "title": "Rimini field observations",
+  "status": "OBSERVED_PENDING_MEDIA_UPLOAD",
+  "locationPolicy": "Public-place locations only; no home/private address stored.",
+  "records": [
+    {
+      "recordId": "MYZ-PLANT-IT-RN-MALATESTA-001",
+      "type": "botanical_observation",
+      "name": "Platano - Platanus sp.",
+      "location": {"name": "Piazza Malatesta", "city": "Rimini", "province": "RN", "country": "Italia", "address": "Piazza Malatesta, Rimini", "coordinates": null},
+      "verification": "Species pending leaf/bark close-ups",
+      "mediaPendingRepositoryUpload": true
+    },
+    {
+      "recordId": "MYZ-ENV-IT-RN-RIMINI-001",
+      "type": "environmental_asset_observation",
+      "name": "Environmental services vehicle",
+      "observedMarks": ["Futura", "Servizi Ambientali / Hera", "Vrent"],
+      "location": {"city": "Rimini", "province": "RN", "country": "Italia", "coordinates": null},
+      "verification": "Exact street/location not established from supplied context",
+      "mediaPendingRepositoryUpload": true
+    },
+    {
+      "recordId": "MYZ-CIVIC-IT-RN-RIMINI-001",
+      "type": "civic_location_observation",
+      "name": "Municipio / Comune di Rimini",
+      "location": {"city": "Rimini", "province": "RN", "country": "Italia", "coordinates": null},
+      "verification": "Municipio signage visible; precise entrance coordinates pending",
+      "mediaPendingRepositoryUpload": true
+    },
+    {
+      "recordId": "MYZ-CULT-IT-RN-GALLI-001",
+      "type": "cultural_location",
+      "name": "Teatro Amintore Galli",
+      "location": {"name": "Piazza Cavour", "city": "Rimini", "province": "RN", "country": "Italia", "address": "Piazza Cavour, 47921 Rimini", "coordinates": null},
+      "verification": "Location corroborated by public place data",
+      "mediaPendingRepositoryUpload": true
+    },
+    {
+      "recordId": "MYZ-CULT-IT-RN-PIGNA-001",
+      "type": "cultural_asset",
+      "name": "Fontana della Pigna",
+      "location": {"name": "Piazza Cavour", "city": "Rimini", "province": "RN", "country": "Italia", "address": "Piazza Cavour, 47921 Rimini", "coordinates": null},
+      "verification": "Location corroborated by Comune di Rimini and public place data",
+      "mediaPendingRepositoryUpload": true
+    }
+  ],
+  "notes": "Repository currently stores metadata. Original photographs supplied in chat remain pending binary upload from PC/VPS. Coordinates are intentionally null until verified rather than guessed."
+}
