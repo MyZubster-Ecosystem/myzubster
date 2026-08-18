@@ -7,13 +7,12 @@ const app = express();
 
 // Middleware
 app.use(cors());
-app.use(express.json({
+app.use('/api/github-bounties/webhook', express.json({
   verify: (req, res, buf) => {
-    if (req.originalUrl?.startsWith('/api/github-bounties/webhook')) {
-      req.rawBody = Buffer.from(buf);
-    }
+    req.rawBody = Buffer.from(buf);
   }
 }));
+app.use(express.json());
 app.use(express.static('public'));
 app.use('/data', express.static('data'));
 
