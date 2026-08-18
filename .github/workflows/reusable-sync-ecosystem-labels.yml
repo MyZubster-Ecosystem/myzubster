@@ -1,0 +1,104 @@
+name: Sync MyZubster ecosystem labels
+
+on:
+  workflow_call:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/reusable-sync-ecosystem-labels.yml
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create/update canonical labels and normalize open bounty issues
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const labels = [
+              ['type:bounty','b60205','Explicitly declared bounty work'],
+              ['type:bug','d73a4a','Defect or regression'],
+              ['type:feature','1d76db','Product or engineering feature'],
+              ['type:docs','0075ca','Documentation-only work'],
+              ['type:security','b60205','Defensive security or responsible-disclosure work'],
+              ['type:ops','5319e7','Deployment, reliability or operations'],
+              ['status:proposed','d4c5f9','Proposed; not yet approved or funded'],
+              ['status:validated','c5def5','Scope/acceptance criteria validated'],
+              ['status:approved','bfdadc','Approved for execution'],
+              ['status:funded','0e8a16','Funding/reservation approved; not payment proof'],
+              ['status:active','1d76db','Active/claimed/in progress'],
+              ['status:submitted','fbca04','Submission or PR available for review'],
+              ['status:review','d93f0b','Under review/verification'],
+              ['status:verified','0e8a16','Acceptance criteria verified'],
+              ['status:reward-recorded','006b75','Reward recorded in project ledger/workflow'],
+              ['reward:myz','7057ff','MYZ internal reward/ledger component'],
+              ['reward:xmr','ff6600','XMR external-settlement component'],
+              ['reward:token','8250df','External token settlement component'],
+              ['settlement:pending','fbca04','Settlement not final'],
+              ['settlement:submitted','d93f0b','External settlement submitted; awaiting verification'],
+              ['settlement:verified','0e8a16','External settlement independently verified'],
+              ['settlement:settled','006b75','External settlement finalized with verifiable evidence'],
+              ['settlement:unsettled','b60205','Settlement missing, failed or not independently verifiable'],
+              ['settlement:disputed','d93f0b','Settlement or reward is disputed'],
+              ['review:manual','c2e0c6','Human review required'],
+              ['review:multi','5319e7','Multiple distinct reviewers required'],
+              ['evidence:required','f9d0c4','Acceptance requires explicit evidence'],
+              ['sensitivity:normal','c2e0c6','Normal sensitivity'],
+              ['sensitivity:elevated','fbca04','Elevated sensitivity; extra review required'],
+              ['sensitivity:high','b60205','High sensitivity; strict authorization/review required'],
+              ['priority:p0','b60205','Blocking / highest priority'],
+              ['priority:p1','d93f0b','High priority'],
+              ['priority:p2','fbca04','Normal planned priority'],
+              ['blocked','000000','Blocked by dependency, decision or gate']
+            ];
+
+            const { owner, repo } = context.repo;
+
+            for (const [name, color, description] of labels) {
+              try {
+                await github.rest.issues.getLabel({ owner, repo, name });
+                await github.rest.issues.updateLabel({ owner, repo, name, new_name: name, color, description });
+              } catch (error) {
+                if (error.status !== 404) throw error;
+                await github.rest.issues.createLabel({ owner, repo, name, color, description });
+              }
+            }
+
+            const issues = await github.paginate(github.rest.issues.listForRepo, {
+              owner,
+              repo,
+              state: 'open',
+              per_page: 100
+            });
+
+            for (const issue of issues) {
+              if (issue.pull_request) continue;
+
+              const existing = (issue.labels || []).map(label =>
+                typeof label === 'string' ? label.toLowerCase() : String(label.name || '').toLowerCase()
+              );
+              const title = String(issue.title || '');
+              const body = String(issue.body || '');
+              const text = `${title}\n${body}`;
+
+              const explicitlyBountied =
+                /^\s*bounty\b/i.test(title) ||
+                /^\s*[^\n]*\[\s*bounty[^\]]*\]/i.test(title) ||
+                existing.some(name => name === 'bounty' || name.startsWith('bounty:'));
+
+              if (!explicitlyBountied) continue;
+
+              const add = ['type:bounty'];
+              if (/\bMYZ\b|\$MYZ/i.test(text)) add.push('reward:myz');
+              if (/\bXMR\b|\bMonero\b/i.test(text)) add.push('reward:xmr');
+              if (/\bTOKEN\b|reward\s*:\s*[^\n]*token/i.test(text)) add.push('reward:token');
+
+              const missing = [...new Set(add)].filter(name => !existing.includes(name));
+              if (missing.length) {
+                await github.rest.issues.addLabels({ owner, repo, issue_number: issue.number, labels: missing });
+              }
+            }
