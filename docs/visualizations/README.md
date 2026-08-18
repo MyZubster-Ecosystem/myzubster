@@ -25,7 +25,38 @@ Use the approved dark/neon MyZubster system consistently across repository asset
 
 ## Repository coverage
 
-The current workstream covers the MyZubster organization repositories, including the core platform, gateway, marketplace, app, robot, Tari integration, documentation, AI/automation, platform services, escrow/verifier components, EVA-IONI, Space Station, animal registry and related infrastructure.
+Current organization coverage includes:
+
+- `myzubster`
+- `MyZubsterGateway`
+- `MyZubster-Marketplace`
+- `MyZubster-App`
+- `myzubster-docs`
+- `myzubster-animal-registry`
+- `ai-automation`
+- `myzubster-ai-bot`
+- `MyZubsterWeb`
+- `MyZubster-Robot-Stack`
+- `MyZubster-Robot`
+- `myzubster-platform`
+- `myzubster-escrow-api`
+- `tari`
+- `EVA-IONI`
+- `myzubster-space-station`
+- `myzubster-manuals`
+- `myzubster-verifier`
+
+Private repositories can use the same visual system, but source renders should stay in Drive unless explicitly approved for public GitHub publication.
+
+## Animation workstream
+
+For each repository, produce:
+
+1. 16:9 hero visualization.
+2. Architecture/dependency frame.
+3. CI/deploy/status frame.
+4. 30–45 second animation storyboard.
+5. Final video export when the video-generation pipeline is available.
 
 ## Storage model
 
