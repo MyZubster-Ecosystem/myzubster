@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MyZubster Observation</title>
+<meta name="description" content="Public detail view for a MyZubster real-world observation.">
+<style>
+:root{color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#0b0f14;color:#eef2f7}
+header{padding:32px 20px;text-align:center;background:#101722;border-bottom:1px solid #293442}
+header a{color:#9fd3ff;text-decoration:none;margin:0 8px}
+main{max-width:1050px;margin:auto;padding:24px}
+.card{background:#121923;border:1px solid #293442;border-radius:16px;overflow:hidden}
+.media{background:#070a0e;display:flex;justify-content:center;align-items:center;min-height:240px}
+.media img{display:block;max-width:100%;max-height:720px}
+.copy{padding:22px}
+h1{margin-top:0}.muted{color:#9aa6b2}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin-top:20px}
+.field{background:#0e151e;border:1px solid #263341;border-radius:10px;padding:12px;word-break:break-word}
+.field strong{display:block;margin-bottom:6px;color:#c8d2dc}.badge{display:inline-block;border:1px solid #53677d;border-radius:999px;padding:5px 9px;font-size:.8rem}
+code{word-break:break-all;color:#cfe6ff}.error{padding:18px;background:#2a1515;border:1px solid #6c3333;border-radius:10px;color:#ffc7c7}
+footer{text-align:center;padding:35px 20px;color:#74808b}
+</style>
+</head>
+<body>
+<header>
+  <strong>MyZubster Observation Registry</strong><br><br>
+  <a href="/photos.html">Photos</a>
+  <a href="/ecosystem-dashboard.html">Dashboard</a>
+</header>
+<main>
+  <div id="app"><p>Loading observation…</p></div>
+</main>
+<footer>MyZubster — observe, document and connect the real world.</footer>
+<script>
+const app=document.getElementById('app');
+const esc=(v='')=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+const params=new URLSearchParams(location.search);
+const id=params.get('id');
+function field(label,value){return `<div class="field"><strong>${esc(label)}</strong>${value===null||value===undefined||value===''?'<span class="muted">Pending / not recorded</span>':esc(value)}</div>`}
+fetch('/data/observations.json',{cache:'no-store'})
+  .then(r=>{if(!r.ok)throw new Error(`HTTP ${r.status}`);return r.json()})
+  .then(data=>{
+    if(!id){app.innerHTML='<div class="error">Missing observation id. Use <code>?id=...</code>.</div>';return}
+    const o=(data.observations||[]).find(x=>x.observation_id===id);
+    if(!o){app.innerHTML='<div class="error">Observation not found.</div>';return}
+    const media=esc(o.media_path||'');
+    const tags=(o.tags||[]).map(t=>`<span class="badge">${esc(t)}</span>`).join(' ');
+    app.innerHTML=`<article class="card">
+      <div class="media">${media?`<img src="${media}" alt="${esc(o.title||o.observation_id)}">`:'<span class="muted">No media path</span>'}</div>
+      <div class="copy">
+        <span class="badge">${esc(o.status||'UNKNOWN')}</span>
+        <h1>${esc(o.title||o.observation_id)}</h1>
+        <p class="muted">${esc(o.description||'')}</p>
+        <div>${tags}</div>
+        <div class="grid">
+          ${field('Observation ID',o.observation_id)}
+          ${field('Category',o.category)}
+          ${field('City',o.city)}
+          ${field('Country',o.country)}
+          ${field('Captured at',o.captured_at)}
+          ${field('Imported at',o.imported_at)}
+          ${field('Latitude',o.latitude)}
+          ${field('Longitude',o.longitude)}
+          ${field('Source',o.source)}
+          ${field('Repository commit',o.repository_commit)}
+          ${field('Bounty ID',o.bounty_id)}
+          ${field('Monero TXID',o.monero_txid)}
+        </div>
+        <div class="field" style="margin-top:12px"><strong>SHA-256</strong>${o.sha256?`<code>${esc(o.sha256)}</code>`:'<span class="muted">Pending / not recorded</span>'}</div>
+        <div class="field" style="margin-top:12px"><strong>Media path</strong><code>${media}</code></div>
+      </div>
+    </article>`;
+  })
+  .catch(err=>{app.innerHTML=`<div class="error">Unable to load observation data: ${esc(err.message)}</div>`});
+</script>
+</body>
+</html>
