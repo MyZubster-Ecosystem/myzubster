@@ -1,6 +1,13 @@
 {
   "type": "FeatureCollection",
   "name": "MyZubster Worldwide Observations",
+  "schema_version": "1.1",
+  "coordinate_policy": {
+    "storage": "WGS84 longitude,latitude in GeoJSON",
+    "display": "latitude,longitude",
+    "external_map": "Google Maps coordinate query link",
+    "note": "MyZubster stores its own observation metadata and media; Google Maps is used only as an external position reference/link when applicable."
+  },
   "features": [
     {
       "type": "Feature",
@@ -17,6 +24,11 @@
         "category": "street",
         "media_type": "panorama",
         "capture_date": "2026-08-18",
+        "latitude": 44.0637353,
+        "longitude": 12.5678873,
+        "coordinate_system": "WGS84",
+        "coordinate_status": "confirmed",
+        "coordinate_source": "user-confirmed-position",
         "github_record": "https://github.com/MyZubster-Ecosystem/myzubster/blob/main/world/italy/emilia-romagna/rimini/streets/via-clodia/README.md",
         "google_maps": "https://www.google.com/maps?q=44.0637353,12.5678873"
       }
@@ -37,6 +49,11 @@
         "category": "urban-environmental-service",
         "media_type": "photo",
         "capture_date": "2026-08-18",
+        "latitude": 44.0643945,
+        "longitude": 12.5314941,
+        "coordinate_system": "WGS84",
+        "coordinate_status": "confirmed",
+        "coordinate_source": "user-confirmed-position",
         "github_record": "https://github.com/MyZubster-Ecosystem/myzubster/blob/main/world/italy/emilia-romagna/rimini/services/futura-ambiente/sede-rimini/README.md",
         "google_maps": "https://www.google.com/maps?q=44.0643945,12.5314941"
       }
