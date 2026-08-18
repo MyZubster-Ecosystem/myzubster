@@ -7,17 +7,14 @@ CANDIDATES_FILE="${CANDIDATES_FILE:-/config/candidates.txt}"
 OBSERVATIONS_FILE="${OBSERVATIONS_FILE:-/data/observations.jsonl}"
 OBSERVER_ID="${OBSERVER_ID:-observer-unknown}"
 PROBE_PATH="${PROBE_PATH:-/health}"
-TOR_SOCKS="${TOR_SOCKS:-socks5h://tor:9050}"
+TOR_SOCKS="${TOR_SOCKS:-socks5h://127.0.0.1:9050}"
 
 mkdir -p "$(dirname "$OBSERVATIONS_FILE")"
 
-iso_now() {
-  date -u +%Y-%m-%dT%H:%M:%SZ
-}
+iso_now() { date -u +%Y-%m-%dT%H:%M:%SZ; }
 
 emit() {
   node="$1"; result="$2"; latency="$3"; error_class="$4"
-  # JSON is deliberately emitted without secrets or request contents.
   printf '{"node_id":"%s","observer_id":"%s","observed_at":"%s","result":"%s","latency_ms":%s,"error_class":%s}\n' \
     "$node" "$OBSERVER_ID" "$(iso_now)" "$result" "$latency" "$error_class" >> "$OBSERVATIONS_FILE"
 }
