@@ -44,13 +44,14 @@ function createMyzVerifier() {
         });
 
         const body = await response.text();
+        if (!response.ok) throw new Error(`MYZ verifier HTTP ${response.status}`);
+
         let data;
         try {
           data = body ? JSON.parse(body) : null;
         } catch (_) {
           throw new Error('MYZ verifier returned invalid JSON');
         }
-        if (!response.ok) throw new Error(`MYZ verifier HTTP ${response.status}`);
         if (!data || typeof data !== 'object') throw new Error('MYZ verifier returned an invalid response');
         return data;
       } catch (error) {
