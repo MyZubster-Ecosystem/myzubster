@@ -46,6 +46,12 @@ const githubBountySchema = new mongoose.Schema({
     required: true,
     index: true
   },
+  sourceVisibility: {
+    type: String,
+    enum: ['public', 'private', 'internal'],
+    default: 'public',
+    index: true
+  },
   issueNumber: {
     type: Number,
     required: true,
@@ -111,13 +117,10 @@ const githubBountySchema = new mongoose.Schema({
     default: 'unknown',
     index: true
   },
-  rewardAssets: {
-    type: [{
-      type: String,
-      enum: ['MYZ', 'XMR', 'TOKEN']
-    }],
-    default: []
-  },
+  rewardAssets: [{
+    type: String,
+    enum: ['MYZ', 'XMR', 'TOKEN']
+  }],
   rewardDeclarations: {
     type: [rewardDeclarationSchema],
     default: []
@@ -170,5 +173,6 @@ githubBountySchema.index(
 );
 
 githubBountySchema.index({ tracked: 1, lifecycleStatus: 1 });
+githubBountySchema.index({ sourceVisibility: 1, tracked: 1 });
 
 module.exports = mongoose.model('GitHubBounty', githubBountySchema);
