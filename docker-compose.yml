@@ -75,8 +75,25 @@ services:
     networks:
       - myzubster-network
 
+  onion:
+    build:
+      context: ./onion
+      dockerfile: Dockerfile
+    container_name: myzubster-onion
+    restart: unless-stopped
+    environment:
+      - ONION_TARGET_HOST=frontend
+      - ONION_TARGET_PORT=3000
+    depends_on:
+      - frontend
+    volumes:
+      - onion_data:/var/lib/tor/myzubster
+    networks:
+      - myzubster-network
+
 volumes:
   mongodb_data:
+  onion_data:
 
 networks:
   myzubster-network:
