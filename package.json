@@ -9,11 +9,6 @@
     "test": "jest",
     "build": "npm install"
   },
-  "jest": {
-    "testPathIgnorePatterns": [
-      "<rootDir>/services/myz-verifier/"
-    ]
-  },
   "dependencies": {
     "axios": "^1.19.0",
     "bcrypt": "^6.0.0",
