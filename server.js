@@ -31,6 +31,7 @@ const nearbyRoutes = require('./src/routes/nearbyRoutes');
 const gardenRoutes = require('./src/routes/gardenRoutes');
 const geocodeRoutes = require('./src/routes/geocodeRoutes');
 const healthRoutes = require('./src/routes/healthRoutes');
+const telemetryRoutes = require('./src/routes/telemetryRoutes');
 
 // Monta le route
 app.use('/api/auth', authRoutes);
@@ -47,6 +48,7 @@ app.use('/api/nearby', nearbyRoutes);
 app.use('/api/gardens', gardenRoutes);
 app.use('/api/geocode', geocodeRoutes);
 app.use('/health', healthRoutes);
+app.use('/api/telemetry', telemetryRoutes);
 
 // Esporta app per i test
 module.exports = app;
