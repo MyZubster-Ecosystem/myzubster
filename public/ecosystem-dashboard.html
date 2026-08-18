@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MyZubster Ecosystem Dashboard</title>
+<meta name="description" content="Data-driven dashboard for the public MyZubster repository ecosystem.">
+<style>
+:root{color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#0b0f14;color:#eef2f7}
+header{padding:44px 20px 28px;text-align:center;background:linear-gradient(180deg,#111925,#0b0f14)}
+header h1{margin:0 0 10px;font-size:clamp(2rem,5vw,3.2rem)}
+header p{max-width:850px;margin:0 auto;color:#aab4c0;line-height:1.6}
+nav{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px}
+nav a,.button{display:inline-block;padding:10px 14px;border-radius:9px;text-decoration:none;background:#e8edf3;color:#111820;font-weight:700}
+main{max-width:1280px;margin:auto;padding:24px}
+.hero{background:#121923;border:1px solid #293442;border-radius:18px;overflow:hidden;margin-bottom:26px}
+.hero img{display:block;width:100%;max-height:720px;object-fit:contain;background:#070a0e}
+.hero .copy{padding:18px 20px;color:#b6c0cb}
+.toolbar{display:flex;gap:12px;flex-wrap:wrap;margin:24px 0}
+input,select{background:#121923;color:#eef2f7;border:1px solid #334151;border-radius:9px;padding:11px 12px;font:inherit}
+input{flex:1;min-width:240px}
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:20px 0 26px}
+.stat{background:#121923;border:1px solid #293442;border-radius:14px;padding:16px}
+.stat strong{display:block;font-size:1.8rem;margin-bottom:4px}
+.stat span{color:#93a0ad;font-size:.9rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:18px}
+.card{background:#121923;border:1px solid #293442;border-radius:15px;padding:18px;display:flex;flex-direction:column;gap:10px;min-height:235px}
+.card h2{margin:0;font-size:1.25rem;word-break:break-word}
+.meta{color:#9aa6b2;font-size:.9rem}
+.role{line-height:1.5;color:#c7d0d9;flex:1}
+.badges{display:flex;gap:7px;flex-wrap:wrap}
+.badge{font-size:.75rem;border:1px solid #3a495a;border-radius:999px;padding:5px 8px;color:#c3ced9}
+.badge.active{border-color:#5f8f70;color:#bde4c8}
+.badge.unclassified{border-color:#665b3d;color:#eadb9f}
+.card a{color:#9fd3ff;text-decoration:none;font-weight:700}
+.notice{margin-top:26px;padding:16px;border-left:4px solid #6c7f96;background:#111821;color:#aeb9c5;line-height:1.55}
+#error{display:none;margin:20px 0;padding:16px;background:#2a1515;border:1px solid #6c3333;border-radius:10px;color:#ffc7c7}
+footer{text-align:center;color:#75808b;padding:44px 20px}
+</style>
+</head>
+<body>
+<header>
+  <h1>MyZubster Ecosystem Dashboard</h1>
+  <p>A live, data-driven index of the public MyZubster repository ecosystem. The dashboard separates verified repository facts from curated lifecycle labels and architectural intent.</p>
+  <nav>
+    <a href="/ecosystem.html">Visual Overview</a>
+    <a href="/photos.html">Photo Archive</a>
+    <a href="https://github.com/MyZubster-Ecosystem">GitHub Organization</a>
+  </nav>
+</header>
+<main>
+  <section class="hero">
+    <img src="/media/ecosystem/repository-visualizations/MyZubster-Ecosystem-Visual-03.jpg" alt="MyZubster Ecosystem Visual 03">
+    <div class="copy">Visual 03 is the current architectural reference image. Repository cards below are generated from <code>/data/ecosystem.json</code>, so the dashboard can evolve without rewriting the page.</div>
+  </section>
+
+  <div id="error"></div>
+
+  <section class="summary">
+    <div class="stat"><strong id="repoCount">—</strong><span>public repositories indexed</span></div>
+    <div class="stat"><strong id="categoryCount">—</strong><span>categories</span></div>
+    <div class="stat"><strong id="activeCount">—</strong><span>explicitly ACTIVE</span></div>
+  </section>
+
+  <section class="toolbar">
+    <input id="search" type="search" placeholder="Search repositories, roles or categories…" aria-label="Search repositories">
+    <select id="category" aria-label="Filter by category"><option value="">All categories</option></select>
+    <select id="status" aria-label="Filter by status"><option value="">All lifecycle states</option></select>
+  </section>
+
+  <section id="cards" class="grid" aria-live="polite"></section>
+
+  <div class="notice">
+    <strong>Data policy:</strong> only public repositories are listed. Lifecycle labels are not inferred from GitHub existence alone. Repositories marked <em>UNCLASSIFIED</em> should be reviewed before being presented as active, deprecated or archived.
+  </div>
+</main>
+<footer>MyZubster — structured software, data and real-world observations.</footer>
+
+<script>
+const cards = document.getElementById('cards');
+const search = document.getElementById('search');
+const category = document.getElementById('category');
+const status = document.getElementById('status');
+const errorBox = document.getElementById('error');
+let repos = [];
+
+function esc(value='') {
+  return String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));
+}
+
+function render() {
+  const q = search.value.trim().toLowerCase();
+  const c = category.value;
+  const s = status.value;
+  const filtered = repos.filter(r => {
+    const hay = `${r.name} ${r.role} ${r.category} ${r.lifecycle_status}`.toLowerCase();
+    return (!q || hay.includes(q)) && (!c || r.category === c) && (!s || r.lifecycle_status === s);
+  });
+  cards.innerHTML = filtered.map(r => `
+    <article class="card">
+      <h2>${esc(r.name)}</h2>
+      <div class="badges">
+        <span class="badge">${esc(r.category)}</span>
+        <span class="badge ${r.lifecycle_status === 'ACTIVE' ? 'active' : 'unclassified'}">${esc(r.lifecycle_status)}</span>
+        <span class="badge">branch: ${esc(r.default_branch)}</span>
+      </div>
+      <div class="role">${esc(r.role)}</div>
+      <div class="meta">Visibility: ${esc(r.visibility)}</div>
+      <a href="${esc(r.github)}" target="_blank" rel="noopener noreferrer">Open repository →</a>
+    </article>`).join('');
+  if (!filtered.length) cards.innerHTML = '<p>No repositories match the current filters.</p>';
+}
+
+function addOptions(select, values) {
+  [...new Set(values)].sort().forEach(v => {
+    const option = document.createElement('option');
+    option.value = v;
+    option.textContent = v;
+    select.appendChild(option);
+  });
+}
+
+fetch('/data/ecosystem.json', {cache:'no-store'})
+  .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+  .then(data => {
+    repos = data.repositories || [];
+    addOptions(category, repos.map(r => r.category));
+    addOptions(status, repos.map(r => r.lifecycle_status));
+    document.getElementById('repoCount').textContent = repos.length;
+    document.getElementById('categoryCount').textContent = new Set(repos.map(r => r.category)).size;
+    document.getElementById('activeCount').textContent = repos.filter(r => r.lifecycle_status === 'ACTIVE').length;
+    render();
+  })
+  .catch(err => {
+    errorBox.style.display = 'block';
+    errorBox.textContent = `Unable to load ecosystem data: ${err.message}`;
+  });
+
+[search, category, status].forEach(el => el.addEventListener('input', render));
+</script>
+</body>
+</html>
