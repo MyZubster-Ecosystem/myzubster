@@ -7,6 +7,11 @@ const app = express();
 
 // Middleware
 app.use(cors());
+app.use('/api/github-bounties/webhook', express.json({
+  verify: (req, res, buf) => {
+    req.rawBody = Buffer.from(buf);
+  }
+}));
 app.use(express.json());
 app.use(express.static('public'));
 app.use('/data', express.static('data'));
@@ -35,6 +40,7 @@ const gardenRoutes = require('./src/routes/urbanGardenRoutes');
 const geocodeRoutes = require('./src/routes/mapRoutes');
 const healthRoutes = require('./src/api/routes');
 const grokRoutes = require('./src/routes/grokRoutes');
+const githubBountySyncRoutes = require('./src/routes/githubBountySyncRoutes');
 
 // Monta le route
 app.use('/api/auth', authRoutes);
@@ -53,6 +59,7 @@ app.use('/api/gardens', gardenRoutes);
 app.use('/api/geocode', geocodeRoutes);
 app.use('/api', healthRoutes);
 app.use('/api/grok', grokRoutes);
+app.use('/api/github-bounties', githubBountySyncRoutes);
 
 
 // Homepage / health gateway
