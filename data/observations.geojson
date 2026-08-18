@@ -57,6 +57,78 @@
         "github_record": "https://github.com/MyZubster-Ecosystem/myzubster/blob/main/world/italy/emilia-romagna/rimini/services/futura-ambiente/sede-rimini/README.md",
         "google_maps": "https://www.google.com/maps?q=44.0643945,12.5314941"
       }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.56806, 44.06204]
+      },
+      "properties": {
+        "id": "rimini-piazza-ferrari-20260818-001",
+        "name": "Piazza Ferrari",
+        "country": "Italy",
+        "region": "Emilia-Romagna",
+        "city": "Rimini",
+        "category": "public-square-park",
+        "media_type": "photo",
+        "capture_date": "2026-08-18",
+        "latitude": 44.06204,
+        "longitude": 12.56806,
+        "coordinate_system": "WGS84",
+        "coordinate_status": "mapped-reference",
+        "coordinate_source": "OpenStreetMap-derived-reference",
+        "github_record": "https://github.com/MyZubster-Ecosystem/myzubster/blob/main/field/observations/2026-08-18-piazza-ferrari-rimini.md",
+        "google_maps": "https://www.google.com/maps?q=44.06204,12.56806"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.56596, 44.06063]
+      },
+      "properties": {
+        "id": "rimini-fontana-della-pigna-001",
+        "name": "Fontana della Pigna",
+        "address": "Piazza Cavour, Rimini",
+        "country": "Italy",
+        "region": "Emilia-Romagna",
+        "city": "Rimini",
+        "category": "historic-heritage-fountain",
+        "media_type": "photo",
+        "latitude": 44.06063,
+        "longitude": 12.56596,
+        "coordinate_system": "WGS84",
+        "coordinate_status": "mapped-reference",
+        "coordinate_source": "Wikidata-OpenStreetMap-reference",
+        "github_record": "https://github.com/MyZubster-Ecosystem/myzubster/blob/main/world/italy/emilia-romagna/rimini/heritage/fontana-della-pigna/README.md",
+        "google_maps": "https://www.google.com/maps?q=44.06063,12.56596"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.566116, 44.061115]
+      },
+      "properties": {
+        "id": "rimini-palazzo-garampi-comune-001",
+        "name": "Palazzo Garampi — Comune di Rimini",
+        "address": "Piazza Cavour 27, Rimini",
+        "country": "Italy",
+        "region": "Emilia-Romagna",
+        "city": "Rimini",
+        "category": "historic-civic-building",
+        "media_type": "photo",
+        "latitude": 44.061115,
+        "longitude": 12.566116,
+        "coordinate_system": "WGS84",
+        "coordinate_status": "mapped-reference",
+        "coordinate_source": "Wikidata-reference",
+        "github_record": "https://github.com/MyZubster-Ecosystem/myzubster/blob/main/world/italy/emilia-romagna/rimini/heritage/palazzo-garampi-comune/README.md",
+        "google_maps": "https://www.google.com/maps?q=44.061115,12.566116"
+      }
     }
   ]
 }
