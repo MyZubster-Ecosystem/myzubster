@@ -7,8 +7,12 @@ RUN apt-get update \
     && chown -R debian-tor:debian-tor /var/lib/tor/myzubster
 
 COPY entrypoint.sh /usr/local/bin/myzubster-onion-entrypoint
-RUN chmod +x /usr/local/bin/myzubster-onion-entrypoint
+COPY healthcheck.sh /usr/local/bin/myzubster-onion-healthcheck
+RUN chmod 0755 /usr/local/bin/myzubster-onion-entrypoint /usr/local/bin/myzubster-onion-healthcheck
 
 EXPOSE 80
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+  CMD ["/usr/local/bin/myzubster-onion-healthcheck"]
 
 ENTRYPOINT ["/usr/local/bin/myzubster-onion-entrypoint"]
