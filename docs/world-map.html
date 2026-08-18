@@ -10,7 +10,8 @@
     body { font-family: system-ui, sans-serif; }
     #map { height: 100%; width: 100%; }
     .popup-title { font-weight: 700; margin-bottom: 6px; }
-    .popup-links a { display: inline-block; margin-right: 10px; margin-top: 6px; }
+    .popup-meta { margin-top: 4px; font-size: 0.92rem; }
+    .popup-links a { display: inline-block; margin-right: 10px; margin-top: 8px; }
   </style>
 </head>
 <body>
@@ -31,17 +32,21 @@
           pointToLayer: (feature, latlng) => L.marker(latlng),
           onEachFeature: (feature, marker) => {
             const p = feature.properties || {};
+            const coords = p.latitude != null && p.longitude != null
+              ? `<div class="popup-meta">GPS: ${p.latitude}, ${p.longitude}</div>`
+              : '';
             const address = p.address ? `<div>${p.address}</div>` : '';
-            const category = p.category ? `<div>Category: ${p.category}</div>` : '';
-            const media = p.media_type ? `<div>Media: ${p.media_type}</div>` : '';
+            const category = p.category ? `<div class="popup-meta">Category: ${p.category}</div>` : '';
+            const media = p.media_type ? `<div class="popup-meta">Media: ${p.media_type}</div>` : '';
+            const status = p.coordinate_status ? `<div class="popup-meta">Coordinate status: ${p.coordinate_status}</div>` : '';
             const links = `
               <div class="popup-links">
-                ${p.google_maps ? `<a href="${p.google_maps}" target="_blank" rel="noopener">Google Maps</a>` : ''}
+                ${p.google_maps ? `<a href="${p.google_maps}" target="_blank" rel="noopener">Open position in Google Maps</a>` : ''}
                 ${p.github_record ? `<a href="${p.github_record}" target="_blank" rel="noopener">GitHub record</a>` : ''}
               </div>`;
             marker.bindPopup(`
               <div class="popup-title">${p.name || p.id || 'MyZubster observation'}</div>
-              ${address}${category}${media}${links}`);
+              ${address}${coords}${category}${media}${status}${links}`);
           }
         }).addTo(map);
 
