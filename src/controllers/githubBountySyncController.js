@@ -121,32 +121,34 @@ exports.getOneAdmin = (req, res) => getOneWithVisibility(req, res, true);
 exports.stats = async (req, res) => {
   try {
     const publicMatch = { sourceVisibility: 'public' };
+    const trackedPublicMatch = { ...publicMatch, tracked: true };
 
-    const [byStatus, byAsset, repositories, total, tracked] = await Promise.all([
+    const [byStatus, byAsset, repositories, tracked, historicalTotal] = await Promise.all([
       GitHubBounty.aggregate([
-        { $match: publicMatch },
+        { $match: trackedPublicMatch },
         { $group: { _id: '$lifecycleStatus', count: { $sum: 1 } } },
         { $sort: { count: -1 } }
       ]),
       GitHubBounty.aggregate([
-        { $match: publicMatch },
+        { $match: trackedPublicMatch },
         { $unwind: { path: '$rewardAssets', preserveNullAndEmptyArrays: false } },
         { $group: { _id: '$rewardAssets', count: { $sum: 1 } } },
         { $sort: { count: -1 } }
       ]),
       GitHubBounty.aggregate([
-        { $match: { ...publicMatch, tracked: true } },
+        { $match: trackedPublicMatch },
         { $group: { _id: '$repository', count: { $sum: 1 } } },
         { $sort: { count: -1 } }
       ]),
-      GitHubBounty.countDocuments(publicMatch),
-      GitHubBounty.countDocuments({ ...publicMatch, tracked: true })
+      GitHubBounty.countDocuments(trackedPublicMatch),
+      GitHubBounty.countDocuments(publicMatch)
     ]);
 
     res.json({
       ok: true,
-      total,
+      total: tracked,
       tracked,
+      historicalTotal,
       byStatus,
       byAsset,
       repositories
