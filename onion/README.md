@@ -5,14 +5,12 @@ This component runs a Tor v3 Onion Service as an isolated Docker container and f
 ## Architecture
 
 ```text
-Internet
-   |
-  Tor
-   |
-   v
+Tor Network
+    |
+    v
 myzubster-onion :80
-   |
-   v
+    |
+    v
 frontend:3000 (Docker network only)
 ```
 
@@ -36,6 +34,22 @@ docker compose exec onion cat /var/lib/tor/myzubster/hostname
 - The private Onion key remains inside the persistent volume and must never be committed to Git.
 - Rotate/delete `onion_data` only when intentionally rotating the Onion identity.
 
+## End-to-end validation gate
+
+The local container health check proves that the Onion identity/configuration exists; it does **not** prove that the service is reachable through the Tor network.
+
+Before publishing the Onion hostname as a production endpoint, validate all of the following:
+
+1. The container starts cleanly and Tor reaches a ready state.
+2. A `.onion` hostname is generated and remains stable across container restart/recreation while `onion_data` is preserved.
+3. Tor can reach the configured internal `frontend:3000` target.
+4. An external Tor client can fetch the `.onion` endpoint end-to-end.
+5. The Onion private key does not appear in logs, container image layers, CI artifacts, or repository contents.
+6. Container privileges, filesystem access, and network exposure are minimized.
+7. Restart and restore procedures preserve the intended Onion identity.
+
+Do not treat the service as production-ready until these checks have passed and the results are documented.
+
 ## Production notes
 
-This is an initial infrastructure implementation, not a production security certification. Before production use, add resource limits, read-only filesystem hardening where compatible with Tor, health checks, backup/restore procedures for the Onion identity, and an external security review.
+This is an initial infrastructure implementation, not a production security certification. Before production use, add resource limits, read-only filesystem hardening where compatible with Tor, backup/restore procedures for the Onion identity, and an external security review.
