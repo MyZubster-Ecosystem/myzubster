@@ -16,9 +16,9 @@ function amountsEqual(expected, observed) {
   return Math.abs(a - b) <= Math.max(1e-12, Math.abs(a) * 1e-12);
 }
 
-function validateObserved({ txid, recipient, asset, network, amount, transactionStatus }, observed) {
+function validateObserved({ txId, recipient, asset, network, amount, transactionStatus }, observed) {
   if (!observed || typeof observed !== 'object') return fail('invalid verifier response');
-  if (observed.txid !== txid) return fail('transaction ID mismatch');
+  if (observed.txId !== txId) return fail('transaction ID mismatch');
   if (observed.recipient !== recipient) return fail('recipient mismatch');
   if (observed.asset !== asset) return fail('asset mismatch');
   if (observed.network !== network) return fail('network mismatch');
@@ -28,14 +28,14 @@ function validateObserved({ txid, recipient, asset, network, amount, transaction
 
   return {
     verified: true,
-    txid,
+    txId,
     recipient,
     asset,
     network,
     amount: normalizeAmount(observed.amount),
     transactionStatus: observed.transactionStatus,
     checks: {
-      txid: true,
+      txId: true,
       recipient: true,
       asset: true,
       network: true,
@@ -45,22 +45,22 @@ function validateObserved({ txid, recipient, asset, network, amount, transaction
   };
 }
 
-function buildIndexerUrl(baseUrl, txid) {
+function buildIndexerUrl(baseUrl, txId) {
   const base = new URL(baseUrl);
   if (base.protocol !== 'https:' && process.env.NODE_ENV === 'production') {
     throw new Error('MYZ_TARI_INDEXER_URL must use HTTPS in production');
   }
   const trimmed = base.toString().replace(/\/$/, '');
-  return `${trimmed}/transactions/${encodeURIComponent(txid)}/result`;
+  return `${trimmed}/transactions/${encodeURIComponent(txId)}/result`;
 }
 
-function extractTransferFromReceipt(receipt, { txid, resourceAddress, eventTopic }) {
+function extractTransferFromReceipt(receipt, { txId, resourceAddress, eventTopic }) {
   const finalized = receipt?.result?.Finalized;
   if (!finalized || finalized.final_decision !== 'Commit') return null;
 
   const executionResult = finalized.execution_result;
   const finalize = executionResult?.finalize;
-  if (!finalize || finalize.transaction_hash !== txid) return null;
+  if (!finalize || finalize.transaction_hash !== txId) return null;
 
   const events = Array.isArray(finalize.events) ? finalize.events : [];
   const event = events.find((candidate) => {
@@ -76,7 +76,7 @@ function extractTransferFromReceipt(receipt, { txid, resourceAddress, eventTopic
 
   const payload = event.payload;
   return {
-    txid,
+    txId,
     recipient: payload.recipient ?? payload.recipient_address ?? payload.to,
     asset: 'MYZ',
     amount: payload.amount ?? payload.value,
@@ -84,7 +84,7 @@ function extractTransferFromReceipt(receipt, { txid, resourceAddress, eventTopic
   };
 }
 
-async function fetchTariIndexerTransaction(txid, options = {}) {
+async function fetchTariIndexerTransaction(txId, options = {}) {
   const indexerUrl = options.indexerUrl || process.env.MYZ_TARI_INDEXER_URL;
   const resourceAddress = options.resourceAddress || process.env.MYZ_TARI_RESOURCE_ADDRESS;
   const eventTopic = options.eventTopic || process.env.MYZ_TARI_EVENT_TOPIC;
@@ -93,7 +93,7 @@ async function fetchTariIndexerTransaction(txid, options = {}) {
   if (!resourceAddress) throw new Error('MYZ_TARI_RESOURCE_ADDRESS is not configured');
   if (!eventTopic) throw new Error('MYZ_TARI_EVENT_TOPIC is not configured');
 
-  const url = buildIndexerUrl(indexerUrl, txid);
+  const url = buildIndexerUrl(indexerUrl, txId);
   const controller = new AbortController();
   const timeoutMs = Number(options.timeoutMs || process.env.MYZ_VERIFIER_TIMEOUT_MS || DEFAULT_TIMEOUT_MS);
   const timer = setTimeout(() => controller.abort(), timeoutMs);
@@ -114,7 +114,7 @@ async function fetchTariIndexerTransaction(txid, options = {}) {
       return fail('Tari indexer returned invalid JSON');
     }
 
-    const observed = extractTransferFromReceipt(receipt, { txid, resourceAddress, eventTopic });
+    const observed = extractTransferFromReceipt(receipt, { txId, resourceAddress, eventTopic });
     if (!observed) return fail('confirmed MYZ transfer event not found in Tari receipt');
     return observed;
   } catch (error) {
@@ -126,9 +126,9 @@ async function fetchTariIndexerTransaction(txid, options = {}) {
 }
 
 async function verifyMyzPayment(input, options = {}) {
-  const { txid, recipient, asset, network, amount } = input || {};
+  const { txId, recipient, asset, network, amount } = input || {};
 
-  if (!txid || typeof txid !== 'string') return fail('transaction ID is required');
+  if (!txId || typeof txId !== 'string') return fail('transaction ID is required');
   if (!recipient || typeof recipient !== 'string') return fail('recipient is required');
   if (asset !== 'MYZ') return fail('MYZ verifier only accepts MYZ asset');
   if (!network || typeof network !== 'string') return fail('network is required');
@@ -139,11 +139,11 @@ async function verifyMyzPayment(input, options = {}) {
     return fail('network is not configured for this verifier');
   }
 
-  const observed = await fetchTariIndexerTransaction(txid, options);
+  const observed = await fetchTariIndexerTransaction(txId, options);
   if (!observed || observed.verified === false) return observed;
 
   return validateObserved(
-    { txid, recipient, asset, network, amount, transactionStatus: 'confirmed' },
+    { txId, recipient, asset, network, amount, transactionStatus: 'confirmed' },
     { ...observed, network },
   );
 }
