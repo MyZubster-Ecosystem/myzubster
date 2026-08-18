@@ -34,7 +34,7 @@
         "coordinate_source": "user-confirmed-position",
         "github_record": "https://github.com/MyZubster-Ecosystem/myzubster/blob/main/world/italy/emilia-romagna/rimini/streets/via-clodia/README.md",
         "google_maps": "https://www.google.com/maps?q=44.0637353,12.5678873",
-        "image": "/media/rimini/via-clodia/via-clodia.jpg"
+        "image": "/media/rimini/streets/via-clodia/via-clodia.jpg"
       }
     },
     {
@@ -63,7 +63,7 @@
         "coordinate_source": "user-confirmed-position",
         "github_record": "https://github.com/MyZubster-Ecosystem/myzubster/blob/main/world/italy/emilia-romagna/rimini/services/futura-ambiente/sede-rimini/README.md",
         "google_maps": "https://www.google.com/maps?q=44.0643945,12.5314941",
-        "image": "/media/rimini/futura-ambiente/futura-ambiente.jpg"
+        "image": "/media/rimini/services/futura-ambiente/futura-ambiente.jpg"
       }
     },
     {
@@ -91,7 +91,7 @@
         "coordinate_source": "OpenStreetMap-derived-reference",
         "github_record": "https://github.com/MyZubster-Ecosystem/myzubster/blob/main/field/observations/2026-08-18-piazza-ferrari-rimini.md",
         "google_maps": "https://www.google.com/maps?q=44.06204,12.56806",
-        "image": "/media/rimini/piazza-ferrari.jpg"
+        "image": "/media/rimini/squares/piazza-ferrari/piazza-ferrari.jpg"
       }
     },
     {
