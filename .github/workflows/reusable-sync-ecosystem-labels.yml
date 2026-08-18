@@ -86,13 +86,19 @@ jobs:
               const text = `${title}\n${body}`;
 
               const explicitlyBountied =
+                existing.includes('type:bounty') ||
                 /^\s*bounty\b/i.test(title) ||
                 /^\s*[^\n]*\[\s*bounty[^\]]*\]/i.test(title) ||
                 existing.some(name => name === 'bounty' || name.startsWith('bounty:'));
 
               if (!explicitlyBountied) continue;
 
+              const hasLifecycle = existing.some(name =>
+                name.startsWith('status:') || name.startsWith('settlement:')
+              );
+
               const add = ['type:bounty'];
+              if (!hasLifecycle) add.push('status:proposed');
               if (/\bMYZ\b|\$MYZ/i.test(text)) add.push('reward:myz');
               if (/\bXMR\b|\bMonero\b/i.test(text)) add.push('reward:xmr');
               if (/\bTOKEN\b|reward\s*:\s*[^\n]*token/i.test(text)) add.push('reward:token');
