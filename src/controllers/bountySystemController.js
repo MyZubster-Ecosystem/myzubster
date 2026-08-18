@@ -139,7 +139,7 @@ exports.getStats = async (req, res) => {
     const pendingBounties = await BountyConfig.countDocuments({ status: 'payment_pending' });
     const paidBounties = await BountyConfig.countDocuments({ status: 'paid' });
     const totalMYZPaid = await BountyConfig.aggregate([{ $match: { status: 'paid' } }, { $group: { _id: null, total: { $sum: '$rewardAmount' } } }]);
-    const topContributors = await BountyConfig.aggregate([{ $match: { status: 'paid' } }, { $group: { _id: '$claimedBy', count: { $sum: 1, totalMYZ: { $sum: '$rewardAmount' } } } }, { $sort: { totalMYZ: -1 } }, { $limit: 10 }]);
+    const topContributors = await BountyConfig.aggregate([{ $match: { status: 'paid' } }, { $group: { _id: '$claimedBy', count: { $sum: 1 }, totalMYZ: { $sum: '$rewardAmount' } } }, { $sort: { totalMYZ: -1 } }, { $limit: 10 }]);
     res.json({ total: totalBounties, open: openBounties, completed: completedBounties, paymentPending: pendingBounties, paid: paidBounties, totalMYZPaid: totalMYZPaid[0]?.total || 0, topContributors });
   } catch (error) { res.status(500).json({ error: error.message }); }
 };
