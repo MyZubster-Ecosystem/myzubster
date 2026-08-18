@@ -8,6 +8,7 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.static('public'));
 
 // Connessione a MongoDB (solo se non in test)
 if (process.env.NODE_ENV !== 'test') {
@@ -28,9 +29,11 @@ const couponRoutes = require('./src/routes/couponRoutes');
 const plantRoutes = require('./src/routes/plantRoutes');
 const searchRoutes = require('./src/routes/searchRoutes');
 const nearbyRoutes = require('./src/routes/nearbyRoutes');
-const gardenRoutes = require('./src/routes/gardenRoutes');
-const geocodeRoutes = require('./src/routes/geocodeRoutes');
-const healthRoutes = require('./src/routes/healthRoutes');
+const aiForwardRoutes = require('./src/routes/aiForwardRoutes');
+const gardenRoutes = require('./src/routes/urbanGardenRoutes');
+const geocodeRoutes = require('./src/routes/mapRoutes');
+const healthRoutes = require('./src/api/routes');
+const grokRoutes = require('./src/routes/grokRoutes');
 
 // Monta le route
 app.use('/api/auth', authRoutes);
@@ -44,9 +47,26 @@ app.use('/api/coupons', couponRoutes);
 app.use('/api/plants', plantRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/nearby', nearbyRoutes);
+app.use('/api/ai-forward', aiForwardRoutes);
 app.use('/api/gardens', gardenRoutes);
 app.use('/api/geocode', geocodeRoutes);
-app.use('/health', healthRoutes);
+app.use('/api', healthRoutes);
+app.use('/api/grok', grokRoutes);
+
+
+// Homepage / health gateway
+app.get('/', (req, res) => {
+  res.status(200).json({
+    ok: true,
+    service: 'MyZubster Gateway',
+    status: 'online',
+    version: '1.0.0',
+    port: process.env.PORT || 5003,
+    api: '/api'
+  });
+});
+
+app.get('/grok', (req, res) => res.sendFile(require('path').join(__dirname, 'public', 'grok.html')));
 
 // Esporta app per i test
 module.exports = app;
