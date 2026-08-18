@@ -2,80 +2,137 @@
 
 **MyZubster è un ecosistema open-source collaborativo per mappare, documentare e collegare persone, luoghi, ambiente, tecnologia e servizi nel mondo reale.**
 
-Parte da osservazioni concrete — fotografie, coordinate GPS, piante, edifici, patrimonio storico, strade, panorami, servizi urbani e contributi degli utenti — e le organizza in una struttura pubblica, verificabile e progressivamente estendibile a livello mondiale.
+Parte da osservazioni concrete — fotografie, coordinate, piante, edifici, patrimonio, strade, servizi urbani e contributi — e le organizza in una struttura pubblica, verificabile e progressivamente estendibile.
+
+## Stato del progetto
+
+**MVP open-source in sviluppo e validazione.** Alcune funzionalità sono operative, altre sperimentali, simulate o ancora in progettazione.
+
+Monero/XMR, MYZ, Tor, IPFS, robotica, IoT e AI appartengono a specifici layer o filoni dell'ecosistema: non implicano che ogni funzionalità sia già production-ready.
+
+## Architettura dell'ecosistema
+
+La mappa canonica dei repository e dei confini tra core, Gateway, app/web, robotica, AI, escrow/verifier e documentazione è mantenuta in:
+
+- [`docs/ECOSYSTEM.md`](docs/ECOSYSTEM.md)
+
+In sintesi:
+
+```text
+users / contributors
+       |
+       v
+App / Web
+       |
+       v
+Core MyZubster
+ |     |       |
+ v     v       v
+map  bounties observations/media
+       |       |
+       +---+---+
+           v
+      IPFS snapshots
+
+external settlement boundary:
+Core -> Gateway -> payment/treasury -> independent verifier
+```
 
 ## Che cos'è MyZubster
 
-MyZubster costruisce una **mappa visuale e informativa del mondo reale**. Gli utenti possono contribuire documentando ciò che li circonda e associando alle osservazioni informazioni strutturate come posizione geografica, categoria, immagini e riferimenti verificabili.
-
-Il progetto parte da Rimini come area iniziale di mappatura e può espandersi progressivamente ad altre città e paesi attraverso contributi della comunità.
+MyZubster costruisce una **mappa visuale e informativa del mondo reale** e una serie di workflow per collegare contributi, evidenze e attività verificabili.
 
 ### Cosa può documentare
 
 - luoghi, piazze, strade e panorami;
 - piante, alberi, giardini e biodiversità urbana;
-- edifici e patrimonio storico e culturale;
+- edifici e patrimonio storico/culturale;
 - servizi urbani e ambientali;
 - fotografie e osservazioni geolocalizzate;
-- arte e altre forme di documentazione visuale;
-- progetti tecnologici, civici e sperimentali collegati al territorio.
+- progetti tecnologici, civici e sperimentali;
+- evidenze associate a bounty definite in modo esplicito.
 
-## Tecnologia al servizio della mappa
+## Public data layer: IPFS/IPNS
 
-La tecnologia è l'infrastruttura del progetto, non il suo unico scopo. MyZubster utilizza e sperimenta strumenti come:
+Il core può pubblicare **snapshot pubblici sanitizzati** tramite IPFS/IPNS, con indici separati per elementi come foto, bounty, reward pubblici, crawler observations e discoveries.
 
-- **GitHub** per rendere codice, documentazione e dataset verificabili;
-- **mappe e coordinate WGS84** per organizzare le osservazioni geografiche;
-- **AI e automazione** per supportare classificazione, ricerca e gestione dei contributi;
-- **robotica e IoT** per possibili applicazioni e raccolte dati future;
-- **sistemi decentralizzati e strumenti orientati alla privacy** dove risultano utili;
-- **bounty e sistemi di reward** per attività che siano formalmente definite, approvate e finanziate.
+Il modello è:
 
-Monero/XMR, MYZ, Tor, robotica e altre tecnologie fanno parte di specifici filoni sperimentali dell'ecosistema: **non definiscono da soli MyZubster e non implicano che ogni funzionalità sia già disponibile o production-ready**.
+```text
+stable IPNS name
+      |
+      v
+latest root CID
+      |
+      +-- photos CID
+      +-- bounties CID
+      +-- rewards CID
+      +-- crawler CID
+      +-- discoveries CID
+```
 
-## Missione
+IPFS fornisce content addressing e replica. **Non sostituisce da solo autorizzazione, consenso applicativo o settlement finanziario.** MongoDB e i servizi backend restano parte del layer operativo, mentre gli snapshot pubblici sono indipendentemente indirizzabili.
 
-L'obiettivo è creare nel tempo una base aperta e collaborativa in cui osservazioni del mondo reale possano essere documentate, collegate geograficamente e rese utili alla comunità.
+I metadata pubblici non devono includere secret, identificativi privati non necessari, path locali, ricerca confidenziale o dettagli sensibili di infrastrutture/aree ristrette.
 
-**MyZubster — osserva, documenta e collega il mondo reale.**
+## Bounty system
 
-## Stato del progetto
+Il contratto canonico è:
 
-**MVP open-source in sviluppo e validazione.** Alcune funzionalità sono operative, altre sperimentali, simulate o ancora in fase di progettazione.
+- [`BOUNTIES.md`](BOUNTIES.md)
 
-Il repository comprende componenti per mappatura, API, dashboard, Gateway, marketplace, robotica, IoT, sistemi civici e flussi di bounty/reward in differenti livelli di maturità.
+Lifecycle di alto livello:
+
+```text
+PROPOSED
+ -> VALIDATED
+ -> APPROVED
+ -> FUNDED (quando necessario)
+ -> ACTIVE
+ -> SUBMITTED
+ -> UNDER_REVIEW
+ -> VERIFIED / REJECTED
+ -> REWARD_RECORDED
+ -> SETTLEMENT_PENDING / SETTLED
+```
+
+Un'issue, un'assegnazione, una PR, un merge o un reward applicativo **non costituiscono da soli prova di pagamento esterno**.
+
+### MYZ
+
+Nel core attuale **MYZ è un ledger interno di reward/accounting**. Un reward MYZ `approved` rappresenta un credito della piattaforma; non va descritto automaticamente come transazione blockchain.
+
+### XMR / token esterni
+
+Una bounty può dichiarare una componente XMR/token, ma `PAID` richiede evidenza verificabile appropriata al rail. Un adapter/provider non può auto-dichiarare il settlement finale.
+
+## Tecnologia
+
+- **Backend:** Node.js / Express + MongoDB
+- **Frontend:** interfacce web/client
+- **Mappe/dataset:** GeoJSON e coordinate WGS84
+- **Public snapshots:** IPFS/IPNS
+- **Gateway/integrations:** servizi separati nel relativo repository
+- **AI/automation:** supporto a workflow con human/security boundaries
+- **Robotica/IoT:** prototipi, simulatori e hardware integration track
+- **Rewards/settlement:** accounting interno separato dal settlement esterno verificato
 
 ## Mappa mondiale e osservazioni
 
-Le osservazioni geografiche sono organizzate usando coordinate WGS84. Il dataset mondiale è mantenuto in `data/observations.geojson` e può collegare ogni punto a documentazione, media e riferimenti cartografici esterni.
+Le osservazioni geografiche usano coordinate WGS84. Il repository può includere dataset GeoJSON e media/evidenze collegati agli oggetti della piattaforma.
 
-La mappatura iniziale include osservazioni di Rimini e costituisce il modello da estendere progressivamente ad altre città.
+La precisione geografica deve essere ridotta o esclusa quando una posizione può essere sensibile.
 
-## Bounty e ricompense
+## Sicurezza e safety
 
-Quando una bounty è formalmente approvata e finanziata, il modello previsto segue un ciclo del tipo:
+Non inserire mai nei repository:
 
-**proposta → validazione → approvazione → funding → attività → verifica → reward → reporting**.
+- private key o wallet seed;
+- password/token di produzione;
+- credenziali infrastrutturali;
+- dati personali/confidenziali non necessari.
 
-MYZ, XMR e/o altri asset possono essere previsti come modalità di reward secondo ambiente, disponibilità, funding e regole applicabili. La presenza di un'issue o di una bounty **non costituisce di per sé un pagamento, un finanziamento, una partnership o un'approvazione istituzionale**.
-
-Le bounty pubbliche e il relativo ciclo di vita sono documentati in `BOUNTIES.md`.
-
-## Progetti civici
-
-Il repository e le issue possono essere utilizzati per strutturare proposte di progetti pilota civici relativi, ad esempio, ad ambiente, verde, servizi urbani, partecipazione, robotica e altri ambiti.
-
-Comune, aziende, università, governi o altri soggetti eventualmente citati non devono essere considerati aderenti, finanziatori o partner finché non esiste una formalizzazione verificabile.
-
-## Componenti software
-
-- **Backend:** Express.js + MongoDB
-- **Test:** Jest + Supertest
-- **Dashboard/UI:** interfacce web
-- **Gateway:** servizi di integrazione MyZubster
-- **Mappe:** dataset GeoJSON e visualizzazione geografica
-- **Simulatori e automazione:** componenti sperimentali
-- **Payments/rewards:** flussi MYZ/XMR e altri componenti, simulati e/o in validazione a seconda dell'ambiente
+Le bounty fisiche/fotografiche non devono incentivare trespassing, accesso ad aree ristrette, raccolta di dettagli di sicurezza, ricerca confidenziale, armi/dispositivi pericolosi o attività non autorizzate.
 
 ## Avvio rapido
 
@@ -91,7 +148,7 @@ cd myzubster
 npm ci
 ```
 
-Crea un `.env` appropriato per l'ambiente prima di avviare i servizi.
+Configura l'ambiente usando placeholder/template appropriati. Non committare `.env` con segreti reali.
 
 ## Test e CI
 
@@ -100,16 +157,17 @@ npm test
 npm run build --if-present
 ```
 
-## Sicurezza
+## Documentazione
 
-Prima di un deployment production devono essere verificati dipendenze, vulnerabilità, secret, variabili d'ambiente, health check, monitoring, backup/rollback e i flussi esterni utilizzati.
-
-**Non inserire secret, seed, chiavi private, indirizzi privati o credenziali nei repository.**
+- [Ecosystem Architecture](docs/ECOSYSTEM.md)
+- [Bounty System](BOUNTIES.md)
+- [Documentation hub](https://github.com/MyZubster-Ecosystem/myzubster-docs)
+- [Manuals](https://github.com/MyZubster-Ecosystem/myzubster-manuals)
 
 ## Licenza
 
 MIT License. Vedi `LICENSE`.
 
-## Nota
+## Nota di trasparenza
 
-MyZubster è un progetto in evoluzione. La documentazione distingue le funzionalità operative dalle proposte, dagli esperimenti e dai componenti ancora in validazione.
+MyZubster è un progetto in evoluzione. La documentazione deve distinguere funzionalità operative, testnet, simulazioni, prototipi, proposte e componenti ancora in validazione. Le issue storiche rappresentano contesto di progetto, non prova automatica di deployment, partnership, funding o pagamento.
