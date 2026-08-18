@@ -13,11 +13,13 @@ const STATUS_LABELS = [
   ['settlement:pending', 'settlement_pending'],
   ['status:reward-recorded', 'reward_recorded'],
   ['status:verified', 'verified'],
+  ['status:review', 'under_review'],
   ['status:under-review', 'under_review'],
   ['status:submitted', 'submitted'],
   ['status:active', 'active'],
   ['status:funded', 'funded'],
   ['status:approved', 'approved'],
+  ['status:available', 'approved'],
   ['status:validated', 'validated'],
   ['status:proposed', 'proposed'],
   ['status:cancelled', 'cancelled']
