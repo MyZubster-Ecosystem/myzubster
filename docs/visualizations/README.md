@@ -7,10 +7,14 @@ This directory tracks the approved visual direction for repository visualization
 ### GitHub-hosted
 - `myzubster-ecosystem-dashboard.jpg` — first ecosystem-wide dashboard committed to this branch.
 
-### Google Drive source assets
-- [Ecosystem repository overview](https://drive.google.com/file/d/1PGpbS1mSgoJn9_uEBl-c13GhrZKbdOkA/view?usp=drivesdk) — approved repository overview source (`ecosystem-repository-overview.jpg`).
-- [Repository architecture dashboard](https://drive.google.com/file/d/1lp10zon-nGED1aD0NIYSELUwysKiFsds/view?usp=drivesdk) — approved architecture/dashboard source (`repository-architecture-dashboard.jpg`).
-- [Ecosystem storyboard master](https://drive.google.com/file/d/1OAo5DkEhQCSeyp_cN8iBd38XNC3zpNOa/view?usp=drivesdk) — approved master for repository visualizations and 30–45 second animation storyboards (`myzubster-ecosystem-storyboard-master.png`).
+### Verified Google Drive source assets
+- [Ecosystem repository overview](https://drive.google.com/file/d/1R3KuqARynDxWYzMhbrz__m3aEEuBCTzm/view?usp=drivesdk) — `myzubster-ecosystem-repository-overview.jpg`.
+- [Repository architecture dashboard](https://drive.google.com/file/d/1KOjKyUrsHWqnMGAChA1GomkUmGeCwoMP/view?usp=drivesdk) — `myzubster-repository-architecture-dashboard.jpg`.
+- [Ecosystem storyboard master](https://drive.google.com/file/d/1M3RsTu08beFS1EuKBWykbl5D_NvwPt6B/view?usp=drivesdk) — `myzubster-ecosystem-storyboard-master.png`.
+- [Repository storyboard dashboard](https://drive.google.com/file/d/1n-Wmqi6zvvm35ImQ3J1NE6jiGxaVzBug/view?usp=drivesdk) — `myzubster-repository-storyboard-dashboard.png`.
+- [Repository visualization master](https://drive.google.com/file/d/16VxNN4ZHEYSog_gts8t3_tS5MI3QQcYy/view?usp=drivesdk) — `myzubster-repository-visualization-master.png`.
+
+See [`DRIVE_ASSETS.md`](./DRIVE_ASSETS.md) for the canonical Drive asset index.
 
 ## Visual standard
 
