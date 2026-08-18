@@ -48,7 +48,7 @@ const server = http.createServer(async (req, res) => {
   try {
     const body = await readJson(req);
     const result = await verifyMyzPayment({
-      txid: body.txid,
+      txId: body.txId,
       recipient: body.recipient,
       asset: body.asset,
       network: body.network,
