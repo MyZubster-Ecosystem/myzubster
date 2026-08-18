@@ -6,48 +6,126 @@
 <title>MyZubster — Archivio Fotografico</title>
 <meta name="description" content="Archivio pubblico delle osservazioni fotografiche MyZubster">
 <style>
+:root{color-scheme:dark}
+*{box-sizing:border-box}
 body{font-family:Arial,sans-serif;background:#0b0f14;color:#eee;margin:0}
-header{padding:40px 20px;text-align:center}
+header{padding:40px 20px 24px;text-align:center}
 header h1{margin:0 0 10px;font-size:2.3rem}
-header p{color:#aaa}
+header p{color:#aaa;max-width:760px;margin:0 auto 20px;line-height:1.5}
 main{max-width:1200px;margin:auto;padding:20px}
-h2{margin-top:45px;border-bottom:1px solid #333;padding-bottom:10px}
+.toolbar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:0 0 28px}
+input,select{background:#111821;color:#eee;border:1px solid #303a46;border-radius:10px;padding:11px 12px;font:inherit}
+input{flex:1;min-width:240px}
+.stats{color:#9aa7b5;font-size:.92rem;margin-left:auto}
+h2{margin-top:42px;border-bottom:1px solid #333;padding-bottom:10px;text-transform:capitalize}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px}
-.card{background:#151b23;border:1px solid #29313c;border-radius:14px;overflow:hidden}
-.card img{width:100%;height:230px;object-fit:cover;display:block}
-.info{padding:15px}
-.info h3{margin:0 0 7px}
-.info p{font-size:.9rem;color:#aaa}
-a.button{display:inline-block;margin-top:8px;padding:9px 13px;background:#eee;color:#111;text-decoration:none;border-radius:8px}
+.card{background:#151b23;border:1px solid #29313c;border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+.card img{width:100%;height:230px;object-fit:cover;display:block;background:#10161d}
+.info{padding:15px;display:flex;flex-direction:column;gap:8px;flex:1}
+.info h3{margin:0}
+.meta{font-size:.9rem;color:#aaa;line-height:1.45}
+.hash{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.76rem;color:#8fa1b3;word-break:break-all}
+.badge{display:inline-block;width:max-content;padding:4px 8px;border:1px solid #334150;border-radius:999px;font-size:.75rem;color:#b8c7d9}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto;padding-top:4px}
+a.button{display:inline-block;padding:9px 12px;background:#eee;color:#111;text-decoration:none;border-radius:8px;font-weight:700;font-size:.88rem}
+a.secondary{background:#202a36;color:#dbe8f5;border:1px solid #344353}
+.empty{padding:28px;border:1px dashed #394554;border-radius:12px;color:#9aa7b5;text-align:center}
+.error{padding:18px;background:#321a1a;border:1px solid #6f3030;border-radius:10px;color:#ffcccc}
 footer{text-align:center;color:#777;padding:50px 20px}
 </style>
 </head>
 <body>
-<header><h1>📷 MyZubster Photo Archive</h1><p>Osservazioni fotografiche collegate al mondo reale.</p></header>
+<header>
+  <h1>📷 MyZubster Photo Archive</h1>
+  <p>Archivio dinamico delle osservazioni pubbliche MyZubster. Le schede vengono generate dal registro <code>data/observations.json</code> e includono riferimenti di integrità SHA-256.</p>
+</header>
 <main>
-<h2>🌱 Garden 001</h2><div class="grid">
-<div class="card"><img src="/media/rimini/gardens/garden-001/plants/papiro/garden-papiro-001.jpg" alt="Papiro"><div class="info"><h3>Papiro</h3><p>Garden 001 · Rimini</p><a class="button" href="/media/rimini/gardens/garden-001/plants/papiro/garden-papiro-001.jpg">Apri foto</a></div></div>
-<div class="card"><img src="/media/rimini/gardens/garden-001/plants/banano/garden-banano-001.jpg" alt="Banano"><div class="info"><h3>Banano</h3><p>Garden 001 · Rimini</p><a class="button" href="/media/rimini/gardens/garden-001/plants/banano/garden-banano-001.jpg">Apri foto</a></div></div>
-<div class="card"><img src="/media/rimini/gardens/garden-001/plants/alloro/garden-alloro-001.jpg" alt="Alloro"><div class="info"><h3>Alloro</h3><p>Garden 001 · Rimini</p><a class="button" href="/media/rimini/gardens/garden-001/plants/alloro/garden-alloro-001.jpg">Apri foto</a></div></div>
-<div class="card"><img src="/media/rimini/gardens/garden-001/plants/susino/garden-susino-001.jpg" alt="Susino"><div class="info"><h3>Susino</h3><p>Garden 001 · Rimini</p><a class="button" href="/media/rimini/gardens/garden-001/plants/susino/garden-susino-001.jpg">Apri foto</a></div></div>
-</div>
-<h2>📍 Rimini</h2><div class="grid">
-<div class="card"><img src="/media/rimini/squares/piazza-ferrari/piazza-ferrari.jpg" alt="Piazza Ferrari"><div class="info"><h3>Piazza Ferrari</h3><p>Rimini · osservazione urbana</p><a class="button" href="/media/rimini/squares/piazza-ferrari/piazza-ferrari.jpg">Apri foto</a></div></div>
-<div class="card"><img src="/media/rimini/streets/via-clodia/via-clodia.jpg" alt="Via Clodia"><div class="info"><h3>Via Clodia</h3><p>Rimini · osservazione urbana</p><a class="button" href="/media/rimini/streets/via-clodia/via-clodia.jpg">Apri foto</a></div></div>
-<div class="card"><img src="/media/rimini/services/futura-ambiente/futura-ambiente.jpg" alt="Futura Ambiente"><div class="info"><h3>Futura Ambiente</h3><p>Rimini · servizio / luogo</p><a class="button" href="/media/rimini/services/futura-ambiente/futura-ambiente.jpg">Apri foto</a></div></div>
-</div>
-<h2>🏛️ Patrimonio e luoghi civici</h2><div class="grid">
-<div class="card"><img src="/media/rimini/landmarks/fontana-della-pigna/fontana-della-pigna-001.jpg" alt="Fontana della Pigna, Rimini"><div class="info"><h3>Fontana della Pigna</h3><p>Piazza Cavour · Rimini</p><p>GPS foto: 44.0609273, 12.5661150</p><a class="button" href="/media/rimini/landmarks/fontana-della-pigna/fontana-della-pigna-001.jpg">Apri foto</a></div></div>
-<div class="card"><img src="/media/rimini/civic/comune-di-rimini/comune-di-rimini-001.jpg" alt="Comune di Rimini - Palazzo Garampi"><div class="info"><h3>Comune di Rimini — Palazzo Garampi</h3><p>Piazza Cavour · Rimini</p><a class="button" href="/media/rimini/civic/comune-di-rimini/comune-di-rimini-001.jpg">Apri foto</a></div></div>
-</div>
-<h2>☁️ Cielo e nuvole</h2><div class="grid">
-<div class="card"><div class="info"><h3>Rimini — Nuvole 001</h3><p>GPS: 44.0665841, 12.5749680</p><p>Nessuna scia aeronautica visibile nella fotografia.</p><a class="button" href="https://drive.google.com/file/d/1deA_iGdrteI0w6-6NfLzzwiFpPIiRQsQ/view?usp=drivesdk" target="_blank" rel="noopener">Apri foto su Drive</a><a class="button" href="https://www.google.com/maps?q=44.0665841,12.5749680" target="_blank" rel="noopener">Apri GPS</a></div></div>
-</div>
-<h2>👤 Personal</h2><div class="grid">
-<div class="card"><img src="/media/rimini/personal/profile/profile-with-chanel-001.jpg" alt="Profilo MyZubster"><div class="info"><h3>Profile</h3><a class="button" href="/media/rimini/personal/profile/profile-with-chanel-001.jpg">Apri foto</a></div></div>
-<div class="card"><img src="/media/rimini/personal/tattoos/tattoo-127-0-0-1-localhost-001.jpg" alt="127.0.0.1 localhost tattoo"><div class="info"><h3>127.0.0.1 — localhost</h3><a class="button" href="/media/rimini/personal/tattoos/tattoo-127-0-0-1-localhost-001.jpg">Apri foto</a></div></div>
-</div>
+  <div class="toolbar">
+    <input id="search" type="search" placeholder="Cerca titolo, categoria, tag o ID…" aria-label="Cerca osservazioni">
+    <select id="category" aria-label="Filtra per categoria"><option value="">Tutte le categorie</option></select>
+    <div class="stats" id="stats">Caricamento…</div>
+  </div>
+  <div id="content"></div>
 </main>
 <footer>MyZubster · Open photographic observations</footer>
+<script>
+const content = document.getElementById('content');
+const search = document.getElementById('search');
+const category = document.getElementById('category');
+const stats = document.getElementById('stats');
+let observations = [];
+
+const labels = {
+  plant:'🌱 Piante', street:'🛣️ Strade', square:'📍 Piazze', service:'♻️ Servizi',
+  landmark:'🏛️ Landmark', civic:'🏛️ Civico', sky:'☁️ Cielo'
+};
+
+function esc(value){
+  return String(value ?? '').replace(/[&<>'"]/g,c=>({
+    '&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'
+  }[c]));
+}
+
+function groupTitle(cat){ return labels[cat] || `📷 ${cat}`; }
+
+function render(){
+  const q = search.value.trim().toLowerCase();
+  const cat = category.value;
+  const filtered = observations.filter(o => {
+    const haystack = [o.observation_id,o.title,o.description,o.category,...(o.tags||[])].join(' ').toLowerCase();
+    return (!q || haystack.includes(q)) && (!cat || o.category === cat);
+  });
+  stats.textContent = `${filtered.length} / ${observations.length} osservazioni`;
+  if(!filtered.length){ content.innerHTML = '<div class="empty">Nessuna osservazione corrisponde ai filtri.</div>'; return; }
+  const groups = new Map();
+  filtered.forEach(o => {
+    if(!groups.has(o.category)) groups.set(o.category, []);
+    groups.get(o.category).push(o);
+  });
+  content.innerHTML = [...groups.entries()].map(([cat,items]) => `
+    <section>
+      <h2>${esc(groupTitle(cat))}</h2>
+      <div class="grid">
+        ${items.map(card).join('')}
+      </div>
+    </section>`).join('');
+}
+
+function card(o){
+  const location = [o.city,o.country].filter(Boolean).join(' · ');
+  const hash = o.sha256 ? `SHA-256: ${o.sha256}` : 'SHA-256 non disponibile';
+  return `<article class="card">
+    <img src="${esc(o.media_path)}" alt="${esc(o.title)}" loading="lazy">
+    <div class="info">
+      <span class="badge">${esc(o.status || 'UNKNOWN')}</span>
+      <h3>${esc(o.title)}</h3>
+      <div class="meta">${esc(location)}${o.observation_id ? `<br>${esc(o.observation_id)}` : ''}</div>
+      <div class="meta">${esc(o.description || '')}</div>
+      <div class="hash">${esc(hash)}</div>
+      <div class="actions">
+        <a class="button" href="/observation.html?id=${encodeURIComponent(o.observation_id)}">Scheda osservazione</a>
+        <a class="button secondary" href="${esc(o.media_path)}">Apri foto</a>
+      </div>
+    </div>
+  </article>`;
+}
+
+fetch('/data/observations.json', {cache:'no-store'})
+  .then(r => { if(!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+  .then(data => {
+    observations = (data.observations || []).filter(o => o.status !== 'STAGED');
+    [...new Set(observations.map(o=>o.category).filter(Boolean))].sort().forEach(cat => {
+      const opt = document.createElement('option'); opt.value = cat; opt.textContent = groupTitle(cat); category.appendChild(opt);
+    });
+    render();
+  })
+  .catch(err => {
+    stats.textContent = 'Errore';
+    content.innerHTML = `<div class="error">Impossibile caricare il registro osservazioni: ${esc(err.message)}</div>`;
+  });
+
+search.addEventListener('input', render);
+category.addEventListener('change', render);
+</script>
 </body>
 </html>
