@@ -3,12 +3,14 @@ import MapPage from './pages/MapPage';
 import GardensPage from './pages/GardensPage';
 import PilotDashboardPage from './pages/PilotDashboardPage';
 import ClowbotBountiesPage from './pages/ClowbotBountiesPage';
+import AgentsPage from './pages/AgentsPage';
 
 const TABS = {
   PLANTS: 'plants',
   GARDENS: 'gardens',
   PILOT: 'pilot',
   BOUNTIES: 'bounties',
+  AGENTS: 'agents',
 };
 
 function App() {
@@ -22,12 +24,14 @@ function App() {
         <button onClick={() => setActiveTab(TABS.PLANTS)}>🌿 Piante</button>
         <button onClick={() => setActiveTab(TABS.GARDENS)}>🌱 Orti & Giardini</button>
         <button onClick={() => setActiveTab(TABS.BOUNTIES)}>🤖 Clowbot Bounties</button>
+        <button onClick={() => setActiveTab(TABS.AGENTS)}>🧠 AI & Bots</button>
       </nav>
 
       {activeTab === TABS.PILOT && <PilotDashboardPage />}
       {activeTab === TABS.PLANTS && <MapPage />}
       {activeTab === TABS.GARDENS && <GardensPage />}
       {activeTab === TABS.BOUNTIES && <ClowbotBountiesPage />}
+      {activeTab === TABS.AGENTS && <AgentsPage />}
     </div>
   );
 }
