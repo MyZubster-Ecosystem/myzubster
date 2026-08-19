@@ -1,5 +1,9 @@
 # MyZubster — osserva, documenta e collega il mondo reale
 
+> 🌍 **Global / Multilingual:** [English · Italiano · Español · Français · Deutsch · Português · 中文 · 日本語 · 한국어 · العربية · हिन्दी · Русский · Türkçe · Bahasa Indonesia · Polski · Українська · বাংলা · اردو · فارسی · Kiswahili](docs/i18n/README.md)
+>
+> **MyZubster is an open-source ecosystem that connects real-world observations, verifiable evidence, collaborative bounties and platform rewards.** MYZ is currently an internal reward/accounting ledger; any external XMR/token/blockchain settlement is separate and requires independent verification.
+
 **MyZubster è un ecosistema open-source collaborativo per mappare, documentare e collegare persone, luoghi, ambiente, tecnologia e servizi nel mondo reale.**
 
 Parte da osservazioni concrete — fotografie, coordinate, piante, edifici, patrimonio, strade, servizi urbani e contributi — e le organizza in una struttura pubblica, verificabile e progressivamente estendibile.
@@ -159,6 +163,7 @@ npm run build --if-present
 
 ## Documentazione
 
+- [🌍 Universal / Multilingual Guide](docs/i18n/README.md)
 - [Ecosystem Architecture](docs/ECOSYSTEM.md)
 - [Bounty System](BOUNTIES.md)
 - [Documentation hub](https://github.com/MyZubster-Ecosystem/myzubster-docs)
