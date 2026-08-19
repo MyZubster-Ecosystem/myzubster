@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "1.0.0",
+  "ecosystem": "MyZubster",
+  "repository": "MyZubster-Ecosystem/MyZubster-Visual",
+  "categories": {
+    "bots": "assets/bots",
+    "brand": "assets/brand",
+    "ecosystem": "assets/ecosystem",
+    "ui": "assets/ui",
+    "maps": "assets/maps",
+    "social": "assets/social",
+    "hardware": "assets/hardware",
+    "icons": "assets/icons"
+  },
+  "myz": {
+    "symbol": "MYZ",
+    "model": "internal-platform-ledger",
+    "automaticCredit": false,
+    "automaticSettlement": false
+  }
+}
