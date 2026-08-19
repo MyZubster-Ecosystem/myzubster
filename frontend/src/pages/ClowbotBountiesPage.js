@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { getPhotoBounties, submitPhotoBounty } from '../api/photoBounties';
+import { findBotAgent, getBotAvatarManifest } from '../api/botAvatars';
 
 const tabs = [
   ['clowbot', '🤖 Clowbot / MYZ Inventions'],
@@ -9,7 +10,8 @@ const tabs = [
 
 const styles = {
   page: { padding: 24, maxWidth: 1180, margin: '0 auto', fontFamily: 'system-ui, sans-serif' },
-  hero: { marginBottom: 20 },
+  hero: { marginBottom: 20, display: 'flex', gap: 18, alignItems: 'center' },
+  heroAvatar: { width: 92, height: 92, borderRadius: '50%', objectFit: 'cover', border: '3px solid #d1fae5', background: '#0f172a', flex: '0 0 auto' },
   tabs: { display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 18 },
   grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 },
   card: { border: '1px solid #ddd', borderRadius: 14, padding: 18, background: '#fff', boxShadow: '0 3px 12px rgba(0,0,0,.06)' },
@@ -32,6 +34,7 @@ function isSuper(bounty) {
 
 export default function ClowbotBountiesPage() {
   const [bounties, setBounties] = useState([]);
+  const [clowbotAgent, setClowbotAgent] = useState(null);
   const [filter, setFilter] = useState('clowbot');
   const [query, setQuery] = useState('');
   const [photoIds, setPhotoIds] = useState({});
@@ -47,6 +50,12 @@ export default function ClowbotBountiesPage() {
       })
       .catch(err => setError(err.message))
       .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    getBotAvatarManifest()
+      .then(manifest => setClowbotAgent(findBotAgent(manifest, 'clowbot')))
+      .catch(() => setClowbotAgent(null));
   }, []);
 
   const visible = useMemo(() => {
@@ -86,11 +95,20 @@ export default function ClowbotBountiesPage() {
   return (
     <main style={styles.page}>
       <section style={styles.hero}>
-        <h2 style={{ marginBottom: 6 }}>🤖 Clowbot / MYZ Invention Bounties</h2>
-        <p style={{ marginTop: 0 }}>
-          Documenta prototipi, robotica, riciclo, accessibilità, energia e invenzioni aperte.
-          Le submission vengono verificate prima dell'accredito MYZ.
-        </p>
+        {clowbotAgent?.avatarUrl && (
+          <img
+            src={clowbotAgent.avatarUrl}
+            alt={`Avatar di ${clowbotAgent.displayName}`}
+            style={styles.heroAvatar}
+          />
+        )}
+        <div>
+          <h2 style={{ marginBottom: 6 }}>🤖 Clowbot / MYZ Invention Bounties</h2>
+          <p style={{ marginTop: 0 }}>
+            Documenta prototipi, robotica, riciclo, accessibilità, energia e invenzioni aperte.
+            Le submission vengono verificate prima della registrazione di eventuali reward MYZ nel ledger interno.
+          </p>
+        </div>
       </section>
 
       <div style={styles.tabs}>
