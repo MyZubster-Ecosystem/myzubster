@@ -30,6 +30,34 @@ L'ecosistema continua a evolvere su più repository. Gli elementi seguenti descr
 
 MyZubster privilegia una documentazione prudente: una feature proposta non è una feature rilasciata, un merge non è un pagamento, un fork non è un utente attivo e un'integrazione descritta non è necessariamente operativa in produzione. Le fonti canoniche restano codice, test, CI, policy bounty ed evidenze indipendenti appropriate al tipo di claim.
 
+## 🇪🇺 Programma LIFE dell'Unione europea
+
+MyZubster sta esplorando il **Programma LIFE 2021–2027** come possibile quadro europeo per sviluppare e validare applicazioni ambientali dell'ecosistema. LIFE è lo strumento di finanziamento dell'Unione europea dedicato ad ambiente e azione per il clima ed è articolato in quattro sottoprogrammi: **Nature and Biodiversity**, **Circular Economy and Quality of Life**, **Climate Change Mitigation and Adaptation** e **Clean Energy Transition**.
+
+Le aree di MyZubster potenzialmente coerenti con LIFE includono:
+
+- raccolta e documentazione di osservazioni ambientali verificabili;
+- biodiversità urbana, alberi, piante, habitat e monitoraggio territoriale;
+- acqua, qualità ambientale, economia circolare e riduzione degli sprechi;
+- IoT, robotica e sensoristica per pilot ambientali;
+- dati geospaziali, GeoJSON, fotografia e sistemi di evidenza/MRV;
+- partecipazione civica, citizen science e collaborazione open-source;
+- replicazione di pilot e strumenti digitali in territori e comunità differenti.
+
+### Possibile ruolo di MyZubster in un progetto LIFE
+
+A seconda della call e del consorzio, MyZubster potrebbe contribuire come **piattaforma tecnologica/open-source**, layer di raccolta dati ed evidenze, supporto a pilot ambientali, visualizzazione e mapping, citizen engagement, automazione o infrastruttura per monitoraggio e replicazione.
+
+Il lavoro preparatorio comprende la ricerca di soggetti compatibili per ruoli quali **applicant/coordinator, partner scientifici, enti territoriali, pilot site, validazione ambientale, MRV e replicazione**.
+
+> **Stato:** esplorazione / preparazione. La presenza di questa sezione non implica che MyZubster abbia ricevuto finanziamenti LIFE, che una candidatura sia stata approvata o che esista una partnership ufficiale con l'Unione europea, CINEA o altri enti. Qualsiasi candidatura, partnership, grant o progetto finanziato dovrà essere documentato separatamente con evidenza verificabile.
+
+Riferimenti ufficiali:
+
+- [European Commission — LIFE Programme](https://commission.europa.eu/funding-and-tenders/find-funding/eu-funding-programmes/programme-environment-and-climate-action-life_en)
+- [CINEA — LIFE](https://cinea.ec.europa.eu/programmes/life_en)
+- [EU Funding & Tenders Portal — LIFE](https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/programmes/life2027)
+
 ## Architettura dell'ecosistema
 
 La mappa canonica dei repository e dei confini tra core, Gateway, app/web, robotica, AI, escrow/verifier e documentazione è mantenuta in:
@@ -62,133 +90,6 @@ Core -> Gateway -> payment/treasury -> independent verifier
 
 MyZubster costruisce una **mappa visuale e informativa del mondo reale** e una serie di workflow per collegare contributi, evidenze e attività verificabili.
 
-## 🎬 Come funziona MyZubster — versione fumetto
-
-Questa è la lettura più semplice dell'ecosistema: una sequenza di “vignette” che mostra il percorso di un contributo, dal mondo reale alla piattaforma.
-
-### Vignetta 1 — Osserva
-
-> **SCENA:** una persona vede qualcosa che vale la pena documentare: una piazza, un albero, un edificio, un servizio urbano, un progetto o un problema concreto.
->
-> **DIALOGO:** «Questo esiste nel mondo reale. Posso trasformarlo in un dato utile.»
-
-L'utente raccoglie un'osservazione: foto, descrizione, posizione quando appropriata e altri dati non sensibili.
-
-```text
-MONDO REALE
-    |
-    v
-osservazione + evidenza
-```
-
-### Vignetta 2 — Documenta
-
-> **SCENA:** l'osservazione entra nell'App/Web di MyZubster.
->
-> **DIALOGO:** «Non basta dire che qualcosa esiste: bisogna documentarlo bene.»
-
-Il contributo viene strutturato e collegato agli oggetti della piattaforma. Le coordinate possono essere ridotte o escluse quando la posizione è sensibile.
-
-```text
-foto / testo / coordinate
-          |
-          v
-      App / Web
-          |
-          v
-     Core MyZubster
-```
-
-### Vignetta 3 — Collega
-
-> **SCENA:** MyZubster mette in relazione persone, luoghi, osservazioni, media e attività.
->
-> **DIALOGO:** «Un dato isolato racconta poco. Collegato agli altri diventa conoscenza.»
-
-Il core organizza le informazioni nella mappa e nei workflow collaborativi.
-
-```text
-persona ---- luogo
-   |           |
-   +--- osservazione --- media
-              |
-              +--- progetto / bounty
-```
-
-### Vignetta 4 — Collabora
-
-> **SCENA:** la community può proporre o svolgere attività definite tramite bounty.
->
-> **DIALOGO:** «C'è un compito verificabile? Rendiamolo trasparente.»
-
-Le bounty seguono un ciclo esplicito: proposta, validazione, attività, submission e verifica. Un'issue, una PR o un merge non equivalgono automaticamente a un pagamento.
-
-```text
-PROPOSED -> VALIDATED -> APPROVED -> ACTIVE
-                                  |
-                                  v
-SUBMITTED -> UNDER_REVIEW -> VERIFIED / REJECTED
-```
-
-### Vignetta 5 — Verifica
-
-> **SCENA:** l'evidenza viene controllata prima di diventare un risultato accettato.
->
-> **DIALOGO:** «Prima la prova, poi il riconoscimento.»
-
-Il sistema separa il contributo dalla sua verifica. Per eventuali settlement esterni, la conferma finale deve provenire da evidenza indipendente appropriata al rail utilizzato.
-
-### Vignetta 6 — Pubblica ciò che può essere pubblico
-
-> **SCENA:** snapshot sanitizzati vengono resi indirizzabili attraverso IPFS/IPNS.
->
-> **DIALOGO:** «Pubblico sì. Segreti e dati sensibili no.»
-
-I dati pubblici possono essere distribuiti come snapshot content-addressed senza trasformare IPFS in un sistema di autorizzazione o in una prova finanziaria.
-
-```text
-Core MyZubster
-      |
-      v
-snapshot sanitizzato
-      |
-      v
-   IPFS/IPNS
-```
-
-### Vignetta 7 — Reward e settlement restano separati
-
-> **SCENA:** il contributore vede un reward registrato.
->
-> **DIALOGO:** «MYZ registra il riconoscimento interno. Un pagamento esterno è un'altra cosa e va verificato separatamente.»
-
-Nel core attuale **MYZ è un ledger interno di reward/accounting**. XMR o altri token possono appartenere a layer separati e non devono essere descritti come pagati finché non esiste evidenza verificabile del settlement.
-
-```text
-contributo verificato
-       |
-       +--> MYZ reward/accounting interno
-       |
-       +--> eventuale settlement esterno
-                    |
-                    v
-             verifica indipendente
-```
-
-### Vignetta finale — Il ciclo continua
-
-> **SCENA:** nuovi contributi accendono nuovi punti sulla mappa.
->
-> **DIALOGO:** «Osserva. Documenta. Collega. Verifica. Condividi.»
-
-MyZubster non è una singola app: è un insieme di componenti che prova a trasformare osservazioni reali in conoscenza collaborativa, mantenendo separati dati pubblici, sicurezza, reward interni e settlement esterni.
-
-```text
-OSSERVA -> DOCUMENTA -> COLLEGA -> COLLABORA -> VERIFICA -> CONDIVIDI
-   ^                                                        |
-   +--------------------------------------------------------+
-```
-
 ### Cosa può documentare
 
 - luoghi, piazze, strade e panorami;
@@ -203,24 +104,7 @@ OSSERVA -> DOCUMENTA -> COLLEGA -> COLLABORA -> VERIFICA -> CONDIVIDI
 
 Il core può pubblicare **snapshot pubblici sanitizzati** tramite IPFS/IPNS, con indici separati per elementi come foto, bounty, reward pubblici, crawler observations e discoveries.
 
-Il modello è:
-
-```text
-stable IPNS name
-      |
-      v
-latest root CID
-      |
-      +-- photos CID
-      +-- bounties CID
-      +-- rewards CID
-      +-- crawler CID
-      +-- discoveries CID
-```
-
 IPFS fornisce content addressing e replica. **Non sostituisce da solo autorizzazione, consenso applicativo o settlement finanziario.** MongoDB e i servizi backend restano parte del layer operativo, mentre gli snapshot pubblici sono indipendentemente indirizzabili.
-
-I metadata pubblici non devono includere secret, identificativi privati non necessari, path locali, ricerca confidenziale o dettagli sensibili di infrastrutture/aree ristrette.
 
 ## Bounty system
 
