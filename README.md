@@ -46,6 +46,133 @@ Core -> Gateway -> payment/treasury -> independent verifier
 
 MyZubster costruisce una **mappa visuale e informativa del mondo reale** e una serie di workflow per collegare contributi, evidenze e attività verificabili.
 
+## 🎬 Come funziona MyZubster — versione fumetto
+
+Questa è la lettura più semplice dell'ecosistema: una sequenza di “vignette” che mostra il percorso di un contributo, dal mondo reale alla piattaforma.
+
+### Vignetta 1 — Osserva
+
+> **SCENA:** una persona vede qualcosa che vale la pena documentare: una piazza, un albero, un edificio, un servizio urbano, un progetto o un problema concreto.
+>
+> **DIALOGO:** «Questo esiste nel mondo reale. Posso trasformarlo in un dato utile.»
+
+L'utente raccoglie un'osservazione: foto, descrizione, posizione quando appropriata e altri dati non sensibili.
+
+```text
+MONDO REALE
+    |
+    v
+osservazione + evidenza
+```
+
+### Vignetta 2 — Documenta
+
+> **SCENA:** l'osservazione entra nell'App/Web di MyZubster.
+>
+> **DIALOGO:** «Non basta dire che qualcosa esiste: bisogna documentarlo bene.»
+
+Il contributo viene strutturato e collegato agli oggetti della piattaforma. Le coordinate possono essere ridotte o escluse quando la posizione è sensibile.
+
+```text
+foto / testo / coordinate
+          |
+          v
+      App / Web
+          |
+          v
+     Core MyZubster
+```
+
+### Vignetta 3 — Collega
+
+> **SCENA:** MyZubster mette in relazione persone, luoghi, osservazioni, media e attività.
+>
+> **DIALOGO:** «Un dato isolato racconta poco. Collegato agli altri diventa conoscenza.»
+
+Il core organizza le informazioni nella mappa e nei workflow collaborativi.
+
+```text
+persona ---- luogo
+   |           |
+   +--- osservazione --- media
+              |
+              +--- progetto / bounty
+```
+
+### Vignetta 4 — Collabora
+
+> **SCENA:** la community può proporre o svolgere attività definite tramite bounty.
+>
+> **DIALOGO:** «C'è un compito verificabile? Rendiamolo trasparente.»
+
+Le bounty seguono un ciclo esplicito: proposta, validazione, attività, submission e verifica. Un'issue, una PR o un merge non equivalgono automaticamente a un pagamento.
+
+```text
+PROPOSED -> VALIDATED -> APPROVED -> ACTIVE
+                                  |
+                                  v
+SUBMITTED -> UNDER_REVIEW -> VERIFIED / REJECTED
+```
+
+### Vignetta 5 — Verifica
+
+> **SCENA:** l'evidenza viene controllata prima di diventare un risultato accettato.
+>
+> **DIALOGO:** «Prima la prova, poi il riconoscimento.»
+
+Il sistema separa il contributo dalla sua verifica. Per eventuali settlement esterni, la conferma finale deve provenire da evidenza indipendente appropriata al rail utilizzato.
+
+### Vignetta 6 — Pubblica ciò che può essere pubblico
+
+> **SCENA:** snapshot sanitizzati vengono resi indirizzabili attraverso IPFS/IPNS.
+>
+> **DIALOGO:** «Pubblico sì. Segreti e dati sensibili no.»
+
+I dati pubblici possono essere distribuiti come snapshot content-addressed senza trasformare IPFS in un sistema di autorizzazione o in una prova finanziaria.
+
+```text
+Core MyZubster
+      |
+      v
+snapshot sanitizzato
+      |
+      v
+   IPFS/IPNS
+```
+
+### Vignetta 7 — Reward e settlement restano separati
+
+> **SCENA:** il contributore vede un reward registrato.
+>
+> **DIALOGO:** «MYZ registra il riconoscimento interno. Un pagamento esterno è un'altra cosa e va verificato separatamente.»
+
+Nel core attuale **MYZ è un ledger interno di reward/accounting**. XMR o altri token possono appartenere a layer separati e non devono essere descritti come pagati finché non esiste evidenza verificabile del settlement.
+
+```text
+contributo verificato
+       |
+       +--> MYZ reward/accounting interno
+       |
+       +--> eventuale settlement esterno
+                    |
+                    v
+             verifica indipendente
+```
+
+### Vignetta finale — Il ciclo continua
+
+> **SCENA:** nuovi contributi accendono nuovi punti sulla mappa.
+>
+> **DIALOGO:** «Osserva. Documenta. Collega. Verifica. Condividi.»
+
+MyZubster non è una singola app: è un insieme di componenti che prova a trasformare osservazioni reali in conoscenza collaborativa, mantenendo separati dati pubblici, sicurezza, reward interni e settlement esterni.
+
+```text
+OSSERVA -> DOCUMENTA -> COLLEGA -> COLLABORA -> VERIFICA -> CONDIVIDI
+   ^                                                        |
+   +--------------------------------------------------------+
+```
+
 ### Cosa può documentare
 
 - luoghi, piazze, strade e panorami;
