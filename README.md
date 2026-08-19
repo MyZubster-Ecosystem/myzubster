@@ -14,6 +14,22 @@ Parte da osservazioni concrete — fotografie, coordinate, piante, edifici, patr
 
 Monero/XMR, MYZ, Tor, IPFS, robotica, IoT e AI appartengono a specifici layer o filoni dell'ecosistema: non implicano che ogni funzionalità sia già production-ready.
 
+## 🆕 Aggiornamenti recenti — agosto 2026
+
+L'ecosistema continua a evolvere su più repository. Gli elementi seguenti descrivono attività pubblicamente osservabili e non vanno interpretati come prova automatica di deployment production-ready, adozione, partnership o pagamento di bounty.
+
+- **MyZubsterGateway:** attività di sviluppo e validazione continua sul boundary di gateway, integrazioni e settlement. Issue e pull request aperte indicano un workstream attivo; fork/star e altre metriche GitHub sono segnali di interesse tecnico, non metriche di adozione.
+- **Monero / FCMP++:** è aperto un filone per aggiornare il wallet e il monitoraggio delle transazioni in vista del supporto FCMP++, includendo configurazione wallet/RPC, nuovi tipi di transazione, conferme, test e documentazione. Lo stato resta di sviluppo finché l'implementazione non viene verificata.
+- **Bounty lifecycle:** il progetto rafforza la separazione tra attività GitHub e settlement: issue, assegnazione, PR o merge non costituiscono prova di pagamento. Il percorso canonico resta `PROPOSED -> VALIDATED -> APPROVED -> FUNDED -> ACTIVE -> SUBMITTED -> UNDER_REVIEW -> VERIFIED -> REWARD_RECORDED -> SETTLEMENT_PENDING / SETTLED`.
+- **Security hardening:** tra i workstream pubblici figurano aggiornamento delle dipendenze/vulnerabilità e rate limiting degli endpoint API. Le issue descrivono lavoro richiesto o in corso e non certificano da sole che la remediation sia già distribuita.
+- **Documentazione:** è in corso l'allineamento delle tabelle/stati README tra i repository per rendere più esplicita la distinzione tra production, development, testnet, simulation, experimental e proposed.
+- **Monitoraggio Gateway:** sono presenti filoni dedicati ad analisi di pagamenti/trend e notifiche, mantenendo la verifica finanziaria separata dalle dichiarazioni applicative.
+- **Esposizione esterna:** eventuali menzioni su community, aggregatori o piattaforme esterne vengono considerate segnali di visibilità e discovery; engagement e adozione devono essere misurati separatamente con evidenza verificabile.
+
+### Come leggere questi aggiornamenti
+
+MyZubster privilegia una documentazione prudente: una feature proposta non è una feature rilasciata, un merge non è un pagamento, un fork non è un utente attivo e un'integrazione descritta non è necessariamente operativa in produzione. Le fonti canoniche restano codice, test, CI, policy bounty ed evidenze indipendenti appropriate al tipo di claim.
+
 ## Architettura dell'ecosistema
 
 La mappa canonica dei repository e dei confini tra core, Gateway, app/web, robotica, AI, escrow/verifier e documentazione è mantenuta in:
