@@ -28,7 +28,7 @@
         "coordinate_source": "user-confirmed-position",
         "github_record": "https://github.com/MyZubster-Ecosystem/myzubster/blob/main/world/italy/emilia-romagna/rimini/streets/via-clodia/README.md",
         "google_maps": "https://www.google.com/maps?q=44.0637353,12.5678873",
-        "image": "/media/rimini/streets/via-clodia/via-clodia.jpg"
+        "image": "https://raw.githubusercontent.com/MyZubster-Ecosystem/MyZubster-Photos/main/photos/italy/emilia-romagna/rimini/streets/via-clodia/via-clodia.jpg"
       }
     },
     {
@@ -51,7 +51,7 @@
         "coordinate_source": "user-confirmed-position",
         "github_record": "https://github.com/MyZubster-Ecosystem/myzubster/blob/main/world/italy/emilia-romagna/rimini/services/futura-ambiente/sede-rimini/README.md",
         "google_maps": "https://www.google.com/maps?q=44.0643945,12.5314941",
-        "image": "/media/rimini/services/futura-ambiente/futura-ambiente.jpg"
+        "image": "https://raw.githubusercontent.com/MyZubster-Ecosystem/MyZubster-Photos/main/photos/italy/emilia-romagna/rimini/services/futura-ambiente/futura-ambiente.jpg"
       }
     },
     {
@@ -73,7 +73,7 @@
         "coordinate_source": "OpenStreetMap-derived-reference",
         "github_record": "https://github.com/MyZubster-Ecosystem/myzubster/blob/main/field/observations/2026-08-18-piazza-ferrari-rimini.md",
         "google_maps": "https://www.google.com/maps?q=44.06204,12.56806",
-        "image": "/media/rimini/squares/piazza-ferrari/piazza-ferrari.jpg"
+        "image": "https://raw.githubusercontent.com/MyZubster-Ecosystem/MyZubster-Photos/main/photos/italy/emilia-romagna/rimini/squares/piazza-ferrari/piazza-ferrari.jpg"
       }
     },
     {
@@ -95,7 +95,7 @@
         "coordinate_source": "Wikidata-OpenStreetMap-reference",
         "github_record": "https://github.com/MyZubster-Ecosystem/myzubster/blob/main/world/italy/emilia-romagna/rimini/heritage/fontana-della-pigna/README.md",
         "google_maps": "https://www.google.com/maps?q=44.06063,12.56596",
-        "image": "/media/rimini/landmarks/fontana-della-pigna/fontana-della-pigna-001.jpg"
+        "image": "https://raw.githubusercontent.com/MyZubster-Ecosystem/MyZubster-Photos/main/photos/italy/emilia-romagna/rimini/landmarks/fontana-della-pigna/fontana-della-pigna-001.jpg"
       }
     },
     {
@@ -117,7 +117,7 @@
         "coordinate_source": "Wikidata-reference",
         "github_record": "https://github.com/MyZubster-Ecosystem/myzubster/blob/main/world/italy/emilia-romagna/rimini/heritage/palazzo-garampi-comune/README.md",
         "google_maps": "https://www.google.com/maps?q=44.061115,12.566116",
-        "image": "/media/rimini/civic/comune-di-rimini/comune-di-rimini-001.jpg"
+        "image": "https://raw.githubusercontent.com/MyZubster-Ecosystem/MyZubster-Photos/main/photos/italy/emilia-romagna/rimini/civic/comune-di-rimini/comune-di-rimini-001.jpg"
       }
     },
     {
@@ -141,7 +141,7 @@
         "observation_note": "Nuvole visibili; nessuna scia aeronautica visibile nella fotografia.",
         "google_maps": "https://www.google.com/maps?q=44.0665841,12.5749680",
         "drive_media": "https://drive.google.com/file/d/1deA_iGdrteI0w6-6NfLzzwiFpPIiRQsQ/view?usp=drivesdk",
-        "planned_repo_image": "/media/rimini/sky/clouds/rimini-sky-clouds-001.jpg"
+        "image": "https://raw.githubusercontent.com/MyZubster-Ecosystem/MyZubster-Photos/main/photos/italy/emilia-romagna/rimini/sky/clouds/rimini-sky-clouds-001.jpg"
       }
     }
   ]
