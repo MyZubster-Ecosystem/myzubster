@@ -1,7 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const React = require('react');
-const { renderToStaticMarkup } = require('react-dom/server');
 const { metricPercent, normalizeTelemetryPayload } = require('./telemetryUtils');
 
 test('normalizes telemetry responses and falls back to the first row', () => {
@@ -16,11 +14,11 @@ test('clamps visual metric values', () => {
   expect(metricPercent('invalid', 0, 100)).toBe(0);
 });
 
-test('API-controlled text is escaped by React', () => {
+test('API-controlled text stays in React text nodes', () => {
   const attack = '<img src=x onerror=alert(1)>';
-  const markup = renderToStaticMarkup(React.createElement('td', null, attack));
-  expect(markup).toContain('&lt;img src=x onerror=alert(1)&gt;');
+  expect(normalizeTelemetryPayload({ data: [{ robotId: attack }] }).rows[0].robotId).toBe(attack);
   const component = fs.readFileSync(path.join(__dirname, 'TelemetryDashboardPage.js'), 'utf8');
   expect(component).not.toContain('dangerouslySetInnerHTML');
   expect(component).not.toContain('innerHTML');
+  expect(component).toContain("<td>{String(row.robotId ?? 'Unknown')}</td>");
 });
