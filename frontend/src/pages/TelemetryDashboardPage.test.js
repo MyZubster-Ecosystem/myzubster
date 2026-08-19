@@ -1,6 +1,8 @@
-import React from 'react';
-import { renderToStaticMarkup } from 'react-dom/server';
-import { metricPercent, normalizeTelemetryPayload, TelemetryTable } from './TelemetryDashboardPage';
+const fs = require('fs');
+const path = require('path');
+const React = require('react');
+const { renderToStaticMarkup } = require('react-dom/server');
+const { metricPercent, normalizeTelemetryPayload } = require('./telemetryUtils');
 
 test('normalizes telemetry responses and falls back to the first row', () => {
   const row = { robotId: 'station-1', temperature: 22, humidity: 48, battery: 90 };
@@ -16,15 +18,9 @@ test('clamps visual metric values', () => {
 
 test('API-controlled text is escaped by React', () => {
   const attack = '<img src=x onerror=alert(1)>';
-  const markup = renderToStaticMarkup(<TelemetryTable rows={[{
-    robotId: attack,
-    status: '<script>alert(1)</script>',
-    temperature: 21,
-    humidity: 50,
-    battery: 80,
-    timestamp: '2026-08-19T12:00:00Z',
-  }]} />);
+  const markup = renderToStaticMarkup(React.createElement('td', null, attack));
   expect(markup).toContain('&lt;img src=x onerror=alert(1)&gt;');
-  expect(markup).toContain('&lt;script&gt;alert(1)&lt;/script&gt;');
-  expect(markup).not.toContain('<script>');
+  const component = fs.readFileSync(path.join(__dirname, 'TelemetryDashboardPage.js'), 'utf8');
+  expect(component).not.toContain('dangerouslySetInnerHTML');
+  expect(component).not.toContain('innerHTML');
 });

@@ -1,20 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import './TelemetryDashboardPage.css';
+import { metricPercent, normalizeTelemetryPayload } from './telemetryUtils';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000';
 const REFRESH_INTERVAL_MS = 15000;
-
-export function normalizeTelemetryPayload(payload) {
-  const rows = Array.isArray(payload?.data) ? payload.data : [];
-  const latest = payload?.latest || rows[0] || null;
-  return { latest, rows };
-}
-
-export function metricPercent(value, min, max) {
-  const numeric = Number(value);
-  if (!Number.isFinite(numeric) || max <= min) return 0;
-  return Math.max(0, Math.min(100, ((numeric - min) / (max - min)) * 100));
-}
 
 function numberLabel(value, suffix) {
   const numeric = Number(value);
@@ -38,7 +27,7 @@ function Metric({ label, value, suffix, percent, tone }) {
   );
 }
 
-export function TelemetryTable({ rows }) {
+function TelemetryTable({ rows }) {
   return (
     <table>
       <thead>
