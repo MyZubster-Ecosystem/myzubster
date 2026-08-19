@@ -206,6 +206,77 @@ IPFS fornisce content addressing e replica. **Non sostituisce da solo autorizzaz
 
 I metadata pubblici non devono includere secret, identificativi privati non necessari, path locali, ricerca confidenziale o dettagli sensibili di infrastrutture/aree ristrette.
 
+## Integrazione nella vita reale: social bounty e prova del lavoro
+
+Una funzione concreta di MyZubster è trasformare una normale attività svolta fuori dal repository — per esempio **creare e pubblicare un contenuto social** — in un contributo verificabile collegato a una bounty.
+
+Il principio è semplice: **il lavoro accade nel mondo reale o su una piattaforma esterna; MyZubster conserva il contesto, l'evidenza e lo stato di verifica.** La piattaforma non deve fingere di controllare Instagram, Facebook, YouTube o altri servizi esterni: registra invece prove verificabili del risultato.
+
+### Esempio reale: pubblicare una Story MyZubster
+
+1. **Bounty / attività definita** — una issue descrive cosa creare, su quali canali pubblicarlo, eventuali hashtag, scadenze e criteri di accettazione.
+2. **Creazione dell'asset** — il contributor prepara immagine, video o testo usando solo informazioni pubblicabili e tecnicamente corrette.
+3. **Pubblicazione reale** — il contenuto viene pubblicato sulla piattaforma prevista, ad esempio Instagram Stories o Facebook Stories.
+4. **Raccolta dell'evidenza** — vengono conservati URL quando disponibili, screenshot della pubblicazione e, se richiesti, insight come visualizzazioni, interazioni o follower raggiunti.
+5. **Submission** — l'evidenza viene collegata alla bounty o alla documentazione del progetto.
+6. **Review** — un maintainer verifica che il contenuto sia realmente pubblicato, coerente con i criteri e privo di dati sensibili o affermazioni false.
+7. **Reward** — solo dopo la verifica il contributo può diventare `VERIFIED` e generare un reward/accounting MYZ interno; eventuale settlement esterno resta un processo separato.
+
+```text
+BOUNTY
+  |
+  v
+CREA CONTENUTO
+  |
+  v
+PUBBLICA NEL MONDO REALE / SOCIAL
+  |
+  v
+URL + SCREENSHOT + METRICHE
+  |
+  v
+SUBMISSION -> REVIEW -> VERIFIED
+                         |
+                         +--> MYZ reward/accounting
+                         +--> eventuale settlement esterno verificato
+```
+
+### Perché questa integrazione è utile
+
+Questo modello permette di collegare attività digitali e fisiche a una traccia verificabile senza dipendere da una singola piattaforma. Lo stesso schema può essere applicato a:
+
+- pubblicazione di post, Stories, video o articoli;
+- tutorial e contenuti educativi;
+- meetup, workshop ed eventi locali documentati;
+- fotografie e osservazioni ambientali;
+- attività di community building;
+- test sul campo, missioni robotiche o raccolta di evidenze;
+- altre bounty con un risultato osservabile e verificabile.
+
+### Regole di evidenza
+
+Una prova valida deve essere proporzionata al bounty. In genere può includere:
+
+- link pubblico permanente, quando la piattaforma lo fornisce;
+- screenshot che mostri chiaramente il contenuto pubblicato e il contesto della piattaforma;
+- data/ora o altro riferimento temporale quando rilevante;
+- metriche/insight solo quando il bounty richiede una soglia quantitativa;
+- file sorgente o asset archiviato quando serve verificare il deliverable.
+
+**Le metriche non devono essere inventate o auto-dichiarate senza prova.** Se un bounty richiede 1.000 visualizzazioni, una semplice pubblicazione non basta a chiuderlo: la soglia deve essere dimostrata con insight appropriati.
+
+### Privacy e sicurezza
+
+Le evidenze pubblicate o archiviate devono essere sanitizzate. Prima di condividerle bisogna evitare o oscurare, quando non necessari:
+
+- email, numeri di telefono e identificativi personali;
+- messaggi privati e notifiche non pertinenti;
+- token, secret, wallet seed e credenziali;
+- coordinate sensibili o dettagli di infrastrutture ristrette;
+- dashboard private o dati analytics che non devono diventare pubblici.
+
+In questo modo MyZubster collega **azione reale → evidenza → verifica → reward** senza confondere una dichiarazione con una prova e senza confondere il reward interno con un pagamento esterno.
+
 ## Bounty system
 
 Il contratto canonico è:
