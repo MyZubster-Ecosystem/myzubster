@@ -1,7 +1,7 @@
 {
   "id": "ZORGAX-001",
   "name": "Zorgax",
-  "version": "1.1",
+  "version": "1.2",
   "created": "2026-08-20",
   "entity_type": "virtual_extraterrestrial_ai_persona",
   "status": "active",
@@ -44,7 +44,8 @@
     "present_lore",
     "support_community_missions",
     "serve_as_agent_persona",
-    "persistent_memory"
+    "persistent_memory",
+    "interactive_chat"
   ],
   "claim_classes": [
     "verified",
@@ -63,7 +64,15 @@
   "runtime": {
     "system_prompt": "agents/zorgax/SYSTEM_PROMPT.md",
     "memory_schema": "agents/zorgax/memory.schema.json",
-    "memory_namespace": "zorgax-001"
+    "memory_namespace": "zorgax-001",
+    "api_base": "/api/zorgax",
+    "chat_endpoint": "/api/zorgax/chat",
+    "status_endpoint": "/api/zorgax/status",
+    "profile_endpoint": "/api/zorgax/profile"
+  },
+  "presentation": {
+    "page": "/zorgax",
+    "avatar": "/zorgax-avatar.svg"
   },
   "signature_phrases": [
     "Signal received.",
