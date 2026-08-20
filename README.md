@@ -30,16 +30,20 @@ L'ecosistema continua a evolvere su più repository. Gli elementi seguenti descr
 
 Nel corso di agosto 2026 sono state osservate diverse indicizzazioni e ripubblicazioni esterne riconducibili a MyZubster. Questi segnali documentano **discovery tecnica e distribuzione dei contenuti**, non endorsement, partnership, utenti attivi o adozione commerciale.
 
+**Verifica più recente:** 20 agosto 2026.
+
 - **KMP Weekly:** indicizzazione del contenuto tecnico `NFC Payments in MyZubster: A Complete Guide`, con esposizione verso la community Kotlin Multiplatform.
-- **Orion / ContributeHub:** indicizzazione di numerosi bounty MyZubster, inclusi task su wallet/Monero, marketplace API, escrow, AI agent multisig, Seed Exchange e export CSV/GeoJSON. In alcune scansioni bounty MyZubster sono comparsi anche nella sezione `High-Value Bounties`.
-- **TensorHack:** indicizzazione esterna di opportunità/bounty MyZubster, incluse attività su wallet e marketplace.
+- **Orion / ContributeHub:** indicizzazione di numerosi bounty MyZubster, inclusi task su wallet/Monero, marketplace API, escrow, AI agent multisig, Seed Exchange, export CSV/GeoJSON, Arduino, orti urbani ed EVA IONI. La presenza nell'aggregatore aumenta la discoverability delle attività presso contributor esterni; non dimostra esecuzione o pagamento delle bounty.
+- **TensorHack:** indicizzazione della bounty `[BOUNTY B5] Wallet reale per Monero (XMR)` collegata a `MyZubster-Ecosystem/MyZubsterGateway`, oltre ad altre opportunità relative all'ecosistema. È un segnale di discovery open-source esterna, non una validazione del settlement.
 - **Espansione oltre il solo Gateway:** sono state osservate indicizzazioni di bounty anche per `MyZubsterWeb` e per filoni IoT/robotica/agricoltura urbana, inclusi task su Telegram Bot per AgricoloBot, sensori Arduino, mappa/dashboard orti urbani ed EVA IONI.
-- **Crebral:** ripubblicazione/indicizzazione di contenuti tecnici estesi su Urban Lab, escrow, bounty e architetture sperimentali MyZubster.
+- **Crebral:** indicizzazione/ripubblicazione di contenuti tecnici su Urban Lab e integrazioni con MyZubster, `I-ECO-01` e `MyZubsterWeb`, includendo riferimenti a escrow, MYZ, XMR, robot/AI e oltre 25 test simulati. Questi claim descrivono contenuti indicizzati e vanno verificati contro codice, test e repository canonici.
 - **Polaris7:** presenza di MyZubster tra segnali tecnici/di mercato collegati a GitHub e all'ecosistema software.
-- **TechForDev:** ripubblicazione/indicizzazione di contenuti relativi a EVA IONI e MyZubster.
+- **TechForDev:** ripubblicazione/indicizzazione dell'aggiornamento su EVA IONI del 7 agosto 2026, con riferimenti a MyZubster, Monero, repository e bounty.
 - **Artemida.team:** diffusione in lingua russa di contenuti relativi al MyZubster Robot.
 - **Toldrop:** inclusione di contenuti MyZubster AI/automation in report/editorial aggregation esterni.
 - **LibHunt:** collegamenti e discovery di contenuti MyZubster in un indice orientato ai progetti software/open-source.
+
+La scansione più recente mostra soprattutto **indicizzazione di bounty e contenuti tecnici da parte di aggregatori terzi**. Non sono emersi, nella stessa scansione, nuovi articoli giornalistici indipendenti o discussioni di forum che costituiscano una valutazione critica autonoma di MyZubster.
 
 Queste menzioni vengono trattate come **segnali di propagazione esterna**. La loro presenza non dimostra conversioni, utenti attivi, investimenti, relazioni commerciali o riconoscimenti ufficiali. Quando una pagina esterna riprende claim istituzionali o territoriali, tali formulazioni devono essere verificate separatamente prima di essere considerate affidabili.
 
