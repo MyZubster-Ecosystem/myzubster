@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MyZubster Visual — Create Character</title>
+  <style>
+    :root{color-scheme:dark;--bg:#07090f;--panel:#111522;--line:#29324a;--text:#f5f7ff;--muted:#9aa6c2;--cyan:#35e6ff;--pink:#ff4fd8}
+    *{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,sans-serif;background:radial-gradient(circle at top,#101a31 0,#07090f 45%);color:var(--text)}
+    main{max-width:1120px;margin:auto;padding:40px 20px 70px}.hero{display:grid;grid-template-columns:1.15fr .85fr;gap:26px;align-items:start}.card{background:rgba(17,21,34,.94);border:1px solid var(--line);border-radius:20px;padding:24px;box-shadow:0 18px 50px rgba(0,0,0,.25)}
+    h1{font-size:clamp(36px,6vw,68px);margin:0 0 10px;line-height:.95}.glow{color:var(--cyan);text-shadow:0 0 24px rgba(53,230,255,.35)}p{color:var(--muted);line-height:1.6}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}label{display:block;font-size:13px;color:#cbd5ee;margin-bottom:7px}input,select,textarea{width:100%;background:#090c14;color:var(--text);border:1px solid var(--line);border-radius:12px;padding:12px 13px;outline:none}textarea{min-height:105px;resize:vertical}.full{grid-column:1/-1}.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}button,a.button{border:0;border-radius:12px;padding:12px 16px;font-weight:700;cursor:pointer;text-decoration:none}.primary{background:linear-gradient(90deg,var(--cyan),var(--pink));color:#05060a}.secondary{background:#1a2030;color:white;border:1px solid var(--line)}
+    .avatar{aspect-ratio:1;border-radius:18px;border:1px dashed #3d4968;display:grid;place-items:center;background:linear-gradient(135deg,#11182a,#231329);font-size:82px}.tag{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:6px 10px;margin:5px 5px 0 0;color:#cbd5ee}.preview h2{margin-bottom:6px}.code{white-space:pre-wrap;background:#070910;border:1px solid var(--line);border-radius:14px;padding:14px;font-family:ui-monospace,monospace;font-size:12px;color:#bfeeff;max-height:330px;overflow:auto}.small{font-size:12px}.consent{display:flex;gap:10px;align-items:flex-start;margin-top:13px}.consent input{width:auto;margin-top:4px}
+    @media(max-width:820px){.hero{grid-template-columns:1fr}.grid{grid-template-columns:1fr}.full{grid-column:auto}}
+  </style>
+</head>
+<body>
+<main>
+  <section class="hero">
+    <div>
+      <p>MYZUBSTER VISUAL / EXPERIMENTAL MVP</p>
+      <h1>Create your <span class="glow">digital character</span>.</h1>
+      <p>Build a persistent comic identity, define how you want to collaborate, then export a sanitized profile that can be proposed through a GitHub Issue or Pull Request.</p>
+
+      <div class="card">
+        <form id="characterForm">
+          <div class="grid">
+            <div><label>Display name</label><input id="displayName" required placeholder="Nova Merchant" /></div>
+            <div><label>GitHub handle (optional)</label><input id="github" placeholder="octocat" /></div>
+            <div><label>Role / profession</label><input id="role" required placeholder="Shop owner / designer / researcher" /></div>
+            <div><label>Visual style</label><select id="style"><option>Cyberpunk comic</option><option>Clean sci-fi</option><option>Noir graphic novel</option><option>Solarpunk</option><option>Manga-inspired</option></select></div>
+            <div><label>Tone</label><select id="tone"><option>Curious</option><option>Direct</option><option>Playful</option><option>Technical</option><option>Visionary</option></select></div>
+            <div><label>Scene type</label><select id="scene"><option>Future collaboration</option><option>Product idea</option><option>Open-source contribution</option><option>Local partnership</option><option>Environmental mission</option></select></div>
+            <div class="full"><label>Visual traits</label><textarea id="traits" placeholder="Jacket, hairstyle, accessories, colors, age range, atmosphere..."></textarea></div>
+            <div class="full"><label>Collaboration intent</label><textarea id="intent" required placeholder="What would you like to build or explore with MyZubster?"></textarea></div>
+          </div>
+          <div class="consent"><input type="checkbox" id="consent" required><label for="consent">I confirm that this profile contains only information I am authorized to publish. I understand that public GitHub content must not include sensitive personal data.</label></div>
+          <div class="actions"><button class="primary" type="submit">Generate character profile</button><button class="secondary" id="downloadBtn" type="button">Download JSON</button></div>
+        </form>
+      </div>
+    </div>
+
+    <aside class="card preview">
+      <div class="avatar" id="avatar">✦</div>
+      <h2 id="previewName">Your character</h2>
+      <p id="previewRole">Role appears here.</p>
+      <div id="tags"><span class="tag">Cyberpunk comic</span><span class="tag">Curious</span></div>
+      <p id="previewIntent">Create a profile to preview your collaboration intent.</p>
+      <h3>Sanitized JSON</h3>
+      <div class="code" id="jsonPreview">{}</div>
+      <div class="actions">
+        <a class="button secondary" id="issueLink" target="_blank" rel="noreferrer" href="https://github.com/MyZubster-Ecosystem/myzubster/issues/new">Open GitHub collaboration issue</a>
+      </div>
+      <p class="small">This MVP generates metadata locally in your browser. It does not yet call an image-generation service or publish data automatically.</p>
+    </aside>
+  </section>
+</main>
+<script>
+  const $ = id => document.getElementById(id);
+  let lastProfile = null;
+  function slug(v){return v.toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,60)}
+  function buildProfile(){
+    const displayName=$('displayName').value.trim();
+    const profile={
+      schema_version:'0.1',
+      character_id:slug(displayName)||'character',
+      display_name:displayName,
+      github_handle:$('github').value.trim().replace(/^@/,''),
+      role:$('role').value.trim(),
+      visual:{style:$('style').value,traits:$('traits').value.trim()},
+      voice:{tone:$('tone').value},
+      collaboration:{scene_type:$('scene').value,intent:$('intent').value.trim()},
+      consent:{public_profile:true,sensitive_data_confirmed_absent:true},
+      status:'proposal'
+    };
+    return profile;
+  }
+  $('characterForm').addEventListener('submit',e=>{
+    e.preventDefault();
+    lastProfile=buildProfile();
+    $('previewName').textContent=lastProfile.display_name||'Your character';
+    $('previewRole').textContent=lastProfile.role||'Role appears here.';
+    $('previewIntent').textContent=lastProfile.collaboration.intent||'No collaboration intent yet.';
+    $('tags').innerHTML=`<span class="tag">${lastProfile.visual.style}</span><span class="tag">${lastProfile.voice.tone}</span><span class="tag">${lastProfile.collaboration.scene_type}</span>`;
+    $('jsonPreview').textContent=JSON.stringify(lastProfile,null,2);
+    const title=encodeURIComponent(`Visual collab: ${lastProfile.display_name} × MyZubster`);
+    const body=encodeURIComponent(`## MyZubster Visual collaboration\n\nCharacter: **${lastProfile.display_name}**\nRole: ${lastProfile.role}\nStyle: ${lastProfile.visual.style}\nScene: ${lastProfile.collaboration.scene_type}\n\n### Collaboration intent\n${lastProfile.collaboration.intent}\n\n> Character metadata generated with the experimental MyZubster Visual MVP. Do not include sensitive personal data.`);
+    $('issueLink').href=`https://github.com/MyZubster-Ecosystem/myzubster/issues/new?title=${title}&body=${body}`;
+  });
+  $('downloadBtn').addEventListener('click',()=>{
+    if(!lastProfile){alert('Generate the character profile first.');return;}
+    const blob=new Blob([JSON.stringify(lastProfile,null,2)],{type:'application/json'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`${lastProfile.character_id}.json`;a.click();URL.revokeObjectURL(a.href);
+  });
+</script>
+</body>
+</html>
