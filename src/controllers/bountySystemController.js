@@ -1,6 +1,7 @@
 const BountyConfig = require('../models/bountyConfigModel');
 const axios = require('axios');
 const { PAYMENT_STATES, processPayment } = require('../services/paymentLifecycle');
+const { createMyzVerifier } = require('../services/verifiers/myzVerifier');
 
 const GATEWAY_URL = process.env.GATEWAY_URL || 'https://myzubsterapp.onrender.com';
 const SUPPORTED_ASSETS = new Set(['MYZ', 'XMR', 'TOKEN']);
@@ -36,7 +37,7 @@ exports.createBounty = async (req, res) => {
       bounty.paymentStatus = PAYMENT_STATES.PENDING;
       await bounty.save();
     } else {
-      bounty = new BountyConfig({ issueNumber, repository, rewardAmount: amount, currency: components.length === 1 ? components[0].asset : 'MULTI', rewardComponents: components, paymentAsset: process.env.MYZ_PAYMENT_ASSET || components[0].asset, paymentNetwork: process.env.MYZ_PAYMENT_NETWORK || components[0].network || 'Tari' });
+      bounty = new BountyConfig({ issueNumber, repository, rewardAmount: amount, currency: components.length === 1 ? components[0].asset : 'MULTI', rewardComponents: components, paymentAsset: process.env.MYZ_PAYMENT_ASSET || components[0].asset, paymentNetwork: process.env.MYZ_TARI_NETWORK || process.env.MYZ_PAYMENT_NETWORK || components[0].network });
       await bounty.save();
     }
     res.json({ message: 'Bounty created/updated', bounty: { issueNumber: bounty.issueNumber, repository: bounty.repository, rewardAmount: bounty.rewardAmount, currency: bounty.currency, rewardComponents: bounty.rewardComponents, status: bounty.status } });
@@ -111,10 +112,10 @@ exports.processMerge = async (req, res) => {
       const walletAddress = myz?.walletAddress || bounty.paymentWallet || bounty.paymentRecipient || contributor;
       bounty.paymentRecipient = walletAddress;
       bounty.paymentAsset = myz?.asset || bounty.paymentAsset || 'MYZ';
-      bounty.paymentNetwork = myz?.network || bounty.paymentNetwork || 'Tari';
+      bounty.paymentNetwork = myz?.network || bounty.paymentNetwork || process.env.MYZ_TARI_NETWORK || process.env.MYZ_PAYMENT_NETWORK;
       try {
         const adapter = { submit: async request => { const response = await axios.post(`${GATEWAY_URL}/api/bounties/mint`, { walletAddress: request.recipient, amount: request.amount, asset: request.asset, network: request.network, issueNumber: request.issueNumber, prNumber: request.prNumber }, { timeout: 10000 }); return { txId: response.data?.txId, simulated: response.data?.simulated === true }; } };
-        const verifier = null;
+        const verifier = process.env.MYZ_VERIFIER_URL ? createMyzVerifier() : null;
         const result = await processPayment({ bounty, adapter, verifier });
         bounty.paidAt = result.state === PAYMENT_STATES.CONFIRMED ? new Date() : null;
         await bounty.save();
