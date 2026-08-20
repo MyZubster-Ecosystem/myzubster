@@ -10,8 +10,10 @@ const OLLAMA_URL = process.env.OLLAMA_URL || 'http://127.0.0.1:11434';
 const OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'qwen2.5:3b';
 const SYSTEM_PROMPT_PATH = path.join(__dirname, '..', '..', 'agents', 'zorgax', 'SYSTEM_PROMPT.md');
 const PROFILE_PATH = path.join(__dirname, '..', '..', 'config', 'entities', 'zorgax.json');
+const OBSERVATIONS_PATH = path.join(__dirname, '..', '..', 'data', 'observations.json');
 const MEMORY_TTL_DAYS = Math.max(1, Math.min(Number(process.env.ZORGAX_MEMORY_TTL_DAYS) || 90, 365));
 const MEMORY_CONTEXT_LIMIT = 8;
+const OBSERVATION_CONTEXT_LIMIT = 5;
 
 function readText(filePath) {
   return fs.readFileSync(filePath, 'utf8');
@@ -19,6 +21,10 @@ function readText(filePath) {
 
 function readProfile() {
   return JSON.parse(readText(PROFILE_PATH));
+}
+
+function readObservationRegistry() {
+  return JSON.parse(readText(OBSERVATIONS_PATH));
 }
 
 function hashMemoryKey(memoryKey) {
@@ -72,6 +78,85 @@ function memoryContext(memories) {
   ].join('\n');
 }
 
+function normalizeTokens(value) {
+  return String(value || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .split(/[^a-z0-9]+/)
+    .filter(token => token.length >= 2);
+}
+
+function publicObservation(item) {
+  return {
+    observation_id: item.observation_id,
+    title: item.title,
+    description: item.description || '',
+    category: item.category || null,
+    tags: Array.isArray(item.tags) ? item.tags : [],
+    city: item.city || null,
+    country: item.country || null,
+    latitude: Number.isFinite(item.latitude) ? item.latitude : null,
+    longitude: Number.isFinite(item.longitude) ? item.longitude : null,
+    captured_at: item.captured_at || null,
+    imported_at: item.imported_at || null,
+    status: item.status || null,
+    source: item.source || null,
+    sha256: item.sha256 || null,
+    repository_commit: item.repository_commit || null,
+    media_path: item.media_path || null,
+    claim_class: item.status === 'VERIFIED' ? 'verified' : 'uncertain'
+  };
+}
+
+function searchObservations(query, limit = OBSERVATION_CONTEXT_LIMIT) {
+  const registry = readObservationRegistry();
+  const rows = Array.isArray(registry.observations) ? registry.observations : [];
+  const tokens = normalizeTokens(query);
+  if (!tokens.length) return [];
+
+  return rows
+    .map(item => {
+      const title = normalizeTokens(item.title);
+      const tags = normalizeTokens((item.tags || []).join(' '));
+      const category = normalizeTokens(item.category);
+      const city = normalizeTokens(item.city);
+      const description = normalizeTokens(item.description);
+      let score = 0;
+      for (const token of tokens) {
+        if (title.includes(token)) score += 5;
+        if (tags.includes(token)) score += 4;
+        if (category.includes(token)) score += 3;
+        if (city.includes(token)) score += 2;
+        if (description.includes(token)) score += 1;
+      }
+      return { item, score };
+    })
+    .filter(entry => entry.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, Math.max(1, Math.min(Number(limit) || OBSERVATION_CONTEXT_LIMIT, 20)))
+    .map(entry => publicObservation(entry.item));
+}
+
+function observationContext(observations) {
+  if (!observations.length) return '';
+  const lines = observations.map(item => {
+    const location = [item.city, item.country].filter(Boolean).join(', ') || 'location not recorded';
+    const coordinates = item.latitude !== null && item.longitude !== null
+      ? `; coordinates=${item.latitude},${item.longitude}`
+      : '; coordinates=not recorded';
+    return `- [registry/${item.claim_class}] ${item.observation_id}: ${item.title}; status=${item.status}; category=${item.category}; location=${location}${coordinates}; source=${item.source}; sha256=${item.sha256 || 'not recorded'}`;
+  });
+
+  return [
+    'MyZubster public observation-registry records relevant to the user message follow.',
+    'These are provenance-bearing registry records, not automatic proof of the interpretation of their contents.',
+    'Only records whose registry status is VERIFIED may be treated as verified registry facts; PUBLISHED and other states remain uncertain.',
+    'Never infer missing GPS, capture times, identities, causes, or extraterrestrial origin.',
+    ...lines
+  ].join('\n');
+}
+
 router.get('/profile', (req, res) => {
   try {
     const profile = readProfile();
@@ -105,7 +190,8 @@ router.get('/status', async (req, res) => {
       virtual_identity: true,
       persistent_memory: true,
       memory_opt_in: true,
-      memory_ttl_days: MEMORY_TTL_DAYS
+      memory_ttl_days: MEMORY_TTL_DAYS,
+      observation_registry: true
     });
   } catch (error) {
     res.status(503).json({
@@ -115,8 +201,27 @@ router.get('/status', async (req, res) => {
       virtual_identity: true,
       persistent_memory: true,
       memory_opt_in: true,
+      observation_registry: true,
       error: error.message
     });
+  }
+});
+
+router.get('/observations', (req, res) => {
+  try {
+    const query = String(req.query.q || '').trim();
+    if (!query) return res.status(400).json({ ok: false, error: 'Parametro "q" obbligatorio' });
+    const observations = searchObservations(query, req.query.limit);
+    res.json({
+      ok: true,
+      entity: 'ZORGAX-001',
+      query,
+      count: observations.length,
+      provenance: 'data/observations.json',
+      observations
+    });
+  } catch (error) {
+    res.status(500).json({ ok: false, error: error.message });
   }
 });
 
@@ -233,7 +338,7 @@ router.delete('/memory/:id', async (req, res) => {
 
 router.post('/chat', async (req, res) => {
   try {
-    const { message, prompt, useMemory = true } = req.body || {};
+    const { message, prompt, useMemory = true, useObservations = true } = req.body || {};
     const userMessage = message || prompt;
 
     if (!userMessage || typeof userMessage !== 'string' || !userMessage.trim()) {
@@ -244,11 +349,16 @@ router.post('/chat', async (req, res) => {
     const memories = useMemory && validMemoryKey(memoryKey)
       ? await getMemories(memoryKey)
       : [];
+    const observations = useObservations
+      ? searchObservations(userMessage, OBSERVATION_CONTEXT_LIMIT)
+      : [];
 
     const systemPrompt = readText(SYSTEM_PROMPT_PATH);
-    const context = memoryContext(memories);
+    const memoriesContext = memoryContext(memories);
+    const observationsContext = observationContext(observations);
     const messages = [{ role: 'system', content: systemPrompt }];
-    if (context) messages.push({ role: 'system', content: context });
+    if (memoriesContext) messages.push({ role: 'system', content: memoriesContext });
+    if (observationsContext) messages.push({ role: 'system', content: observationsContext });
     messages.push({ role: 'user', content: userMessage.trim() });
 
     const response = await fetch(`${OLLAMA_URL}/api/chat`, {
@@ -276,6 +386,8 @@ router.post('/chat', async (req, res) => {
       provider: 'ollama',
       model: OLLAMA_MODEL,
       memory_used: memories.length,
+      observations_used: observations.map(item => item.observation_id),
+      observation_provenance: observations.length ? 'data/observations.json' : null,
       message: answer,
       response: answer
     });
