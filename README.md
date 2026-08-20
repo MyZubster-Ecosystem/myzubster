@@ -58,6 +58,8 @@ Attach structured information such as captions, timestamps, permitted location d
 Link the observation to the map, a project, dataset or bounty.
 
 ### 4. Collaborate
+
+![MyZubster collaborative voting](assets/readme/myzubster-vote.png)
 Contributors can work on explicitly defined tasks with acceptance criteria and evidence requirements.
 
 ### 5. Verify
