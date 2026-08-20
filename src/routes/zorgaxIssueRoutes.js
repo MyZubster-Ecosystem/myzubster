@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const router = express.Router();
 
 const DEFAULT_REPOSITORY = 'MyZubster-Ecosystem/myzubster';
+const DEFAULT_OWNER = 'MyZubster-Ecosystem';
 const DEFAULT_CATEGORIES = ['bug', 'data-anomaly', 'documentation', 'improvement', 'environmental-observation', 'technical-debt'];
 const DEFAULT_SEVERITIES = ['info', 'low', 'medium', 'high'];
 
@@ -45,6 +46,108 @@ function validAdminKey(req) {
   const a = Buffer.from(String(configured));
   const b = Buffer.from(String(supplied));
   return a.length === b.length && crypto.timingSafeEqual(a, b);
+}
+
+function base64url(value) {
+  const input = Buffer.isBuffer(value) ? value : Buffer.from(String(value));
+  return input.toString('base64').replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+}
+
+function normalizedPrivateKey() {
+  const raw = process.env.ZORGAX_GITHUB_PRIVATE_KEY;
+  if (!raw) return null;
+  return String(raw).replace(/\\n/g, '\n').trim();
+}
+
+function createGitHubAppJwt() {
+  const appId = safeText(process.env.ZORGAX_GITHUB_APP_ID, 40);
+  const privateKey = normalizedPrivateKey();
+  if (!appId || !privateKey) return null;
+
+  const now = Math.floor(Date.now() / 1000);
+  const header = base64url(JSON.stringify({ alg: 'RS256', typ: 'JWT' }));
+  const payload = base64url(JSON.stringify({
+    iat: now - 30,
+    exp: now + 8 * 60,
+    iss: appId
+  }));
+  const unsigned = `${header}.${payload}`;
+  const signature = crypto.sign('RSA-SHA256', Buffer.from(unsigned), privateKey);
+  return `${unsigned}.${base64url(signature)}`;
+}
+
+async function githubJson(url, options = {}) {
+  const response = await fetch(url, {
+    ...options,
+    headers: {
+      Accept: 'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28',
+      'User-Agent': 'MyZubster-Zorgax-Issue-Agent',
+      ...(options.headers || {})
+    }
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const error = new Error(data?.message || `GitHub HTTP ${response.status}`);
+    error.status = response.status;
+    error.github = data;
+    throw error;
+  }
+  return data;
+}
+
+async function resolveInstallationId(appJwt) {
+  const configured = safeText(process.env.ZORGAX_GITHUB_INSTALLATION_ID, 40);
+  if (configured) return configured;
+
+  const owner = safeText(process.env.ZORGAX_GITHUB_OWNER || DEFAULT_OWNER, 120);
+  const installations = await githubJson('https://api.github.com/app/installations?per_page=100', {
+    headers: { Authorization: `Bearer ${appJwt}` }
+  });
+  const match = Array.isArray(installations)
+    ? installations.find(item => String(item?.account?.login || '').toLowerCase() === owner.toLowerCase())
+    : null;
+  if (!match?.id) throw new Error(`GitHub App installation not found for ${owner}`);
+  return String(match.id);
+}
+
+async function mintInstallationToken() {
+  const appJwt = createGitHubAppJwt();
+  if (!appJwt) return null;
+  const installationId = await resolveInstallationId(appJwt);
+  const tokenData = await githubJson(
+    `https://api.github.com/app/installations/${encodeURIComponent(installationId)}/access_tokens`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${appJwt}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({})
+    }
+  );
+  if (!tokenData?.token) throw new Error('GitHub installation token was not returned');
+  return {
+    token: tokenData.token,
+    installation_id: installationId,
+    expires_at: tokenData.expires_at || null,
+    source: 'github-app-installation'
+  };
+}
+
+async function publishingCredential() {
+  const appCredential = await mintInstallationToken();
+  if (appCredential) return appCredential;
+
+  const fallback = process.env.ZORGAX_GITHUB_TOKEN || process.env.GITHUB_TOKEN;
+  if (!fallback) return null;
+  return { token: fallback, installation_id: null, expires_at: null, source: 'legacy-token' };
+}
+
+function githubAuthMode() {
+  if (process.env.ZORGAX_GITHUB_APP_ID && process.env.ZORGAX_GITHUB_PRIVATE_KEY) return 'github-app';
+  if (process.env.ZORGAX_GITHUB_TOKEN || process.env.GITHUB_TOKEN) return 'legacy-token';
+  return 'unconfigured';
 }
 
 function normalizeEvidence(evidence) {
@@ -131,6 +234,11 @@ router.get('/status', (req, res) => {
     entity: 'ZORGAX-001',
     capability: 'github-issue-agent',
     write_enabled: boolEnv('ZORGAX_GITHUB_WRITE_ENABLED', false),
+    auth_mode: githubAuthMode(),
+    app_id_configured: Boolean(process.env.ZORGAX_GITHUB_APP_ID),
+    private_key_configured: Boolean(process.env.ZORGAX_GITHUB_PRIVATE_KEY),
+    installation_id_configured: Boolean(process.env.ZORGAX_GITHUB_INSTALLATION_ID),
+    installation_auto_discovery: true,
     allowed_repositories: allowedRepositories(),
     human_review_required: true,
     publish_requires_admin_key: true,
@@ -156,41 +264,30 @@ router.post('/publish', async (req, res) => {
       return res.status(403).json({ ok: false, error: 'Valid x-zorgax-admin-key required' });
     }
 
-    const token = process.env.ZORGAX_GITHUB_TOKEN || process.env.GITHUB_TOKEN;
-    if (!token) {
-      return res.status(503).json({ ok: false, error: 'GitHub token is not configured' });
+    const credential = await publishingCredential();
+    if (!credential) {
+      return res.status(503).json({ ok: false, error: 'GitHub publishing credential is not configured' });
     }
 
     const draft = buildDraft(req.body || {});
     const [owner, repo] = draft.repository.split('/');
     if (!owner || !repo) return res.status(400).json({ ok: false, error: 'Invalid repository format' });
 
-    const response = await fetch(`https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/issues`, {
+    const data = await githubJson(`https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/issues`, {
       method: 'POST',
       headers: {
-        Accept: 'application/vnd.github+json',
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-        'User-Agent': 'MyZubster-Zorgax-Issue-Agent',
-        'X-GitHub-Api-Version': '2022-11-28'
+        Authorization: `Bearer ${credential.token}`,
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({ title: draft.title, body: draft.body })
     });
-
-    const data = await response.json();
-    if (!response.ok) {
-      return res.status(response.status).json({
-        ok: false,
-        error: 'GitHub issue creation failed',
-        github_status: response.status,
-        github_message: data?.message || null
-      });
-    }
 
     res.status(201).json({
       ok: true,
       published: true,
       entity: 'ZORGAX-001',
+      auth_source: credential.source,
+      installation_id: credential.installation_id,
       issue: {
         number: data.number,
         title: data.title,
@@ -200,9 +297,16 @@ router.post('/publish', async (req, res) => {
       human_review_required: true
     });
   } catch (error) {
-    res.status(400).json({ ok: false, error: error.message });
+    res.status(error.status && Number.isInteger(error.status) ? error.status : 400).json({
+      ok: false,
+      error: error.message,
+      github_status: error.status || null,
+      github_message: error.github?.message || null
+    });
   }
 });
 
 module.exports = router;
 module.exports.buildDraft = buildDraft;
+module.exports.createGitHubAppJwt = createGitHubAppJwt;
+module.exports.resolveInstallationId = resolveInstallationId;
