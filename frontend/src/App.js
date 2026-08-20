@@ -4,6 +4,7 @@ import GardensPage from './pages/GardensPage';
 import PilotDashboardPage from './pages/PilotDashboardPage';
 import ClowbotBountiesPage from './pages/ClowbotBountiesPage';
 import AgentsPage from './pages/AgentsPage';
+import MetaversePage from './pages/MetaversePage';
 
 const TABS = {
   PLANTS: 'plants',
@@ -11,6 +12,7 @@ const TABS = {
   PILOT: 'pilot',
   BOUNTIES: 'bounties',
   AGENTS: 'agents',
+  METAVERSE: 'metaverse',
 };
 
 function App() {
@@ -20,6 +22,7 @@ function App() {
     <div className="App">
       <nav style={{ padding: '12px 20px', display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
         <h1 style={{ margin: 0, fontSize: 20 }}>🌍 MyZubster</h1>
+        <button onClick={() => setActiveTab(TABS.METAVERSE)}>🪐 Metaverse</button>
         <button onClick={() => setActiveTab(TABS.PILOT)}>🧩 Pilot</button>
         <button onClick={() => setActiveTab(TABS.PLANTS)}>🌿 Piante</button>
         <button onClick={() => setActiveTab(TABS.GARDENS)}>🌱 Orti & Giardini</button>
@@ -27,6 +30,7 @@ function App() {
         <button onClick={() => setActiveTab(TABS.AGENTS)}>🧠 AI & Bots</button>
       </nav>
 
+      {activeTab === TABS.METAVERSE && <MetaversePage />}
       {activeTab === TABS.PILOT && <PilotDashboardPage />}
       {activeTab === TABS.PLANTS && <MapPage />}
       {activeTab === TABS.GARDENS && <GardensPage />}
