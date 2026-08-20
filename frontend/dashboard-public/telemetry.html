@@ -115,16 +115,43 @@
     var API_URL = (window.TELEMETRY_API_URL) || '/api/telemetry';
     var REFRESH_MS = 5000;
 
-    function statusBadge(value) {
-      if (value === 'exploring' || value === 'charging') return '<span class="badge ok">' + value + '</span>';
-      if (value === 'idle') return '<span class="badge warn">' + value + '</span>';
-      return '<span class="badge danger">' + (value || 'unknown') + '</span>';
+    function createStatusBadge(value) {
+      var safeValue = (typeof value === 'string' && value) ? value : 'unknown';
+      var badge = document.createElement('span');
+      var tone = 'danger';
+      if (safeValue === 'exploring' || safeValue === 'charging') tone = 'ok';
+      if (safeValue === 'idle') tone = 'warn';
+      badge.className = 'badge ' + tone;
+      badge.textContent = safeValue;
+      return badge;
+    }
+
+    function finiteNumber(value) {
+      if (value === null || value === undefined || value === '') return null;
+      var number = Number(value);
+      return Number.isFinite(number) ? number : null;
     }
 
     function fmtTime(ts) {
       var d = new Date(ts);
       if (isNaN(d.getTime())) return String(ts || '-');
       return d.toLocaleTimeString();
+    }
+
+    function appendTextCell(row, value) {
+      var cell = document.createElement('td');
+      cell.textContent = String(value);
+      row.appendChild(cell);
+    }
+
+    function showEmptyRows(rows) {
+      var row = document.createElement('tr');
+      var cell = document.createElement('td');
+      cell.colSpan = 6;
+      cell.style.color = 'var(--muted)';
+      cell.textContent = 'No telemetry yet';
+      row.appendChild(cell);
+      rows.replaceChildren(row);
     }
 
     function render(sample, list) {
@@ -141,31 +168,47 @@
       status.style.color = 'var(--ok)';
 
       document.getElementById('robot').textContent = sample.robotId || '-';
-      document.getElementById('robotStatus').innerHTML = statusBadge(sample.status);
+      document.getElementById('robotStatus').replaceChildren(createStatusBadge(sample.status));
 
-      document.getElementById('temperature').textContent = (sample.temperature != null ? sample.temperature.toFixed(1) + ' &deg;C' : '-');
-      document.getElementById('temperatureBar').style.width = Math.min(100, Math.max(0, (sample.temperature / 50) * 100)) + '%';
+      var temperature = finiteNumber(sample.temperature);
+      var humidity = finiteNumber(sample.humidity);
+      var battery = finiteNumber(sample.battery);
 
-      document.getElementById('humidity').textContent = (sample.humidity != null ? sample.humidity.toFixed(0) + ' %' : '-');
-      document.getElementById('humidityBar').style.width = Math.min(100, Math.max(0, sample.humidity)) + '%';
+      document.getElementById('temperature').textContent = temperature !== null ? temperature.toFixed(1) + ' °C' : '-';
+      document.getElementById('temperatureBar').style.width = temperature !== null ? Math.min(100, Math.max(0, (temperature / 50) * 100)) + '%' : '0%';
 
-      document.getElementById('battery').textContent = (sample.battery != null ? sample.battery.toFixed(0) + ' %' : '-');
-      document.getElementById('batteryBar').style.width = Math.min(100, Math.max(0, sample.battery)) + '%';
+      document.getElementById('humidity').textContent = humidity !== null ? humidity.toFixed(0) + ' %' : '-';
+      document.getElementById('humidityBar').style.width = humidity !== null ? Math.min(100, Math.max(0, humidity)) + '%' : '0%';
+
+      document.getElementById('battery').textContent = battery !== null ? battery.toFixed(0) + ' %' : '-';
+      document.getElementById('batteryBar').style.width = battery !== null ? Math.min(100, Math.max(0, battery)) + '%' : '0%';
 
       var rows = document.getElementById('rows');
       if (!list || list.length === 0) {
-        rows.innerHTML = '<tr><td colspan="6" style="color:var(--muted)">No telemetry yet</td></tr>';
+        showEmptyRows(rows);
         return;
       }
-      var html = '';
+
+      var fragment = document.createDocumentFragment();
       for (var i = 0; i < list.length; i++) {
-        var s = list[i];
-        html += '<tr><td>' + fmtTime(s.timestamp) + '</td><td>' + (s.robotId || '-') + '</td><td>' +
-          (s.temperature != null ? s.temperature.toFixed(1) : '-') + '</td><td>' +
-          (s.humidity != null ? s.humidity.toFixed(0) : '-') + '</td><td>' +
-          (s.battery != null ? s.battery.toFixed(0) : '-') + '</td><td>' + statusBadge(s.status) + '</td></tr>';
+        var telemetry = list[i] || {};
+        var row = document.createElement('tr');
+        var rowTemperature = finiteNumber(telemetry.temperature);
+        var rowHumidity = finiteNumber(telemetry.humidity);
+        var rowBattery = finiteNumber(telemetry.battery);
+
+        appendTextCell(row, fmtTime(telemetry.timestamp));
+        appendTextCell(row, telemetry.robotId || '-');
+        appendTextCell(row, rowTemperature !== null ? rowTemperature.toFixed(1) : '-');
+        appendTextCell(row, rowHumidity !== null ? rowHumidity.toFixed(0) : '-');
+        appendTextCell(row, rowBattery !== null ? rowBattery.toFixed(0) : '-');
+
+        var statusCell = document.createElement('td');
+        statusCell.appendChild(createStatusBadge(telemetry.status));
+        row.appendChild(statusCell);
+        fragment.appendChild(row);
       }
-      rows.innerHTML = html;
+      rows.replaceChildren(fragment);
     }
 
     function load() {
@@ -188,3 +231,4 @@
   </script>
 </body>
 </html>
+
