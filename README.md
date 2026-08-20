@@ -35,6 +35,24 @@ The project connects **mapping, evidence, bounties, IPFS/IPNS, AI/automation, Io
 
 > **Evidence boundary:** the linked historical material supports provenance/continuity claims but does not by itself verify civil identity, a specific Darkode handle, activities performed on the forum, current wallet control, unlawful conduct or professional skill level.
 
+### Project story — from privacy systems to verifiable trust
+
+MyZubster is also presented as the continuation of a longer technical trajectory:
+
+```text
+Historical cybersecurity / Bitcoin provenance (2014–2015)
+        ↓
+Privacy technologies
+        ↓
+Verifiable provenance & digital trust
+        ↓
+MyZubster
+```
+
+The public-safe archive documents substantial Bitcoin activity during 2014–2015 together with historical Darkode-related communications. That history is used as **technical provenance**, not as a badge or as automatic proof of a particular role, skill level or conduct. Specific claims concerning mixing services, mining origin, Darkode operational activity or later Onion compromise remain self-reported unless independently corroborated.
+
+The present-day direction is the important contrast: MyZubster applies privacy-aware engineering to **evidence boundaries, provenance, collaborative verification and digital trust** rather than relying on anonymity, account names or unsupported inference.
+
 ## Why MyZubster?
 
 A photo can be more than a photo. A contribution can be more than a GitHub issue. MyZubster explores a workflow where real-world observations can become structured evidence, be connected to collaborative tasks, reviewed, published as sanitized public data and — where explicitly defined — associated with platform rewards or independently verified external settlement.
