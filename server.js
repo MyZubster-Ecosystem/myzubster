@@ -40,6 +40,7 @@ const gardenRoutes = require('./src/routes/urbanGardenRoutes');
 const geocodeRoutes = require('./src/routes/mapRoutes');
 const healthRoutes = require('./src/api/routes');
 const grokRoutes = require('./src/routes/grokRoutes');
+const zorgaxRoutes = require('./src/routes/zorgaxRoutes');
 const githubBountySyncRoutes = require('./src/routes/githubBountySyncRoutes');
 
 // Monta le route
@@ -59,8 +60,8 @@ app.use('/api/gardens', gardenRoutes);
 app.use('/api/geocode', geocodeRoutes);
 app.use('/api', healthRoutes);
 app.use('/api/grok', grokRoutes);
+app.use('/api/zorgax', zorgaxRoutes);
 app.use('/api/github-bounties', githubBountySyncRoutes);
-
 
 // Homepage / health gateway
 app.get('/', (req, res) => {
@@ -75,6 +76,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/grok', (req, res) => res.sendFile(require('path').join(__dirname, 'public', 'grok.html')));
+app.get('/zorgax', (req, res) => res.sendFile(require('path').join(__dirname, 'public', 'zorgax.html')));
 
 // Esporta app per i test
 module.exports = app;
