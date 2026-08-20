@@ -78,9 +78,16 @@ app.get('/', (req, res) => {
 });
 
 const path = require('path');
+const fs = require('fs');
 app.get('/grok', (req, res) => res.sendFile(path.join(__dirname, 'public', 'grok.html')));
 app.get('/zorgax', (req, res) => res.sendFile(path.join(__dirname, 'public', 'zorgax.html')));
-app.get('/visual', (req, res) => res.sendFile(path.join(__dirname, 'public', 'visual.html')));
+app.get('/visual', (req, res) => {
+  const filePath = path.join(__dirname, 'public', 'visual.html');
+  fs.readFile(filePath, 'utf8', (error, html) => {
+    if (error) return res.status(500).send('MyZubster Visual unavailable');
+    res.type('html').send(html.replace('</body>', '<script src="/visual-ai.js"></script></body>'));
+  });
+});
 app.get('/visual/gallery', (req, res) => res.sendFile(path.join(__dirname, 'public', 'visual-gallery.html')));
 
 // Esporta app per i test
