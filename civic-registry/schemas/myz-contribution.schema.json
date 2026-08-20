@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://myzubster.example/schemas/myz-contribution.schema.json",
+  "title": "MyZubster Public Contribution Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "contribution_id", "subject_myZ_id", "title", "review_status", "created_at"],
+  "properties": {
+    "schema_version": {"type": "string", "const": "0.1.0"},
+    "contribution_id": {"type": "string", "pattern": "^MYZ-CONTRIB-[A-Z0-9-]+$"},
+    "subject_myZ_id": {"type": "string", "pattern": "^MYZ-(PERSON|ENTITY|DEMO)-[A-Z0-9-]+$"},
+    "title": {"type": "string", "minLength": 1, "maxLength": 180},
+    "description": {"type": "string", "maxLength": 4000},
+    "review_status": {"type": "string", "enum": ["submitted", "reviewed", "rejected", "revoked"]},
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "uri": {"type": "string"},
+          "sha256": {"type": "string", "pattern": "^[a-fA-F0-9]{64}$"},
+          "public_safe": {"type": "boolean"}
+        }
+      }
+    },
+    "artifact_refs": {"type": "array", "items": {"type": "string"}},
+    "character_refs": {"type": "array", "items": {"type": "string"}},
+    "review_notes": {"type": "string", "maxLength": 2000},
+    "created_at": {"type": "string", "format": "date-time"},
+    "reviewed_at": {"type": "string", "format": "date-time"}
+  }
+}

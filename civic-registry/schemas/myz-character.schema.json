@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://myzubster.example/schemas/myz-character.schema.json",
+  "title": "MyZubster Narrative Character Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "character_id", "owner_myZ_id", "name", "canon_status", "created_at"],
+  "properties": {
+    "schema_version": {"type": "string", "const": "0.1.0"},
+    "character_id": {"type": "string", "pattern": "^MYZ-CHAR-[A-Z0-9-]+$"},
+    "owner_myZ_id": {"type": "string", "pattern": "^MYZ-(PERSON|ENTITY|DEMO)-[A-Z0-9-]+$"},
+    "name": {"type": "string", "minLength": 1, "maxLength": 120},
+    "alias": {"type": "string", "maxLength": 120},
+    "description": {"type": "string", "maxLength": 2000},
+    "canon_status": {"type": "string", "enum": ["draft", "personal_canon", "shared_canon", "retired"]},
+    "visual_refs": {"type": "array", "items": {"type": "string"}},
+    "series_refs": {"type": "array", "items": {"type": "string"}},
+    "world_tags": {"type": "array", "items": {"type": "string", "maxLength": 64}},
+    "created_at": {"type": "string", "format": "date-time"},
+    "updated_at": {"type": "string", "format": "date-time"}
+  }
+}

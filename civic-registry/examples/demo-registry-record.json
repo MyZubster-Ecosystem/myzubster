@@ -1,0 +1,39 @@
+{
+  "identity": {
+    "schema_version": "0.1.0",
+    "myz_id": "MYZ-DEMO-000001",
+    "record_type": "demo",
+    "display_name": "Demo Explorer",
+    "verification_status": "self_attested",
+    "lifecycle_status": "active",
+    "public_keys": [],
+    "attestations": [],
+    "character_refs": ["MYZ-CHAR-DEMO-000001"],
+    "created_at": "2026-08-20T00:00:00Z"
+  },
+  "character": {
+    "schema_version": "0.1.0",
+    "character_id": "MYZ-CHAR-DEMO-000001",
+    "owner_myZ_id": "MYZ-DEMO-000001",
+    "name": "AERON-17",
+    "description": "Fictional demonstration character used only to illustrate the MYZ-DCR data model.",
+    "canon_status": "draft",
+    "visual_refs": [],
+    "series_refs": [],
+    "world_tags": ["demo", "cyberpunk"],
+    "created_at": "2026-08-20T00:00:00Z"
+  },
+  "contribution": {
+    "schema_version": "0.1.0",
+    "contribution_id": "MYZ-CONTRIB-DEMO-000001",
+    "subject_myZ_id": "MYZ-DEMO-000001",
+    "title": "Demo environmental observation",
+    "description": "Non-personal example showing how a reviewed real-world contribution could later reference a narrative artifact.",
+    "review_status": "submitted",
+    "evidence": [],
+    "artifact_refs": [],
+    "character_refs": ["MYZ-CHAR-DEMO-000001"],
+    "created_at": "2026-08-20T00:00:00Z"
+  },
+  "notice": "This file contains fictional demo data only. It is not a real identity record."
+}
