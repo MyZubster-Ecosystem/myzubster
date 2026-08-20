@@ -1,0 +1,30 @@
+name: MYZ Independent Verifier
+
+on:
+  pull_request:
+    paths:
+      - 'services/myz-verifier/**'
+      - '.github/workflows/myz-verifier.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'services/myz-verifier/**'
+      - '.github/workflows/myz-verifier.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Test verifier
+        working-directory: services/myz-verifier
+        run: npm test

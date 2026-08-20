@@ -1,0 +1,11 @@
+{
+  "name": "myzubster-myz-verifier",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Independent read-only MYZ/Tari payment verification boundary for MyZubster",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test"
+  }
+}
