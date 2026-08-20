@@ -136,9 +136,13 @@ There are several ways to participate:
 5. submit a PR with evidence/tests appropriate to the task;
 6. help improve datasets using only public or explicitly authorized observations.
 
+![MyZubster contribution organization with Linear and Canvas](assets/readme/contribution-organization-linear-canvas.png)
+
 ### Bounties
 
 ![MyZubster bounty system](assets/readme/myzubster-bounty.png)
+
+![Discuss, design and solve MyZubster bounties with MYZ](assets/readme/bounty-myz-discussion.png)
 
 The canonical rules live in [`BOUNTIES.md`](BOUNTIES.md).
 
