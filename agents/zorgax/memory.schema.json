@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://myzubster.example/schemas/zorgax-memory.schema.json",
+  "title": "ZORGAX-001 Memory Entry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "entity_id", "kind", "summary", "created_at", "provenance", "reality_status"],
+  "properties": {
+    "id": {"type": "string", "minLength": 1},
+    "entity_id": {"const": "ZORGAX-001"},
+    "kind": {
+      "type": "string",
+      "enum": ["canon", "interaction", "observation", "decision"]
+    },
+    "summary": {"type": "string", "minLength": 1, "maxLength": 4000},
+    "created_at": {"type": "string", "format": "date-time"},
+    "updated_at": {"type": ["string", "null"], "format": "date-time"},
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_type"],
+      "properties": {
+        "source_type": {
+          "type": "string",
+          "enum": ["user", "system", "repository", "sensor", "external_source", "narrative"]
+        },
+        "source_ref": {"type": ["string", "null"]},
+        "author": {"type": ["string", "null"]}
+      }
+    },
+    "reality_status": {
+      "type": "string",
+      "enum": ["verified", "uncertain", "speculative", "fictional"]
+    },
+    "confidence": {
+      "type": ["number", "null"],
+      "minimum": 0,
+      "maximum": 1
+    },
+    "tags": {
+      "type": "array",
+      "items": {"type": "string"},
+      "uniqueItems": true,
+      "default": []
+    },
+    "sensitive": {"type": "boolean", "default": false},
+    "expires_at": {"type": ["string", "null"], "format": "date-time"}
+  }
+}
