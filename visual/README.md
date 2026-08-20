@@ -4,12 +4,22 @@ MyZubster Visual is an experimental social/comic layer for the MyZubster ecosyst
 
 The goal is to let each contributor create a persistent **digital character**, use that character in collaborative comic scenes, and connect the resulting story to a real GitHub conversation, issue or pull request.
 
-> Status: experimental MVP specification. This is not yet a production image-generation service.
+> Status: experimental MVP specification + first browser interface. This is not yet a production image-generation service.
+
+## Try the MVP
+
+When the MyZubster Express app is running, open:
+
+```text
+/visual
+```
+
+The page lets a user create a sanitized character profile locally in the browser, download the JSON and generate a pre-filled GitHub collaboration Issue. It does **not** upload a photo, generate an image, authenticate with GitHub or publish data automatically.
 
 ## Core flow
 
 ```text
-GitHub login / identity
+GitHub identity (optional in MVP)
         ↓
 Create Character
         ↓
@@ -17,9 +27,9 @@ Choose visual style + role + collaboration intent
         ↓
 Create scene with MyZubster / another character
         ↓
-Generate storyboard + dialogue + comic asset
+Generate storyboard + dialogue + comic asset (planned)
         ↓
-Publish sanitized story metadata
+Publish sanitized story metadata (explicit action; planned)
         ↓
 Open / link GitHub Issue
         ↓
@@ -38,81 +48,109 @@ A character is not only an avatar. It is a versioned profile containing:
 - role / profession;
 - visual traits and style preferences;
 - tone of voice;
-- interests;
-- collaboration topics;
-- consent / privacy settings;
-- optional avatar and comic assets.
+- collaboration intent;
+- consent/privacy flags;
+- lifecycle status.
 
-Character profiles should never contain secrets, private keys, unnecessary personal data or sensitive information.
+The canonical schema for the MVP lives in [`schemas/character.schema.json`](schemas/character.schema.json).
 
-## Story model
-
-A story links one or more characters to a collaboration idea.
-
-Example:
-
-```text
-shop-owner-01 + myzubster-founder
-        ↓
-"Future retail collaboration"
-        ↓
-cyberpunk shop scene
-        ↓
-comic generated
-        ↓
-GitHub Issue: Collab — Shop X × MyZubster
-```
-
-A comic asset is presentation. The GitHub Issue remains the structured discussion and decision surface.
-
-## GitHub interaction model
-
-MyZubster Visual should use GitHub for public, reviewable collaboration rather than treating a comic as proof of a partnership.
-
-Suggested mapping:
-
-| Visual object | GitHub object |
-|---|---|
-| Character proposal | JSON/YAML profile in `visual/characters/` |
-| Collaboration idea | Issue |
-| Story / script revision | Commit or PR |
-| Implementation proposal | PR |
-| Discussion | Issue / PR comments |
-| Accepted collaboration | Explicit human decision recorded in Issue/PR |
-
-## Proposed directories
+## Repository layout
 
 ```text
 visual/
 ├── README.md
+├── IMPLEMENTATION.md
 ├── schemas/
 │   └── character.schema.json
 ├── characters/
 │   └── example-character.json
 └── stories/
     └── example-story.json
+
+public/
+└── visual.html
+
+.github/ISSUE_TEMPLATE/
+└── visual-collaboration.yml
 ```
+
+## GitHub collaboration model
+
+### Issues
+
+Issues are the conversational layer. A user can propose a story or possible collaboration such as:
+
+```text
+Visual collab: Nova Merchant × MyZubster
+```
+
+A collaboration issue should state who the character represents, what is fictional/creative, what collaboration is being proposed, the desired scene/story and whether the character can appear in public generated media.
+
+An Issue represents a proposal/discussion only. It is not evidence of a real partnership, contract, endorsement or commitment.
+
+### Pull requests
+
+A PR is appropriate when a contributor wants to add or change versioned project material, for example a character profile, story definition, documentation or UI/code for MyZubster Visual.
+
+Character and story files should remain reviewable, privacy-aware and easy to update through normal Git history and project governance.
 
 ## Privacy and consent
 
-- Do not create a realistic avatar of another person without their authorization.
-- Keep public profiles pseudonymous when desired.
-- Store only information needed for the visual/collaboration workflow.
-- A generated comic must not be described as evidence that a person or organization approved a partnership.
-- Public stories should distinguish fiction, proposal, simulation and confirmed collaboration.
+Do not put unnecessary personal information into public character files or story metadata.
 
-## MVP milestones
+If a visual character is based on a real person:
 
-1. Character schema and example profiles.
-2. GitHub Issue template for collaboration proposals.
-3. Web character builder.
-4. Storyboard generator.
-5. Image-generation provider adapter.
-6. GitHub OAuth / App integration.
-7. Public gallery with moderation and consent controls.
+1. that person must choose or approve the use of their likeness;
+2. the profile should store only the minimum information needed for the creative workflow;
+3. public metadata must not contain private contact information, sensitive traits, precise private locations or credentials;
+4. consent to participate in one scene does not imply consent for unrelated future uses.
 
-## Long-term direction
+The first browser MVP keeps generated metadata local until the user explicitly downloads it or opens GitHub.
 
-The intended experience is:
+## MVP phases
 
-**Create yourself → enter a story → meet MyZubster → discuss an idea → turn the idea into an open collaboration.**
+### Phase 0 — specification
+
+- Character JSON schema.
+- Story JSON structure.
+- Collaboration Issue template.
+- Example character/story.
+
+### Phase 1 — browser MVP (this branch)
+
+- Create Character form.
+- Local sanitized JSON preview.
+- JSON export.
+- Pre-filled GitHub collaboration Issue link.
+- `/visual` route in the existing Express application.
+- Smoke test for the route.
+
+### Phase 2 — GitHub identity
+
+- GitHub OAuth.
+- Optional verified handle binding.
+- Explicit API action to propose a character or story.
+
+### Phase 3 — comic pipeline
+
+- storyboard generation;
+- dialogue editor;
+- image generation abstraction;
+- character consistency controls;
+- moderation/consent checks;
+- public gallery for approved stories.
+
+### Phase 4 — collaborative world
+
+- multi-character stories;
+- versioned shared scenes;
+- collaboration status linked to Issues/PRs;
+- optional MyZubster bounty integration for clearly scoped creative/technical contributions.
+
+## Design principle
+
+```text
+CHARACTER → STORY → CONVERSATION → COLLABORATION → OPTIONAL IMPLEMENTATION
+```
+
+The creative layer can start a conversation. GitHub provides reviewability and history. Neither generated content nor an Issue should be presented as proof that a real-world partnership exists.
