@@ -49,7 +49,7 @@ ZORGAX_GITHUB_INSTALLATION_ID=<installation-id>
 ZORGAX_GITHUB_PRIVATE_KEY=<secret-manager-reference-or-runtime-secret>
 ```
 
-The private key must live in the deployment secret manager, never in Git, Drive, Slack, logs, Issue bodies or character memory.
+The private key must live in the deployment secret manager, never in Git, Drive, Slack, logs, Issue bodies or Zorgax memory.
 
 The current Issue Agent accepts `ZORGAX_GITHUB_TOKEN`. A follow-up implementation can mint short-lived installation tokens from the App ID + installation ID + private key at runtime and pass that token internally to the publishing client.
 
@@ -72,11 +72,13 @@ The GitHub App must not autonomously:
 - access secrets;
 - treat its own Issue as evidence that a decision was accepted.
 
-## Registration step that requires a GitHub owner/admin
+## Registration step requiring a GitHub owner/admin
 
-GitHub requires an authenticated human owner/admin to register the App and approve its installation on the organization. This cannot be completed by repository code alone.
+GitHub requires an authenticated organization owner/admin to create the GitHub App and approve its installation. Repository code and the MyZubster runtime cannot self-register this external identity.
 
-When registering the App in GitHub settings, use the values above, install it only on `MyZubster-Ecosystem/myzubster`, generate a private key, and place the resulting App/installation credentials only in the deployment secret manager.
+During registration use the settings above, install the App only on `MyZubster-Ecosystem/myzubster`, generate its private key, and store the resulting App ID, installation ID and private key only in the production secret manager.
+
+No real secret belongs in this repository.
 
 ## Verification checklist
 
