@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://myzubster.org/schemas/visual-character.schema.json",
+  "title": "MyZubster Visual Character",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "displayName", "role", "visual", "voice", "collaboration", "consent"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{2,63}$"
+    },
+    "displayName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80
+    },
+    "githubHandle": {
+      "type": ["string", "null"],
+      "maxLength": 39
+    },
+    "role": {
+      "type": "string",
+      "maxLength": 120
+    },
+    "bio": {
+      "type": "string",
+      "maxLength": 600
+    },
+    "visual": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["style", "traits"],
+      "properties": {
+        "style": {
+          "type": "string",
+          "enum": ["cyberpunk", "noir", "manga", "ligne-claire", "retro-future", "custom"]
+        },
+        "traits": {
+          "type": "array",
+          "items": {"type": "string", "maxLength": 80},
+          "maxItems": 20
+        },
+        "avatarAsset": {
+          "type": ["string", "null"],
+          "maxLength": 300
+        }
+      }
+    },
+    "voice": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tone"],
+      "properties": {
+        "tone": {"type": "string", "maxLength": 120},
+        "languages": {
+          "type": "array",
+          "items": {"type": "string", "maxLength": 20},
+          "maxItems": 10
+        }
+      }
+    },
+    "interests": {
+      "type": "array",
+      "items": {"type": "string", "maxLength": 100},
+      "maxItems": 30
+    },
+    "collaboration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["topics"],
+      "properties": {
+        "topics": {
+          "type": "array",
+          "items": {"type": "string", "maxLength": 120},
+          "maxItems": 20
+        },
+        "pitch": {"type": "string", "maxLength": 1000}
+      }
+    },
+    "consent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["publicProfile", "allowSharedScenes", "realPersonLikenessAuthorized"],
+      "properties": {
+        "publicProfile": {"type": "boolean"},
+        "allowSharedScenes": {"type": "boolean"},
+        "realPersonLikenessAuthorized": {"type": "boolean"}
+      }
+    }
+  }
+}
