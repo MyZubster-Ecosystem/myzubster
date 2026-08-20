@@ -7,6 +7,8 @@ const morgan = require('morgan');
 const bountyPaymentRoutes = require('./routes/bounty-payments');
 const mongoose = require('mongoose');
 const gatewayRoutes = require('./routes/gateway');
+const daoRoutes = require('./routes/dao');
+const zorgaxDaoRoutes = require('./routes/zorgax-dao');
 
 const gardenRoutes = require('./routes/gardens');
 const telemetryRoutes = require('./routes/telemetry');
@@ -46,8 +48,9 @@ app.get('/health', (_req, res) => {
 
 app.use('/api/gardens', gardenRoutes);
 app.use('/api/telemetry', telemetryRoutes);
-
 app.use('/api/gateway', gatewayRoutes);
+app.use('/api/dao/zorgax', zorgaxDaoRoutes);
+app.use('/api/dao', daoRoutes);
 
 app.get('/api/dashboard', (_req, res) => {
   res.json({
@@ -58,7 +61,9 @@ app.get('/api/dashboard', (_req, res) => {
       mongodb: {
         status: mongoose.connection.readyState === 1 ? 'online' : 'offline',
         endpoint: 'mongodb://localhost:27017'
-      }
+      },
+      dao: { status: 'online', endpoint: '/api/dao' },
+      zorgaxGovernance: { status: 'advisory', endpoint: '/api/dao/zorgax', binding: false }
     },
     stats: {
       totalIssues: 0,
@@ -136,7 +141,9 @@ app.get('/dashboard', (_req, res) => {
     <strong>Backend:</strong> online<br>
     <strong>Health:</strong> <a href="/health"><code>/health</code></a><br>
     <strong>Dashboard API:</strong> <a href="/api/dashboard"><code>/api/dashboard</code></a><br>
-    <strong>Gardens API:</strong> <a href="/api/gardens"><code>/api/gardens</code></a>
+    <strong>Gardens API:</strong> <a href="/api/gardens"><code>/api/gardens</code></a><br>
+    <strong>DAO API:</strong> <a href="/api/dao/proposals"><code>/api/dao/proposals</code></a><br>
+    <strong>Zorgax DAO:</strong> <a href="/api/dao/zorgax/status"><code>/api/dao/zorgax/status</code></a> (advisory, non-binding)
   </div>
 </body>
 </html>`);
