@@ -3,7 +3,7 @@ const multer = require('multer');
 const sharp = require('sharp');
 const path = require('path');
 const fs = require('fs');
-const { v4: uuidv4 } = require('uuid');
+const { randomUUID } = require('crypto');
 const Photo = require('../models/Photo');
 
 const router = express.Router();
@@ -63,7 +63,7 @@ router.post('/garden/:gardenId', upload.array('photos', 10), async (req, res) =>
 
     for (const file of files) {
       const ext = path.extname(file.originalname) || '.jpg';
-      const filename = `${uuidv4()}${ext}`;
+      const filename = `${randomUUID()}${ext}`;
       const thumbFilename = `thumb_${filename}`;
 
       // Compress original (max 1920px wide)
@@ -76,10 +76,10 @@ router.post('/garden/:gardenId', upload.array('photos', 10), async (req, res) =>
       const metadata = await sharp(compressedBuffer).metadata();
 
       // Save original
-      const filePath = await saveFile(compressedBuffer, filename);
+      await saveFile(compressedBuffer, filename);
 
       // Save thumbnail
-      const thumbPath = await generateThumbnail(file.buffer, filename);
+      await generateThumbnail(file.buffer, filename);
 
       const photo = await Photo.create({
         gardenId,
