@@ -1,10 +1,10 @@
 const Referral = require('../models/referralModel');
-const { v4: uuidv4 } = require('uuid');
+const { randomUUID } = require('crypto');
 
 exports.generateReferral = async (req, res) => {
   try {
     const userId = req.user.userId || req.user.id;
-    const referralCode = uuidv4().substring(0, 8);
+    const referralCode = randomUUID().replace(/-/g, '').substring(0, 8);
     
     const referral = new Referral({
       referralCode,
