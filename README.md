@@ -198,6 +198,8 @@ During August 2026, MyZubster content and/or bounty pages were observed in exter
 
 A further discovery signal was observed through **TriploHub / Central de Inteligência WebMCP**, which indexed Portuguese-language material describing the MyZubster MCP Server and its agent/automation, payment, robotics and IoT-related development claims. This is recorded as external indexing only and does **not** constitute independent validation of the implementation, adoption or partnership.
 
+**Artemida.team** also surfaced MyZubster Robot material for a Russian-speaking audience through an automated DEV.to/RSS-style content ingest. This is recorded as an additional international discovery/mirroring signal, not as independent editorial coverage, endorsement or technical validation.
+
 ## LIFE 2026 exploration
 
 MyZubster is exploring the EU **LIFE Programme 2021–2027** as a possible framework for environmental pilots involving observations, urban biodiversity, water/resource efficiency, IoT/robotics, geospatial evidence, citizen science and replication.
