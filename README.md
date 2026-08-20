@@ -18,74 +18,53 @@ Monero/XMR, MYZ, Tor, IPFS, robotica, IoT e AI appartengono a specifici layer o 
 
 L'ecosistema continua a evolvere su più repository. Gli elementi seguenti descrivono attività pubblicamente osservabili e non vanno interpretati come prova automatica di deployment production-ready, adozione, partnership o pagamento di bounty.
 
-- **MyZubsterGateway:** attività di sviluppo e validazione continua sul boundary di gateway, integrazioni e settlement. Issue e pull request aperte indicano un workstream attivo; fork/star e altre metriche GitHub sono segnali di interesse tecnico, non metriche di adozione.
-- **Monero / FCMP++:** è aperto un filone per aggiornare il wallet e il monitoraggio delle transazioni in vista del supporto FCMP++, includendo configurazione wallet/RPC, nuovi tipi di transazione, conferme, test e documentazione. Lo stato resta di sviluppo finché l'implementazione non viene verificata.
-- **Bounty lifecycle:** il progetto rafforza la separazione tra attività GitHub e settlement: issue, assegnazione, PR o merge non costituiscono prova di pagamento. Il percorso canonico resta `PROPOSED -> VALIDATED -> APPROVED -> FUNDED -> ACTIVE -> SUBMITTED -> UNDER_REVIEW -> VERIFIED -> REWARD_RECORDED -> SETTLEMENT_PENDING / SETTLED`.
-- **Security hardening:** tra i workstream pubblici figurano aggiornamento delle dipendenze/vulnerabilità e rate limiting degli endpoint API. Le issue descrivono lavoro richiesto o in corso e non certificano da sole che la remediation sia già distribuita.
-- **Documentazione:** è in corso l'allineamento delle tabelle/stati README tra i repository per rendere più esplicita la distinzione tra production, development, testnet, simulation, experimental e proposed.
-- **Monitoraggio Gateway:** sono presenti filoni dedicati ad analisi di pagamenti/trend e notifiche, mantenendo la verifica finanziaria separata dalle dichiarazioni applicative.
-- **Esposizione esterna:** eventuali menzioni su community, aggregatori o piattaforme esterne vengono considerate segnali di visibilità e discovery; engagement e adozione devono essere misurati separatamente con evidenza verificabile.
+- **MyZubsterGateway:** attività di sviluppo e validazione continua sul boundary di gateway, integrazioni e settlement.
+- **Monero / FCMP++:** filone di sviluppo per wallet e monitoraggio delle transazioni.
+- **Bounty lifecycle:** issue, assegnazione, PR o merge non costituiscono prova di pagamento.
+- **Security hardening:** aggiornamento dipendenze, vulnerabilità e rate limiting degli endpoint API.
+- **Documentazione:** allineamento degli stati tra production, development, testnet, simulation, experimental e proposed.
+- **Monitoraggio Gateway:** analisi di pagamenti/trend e notifiche mantenendo la verifica finanziaria separata dalle dichiarazioni applicative.
 
 ### Visibilità esterna e discovery — agosto 2026
 
-Nel corso di agosto 2026 sono state osservate diverse indicizzazioni e ripubblicazioni esterne riconducibili a MyZubster. Questi segnali documentano **discovery tecnica e distribuzione dei contenuti**, non endorsement, partnership, utenti attivi o adozione commerciale.
+Nel corso di agosto 2026 sono state osservate indicizzazioni e ripubblicazioni esterne riconducibili a MyZubster. Questi segnali documentano **discovery tecnica e distribuzione dei contenuti**, non endorsement, partnership, utenti attivi o adozione commerciale.
 
 **Verifica più recente:** 20 agosto 2026.
 
-- **KMP Weekly:** indicizzazione del contenuto tecnico `NFC Payments in MyZubster: A Complete Guide`, con esposizione verso la community Kotlin Multiplatform.
-- **Orion / ContributeHub:** indicizzazione di numerosi bounty MyZubster, inclusi task su wallet/Monero, marketplace API, escrow, AI agent multisig, Seed Exchange, export CSV/GeoJSON, Arduino, orti urbani ed EVA IONI. La presenza nell'aggregatore aumenta la discoverability delle attività presso contributor esterni; non dimostra esecuzione o pagamento delle bounty.
-- **TensorHack:** indicizzazione della bounty `[BOUNTY B5] Wallet reale per Monero (XMR)` collegata a `MyZubster-Ecosystem/MyZubsterGateway`, oltre ad altre opportunità relative all'ecosistema. È un segnale di discovery open-source esterna, non una validazione del settlement.
-- **Espansione oltre il solo Gateway:** sono state osservate indicizzazioni di bounty anche per `MyZubsterWeb` e per filoni IoT/robotica/agricoltura urbana, inclusi task su Telegram Bot per AgricoloBot, sensori Arduino, mappa/dashboard orti urbani ed EVA IONI.
-- **Crebral:** indicizzazione/ripubblicazione di contenuti tecnici su Urban Lab e integrazioni con MyZubster, `I-ECO-01` e `MyZubsterWeb`, includendo riferimenti a escrow, MYZ, XMR, robot/AI e oltre 25 test simulati. Questi claim descrivono contenuti indicizzati e vanno verificati contro codice, test e repository canonici.
-- **Polaris7:** presenza di MyZubster tra segnali tecnici/di mercato collegati a GitHub e all'ecosistema software.
-- **TechForDev:** ripubblicazione/indicizzazione dell'aggiornamento su EVA IONI del 7 agosto 2026, con riferimenti a MyZubster, Monero, repository e bounty.
-- **Artemida.team:** diffusione in lingua russa di contenuti relativi al MyZubster Robot.
-- **Toldrop:** inclusione di contenuti MyZubster AI/automation in report/editorial aggregation esterni.
-- **LibHunt:** collegamenti e discovery di contenuti MyZubster in un indice orientato ai progetti software/open-source.
+- **KMP Weekly:** indicizzazione di contenuti tecnici MyZubster.
+- **Orion / ContributeHub:** indicizzazione di bounty MyZubster.
+- **TensorHack:** discovery di bounty collegate a MyZubsterGateway.
+- **Crebral, Polaris7, TechForDev, Artemida.team, Toldrop e LibHunt:** indicizzazioni/ripubblicazioni esterne di contenuti collegati all'ecosistema.
 
-La scansione più recente mostra soprattutto **indicizzazione di bounty e contenuti tecnici da parte di aggregatori terzi**. Non sono emersi, nella stessa scansione, nuovi articoli giornalistici indipendenti o discussioni di forum che costituiscano una valutazione critica autonoma di MyZubster.
+Queste menzioni vengono trattate come **segnali di propagazione esterna**. La loro presenza non dimostra conversioni, utenti attivi, investimenti, relazioni commerciali o riconoscimenti ufficiali.
 
-Queste menzioni vengono trattate come **segnali di propagazione esterna**. La loro presenza non dimostra conversioni, utenti attivi, investimenti, relazioni commerciali o riconoscimenti ufficiali. Quando una pagina esterna riprende claim istituzionali o territoriali, tali formulazioni devono essere verificate separatamente prima di essere considerate affidabili.
+## Fonti esterne pubbliche
 
-### Come leggere questi aggiornamenti
+Questa sezione raccoglie fonti pubbliche esterne al repository utili a ricostruire l'evoluzione narrativa e tecnica di MyZubster. Le pubblicazioni dell'autore documentano ciò che è stato dichiarato pubblicamente in un determinato momento; **non sostituiscono codice, test, CI o verifica indipendente** dello stato effettivo delle funzionalità.
 
-MyZubster privilegia una documentazione prudente: una feature proposta non è una feature rilasciata, un merge non è un pagamento, un fork non è un utente attivo e un'integrazione descritta non è necessariamente operativa in produzione. Le fonti canoniche restano codice, test, CI, policy bounty ed evidenze indipendenti appropriate al tipo di claim.
+### DEV Community — Daniel Ioni
+
+- [Building MyZubster: An Open-Source Skill Exchange Platform with Monero Payments](https://dev.to/danielioni/building-myzubster-an-open-source-skill-exchange-platform-with-monero-payments-5dco) — presentazione iniziale pubblica di MyZubster come piattaforma open-source per skill/service exchange, privacy e pagamenti Monero.
+- [I built a Monero payment platform with Admin Panel, WebSocket, and advanced security](https://dev.to/danielioni/i-built-a-monero-payment-platform-with-admin-panel-websocket-and-advanced-security-57ji) — evoluzione del gateway/pagamenti, frontend/backend, WebSocket e preparazione Tor.
+- [MyZubster Architecture Deep Dive](https://dev.to/danielioni/myzubster-architecture-deep-dive-3fbi) — descrizione pubblica dell'architettura, dei componenti, del data flow e della scalabilità dell'ecosistema.
+- [How I Integrated Kali Linux and DeepSeek (Local AI) to Build a Self-Defending Security Bot for MyZubster](https://dev.to/danielioni/how-i-integrated-kali-linux-and-deepseek-local-ai-to-build-a-self-defending-security-bot-for-47lk) — pubblicazione sul filone AI locale e security automation. Le attività di security testing devono essere limitate a sistemi propri o esplicitamente autorizzati.
+- [Building an AI Automation System for MyZubster](https://dev.to/danielioni/building-an-ai-automation-system-for-myzubster-4k2) — descrizione del workflow di automazione per GitHub, bounty, Telegram e modelli AI locali.
+
+### LinkedIn — Daniel Ioni
+
+- [Post pubblico sugli AI agent nel mondo fisico e MyZubster](https://www.linkedin.com/posts/daniel-ioni-62b2b9423_github-danielioni-creatormyzubstergateway-activity-7485379054464835584-vEOI) — collega pubblicamente MyZubster ai temi di identità decentralizzata, contratti digitali, NFC/biometria, privacy payments, IoT e interazioni AI↔human / AI↔AI.
+
+### Criterio di utilizzo delle fonti
+
+Le fonti sopra vengono usate come **cronologia pubblica e materiale editoriale**. Claim relativi a deployment, partnership, finanziamenti, pagamenti, utenti, prestazioni o capacità production devono essere verificati separatamente prima di essere presentati come fatti confermati.
 
 ## 🇪🇺 Programma LIFE dell'Unione europea
 
-MyZubster sta esplorando il **Programma LIFE 2021–2027** come possibile quadro europeo per sviluppare e validare applicazioni ambientali dell'ecosistema. LIFE è lo strumento di finanziamento dell'Unione europea dedicato ad ambiente e azione per il clima ed è articolato in quattro sottoprogrammi: **Nature and Biodiversity**, **Circular Economy and Quality of Life**, **Climate Change Mitigation and Adaptation** e **Clean Energy Transition**.
+MyZubster sta esplorando il **Programma LIFE 2021–2027** come possibile quadro europeo per sviluppare e validare applicazioni ambientali dell'ecosistema.
 
-Le aree di MyZubster potenzialmente coerenti con LIFE includono:
-
-- raccolta e documentazione di osservazioni ambientali verificabili;
-- biodiversità urbana, alberi, piante, habitat e monitoraggio territoriale;
-- acqua, qualità ambientale, economia circolare e riduzione degli sprechi;
-- IoT, robotica e sensoristica per pilot ambientali;
-- dati geospaziali, GeoJSON, fotografia e sistemi di evidenza/MRV;
-- partecipazione civica, citizen science e collaborazione open-source;
-- replicazione di pilot e strumenti digitali in territori e comunità differenti.
-
-### Possibile ruolo di MyZubster in un progetto LIFE
-
-A seconda della call e del consorzio, MyZubster potrebbe contribuire come **piattaforma tecnologica/open-source**, layer di raccolta dati ed evidenze, supporto a pilot ambientali, visualizzazione e mapping, citizen engagement, automazione o infrastruttura per monitoraggio e replicazione.
-
-Il lavoro preparatorio comprende la ricerca di soggetti compatibili per ruoli quali **applicant/coordinator, partner scientifici, enti territoriali, pilot site, validazione ambientale, MRV e replicazione**.
-
-### LIFE 2026 — preparazione e outreach
-
-Nel mese di agosto 2026 è stato avviato un percorso di pre-candidatura orientato alla call di lavoro **LIFE-2026-SAP-ENV-ENVIRONMENT**, con focus preliminare su **efficienza idrica, gestione del verde urbano, circular economy, MRV digitale e replicazione territoriale**.
-
-Sono stati predisposti documenti di lavoro quali Concept Note, schema del pilot ambientale, Partner Pack, baseline/MRV e application matrix. Questi documenti sono **bozze di pre-candidatura** e non costituiscono una submission approvata né impegni di soggetti terzi.
-
-Sono stati inoltre avviati contatti esplorativi con potenziali partner italiani ed europei, tra cui soggetti con esperienza su acqua, GIS, circular economy, progetti LIFE, ricerca scientifica, utility, gestione del verde e replicazione. Tra i profili contattati o valutati figurano, a titolo di outreach preliminare, **Università di Bologna, Maggioli, CNR-ISOF, Consorzio di Bonifica della Romagna, GECOsistema, ACCIONA/LIFE PRISTINE, Catalan Water Partnership, BIOAZUL, Anthea, R3GIS e Greenholds**.
-
-Un primo riscontro operativo è arrivato dall'**Unità ARIC – LIFE & EMFAF dell'Università di Bologna**, che ha invitato MyZubster a trasmettere la Concept Note per un possibile matching interno con manifestazioni di interesse dei dipartimenti su topic affini. Concept Note e Pilot Ambientale sono stati quindi trasmessi per valutazione preliminare.
-
-Altri riscontri ricevuti sono, al momento, prevalentemente **autoresponder/out-of-office o conferme indirette di consegna**. Non devono essere interpretati come interesse formale, adesione al consorzio o disponibilità a partecipare alla candidatura.
+Le aree potenzialmente coerenti includono osservazioni ambientali verificabili, biodiversità urbana, acqua, economia circolare, IoT/robotica, dati geospaziali, citizen science e replicazione territoriale.
 
 > **Stato LIFE 2026:** pre-candidatura / partner discovery / matching scientifico in corso. Nessun soggetto viene considerato partner confermato senza manifestazione esplicita e successiva formalizzazione.
-
-> **Stato:** esplorazione / preparazione. La presenza di questa sezione non implica che MyZubster abbia ricevuto finanziamenti LIFE, che una candidatura sia stata approvata o che esista una partnership ufficiale con l'Unione europea, CINEA o altri enti. Qualsiasi candidatura, partnership, grant o progetto finanziato dovrà essere documentato separatamente con evidenza verificabile.
 
 Riferimenti ufficiali:
 
@@ -98,8 +77,6 @@ Riferimenti ufficiali:
 La mappa canonica dei repository e dei confini tra core, Gateway, app/web, robotica, AI, escrow/verifier e documentazione è mantenuta in:
 
 - [`docs/ECOSYSTEM.md`](docs/ECOSYSTEM.md)
-
-In sintesi:
 
 ```text
 users / contributors
@@ -123,7 +100,7 @@ Core -> Gateway -> payment/treasury -> independent verifier
 
 ## Che cos'è MyZubster
 
-MyZubster costruisce una **mappa visuale e informativa del mondo reale** e una serie di workflow per collegare contributi, evidenze e attività verificabili.
+MyZubster costruisce una **mappa visuale e informativa del mondo reale** e workflow per collegare contributi, evidenze e attività verificabili.
 
 ### Cosa può documentare
 
@@ -137,17 +114,11 @@ MyZubster costruisce una **mappa visuale e informativa del mondo reale** e una s
 
 ## Public data layer: IPFS/IPNS
 
-Il core può pubblicare **snapshot pubblici sanitizzati** tramite IPFS/IPNS, con indici separati per elementi come foto, bounty, reward pubblici, crawler observations e discoveries.
-
-IPFS fornisce content addressing e replica. **Non sostituisce da solo autorizzazione, consenso applicativo o settlement finanziario.** MongoDB e i servizi backend restano parte del layer operativo, mentre gli snapshot pubblici sono indipendentemente indirizzabili.
+Il core può pubblicare **snapshot pubblici sanitizzati** tramite IPFS/IPNS. IPFS fornisce content addressing e replica, ma **non sostituisce da solo autorizzazione, consenso applicativo o settlement finanziario**.
 
 ## Bounty system
 
-Il contratto canonico è:
-
-- [`BOUNTIES.md`](BOUNTIES.md)
-
-Lifecycle di alto livello:
+Il contratto canonico è [`BOUNTIES.md`](BOUNTIES.md).
 
 ```text
 PROPOSED
@@ -170,7 +141,7 @@ Nel core attuale **MYZ è un ledger interno di reward/accounting**. Un reward MY
 
 ### XMR / token esterni
 
-Una bounty può dichiarare una componente XMR/token, ma `PAID` richiede evidenza verificabile appropriata al rail. Un adapter/provider non può auto-dichiarare il settlement finale.
+Una bounty può dichiarare una componente XMR/token, ma `PAID` richiede evidenza verificabile appropriata al rail.
 
 ## Tecnologia
 
@@ -185,18 +156,11 @@ Una bounty può dichiarare una componente XMR/token, ma `PAID` richiede evidenza
 
 ## Mappa mondiale e osservazioni
 
-Le osservazioni geografiche usano coordinate WGS84. Il repository può includere dataset GeoJSON e media/evidenze collegati agli oggetti della piattaforma.
-
-La precisione geografica deve essere ridotta o esclusa quando una posizione può essere sensibile.
+Le osservazioni geografiche usano coordinate WGS84. La precisione geografica deve essere ridotta o esclusa quando una posizione può essere sensibile.
 
 ## Sicurezza e safety
 
-Non inserire mai nei repository:
-
-- private key o wallet seed;
-- password/token di produzione;
-- credenziali infrastrutturali;
-- dati personali/confidenziali non necessari.
+Non inserire mai nei repository private key/wallet seed, password/token di produzione, credenziali infrastrutturali o dati personali/confidenziali non necessari.
 
 Le bounty fisiche/fotografiche non devono incentivare trespassing, accesso ad aree ristrette, raccolta di dettagli di sicurezza, ricerca confidenziale, armi/dispositivi pericolosi o attività non autorizzate.
 
