@@ -1,0 +1,40 @@
+{
+  "id": "future-shop-owner",
+  "displayName": "Future Shop Owner",
+  "githubHandle": null,
+  "role": "Independent shop owner",
+  "bio": "Example fictional character used to demonstrate a future collaboration scene with MyZubster.",
+  "visual": {
+    "style": "cyberpunk",
+    "traits": [
+      "mature shop owner",
+      "neon-lit retail environment",
+      "practical workwear",
+      "subtle cybernetic details"
+    ],
+    "avatarAsset": null
+  },
+  "voice": {
+    "tone": "curious, pragmatic, direct",
+    "languages": ["it", "en"]
+  },
+  "interests": [
+    "local retail",
+    "technology",
+    "customer experience",
+    "future partnerships"
+  ],
+  "collaboration": {
+    "topics": [
+      "digital services for local shops",
+      "interactive storytelling",
+      "open-source collaboration"
+    ],
+    "pitch": "Explore whether MyZubster can help a local shop create new digital experiences and future services."
+  },
+  "consent": {
+    "publicProfile": true,
+    "allowSharedScenes": true,
+    "realPersonLikenessAuthorized": false
+  }
+}
