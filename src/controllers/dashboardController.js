@@ -1,5 +1,4 @@
 const Dashboard = require('../models/dashboardModel');
-const { v4: uuidv4 } = require('uuid');
 
 // #242: User dashboard - balance and transaction history
 exports.getUserDashboard = async (req, res) => {
