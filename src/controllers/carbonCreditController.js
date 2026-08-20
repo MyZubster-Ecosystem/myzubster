@@ -1,11 +1,11 @@
 const CarbonCredit = require('../models/carbonCreditModel');
-const { v4: uuidv4 } = require('uuid');
+const { randomUUID } = require('crypto');
 
 exports.createCredit = async (req, res) => {
   try {
     const {userId, creditType, amount, evidence, organization} = req.body;
     if (!userId || !creditType || !amount) return res.status(400).json({error: 'userId, creditType, amount required'});
-    const c = new CarbonCredit({creditId: uuidv4().substring(0,12), userId, creditType, amount, evidence, organization});
+    const c = new CarbonCredit({creditId: randomUUID().substring(0,12), userId, creditType, amount, evidence, organization});
     await c.save();
     res.status(201).json({message: 'Credit created', creditId: c.creditId, status: 'pending'});
   } catch (e) { res.status(500).json({error: e.message}); }
