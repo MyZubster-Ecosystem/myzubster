@@ -194,6 +194,23 @@ router.post('/memory', async (req, res) => {
   }
 });
 
+router.delete('/memory', async (req, res) => {
+  try {
+    const memoryKey = req.get('x-zorgax-memory-key');
+    if (!validMemoryKey(memoryKey)) {
+      return res.status(400).json({ ok: false, error: 'Chiave memoria non valida' });
+    }
+
+    const result = await ZorgaxMemory.deleteMany({
+      entityId: 'ZORGAX-001',
+      ownerHash: hashMemoryKey(memoryKey)
+    });
+    res.json({ ok: true, deleted: result.deletedCount || 0 });
+  } catch (error) {
+    res.status(500).json({ ok: false, error: error.message });
+  }
+});
+
 router.delete('/memory/:id', async (req, res) => {
   try {
     const memoryKey = req.get('x-zorgax-memory-key');
