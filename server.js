@@ -41,6 +41,7 @@ const geocodeRoutes = require('./src/routes/mapRoutes');
 const healthRoutes = require('./src/api/routes');
 const grokRoutes = require('./src/routes/grokRoutes');
 const zorgaxRoutes = require('./src/routes/zorgaxRoutes');
+const zorgaxIssueRoutes = require('./src/routes/zorgaxIssueRoutes');
 const githubBountySyncRoutes = require('./src/routes/githubBountySyncRoutes');
 
 // Monta le route
@@ -61,6 +62,7 @@ app.use('/api/geocode', geocodeRoutes);
 app.use('/api', healthRoutes);
 app.use('/api/grok', grokRoutes);
 app.use('/api/zorgax', zorgaxRoutes);
+app.use('/api/zorgax/issues', zorgaxIssueRoutes);
 app.use('/api/github-bounties', githubBountySyncRoutes);
 
 // Homepage / health gateway
