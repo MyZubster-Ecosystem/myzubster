@@ -12,6 +12,7 @@ const zorgaxDaoRoutes = require('./routes/zorgax-dao');
 
 const gardenRoutes = require('./routes/gardens');
 const telemetryRoutes = require('./routes/telemetry');
+const metaverseRoutes = require('./routes/metaverse');
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3009;
@@ -48,6 +49,7 @@ app.get('/health', (_req, res) => {
 
 app.use('/api/gardens', gardenRoutes);
 app.use('/api/telemetry', telemetryRoutes);
+app.use('/api/metaverse', metaverseRoutes);
 app.use('/api/gateway', gatewayRoutes);
 app.use('/api/dao/zorgax', zorgaxDaoRoutes);
 app.use('/api/dao', daoRoutes);
@@ -63,7 +65,8 @@ app.get('/api/dashboard', (_req, res) => {
         endpoint: 'mongodb://localhost:27017'
       },
       dao: { status: 'online', endpoint: '/api/dao' },
-      zorgaxGovernance: { status: 'advisory', endpoint: '/api/dao/zorgax', binding: false }
+      zorgaxGovernance: { status: 'advisory', endpoint: '/api/dao/zorgax', binding: false },
+      metaverse: { status: 'prototype', endpoint: '/api/metaverse/world', identityMode: 'guest-unverified' }
     },
     stats: {
       totalIssues: 0,
@@ -142,6 +145,7 @@ app.get('/dashboard', (_req, res) => {
     <strong>Health:</strong> <a href="/health"><code>/health</code></a><br>
     <strong>Dashboard API:</strong> <a href="/api/dashboard"><code>/api/dashboard</code></a><br>
     <strong>Gardens API:</strong> <a href="/api/gardens"><code>/api/gardens</code></a><br>
+    <strong>Metaverse API:</strong> <a href="/api/metaverse/world"><code>/api/metaverse/world</code></a> (prototype)<br>
     <strong>DAO API:</strong> <a href="/api/dao/proposals"><code>/api/dao/proposals</code></a><br>
     <strong>Zorgax DAO:</strong> <a href="/api/dao/zorgax/status"><code>/api/dao/zorgax/status</code></a> (advisory, non-binding)
   </div>
@@ -170,6 +174,7 @@ async function startServer() {
       console.log(`✅ MyZubster backend listening on port ${PORT}`);
       console.log(`📍 Health check: http://localhost:${PORT}/health`);
       console.log(`📍 Dashboard: http://localhost:${PORT}/dashboard`);
+      console.log(`🪐 Metaverse world: http://localhost:${PORT}/api/metaverse/world`);
       resolve(server);
     });
   });
