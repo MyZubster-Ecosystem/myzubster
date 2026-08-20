@@ -196,6 +196,15 @@ MyZubster's public evolution has also been documented outside this repository. T
 
 During August 2026, MyZubster content and/or bounty pages were observed in external indexes and aggregators including KMP Weekly, ContributeHub/Orion, TensorHack, TechForDev and other software/content discovery services. These are treated as **discovery signals only** — not evidence of endorsement, active users, partnerships, funding or completed settlement.
 
+Notable external discovery signals include:
+
+- **Zenn (Japan)** — an independent technical analysis of OSS bounties referenced `MyZubster-Ecosystem` among organizations appearing frequently in results containing bounty issues without an explicit reward amount. This is a useful reminder that public bounty issues should expose reward, status, eligibility and settlement conditions clearly enough for both humans and automated indexers.
+- **ContributeHub / Orion** — indexed multiple MyZubster bounty opportunities across ecosystem areas, increasing discoverability among external open-source contributors.
+- **TensorHack** — surfaced MyZubster development opportunities, including Monero/XMR wallet-related work and MyZubsterWeb bounties.
+- **KMP Weekly** — indexed the MyZubster NFC payments guide in the Kotlin Multiplatform ecosystem, providing an external technical-community discovery signal beyond MyZubster-owned channels.
+
+Because external aggregators may automatically interpret GitHub issues, every public bounty should clearly state its **reward (or explicitly say that no external reward is committed), current status, acceptance criteria, eligibility, verification process and settlement conditions**. Indexing by an external service does not imply endorsement, funding, partnership or successful payment.
+
 A further discovery signal was observed through **TriploHub / Central de Inteligência WebMCP**, which indexed Portuguese-language material describing the MyZubster MCP Server and its agent/automation, payment, robotics and IoT-related development claims. This is recorded as external indexing only and does **not** constitute independent validation of the implementation, adoption or partnership.
 
 **Artemida.team** also surfaced MyZubster Robot material for a Russian-speaking audience through an automated DEV.to/RSS-style content ingest. This is recorded as an additional international discovery/mirroring signal, not as independent editorial coverage, endorsement or technical validation.
