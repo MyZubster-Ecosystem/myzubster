@@ -14,26 +14,6 @@ Shows whether write access is enabled and which repositories are allowed.
 
 Builds a sanitized Issue draft but does not publish it.
 
-Example body:
-
-```json
-{
-  "title": "Possible anomaly in circular-water dataset",
-  "summary": "A sensor value differs from the preceding samples and should be checked.",
-  "category": "data-anomaly",
-  "severity": "medium",
-  "proposed_action": "Ask the pilot operator to verify the sensor and source record.",
-  "evidence": [
-    {
-      "source": "sensor-feed",
-      "reference": "observation-123",
-      "claim_class": "uncertain",
-      "note": "Automated observation; requires operator verification."
-    }
-  ]
-}
-```
-
 ### `POST /api/zorgax/issues/publish`
 
 Publishes the same structured proposal to GitHub, but only when all write guardrails are satisfied.
@@ -55,16 +35,18 @@ x-zorgax-admin-key: <matching approval key>
 
 Writes are disabled by default.
 
-## Recommended production identity
+## Production GitHub App
 
-Use a dedicated **GitHub App** or clearly identified bot account such as `myzubster-zorgax[bot]`. Do not use a maintainer's personal access token if the goal is to make it clear to readers that the Issue was opened by software.
+Use a dedicated **GitHub App** so Issues are visibly authored by an automation identity rather than a maintainer account.
 
-Recommended GitHub App permission:
+The exact production setup is documented in [`docs/ZORGAX-GITHUB-APP-SETUP.md`](ZORGAX-GITHUB-APP-SETUP.md), and a safe runtime-variable template is available in [`.env.zorgax.example`](../.env.zorgax.example).
 
-- Issues: Read and write
-- Metadata: Read-only
+Recommended permissions are intentionally minimal:
 
-Do not grant repository administration, secrets, Actions write access, organization administration, or other permissions that the Issue Agent does not need.
+- **Issues: Read and write**
+- **Metadata: Read-only**
+
+Do not grant repository administration, Contents, Pull requests, Secrets, Actions write access, organization administration, or other permissions that the Issue Agent does not need.
 
 ## Guardrails
 
