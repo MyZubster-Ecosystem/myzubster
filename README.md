@@ -136,6 +136,8 @@ There are several ways to participate:
 
 ### Bounties
 
+![MyZubster bounty system](assets/readme/myzubster-bounty.png)
+
 The canonical rules live in [`BOUNTIES.md`](BOUNTIES.md).
 
 ```text
