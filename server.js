@@ -75,8 +75,10 @@ app.get('/', (req, res) => {
   });
 });
 
-app.get('/grok', (req, res) => res.sendFile(require('path').join(__dirname, 'public', 'grok.html')));
-app.get('/zorgax', (req, res) => res.sendFile(require('path').join(__dirname, 'public', 'zorgax.html')));
+const path = require('path');
+app.get('/grok', (req, res) => res.sendFile(path.join(__dirname, 'public', 'grok.html')));
+app.get('/zorgax', (req, res) => res.sendFile(path.join(__dirname, 'public', 'zorgax.html')));
+app.get('/visual', (req, res) => res.sendFile(path.join(__dirname, 'public', 'visual.html')));
 
 // Esporta app per i test
 module.exports = app;
