@@ -26,6 +26,23 @@ L'ecosistema continua a evolvere su più repository. Gli elementi seguenti descr
 - **Monitoraggio Gateway:** sono presenti filoni dedicati ad analisi di pagamenti/trend e notifiche, mantenendo la verifica finanziaria separata dalle dichiarazioni applicative.
 - **Esposizione esterna:** eventuali menzioni su community, aggregatori o piattaforme esterne vengono considerate segnali di visibilità e discovery; engagement e adozione devono essere misurati separatamente con evidenza verificabile.
 
+### Visibilità esterna e discovery — agosto 2026
+
+Nel corso di agosto 2026 sono state osservate diverse indicizzazioni e ripubblicazioni esterne riconducibili a MyZubster. Questi segnali documentano **discovery tecnica e distribuzione dei contenuti**, non endorsement, partnership, utenti attivi o adozione commerciale.
+
+- **KMP Weekly:** indicizzazione del contenuto tecnico `NFC Payments in MyZubster: A Complete Guide`, con esposizione verso la community Kotlin Multiplatform.
+- **Orion / ContributeHub:** indicizzazione di numerosi bounty MyZubster, inclusi task su wallet/Monero, marketplace API, escrow, AI agent multisig, Seed Exchange e export CSV/GeoJSON. In alcune scansioni bounty MyZubster sono comparsi anche nella sezione `High-Value Bounties`.
+- **TensorHack:** indicizzazione esterna di opportunità/bounty MyZubster, incluse attività su wallet e marketplace.
+- **Espansione oltre il solo Gateway:** sono state osservate indicizzazioni di bounty anche per `MyZubsterWeb` e per filoni IoT/robotica/agricoltura urbana, inclusi task su Telegram Bot per AgricoloBot, sensori Arduino, mappa/dashboard orti urbani ed EVA IONI.
+- **Crebral:** ripubblicazione/indicizzazione di contenuti tecnici estesi su Urban Lab, escrow, bounty e architetture sperimentali MyZubster.
+- **Polaris7:** presenza di MyZubster tra segnali tecnici/di mercato collegati a GitHub e all'ecosistema software.
+- **TechForDev:** ripubblicazione/indicizzazione di contenuti relativi a EVA IONI e MyZubster.
+- **Artemida.team:** diffusione in lingua russa di contenuti relativi al MyZubster Robot.
+- **Toldrop:** inclusione di contenuti MyZubster AI/automation in report/editorial aggregation esterni.
+- **LibHunt:** collegamenti e discovery di contenuti MyZubster in un indice orientato ai progetti software/open-source.
+
+Queste menzioni vengono trattate come **segnali di propagazione esterna**. La loro presenza non dimostra conversioni, utenti attivi, investimenti, relazioni commerciali o riconoscimenti ufficiali. Quando una pagina esterna riprende claim istituzionali o territoriali, tali formulazioni devono essere verificate separatamente prima di essere considerate affidabili.
+
 ### Come leggere questi aggiornamenti
 
 MyZubster privilegia una documentazione prudente: una feature proposta non è una feature rilasciata, un merge non è un pagamento, un fork non è un utente attivo e un'integrazione descritta non è necessariamente operativa in produzione. Le fonti canoniche restano codice, test, CI, policy bounty ed evidenze indipendenti appropriate al tipo di claim.
@@ -49,6 +66,20 @@ Le aree di MyZubster potenzialmente coerenti con LIFE includono:
 A seconda della call e del consorzio, MyZubster potrebbe contribuire come **piattaforma tecnologica/open-source**, layer di raccolta dati ed evidenze, supporto a pilot ambientali, visualizzazione e mapping, citizen engagement, automazione o infrastruttura per monitoraggio e replicazione.
 
 Il lavoro preparatorio comprende la ricerca di soggetti compatibili per ruoli quali **applicant/coordinator, partner scientifici, enti territoriali, pilot site, validazione ambientale, MRV e replicazione**.
+
+### LIFE 2026 — preparazione e outreach
+
+Nel mese di agosto 2026 è stato avviato un percorso di pre-candidatura orientato alla call di lavoro **LIFE-2026-SAP-ENV-ENVIRONMENT**, con focus preliminare su **efficienza idrica, gestione del verde urbano, circular economy, MRV digitale e replicazione territoriale**.
+
+Sono stati predisposti documenti di lavoro quali Concept Note, schema del pilot ambientale, Partner Pack, baseline/MRV e application matrix. Questi documenti sono **bozze di pre-candidatura** e non costituiscono una submission approvata né impegni di soggetti terzi.
+
+Sono stati inoltre avviati contatti esplorativi con potenziali partner italiani ed europei, tra cui soggetti con esperienza su acqua, GIS, circular economy, progetti LIFE, ricerca scientifica, utility, gestione del verde e replicazione. Tra i profili contattati o valutati figurano, a titolo di outreach preliminare, **Università di Bologna, Maggioli, CNR-ISOF, Consorzio di Bonifica della Romagna, GECOsistema, ACCIONA/LIFE PRISTINE, Catalan Water Partnership, BIOAZUL, Anthea, R3GIS e Greenholds**.
+
+Un primo riscontro operativo è arrivato dall'**Unità ARIC – LIFE & EMFAF dell'Università di Bologna**, che ha invitato MyZubster a trasmettere la Concept Note per un possibile matching interno con manifestazioni di interesse dei dipartimenti su topic affini. Concept Note e Pilot Ambientale sono stati quindi trasmessi per valutazione preliminare.
+
+Altri riscontri ricevuti sono, al momento, prevalentemente **autoresponder/out-of-office o conferme indirette di consegna**. Non devono essere interpretati come interesse formale, adesione al consorzio o disponibilità a partecipare alla candidatura.
+
+> **Stato LIFE 2026:** pre-candidatura / partner discovery / matching scientifico in corso. Nessun soggetto viene considerato partner confermato senza manifestazione esplicita e successiva formalizzazione.
 
 > **Stato:** esplorazione / preparazione. La presenza di questa sezione non implica che MyZubster abbia ricevuto finanziamenti LIFE, che una candidatura sia stata approvata o che esista una partnership ufficiale con l'Unione europea, CINEA o altri enti. Qualsiasi candidatura, partnership, grant o progetto finanziato dovrà essere documentato separatamente con evidenza verificabile.
 
