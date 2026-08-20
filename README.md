@@ -12,6 +12,47 @@ The project connects **mapping, evidence, bounties, IPFS/IPNS, AI/automation, Io
 
 > 🌍 **Multilingual documentation:** [English · Italiano · Español · Français · Deutsch · Português · 中文 · 日本語 · 한국어 · العربية · हिन्दी · Русский · Türkçe · Bahasa Indonesia · Polski · Українська · বাংলা · اردو · فارسی · Kiswahili](docs/i18n/README.md)
 
+## Public project profile
+
+<p align="center">
+  <a href="profiles/daniel-ioni/PROFILE.md">
+    <img src="https://avatars.githubusercontent.com/u/297206290?v=4" alt="Daniel Ioni public project profile" width="132">
+  </a>
+</p>
+
+<p align="center">
+  <strong>Daniel Ioni</strong><br>
+  <code>evidence-supported</code>
+</p>
+
+<p align="center">
+  <a href="profiles/daniel-ioni/PROFILE.md"><strong>Open public profile</strong></a>
+  ·
+  <a href="docs/history/darkode/README.md">Historical provenance — Darkode / Bitcoin (2015)</a>
+  ·
+  <a href="docs/history/darkode/darkode-2015-membership-evidence-public.svg">Public-safe historical visual</a>
+</p>
+
+> **Evidence boundary:** the linked historical material supports provenance/continuity claims but does not by itself verify civil identity, a specific Darkode handle, activities performed on the forum, current wallet control, unlawful conduct or professional skill level.
+
+### Project story — from privacy systems to verifiable trust
+
+MyZubster is also presented as the continuation of a longer technical trajectory:
+
+```text
+Historical cybersecurity / Bitcoin provenance (2014–2015)
+        ↓
+Privacy technologies
+        ↓
+Verifiable provenance & digital trust
+        ↓
+MyZubster
+```
+
+The public-safe archive documents substantial Bitcoin activity during 2014–2015 together with historical Darkode-related communications. That history is used as **technical provenance**, not as a badge or as automatic proof of a particular role, skill level or conduct. Specific claims concerning mixing services, mining origin, Darkode operational activity or later Onion compromise remain self-reported unless independently corroborated.
+
+The present-day direction is the important contrast: MyZubster applies privacy-aware engineering to **evidence boundaries, provenance, collaborative verification and digital trust** rather than relying on anonymity, account names or unsupported inference.
+
 ## Why MyZubster?
 
 A photo can be more than a photo. A contribution can be more than a GitHub issue. MyZubster explores a workflow where real-world observations can become structured evidence, be connected to collaborative tasks, reviewed, published as sanitized public data and — where explicitly defined — associated with platform rewards or independently verified external settlement.

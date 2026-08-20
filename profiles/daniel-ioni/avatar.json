@@ -1,0 +1,36 @@
+{
+  "schema_version": "0.1",
+  "display_name": "Daniel Ioni",
+  "github_login": "DanielIoni-creator",
+  "avatar_url": "https://avatars.githubusercontent.com/u/297206290?v=4",
+  "profile_path": "profiles/daniel-ioni/PROFILE.md",
+  "evidence_status": "evidence-supported",
+  "historical_provenance": [
+    {
+      "label": "Darkode historical archive",
+      "path": "docs/history/darkode/README.md"
+    },
+    {
+      "label": "Darkode and transaction dossier",
+      "path": "docs/history/darkode/dossier-storico-darkode-transazioni.md"
+    },
+    {
+      "label": "Verification addendum",
+      "path": "docs/history/darkode/verification-addendum.md"
+    },
+    {
+      "label": "Public-safe Darkode membership visual",
+      "path": "docs/history/darkode/darkode-2015-membership-evidence-public.svg"
+    },
+    {
+      "label": "Review pull request",
+      "url": "https://github.com/MyZubster-Ecosystem/myzubster/pull/544"
+    }
+  ],
+  "claims_boundary": [
+    "Historical provenance is not civil identity verification.",
+    "Membership-related communications do not prove a specific Darkode handle or activities performed on the forum.",
+    "Bitcoin notification evidence does not prove current control of a historical wallet.",
+    "Historical evidence does not independently certify professional skill level."
+  ]
+}
