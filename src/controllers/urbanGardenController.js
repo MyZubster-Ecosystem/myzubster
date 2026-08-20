@@ -1,12 +1,12 @@
 const UrbanGarden = require('../models/urbanGardenModel');
-const { v4: uuidv4 } = require('uuid');
+const { randomUUID } = require('crypto');
 
 exports.createGarden = async (req, res) => {
   try {
     const {name, ownerId, category, lat, lng, address, size} = req.body;
     if (!name || !ownerId || !category || lat === undefined || lng === undefined)
       return res.status(400).json({error: 'name, ownerId, category, lat, lng required'});
-    const g = new UrbanGarden({gardenId: uuidv4().substring(0,12), name, ownerId, category, location: {lat, lng, address}, size: size||'small'});
+    const g = new UrbanGarden({gardenId: randomUUID().substring(0,12), name, ownerId, category, location: {lat, lng, address}, size: size||'small'});
     await g.save();
     res.status(201).json({message: 'Garden created', gardenId: g.gardenId});
   } catch (e) { res.status(500).json({error: e.message}); }
