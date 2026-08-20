@@ -1,5 +1,9 @@
 # MyZubster
 
+<p align="center">
+  <img src="assets/readme/myzubster-core.png" alt="MyZubster ecosystem overview" width="100%">
+</p>
+
 > **Open-source infrastructure for connecting real-world observations, verifiable evidence, collaborative bounties and privacy-aware digital workflows.**
 
 MyZubster is an evolving open-source ecosystem that turns observations from the real world — photos, places, environmental data, services and technical contributions — into structured, reviewable and reusable information.
@@ -17,6 +21,8 @@ OBSERVE → DOCUMENT → CONNECT → COLLABORATE → VERIFY → PUBLISH → REWA
 ```
 
 ## How it works
+
+![How MyZubster works](assets/readme/how-it-works.png)
 
 ```text
 users / contributors
@@ -52,6 +58,8 @@ Attach structured information such as captions, timestamps, permitted location d
 Link the observation to the map, a project, dataset or bounty.
 
 ### 4. Collaborate
+
+![MyZubster collaborative voting](assets/readme/myzubster-vote.png)
 Contributors can work on explicitly defined tasks with acceptance criteria and evidence requirements.
 
 ### 5. Verify
@@ -129,6 +137,8 @@ There are several ways to participate:
 6. help improve datasets using only public or explicitly authorized observations.
 
 ### Bounties
+
+![MyZubster bounty system](assets/readme/myzubster-bounty.png)
 
 The canonical rules live in [`BOUNTIES.md`](BOUNTIES.md).
 
