@@ -12,7 +12,7 @@ app.use('/api/github-bounties/webhook', express.json({
     req.rawBody = Buffer.from(buf);
   }
 }));
-app.use(express.json());
+app.use(express.json({ limit: '12mb' }));
 app.use(express.static('public'));
 app.use('/data', express.static('data'));
 
@@ -23,7 +23,7 @@ if (process.env.NODE_ENV !== 'test') {
     .catch(err => console.error('❌ MongoDB connection error:', err));
 }
 
-// Import routes (modifica i percorsi secondo la tua struttura)
+// Import routes
 const authRoutes = require('./src/routes/authRoutes');
 const userRoutes = require('./src/routes/userRoutes');
 const bountyRoutes = require('./src/routes/bountyRoutes');
@@ -42,6 +42,7 @@ const healthRoutes = require('./src/api/routes');
 const grokRoutes = require('./src/routes/grokRoutes');
 const zorgaxRoutes = require('./src/routes/zorgaxRoutes');
 const githubBountySyncRoutes = require('./src/routes/githubBountySyncRoutes');
+const visualRoutes = require('./src/routes/visualRoutes');
 
 // Monta le route
 app.use('/api/auth', authRoutes);
@@ -62,6 +63,7 @@ app.use('/api', healthRoutes);
 app.use('/api/grok', grokRoutes);
 app.use('/api/zorgax', zorgaxRoutes);
 app.use('/api/github-bounties', githubBountySyncRoutes);
+app.use('/api/visual', visualRoutes);
 
 // Homepage / health gateway
 app.get('/', (req, res) => {
@@ -75,8 +77,18 @@ app.get('/', (req, res) => {
   });
 });
 
-app.get('/grok', (req, res) => res.sendFile(require('path').join(__dirname, 'public', 'grok.html')));
-app.get('/zorgax', (req, res) => res.sendFile(require('path').join(__dirname, 'public', 'zorgax.html')));
+const path = require('path');
+const fs = require('fs');
+app.get('/grok', (req, res) => res.sendFile(path.join(__dirname, 'public', 'grok.html')));
+app.get('/zorgax', (req, res) => res.sendFile(path.join(__dirname, 'public', 'zorgax.html')));
+app.get('/visual', (req, res) => {
+  const filePath = path.join(__dirname, 'public', 'visual.html');
+  fs.readFile(filePath, 'utf8', (error, html) => {
+    if (error) return res.status(500).send('MyZubster Visual unavailable');
+    res.type('html').send(html.replace('</body>', '<script src="/visual-ai.js"></script></body>'));
+  });
+});
+app.get('/visual/gallery', (req, res) => res.sendFile(path.join(__dirname, 'public', 'visual-gallery.html')));
 
 // Esporta app per i test
 module.exports = app;

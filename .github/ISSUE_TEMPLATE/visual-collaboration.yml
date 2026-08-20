@@ -1,0 +1,84 @@
+name: MyZubster Visual collaboration
+about: Propose a character-driven comic scene that can evolve into a real collaboration discussion.
+title: "[Visual Collab] "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## MyZubster Visual
+        Use this form to propose a visual story and an open collaboration discussion.
+
+        A comic is a creative proposal, not evidence that a partnership exists or has been approved.
+
+  - type: input
+    id: character
+    attributes:
+      label: Character profile
+      description: Link to your character JSON/YAML profile or provide its repository path.
+      placeholder: visual/characters/my-character.json
+    validations:
+      required: true
+
+  - type: input
+    id: collaboration
+    attributes:
+      label: Collaboration idea
+      description: What would you like to explore with MyZubster?
+      placeholder: Interactive retail experience, environmental pilot, open-source tool...
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Real-world problem or opportunity
+      description: Describe the real problem behind the comic scene.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: style
+    attributes:
+      label: Preferred comic style
+      options:
+        - Cyberpunk
+        - Noir
+        - Manga
+        - Ligne claire
+        - Retro-future
+        - Custom
+    validations:
+      required: true
+
+  - type: textarea
+    id: scene
+    attributes:
+      label: Scene idea
+      description: Describe where the characters meet and what they discuss.
+      placeholder: I meet the MyZubster founder in my shop and discuss...
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: consent
+    attributes:
+      label: Consent and publication
+      options:
+        - label: I have the right to use the character/avatar material I submit.
+          required: true
+        - label: If my character uses a real person's likeness, that person authorized its use.
+          required: true
+        - label: I understand the generated story is a proposal and does not prove a partnership or endorsement.
+          required: true
+        - label: I will not submit secrets, private keys, credentials or unnecessary sensitive personal information.
+          required: true
+
+  - type: textarea
+    id: nextstep
+    attributes:
+      label: Desired next step
+      description: What would make this move from a story to a real collaboration?
+      placeholder: 30-minute call, prototype, technical review, local pilot...
+    validations:
+      required: true

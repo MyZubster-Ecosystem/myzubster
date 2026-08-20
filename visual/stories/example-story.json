@@ -1,0 +1,49 @@
+{
+  "id": "future-shop-collaboration-001",
+  "status": "proposal",
+  "title": "A possible future collaboration",
+  "style": "cyberpunk",
+  "characters": [
+    "future-shop-owner",
+    "myzubster-founder"
+  ],
+  "setting": "A neon-lit independent shop in a near-future Rimini.",
+  "intent": "Explore a possible future collaboration between a local business and the MyZubster ecosystem.",
+  "panels": [
+    {
+      "panel": 1,
+      "speaker": "myzubster-founder",
+      "dialogue": "Ciao. Ho visto il tuo negozio: fai cose davvero interessanti."
+    },
+    {
+      "panel": 2,
+      "speaker": "future-shop-owner",
+      "dialogue": "Grazie. Di cosa ti occupi esattamente?"
+    },
+    {
+      "panel": 3,
+      "speaker": "myzubster-founder",
+      "dialogue": "Costruiamo strumenti aperti per collegare dati, persone, servizi e collaborazioni verificabili."
+    },
+    {
+      "panel": 4,
+      "speaker": "future-shop-owner",
+      "dialogue": "E cosa potremmo costruire insieme?"
+    },
+    {
+      "panel": 5,
+      "speaker": "myzubster-founder",
+      "dialogue": "Partiamo da un problema reale del tuo negozio e trasformiamolo in una proposta concreta."
+    },
+    {
+      "panel": 6,
+      "speaker": "future-shop-owner",
+      "dialogue": "Va bene. Apriamo la discussione e vediamo dove può portarci."
+    }
+  ],
+  "github": {
+    "issueUrl": null,
+    "pullRequestUrl": null
+  },
+  "disclaimer": "Fictional proposal scene. It does not represent an approved or existing commercial partnership."
+}

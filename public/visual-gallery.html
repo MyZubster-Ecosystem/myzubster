@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MyZubster Visual — Gallery</title>
+  <style>
+    :root{color-scheme:dark;--bg:#07090f;--panel:#111522;--line:#29324a;--text:#f5f7ff;--muted:#9aa6c2;--cyan:#35e6ff;--pink:#ff4fd8}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#101a31 0,#07090f 45%);color:var(--text);font-family:Inter,system-ui,sans-serif}main{max-width:1160px;margin:auto;padding:44px 20px 80px}h1{font-size:clamp(38px,7vw,72px);margin:0}.glow{color:var(--cyan)}p{color:var(--muted);line-height:1.6}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-top:30px}.card{background:rgba(17,21,34,.94);border:1px solid var(--line);border-radius:18px;padding:18px}.card img{width:100%;border-radius:12px;display:block;background:#090c14}.tag{font-size:12px;border:1px solid var(--line);border-radius:999px;padding:5px 9px;display:inline-block;color:#cbd5ee}.empty{padding:32px;border:1px dashed var(--line);border-radius:16px;color:var(--muted)}a{color:var(--cyan)}
+  </style>
+</head>
+<body>
+<main>
+  <p>MYZUBSTER VISUAL / APPROVED PROPOSAL SCENES</p>
+  <h1>Visual <span class="glow">gallery</span></h1>
+  <p>Only scenes explicitly published through the Visual gallery workflow appear here. A gallery entry is creative proposal content, not evidence of a partnership or endorsement.</p>
+  <p><a href="/visual">← Create a character or comic</a></p>
+  <div id="gallery" class="grid"><div class="empty">Loading gallery…</div></div>
+</main>
+<script>
+const esc=s=>String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+(async()=>{const root=document.getElementById('gallery');try{const r=await fetch('/api/visual/gallery');const p=await r.json();if(!p.items?.length){root.innerHTML='<div class="empty">No approved scenes have been published yet.</div>';return}root.innerHTML=p.items.map(item=>`<article class="card">${item.image_data_url||item.image_url?`<img src="${esc(item.image_data_url||item.image_url)}" alt="${esc(item.title)}">`:''}<h2>${esc(item.title)}</h2><span class="tag">${esc(item.character?.visual_style)}</span><p><strong>${esc(item.character?.display_name)}</strong> — ${esc(item.character?.role)}</p><p>${esc(item.story?.intent)}</p><p style="font-size:12px">${esc(item.disclaimer)}</p></article>`).join('')}catch(e){root.innerHTML=`<div class="empty">Gallery unavailable: ${esc(e.message)}</div>`}})();
+</script>
+</body>
+</html>
