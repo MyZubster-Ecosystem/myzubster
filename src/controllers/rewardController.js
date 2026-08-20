@@ -1,5 +1,9 @@
 const Reward = require('../models/rewardModel');
-const { v4: uuidv4 } = require('uuid');
+const { randomUUID } = require('crypto');
+
+function createRewardId() {
+  return randomUUID().replace(/-/g, '').slice(0, 12);
+}
 
 // #247: QA/testing rewards
 exports.createQAReward = async (req, res) => {
@@ -10,7 +14,7 @@ exports.createQAReward = async (req, res) => {
     const sev = severity || 'normal';
     const amount = Reward.calculateQA(sev);
     const reward = new Reward({
-      rewardId: uuidv4().substring(0, 12),
+      rewardId: createRewardId(),
       userId, rewardType: 'qa_bug', amount,
       metadata: { bugSeverity: sev }
     });
@@ -28,7 +32,7 @@ exports.createRobotBonus = async (req, res) => {
     const amount = Reward.calculateRobotBonus(orderAmount, completedWithinTime);
     if (amount === 0) return res.json({ message: 'No bonus - not completed within time limit', amount: 0 });
     const reward = new Reward({
-      rewardId: uuidv4().substring(0, 12),
+      rewardId: createRewardId(),
       userId, rewardType: 'robot_bonus', amount,
       metadata: { jobId, daysStaked: completedWithinTime ? 1 : 0 }
     });
@@ -45,12 +49,12 @@ exports.createReferralReward = async (req, res) => {
       return res.status(400).json({ error: 'referrerId, referredUserId, and referralCode are required' });
     const amount = Reward.calculateReferral();
     const reward1 = new Reward({
-      rewardId: uuidv4().substring(0, 12),
+      rewardId: createRewardId(),
       userId: referrerId, rewardType: 'referral', amount,
       metadata: { referralCode, referredUserId }
     });
     const reward2 = new Reward({
-      rewardId: uuidv4().substring(0, 12),
+      rewardId: createRewardId(),
       userId: referredUserId, rewardType: 'referral', amount,
       metadata: { referralCode, referredUserId }
     });
@@ -67,7 +71,7 @@ exports.createEducationReward = async (req, res) => {
     if (!userId || !contentUrl)
       return res.status(400).json({ error: 'userId and contentUrl are required' });
     const reward = new Reward({
-      rewardId: uuidv4().substring(0, 12),
+      rewardId: createRewardId(),
       userId, rewardType: 'education', amount: 0,
       metadata: { contentUrl, contentQuality: 'basic' },
       status: 'pending'
@@ -85,7 +89,7 @@ exports.createGovernanceVoteReward = async (req, res) => {
       return res.status(400).json({ error: 'userId, proposalId, and voteDirection are required' });
     const amount = Reward.calculateGovernanceVote();
     const reward = new Reward({
-      rewardId: uuidv4().substring(0, 12),
+      rewardId: createRewardId(),
       userId, rewardType: 'governance_vote', amount,
       metadata: { proposalId, voteDirection }
     });
@@ -102,7 +106,7 @@ exports.createGovernanceDelegationReward = async (req, res) => {
       return res.status(400).json({ error: 'userId, amountStaked, and days are required' });
     const amount = Reward.calculateGovernanceDelegation(amountStaked, days);
     const reward = new Reward({
-      rewardId: uuidv4().substring(0, 12),
+      rewardId: createRewardId(),
       userId, rewardType: 'governance_delegation', amount,
       metadata: { delegationAmount: amountStaked, daysStaked: days }
     });
