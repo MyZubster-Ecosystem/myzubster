@@ -5,6 +5,7 @@ import PilotDashboardPage from './pages/PilotDashboardPage';
 import ClowbotBountiesPage from './pages/ClowbotBountiesPage';
 import AgentsPage from './pages/AgentsPage';
 import MetaversePage from './pages/MetaversePage';
+import IdentityBountyPage from './pages/IdentityBountyPage';
 
 const TABS = {
   PLANTS: 'plants',
@@ -13,6 +14,7 @@ const TABS = {
   BOUNTIES: 'bounties',
   AGENTS: 'agents',
   METAVERSE: 'metaverse',
+  IDENTITY_BOUNTY: 'identity-bounty',
 };
 
 function App() {
@@ -23,6 +25,7 @@ function App() {
       <nav style={{ padding: '12px 20px', display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
         <h1 style={{ margin: 0, fontSize: 20 }}>🌍 MyZubster</h1>
         <button onClick={() => setActiveTab(TABS.METAVERSE)}>🪐 Metaverse</button>
+        <button onClick={() => setActiveTab(TABS.IDENTITY_BOUNTY)}>🪪 Identity Bounty</button>
         <button onClick={() => setActiveTab(TABS.PILOT)}>🧩 Pilot</button>
         <button onClick={() => setActiveTab(TABS.PLANTS)}>🌿 Piante</button>
         <button onClick={() => setActiveTab(TABS.GARDENS)}>🌱 Orti & Giardini</button>
@@ -31,6 +34,7 @@ function App() {
       </nav>
 
       {activeTab === TABS.METAVERSE && <MetaversePage />}
+      {activeTab === TABS.IDENTITY_BOUNTY && <IdentityBountyPage />}
       {activeTab === TABS.PILOT && <PilotDashboardPage />}
       {activeTab === TABS.PLANTS && <MapPage />}
       {activeTab === TABS.GARDENS && <GardensPage />}
