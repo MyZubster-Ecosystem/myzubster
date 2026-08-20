@@ -1,0 +1,228 @@
+.identity-bounty {
+  min-height: 100vh;
+  padding: 28px;
+  background:
+    radial-gradient(circle at 15% 10%, rgba(0, 255, 200, 0.12), transparent 28%),
+    radial-gradient(circle at 85% 5%, rgba(180, 80, 255, 0.14), transparent 30%),
+    #071018;
+  color: #e9fbff;
+  font-family: Inter, system-ui, sans-serif;
+}
+
+.identity-bounty__hero,
+.identity-bounty__panel,
+.identity-bounty__footer,
+.identity-bounty__boundary {
+  max-width: 1120px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.identity-bounty__hero {
+  padding: 34px;
+  border: 1px solid rgba(83, 255, 218, 0.28);
+  border-radius: 24px;
+  background: rgba(7, 20, 31, 0.88);
+  box-shadow: 0 20px 70px rgba(0, 0, 0, 0.3);
+}
+
+.identity-bounty__hero h2 {
+  margin: 8px 0 12px;
+  font-size: clamp(30px, 5vw, 58px);
+  line-height: 1;
+}
+
+.identity-bounty__hero p {
+  max-width: 780px;
+  color: #b9d4dc;
+  line-height: 1.65;
+}
+
+.identity-bounty__eyebrow {
+  color: #58ffd7;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  font-size: 12px;
+}
+
+.identity-bounty__reward {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: rgba(88, 255, 215, 0.1);
+}
+
+.identity-bounty__reward strong {
+  font-size: 24px;
+  color: #58ffd7;
+}
+
+.identity-bounty__reward span,
+.identity-bounty small,
+.identity-bounty__identity-mode span,
+.identity-bounty__footer span {
+  color: #91abb3;
+}
+
+.identity-bounty__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  max-width: 1120px;
+  margin: 18px auto;
+}
+
+.identity-bounty__panel {
+  padding: 24px;
+  border-radius: 20px;
+  border: 1px solid rgba(140, 183, 198, 0.18);
+  background: rgba(9, 24, 36, 0.94);
+}
+
+.identity-bounty__panel h3 {
+  margin-top: 0;
+  color: #f6fdff;
+}
+
+.identity-bounty label:not(.identity-bounty__check) {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin: 16px 0;
+  font-weight: 650;
+}
+
+.identity-bounty input,
+.identity-bounty textarea,
+.identity-bounty select {
+  box-sizing: border-box;
+  width: 100%;
+  border: 1px solid rgba(146, 201, 220, 0.28);
+  border-radius: 12px;
+  background: #07141d;
+  color: #ecfbff;
+  padding: 12px 13px;
+  font: inherit;
+  outline: none;
+}
+
+.identity-bounty input:focus,
+.identity-bounty textarea:focus,
+.identity-bounty select:focus {
+  border-color: #58ffd7;
+  box-shadow: 0 0 0 3px rgba(88, 255, 215, 0.08);
+}
+
+.identity-bounty__identity-mode {
+  margin-top: 18px;
+  padding: 14px;
+  border-radius: 12px;
+  background: rgba(178, 112, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.identity-bounty__checklist {
+  margin-top: 18px;
+}
+
+.identity-bounty__check {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin: 13px 0;
+  color: #cce3e9;
+  line-height: 1.45;
+}
+
+.identity-bounty__check input {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: #58ffd7;
+}
+
+.identity-bounty__cta {
+  border: 0;
+  border-radius: 14px;
+  padding: 14px 20px;
+  margin-top: 14px;
+  font-weight: 850;
+  font-size: 16px;
+  cursor: pointer;
+  background: #58ffd7;
+  color: #052018;
+}
+
+.identity-bounty__cta:disabled {
+  cursor: not-allowed;
+  opacity: 0.38;
+}
+
+.identity-bounty__error {
+  color: #ff9a9a;
+  margin: 14px 0 0;
+}
+
+.identity-bounty__status {
+  margin-top: 18px;
+  line-height: 1.8;
+  border-color: rgba(88, 255, 215, 0.35);
+}
+
+.identity-bounty__footer {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.identity-bounty__footer div {
+  padding: 18px;
+  border-radius: 16px;
+  background: rgba(10, 29, 42, 0.94);
+  border: 1px solid rgba(140, 183, 198, 0.16);
+  display: flex;
+  flex-direction: column;
+}
+
+.identity-bounty__footer strong {
+  font-size: 28px;
+  color: #58ffd7;
+}
+
+.identity-bounty__boundary {
+  margin-top: 18px;
+  margin-bottom: 0;
+  color: #8fa6ae;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+@media (max-width: 760px) {
+  .identity-bounty {
+    padding: 14px;
+  }
+
+  .identity-bounty__hero,
+  .identity-bounty__panel {
+    padding: 20px;
+  }
+
+  .identity-bounty__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .identity-bounty__footer {
+    grid-template-columns: 1fr;
+  }
+
+  .identity-bounty__reward {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
