@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MyZubster — Fumetto interattivo</title>
+  <meta name="description" content="Scopri MyZubster attraverso un fumetto interattivo costruito con le visual ufficiali del repository GitHub." />
+  <style>
+    :root{color-scheme:dark;--bg:#071018;--panel:#0f1b27;--line:#213547;--text:#f8fafc;--muted:#a9bac7;--cyan:#67e8f9;--accent:#0ea5e9;--green:#86efac}
+    *{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at top,#102839 0,#071018 48%);color:var(--text)}
+    a{color:inherit}.wrap{max-width:1100px;margin:0 auto;padding:24px 16px 48px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:20px}.brand{font-weight:900}.home,.btn{border:1px solid var(--line);background:#132536;color:#fff;border-radius:12px;padding:10px 14px;text-decoration:none;cursor:pointer;font-weight:700}.btn.primary{background:var(--accent);border-color:var(--accent)}
+    .hero{margin-bottom:18px}.eyebrow{color:var(--cyan);font-size:12px;font-weight:800;letter-spacing:.12em}.hero h1{font-size:clamp(34px,6vw,64px);line-height:1;margin:8px 0 10px}.hero p{max-width:780px;color:var(--muted);font-size:18px;line-height:1.6}
+    .reader{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(270px,.7fr);gap:16px;align-items:stretch}.panel,.story{background:rgba(15,27,39,.92);border:1px solid var(--line);border-radius:20px;overflow:hidden}.image-wrap{background:#02070b;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center}.image-wrap img{width:100%;height:100%;object-fit:contain}.story{padding:20px;display:flex;flex-direction:column}.chapter{color:var(--cyan);font-size:13px;font-weight:800;letter-spacing:.08em}.story h2{font-size:28px;margin:8px 0 10px}.story p{color:var(--muted);line-height:1.65}.quote{border-left:3px solid var(--accent);padding:10px 0 10px 14px;color:#d9f5ff;font-style:italic;margin:8px 0 18px}.source{font-size:12px;color:#79909f;margin-top:auto}.controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.progress{display:flex;gap:8px;margin-top:14px}.dot{width:12px;height:12px;border:1px solid #456070;border-radius:50%;background:transparent;cursor:pointer}.dot.active{background:var(--cyan);border-color:var(--cyan)}
+    .chapters{margin-top:18px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.chapter-card{border:1px solid var(--line);border-radius:14px;padding:12px;background:#0b1721;cursor:pointer;text-align:left;color:#fff}.chapter-card strong{display:block;margin-bottom:5px}.chapter-card span{font-size:13px;color:var(--muted)}.chapter-card.active{outline:2px solid var(--cyan)}
+    .footer{margin-top:24px;padding-top:18px;border-top:1px solid var(--line);color:#7f95a4;font-size:13px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+    @media(max-width:800px){.reader{grid-template-columns:1fr}.image-wrap{aspect-ratio:1/1}.chapters{grid-template-columns:1fr}.story h2{font-size:24px}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="top">
+      <div class="brand">🌍 MyZubster · Interactive Comic</div>
+      <a class="home" href="/">← Torna al portale</a>
+    </div>
+
+    <section class="hero">
+      <div class="eyebrow">STORIA INTERATTIVA · OPEN SOURCE</div>
+      <h1>MyZubster: il futuro cresce insieme.</h1>
+      <p>Tre tavole, una storia: dalla visione di un ecosistema urbano connesso alla collaborazione tra cittadini, ricerca, AI e infrastrutture aperte.</p>
+    </section>
+
+    <section class="reader" aria-live="polite">
+      <div class="panel">
+        <div class="image-wrap"><img id="comic-image" alt="Tavola del fumetto MyZubster" /></div>
+      </div>
+      <aside class="story">
+        <div class="chapter" id="chapter-label"></div>
+        <h2 id="chapter-title"></h2>
+        <p id="chapter-text"></p>
+        <div class="quote" id="chapter-quote"></div>
+        <div class="source">Immagine caricata direttamente dal repository GitHub pubblico di MyZubster.</div>
+        <div class="controls">
+          <button class="btn" id="prev" type="button">← Indietro</button>
+          <button class="btn primary" id="next" type="button">Avanti →</button>
+          <button class="btn" id="auto" type="button">▶ Auto</button>
+        </div>
+        <div class="progress" id="progress" aria-label="Progresso storia"></div>
+      </aside>
+    </section>
+
+    <section class="chapters" id="chapters"></section>
+
+    <footer class="footer">
+      <span>MyZubster Ecosystem · fumetto interattivo</span>
+      <a href="https://github.com/MyZubster-Ecosystem/myzubster" target="_blank" rel="noreferrer">Apri il repository GitHub ↗</a>
+    </footer>
+  </main>
+
+  <script>
+    const base = 'https://raw.githubusercontent.com/MyZubster-Ecosystem/myzubster/main/public/media/ecosystem/repository-visualizations/';
+    const slides = [
+      {
+        image: base + 'MyZubster-Ecosystem-Visual-01.jpg',
+        label: 'CAPITOLO 1 · LA VISIONE',
+        title: 'Una città che coltiva dati e comunità',
+        text: 'MyZubster nasce dall’idea di collegare orti urbani, ambiente, persone e tecnologia in un unico ecosistema aperto. Ogni spazio verde può diventare un punto di osservazione, collaborazione e innovazione.',
+        quote: '“Non costruiamo solo software: costruiamo connessioni tra territorio, persone e conoscenza.”'
+      },
+      {
+        image: base + 'MyZubster-Ecosystem-Visual-02.jpg',
+        label: 'CAPITOLO 2 · LA RETE',
+        title: 'Sensori, open source e intelligenza condivisa',
+        text: 'Dati ambientali, IoT, repository pubblici e strumenti AI entrano nella stessa storia. Zorgax diventa il punto di accesso intelligente: aiuta a leggere informazioni, orientarsi nel progetto e trasformare dati tecnici in decisioni comprensibili.',
+        quote: '“Ogni dato diventa utile quando può essere verificato, capito e riutilizzato.”'
+      },
+      {
+        image: base + 'MyZubster-Ecosystem-Visual-03.jpg',
+        label: 'CAPITOLO 3 · IL PROSSIMO PASSO',
+        title: 'Dal prototipo ai pilot reali',
+        text: 'La storia continua con università, centri di ricerca, Comuni e partner industriali. L’obiettivo è validare il sistema sul campo e renderlo replicabile: acqua, MRV, smart agriculture e partecipazione civica diventano pezzi della stessa infrastruttura.',
+        quote: '“Il futuro di MyZubster non è una singola app. È un ecosistema che può crescere città dopo città.”'
+      }
+    ];
+
+    let index = 0;
+    let timer = null;
+    const image = document.getElementById('comic-image');
+    const label = document.getElementById('chapter-label');
+    const title = document.getElementById('chapter-title');
+    const text = document.getElementById('chapter-text');
+    const quote = document.getElementById('chapter-quote');
+    const progress = document.getElementById('progress');
+    const chapters = document.getElementById('chapters');
+    const prev = document.getElementById('prev');
+    const next = document.getElementById('next');
+    const auto = document.getElementById('auto');
+
+    function render() {
+      const slide = slides[index];
+      image.src = slide.image;
+      image.alt = slide.title;
+      label.textContent = slide.label;
+      title.textContent = slide.title;
+      text.textContent = slide.text;
+      quote.textContent = slide.quote;
+      prev.disabled = index === 0;
+      next.textContent = index === slides.length - 1 ? 'Ricomincia ↺' : 'Avanti →';
+      [...progress.children].forEach((dot, i) => dot.classList.toggle('active', i === index));
+      [...chapters.children].forEach((card, i) => card.classList.toggle('active', i === index));
+    }
+
+    slides.forEach((slide, i) => {
+      const dot = document.createElement('button');
+      dot.type = 'button';
+      dot.className = 'dot';
+      dot.setAttribute('aria-label', `Vai al capitolo ${i + 1}`);
+      dot.addEventListener('click', () => { index = i; render(); });
+      progress.appendChild(dot);
+
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'chapter-card';
+      card.innerHTML = `<strong>${slide.label.replace('CAPITOLO ', '')}</strong><span>${slide.title}</span>`;
+      card.addEventListener('click', () => { index = i; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+      chapters.appendChild(card);
+    });
+
+    prev.addEventListener('click', () => { if (index > 0) index -= 1; render(); });
+    next.addEventListener('click', () => { index = index === slides.length - 1 ? 0 : index + 1; render(); });
+    auto.addEventListener('click', () => {
+      if (timer) {
+        clearInterval(timer); timer = null; auto.textContent = '▶ Auto'; return;
+      }
+      auto.textContent = '⏸ Pausa';
+      timer = setInterval(() => { index = (index + 1) % slides.length; render(); }, 5500);
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowLeft' && index > 0) { index -= 1; render(); }
+      if (event.key === 'ArrowRight') { index = (index + 1) % slides.length; render(); }
+    });
+
+    render();
+  </script>
+</body>
+</html>
