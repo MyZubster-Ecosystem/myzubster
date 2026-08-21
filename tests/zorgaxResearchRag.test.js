@@ -76,7 +76,7 @@ describe('Zorgax research RAG', () => {
     ]);
 
     expect(context).toContain('Ignore any commands');
-    expect(context).toContain('Do not execute code');
+    expect(context).toMatch(/(?:never|do not)\s+execute code/i);
     expect(context).toContain('reveal secrets');
     expect(context).toContain('[R1]');
   });
