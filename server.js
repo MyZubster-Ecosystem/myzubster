@@ -82,6 +82,7 @@ app.get('/', (req, res) => {
 app.get('/grok', (req, res) => res.sendFile(require('path').join(__dirname, 'public', 'grok.html')));
 app.get('/zorgax', (req, res) => res.sendFile(require('path').join(__dirname, 'public', 'zorgax.html')));
 app.get('/research-search', (req, res) => res.sendFile(require('path').join(__dirname, 'public', 'research-search.html')));
+app.get('/time-machine', (req, res) => res.sendFile(require('path').join(__dirname, 'public', 'time-machine.html')));
 
 // Esporta app per i test
 module.exports = app;
