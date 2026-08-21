@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MyZubster Workshop Module v1</title>
+  <style>
+    body{font-family:system-ui,-apple-system,sans-serif;max-width:980px;margin:40px auto;padding:0 18px;line-height:1.45;background:#111;color:#eee}h1,h2{margin-bottom:.4rem}.card{background:#1b1b1b;border:1px solid #333;border-radius:14px;padding:18px;margin:16px 0}label{display:block;margin:10px 0 4px}input,textarea,select,button{font:inherit}input,textarea,select{width:100%;box-sizing:border-box;padding:10px;border-radius:8px;border:1px solid #444;background:#0f0f0f;color:#fff}textarea{min-height:90px}button{padding:10px 14px;border:0;border-radius:9px;cursor:pointer;margin:8px 8px 0 0}.muted{color:#aaa}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.check{padding:10px;border-bottom:1px solid #333}.ok{color:#8fda8f}.warn{color:#ffc66d}@media(max-width:700px){.row{grid-template-columns:1fr}}</style>
+</head>
+<body>
+  <h1>MyZubster Workshop Module v1</h1>
+  <p class="muted">Local prototype. Creates a structured service-event draft in the browser. It does not diagnose a vehicle automatically and does not publish customer data.</p>
+
+  <section class="card">
+    <h2>Service intake</h2>
+    <div class="row"><div><label>Asset type</label><input id="assetType" value="electric-scooter"></div><div><label>Model</label><input id="model" value="KuKirin G2 Max"></div></div>
+    <label>Symptom</label><input id="symptom" value="does-not-power-on">
+    <label>Public record allowed?</label><select id="publicAllowed"><option value="false">No</option><option value="true">Yes</option></select>
+    <button onclick="startEvent()">Create local service event</button>
+  </section>
+
+  <section class="card">
+    <h2>Diagnostic checklist</h2>
+    <div id="checks"></div>
+  </section>
+
+  <section class="card">
+    <h2>Technician conclusion</h2>
+    <label>Diagnosis</label><textarea id="diagnosis" placeholder="Record only what the physical checks support"></textarea>
+    <label>Repair outcome</label><textarea id="outcome" placeholder="Optional"></textarea>
+    <button onclick="finalizeEvent()">Update local event</button>
+    <button onclick="downloadEvent()">Export JSON</button>
+    <button onclick="clearEvent()">Clear local data</button>
+    <p id="status" class="muted"></p>
+  </section>
+
+<script>
+const checklist=[
+  'Measure battery output voltage at accessible main output connector',
+  'Measure voltage at controller battery input',
+  'Inspect battery-to-controller connectors',
+  'Inspect stem/display/power cable path',
+  'Verify display/power circuit supply using documented pinout',
+  'Investigate controller only after upstream supply path is verified'
+];
+let eventData=JSON.parse(localStorage.getItem('myzubster-service-event')||'null');
+function id(){return 'SVC-'+Date.now().toString(36).toUpperCase()}
+function render(){const box=document.getElementById('checks');box.innerHTML='';checklist.forEach((c,i)=>{const saved=eventData?.checks?.[i]||{};box.insertAdjacentHTML('beforeend',`<div class="check"><strong>${i+1}. ${c}</strong><div class="row"><div><label>Status</label><select id="st${i}"><option>PLANNED</option><option>PERFORMED</option><option>NOT_PERFORMED</option></select></div><div><label>Measurement</label><input id="m${i}" value="${saved.measurement??''}" placeholder="e.g. measured voltage"></div></div><label>Result</label><input id="r${i}" value="${saved.result??''}" placeholder="Observed fact, not assumption"></div>`);document.getElementById('st'+i).value=saved.status||'PLANNED';});}
+function startEvent(){eventData={schema:'myzubster-service-event/v1',event_id:id(),created_at:new Date().toISOString(),asset:{type:assetType.value,model:model.value,public_identifier:null},symptom:symptom.value,checks:checklist.map(c=>({check:c,status:'PLANNED',measurement:null,result:null,evidence_sha256:null})),diagnosis:null,repair_outcome:null,status:'DIAGNOSING',contributors:[],bounty_id:null,consent:{public_record_allowed:publicAllowed.value==='true',evidence_publication_allowed:false}};save();render();status.textContent='Local event created: '+eventData.event_id;}
+function finalizeEvent(){if(!eventData)return status.textContent='Create an event first.';eventData.checks=checklist.map((c,i)=>({check:c,status:document.getElementById('st'+i).value,measurement:document.getElementById('m'+i).value||null,result:document.getElementById('r'+i).value||null,evidence_sha256:null}));eventData.diagnosis=diagnosis.value||null;eventData.repair_outcome=outcome.value||null;eventData.status=eventData.diagnosis?'DIAGNOSED':'DIAGNOSING';save();status.textContent='Local event updated. No data has been published.';}
+function save(){localStorage.setItem('myzubster-service-event',JSON.stringify(eventData));}
+function downloadEvent(){if(!eventData)return status.textContent='Create an event first.';finalizeEvent();const b=new Blob([JSON.stringify(eventData,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=eventData.event_id+'.json';a.click();URL.revokeObjectURL(a.href);}
+function clearEvent(){localStorage.removeItem('myzubster-service-event');eventData=null;diagnosis.value='';outcome.value='';render();status.textContent='Local data cleared.';}
+render();if(eventData){diagnosis.value=eventData.diagnosis||'';outcome.value=eventData.repair_outcome||'';status.textContent='Loaded local event '+eventData.event_id;}
+</script>
+</body>
+</html>
