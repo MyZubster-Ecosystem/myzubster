@@ -56,11 +56,11 @@
     },
     {
       "src": "/robots.txt",
-      "dest": "/frontend/robots.txt"
+      "dest": "/robots.txt"
     },
     {
       "src": "/sitemap.xml",
-      "dest": "/frontend/sitemap.xml"
+      "dest": "/sitemap.xml"
     },
     {
       "src": "/static/(.*)",
