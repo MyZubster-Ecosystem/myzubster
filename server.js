@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
@@ -77,9 +78,10 @@ app.get('/', (req, res) => {
   });
 });
 
-app.get('/grok', (req, res) => res.sendFile(require('path').join(__dirname, 'public', 'grok.html')));
-app.get('/zorgax', (req, res) => res.sendFile(require('path').join(__dirname, 'public', 'zorgax.html')));
-app.get('/research-search', (req, res) => res.sendFile(require('path').join(__dirname, 'public', 'research-search.html')));
+app.get('/grok', (req, res) => res.sendFile(path.join(__dirname, 'public', 'grok.html')));
+app.get('/zorgax', (req, res) => res.sendFile(path.join(__dirname, 'public', 'zorgax.html')));
+app.get('/research-search', (req, res) => res.sendFile(path.join(__dirname, 'public', 'research-search.html')));
+app.get(['/fumetto', '/comic'], (req, res) => res.sendFile(path.join(__dirname, 'public', 'fumetto.html')));
 
 module.exports = app;
 
