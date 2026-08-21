@@ -7,6 +7,14 @@
   ],
   "routes": [
     {
+      "src": "/zargox/?",
+      "dest": "https://myzubster-gateway.vercel.app/zargox"
+    },
+    {
+      "src": "/api/zargox/(.*)",
+      "dest": "https://myzubster-gateway.vercel.app/api/zargox/$1"
+    },
+    {
       "src": "/(.*)",
       "dest": "/frontend/build/$1"
     }
