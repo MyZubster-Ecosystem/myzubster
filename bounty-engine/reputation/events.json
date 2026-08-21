@@ -1,0 +1,8 @@
+{
+  "schema": "myzubster-reputation-events/v1",
+  "events": [],
+  "notes": [
+    "The event log starts empty because no contributor outcome is fabricated during bootstrap.",
+    "Events are appended only when backed by auditable bounty workflow evidence."
+  ]
+}
