@@ -48,6 +48,10 @@ async function main() {
       researchUsed: result.researchUsed,
       citedResearchUsed: result.citedResearchUsed,
       citationSatisfied: result.citationSatisfied,
+      citationEnforced: result.chat.body?.research_citation_enforced === true,
+      apiCitedLabels: Array.isArray(result.chat.body?.research_cited_labels)
+        ? result.chat.body.research_cited_labels
+        : [],
       provenance: result.chat.body?.research_provenance || null,
       responsePreview: String(result.chat.body?.response || '').slice(0, 500),
     } : null,
