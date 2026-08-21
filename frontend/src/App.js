@@ -6,35 +6,24 @@ import PilotDashboardPage from './pages/PilotDashboardPage';
 import ClowbotBountiesPage from './pages/ClowbotBountiesPage';
 import AgentsPage from './pages/AgentsPage';
 
-const TABS = {
-  LIFE: 'life',
-  PLANTS: 'plants',
-  GARDENS: 'gardens',
-  PILOT: 'pilot',
-  BOUNTIES: 'bounties',
-  AGENTS: 'agents',
-};
-
 function App() {
-  const [activeTab, setActiveTab] = useState(TABS.LIFE);
+  const [legacy, setLegacy] = useState(null);
+
+  if (!legacy) {
+    return <LifePortalPage openLegacy={setLegacy} />;
+  }
 
   return (
     <div className="App">
-      <nav style={{ padding: '12px 20px', display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap', background: '#050913', borderBottom: '1px solid #1e293b' }}>
-        <button onClick={() => setActiveTab(TABS.LIFE)} style={{ fontWeight: 800 }}>🌍 MyZubster LIFE</button>
-        <button onClick={() => setActiveTab(TABS.PILOT)}>🧩 Pilot</button>
-        <button onClick={() => setActiveTab(TABS.PLANTS)}>🌿 Piante</button>
-        <button onClick={() => setActiveTab(TABS.GARDENS)}>🌱 Orti</button>
-        <button onClick={() => setActiveTab(TABS.BOUNTIES)}>🤖 Bounties</button>
-        <button onClick={() => setActiveTab(TABS.AGENTS)}>🧠 AI & Bots</button>
+      <nav style={{ padding: '12px 16px', display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap', background: '#071018', borderBottom: '1px solid #1e293b' }}>
+        <button onClick={() => setLegacy(null)} style={{ padding: '10px 14px', borderRadius: 10, border: 0, cursor: 'pointer', fontWeight: 800 }}>← MyZubster Home</button>
+        <span style={{ color: '#cbd5e1' }}>Area operativa</span>
       </nav>
-
-      {activeTab === TABS.LIFE && <LifePortalPage />}
-      {activeTab === TABS.PILOT && <PilotDashboardPage />}
-      {activeTab === TABS.PLANTS && <MapPage />}
-      {activeTab === TABS.GARDENS && <GardensPage />}
-      {activeTab === TABS.BOUNTIES && <ClowbotBountiesPage />}
-      {activeTab === TABS.AGENTS && <AgentsPage />}
+      {legacy === 'pilot' && <PilotDashboardPage />}
+      {legacy === 'plants' && <MapPage />}
+      {legacy === 'gardens' && <GardensPage />}
+      {legacy === 'bounties' && <ClowbotBountiesPage />}
+      {legacy === 'agents' && <AgentsPage />}
     </div>
   );
 }
