@@ -90,6 +90,19 @@ jobs:
           P0_TREASURY_TEST_DB: myzubster_p0_ci
         run: node scripts/p0-mongo-treasury-integration.js
 
+      - name: Seed pre-crash Treasury state
+        env:
+          P0_TREASURY_MONGODB_URI: mongodb://127.0.0.1:27017/?replicaSet=rs0
+          P0_TREASURY_TEST_DB: myzubster_p0_crash_ci
+          P0_TREASURY_CRASH_STATE: .p0-treasury-crash-state.json
+        run: node scripts/p0-mongo-crash-seed.js
+
+      - name: Recover Treasury in a new Node process
+        env:
+          P0_TREASURY_MONGODB_URI: mongodb://127.0.0.1:27017/?replicaSet=rs0
+          P0_TREASURY_CRASH_STATE: .p0-treasury-crash-state.json
+        run: node scripts/p0-mongo-crash-recover.js
+
       - name: MongoDB logs on failure
         if: failure()
         run: docker logs p0-mongo || true
