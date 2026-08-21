@@ -48,17 +48,30 @@ export MYZUBSTER_BASE_URL='http://127.0.0.1:5003'
 npm run smoke:zorgax-research
 ```
 
+The smoke harness defaults to a **60 second** request timeout so CPU-only Ollama inference is not rejected by the earlier 15 second limit. It can be overridden when needed:
+
+```bash
+export ZORGAX_RAG_SMOKE_TIMEOUT_MS=120000
+```
+
+The timeout is bounded between **1 second and 5 minutes**. Values outside that range are clamped, so the harness cannot become an unbounded wait.
+
 Expected successful shape:
 
 ```text
+timeoutMs = 60000 (or configured bounded value)
 zorgaxStatus.ok = true
 researchStatus.ok = true
 retrieval.count > 0
 chat.ok = true
 researchUsed = [R1, ...]
+citedResearchUsed = [R1, ...]
+citationSatisfied = true
 grounded = true
 crawlPerformed = false
 ```
+
+A grounded pass now requires the model answer itself to contain at least one exact source label reported in `research_used`, such as `[R1]`. Structured provenance without an answer-level source label is treated as a failed grounding contract.
 
 The command only accepts a loopback MyZubster base URL (`127.0.0.1`, `localhost`, or `::1`). This prevents the smoke harness itself from becoming an arbitrary remote HTTP client.
 
@@ -90,7 +103,8 @@ A pass requires all of the following:
 2. Research index status succeeds.
 3. Retrieval returns at least one provenance-bearing source.
 4. Chat returns at least one `research_used` label and structured `research_sources`.
-5. `research_crawl_performed` remains `false` throughout the chat flow.
-6. The response is generated without persistent memory or observation-registry context, isolating the research RAG path for this smoke test.
+5. The generated answer contains at least one exact supporting source label such as `[R1]` from `research_used`.
+6. `research_crawl_performed` remains `false` throughout the chat flow.
+7. The response is generated without persistent memory or observation-registry context, isolating the research RAG path for this smoke test.
 
 This validates the local retrieval/grounding path. It does not by itself establish trustworthiness, freshness, or correctness of the indexed pages.
