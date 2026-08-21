@@ -3,6 +3,8 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const ZorgaxMemory = require('../models/ZorgaxMemory');
+const { createMongoResearchStore } = require('../services/researchSearchService');
+const { createZorgaxResearchRag } = require('../services/zorgaxResearchRag');
 
 const router = express.Router();
 
@@ -14,6 +16,12 @@ const OBSERVATIONS_PATH = path.join(__dirname, '..', '..', 'data', 'observations
 const MEMORY_TTL_DAYS = Math.max(1, Math.min(Number(process.env.ZORGAX_MEMORY_TTL_DAYS) || 90, 365));
 const MEMORY_CONTEXT_LIMIT = 8;
 const OBSERVATION_CONTEXT_LIMIT = 5;
+const RESEARCH_CONTEXT_LIMIT = Math.max(1, Math.min(Number(process.env.ZORGAX_RESEARCH_CONTEXT_LIMIT) || 5, 8));
+const RESEARCH_SEARCH_ENABLED = String(process.env.RESEARCH_SEARCH_ENABLED || '').toLowerCase() === 'true';
+const researchRag = createZorgaxResearchRag({
+  store: createMongoResearchStore(),
+  enabled: RESEARCH_SEARCH_ENABLED
+});
 
 function readText(filePath) {
   return fs.readFileSync(filePath, 'utf8');
@@ -191,7 +199,11 @@ router.get('/status', async (req, res) => {
       persistent_memory: true,
       memory_opt_in: true,
       memory_ttl_days: MEMORY_TTL_DAYS,
-      observation_registry: true
+      observation_registry: true,
+      research_rag: RESEARCH_SEARCH_ENABLED,
+      research_context_limit: RESEARCH_CONTEXT_LIMIT,
+      research_crawl_autonomous: false,
+      research_crawl_requires_admin: true
     });
   } catch (error) {
     res.status(503).json({
@@ -202,6 +214,9 @@ router.get('/status', async (req, res) => {
       persistent_memory: true,
       memory_opt_in: true,
       observation_registry: true,
+      research_rag: RESEARCH_SEARCH_ENABLED,
+      research_crawl_autonomous: false,
+      research_crawl_requires_admin: true,
       error: error.message
     });
   }
@@ -222,6 +237,36 @@ router.get('/observations', (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ ok: false, error: error.message });
+  }
+});
+
+router.get('/research', async (req, res) => {
+  if (!RESEARCH_SEARCH_ENABLED) {
+    return res.status(503).json({ ok: false, error: 'Zorgax research RAG is disabled' });
+  }
+
+  const query = String(req.query.q || '').trim();
+  if (!query) return res.status(400).json({ ok: false, error: 'Parametro "q" obbligatorio' });
+
+  try {
+    const retrieval = await researchRag.retrieve({
+      query,
+      scope: req.query.scope,
+      limit: req.query.limit || RESEARCH_CONTEXT_LIMIT
+    });
+    return res.json({
+      ok: true,
+      entity: 'ZORGAX-001',
+      query: retrieval.query,
+      scope: retrieval.scope,
+      count: retrieval.sources.length,
+      provenance: 'MongoDB ResearchDocument text index',
+      sources: retrieval.sources,
+      crawl_performed: false,
+      refresh_endpoint: retrieval.sources.length === 0 ? '/api/research/crawl' : null
+    });
+  } catch (error) {
+    return res.status(500).json({ ok: false, error: 'Research retrieval failed', detail: error.message });
   }
 });
 
@@ -338,7 +383,15 @@ router.delete('/memory/:id', async (req, res) => {
 
 router.post('/chat', async (req, res) => {
   try {
-    const { message, prompt, useMemory = true, useObservations = true } = req.body || {};
+    const {
+      message,
+      prompt,
+      useMemory = true,
+      useObservations = true,
+      useResearch = true,
+      researchScope = 'all',
+      researchLimit = RESEARCH_CONTEXT_LIMIT
+    } = req.body || {};
     const userMessage = message || prompt;
 
     if (!userMessage || typeof userMessage !== 'string' || !userMessage.trim()) {
@@ -353,12 +406,27 @@ router.post('/chat', async (req, res) => {
       ? searchObservations(userMessage, OBSERVATION_CONTEXT_LIMIT)
       : [];
 
+    let research = { sources: [], context: '', query: userMessage.trim(), scope: researchScope };
+    let researchError = null;
+    if (useResearch && RESEARCH_SEARCH_ENABLED) {
+      try {
+        research = await researchRag.retrieve({
+          query: userMessage,
+          scope: researchScope,
+          limit: researchLimit
+        });
+      } catch (error) {
+        researchError = error.message;
+      }
+    }
+
     const systemPrompt = readText(SYSTEM_PROMPT_PATH);
     const memoriesContext = memoryContext(memories);
     const observationsContext = observationContext(observations);
     const messages = [{ role: 'system', content: systemPrompt }];
     if (memoriesContext) messages.push({ role: 'system', content: memoriesContext });
     if (observationsContext) messages.push({ role: 'system', content: observationsContext });
+    if (research.context) messages.push({ role: 'system', content: research.context });
     messages.push({ role: 'user', content: userMessage.trim() });
 
     const response = await fetch(`${OLLAMA_URL}/api/chat`, {
@@ -378,6 +446,7 @@ router.post('/chat', async (req, res) => {
     }
 
     const answer = data.message?.content || '';
+    const researchSources = Array.isArray(research.sources) ? research.sources : [];
     res.json({
       ok: true,
       entity: 'ZORGAX-001',
@@ -388,6 +457,14 @@ router.post('/chat', async (req, res) => {
       memory_used: memories.length,
       observations_used: observations.map(item => item.observation_id),
       observation_provenance: observations.length ? 'data/observations.json' : null,
+      research_enabled: RESEARCH_SEARCH_ENABLED,
+      research_used: researchSources.map(source => source.label),
+      research_sources: researchSources,
+      research_provenance: researchSources.length ? 'MongoDB ResearchDocument text index' : null,
+      research_refresh_required: Boolean(useResearch && RESEARCH_SEARCH_ENABLED && researchSources.length === 0),
+      research_refresh_endpoint: useResearch && RESEARCH_SEARCH_ENABLED && researchSources.length === 0 ? '/api/research/crawl' : null,
+      research_crawl_performed: false,
+      research_error: researchError,
       message: answer,
       response: answer
     });
