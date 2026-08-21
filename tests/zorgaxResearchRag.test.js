@@ -54,6 +54,9 @@ describe('Zorgax research RAG', () => {
     expect(result.context).toContain('[R2]');
     expect(result.context).toMatch(/untrusted source material/i);
     expect(result.context).toMatch(/prompt-injection/i);
+    expect(result.context).toMatch(/provenance metadata.*available/i);
+    expect(result.context).toMatch(/do not claim that provenance is unavailable/i);
+    expect(result.context).toMatch(/must contain at least one exact supporting source label/i);
     expect(result.context).toMatch(/onion content is not inherently/i);
   });
 
