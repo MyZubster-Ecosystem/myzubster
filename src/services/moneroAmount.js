@@ -13,4 +13,12 @@ function xmrToAtomicString(value) {
   return atomic.toString();
 }
 
-module.exports = { ATOMIC_SCALE, xmrToAtomicString };
+function xmrToAtomicSafeNumber(value) {
+  const atomic = BigInt(xmrToAtomicString(value));
+  if (atomic > BigInt(Number.MAX_SAFE_INTEGER)) {
+    throw new Error('XMR amount exceeds the safe integer range for monero-wallet-rpc JSON transport');
+  }
+  return Number(atomic);
+}
+
+module.exports = { ATOMIC_SCALE, xmrToAtomicSafeNumber, xmrToAtomicString };
