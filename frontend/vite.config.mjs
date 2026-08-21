@@ -8,7 +8,7 @@ export default defineConfig(({ mode }) => {
     plugins: [react()],
     esbuild: {
       loader: 'jsx',
-      include: /src\/.*\.js$/,
+      include: /src\/.*\.[jt]sx?$/,
     },
     optimizeDeps: {
       esbuildOptions: {
