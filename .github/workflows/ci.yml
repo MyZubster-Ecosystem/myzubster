@@ -103,6 +103,20 @@ jobs:
           P0_TREASURY_CRASH_STATE: .p0-treasury-crash-state.json
         run: node scripts/p0-mongo-crash-recover.js
 
+      - name: Seed ambiguous payment attempt before process crash
+        env:
+          P0_TREASURY_MONGODB_URI: mongodb://127.0.0.1:27017/?replicaSet=rs0
+          P0_TREASURY_TEST_DB: myzubster_p0_payment_attempt_ci
+          P0_PAYMENT_ATTEMPT_CASE_FILE: .p0-payment-attempt-case.json
+        run: node scripts/p0-payment-attempt-crash-seed.js
+
+      - name: Recover payment attempt without duplicate submit
+        env:
+          P0_TREASURY_MONGODB_URI: mongodb://127.0.0.1:27017/?replicaSet=rs0
+          P0_TREASURY_TEST_DB: myzubster_p0_payment_attempt_ci
+          P0_PAYMENT_ATTEMPT_CASE_FILE: .p0-payment-attempt-case.json
+        run: node scripts/p0-payment-attempt-crash-recover.js
+
       - name: MongoDB logs on failure
         if: failure()
         run: docker logs p0-mongo || true
