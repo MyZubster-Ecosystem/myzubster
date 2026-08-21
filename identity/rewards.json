@@ -1,0 +1,21 @@
+{
+  "program": "MyZubster Identity Bounty Program",
+  "reward_asset": "MYZ",
+  "currency_model": "internal_reward_accounting_unit",
+  "last_updated": "2026-08-21",
+  "records": [],
+  "status_definitions": {
+    "REWARD_RECORDED": "A verified contribution has an approved MYZ accounting reward.",
+    "SETTLEMENT_PENDING": "Reward is approved but settlement evidence is not yet complete.",
+    "PAID": "Use only when the applicable MYZ ledger or settlement evidence supports completed payment."
+  },
+  "record_schema": {
+    "bounty_id": "ID-BNT-XXXX",
+    "contributor": "public handle or privacy-preserving identifier",
+    "reward_myz": 0,
+    "status": "REWARD_RECORDED",
+    "verification_reference": "GitHub issue/PR/commit or sanitized evidence reference",
+    "recorded_at": "ISO-8601 timestamp",
+    "settlement_reference": null
+  }
+}
