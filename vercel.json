@@ -15,8 +15,16 @@
   ],
   "routes": [
     {
+      "src": "/zorgax/?",
+      "dest": "https://myzubster-gateway.vercel.app/zargox"
+    },
+    {
       "src": "/zargox/?",
       "dest": "https://myzubster-gateway.vercel.app/zargox"
+    },
+    {
+      "src": "/api/zorgax/(.*)",
+      "dest": "https://myzubster-gateway.vercel.app/api/zargox/$1"
     },
     {
       "src": "/api/zargox/(.*)",
