@@ -1,6 +1,6 @@
 'use strict';
 
-const { xmrToAtomicString } = require('./moneroAmount');
+const { xmrToAtomicSafeNumber, xmrToAtomicString } = require('./moneroAmount');
 
 function assertStagenetRequest({ asset, network, recipient, amount }) {
   if (asset !== 'XMR') throw new Error('Monero stagenet adapter only supports XMR');
@@ -99,7 +99,7 @@ function createMoneroStagenetAdapter({ walletRpc, submissionStore, allowRelay = 
       }
 
       const prepared = await walletRpc.transfer({
-        destinations: [{ address: request.recipient, amount: Number(amountAtomic) }],
+        destinations: [{ address: request.recipient, amount: xmrToAtomicSafeNumber(request.amount) }],
         do_not_relay: true,
         get_tx_metadata: true,
         get_tx_key: false,
