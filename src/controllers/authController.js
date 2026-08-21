@@ -1,43 +1,39 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
 
-// Registrazione utente
+function isValidMoneroAddress(value) {
+  if (!value) return true;
+  const address = String(value).trim();
+  const alphabet = '[1-9A-HJ-NP-Za-km-z]';
+  return new RegExp(`^[48]${alphabet}{94}$`).test(address) || new RegExp(`^4${alphabet}{105}$`).test(address);
+}
+
 exports.register = async (req, res) => {
   try {
     const { username, email, password, moneroWallet } = req.body;
 
-    // Validazione base
     if (!username || !email || !password) {
+      return res.status(400).json({ success: false, message: 'Username, email e password sono obbligatori' });
+    }
+
+    if (moneroWallet && !isValidMoneroAddress(moneroWallet)) {
       return res.status(400).json({
         success: false,
-        message: 'Username, email e password sono obbligatori'
+        message: 'Indirizzo XMR non valido. Inserisci solo un indirizzo pubblico Monero; non inserire seed phrase o chiavi private.'
       });
     }
 
-    // Verifica se l'utente esiste già
-    const existingUser = await User.findOne({ 
-      $or: [{ email }, { username }] 
-    });
+    const existingUser = await User.findOne({ $or: [{ email }, { username }] });
+    if (existingUser) return res.status(400).json({ success: false, message: 'Username o email già in uso' });
 
-    if (existingUser) {
-      return res.status(400).json({
-        success: false,
-        message: 'Username o email già in uso'
-      });
-    }
-
-    // Crea nuovo utente
     const user = new User({
       username,
       email,
       password,
-      moneroWallet: moneroWallet || null
+      moneroWallet: moneroWallet ? String(moneroWallet).trim() : null
     });
-
     await user.save();
 
-    // Genera JWT token
     const token = jwt.sign(
       { userId: user._id, username: user.username, role: user.role },
       process.env.JWT_SECRET,
@@ -59,52 +55,26 @@ exports.register = async (req, res) => {
         token
       }
     });
-
   } catch (error) {
     console.error('Registration error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Errore durante la registrazione',
-      error: error.message
-    });
+    res.status(500).json({ success: false, message: 'Errore durante la registrazione', error: error.message });
   }
 };
 
-// Login utente
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
+    if (!email || !password) return res.status(400).json({ success: false, message: 'Email e password sono obbligatori' });
 
-    if (!email || !password) {
-      return res.status(400).json({
-        success: false,
-        message: 'Email e password sono obbligatori'
-      });
-    }
-
-    // Trova l'utente
     const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: 'Credenziali non valide'
-      });
-    }
+    if (!user) return res.status(401).json({ success: false, message: 'Credenziali non valide' });
 
-    // Verifica password
     const isPasswordValid = await user.comparePassword(password);
-    if (!isPasswordValid) {
-      return res.status(401).json({
-        success: false,
-        message: 'Credenziali non valide'
-      });
-    }
+    if (!isPasswordValid) return res.status(401).json({ success: false, message: 'Credenziali non valide' });
 
-    // Aggiorna ultimo login
     user.lastLogin = new Date();
     await user.save();
 
-    // Genera JWT token
     const token = jwt.sign(
       { userId: user._id, username: user.username, role: user.role },
       process.env.JWT_SECRET,
@@ -126,39 +96,19 @@ exports.login = async (req, res) => {
         token
       }
     });
-
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Errore durante il login',
-      error: error.message
-    });
+    res.status(500).json({ success: false, message: 'Errore durante il login', error: error.message });
   }
 };
 
-// Ottieni profilo utente
 exports.getProfile = async (req, res) => {
   try {
     const user = await User.findById(req.userId).select('-password');
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'Utente non trovato'
-      });
-    }
-
-    res.json({
-      success: true,
-      data: { user }
-    });
-
+    if (!user) return res.status(404).json({ success: false, message: 'Utente non trovato' });
+    res.json({ success: true, data: { user } });
   } catch (error) {
     console.error('Profile error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Errore durante il recupero del profilo',
-      error: error.message
-    });
+    res.status(500).json({ success: false, message: 'Errore durante il recupero del profilo', error: error.message });
   }
 };
