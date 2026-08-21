@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import LifePortalPage from './pages/LifePortalPage';
 import MapPage from './pages/MapPage';
 import GardensPage from './pages/GardensPage';
 import PilotDashboardPage from './pages/PilotDashboardPage';
@@ -6,6 +7,7 @@ import ClowbotBountiesPage from './pages/ClowbotBountiesPage';
 import AgentsPage from './pages/AgentsPage';
 
 const TABS = {
+  LIFE: 'life',
   PLANTS: 'plants',
   GARDENS: 'gardens',
   PILOT: 'pilot',
@@ -14,19 +16,20 @@ const TABS = {
 };
 
 function App() {
-  const [activeTab, setActiveTab] = useState(TABS.PILOT);
+  const [activeTab, setActiveTab] = useState(TABS.LIFE);
 
   return (
     <div className="App">
-      <nav style={{ padding: '12px 20px', display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
-        <h1 style={{ margin: 0, fontSize: 20 }}>🌍 MyZubster</h1>
+      <nav style={{ padding: '12px 20px', display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap', background: '#050913', borderBottom: '1px solid #1e293b' }}>
+        <button onClick={() => setActiveTab(TABS.LIFE)} style={{ fontWeight: 800 }}>🌍 MyZubster LIFE</button>
         <button onClick={() => setActiveTab(TABS.PILOT)}>🧩 Pilot</button>
         <button onClick={() => setActiveTab(TABS.PLANTS)}>🌿 Piante</button>
-        <button onClick={() => setActiveTab(TABS.GARDENS)}>🌱 Orti & Giardini</button>
-        <button onClick={() => setActiveTab(TABS.BOUNTIES)}>🤖 Clowbot Bounties</button>
+        <button onClick={() => setActiveTab(TABS.GARDENS)}>🌱 Orti</button>
+        <button onClick={() => setActiveTab(TABS.BOUNTIES)}>🤖 Bounties</button>
         <button onClick={() => setActiveTab(TABS.AGENTS)}>🧠 AI & Bots</button>
       </nav>
 
+      {activeTab === TABS.LIFE && <LifePortalPage />}
       {activeTab === TABS.PILOT && <PilotDashboardPage />}
       {activeTab === TABS.PLANTS && <MapPage />}
       {activeTab === TABS.GARDENS && <GardensPage />}
