@@ -11,6 +11,10 @@
       "config": {
         "distDir": "build"
       }
+    },
+    {
+      "src": "public/fumetto.html",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
@@ -36,11 +40,19 @@
     },
     {
       "src": "/fumetto/?",
-      "dest": "/fumetto.html"
+      "dest": "/public/fumetto.html"
+    },
+    {
+      "src": "/fumetto.html",
+      "dest": "/public/fumetto.html"
     },
     {
       "src": "/comic/?",
-      "dest": "/fumetto.html"
+      "dest": "/public/fumetto.html"
+    },
+    {
+      "src": "/comic.html",
+      "dest": "/public/fumetto.html"
     },
     {
       "src": "/robots.txt",
