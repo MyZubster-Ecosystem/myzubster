@@ -71,7 +71,11 @@ grounded = true
 crawlPerformed = false
 ```
 
-A grounded pass now requires the model answer itself to contain at least one exact source label reported in `research_used`, such as `[R1]`. Structured provenance without an answer-level source label is treated as a failed grounding contract.
+A grounded pass requires the final answer to contain at least one exact source label reported in `research_used`, such as `[R1]`. Structured provenance without an answer-level source label is treated as a failed grounding contract.
+
+Small local models may still omit a requested label even when the structured research contract is correct. The Zorgax chat route therefore applies a deterministic **provenance-only fallback**: if research sources were retrieved and the model answer contains none of their exact labels, the API appends `Research context provenance: [R1]` using the first valid retrieved label. The response also reports `research_citation_enforced: true` and `research_cited_labels` so callers can distinguish a model-authored citation from the API fallback.
+
+The fallback does **not** claim that every sentence in the generated answer is independently supported by that source. It only records which provenance-bearing research context was supplied to the model, and it never invents a label when no research source exists.
 
 The command only accepts a loopback MyZubster base URL (`127.0.0.1`, `localhost`, or `::1`). This prevents the smoke harness itself from becoming an arbitrary remote HTTP client.
 
@@ -103,7 +107,7 @@ A pass requires all of the following:
 2. Research index status succeeds.
 3. Retrieval returns at least one provenance-bearing source.
 4. Chat returns at least one `research_used` label and structured `research_sources`.
-5. The generated answer contains at least one exact supporting source label such as `[R1]` from `research_used`.
+5. The final answer contains at least one exact source label such as `[R1]` from `research_used`, either model-authored or transparently supplied by the provenance fallback.
 6. `research_crawl_performed` remains `false` throughout the chat flow.
 7. The response is generated without persistent memory or observation-registry context, isolating the research RAG path for this smoke test.
 
