@@ -1,7 +1,9 @@
 'use strict';
 
 const DEFAULT_BASE_URL = 'http://127.0.0.1:5003';
-const DEFAULT_TIMEOUT_MS = 15000;
+const DEFAULT_TIMEOUT_MS = 60000;
+const MIN_TIMEOUT_MS = 1000;
+const MAX_TIMEOUT_MS = 300000;
 
 function normalizeScope(value) {
   return ['all', 'web', 'onion'].includes(value) ? value : 'all';
@@ -11,6 +13,12 @@ function clampLimit(value, fallback = 3) {
   const parsed = Number(value);
   if (!Number.isFinite(parsed)) return fallback;
   return Math.max(1, Math.min(8, Math.floor(parsed)));
+}
+
+function clampTimeoutMs(value, fallback = DEFAULT_TIMEOUT_MS) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return fallback;
+  return Math.max(MIN_TIMEOUT_MS, Math.min(MAX_TIMEOUT_MS, Math.floor(parsed)));
 }
 
 function assertLoopbackBaseUrl(value) {
@@ -29,8 +37,9 @@ function assertLoopbackBaseUrl(value) {
 }
 
 async function fetchJson(fetchImpl, url, options = {}, timeoutMs = DEFAULT_TIMEOUT_MS) {
+  const boundedTimeoutMs = clampTimeoutMs(timeoutMs);
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  const timer = setTimeout(() => controller.abort(), boundedTimeoutMs);
   try {
     const response = await fetchImpl(url, { ...options, signal: controller.signal });
     let body = null;
@@ -40,6 +49,11 @@ async function fetchJson(fetchImpl, url, options = {}, timeoutMs = DEFAULT_TIMEO
       body = null;
     }
     return { ok: response.ok, status: response.status, body };
+  } catch (error) {
+    if (error?.name === 'AbortError' || controller.signal.aborted) {
+      throw new Error(`smoke request timed out after ${boundedTimeoutMs}ms: ${url}`);
+    }
+    throw error;
   } finally {
     clearTimeout(timer);
   }
@@ -52,6 +66,7 @@ function createZorgaxResearchSmoke({
 } = {}) {
   if (typeof fetchImpl !== 'function') throw new Error('fetch implementation is required');
   const base = assertLoopbackBaseUrl(baseUrl);
+  const boundedTimeoutMs = clampTimeoutMs(timeoutMs);
 
   async function preflight({ query, scope = 'all', limit = 3 } = {}) {
     const q = String(query || '').trim();
@@ -59,13 +74,13 @@ function createZorgaxResearchSmoke({
     const normalizedScope = normalizeScope(scope);
     const normalizedLimit = clampLimit(limit);
 
-    const zorgaxStatus = await fetchJson(fetchImpl, `${base}/api/zorgax/status`, {}, timeoutMs);
-    const researchStatus = await fetchJson(fetchImpl, `${base}/api/research/status`, {}, timeoutMs);
+    const zorgaxStatus = await fetchJson(fetchImpl, `${base}/api/zorgax/status`, {}, boundedTimeoutMs);
+    const researchStatus = await fetchJson(fetchImpl, `${base}/api/research/status`, {}, boundedTimeoutMs);
     const retrievalUrl = new URL(`${base}/api/zorgax/research`);
     retrievalUrl.searchParams.set('q', q);
     retrievalUrl.searchParams.set('scope', normalizedScope);
     retrievalUrl.searchParams.set('limit', String(normalizedLimit));
-    const retrieval = await fetchJson(fetchImpl, retrievalUrl.toString(), {}, timeoutMs);
+    const retrieval = await fetchJson(fetchImpl, retrievalUrl.toString(), {}, boundedTimeoutMs);
 
     const sources = Array.isArray(retrieval.body?.sources) ? retrieval.body.sources : [];
     return {
@@ -73,6 +88,7 @@ function createZorgaxResearchSmoke({
       query: q,
       scope: normalizedScope,
       limit: normalizedLimit,
+      timeoutMs: boundedTimeoutMs,
       zorgaxStatus,
       researchStatus,
       retrieval,
@@ -110,10 +126,14 @@ function createZorgaxResearchSmoke({
         researchScope: check.scope,
         researchLimit: check.limit,
       }),
-    }, timeoutMs);
+    }, boundedTimeoutMs);
 
     const researchUsed = Array.isArray(chat.body?.research_used) ? chat.body.research_used : [];
     const researchSources = Array.isArray(chat.body?.research_sources) ? chat.body.research_sources : [];
+    const answer = String(chat.body?.response || chat.body?.message || '');
+    const citedResearchUsed = researchUsed.filter(label => answer.includes(`[${label}]`));
+    const citationSatisfied = researchUsed.length > 0 && citedResearchUsed.length > 0;
+
     return {
       ...check,
       chat,
@@ -122,10 +142,13 @@ function createZorgaxResearchSmoke({
         chat.body?.ok === true &&
         researchUsed.length > 0 &&
         researchSources.length > 0 &&
+        citationSatisfied &&
         chat.body?.research_crawl_performed === false
       ),
       researchUsed,
       researchSources,
+      citedResearchUsed,
+      citationSatisfied,
       crawlPerformed: false,
     };
   }
@@ -136,8 +159,11 @@ function createZorgaxResearchSmoke({
 module.exports = {
   DEFAULT_BASE_URL,
   DEFAULT_TIMEOUT_MS,
+  MAX_TIMEOUT_MS,
+  MIN_TIMEOUT_MS,
   assertLoopbackBaseUrl,
   clampLimit,
+  clampTimeoutMs,
   createZorgaxResearchSmoke,
   fetchJson,
   normalizeScope,
