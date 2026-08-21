@@ -42,6 +42,7 @@ const healthRoutes = require('./src/api/routes');
 const grokRoutes = require('./src/routes/grokRoutes');
 const zorgaxRoutes = require('./src/routes/zorgaxRoutes');
 const githubBountySyncRoutes = require('./src/routes/githubBountySyncRoutes');
+const researchRoutes = require('./src/routes/researchRoutes');
 
 // Monta le route
 app.use('/api/auth', authRoutes);
@@ -62,6 +63,7 @@ app.use('/api', healthRoutes);
 app.use('/api/grok', grokRoutes);
 app.use('/api/zorgax', zorgaxRoutes);
 app.use('/api/github-bounties', githubBountySyncRoutes);
+app.use('/api/research', researchRoutes);
 
 // Homepage / health gateway
 app.get('/', (req, res) => {
