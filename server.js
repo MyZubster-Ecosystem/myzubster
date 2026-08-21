@@ -5,25 +5,20 @@ require('dotenv').config();
 
 const app = express();
 
-// Middleware
 app.use(cors());
 app.use('/api/github-bounties/webhook', express.json({
-  verify: (req, res, buf) => {
-    req.rawBody = Buffer.from(buf);
-  }
+  verify: (req, res, buf) => { req.rawBody = Buffer.from(buf); }
 }));
 app.use(express.json());
 app.use(express.static('public'));
 app.use('/data', express.static('data'));
 
-// Connessione a MongoDB (solo se non in test)
 if (process.env.NODE_ENV !== 'test') {
   mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/myzubster')
     .then(() => console.log('✅ Connected to MongoDB'))
     .catch(err => console.error('❌ MongoDB connection error:', err));
 }
 
-// Import routes (modifica i percorsi secondo la tua struttura)
 const authRoutes = require('./src/routes/authRoutes');
 const userRoutes = require('./src/routes/userRoutes');
 const bountyRoutes = require('./src/routes/bountyRoutes');
@@ -43,8 +38,8 @@ const grokRoutes = require('./src/routes/grokRoutes');
 const zorgaxRoutes = require('./src/routes/zorgaxRoutes');
 const githubBountySyncRoutes = require('./src/routes/githubBountySyncRoutes');
 const researchRoutes = require('./src/routes/researchRoutes');
+const municipalityRoutes = require('./src/routes/municipalityRoutes');
 
-// Monta le route
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/bounties', bountyRoutes);
@@ -58,6 +53,7 @@ app.use('/api/search', searchRoutes);
 app.use('/api/nearby', nearbyRoutes);
 app.use('/api/ai-forward', aiForwardRoutes);
 app.use('/api/gardens', gardenRoutes);
+app.use('/api/municipalities', municipalityRoutes);
 app.use('/api/geocode', geocodeRoutes);
 app.use('/api', healthRoutes);
 app.use('/api/grok', grokRoutes);
@@ -65,15 +61,19 @@ app.use('/api/zorgax', zorgaxRoutes);
 app.use('/api/github-bounties', githubBountySyncRoutes);
 app.use('/api/research', researchRoutes);
 
-// Homepage / health gateway
 app.get('/', (req, res) => {
   res.status(200).json({
     ok: true,
     service: 'MyZubster Gateway',
     status: 'online',
-    version: '1.0.0',
+    version: '1.1.0-life',
     port: process.env.PORT || 5003,
-    api: '/api'
+    api: '/api',
+    life: {
+      municipalities: '/api/municipalities',
+      gardens: '/api/gardens',
+      zorgax: '/api/zorgax'
+    }
   });
 });
 
@@ -81,13 +81,9 @@ app.get('/grok', (req, res) => res.sendFile(require('path').join(__dirname, 'pub
 app.get('/zorgax', (req, res) => res.sendFile(require('path').join(__dirname, 'public', 'zorgax.html')));
 app.get('/research-search', (req, res) => res.sendFile(require('path').join(__dirname, 'public', 'research-search.html')));
 
-// Esporta app per i test
 module.exports = app;
 
-// Avvia il server solo se non in test
 const PORT = process.env.PORT || 5003;
 if (require.main === module && process.env.NODE_ENV !== 'test') {
-  app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-  });
+  app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
 }
