@@ -1,0 +1,25 @@
+{
+  "domains": {
+    "plants": {
+      "classification": "recorded-public-state",
+      "items": [],
+      "sourceRefs": []
+    },
+    "sensors": {
+      "classification": "recorded-public-state",
+      "readings": [],
+      "sourceRefs": []
+    },
+    "maps": {
+      "classification": "recorded-public-state",
+      "features": [],
+      "sourceRefs": []
+    },
+    "robots": {
+      "classification": "recorded-public-state",
+      "units": [],
+      "sourceRefs": []
+    }
+  },
+  "notes": "Populate only with public or explicitly authorized data. Keep simulated, inferred and recorded states explicitly distinguished."
+}
