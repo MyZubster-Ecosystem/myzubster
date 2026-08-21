@@ -241,3 +241,11 @@ MIT License. See `LICENSE`.
 ---
 
 **Transparency note:** MyZubster is an evolving project. Code, tests, CI and independently verifiable evidence take precedence over promotional descriptions. Proposed features are not released features; merges are not payments; external mentions are not partnerships; and settlement is not `PAID` until verified according to the applicable rail.
+
+---
+
+## Official project identity
+
+MyZubster is maintained within the [MyZubster-Ecosystem](https://github.com/MyZubster-Ecosystem) organization. Canonical public administrator/maintainer reference: **[Daniel Ioni (@DanielIoni-creator)](https://github.com/DanielIoni-creator)**.
+
+This link is a stable public project-identity reference. By itself, it is not a cryptographic signature or legal identity certification.
