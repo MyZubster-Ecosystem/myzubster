@@ -19,10 +19,38 @@ function assertHttpSuccess(status) {
 
 function createSafeLookup(lookup = dns.lookup) {
   return function safeLookup(hostname, options, callback) {
-    lookup(hostname, { ...options, all: false }, (error, address, family) => {
+    const lookupOptions = options && typeof options === 'object' ? { ...options } : {};
+    const wantsAll = lookupOptions.all === true;
+
+    lookup(hostname, lookupOptions, (error, addressOrAddresses, family) => {
       if (error) return callback(error);
+
+      if (wantsAll) {
+        if (!Array.isArray(addressOrAddresses) || addressOrAddresses.length === 0) {
+          return callback(new Error('crawler DNS lookup returned no addresses'));
+        }
+
+        for (const entry of addressOrAddresses) {
+          const address = entry && typeof entry === 'object' ? entry.address : null;
+          if (!address) return callback(new Error('crawler DNS lookup returned an invalid address'));
+          if (isPrivateIp(address)) {
+            return callback(new Error('crawler DNS resolved to a private or local address'));
+          }
+        }
+
+        return callback(null, addressOrAddresses);
+      }
+
+      const address = addressOrAddresses && typeof addressOrAddresses === 'object'
+        ? addressOrAddresses.address
+        : addressOrAddresses;
+      const resolvedFamily = addressOrAddresses && typeof addressOrAddresses === 'object'
+        ? addressOrAddresses.family
+        : family;
+
+      if (!address) return callback(new Error('crawler DNS lookup returned an invalid address'));
       if (isPrivateIp(address)) return callback(new Error('crawler DNS resolved to a private or local address'));
-      return callback(null, address, family);
+      return callback(null, address, resolvedFamily);
     });
   };
 }
