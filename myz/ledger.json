@@ -1,0 +1,16 @@
+{
+  "schema": "myzubster-myz-ledger/v1",
+  "asset": "MYZ",
+  "asset_type": "internal-reward-accounting-unit",
+  "on_chain": false,
+  "entries": [],
+  "integrity": {
+    "canonicalization": "json-key-sort-v1",
+    "sha256": null,
+    "signature": null
+  },
+  "notes": [
+    "An empty ledger does not erase reward records held in program-specific registries; migration/import must be explicit.",
+    "RECORDED MYZ means internal accounting credit, not proof of blockchain or fiat settlement."
+  ]
+}
