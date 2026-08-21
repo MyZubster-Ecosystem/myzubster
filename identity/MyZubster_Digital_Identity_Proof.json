@@ -1,0 +1,19 @@
+{
+  "document_type": "MyZubster Digital Identity Proof",
+  "status": "self-attested technical identity statement",
+  "legal_identity_document": false,
+  "name": "Eugenio Rossi",
+  "project": "MyZubster",
+  "email": "rossieugenio17@gmail.com",
+  "phone": "+39 375 680 6600",
+  "github_organization": "https://github.com/MyZubster-Ecosystem",
+  "github_repositories": [
+    "https://github.com/MyZubster-Ecosystem/myzubster",
+    "https://github.com/MyZubster-Ecosystem/MyZubsterGateway",
+    "https://github.com/MyZubster-Ecosystem/MyZubster-App"
+  ],
+  "purpose": "Technical contact and project identity evidence for LIFE MyZubster partnership discussions",
+  "issued_date": "2026-08-21",
+  "note": "This statement is intended as a technical/project identity proof and is not a government-issued identity document, SPID, CIE, qualified electronic signature, or legal identity certification.",
+  "sha256_canonical_payload": "b6b249f165546d69845b59c8d8cc5045fe891b827cf0133d1115656f8d7d55b0"
+}
