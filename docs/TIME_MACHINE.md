@@ -4,6 +4,24 @@ MyZubster Time Machine is a read-only historical-state reconstruction layer for 
 
 It is **not** a claim of physical time travel. It records selected project states as timestamped evidence snapshots so that a later client can ask: **what did MyZubster record at or before a given time?**
 
+## Program structure
+
+The Time Machine program has two separate but interoperable layers:
+
+1. **Digital Time Machine** — this repository and PR implement timestamped snapshot storage, integrity verification, historical lookup, comparison and visual replay.
+2. **Physical Time Machine Demonstrator v1** — tracked in `MyZubster-Robot`, it measures real temporal phenomena and exports public-safe physical measurements into the digital snapshot format.
+
+Physical program links:
+
+- [Epic #135 — Open-Source Physical Time Machine Demonstrator v1](https://github.com/MyZubster-Ecosystem/MyZubster-Robot/issues/135)
+- [#136 — precision clock and drift measurement](https://github.com/MyZubster-Ecosystem/MyZubster-Robot/issues/136)
+- [#137 — propagation delay and time-of-flight demonstrator](https://github.com/MyZubster-Ecosystem/MyZubster-Robot/issues/137)
+- [#138 — synchronized physical sensor-state recorder](https://github.com/MyZubster-Ecosystem/MyZubster-Robot/issues/138)
+- [#139 — robot/device telemetry bridge and historical replay](https://github.com/MyZubster-Ecosystem/MyZubster-Robot/issues/139)
+- [#140 — completion bounty](https://github.com/MyZubster-Ecosystem/MyZubster-Robot/issues/140) — external settlement currently **UNFUNDED**; 2,500 MYZ is an internal reward/accounting amount contingent on verification.
+
+The physical demonstrator does **not** claim backward time travel, faster-than-light propagation or alteration of past events. Its scope is reproducible measurement of clock drift, synchronization offset, signal propagation delay/time-of-flight, timestamped sensor state and robot/device telemetry.
+
 ## MVP model
 
 ```text
@@ -27,6 +45,8 @@ GET /api/time-machine/*
         v
 /time-machine visual timeline + map
 ```
+
+Physical measurements can enter the same model only after they are exported with explicit timestamp source, device/source identity, calibration context, uncertainty where applicable and a classification that distinguishes direct measurement from simulation or derivation.
 
 ## Connected domains
 
@@ -100,6 +120,22 @@ The generator appends a record containing:
 
 Commit the resulting `data/time-machine/snapshots.json` change through normal Git review. The Git commit then becomes an additional provenance layer around the snapshot.
 
+## Physical measurement ingestion requirements
+
+For data produced by the Physical Time Machine program, a public-safe snapshot should retain, where applicable:
+
+- measurement timestamp and declared time reference;
+- device/source identifier;
+- raw measurement value;
+- measurement unit;
+- calibration reference or procedure;
+- uncertainty/error estimate or known limitations;
+- physical-vs-simulation classification;
+- public-safe provenance;
+- optional coordinates only when explicitly authorized for publication.
+
+Derived values should point back to their raw source records and reproducible calculation method. Measurement noise must not be interpreted as evidence of unsupported physics.
+
 ## Evidence boundaries
 
 A Time Machine snapshot proves only what its evidence can support.
@@ -110,7 +146,12 @@ A Time Machine snapshot proves only what its evidence can support.
 - Proposed, simulated, experimental and production states must remain explicitly distinguished.
 - Unknown values must remain unknown rather than being reconstructed by assumption.
 - Geographic coordinates are displayed only when explicitly present in the recorded state.
+- A measured clock offset or propagation delay is evidence of that measured phenomenon; it is not evidence of backward time travel.
+
+## Bounty boundary
+
+Physical completion bounty [MyZubster-Robot #140](https://github.com/MyZubster-Ecosystem/MyZubster-Robot/issues/140) is currently **UNFUNDED for external settlement**. Its stated **2,500 MYZ** is an internal MyZubster reward/accounting amount to be recorded only after successful verification. A merge, issue closure, screenshot, hash or dataset alone does not prove bounty completion or payment.
 
 ## Future extensions
 
-Possible later phases include IPFS/CID publication, signed manifests, animated map deltas, automatic snapshot composition from verified public exports, garden/plant/robot replay and cross-repository timeline composition.
+Possible later phases include IPFS/CID publication, signed manifests, animated map deltas, automatic snapshot composition from verified public exports, garden/plant/robot replay, physical measurement adapters and cross-repository timeline composition.
