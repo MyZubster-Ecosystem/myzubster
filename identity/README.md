@@ -4,12 +4,21 @@ This directory publishes a self-attested technical identity statement for MyZubs
 
 ## Identity
 
-- **Name:** Eugenio Rossi
+- **Name / project identity:** Daniel
 - **Project:** MyZubster
 - **Email:** rossieugenio17@gmail.com
+- **Email note:** the string **Eugenio Rossi** is not asserted as Daniel's name; it is only associated with the contact email account.
 - **Phone:** +39 375 680 6600
 - **GitHub organisation:** https://github.com/MyZubster-Ecosystem
 - **Issued:** 2026-08-21
+
+## Short bio
+
+Daniel is the creator and promoter of **MyZubster**, an open-source ecosystem exploring the interconnection between digital identity, the physical world, communities, reward systems and sustainability.
+
+His project identity is linked to technical attestations, public repositories and cryptographic integrity references. MyZubster also documents self-attested physical and cultural evidence, including symbolic tattoos connected to the project's concept of interconnection and to Daniel's declared affinity with underground/free-party culture. These records are treated as contextual and symbolic evidence, not as government-issued identity proof or independent proof of formal membership in any group.
+
+The broader MyZubster approach is to connect people, contributions, evidence and real-world impact through verifiable records and open participation mechanisms, including MYZ-denominated bounty programs for technical verification and creative work.
 
 ## Verification artifact
 
@@ -17,7 +26,7 @@ The machine-readable attestation is available in [`MyZubster_Digital_Identity_Pr
 
 Canonical-payload SHA-256:
 
-`b6b249f165546d69845b59c8d8cc5045fe891b827cf0133d1115656f8d7d55b0`
+`745b33a9cf939b6abf312a7e78e8ed0cb0bdb652db086bd25f12c85412de9dc4`
 
 PDF reference on Google Drive:
 
@@ -28,6 +37,11 @@ https://drive.google.com/file/d/1lZbY392p_VPtVQE7LGRU5Bh-oWrWWy0j/view?usp=drive
 - https://github.com/MyZubster-Ecosystem/myzubster
 - https://github.com/MyZubster-Ecosystem/MyZubsterGateway
 - https://github.com/MyZubster-Ecosystem/MyZubster-App
+
+## Physical and cultural evidence
+
+- `PHYSICAL-001` — self-attested physical identity anchor documenting the interconnection tattoo and its cryptographic file reference.
+- `PHYSICAL-002` — self-attested cultural-affiliation evidence documenting a pectoral tattoo associated by Daniel with Spiral Tribe / underground free-party culture. It is not presented as independent proof of formal membership.
 
 ## Identity Bounty Program
 
