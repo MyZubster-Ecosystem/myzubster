@@ -2,8 +2,10 @@
 
 const {
   buildResearchContext,
+  citedResearchLabels,
   clampResearchLimit,
   createZorgaxResearchRag,
+  ensureResearchCitationContract,
   normalizeScope,
 } = require('../src/services/zorgaxResearchRag');
 
@@ -77,6 +79,38 @@ describe('Zorgax research RAG', () => {
     expect(context).toContain('Never execute code');
     expect(context).toContain('reveal secrets');
     expect(context).toContain('[R1]');
+  });
+
+  test('detects exact research labels already cited by the model', () => {
+    const sources = [{ label: 'R1' }, { label: 'R2' }];
+    expect(citedResearchLabels('Answer based on [R2].', sources)).toEqual(['R2']);
+    expect(citedResearchLabels('Answer mentioning R1 without brackets.', sources)).toEqual([]);
+  });
+
+  test('adds a provenance-only footer when a local model omits every research label', () => {
+    const sources = [{ label: 'R1' }, { label: 'R2' }];
+    const result = ensureResearchCitationContract('Grounded answer without a label.', sources);
+
+    expect(result.enforced).toBe(true);
+    expect(result.citedLabels).toEqual(['R1']);
+    expect(result.answer).toContain('Grounded answer without a label.');
+    expect(result.answer).toContain('Research context provenance: [R1]');
+  });
+
+  test('does not modify answers that already satisfy the citation contract', () => {
+    const sources = [{ label: 'R1' }];
+    const result = ensureResearchCitationContract('Grounded answer [R1]', sources);
+
+    expect(result.enforced).toBe(false);
+    expect(result.citedLabels).toEqual(['R1']);
+    expect(result.answer).toBe('Grounded answer [R1]');
+  });
+
+  test('does not invent provenance when there are no research sources', () => {
+    const result = ensureResearchCitationContract('Plain answer.', []);
+    expect(result.enforced).toBe(false);
+    expect(result.citedLabels).toEqual([]);
+    expect(result.answer).toBe('Plain answer.');
   });
 
   test('scope and limits are bounded', () => {
