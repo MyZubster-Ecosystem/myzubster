@@ -13,9 +13,11 @@ This checklist turns the P0 section of [`docs/ROADMAP.md`](ROADMAP.md) into an e
 
 ## 1. CI / workflow health
 
-- [ ] Inspect current GitHub Actions runs on the relevant payment/bounty paths.
-- [ ] Resolve any active `action_required`, failing or blocked checks.
+- [x] Inspect current GitHub Actions runs on the active readiness branch.
+- [x] Confirm no active `action_required`, failing or blocked checks are present on the reviewed PR #545 head.
 - [ ] Record the release-candidate commit SHA used for final P0 verification.
+
+**Current evidence:** [`CI-CHECK-2026-08-21.md`](CI-CHECK-2026-08-21.md) records successful `CI – Test e Lint` and `Security Audit` runs for PR #545 head `2e1684e2f8780a91e12c47f67cd1517178ddc1a5`. This is a readiness-branch CI snapshot, not the final P0 release-candidate verification.
 
 **Exit evidence:** links/IDs for green or intentionally waived checks, with reason documented for any waiver.
 
