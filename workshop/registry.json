@@ -1,0 +1,10 @@
+{
+  "schema": "myzubster-workshop-registry/v1",
+  "status": "bootstrap",
+  "workshops": [],
+  "service_events": [],
+  "notes": [
+    "No workshop is listed as a partner or participating node without explicit authorization.",
+    "Service events should reference non-sensitive evidence and hashes where appropriate."
+  ]
+}
