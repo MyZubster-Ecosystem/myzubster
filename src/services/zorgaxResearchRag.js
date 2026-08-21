@@ -41,6 +41,44 @@ function safeIsoDate(value) {
   return Number.isNaN(date.getTime()) ? 'not recorded' : date.toISOString();
 }
 
+function researchSourceLabels(sources) {
+  if (!Array.isArray(sources)) return [];
+  return [...new Set(
+    sources
+      .map(source => String(source?.label || '').trim())
+      .filter(label => /^R\d+$/.test(label))
+  )];
+}
+
+function citedResearchLabels(answer, sources) {
+  const text = String(answer || '');
+  return researchSourceLabels(sources).filter(label => text.includes(`[${label}]`));
+}
+
+function ensureResearchCitationContract(answer, sources) {
+  const text = String(answer || '').trim();
+  const labels = researchSourceLabels(sources);
+  const citedLabels = citedResearchLabels(text, sources);
+
+  if (labels.length === 0 || citedLabels.length > 0) {
+    return {
+      answer: text,
+      citedLabels,
+      enforced: false,
+    };
+  }
+
+  // This footer is deliberately provenance-only. It records which retrieved
+  // research context was supplied to the model without asserting that every
+  // sentence in the generated answer is independently supported by that source.
+  const provenanceFooter = `Research context provenance: [${labels[0]}]`;
+  return {
+    answer: text ? `${text}\n\n${provenanceFooter}` : provenanceFooter,
+    citedLabels: [labels[0]],
+    enforced: true,
+  };
+}
+
 function buildResearchContext(sources) {
   if (!Array.isArray(sources) || sources.length === 0) return '';
 
@@ -102,10 +140,13 @@ module.exports = {
   DEFAULT_RESEARCH_LIMIT,
   MAX_RESEARCH_LIMIT,
   buildResearchContext,
+  citedResearchLabels,
   clampResearchLimit,
   createZorgaxResearchRag,
+  ensureResearchCitationContract,
   normalizeResearchQuery,
   normalizeScope,
   publicResearchSource,
+  researchSourceLabels,
   safeIsoDate,
 };
