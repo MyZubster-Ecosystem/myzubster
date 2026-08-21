@@ -1,0 +1,10 @@
+{
+  "schema": "myzubster-bounty-registry/v1",
+  "generated_at": "2026-08-21T00:00:00Z",
+  "status": "bootstrap",
+  "bounties": [],
+  "notes": [
+    "Program-specific challenges are not silently imported until their source branches/policies are merged and normalized.",
+    "This registry is the canonical runtime-style index for the engine, not proof of payment."
+  ]
+}
