@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MyZubster Research Search</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 920px; margin: 40px auto; padding: 0 18px; line-height: 1.5; }
+    form { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; }
+    input, select, button { font: inherit; padding: 10px; }
+    article { border-bottom: 1px solid #ddd; padding: 16px 0; }
+    .meta { opacity: .7; font-size: .9rem; }
+    .error { white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h1>MyZubster Research Search</h1>
+  <p>Search the local, allowlisted research index. Crawling is administered separately and is disabled by default.</p>
+  <form id="search-form">
+    <input id="q" name="q" placeholder="Search indexed research…" required />
+    <select id="scope" name="scope">
+      <option value="all">All</option>
+      <option value="web">Web</option>
+      <option value="onion">Onion</option>
+    </select>
+    <button type="submit">Search</button>
+  </form>
+  <p id="status" class="meta"></p>
+  <main id="results"></main>
+
+  <script>
+    const results = document.getElementById('results');
+    const status = document.getElementById('status');
+
+    async function refreshStatus() {
+      try {
+        const response = await fetch('/api/research/status');
+        const data = await response.json();
+        status.textContent = response.ok ? `Indexed: ${data.total || 0} documents` : data.error;
+      } catch (_) {
+        status.textContent = 'Research search unavailable';
+      }
+    }
+
+    document.getElementById('search-form').addEventListener('submit', async event => {
+      event.preventDefault();
+      results.textContent = 'Searching…';
+      const q = document.getElementById('q').value.trim();
+      const scope = document.getElementById('scope').value;
+      try {
+        const response = await fetch(`/api/research/search?q=${encodeURIComponent(q)}&scope=${encodeURIComponent(scope)}`);
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.detail || data.error || 'Search failed');
+        results.innerHTML = '';
+        if (!data.results.length) {
+          results.textContent = 'No indexed results.';
+          return;
+        }
+        for (const item of data.results) {
+          const article = document.createElement('article');
+          const title = document.createElement('a');
+          title.href = item.url;
+          title.rel = 'noreferrer noopener';
+          title.textContent = item.title || item.url;
+          const meta = document.createElement('div');
+          meta.className = 'meta';
+          meta.textContent = `${item.sourceType} · ${item.host}`;
+          const snippet = document.createElement('p');
+          snippet.textContent = item.snippet || '';
+          article.append(title, meta, snippet);
+          results.appendChild(article);
+        }
+      } catch (error) {
+        results.className = 'error';
+        results.textContent = error.message;
+      }
+    });
+
+    refreshStatus();
+  </script>
+</body>
+</html>
