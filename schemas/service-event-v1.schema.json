@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://myzubster.example/schemas/service-event-v1.schema.json",
+  "title": "MyZubster Service Event v1",
+  "type": "object",
+  "required": ["schema", "event_id", "created_at", "asset", "symptom", "checks", "status", "consent"],
+  "properties": {
+    "schema": {"const": "myzubster-service-event/v1"},
+    "event_id": {"type": "string", "minLength": 6},
+    "created_at": {"type": "string", "format": "date-time"},
+    "asset": {
+      "type": "object",
+      "required": ["type", "model"],
+      "properties": {
+        "type": {"type": "string"},
+        "model": {"type": "string"},
+        "public_identifier": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "symptom": {"type": "string", "minLength": 3},
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["check", "status"],
+        "properties": {
+          "check": {"type": "string"},
+          "status": {"enum": ["PLANNED", "PERFORMED", "NOT_PERFORMED"]},
+          "measurement": {"type": ["string", "number", "null"]},
+          "result": {"type": ["string", "null"]},
+          "evidence_sha256": {"type": ["string", "null"], "pattern": "^[a-fA-F0-9]{64}$"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "diagnosis": {"type": ["string", "null"]},
+    "repair_outcome": {"type": ["string", "null"]},
+    "status": {"enum": ["OPEN", "DIAGNOSING", "DIAGNOSED", "REPAIRED", "CLOSED"]},
+    "contributors": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "bounty_id": {"type": ["string", "null"]},
+    "consent": {
+      "type": "object",
+      "required": ["public_record_allowed"],
+      "properties": {
+        "public_record_allowed": {"type": "boolean"},
+        "evidence_publication_allowed": {"type": "boolean", "default": false}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

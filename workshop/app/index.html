@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MyZubster Workshop Mini-App v1</title>
+<style>
+body{font-family:system-ui,-apple-system,sans-serif;max-width:1100px;margin:32px auto;padding:0 16px;background:#101010;color:#eee;line-height:1.45}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.card{background:#191919;border:1px solid #333;border-radius:14px;padding:16px;margin:14px 0}.full{grid-column:1/-1}label{display:block;margin:.5rem 0 .2rem}input,select,textarea,button{font:inherit}input,select,textarea{width:100%;box-sizing:border-box;padding:9px;border:1px solid #444;border-radius:8px;background:#0d0d0d;color:#fff}textarea{min-height:80px}button{padding:9px 13px;border:0;border-radius:8px;margin:7px 6px 0 0;cursor:pointer}.muted{color:#aaa}.good{color:#8edb8e}.warn{color:#ffc66d}.bad{color:#ff8f8f}pre{white-space:pre-wrap;word-break:break-word;background:#0b0b0b;padding:12px;border-radius:8px;max-height:320px;overflow:auto}@media(max-width:760px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<h1>MyZubster Workshop Mini-App v1</h1>
+<p class="muted">Local operational prototype: service event → bounty claim → submission → review → MYZ ledger proposal. No automatic publication and no claim of payment.</p>
+
+<div class="grid">
+<section class="card">
+<h2>1. Service event</h2>
+<label>Asset type</label><input id="assetType" value="electric-scooter">
+<label>Model</label><input id="model" value="KuKirin G2 Max">
+<label>Symptom</label><input id="symptom" value="does-not-power-on">
+<label>Public record allowed?</label><select id="publicAllowed"><option value="false">No</option><option value="true">Yes</option></select>
+<button id="createService">Create event</button>
+<label>Diagnosis</label><textarea id="diagnosis" placeholder="Record only physically supported findings"></textarea>
+<label>Repair outcome</label><textarea id="outcome"></textarea>
+<button id="saveService">Save findings</button>
+</section>
+
+<section class="card">
+<h2>2. Technical bounty</h2>
+<label>Bounty ID</label><input id="bountyId" placeholder="e.g. WORKSHOP-BNT-0001">
+<label>Claimant</label><input id="claimant" placeholder="GitHub login / public contributor id">
+<label>Reward MYZ</label><input id="reward" type="number" min="0" step="1" value="100">
+<button id="claimBounty">Create claim</button>
+<hr>
+<label>Evidence references</label><textarea id="evidence" placeholder="One public/non-sensitive reference per line"></textarea>
+<button id="submitBounty">Create submission</button>
+</section>
+
+<section class="card">
+<h2>3. Review</h2>
+<label>Reviewer</label><input id="reviewer" placeholder="Independent reviewer id">
+<label>Decision</label><select id="decision"><option>VERIFIED</option><option>REJECTED</option><option>REVISION_REQUESTED</option></select>
+<label>Notes</label><textarea id="reviewNotes"></textarea>
+<button id="reviewSubmission">Record review</button>
+<p class="muted">A local review is evidence for handoff, not yet a canonical signed review.</p>
+</section>
+
+<section class="card">
+<h2>4. MYZ proposal</h2>
+<p>Only a <strong>VERIFIED</strong> review can generate a ledger proposal.</p>
+<button id="makeProposal">Generate MYZ ledger proposal</button>
+<p class="warn">The result remains <code>PROPOSED_NOT_RECORDED</code> until ingested into the canonical MYZ ledger.</p>
+</section>
+
+<section class="card full">
+<h2>Workflow state</h2>
+<div id="stateLine" class="muted"></div>
+<pre id="output">No local workflow yet.</pre>
+<button id="exportBundle">Export workflow bundle</button>
+<button id="clearAll">Clear local workflow</button>
+</section>
+</div>
+
+<script type="module">
+import {createServiceEvent,createBountyClaim,createSubmission,reviewSubmission,createLedgerProposal,validateWorkflow} from './domain.mjs';
+const KEY='myzubster-workshop-miniapp-v1';
+const checks=[
+'Measure battery output voltage at accessible main output connector',
+'Measure voltage at controller battery input',
+'Inspect battery-to-controller connectors',
+'Inspect stem/display/power cable path',
+'Verify display/power circuit supply using documented pinout',
+'Investigate controller only after upstream supply path is verified'
+];
+let bundle=JSON.parse(localStorage.getItem(KEY)||'{"serviceEvent":null,"claim":null,"submission":null,"review":null,"ledgerProposal":null}');
+const el=id=>document.getElementById(id);
+function persist(){localStorage.setItem(KEY,JSON.stringify(bundle));render();}
+function render(){const v=validateWorkflow(bundle);const states=[bundle.serviceEvent?'SERVICE_EVENT':'-',bundle.claim?.status||'-',bundle.submission?.status||'-',bundle.review?.decision||'-',bundle.ledgerProposal?.status||'-'];el('stateLine').textContent=states.join(' → ') + (v.ok?'':' | INVALID: '+v.errors.join('; '));el('stateLine').className=v.ok?'good':'bad';el('output').textContent=JSON.stringify(bundle,null,2);if(bundle.serviceEvent){el('diagnosis').value=bundle.serviceEvent.diagnosis||'';el('outcome').value=bundle.serviceEvent.repair_outcome||'';}}
+el('createService').onclick=()=>{bundle={serviceEvent:createServiceEvent({assetType:el('assetType').value,model:el('model').value,symptom:el('symptom').value,publicRecordAllowed:el('publicAllowed').value==='true',checks}),claim:null,submission:null,review:null,ledgerProposal:null};persist();};
+el('saveService').onclick=()=>{if(!bundle.serviceEvent)return alert('Create a service event first');bundle.serviceEvent.diagnosis=el('diagnosis').value||null;bundle.serviceEvent.repair_outcome=el('outcome').value||null;bundle.serviceEvent.status=bundle.serviceEvent.diagnosis?'DIAGNOSED':'DIAGNOSING';persist();};
+el('claimBounty').onclick=()=>{try{if(!bundle.serviceEvent)throw new Error('Create a service event first');bundle.claim=createBountyClaim({serviceEvent:bundle.serviceEvent,bountyId:el('bountyId').value.trim(),claimant:el('claimant').value.trim(),rewardMyz:Number(el('reward').value)});bundle.submission=bundle.review=bundle.ledgerProposal=null;persist();}catch(e){alert(e.message)}};
+el('submitBounty').onclick=()=>{try{bundle.submission=createSubmission({serviceEvent:bundle.serviceEvent,claim:bundle.claim,evidence:el('evidence').value.split('\n').map(x=>x.trim()).filter(Boolean)});bundle.review=bundle.ledgerProposal=null;persist();}catch(e){alert(e.message)}};
+el('reviewSubmission').onclick=()=>{try{bundle.review=reviewSubmission({submission:bundle.submission,reviewer:el('reviewer').value.trim(),decision:el('decision').value,notes:el('reviewNotes').value});bundle.ledgerProposal=null;persist();}catch(e){alert(e.message)}};
+el('makeProposal').onclick=()=>{try{bundle.ledgerProposal=createLedgerProposal({claim:bundle.claim,submission:bundle.submission,review:bundle.review});persist();}catch(e){alert(e.message)}};
+el('exportBundle').onclick=()=>{const blob=new Blob([JSON.stringify(bundle,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`workshop-workflow-${bundle.serviceEvent?.event_id||'draft'}.json`;a.click();URL.revokeObjectURL(a.href)};
+el('clearAll').onclick=()=>{localStorage.removeItem(KEY);bundle={serviceEvent:null,claim:null,submission:null,review:null,ledgerProposal:null};render();};
+render();
+</script>
+</body></html>

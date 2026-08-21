@@ -1,0 +1,26 @@
+{
+  "schema": "myzubster-diagnostic-checklists/v1",
+  "checklists": [
+    {
+      "id": "KUKIRIN-G2MAX-NO-POWER-v1",
+      "asset_type": "electric-scooter",
+      "manufacturer": "KuKirin",
+      "model": "G2 Max",
+      "symptom": "does-not-power-on",
+      "status": "field-demo-derived-unverified",
+      "checks": [
+        {"order": 1, "check": "Measure battery output voltage at an accessible main output connector", "expected": "48 V nominal system; exact observed voltage must be recorded, not assumed"},
+        {"order": 2, "check": "Measure voltage at controller battery input", "expected": "Should correspond to battery output if wiring and main connection are intact"},
+        {"order": 3, "check": "Inspect battery-to-controller connectors", "expected": "No loose, recessed, oxidized or heat-damaged contacts"},
+        {"order": 4, "check": "Inspect stem/display/power cable path", "expected": "No visible damage, pinched sections or intermittent connection at bends/entries"},
+        {"order": 5, "check": "Verify display/power circuit supply", "expected": "Record measured supply and pinout source before concluding display failure"},
+        {"order": 6, "check": "Investigate controller after upstream supply path is verified", "expected": "Controller diagnosis requires measured evidence; do not replace solely from symptom"}
+      ],
+      "safety": [
+        "Do not short wires to force startup.",
+        "Do not open the lithium battery pack merely for this checklist.",
+        "Qualified personnel should handle high-current battery systems."
+      ]
+    }
+  ]
+}

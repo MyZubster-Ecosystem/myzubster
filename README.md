@@ -71,6 +71,196 @@ Public, sanitized information can be exposed as content-addressed snapshots thro
 ### 7. Reward / settle
 **MYZ currently represents an internal reward/accounting ledger.** It must not be described automatically as an on-chain payment. XMR or other external settlement, when a bounty explicitly defines it, remains a separate process and requires independent verification before it can be considered `PAID`.
 
+## 🎨 Create a MyZubster comic — complete contributor workflow
+
+MyZubster welcomes illustrators, designers, storytellers and AI-assisted creators. The goal is not simply to produce promotional art: a MyZubster comic should turn a **real, authorized observation, discovery, contribution or documented platform workflow** into an original visual story whose real-world evidence and fictional elements remain clearly distinguishable.
+
+The current entry point for the core visual guide is [bounty #526 — “Come funziona MyZubster”](https://github.com/MyZubster-Ecosystem/myzubster/issues/526). The wider community program is maintained in [`MyZubster-Visual`](https://github.com/MyZubster-Ecosystem/MyZubster-Visual/issues/1).
+
+### Step 1 — Choose what you want to create
+
+You can create:
+
+- a visual explanation of how MyZubster works;
+- a cyberpunk story inspired by your own MyZubster discovery or contribution;
+- a short Discovery Spark;
+- a multi-page Discovery Episode;
+- a connected Discovery Series;
+- a world/character guide tied to documented discoveries;
+- multilingual versions of an accepted visual story.
+
+Do not invent a real platform capability, payment, partnership, user metric or environmental result merely for the story. Fiction is welcome, but it must be recognizable as fiction.
+
+### Step 2 — Find or document the real connection
+
+Before drawing, identify the source material. Examples include a public/authorized plant or environmental observation, a place, a garden, a technical contribution, a completed workflow, a public dataset, a robot/IoT experiment or another safe MyZubster-related discovery.
+
+Record only the evidence needed for the story. Remove unnecessary personal information, secrets, precise sensitive locations, wallet addresses, credentials and restricted-area details.
+
+### Step 3 — Claim the bounty before starting
+
+On the relevant GitHub issue, comment:
+
+```text
+CLAIM
+Creator / public alias: <name>
+Series/title: <working title>
+Language: <language>
+Style: <visual style>
+Workflow: human-made / AI-assisted / mixed
+Real MyZubster connection: <short description>
+Planned deliverable: <pages/panels/assets>
+First draft ETA: <date>
+Rights/consent: I confirm I can submit the material used.
+```
+
+Wait for the maintainer to confirm that there is no conflicting active claim. For bounty #526, a first draft is recommended within **72 hours of an accepted claim**. If there is no update, the task may be reopened to another contributor.
+
+### Step 4 — Plan the story
+
+For the “How MyZubster works” comic, the seven stages should remain recognizable:
+
+```text
+OBSERVE
+  ↓
+DOCUMENT
+  ↓
+CONNECT
+  ↓
+COLLABORATE
+  ↓
+VERIFY
+  ↓
+PUBLISH
+  ↓
+REWARD / SETTLEMENT
+```
+
+A useful storyboard is:
+
+1. **Observe** — the character finds or documents something useful in the real world.
+2. **Document** — permitted photos/data/context become structured evidence.
+3. **Connect** — the evidence is linked to the map, project, dataset or bounty.
+4. **Collaborate** — contributors work against explicit acceptance criteria.
+5. **Verify** — evidence is reviewed; existence of a file or PR alone is not proof of completion.
+6. **Publish** — sanitized public information can become a reusable snapshot/dataset.
+7. **Reward / settlement** — MYZ may record an internal reward; external settlement is a separate independently verified process.
+
+### Step 5 — Create the visual
+
+Human-made, AI-assisted and mixed workflows are allowed when the relevant bounty permits them. Regardless of tooling:
+
+- create original material and respect copyright/licensing;
+- keep characters, captions and UI readable on mobile as well as desktop;
+- do not expose prompts/workflows containing secrets or private data;
+- do not represent an AI-generated fictional screenshot as real evidence;
+- keep real-world evidence visually or textually distinguishable from fictional/cyberpunk scenes;
+- represent MYZ accurately as the current internal reward/accounting layer;
+- represent XMR/token/external settlement, when relevant, as separate and independently verified.
+
+For bounty #526, the expected minimum is **4–8 panels/pages plus a cover, or an equivalent highly readable visual composition**.
+
+### Step 6 — Export everything needed for reuse
+
+Unless the bounty says otherwise, provide:
+
+```text
+README/web version: PNG or WebP, optimized
+High-resolution version: PNG or equivalent lossless/high-quality format
+Editable source OR documented regeneration workflow
+Author/rights/license note
+Optional sanitized public evidence/CID
+```
+
+Suggested paths for the core comic are:
+
+```text
+docs/comic/myzubster-how-it-works.png
+docs/comic/myzubster-how-it-works-hires.png
+docs/comic/README.md
+```
+
+If AI tools were used, document enough of the workflow to allow maintainers to understand or regenerate the asset without publishing private credentials, private source material or unnecessary personal data.
+
+### Step 7 — Self-review before submission
+
+Check every item:
+
+- [ ] I created/originally assembled the submitted work and can grant the required rights.
+- [ ] The real MyZubster connection is explained.
+- [ ] Real evidence and fictional narrative are distinguishable.
+- [ ] The visual does not claim unreleased features as production-ready.
+- [ ] MYZ is not presented as an automatic blockchain payment.
+- [ ] Any external settlement is shown as a separate verified process.
+- [ ] No secret, credential, private key, wallet seed or unnecessary personal data is present.
+- [ ] No sensitive/restricted location or security detail is exposed.
+- [ ] The visual is readable on desktop and mobile.
+- [ ] Source files or regeneration instructions are included.
+- [ ] Evidence/screenshots/render previews are ready for the PR.
+
+### Step 8 — Submit through a pull request
+
+Fork or branch the repository, add the assets and documentation, then open a PR. For bounty #526, include:
+
+```text
+Closes #526
+
+Creator: <alias>
+Workflow: human-made / AI-assisted / mixed
+Real-world connection: <summary>
+Assets added: <paths>
+Rights/license: <summary>
+Evidence: <links or repository paths>
+```
+
+In the PR description, walk through the acceptance criteria one by one. Include render previews/screenshots so reviewers do not have to reconstruct the asset locally just to understand the submission.
+
+### Step 9 — Review and corrections
+
+The maintainer checks architecture accuracy, readability, rights, privacy/safety, evidence and the bounty-specific criteria. A submission can move to `UNDER_REVIEW`, require changes, be verified or be rejected with reasons.
+
+A merge by itself does **not** prove a reward or external payment.
+
+### Step 10 — Reward lifecycle
+
+The canonical lifecycle remains:
+
+```text
+PROPOSED
+→ VALIDATED
+→ APPROVED
+→ FUNDED (when required)
+→ ACTIVE
+→ SUBMITTED
+→ UNDER_REVIEW
+→ VERIFIED / REJECTED
+→ REWARD_RECORDED
+→ SETTLEMENT_PENDING / SETTLED (only when applicable)
+```
+
+Current comic/community bounty amounts are **proposed definitions until the applicable approval and verification gates are satisfied**. MYZ is an internal reward/accounting ledger. An issue, claim, uploaded image, PR, merge, publication or ledger entry must never be presented as proof of an external payment.
+
+### Quick start for a new comic contributor
+
+```text
+1. Open the comic bounty/program issue
+2. Read scope + acceptance criteria
+3. Comment CLAIM
+4. Wait for claim confirmation
+5. Document a safe real MyZubster connection
+6. Storyboard the comic
+7. Create original visuals
+8. Export README + high-resolution assets
+9. Add source/regeneration notes
+10. Self-review privacy, rights and technical claims
+11. Open PR + evidence
+12. Respond to review
+13. Verification happens
+14. Reward is recorded only if all applicable gates pass
+```
+
+**Do not start from the assumption that a bounty is automatically paid. Start from the deliverable, evidence and verification criteria.**
+
 ## What can be built with it?
 
 Current and experimental tracks include:
@@ -194,7 +384,7 @@ MyZubster's public evolution has also been documented outside this repository. T
 
 ### External discovery
 
-During August 2026, MyZubster content and/or bounty pages were observed in external indexes and aggregators including KMP Weekly, ContributeHub/Orion, TensorHack, JS Good First Issues Finder, TechForDev and other software/content discovery services. These are treated as **discovery signals only** — not evidence of endorsement, active users, partnerships, funding or completed settlement.
+During August 2026, MyZubster content and/or bounty pages were observed in external indexes and aggregators including KMP Weekly, ContributeHub/Orion, TensorHack, JS Good First Issues Finder, TechForDev, Tech Spindle and other software/content discovery services. These are treated as **discovery signals only** — not evidence of endorsement, active users, partnerships, funding or completed settlement.
 
 Notable external discovery signals include:
 
@@ -203,6 +393,9 @@ Notable external discovery signals include:
 - **ContributeHub / Orion** — indexed multiple MyZubster bounty opportunities across ecosystem areas, including EVA IONI, Arduino/IoT, urban-garden workflows, escrow and payment-related tasks, increasing discoverability among external open-source contributors.
 - **TensorHack** — surfaced MyZubster development opportunities, including Monero/XMR wallet-related work and MyZubsterWeb bounties, showing that issue metadata is being consumed by additional external opportunity aggregators.
 - **KMP Weekly** — indexed the MyZubster NFC payments guide in the Kotlin Multiplatform ecosystem, providing an external technical-community discovery signal beyond MyZubster-owned channels.
+- **Tech Spindle** — indexed *Building an AI Automation System for MyZubster* as an automation project and assigned its own impact/innovation scoring. Because the page is derived from the original DEV publication, it is recorded as external indexing/classification rather than independent technical validation.
+- **TechForDev** — indexed/re-published MyZubster material including *MyZubster is Now Live! A Decentralized Global Map for Plants and Animals* and, on 13 August 2026, *Urban Lab: Building a Smart Scooter with AI and Reinforcement Learning*. These pages provide additional propagation/discovery signals, but are treated as syndication rather than independent reporting.
+- **WorldProgramming.org** — indexed/re-published *From Urban Gardens to Clean Streets: Building a Decentralized Robot Ecosystem with MyZubster and Monero*, adding another external content-discovery path while remaining derivative of the original publication.
 
 Because external aggregators may automatically interpret GitHub issues, every public bounty should clearly state its **reward (or explicitly say that no external reward is committed), currency/payment rail, funding state, current status, acceptance criteria, eligibility, verification process and settlement conditions**. Indexing by an external service does not imply endorsement, funding, partnership or successful payment.
 

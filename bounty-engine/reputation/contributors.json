@@ -1,0 +1,9 @@
+{
+  "schema": "myzubster-contributor-reputation/v1",
+  "generated_at": "2026-08-21T12:25:00Z",
+  "contributors": [],
+  "notes": [
+    "Profiles are created from verifiable bounty events, not self-declared reputation.",
+    "No contributor has been fabricated during bootstrap."
+  ]
+}

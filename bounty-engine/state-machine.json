@@ -1,0 +1,18 @@
+{
+  "schema": "myzubster-bounty-state-machine/v1",
+  "states": ["OPEN", "CLAIMED", "SUBMITTED", "UNDER_REVIEW", "VERIFIED", "REJECTED", "MYZ_RECORDED"],
+  "transitions": {
+    "OPEN": ["CLAIMED"],
+    "CLAIMED": ["OPEN", "SUBMITTED"],
+    "SUBMITTED": ["CLAIMED", "UNDER_REVIEW"],
+    "UNDER_REVIEW": ["SUBMITTED", "VERIFIED", "REJECTED"],
+    "REJECTED": ["SUBMITTED"],
+    "VERIFIED": ["MYZ_RECORDED"],
+    "MYZ_RECORDED": []
+  },
+  "terminal_states": ["MYZ_RECORDED"],
+  "notes": [
+    "REJECTED is not terminal when resubmission is permitted by the governing bounty policy.",
+    "MYZ_RECORDED means an internal ledger entry exists; it does not prove external settlement."
+  ]
+}
