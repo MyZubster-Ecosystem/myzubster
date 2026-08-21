@@ -20,12 +20,7 @@ const GardensPage = () => {
   const [nearbyRadius, setNearbyRadius] = useState(5000);
   const [filters, setFilters] = useState({ status: 'active', size: '' });
 
-  // Carica tutti gli orti all'iniziale
-  useEffect(() => {
-    fetchAllGardens();
-  }, []);
-
-  const fetchAllGardens = async () => {
+  const fetchAllGardens = useCallback(async () => {
     setLoading(true);
     setSearchMode(SEARCH_MODES.NONE);
     setSearchMeta(null);
@@ -39,7 +34,12 @@ const GardensPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters]);
+
+  // Carica tutti gli orti all'iniziale
+  useEffect(() => {
+    fetchAllGardens();
+  }, [fetchAllGardens]);
 
   // Ricerca testuale
   const handleSearch = async (e) => {
