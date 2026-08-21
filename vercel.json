@@ -36,11 +36,19 @@
     },
     {
       "src": "/fumetto/?",
-      "dest": "/fumetto.html"
+      "dest": "/api/index.js"
+    },
+    {
+      "src": "/fumetto.html",
+      "dest": "/api/index.js"
     },
     {
       "src": "/comic/?",
-      "dest": "/fumetto.html"
+      "dest": "/api/index.js"
+    },
+    {
+      "src": "/comic.html",
+      "dest": "/api/index.js"
     },
     {
       "src": "/robots.txt",
