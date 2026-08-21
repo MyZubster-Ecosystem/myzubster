@@ -1,0 +1,48 @@
+{
+  "schema": "myzubster-decentralized-onion-manifest/v0.1",
+  "project": "MyZubster",
+  "status": "proposal",
+  "issued_at": "2026-08-21T00:00:00Z",
+  "expires_at": null,
+  "current_root": {
+    "ipns": null,
+    "cid": null,
+    "sha256": null
+  },
+  "signing_keys": [],
+  "discovery": {
+    "github": [
+      "https://github.com/MyZubster-Ecosystem/myzubster"
+    ],
+    "dnslink": [],
+    "ipns": [],
+    "onion": []
+  },
+  "retrieval": {
+    "https_mirrors": [],
+    "ipfs_gateways": [],
+    "onion_mirrors": []
+  },
+  "verification": {
+    "public_verifiers": [],
+    "quorum": {
+      "status": "proposed",
+      "threshold": null,
+      "distinct_verifier_keys_required": true
+    }
+  },
+  "continuity": {
+    "previous_manifest_cid": null,
+    "previous_manifest_sha256": null
+  },
+  "privacy": {
+    "public_metadata_only": true,
+    "secrets_allowed": false,
+    "government_identity_documents_allowed": false
+  },
+  "notes": [
+    "All empty endpoints are intentionally unclaimed until independently testable.",
+    "The manifest must be signed before clients treat it as authoritative.",
+    "Tor onion mirrors are optional retrieval paths, not a source of truth."
+  ]
+}
