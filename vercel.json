@@ -35,6 +35,14 @@
       "dest": "/api/index.js"
     },
     {
+      "src": "/fumetto/?",
+      "dest": "/fumetto.html"
+    },
+    {
+      "src": "/comic/?",
+      "dest": "/fumetto.html"
+    },
+    {
       "src": "/robots.txt",
       "dest": "/robots.txt"
     },
