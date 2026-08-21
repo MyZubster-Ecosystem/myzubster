@@ -33,6 +33,13 @@ describe('MyZubster Time Machine', () => {
     expect(response.status).toBe(400);
   });
 
+  test('visual Time Machine page is served', async () => {
+    const response = await request(app).get('/time-machine');
+    expect(response.status).toBe(200);
+    expect(response.text).toContain('MyZubster Time Machine');
+    expect(response.text).toContain('Historical geographic view');
+  });
+
   test('unknown snapshot returns 404', async () => {
     const response = await request(app).get('/api/time-machine/snapshots/does-not-exist');
     expect(response.status).toBe(404);
