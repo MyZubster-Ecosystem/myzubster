@@ -4,7 +4,7 @@ const path = require('path');
 const crypto = require('crypto');
 const ZorgaxMemory = require('../models/ZorgaxMemory');
 const { createMongoResearchStore } = require('../services/researchSearchService');
-const { createZorgaxResearchRag } = require('../services/zorgaxResearchRag');
+const { createZorgaxResearchRag, ensureResearchCitationContract } = require('../services/zorgaxResearchRag');
 
 const router = express.Router();
 
@@ -445,8 +445,10 @@ router.post('/chat', async (req, res) => {
       });
     }
 
-    const answer = data.message?.content || '';
+    const rawAnswer = data.message?.content || '';
     const researchSources = Array.isArray(research.sources) ? research.sources : [];
+    const citationContract = ensureResearchCitationContract(rawAnswer, researchSources);
+    const answer = citationContract.answer;
     res.json({
       ok: true,
       entity: 'ZORGAX-001',
@@ -461,6 +463,8 @@ router.post('/chat', async (req, res) => {
       research_used: researchSources.map(source => source.label),
       research_sources: researchSources,
       research_provenance: researchSources.length ? 'MongoDB ResearchDocument text index' : null,
+      research_citation_enforced: citationContract.enforced,
+      research_cited_labels: citationContract.citedLabels,
       research_refresh_required: Boolean(useResearch && RESEARCH_SEARCH_ENABLED && researchSources.length === 0),
       research_refresh_endpoint: useResearch && RESEARCH_SEARCH_ENABLED && researchSources.length === 0 ? '/api/research/crawl' : null,
       research_crawl_performed: false,
