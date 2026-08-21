@@ -3,50 +3,27 @@ import React, { useEffect, useMemo, useState } from 'react';
 const GATEWAY = process.env.REACT_APP_GATEWAY_URL || 'https://myzubster-gateway.vercel.app';
 const ORG = 'MyZubster-Ecosystem';
 
-const sections = [
-  ['overview', 'LIFE Hub'],
-  ['users', 'Utenti + XMR'],
-  ['municipalities', 'Comuni'],
-  ['gardens', 'Orti & Pilot'],
-  ['repos', 'Repository'],
-  ['zorgax', 'Zorgax AI'],
-];
+const shell = { minHeight: '100vh', background: '#071018', color: '#f8fafc' };
+const card = { background: '#0f1b27', border: '1px solid #213547', borderRadius: 18, padding: 18 };
+const input = { width: '100%', padding: '12px 13px', borderRadius: 11, border: '1px solid #334155', background: '#08131d', color: '#fff', fontSize: 16, boxSizing: 'border-box' };
+const primary = { border: 0, borderRadius: 11, padding: '12px 16px', background: '#0ea5e9', color: '#fff', fontWeight: 800, cursor: 'pointer', fontSize: 15 };
+const secondary = { ...primary, background: '#182938' };
 
-const box = {
-  background: '#111827', border: '1px solid #263247', borderRadius: 18, padding: 18,
-};
-
-function Status({ children, kind = 'info' }) {
-  const colors = { info: '#93c5fd', ok: '#86efac', error: '#fca5a5' };
-  return <div style={{ color: colors[kind], marginTop: 10, fontSize: 14 }}>{children}</div>;
-}
-
-function LifePortalPage() {
-  const [section, setSection] = useState('overview');
-  const [userForm, setUserForm] = useState({ username: '', email: '', password: '', moneroWallet: '' });
-  const [userStatus, setUserStatus] = useState(null);
-  const [municipalityForm, setMunicipalityForm] = useState({ name: '', province: '', region: '', pec: '', contactEmail: '', website: '', notes: '' });
-  const [municipalities, setMunicipalities] = useState([]);
-  const [municipalityStatus, setMunicipalityStatus] = useState(null);
+function LifePortalPage({ openLegacy }) {
+  const [view, setView] = useState('home');
+  const [register, setRegister] = useState({ username: '', email: '', password: '', moneroWallet: '' });
+  const [showXmr, setShowXmr] = useState(false);
+  const [registerStatus, setRegisterStatus] = useState('');
+  const [municipality, setMunicipality] = useState({ name: '', province: '', region: '', contactEmail: '' });
+  const [municipalityStatus, setMunicipalityStatus] = useState('');
   const [repos, setRepos] = useState([]);
   const [repoQuery, setRepoQuery] = useState('');
-  const [repoStatus, setRepoStatus] = useState('Caricamento repository…');
-
-  useEffect(() => {
-    fetch('/api/municipalities')
-      .then(r => r.ok ? r.json() : Promise.reject(new Error('API Comuni non disponibile')))
-      .then(d => setMunicipalities(d.data || d.municipalities || []))
-      .catch(() => {});
-  }, []);
 
   useEffect(() => {
     fetch(`https://api.github.com/orgs/${ORG}/repos?per_page=100&sort=updated`)
-      .then(r => r.ok ? r.json() : Promise.reject(new Error('GitHub non disponibile')))
-      .then(data => {
-        setRepos(Array.isArray(data) ? data : []);
-        setRepoStatus(`${Array.isArray(data) ? data.length : 0} repository pubblici indicizzati`);
-      })
-      .catch(err => setRepoStatus(err.message));
+      .then(r => r.ok ? r.json() : [])
+      .then(data => setRepos(Array.isArray(data) ? data : []))
+      .catch(() => setRepos([]));
   }, []);
 
   const filteredRepos = useMemo(() => {
@@ -55,138 +32,192 @@ function LifePortalPage() {
     return repos.filter(r => [r.name, r.description, r.language, ...(r.topics || [])].filter(Boolean).join(' ').toLowerCase().includes(q));
   }, [repos, repoQuery]);
 
-  async function registerUser(e) {
+  async function submitRegistration(e) {
     e.preventDefault();
-    setUserStatus({ kind: 'info', text: 'Registrazione in corso…' });
+    setRegisterStatus('Registrazione in corso…');
     try {
-      const r = await fetch('/api/auth/register', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(userForm),
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(register),
       });
-      const d = await r.json();
-      if (!r.ok || !d.success) throw new Error(d.message || 'Registrazione non riuscita');
-      if (d.data?.token) localStorage.setItem('myzubster-token', d.data.token);
-      setUserStatus({ kind: 'ok', text: 'Utente registrato. Il wallet XMR resta non-custodial: MyZubster conserva solo l’indirizzo pubblico.' });
-      setUserForm({ username: '', email: '', password: '', moneroWallet: '' });
-    } catch (err) {
-      setUserStatus({ kind: 'error', text: err.message });
+      const data = await response.json();
+      if (!response.ok || !data.success) throw new Error(data.message || 'Registrazione non riuscita');
+      if (data.data?.token) localStorage.setItem('myzubster-token', data.data.token);
+      setRegisterStatus('Account creato. Benvenuto in MyZubster.');
+      setRegister({ username: '', email: '', password: '', moneroWallet: '' });
+      setShowXmr(false);
+    } catch (error) {
+      setRegisterStatus(error.message);
     }
   }
 
-  async function registerMunicipality(e) {
+  async function submitMunicipality(e) {
     e.preventDefault();
-    setMunicipalityStatus({ kind: 'info', text: 'Registrazione Comune in corso…' });
+    setMunicipalityStatus('Invio in corso…');
     try {
-      const r = await fetch('/api/municipalities', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(municipalityForm),
+      const response = await fetch('/api/municipalities', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(municipality),
       });
-      const d = await r.json();
-      if (!r.ok || !d.success) throw new Error(d.message || 'Registrazione non riuscita');
-      setMunicipalities(prev => [d.data, ...prev]);
-      setMunicipalityStatus({ kind: 'ok', text: 'Comune registrato nel registro LIFE/MyZubster.' });
-      setMunicipalityForm({ name: '', province: '', region: '', pec: '', contactEmail: '', website: '', notes: '' });
-    } catch (err) {
-      setMunicipalityStatus({ kind: 'error', text: err.message });
+      const data = await response.json();
+      if (!response.ok || !data.success) throw new Error(data.message || 'Registrazione ente non riuscita');
+      setMunicipalityStatus('Comune / ente registrato.');
+      setMunicipality({ name: '', province: '', region: '', contactEmail: '' });
+    } catch (error) {
+      setMunicipalityStatus(error.message);
     }
   }
 
-  const inputStyle = { width: '100%', padding: 11, borderRadius: 10, border: '1px solid #334155', background: '#0b1220', color: '#fff' };
-  const buttonStyle = { border: 0, borderRadius: 11, padding: '11px 15px', background: '#2563eb', color: '#fff', cursor: 'pointer', fontWeight: 700 };
+  const actions = [
+    ['register', '👤', 'Registrati', 'Crea un account in meno di un minuto.'],
+    ['zorgax', '✨', 'Zorgax AI', 'Parla subito con l’AI pubblica, senza account.'],
+    ['municipality', '🏛️', 'Comuni', 'Registra un Comune o un ente territoriale.'],
+    ['gardens', '🌱', 'Orti & Pilot', 'Accedi agli orti, al verde urbano e ai siti pilota.'],
+    ['repos', '💻', 'Open Source', 'Cerca i repository pubblici MyZubster.'],
+    ['life', '💧', 'LIFE 2026', 'Acqua, circolarità, MRV e replicazione territoriale.'],
+  ];
 
   return (
-    <div style={{ minHeight: '100vh', background: '#080d18', color: '#f8fafc', padding: '22px 16px 48px' }}>
-      <div style={{ maxWidth: 1180, margin: '0 auto' }}>
-        <header style={{ marginBottom: 22 }}>
-          <div style={{ color: '#67e8f9', fontSize: 13, letterSpacing: 1.2, fontWeight: 800 }}>MYZUBSTER · LIFE 2026 DIGITAL INFRASTRUCTURE</div>
-          <h1 style={{ fontSize: 'clamp(30px,5vw,54px)', lineHeight: 1.03, margin: '8px 0 10px' }}>Territorio, acqua, circolarità e dati verificabili.</h1>
-          <p style={{ color: '#a8b4c7', maxWidth: 850, fontSize: 17, lineHeight: 1.55, margin: 0 }}>
-            Portale unico per cittadini, Comuni, orti e siti pilota, repository open-source, MRV ambientale e accesso pubblico a Zorgax AI.
-          </p>
-        </header>
-
-        <nav style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 18 }}>
-          {sections.map(([id, label]) => <button key={id} onClick={() => setSection(id)} style={{ ...buttonStyle, background: section === id ? '#0ea5e9' : '#172033' }}>{label}</button>)}
-        </nav>
-
-        {section === 'overview' && <div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: 12 }}>
-            {[
-              ['1', 'Living Lab', 'Cesena–Rimini come area dimostrativa e replicabile.'],
-              ['2', 'Circular Water', 'Efficienza, riuso, monitoraggio e KPI ambientali.'],
-              ['3', 'Digital MRV', 'Dati IoT, osservazioni, reporting e provenienza.'],
-              ['4', 'Open Source', 'Repository, componenti e risultati indicizzati e riutilizzabili.'],
-              ['5', 'Comuni & Pilot', 'Enti locali, orti, verde urbano e siti dimostrativi.'],
-              ['6', 'Zorgax AI', 'Assistente pubblico per cittadini, tecnici e partner.'],
-            ].map(([n, title, desc]) => <div key={n} style={box}><div style={{ color: '#67e8f9', fontSize: 12 }}>WP {n}</div><h3>{title}</h3><p style={{ color: '#9ca3af', lineHeight: 1.5 }}>{desc}</p></div>)}
+    <div style={shell}>
+      <header style={{ borderBottom: '1px solid #1f3342', background: '#09141e', position: 'sticky', top: 0, zIndex: 5 }}>
+        <div style={{ maxWidth: 1160, margin: '0 auto', padding: '13px 16px', display: 'flex', gap: 12, alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+          <button onClick={() => setView('home')} style={{ background: 'none', border: 0, color: '#fff', cursor: 'pointer', fontSize: 20, fontWeight: 900 }}>🌍 MyZubster</button>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <button onClick={() => setView('register')} style={secondary}>Registrati</button>
+            <button onClick={() => setView('zorgax')} style={primary}>Zorgax AI</button>
           </div>
-          <div style={{ ...box, marginTop: 14 }}>
-            <h2>Flusso operativo</h2>
-            <p style={{ color: '#b6c2d4', lineHeight: 1.7 }}>Registrazione soggetto → associazione a Comune/territorio → registrazione orto o sito pilota → raccolta dati e osservazioni → indicatori MRV → reporting pubblico → replicazione tramite repository open-source.</p>
-          </div>
-        </div>}
+        </div>
+      </header>
 
-        {section === 'users' && <div style={box}>
-          <h2>Registrazione cittadino / operatore</h2>
-          <p style={{ color: '#a8b4c7' }}>L’indirizzo XMR è opzionale e pubblico. MyZubster non chiede seed phrase, chiavi private o password del wallet.</p>
-          <form onSubmit={registerUser} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(230px,1fr))', gap: 12 }}>
-            <input required placeholder="Username" value={userForm.username} onChange={e => setUserForm({ ...userForm, username: e.target.value })} style={inputStyle}/>
-            <input required type="email" placeholder="Email" value={userForm.email} onChange={e => setUserForm({ ...userForm, email: e.target.value })} style={inputStyle}/>
-            <input required minLength={6} type="password" placeholder="Password" value={userForm.password} onChange={e => setUserForm({ ...userForm, password: e.target.value })} style={inputStyle}/>
-            <input placeholder="Indirizzo XMR pubblico (opzionale)" value={userForm.moneroWallet} onChange={e => setUserForm({ ...userForm, moneroWallet: e.target.value.trim() })} style={inputStyle}/>
-            <button style={buttonStyle}>Crea account</button>
-          </form>
-          {userStatus && <Status kind={userStatus.kind}>{userStatus.text}</Status>}
-        </div>}
+      <main style={{ maxWidth: 1160, margin: '0 auto', padding: '28px 16px 60px' }}>
+        {view === 'home' && <>
+          <section style={{ padding: '24px 0 18px' }}>
+            <div style={{ color: '#67e8f9', fontWeight: 800, letterSpacing: 1, fontSize: 13 }}>MYZUBSTER · PORTALE PUBBLICO</div>
+            <h1 style={{ fontSize: 'clamp(34px,6vw,62px)', lineHeight: 1.02, margin: '10px 0 12px', maxWidth: 900 }}>Un unico posto per cittadini, Comuni, orti, dati ambientali e AI.</h1>
+            <p style={{ color: '#b6c5d1', fontSize: 18, lineHeight: 1.6, maxWidth: 820 }}>
+              Scegli cosa vuoi fare. L’accesso a Zorgax e ai contenuti pubblici è libero. La registrazione serve solo per partecipare e gestire attività.
+            </p>
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 18 }}>
+              <button onClick={() => setView('register')} style={primary}>Crea account</button>
+              <button onClick={() => setView('zorgax')} style={secondary}>Parla con Zorgax</button>
+            </div>
+          </section>
 
-        {section === 'municipalities' && <div style={{ display: 'grid', gap: 14 }}>
-          <div style={box}>
-            <h2>Registro Comuni / Enti territoriali</h2>
-            <form onSubmit={registerMunicipality} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: 10 }}>
+          <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(230px,1fr))', gap: 12, marginTop: 18 }}>
+            {actions.map(([id, icon, title, text]) => (
+              <button key={id} onClick={() => setView(id)} style={{ ...card, textAlign: 'left', color: '#fff', cursor: 'pointer' }}>
+                <div style={{ fontSize: 30 }}>{icon}</div>
+                <h2 style={{ margin: '10px 0 6px', fontSize: 20 }}>{title}</h2>
+                <div style={{ color: '#9fb0bd', lineHeight: 1.5 }}>{text}</div>
+              </button>
+            ))}
+          </section>
+
+          <section style={{ ...card, marginTop: 16 }}>
+            <h2 style={{ marginTop: 0 }}>Come funziona</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(190px,1fr))', gap: 10 }}>
               {[
-                ['name','Comune / Ente'], ['province','Provincia'], ['region','Regione'], ['pec','PEC'], ['contactEmail','Email referente'], ['website','Sito istituzionale'],
-              ].map(([k,p]) => <input key={k} required={k === 'name'} placeholder={p} value={municipalityForm[k]} onChange={e => setMunicipalityForm({ ...municipalityForm, [k]: e.target.value })} style={inputStyle}/>)}
-              <input placeholder="Note / pilot proposto" value={municipalityForm.notes} onChange={e => setMunicipalityForm({ ...municipalityForm, notes: e.target.value })} style={inputStyle}/>
-              <button style={buttonStyle}>Registra ente</button>
-            </form>
-            {municipalityStatus && <Status kind={municipalityStatus.kind}>{municipalityStatus.text}</Status>}
-          </div>
-          <div style={box}>
-            <h3>Enti registrati</h3>
-            {!municipalities.length ? <p style={{ color: '#94a3b8' }}>Il registro è vuoto o il backend non è ancora raggiungibile dal dominio corrente.</p> : municipalities.map(m => <div key={m._id || m.id || m.name} style={{ padding: '10px 0', borderBottom: '1px solid #263247' }}><strong>{m.name}</strong> <span style={{ color: '#94a3b8' }}>{[m.province,m.region].filter(Boolean).join(' · ')}</span></div>)}
-          </div>
-        </div>}
+                ['1', 'Entra', 'Naviga liberamente o crea un account.'],
+                ['2', 'Partecipa', 'Collegati a un Comune, un orto o un pilot.'],
+                ['3', 'Misura', 'Raccogli dati, osservazioni e indicatori MRV.'],
+                ['4', 'Condividi', 'Risultati e codice restano verificabili e replicabili.'],
+              ].map(([n, t, d]) => <div key={n} style={{ padding: 14, background: '#091621', borderRadius: 12 }}><strong style={{ color: '#67e8f9' }}>{n}. {t}</strong><div style={{ color: '#a8bac7', marginTop: 6 }}>{d}</div></div>)}
+            </div>
+          </section>
+        </>}
 
-        {section === 'gardens' && <div style={{ display: 'grid', gap: 14 }}>
-          <div style={box}>
-            <h2>Orti, verde urbano e siti pilota</h2>
-            <p style={{ color: '#a8b4c7', lineHeight: 1.6 }}>Ogni sito deve poter essere collegato a un territorio, un responsabile, una baseline, attività operative e KPI: consumo idrico, riuso, manutenzione, materiali, rifiuti evitati e osservazioni ambientali.</p>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 10 }}>
-              {['Anagrafica sito','Coordinate & Comune','Sensori / dati IoT','Acqua e irrigazione','Materiali & circolarità','KPI / MRV','Foto e osservazioni','Report LIFE'].map(x => <div key={x} style={{ background: '#0b1220', padding: 12, borderRadius: 10, border: '1px solid #263247' }}>{x}</div>)}
+        {view === 'register' && <section style={{ maxWidth: 620, margin: '12px auto' }}>
+          <button onClick={() => setView('home')} style={{ ...secondary, marginBottom: 12 }}>← Home</button>
+          <div style={card}>
+            <h1 style={{ marginTop: 0 }}>Crea il tuo account</h1>
+            <p style={{ color: '#a9bac7' }}>Bastano username, email e password.</p>
+            <form onSubmit={submitRegistration} style={{ display: 'grid', gap: 12 }}>
+              <input required minLength={3} placeholder="Username" value={register.username} onChange={e => setRegister({ ...register, username: e.target.value })} style={input} />
+              <input required type="email" placeholder="Email" value={register.email} onChange={e => setRegister({ ...register, email: e.target.value })} style={input} />
+              <input required minLength={6} type="password" placeholder="Password (minimo 6 caratteri)" value={register.password} onChange={e => setRegister({ ...register, password: e.target.value })} style={input} />
+              <label style={{ display: 'flex', gap: 9, alignItems: 'center', color: '#b5c4cf' }}>
+                <input type="checkbox" checked={showXmr} onChange={e => setShowXmr(e.target.checked)} /> Aggiungi un indirizzo XMR pubblico (opzionale)
+              </label>
+              {showXmr && <>
+                <input placeholder="Indirizzo pubblico Monero/XMR" value={register.moneroWallet} onChange={e => setRegister({ ...register, moneroWallet: e.target.value.trim() })} style={input} />
+                <small style={{ color: '#8fa4b3' }}>Non inserire mai seed phrase o chiavi private. MyZubster usa solo l’indirizzo pubblico.</small>
+              </>}
+              <button style={primary}>Registrati</button>
+            </form>
+            {registerStatus && <div style={{ marginTop: 12, color: registerStatus.startsWith('Account') ? '#86efac' : '#fbbf24' }}>{registerStatus}</div>}
+          </div>
+        </section>}
+
+        {view === 'zorgax' && <section>
+          <button onClick={() => setView('home')} style={{ ...secondary, marginBottom: 12 }}>← Home</button>
+          <div style={card}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+              <div><h1 style={{ margin: 0 }}>Zorgax AI</h1><p style={{ color: '#a9bac7' }}>Pubblica e accessibile a tutti.</p></div>
+              <a href={`${GATEWAY}/zargox`} target="_blank" rel="noreferrer" style={{ ...primary, textDecoration: 'none' }}>Apri a schermo intero</a>
+            </div>
+            <iframe title="Zorgax AI" src={`${GATEWAY}/zargox`} style={{ width: '100%', minHeight: 700, border: '1px solid #243b4a', borderRadius: 14, background: '#090b14' }} />
+          </div>
+        </section>}
+
+        {view === 'municipality' && <section style={{ maxWidth: 700, margin: '12px auto' }}>
+          <button onClick={() => setView('home')} style={{ ...secondary, marginBottom: 12 }}>← Home</button>
+          <div style={card}>
+            <h1 style={{ marginTop: 0 }}>Registra Comune / Ente</h1>
+            <p style={{ color: '#a9bac7' }}>Modulo essenziale. I dettagli del pilot possono essere aggiunti dopo.</p>
+            <form onSubmit={submitMunicipality} style={{ display: 'grid', gap: 12 }}>
+              <input required placeholder="Nome Comune / Ente" value={municipality.name} onChange={e => setMunicipality({ ...municipality, name: e.target.value })} style={input}/>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 12 }}>
+                <input placeholder="Provincia" value={municipality.province} onChange={e => setMunicipality({ ...municipality, province: e.target.value })} style={input}/>
+                <input placeholder="Regione" value={municipality.region} onChange={e => setMunicipality({ ...municipality, region: e.target.value })} style={input}/>
+              </div>
+              <input type="email" placeholder="Email referente" value={municipality.contactEmail} onChange={e => setMunicipality({ ...municipality, contactEmail: e.target.value })} style={input}/>
+              <button style={primary}>Registra ente</button>
+            </form>
+            {municipalityStatus && <div style={{ marginTop: 12, color: '#fbbf24' }}>{municipalityStatus}</div>}
+          </div>
+        </section>}
+
+        {view === 'gardens' && <section>
+          <button onClick={() => setView('home')} style={{ ...secondary, marginBottom: 12 }}>← Home</button>
+          <div style={card}>
+            <h1 style={{ marginTop: 0 }}>Orti & Pilot</h1>
+            <p style={{ color: '#a9bac7', lineHeight: 1.6 }}>Gestione di orti, verde urbano e siti dimostrativi con territorio, acqua, sensori, materiali, osservazioni e KPI/MRV.</p>
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+              <button onClick={() => openLegacy && openLegacy('gardens')} style={primary}>Apri gestione orti</button>
+              <button onClick={() => openLegacy && openLegacy('pilot')} style={secondary}>Apri dashboard pilot</button>
             </div>
           </div>
-          <div style={box}><h3>Gestione esistente</h3><p style={{ color: '#a8b4c7' }}>La piattaforma mantiene le API esistenti per <code>/api/gardens</code>, piante, mappa e dashboard pilot. Questa nuova area le organizza secondo il modello LIFE/MRV.</p></div>
-        </div>}
+        </section>}
 
-        {section === 'repos' && <div style={box}>
-          <h2>Indice repository MyZubster</h2>
-          <p style={{ color: '#a8b4c7' }}>{repoStatus}. Ordinamento GitHub: aggiornati più di recente.</p>
-          <input placeholder="Cerca repository, linguaggio, topic…" value={repoQuery} onChange={e => setRepoQuery(e.target.value)} style={{ ...inputStyle, marginBottom: 12 }}/>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: 10 }}>
-            {filteredRepos.map(r => <a key={r.id} href={r.html_url} target="_blank" rel="noreferrer" style={{ ...box, color: '#fff', textDecoration: 'none', padding: 14 }}>
-              <div style={{ color: '#67e8f9', fontWeight: 800 }}>{r.name}</div>
-              <p style={{ color: '#a8b4c7', minHeight: 38 }}>{r.description || 'Repository MyZubster'}</p>
-              <div style={{ fontSize: 12, color: '#94a3b8' }}>{r.language || 'multi-language'} · ★ {r.stargazers_count} · aggiornato {new Date(r.updated_at).toLocaleDateString()}</div>
-            </a>)}
+        {view === 'repos' && <section>
+          <button onClick={() => setView('home')} style={{ ...secondary, marginBottom: 12 }}>← Home</button>
+          <div style={card}>
+            <h1 style={{ marginTop: 0 }}>Repository MyZubster</h1>
+            <p style={{ color: '#a9bac7' }}>{repos.length ? `${repos.length} repository pubblici indicizzati.` : 'Caricamento repository…'}</p>
+            <input placeholder="Cerca per nome, linguaggio o argomento" value={repoQuery} onChange={e => setRepoQuery(e.target.value)} style={{ ...input, marginBottom: 12 }} />
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(260px,1fr))', gap: 10 }}>
+              {filteredRepos.map(r => <a key={r.id} href={r.html_url} target="_blank" rel="noreferrer" style={{ ...card, padding: 14, color: '#fff', textDecoration: 'none' }}>
+                <strong style={{ color: '#67e8f9' }}>{r.name}</strong>
+                <p style={{ color: '#9fb0bd' }}>{r.description || 'Repository pubblico MyZubster'}</p>
+                <small style={{ color: '#8196a5' }}>{r.language || 'multi-language'} · aggiornato {new Date(r.updated_at).toLocaleDateString()}</small>
+              </a>)}
+            </div>
           </div>
-        </div>}
+        </section>}
 
-        {section === 'zorgax' && <div style={box}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
-            <div><h2 style={{ marginBottom: 6 }}>Zorgax AI per tutti</h2><p style={{ color: '#a8b4c7', marginTop: 0 }}>Accesso pubblico, senza account obbligatorio.</p></div>
-            <a href={`${GATEWAY}/zargox`} target="_blank" rel="noreferrer" style={{ ...buttonStyle, textDecoration: 'none' }}>Apri a schermo intero</a>
+        {view === 'life' && <section>
+          <button onClick={() => setView('home')} style={{ ...secondary, marginBottom: 12 }}>← Home</button>
+          <div style={card}>
+            <h1 style={{ marginTop: 0 }}>MyZubster LIFE 2026</h1>
+            <p style={{ color: '#a9bac7', lineHeight: 1.7 }}>Struttura digitale per living lab territoriale, efficienza e riuso dell’acqua, circolarità, dati IoT, Monitoring Reporting & Verification e replicazione open-source.</p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: 10 }}>
+              {['Circular Water','Digital MRV','Comuni & Territorio','Orti & Verde urbano','Open Source','Zorgax AI'].map(x => <div key={x} style={{ padding: 14, borderRadius: 12, background: '#091621' }}>{x}</div>)}
+            </div>
           </div>
-          <iframe title="Zorgax AI" src={`${GATEWAY}/zargox`} style={{ width: '100%', minHeight: 720, border: '1px solid #263247', borderRadius: 14, background: '#090b14' }}/>
-        </div>}
-      </div>
+        </section>}
+      </main>
     </div>
   );
 }
