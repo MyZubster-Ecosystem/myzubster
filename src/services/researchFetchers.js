@@ -1,7 +1,11 @@
 'use strict';
 
 const { spawn } = require('child_process');
+const dns = require('dns');
+const http = require('http');
+const https = require('https');
 const axios = require('axios');
+const { isPrivateIp } = require('./researchSearchPolicy');
 
 const DEFAULT_TIMEOUT_MS = 10000;
 const DEFAULT_MAX_BYTES = 1024 * 1024;
@@ -13,7 +17,21 @@ function assertHttpSuccess(status) {
   }
 }
 
-function createWebFetcher({ timeoutMs = DEFAULT_TIMEOUT_MS, maxBytes = DEFAULT_MAX_BYTES, httpClient = axios } = {}) {
+function createSafeLookup(lookup = dns.lookup) {
+  return function safeLookup(hostname, options, callback) {
+    lookup(hostname, { ...options, all: false }, (error, address, family) => {
+      if (error) return callback(error);
+      if (isPrivateIp(address)) return callback(new Error('crawler DNS resolved to a private or local address'));
+      return callback(null, address, family);
+    });
+  };
+}
+
+function createWebFetcher({ timeoutMs = DEFAULT_TIMEOUT_MS, maxBytes = DEFAULT_MAX_BYTES, httpClient = axios, lookup = dns.lookup } = {}) {
+  const safeLookup = createSafeLookup(lookup);
+  const httpAgent = new http.Agent({ keepAlive: false, lookup: safeLookup });
+  const httpsAgent = new https.Agent({ keepAlive: false, lookup: safeLookup });
+
   return async function fetchWeb(url) {
     const response = await httpClient.get(url, {
       timeout: timeoutMs,
@@ -21,6 +39,8 @@ function createWebFetcher({ timeoutMs = DEFAULT_TIMEOUT_MS, maxBytes = DEFAULT_M
       responseType: 'text',
       maxContentLength: maxBytes,
       maxBodyLength: maxBytes,
+      httpAgent,
+      httpsAgent,
       validateStatus: status => status >= 200 && status < 400,
       headers: {
         'user-agent': USER_AGENT,
@@ -116,5 +136,6 @@ module.exports = {
   DEFAULT_TIMEOUT_MS,
   USER_AGENT,
   createOnionFetcher,
+  createSafeLookup,
   createWebFetcher,
 };
