@@ -7,6 +7,7 @@ async function main() {
   const query = String(process.env.ZORGAX_RAG_SMOKE_QUERY || '').trim();
   const scope = process.env.ZORGAX_RAG_SMOKE_SCOPE || 'all';
   const limit = process.env.ZORGAX_RAG_SMOKE_LIMIT || 3;
+  const timeoutMs = process.env.ZORGAX_RAG_SMOKE_TIMEOUT_MS;
 
   if (!query) {
     console.error('ZORGAX_RAG_SMOKE_QUERY is required. The smoke test never invents a crawl target or query.');
@@ -14,13 +15,14 @@ async function main() {
     return;
   }
 
-  const smoke = createZorgaxResearchSmoke({ baseUrl });
+  const smoke = createZorgaxResearchSmoke({ baseUrl, timeoutMs });
   const result = await smoke.run({ query, scope, limit });
 
   const summary = {
     baseUrl: result.baseUrl,
     query: result.query,
     scope: result.scope,
+    timeoutMs: result.timeoutMs,
     zorgaxStatus: {
       http: result.zorgaxStatus.status,
       ok: result.zorgaxStatus.ok,
@@ -44,6 +46,8 @@ async function main() {
       http: result.chat.status,
       ok: result.chat.ok && result.chat.body?.ok === true,
       researchUsed: result.researchUsed,
+      citedResearchUsed: result.citedResearchUsed,
+      citationSatisfied: result.citationSatisfied,
       provenance: result.chat.body?.research_provenance || null,
       responsePreview: String(result.chat.body?.response || '').slice(0, 500),
     } : null,
@@ -61,12 +65,12 @@ async function main() {
   }
 
   if (!result.grounded) {
-    console.error('Zorgax answered without the expected research provenance contract.');
+    console.error('Zorgax answered without the expected research provenance and source-label citation contract.');
     process.exitCode = 4;
     return;
   }
 
-  console.log('Zorgax research RAG smoke test passed with local provenance and zero crawler execution.');
+  console.log('Zorgax research RAG smoke test passed with local provenance, source-label citation, and zero crawler execution.');
 }
 
 main().catch(error => {
