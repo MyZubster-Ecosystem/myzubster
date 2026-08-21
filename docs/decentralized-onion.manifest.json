@@ -1,35 +1,55 @@
 {
-  "schema": "myzubster-decentralized-onion-manifest/v0.1",
+  "schema": "myzubster-decentralized-onion-manifest/v0.2",
   "project": "MyZubster",
-  "status": "proposal",
+  "status": "implementation",
   "issued_at": "2026-08-21T00:00:00Z",
   "expires_at": null,
   "current_root": {
     "ipns": null,
     "cid": null,
-    "sha256": null
+    "sha256": null,
+    "state": "awaiting-first-signed-publication"
+  },
+  "signing": {
+    "algorithm": "Ed25519",
+    "canonicalization": "myzubster-json-sort-v1",
+    "key_policy": "private-key-generated-and-kept-locally",
+    "signature_required_for_authoritative_state": true
   },
   "signing_keys": [],
   "discovery": {
     "github": [
-      "https://github.com/MyZubster-Ecosystem/myzubster"
+      "https://raw.githubusercontent.com/MyZubster-Ecosystem/myzubster/decentralize-onion/docs/decentralized-onion.manifest.json",
+      "https://github.com/MyZubster-Ecosystem/myzubster/blob/decentralize-onion/docs/decentralized-onion.manifest.json"
+    ],
+    "drive_root_records": [
+      "https://docs.google.com/document/d/1bSNjH_dgOxcdsHhQhoT1xOPcIE47v50ZmHOaXA6IQik/edit?usp=drivesdk"
     ],
     "dnslink": [],
     "ipns": [],
     "onion": []
   },
   "retrieval": {
-    "https_mirrors": [],
+    "https_mirrors": [
+      "https://raw.githubusercontent.com/MyZubster-Ecosystem/myzubster/decentralize-onion/docs/decentralized-onion.manifest.json"
+    ],
     "ipfs_gateways": [],
     "onion_mirrors": []
   },
   "verification": {
+    "local_verifier": "tools/onion/onionctl.mjs",
     "public_verifiers": [],
     "quorum": {
       "status": "proposed",
       "threshold": null,
       "distinct_verifier_keys_required": true
     }
+  },
+  "publication": {
+    "github": "active-on-feature-branch",
+    "drive_root_record": "active",
+    "ipns": "requires-connected-ipfs-node-and-local-key",
+    "minimum_independent_paths_target": 2
   },
   "continuity": {
     "previous_manifest_cid": null,
@@ -40,9 +60,12 @@
     "secrets_allowed": false,
     "government_identity_documents_allowed": false
   },
+  "signature": null,
   "notes": [
+    "Unsigned manifests are discovery hints only, not authoritative state.",
+    "The authoritative manifest must be signed with a locally controlled Ed25519 private key.",
     "All empty endpoints are intentionally unclaimed until independently testable.",
-    "The manifest must be signed before clients treat it as authoritative.",
-    "Tor onion mirrors are optional retrieval paths, not a source of truth."
+    "Tor onion mirrors are optional retrieval paths, not a source of truth.",
+    "IPNS publication cannot be completed from GitHub alone; it requires a connected IPFS node and its local publishing key."
   ]
 }
