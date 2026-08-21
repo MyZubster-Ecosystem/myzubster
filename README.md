@@ -396,6 +396,26 @@ Notable external discovery signals include:
 - **Tech Spindle** — indexed *Building an AI Automation System for MyZubster* as an automation project and assigned its own impact/innovation scoring. Because the page is derived from the original DEV publication, it is recorded as external indexing/classification rather than independent technical validation.
 - **TechForDev** — indexed/re-published MyZubster material including *MyZubster is Now Live! A Decentralized Global Map for Plants and Animals* and, on 13 August 2026, *Urban Lab: Building a Smart Scooter with AI and Reinforcement Learning*. These pages provide additional propagation/discovery signals, but are treated as syndication rather than independent reporting.
 - **WorldProgramming.org** — indexed/re-published *From Urban Gardens to Clean Streets: Building a Decentralized Robot Ecosystem with MyZubster and Monero*, adding another external content-discovery path while remaining derivative of the original publication.
+- **WorldProgramming / WPS — TAZ DAY** — indexed/re-published *MYZUBSTER TAZ DAY — From Open Source to a Real-World Robotics Test in Riccione*, derived from a DEV Community publication dated **10 August 2026**. The item is recorded as evidence that the TAZ DAY concept/publication exists and that the project publicly framed it as a real-world robotics test. It is **not**, by itself, proof of a production-ready robot fleet, completed physical deployment or independently measured field result.
+- **WorldProgramming / WPS — robot/space-sector article** — indexed/re-published *MyZubster: 36 Robot Projects, 119 XMR in Bounties, and a New Space Sector*, also derived from a DEV Community publication dated **10 August 2026**. The published figures — including **36 robot projects** and **119 XMR in bounties** — are treated here as **historical/publication claims or declared allocation/scope**, not as proof that 36 physical robots were built or that 119 XMR were funded, paid or independently verified. Any external settlement claim must be reconciled with canonical bounty records and independent settlement evidence before being described as `PAID`.
+
+### Public-history interpretation rule
+
+For historical articles, mirrors and syndicated posts, MyZubster uses the following distinction:
+
+```text
+ARTICLE / INDEX EXISTS
+        ≠
+IMPLEMENTATION VERIFIED
+        ≠
+PHYSICAL DEPLOYMENT VERIFIED
+        ≠
+REWARD RECORDED
+        ≠
+EXTERNAL SETTLEMENT VERIFIED / PAID
+```
+
+Numbers appearing in a historical publication may describe roadmap scope, software/project counts, proposed bounty pools, internal accounting, experiments or author-reported results. They must not be promoted into current canonical metrics unless the repository links them to reproducible evidence or an appropriate independent verifier.
 
 Because external aggregators may automatically interpret GitHub issues, every public bounty should clearly state its **reward (or explicitly say that no external reward is committed), currency/payment rail, funding state, current status, acceptance criteria, eligibility, verification process and settlement conditions**. Indexing by an external service does not imply endorsement, funding, partnership or successful payment.
 
