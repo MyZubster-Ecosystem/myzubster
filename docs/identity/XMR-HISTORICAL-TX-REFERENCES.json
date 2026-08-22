@@ -1,0 +1,44 @@
+{
+  "schema": "myzubster.xmr-historical-transactions/v1",
+  "project": "MyZubster",
+  "created_at": "2026-08-22",
+  "purpose": "Historical Monero transaction references observed in prior MyZubster-related correspondence and public GitHub notification threads. These records are not retroactive anchors for MYZ-XMR-ID-001 unless an artifact-to-transaction linkage is separately proven.",
+  "transactions": [
+    {
+      "txid": "796dfdfecd28933bd2bb68cbd5f31cf10c7cebcc9eddd81ed8460acc88b38fa3",
+      "network": "mainnet",
+      "amount_xmr": 0.06,
+      "block_height": 3729060,
+      "evidence_state": "recipient_wallet_confirmed",
+      "context": "MyZubster-App PR #28 / mobile marketplace listings",
+      "source_date": "2026-07-30",
+      "notes": "Contributor stated that the official Monero CLI wallet showed the incoming transfer and reported the block height. Historical payment evidence only; no claim that this transaction commits to the current digital-identity artifact hash."
+    },
+    {
+      "txid": "688d6d01e5fcff332b70b497fa120a3d1c62c31f1fcc6379fbebe7cab9b7c7c9",
+      "network": "mainnet",
+      "amount_xmr": null,
+      "block_height": null,
+      "evidence_state": "on_chain_reported_but_recipient_attribution_disputed",
+      "context": "MyZubster-App PR #28 / earlier transaction reference",
+      "source_date": "2026-07-30",
+      "notes": "Reported as confirmed on-chain, but the same correspondence identified a recipient mix-up. Preserve as historical evidence with attribution conflict; do not treat as proof of payment to the intended contributor or as an identity anchor."
+    },
+    {
+      "txid": "731943832bb26520061cb32157ac39c8058de0193692251e7242dae9e7cfea15",
+      "network": "mainnet",
+      "amount_xmr": 0.06,
+      "block_height": null,
+      "evidence_state": "mempool_observed_unconfirmed_at_source_time",
+      "context": "MyZubsterGateway PR #87 / API message internationalization",
+      "source_date": "2026-07-30",
+      "notes": "Receiving-wallet report said the transaction was visible in the mempool and still locked/unconfirmed at the time of the message. No later confirmation is asserted here without separate evidence."
+    }
+  ],
+  "identity_artifact_relationship": {
+    "artifact_id": "MYZ-XMR-ID-001",
+    "retroactive_anchor": false,
+    "reason": "A pre-existing Monero transaction cannot by itself prove commitment to a later artifact unless the artifact hash/CID or another verifiable linkage was part of the original transaction/proof context.",
+    "recommended_use": "historical_provenance_and_payment_reference_only"
+  }
+}
