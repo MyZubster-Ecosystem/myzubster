@@ -7,6 +7,16 @@ const marketplaceListingSchema = new mongoose.Schema({
   sellerWallet: { type: String, required: true },
   chainId: { type: Number, required: true },
   priceMyz: { type: Number, required: true, min: 0 },
+  settlementMode: {
+    type: String,
+    enum: ['legacy_verified', 'atomic_escrow'],
+    default: 'legacy_verified',
+    index: true
+  },
+  escrowContract: { type: String, default: null },
+  escrowListingId: { type: String, default: null },
+  escrowListTxHash: { type: String, default: null },
+  escrowListingVerification: { type: mongoose.Schema.Types.Mixed, default: null },
   status: {
     type: String,
     enum: ['active', 'sale_pending', 'sold', 'cancelled'],
@@ -25,6 +35,8 @@ const marketplaceListingSchema = new mongoose.Schema({
 
 marketplaceListingSchema.index({ paymentTxHash: 1 }, { unique: true, sparse: true });
 marketplaceListingSchema.index({ nftTransferTxHash: 1 }, { unique: true, sparse: true });
+marketplaceListingSchema.index({ saleTxHash: 1 }, { unique: true, sparse: true });
+marketplaceListingSchema.index({ chainId: 1, escrowContract: 1, escrowListingId: 1 }, { unique: true, sparse: true });
 marketplaceListingSchema.index({ assetId: 1, status: 1 });
 
 module.exports = mongoose.models.MarketplaceListing || mongoose.model('MarketplaceListing', marketplaceListingSchema);
