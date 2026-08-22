@@ -55,6 +55,6 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/MyZubster-Ecosystem/MyZubsterGateway"
+    "url": "git+https://github.com/MyZubster-Ecosystem/myzubster.git"
   }
 }
