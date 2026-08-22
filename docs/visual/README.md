@@ -16,7 +16,11 @@ The Drive staging pack `PC-UPLOAD-PACK-2026-08-22` is treated as a working archi
 
 The reviewed `READY-FOR-GITHUB` asset `001-myzubster-ecosystem-architecture-zorgax.png` has been integrated as a repository-native SVG package under `architecture/`, while its Drive file ID is retained as archive metadata. The image is architecture documentation, not operational evidence.
 
-Narrative/AI visuals from `CONCEPT-NOT-EVIDENCE` must remain explicitly labelled illustrative and must not be used to prove metrics, deployment, adoption, geography, contributor counts, partnerships or system health.
+All **11** narrative/AI PNGs found in `CONCEPT-NOT-EVIDENCE` are now catalogued under [`concept-gallery/`](concept-gallery/) with filename, Drive archive ID, category, evidence status and a canonical source/path where one is available.
+
+These PNGs remain explicitly **AI-generated / illustrative / NOT EVIDENCE** and must not be used to prove metrics, deployment, adoption, geography, contributor counts, partnerships, identity, settlement or system health.
+
+The asset `external-git-metasploit-UNVERIFIED-CONCEPT.png` is specially classified as **UNVERIFIED EXTERNAL CANDIDATE / NO AFFILIATION**. Its presence in the visual archive does not establish integration, endorsement, authorization or partnership.
 
 ## Current packages
 
@@ -28,6 +32,7 @@ Narrative/AI visuals from `CONCEPT-NOT-EVIDENCE` must remain explicitly labelled
 - **#006 — Contributor Journey** — discovery → mission → evidence → review → verified ecosystem change.
 - **#007 — World State / Evidence Ledger** — explicit claim states capped by linked evidence.
 - **#009 — Adoption Ladder** — discovery → interest → fork → contribution → integration → deployment → verified adoption.
+- **Concept Image Archive** — all 11 AI/narrative PNGs from the PC Upload Pack, catalogued without promoting them to evidence.
 
 ## Character Registry
 
@@ -45,9 +50,21 @@ AI-generated image != evidence
 Roadmap item       != released feature
 Indexing           != endorsement
 Discovery          != adoption
+Visual archive     != affiliation
 ```
 
 Every visual package should include provenance notes or a manifest describing its source and whether it is documentation, evidence, official material or narrative illustration.
+
+## Before publishing a Drive PNG into GitHub
+
+- [ ] Text is readable on desktop and mobile.
+- [ ] Every factual claim has a public evidence link.
+- [ ] AI visuals are explicitly marked illustrative / not evidence.
+- [ ] No invented metrics, geography, contributors or system-health claims remain.
+- [ ] No secrets, tokens, private keys or unnecessary personal data appear.
+- [ ] External projects are not described as partners without evidence.
+- [ ] Logos and names do not imply endorsement or affiliation.
+- [ ] The repository-native/canonical documentation remains the factual reference.
 
 ## Next priorities
 
