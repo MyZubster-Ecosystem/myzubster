@@ -11,10 +11,24 @@ jobs:
     environment: production
     steps:
       - name: Check API Health
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
         run: |
-          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" ${{ secrets.APP_URL }}/)
+          set -euo pipefail
+
+          URL="${APP_URL:-https://myzubster.com}"
+          URL="${URL%/}/"
+
+          echo "Checking production endpoint (redirects enabled)"
+          HTTP_CODE=$(curl -L --connect-timeout 10 --max-time 30 -sS -o /tmp/health-response.txt -w "%{http_code}" "$URL" || true)
+
+          echo "Final HTTP status: $HTTP_CODE"
           if [ "$HTTP_CODE" != "200" ]; then
-            echo "❌ Health check FAILED"
+            echo "❌ Health check FAILED: expected 200, got $HTTP_CODE"
+            echo "Response preview:"
+            head -c 500 /tmp/health-response.txt 2>/dev/null || true
+            echo
             exit 1
           fi
+
           echo "✅ Health check OK"
