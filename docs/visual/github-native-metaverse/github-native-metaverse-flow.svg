@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">MyZubster GitHub-native metaverse flow</title>
+  <desc id="desc">Cyberpunk flow diagram showing Repository to Issue or Mission to Contributor to Work and Evidence to Pull Request to Review and Verification to Verified World State.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#050816"/><stop offset="1" stop-color="#160a22"/></linearGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <style>
+      .t{font-family:Arial,sans-serif;fill:#f5fbff}.h{font-size:46px;font-weight:700}.s{font-size:20px;fill:#a7bfd1}.b{fill:#0b1428;stroke:#28d7ff;stroke-width:2.5}.m{fill:#170f2b;stroke:#ff46d8;stroke-width:2.5}.g{fill:#0d1b1a;stroke:#72f2b6;stroke-width:2.5}.l{stroke:#28d7ff;stroke-width:4;fill:none}.lm{stroke:#ff46d8;stroke-width:4;fill:none}.label{font-size:24px;font-weight:700}.small{font-size:16px;fill:#bed0de}.note{font-size:15px;fill:#8da8bb}
+    </style>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <text x="70" y="80" class="t h">MYZUBSTER — GITHUB-NATIVE METAVERSE</text>
+  <text x="70" y="118" class="t s">How public contributions become verified ecosystem state</text>
+
+  <g filter="url(#glow)">
+    <rect x="90" y="220" width="190" height="110" rx="18" class="b"/>
+    <rect x="320" y="220" width="190" height="110" rx="18" class="m"/>
+    <rect x="550" y="220" width="190" height="110" rx="18" class="b"/>
+    <rect x="780" y="220" width="190" height="110" rx="18" class="m"/>
+    <rect x="1010" y="220" width="190" height="110" rx="18" class="b"/>
+    <rect x="1240" y="220" width="270" height="110" rx="18" class="g"/>
+  </g>
+
+  <text x="185" y="267" text-anchor="middle" class="t label">Repository</text><text x="185" y="297" text-anchor="middle" class="t small">code · docs · data</text>
+  <text x="415" y="267" text-anchor="middle" class="t label">Issue / Mission</text><text x="415" y="297" text-anchor="middle" class="t small">objective + criteria</text>
+  <text x="645" y="267" text-anchor="middle" class="t label">Contributor</text><text x="645" y="297" text-anchor="middle" class="t small">builder / participant</text>
+  <text x="875" y="257" text-anchor="middle" class="t label">Work +</text><text x="875" y="285" text-anchor="middle" class="t label">Evidence</text><text x="875" y="311" text-anchor="middle" class="t small">tests · media · data</text>
+  <text x="1105" y="267" text-anchor="middle" class="t label">PR / Submit</text><text x="1105" y="297" text-anchor="middle" class="t small">public proposal</text>
+  <text x="1375" y="257" text-anchor="middle" class="t label">Review +</text><text x="1375" y="285" text-anchor="middle" class="t label">Verification</text><text x="1375" y="311" text-anchor="middle" class="t small">accept / reject / revise</text>
+
+  <path d="M280 275 H320" class="l"/><path d="M510 275 H550" class="lm"/><path d="M740 275 H780" class="l"/><path d="M970 275 H1010" class="lm"/><path d="M1200 275 H1240" class="l"/>
+
+  <rect x="390" y="470" width="820" height="150" rx="28" class="g" filter="url(#glow)"/>
+  <text x="800" y="522" text-anchor="middle" class="t label">VERIFIED ECOSYSTEM CHANGE</text>
+  <text x="800" y="558" text-anchor="middle" class="t small">Only reviewed, evidence-supported changes become part of the public world state.</text>
+  <text x="800" y="591" text-anchor="middle" class="t small">GitHub preserves provenance: commits · PRs · issues · releases · documentation</text>
+  <path d="M1375 330 C1375 410 1130 430 1030 470" class="l"/>
+
+  <rect x="210" y="690" width="1180" height="120" rx="22" fill="#07111f" stroke="#465d76" stroke-width="1.5"/>
+  <text x="245" y="730" class="t label">Evidence guardrail</text>
+  <text x="245" y="765" class="t small">Issue ≠ completed mission · PR ≠ accepted contribution · merge ≠ external payment · AI visual ≠ evidence</text>
+  <text x="245" y="795" class="t note">Narrative layer: cyberpunk illustration. Authoritative layer: repository state, tests, CI, canonical docs and independently verifiable records.</text>
+
+  <text x="70" y="862" class="t note">Zorgax Visual #003 · original vector documentation asset · 22 Aug 2026</text>
+</svg>
