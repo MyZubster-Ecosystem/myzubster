@@ -33,7 +33,7 @@ async function assertNetwork(provider, chainId) {
   if (Number(network.chainId) !== Number(chainId)) throw new Error('RPC chainId mismatch');
 }
 
-async function verifyMintReceipt({ chainId, contractAddress, tokenId, mintTxHash, ownerWallet }) {
+async function verifyMintReceipt({ chainId, contractAddress, tokenId, mintTxHash, ownerWallet, metadataUri }) {
   const provider = getProvider(chainId);
   const normalizedContract = assertAllowedContract(chainId, contractAddress);
   const normalizedOwner = ethers.getAddress(ownerWallet).toLowerCase();
@@ -59,6 +59,24 @@ async function verifyMintReceipt({ chainId, contractAddress, tokenId, mintTxHash
   });
 
   if (!mintLog) throw new Error('Evento ERC-721 mint Transfer(0x0, owner, tokenId) non trovato');
+
+  const nft = new ethers.Contract(
+    normalizedContract,
+    [
+      'function ownerOf(uint256) view returns (address)',
+      'function tokenURI(uint256) view returns (string)'
+    ],
+    provider
+  );
+  const currentOwner = (await nft.ownerOf(expectedTokenId)).toLowerCase();
+  if (currentOwner !== normalizedOwner) throw new Error('Owner NFT on-chain non corrisponde al wallet dichiarato');
+
+  const onChainTokenUri = await nft.tokenURI(expectedTokenId);
+  if (!onChainTokenUri) throw new Error('Token URI on-chain vuota');
+  if (metadataUri && metadataUri !== onChainTokenUri) {
+    throw new Error('Metadata URI non corrisponde alla tokenURI on-chain');
+  }
+
   await assertNetwork(provider, chainId);
 
   return {
@@ -66,7 +84,8 @@ async function verifyMintReceipt({ chainId, contractAddress, tokenId, mintTxHash
     transactionHash: receipt.hash,
     contractAddress: normalizedContract,
     ownerWallet: normalizedOwner,
-    tokenId: expectedTokenId
+    tokenId: expectedTokenId,
+    tokenURI: onChainTokenUri
   };
 }
 
