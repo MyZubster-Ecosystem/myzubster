@@ -44,6 +44,20 @@ https://github.com/MyZubster-Ecosystem/myzubster/issues/617
 
 Your character may represent your public contributor alias and role. It is optional and does not represent KYC, employment, partnership, payment or ownership.
 
+### Automatic Zorgax draft
+
+When you enter the public contribution flow with a `CLAIM` or open a pull request, Zorgax may post an **optional character draft** using only your public GitHub alias and the contribution source.
+
+Nothing is registered automatically. To opt in, reply to the Zorgax draft with exactly:
+
+```text
+ACCEPT CHARACTER
+```
+
+Zorgax will then add a `PROPOSED` character entry to Character Registry #617 with a provenance link to your consent/contribution. You can ignore the draft or write `SKIP CHARACTER` if you do not want a character.
+
+See [`docs/ZORGAX_CHARACTER_AUTOMATION.md`](docs/ZORGAX_CHARACTER_AUTOMATION.md).
+
 ## Explore the visual story
 
 https://www.myzubster.com/fumetto
