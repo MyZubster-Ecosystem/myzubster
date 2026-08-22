@@ -4,10 +4,12 @@ services:
       context: .
       dockerfile: Dockerfile
     environment:
-      ONION_TARGET_HOST: frontend
-      ONION_TARGET_PORT: 3000
+      ONION_TARGET_HOST: host.docker.internal
+      ONION_TARGET_PORT: 5003
     volumes:
       - onion_data:/var/lib/tor/myzubster
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks: [onion_net]
     restart: unless-stopped
 
@@ -21,6 +23,7 @@ services:
       OBSERVATIONS_FILE: /data/observations.jsonl
       PROBE_INTERVAL_SECONDS: ${PROBE_INTERVAL_SECONDS:-30}
       PROBE_TIMEOUT_SECONDS: ${PROBE_TIMEOUT_SECONDS:-15}
+      PROBE_PATH: ${PROBE_PATH:-/}
     volumes:
       - ./candidates.txt:/config/candidates.txt:ro
       - probe_data:/data
@@ -32,6 +35,5 @@ volumes:
   probe_data:
 
 networks:
-  onion_net:
-    internal: true
+  onion_net: {}
   probe_net: {}

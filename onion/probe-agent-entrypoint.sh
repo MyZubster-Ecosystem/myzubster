@@ -1,29 +1,47 @@
 #!/bin/sh
 set -eu
 
-TOR_DIR=/var/lib/tor/probe
-TORRC=/tmp/probe-torrc
+TOR_DATA_DIR="${TOR_DATA_DIR:-/var/lib/tor/probe}"
+TORRC="/run/myzubster-probe-torrc"
 
-cat > "$TORRC" <<EOF
-DataDirectory $TOR_DIR
-SocksPort 9050
-SocksPolicy accept 127.0.0.1
-SocksPolicy reject *
+mkdir -p "$TOR_DATA_DIR" /data
+chown -R debian-tor:debian-tor "$TOR_DATA_DIR" /data
+chmod 700 "$TOR_DATA_DIR"
+
+rm -f "$TORRC"
+
+cat > "$TORRC" <<'TORRC_EOF'
+DataDirectory /var/lib/tor/probe
+SocksPort 127.0.0.1:9050
 Log notice stdout
-EOF
+TORRC_EOF
 
-chown debian-tor:debian-tor "$TORRC"
-chmod 600 "$TORRC"
+chmod 644 "$TORRC"
 
-tor -f "$TORRC" --RunAsDaemon 1
+echo "Starting probe Tor client..."
 
-# Wait for Tor to bootstrap enough to accept SOCKS requests.
-i=0
-while ! curl --silent --show-error --max-time 2 --socks5-hostname 127.0.0.1:9050 \
-    https://example.com -o /dev/null 2>/dev/null; do
-  i=$((i+1))
-  [ "$i" -ge 60 ] && echo 'Tor SOCKS listener did not become ready' >&2 && exit 1
-  sleep 1
-done
+su -s /bin/sh -c \
+  "exec tor -f '$TORRC'" \
+  debian-tor &
 
-exec /usr/local/bin/myzubster-onion-probe
+TOR_PID=$!
+
+cleanup() {
+    kill "$TOR_PID" 2>/dev/null || true
+}
+
+trap cleanup EXIT INT TERM
+
+echo "Waiting for Tor bootstrap..."
+sleep 10
+
+if ! kill -0 "$TOR_PID" 2>/dev/null; then
+    echo "ERROR: probe Tor process exited" >&2
+    exit 1
+fi
+
+echo "Starting MyZubster Onion probe agent..."
+
+exec su -s /bin/sh -c \
+  "exec /usr/local/bin/myzubster-onion-probe" \
+  debian-tor

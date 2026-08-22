@@ -30,15 +30,15 @@ probe() {
     latency=$((end-start))
     case "$code" in
       2*|3*) emit "$node" success "$latency" null ;;
-      *) emit "$node" application_error "$latency" '"application_error"' ;;
+      *) emit "$node" failure "$latency" '"application_error"' ;;
     esac
   else
     end=$(date +%s%3N 2>/dev/null || date +%s000)
     latency=$((end-start))
     if grep -qiE 'Could not resolve|proxy|timed out|Connection' /tmp/probe.err; then
-      emit "$node" onion_connect "$latency" '"onion_connect"'
+      emit "$node" failure "$latency" '"onion_connect"'
     else
-      emit "$node" tor_connectivity "$latency" '"tor_connectivity"'
+      emit "$node" failure "$latency" '"tor_connectivity"'
     fi
   fi
 }
