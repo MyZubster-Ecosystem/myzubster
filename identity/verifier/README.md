@@ -8,6 +8,16 @@ This verifier checks the integrity and minimum technical claims of the public My
 node identity/verifier/verify.mjs identity/MyZubster_Digital_Identity_Proof.json
 ```
 
+The command exits with status `0` only when every structural and integrity check passes. Invalid JSON, unreadable files, malformed fields, and digest mismatches produce machine-readable JSON and a non-zero exit status.
+
+## Test
+
+```bash
+node --test identity/verifier/verify.test.mjs
+```
+
+The tests use synthetic data and cover a valid proof, payload tampering, invalid structure, malformed JSON, and deterministic key ordering. They do not collect or require private data, credentials, network access, or external secrets.
+
 The verifier checks:
 
 - the JSON is readable;
