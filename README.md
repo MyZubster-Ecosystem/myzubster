@@ -1,5 +1,96 @@
 # MyZubster
+## 🌐 How the full MyZubster ecosystem works
 
+MyZubster is evolving into a distributed open-source ecosystem that connects real-world observations, personal identity, verified skills and work, blockchain ownership, digital assets, privacy-aware infrastructure and persistent virtual worlds.
+
+The complete public architecture is documented here:
+
+👉 [MyZubster Full System Architecture](docs/system/README.md)
+
+The system currently connects or explores:
+
+- 🪪 decentralized personal identity and verified wallets;
+- 🧑‍💻 skills, work, contributions and bounty evidence;
+- 📱 Android mobile access for work, skills and field activity;
+- 🪙 MYZ economy and blockchain token infrastructure;
+- 👽 MyZubster Character NFTs and digital identity;
+- 🛒 NFT marketplace with on-chain payment and ownership verification;
+- 🎨 comics, visual stories and creator economy;
+- 🔐 escrow and independently verified settlement layers;
+- 🪙 Monero/XMR privacy-oriented settlement tracks;
+- 🧅 Tor / Onion access and distributed service discovery;
+- 📦 IPFS / IPNS public and content-addressed distribution;
+- 🌍 mapping, biodiversity and real-world observations;
+- 🤖 AI, robotics, IoT and automation;
+- 🌌 metaverse / multiverse identity, assets and persistent ownership;
+- 🧩 an open-source multi-repository architecture designed for community contribution.
+Android mobile direction
+
+The Android application is intended to make MyZubster usable in real-world work and contribution scenarios.
+
+The mobile workflow is designed around:
+
+PROFILE
+  ↓
+SKILLS
+  ↓
+WORK / BOUNTIES
+  ↓
+FIELD EVIDENCE
+  ↓
+VERIFICATION
+  ↓
+SKILL HISTORY
+  ↓
+REWARD / SETTLEMENT
+
+The Android client is intended to progressively provide access to:
+
+personal identity and profile;
+skills and verified work history;
+available tasks and bounties;
+photos, observations and field evidence;
+contribution verification;
+MYZ balances and rewards;
+verified blockchain wallets;
+Character NFTs and owned digital assets;
+marketplace activity;
+decentralized and privacy-aware services where appropriate.
+
+Mobile components must clearly distinguish between functionality that is already released and functionality that remains under development.
+
+Transparency and maturity
+
+MyZubster intentionally distinguishes between:
+
+✅ verified / tested functionality;
+🚧 development functionality;
+🧪 experimental infrastructure;
+🗺️ future roadmap components.
+
+Open-source documentation, code, tests and independently verifiable evidence take precedence over promotional claims.
+
+The objective is to make the complete architecture publicly understandable and reproducible without exposing private keys, wallet seeds, credentials, infrastructure secrets or unnecessary personal information.
+
+
+### System flow
+
+```text
+REAL WORLD
+    ↓
+IDENTITY
+    ↓
+SKILLS / WORK / CONTRIBUTIONS
+    ↓
+VERIFICATION
+    ↓
+MYZ / REWARDS / SETTLEMENT
+    ↓
+NFT ASSETS
+    ↓
+MARKETPLACE
+    ↓
+METAVERSE / MULTIVERSE
 <p align="center">
   <img src="assets/readme/myzubster-core.png" alt="MyZubster ecosystem overview" width="100%">
 </p>
