@@ -6,82 +6,96 @@ This MVP introduces an ownership layer for MyZubster without making the MyZubste
 
 - MyZubster account: identity and application profile
 - GitHub OAuth: verified identity signal and provenance source
-- Character: application-level avatar/lore, optionally minted as a Character NFT
+- Character: application-level avatar/lore, optionally minted as an NFT
 - NFT assets: character, comic, item, badge
 - Marketplace: MYZ-denominated listings
-- Wallet: user-controlled, verified by signed challenge
 
-## Non-custodial design
+## Character NFT contract
 
-The backend never stores private keys and never signs mint/transfer transactions for users.
+The repository now includes `contracts/MyZubsterCharacter.sol`, an ERC-721 Character NFT contract with these MVP rules:
 
-For the Character NFT MVP the flow is now:
+- mint is performed directly by the user's wallet (`msg.sender`)
+- one Character NFT per wallet
+- configurable maximum supply
+- ERC-721 token URI metadata
+- owner-controlled pause/unpause for emergency response
+- MyZubster never receives or stores the user's wallet private key
 
-1. User authenticates to MyZubster with a JWT.
-2. Client requests `POST /api/wallet/challenge` with wallet address + chainId.
-3. User signs the returned challenge in their wallet.
-4. Client submits signature to `POST /api/wallet/verify`.
-5. MyZubster recovers the signer address and stores that wallet as verified for the authenticated user.
-6. User creates a `character` NFT draft with `POST /api/nft`.
-7. The user wallet executes the mint on an allowlisted ERC-721 contract.
-8. Client calls `POST /api/nft/:assetId/confirm-mint` with chainId, contract, tokenId, tx hash and owner wallet.
-9. MyZubster fetches the receipt from the configured RPC, verifies success, contract allowlist, and an ERC-721 `Transfer(0x0, owner, tokenId)` event.
-10. Only after that verification is the asset marked `minted`.
+The contract intentionally does not implement MYZ payments yet. Character minting and marketplace payment settlement remain separate concerns.
 
-## Required environment variables
+## Sepolia deployment
 
-Configure an RPC and contract allowlist for every supported EVM chain. Example for chain ID `11155111` (Sepolia):
+Install dependencies and compile:
 
-```env
-EVM_RPC_URL_11155111=https://YOUR_SEPOLIA_RPC
-NFT_CONTRACT_ALLOWLIST_11155111=0xYourCharacterContract
+```bash
+npm install
+npm run nft:compile
 ```
 
-Fallback names are also supported:
+Set deployment variables locally. Never commit the real deployer key:
 
-```env
-EVM_RPC_URL=https://YOUR_RPC
-NFT_CONTRACT_ALLOWLIST=0xContractA,0xContractB
+```bash
+export EVM_RPC_URL_11155111='https://YOUR_SEPOLIA_RPC'
+export EVM_DEPLOYER_PRIVATE_KEY='0xYOUR_PRIVATE_KEY'
+export CHARACTER_NFT_MAX_SUPPLY=10000
 ```
 
-Do not put wallet private keys in MyZubster environment variables.
+Deploy:
+
+```bash
+npm run nft:deploy:sepolia
+```
+
+The deployment script prints the deployed address and the backend allowlist variable, for example:
+
+```text
+CHAIN_ID=11155111
+MYZUBSTER_CHARACTER_CONTRACT=0x...
+NFT_CONTRACT_ALLOWLIST_11155111=0x...
+```
+
+Configure the runtime with:
+
+```text
+EVM_RPC_URL_11155111=https://...
+NFT_CONTRACT_ALLOWLIST_11155111=0x...
+```
+
+`EVM_DEPLOYER_PRIVATE_KEY` is a deployment-only secret and should not be stored in the MyZubster web runtime after deployment.
+
+## Non-custodial mint flow
+
+The intended Character NFT flow is:
+
+1. User signs in to MyZubster.
+2. User requests a wallet challenge.
+3. User signs the challenge in their wallet.
+4. MyZubster verifies and links the wallet to the authenticated account.
+5. User creates a `character` NFT draft.
+6. The browser wallet calls `mintCharacter(metadataUri)` directly on the allowed ERC-721 contract.
+7. The wallet returns the transaction hash.
+8. Client submits `chainId`, `contractAddress`, `tokenId`, and `mintTxHash` to MyZubster.
+9. MyZubster verifies the RPC receipt, contract allowlist, and ERC-721 `Transfer(0x0, owner, tokenId)` log before marking the asset `minted` / verified on-chain.
 
 ## API
 
-### Wallet verification
-
-Authenticated endpoints (`Authorization: Bearer <JWT>`):
+### Wallet
 
 - `POST /api/wallet/challenge`
 - `POST /api/wallet/verify`
-- `GET /api/wallet/me`
 
-Challenge example:
-
-```json
-{
-  "address": "0x...",
-  "chainId": 11155111
-}
-```
-
-The challenge expires after five minutes and is single-use after successful verification.
+Wallet verification uses a short-lived, one-time challenge signed by the wallet and linked to the authenticated MyZubster user.
 
 ### Assets
 
-Public reads:
-
 - `GET /api/nft`
-- `GET /api/nft/:assetId`
-
-Authenticated writes:
-
 - `POST /api/nft`
+- `GET /api/nft/:assetId`
 - `POST /api/nft/:assetId/confirm-mint`
 
 `GET /api/nft` supports `type`, `status`, and `ownerWallet` query filters.
 
-The verified mint endpoint currently accepts `character` assets only. It requires the NFT draft to belong to the authenticated user and the owner wallet to have completed MyZubster wallet verification for the same chain.
+NFT write operations are JWT-authenticated, and Character NFT creation/confirmation is bound to the authenticated user and verified wallet.
 
 ### Marketplace
 
@@ -90,7 +104,7 @@ The verified mint endpoint currently accepts `character` assets only. It require
 - `POST /api/marketplace/:listingId/confirm-sale`
 - `POST /api/marketplace/:listingId/cancel`
 
-Prices are recorded in MYZ units via `priceMyz`. Payment settlement and sale receipt verification are not yet implemented.
+Prices are recorded in MYZ units via `priceMyz`. This MVP does not yet implement trustless MYZ settlement.
 
 ## GitHub provenance
 
@@ -107,65 +121,31 @@ An asset may record:
 }
 ```
 
-This allows a verifier to connect source history, content, identity, mint transaction, and ownership.
+This lets a verifier connect source history, asset content, mint transaction, and current ownership.
 
-## Character NFT example
+## Security boundary
 
-Create the draft while authenticated:
+Already included in this MVP:
 
-```json
-{
-  "type": "character",
-  "metadataUri": "ipfs://...",
-  "contentHash": "sha256:...",
-  "github": {
-    "repo": "MyZubster-Ecosystem/myzubster",
-    "commit": "ff4f283...",
-    "path": "docs/assets/myzubster-digital-identity.png"
-  },
-  "attributes": {
-    "characterVersion": 1,
-    "githubVerified": true
-  }
-}
-```
-
-After the wallet mints, confirm it:
-
-```json
-{
-  "chainId": 11155111,
-  "contractAddress": "0x...",
-  "tokenId": "1",
-  "mintTxHash": "0x...",
-  "ownerWallet": "0x...",
-  "metadataUri": "ipfs://..."
-}
-```
-
-A successful response includes `verifiedOnChain: true` and stores the verification block number on the asset.
-
-## Security state
-
-Implemented for Character NFT mint confirmation:
-
-- JWT authentication on NFT writes
-- creator ownership check
-- wallet challenge/signature verification
-- challenge expiry and one-time use
-- RPC chain ID verification
-- NFT contract allowlist
-- successful transaction receipt check
-- ERC-721 mint event verification (`Transfer` from zero address)
+- authenticated NFT writes
+- wallet ownership challenge/signature verification
+- challenge expiry and one-time nonce use
+- Character creator ownership checks
+- RPC chain ID validation
+- per-chain NFT contract allowlist
+- transaction receipt verification
+- ERC-721 mint event verification
+- non-custodial private-key model
 
 Still required before a production marketplace launch:
 
-- authentication/authorization for all marketplace write operations
-- on-chain verification of listing, transfer, payment and sale receipts
-- MYZ token/marketplace contract allowlists
-- replay/idempotency protections for sales
-- rate limiting and abuse controls for wallet/NFT write APIs
-- audited NFT and marketplace smart contracts
-- production key/RPC secret management and monitoring
+- authenticated marketplace ownership checks
+- on-chain MYZ payment and NFT transfer verification for sales
+- sale replay protection
+- contract audit
+- metadata pinning/immutability policy
+- rate limiting for wallet/NFT writes
+- production monitoring and alerting
+- legal/product review of token/NFT sale flows in target jurisdictions
 
-The backend remains non-custodial: possession of a MyZubster account never gives the server authority over the user's wallet.
+The current system is an MVP integration and verification layer, not a production-audited marketplace.
