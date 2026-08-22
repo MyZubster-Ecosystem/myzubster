@@ -13,7 +13,7 @@
     "nft:deploy:sepolia": "hardhat run scripts/deploy-character-nft.cjs --network sepolia"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^5.1.0",
+    "@openzeppelin/contracts": "^4.9.6",
     "axios": "^1.19.0",
     "bcrypt": "^6.0.0",
     "compression": "^1.7.4",
