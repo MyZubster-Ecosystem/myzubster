@@ -188,6 +188,9 @@ exports.confirmSale = async (req, res) => {
 
     listing = await MarketplaceListing.findOne({ listingId: req.params.listingId, status: 'active' });
     if (!listing) return res.status(404).json({ success: false, message: 'Active listing not found' });
+    if (listing.sellerUserId && listing.sellerUserId.toString() === req.userId.toString()) {
+      return res.status(409).json({ success: false, message: 'Seller e buyer devono essere utenti diversi' });
+    }
 
     const asset = await NFTAsset.findOne({ assetId: listing.assetId });
     if (!asset || asset.status !== 'listed') {
