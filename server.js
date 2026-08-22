@@ -14,10 +14,39 @@ app.use(express.json());
 app.use(express.static('public'));
 app.use('/data', express.static('data'));
 
+const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URI;
+let mongoConnectionPromise = null;
+
+function connectMongo() {
+  if (process.env.NODE_ENV === 'test') return Promise.resolve();
+  if (mongoose.connection.readyState === 1) return Promise.resolve();
+  if (mongoConnectionPromise) return mongoConnectionPromise;
+
+  if (!mongoUri) {
+    const error = new Error('MongoDB non configurato: impostare MONGODB_URI (o MONGO_URI)');
+    console.error(`❌ ${error.message}`);
+    return Promise.reject(error);
+  }
+
+  mongoConnectionPromise = mongoose.connect(mongoUri, {
+    serverSelectionTimeoutMS: 10000
+  })
+    .then(() => {
+      console.log('✅ Connected to MongoDB');
+    })
+    .catch((err) => {
+      mongoConnectionPromise = null;
+      console.error('❌ MongoDB connection error:', err);
+      throw err;
+    });
+
+  return mongoConnectionPromise;
+}
+
 if (process.env.NODE_ENV !== 'test') {
-  mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/myzubster')
-    .then(() => console.log('✅ Connected to MongoDB'))
-    .catch(err => console.error('❌ MongoDB connection error:', err));
+  // Start the connection on cold start, but let request-specific middleware
+  // await it before executing database-backed registration work.
+  connectMongo().catch(() => {});
 }
 
 const authRoutes = require('./src/routes/authRoutes');
@@ -40,6 +69,21 @@ const zorgaxRoutes = require('./src/routes/zorgaxRoutes');
 const githubBountySyncRoutes = require('./src/routes/githubBountySyncRoutes');
 const researchRoutes = require('./src/routes/researchRoutes');
 const municipalityRoutes = require('./src/routes/municipalityRoutes');
+
+// Registration is database-backed. On Vercel a cold start can receive the
+// request before Mongoose has finished connecting, so wait explicitly here
+// instead of relying on Mongoose's operation buffering timeout.
+app.post('/api/auth/register', async (_req, res, next) => {
+  try {
+    await connectMongo();
+    next();
+  } catch (error) {
+    res.status(503).json({
+      success: false,
+      message: 'Database temporaneamente non disponibile'
+    });
+  }
+});
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
