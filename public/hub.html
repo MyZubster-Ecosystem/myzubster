@@ -6,53 +6,109 @@
 <title>MyZubster Hub</title>
 <meta name="description" content="MyZubster public hub for identity, skills, work, MYZ, NFTs and the multiverse." />
 <style>
-:root{color-scheme:dark;--bg:#090914;--card:#121322;--soft:#191b2d;--text:#f7f7fb;--muted:#a8adbd;--line:#2a2d44;--accent:#a855f7;--green:#22c55e;--pink:#ec4899}*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at 10% 0,#35145e 0,transparent 28%),radial-gradient(circle at 90% 15%,#0d554d 0,transparent 24%),var(--bg);color:var(--text)}a{color:inherit}.wrap{width:min(1180px,92%);margin:auto;padding:32px 0 64px}.nav{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:54px}.brand{font-weight:900;letter-spacing:-.02em}.pill{display:inline-flex;align-items:center;gap:8px;padding:9px 13px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.03);font-size:13px;color:var(--muted)}.dot{width:8px;height:8px;border-radius:50%;background:var(--green)}.hero{display:grid;grid-template-columns:1.25fr .75fr;gap:26px;align-items:end}.eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.18em;color:#b9a6d6;font-weight:800}h1{font-size:clamp(44px,7vw,86px);line-height:.94;letter-spacing:-.055em;margin:14px 0 20px;max-width:850px}.lead{font-size:clamp(17px,2vw,22px);line-height:1.55;color:var(--muted);max-width:760px}.heroCard{border:1px solid var(--line);border-radius:24px;background:linear-gradient(145deg,rgba(168,85,247,.16),rgba(34,197,94,.06));padding:24px}.heroCard strong{font-size:20px}.heroCard p{color:var(--muted);line-height:1.55}.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:42px}.card{border:1px solid var(--line);border-radius:22px;background:rgba(18,19,34,.88);padding:22px;min-height:210px}.icon{font-size:28px}.card h2{font-size:20px;margin:22px 0 8px}.card p{color:var(--muted);line-height:1.5;font-size:14px}.status{display:inline-block;margin-top:12px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#86efac}.flow{margin-top:18px;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}.step{padding:14px;border-radius:16px;background:var(--soft);border:1px solid var(--line);font-size:12px;text-align:center;color:#d7d9e3}.section{margin-top:46px}.section h3{font-size:28px;margin:0 0 16px}.panel{border:1px solid var(--line);border-radius:24px;background:rgba(18,19,34,.88);padding:24px}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}.btn{display:inline-block;text-decoration:none;padding:12px 15px;border-radius:12px;background:#fff;color:#11131a;font-weight:800;font-size:14px}.btn.secondary{background:transparent;color:#fff;border:1px solid var(--line)}.foot{margin-top:44px;color:#747a8d;font-size:13px;line-height:1.6}@media(max-width:900px){.hero{grid-template-columns:1fr}.grid{grid-template-columns:1fr 1fr}.flow{grid-template-columns:1fr 1fr 1fr}}@media(max-width:560px){.grid,.flow{grid-template-columns:1fr}.nav{align-items:flex-start;flex-direction:column}h1{font-size:48px}}
+:root{color-scheme:dark;--bg:#090914;--card:#121322;--soft:#191b2d;--text:#f7f7fb;--muted:#a8adbd;--line:#2a2d44;--accent:#a855f7;--green:#22c55e;--pink:#ec4899;--warn:#f59e0b}*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at 10% 0,#35145e 0,transparent 28%),radial-gradient(circle at 90% 15%,#0d554d 0,transparent 24%),var(--bg);color:var(--text)}a{color:inherit}.wrap{width:min(1180px,92%);margin:auto;padding:28px 0 64px}.nav{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:44px}.brand{font-weight:900;letter-spacing:-.02em}.pill{display:inline-flex;align-items:center;gap:8px;padding:9px 13px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.03);font-size:13px;color:var(--muted)}.dot{width:8px;height:8px;border-radius:50%;background:var(--green)}.hero{display:grid;grid-template-columns:1.2fr .8fr;gap:26px;align-items:end}.eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.18em;color:#b9a6d6;font-weight:800}h1{font-size:clamp(42px,7vw,82px);line-height:.94;letter-spacing:-.055em;margin:14px 0 20px;max-width:850px}.lead{font-size:clamp(17px,2vw,21px);line-height:1.55;color:var(--muted);max-width:760px}.panel,.card{border:1px solid var(--line);border-radius:22px;background:rgba(18,19,34,.9);padding:22px}.heroCard{background:linear-gradient(145deg,rgba(168,85,247,.16),rgba(34,197,94,.06))}.heroCard strong{font-size:20px}.heroCard p{color:var(--muted);line-height:1.55}.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:34px}.icon{font-size:28px}.card h2{font-size:20px;margin:20px 0 8px}.card p{color:var(--muted);line-height:1.5;font-size:14px}.status{display:inline-block;margin-top:10px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#86efac}.section{margin-top:38px}.section h3{font-size:27px;margin:0 0 16px}.workspace{display:grid;grid-template-columns:1fr 1fr;gap:14px}.stack{display:grid;gap:14px}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}.btn,button{appearance:none;border:0;cursor:pointer;display:inline-block;text-decoration:none;padding:12px 15px;border-radius:12px;background:#fff;color:#11131a;font-weight:800;font-size:14px}.btn.secondary,button.secondary{background:transparent;color:#fff;border:1px solid var(--line)}button:disabled{opacity:.5;cursor:not-allowed}.field{display:grid;gap:7px;margin-top:12px}.field label{font-size:12px;color:var(--muted);font-weight:700}.field input{width:100%;padding:12px 13px;border-radius:11px;border:1px solid var(--line);background:#0d0e19;color:#fff;outline:none}.field input:focus{border-color:var(--accent)}.msg{margin-top:12px;padding:10px 12px;border-radius:10px;background:var(--soft);color:var(--muted);font-size:13px;line-height:1.45;word-break:break-word}.msg.ok{color:#a7f3d0;border:1px solid rgba(34,197,94,.35)}.msg.err{color:#fecaca;border:1px solid rgba(239,68,68,.35)}.metric{display:flex;justify-content:space-between;gap:14px;padding:11px 0;border-bottom:1px solid var(--line);font-size:14px}.metric:last-child{border-bottom:0}.metric span{color:var(--muted)}.metric strong{text-align:right;word-break:break-all}.list{display:grid;gap:10px;margin-top:12px}.item{padding:13px;border-radius:14px;background:var(--soft);border:1px solid var(--line)}.item strong{display:block;margin-bottom:5px}.item small{color:var(--muted);line-height:1.45}.empty{color:var(--muted);font-size:14px}.flow{margin-top:18px;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}.step{padding:14px;border-radius:16px;background:var(--soft);border:1px solid var(--line);font-size:12px;text-align:center;color:#d7d9e3}.warn{color:#fde68a}.foot{margin-top:40px;color:#747a8d;font-size:13px;line-height:1.6}@media(max-width:900px){.hero,.workspace{grid-template-columns:1fr}.grid{grid-template-columns:1fr 1fr}.flow{grid-template-columns:1fr 1fr 1fr}}@media(max-width:560px){.grid,.flow{grid-template-columns:1fr}.nav{align-items:flex-start;flex-direction:column}h1{font-size:46px}}
 </style>
 </head>
 <body>
 <main class="wrap">
   <nav class="nav">
     <div class="brand">👽 MyZubster Hub</div>
-    <div class="pill"><span class="dot"></span> Public UX layer · active development</div>
+    <div class="pill"><span class="dot"></span> Public UX layer · Sepolia testnet</div>
   </nav>
 
   <section class="hero">
     <div>
       <div class="eyebrow">One ecosystem · one human interface</div>
       <h1>MyZubster,<br>without the complexity.</h1>
-      <p class="lead">A single public entry point for identity, skills and work, MYZ, Character NFTs, marketplace activity and the future MyZubster multiverse. Technical infrastructure stays under the hood.</p>
+      <p class="lead">Sign in, verify a wallet, see MYZ, inspect your Character NFTs and browse marketplace listings from one place. Infrastructure details stay under the hood.</p>
     </div>
-    <aside class="heroCard">
-      <strong>Simple user journey</strong>
-      <p>Create an account, connect a wallet, build a verifiable work identity, own digital assets and participate in the ecosystem without learning RPC endpoints, Hardhat or environment variables.</p>
+    <aside class="panel heroCard">
+      <strong>Start here</strong>
+      <p>Use your MyZubster account, then connect an EVM wallet such as MetaMask. The Hub guides the verification flow without ever asking for a private key or seed phrase.</p>
+      <div class="actions"><a class="btn secondary" href="/">Gateway</a><a class="btn secondary" href="/ecosystem.html">Ecosystem</a></div>
     </aside>
   </section>
 
   <section class="grid" aria-label="MyZubster areas">
-    <article class="card"><div class="icon">🪪</div><h2>Identity</h2><p>Account, verified wallet, personal profile and the foundation for a portable decentralized identity.</p><span class="status">Development</span></article>
-    <article class="card"><div class="icon">🧑‍💻</div><h2>Work & Skills</h2><p>Skills, bounties, field evidence, verified contributions and a growing history of work that can be reviewed.</p><span class="status">Development</span></article>
-    <article class="card"><div class="icon">🪙</div><h2>Wallet & MYZ</h2><p>Wallet verification, MYZ balances and ecosystem transactions presented through understandable actions.</p><span class="status">Testnet verified</span></article>
-    <article class="card"><div class="icon">👽</div><h2>NFT & Multiverse</h2><p>Character NFTs, ownership, marketplace activity and persistent assets for future virtual worlds.</p><span class="status">NFT testnet verified</span></article>
+    <article class="card"><div class="icon">🪪</div><h2>Identity</h2><p>Account plus cryptographically verified wallet ownership.</p><span class="status">Interactive</span></article>
+    <article class="card"><div class="icon">🧑‍💻</div><h2>Work & Skills</h2><p>Skills, bounties, evidence and verified contribution history.</p><span class="status">Development</span></article>
+    <article class="card"><div class="icon">🪙</div><h2>Wallet & MYZ</h2><p>Connect a wallet and read its MYZ balance directly on Sepolia.</p><span class="status">Interactive testnet</span></article>
+    <article class="card"><div class="icon">👽</div><h2>NFT & Multiverse</h2><p>View owned assets and active NFT marketplace listings.</p><span class="status">Interactive testnet</span></article>
   </section>
 
   <section class="section">
-    <h3>The user flow</h3>
-    <div class="flow">
-      <div class="step">Create account</div><div class="step">Connect wallet</div><div class="step">Build profile</div><div class="step">Add skills</div><div class="step">Work / contribute</div><div class="step">Earn / own</div><div class="step">Enter multiverse</div>
+    <h3>Your MyZubster</h3>
+    <div class="workspace">
+      <div class="stack">
+        <section class="panel">
+          <h3 style="font-size:20px">1. Sign in</h3>
+          <div class="field"><label for="email">Email</label><input id="email" type="email" autocomplete="email" placeholder="you@example.com"></div>
+          <div class="field"><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" placeholder="••••••••"></div>
+          <div class="actions"><button id="loginBtn">Sign in</button><button id="logoutBtn" class="secondary">Sign out</button></div>
+          <div id="authMsg" class="msg">Not signed in.</div>
+        </section>
+
+        <section class="panel">
+          <h3 style="font-size:20px">2. Verify wallet</h3>
+          <p class="empty">MyZubster asks the wallet to sign a short challenge. The signature proves control of the address; your private key never leaves the wallet.</p>
+          <div class="actions"><button id="connectBtn">Connect wallet</button><button id="verifyBtn" class="secondary" disabled>Verify with MyZubster</button></div>
+          <div id="walletMsg" class="msg">No wallet connected.</div>
+        </section>
+      </div>
+
+      <div class="stack">
+        <section class="panel">
+          <h3 style="font-size:20px">Account & balance</h3>
+          <div class="metric"><span>User</span><strong id="userName">—</strong></div>
+          <div class="metric"><span>Wallet</span><strong id="walletAddress">—</strong></div>
+          <div class="metric"><span>Network</span><strong id="networkName">—</strong></div>
+          <div class="metric"><span>MYZ balance</span><strong id="myzBalance">—</strong></div>
+          <div class="actions"><button id="refreshBtn" class="secondary">Refresh</button></div>
+        </section>
+
+        <section class="panel">
+          <h3 style="font-size:20px">My Character NFTs</h3>
+          <div id="nftList" class="list"><div class="empty">Connect a wallet to load owned assets.</div></div>
+        </section>
+      </div>
     </div>
   </section>
 
   <section class="section panel">
-    <h3>What stays hidden</h3>
-    <p class="lead" style="font-size:16px">Users should not need to understand chain IDs, RPC URLs, contract addresses, deployment scripts, private-key handling, database internals or settlement verification logic. Those remain infrastructure responsibilities.</p>
-    <div class="actions">
-      <a class="btn" href="/">Open MyZubster</a>
-      <a class="btn secondary" href="/ecosystem.html">Explore ecosystem</a>
-      <a class="btn secondary" href="https://github.com/MyZubster-Ecosystem/myzubster/blob/feat/nft-system-mvp-2026-08-22/docs/system/README.md" target="_blank" rel="noreferrer">Read system architecture</a>
-    </div>
+    <h3>Marketplace</h3>
+    <p class="empty">Public active listings from the MyZubster marketplace. Purchases currently use a two-transaction verified flow (MYZ payment + NFT transfer), so the Hub does not pretend this is atomic yet.</p>
+    <div id="marketList" class="list"><div class="empty">Loading marketplace…</div></div>
   </section>
 
-  <p class="foot">MyZubster distinguishes verified functionality from development, experimental infrastructure and roadmap components. Testnet blockchain functionality is not the same as production readiness.</p>
+  <section class="section">
+    <h3>The user flow</h3>
+    <div class="flow"><div class="step">Create account</div><div class="step">Connect wallet</div><div class="step">Build profile</div><div class="step">Add skills</div><div class="step">Work / contribute</div><div class="step">Earn / own</div><div class="step">Enter multiverse</div></div>
+  </section>
+
+  <p class="foot">MyZubster distinguishes verified functionality from development, experimental infrastructure and roadmap components. Sepolia is a test network. Never enter a private key or seed phrase into this page.</p>
 </main>
+<script>
+const CONFIG={chainId:11155111,chainHex:'0xaa36a7',myzToken:'0x1fa7C709Dff18c82A45d14ce604F0C2A8bf5e590'};
+const state={token:localStorage.getItem('myz_jwt')||'',user:null,address:'',verified:false};
+const $=id=>document.getElementById(id);
+const short=a=>a&&a.length>14?`${a.slice(0,8)}…${a.slice(-6)}`:a||'—';
+function setMsg(id,text,type=''){const el=$(id);el.textContent=text;el.className='msg'+(type?` ${type}`:'');}
+async function api(path,opts={}){const headers={'Content-Type':'application/json',...(opts.headers||{})};if(state.token)headers.Authorization=`Bearer ${state.token}`;const r=await fetch(path,{...opts,headers});let body={};try{body=await r.json()}catch{}if(!r.ok||body.success===false)throw new Error(body.message||`Request failed (${r.status})`);return body;}
+async function login(){try{const body=await api('/api/auth/login',{method:'POST',body:JSON.stringify({email:$('email').value.trim(),password:$('password').value})});state.token=body?.data?.token||'';state.user=body?.data?.user||null;if(!state.token)throw new Error('Login succeeded but no token was returned');localStorage.setItem('myz_jwt',state.token);renderUser();setMsg('authMsg',`Signed in as ${state.user?.username||state.user?.email||'user'}.`,'ok');await refreshPrivate();}catch(e){setMsg('authMsg',e.message,'err');}}
+function logout(){state.token='';state.user=null;state.verified=false;localStorage.removeItem('myz_jwt');renderUser();setMsg('authMsg','Signed out.');}
+function renderUser(){$('userName').textContent=state.user?.username||state.user?.email||'—';}
+async function restoreProfile(){if(!state.token)return;try{const b=await api('/api/auth/profile');state.user=b?.data?.user||b?.user||b?.data||null;renderUser();setMsg('authMsg',`Signed in as ${state.user?.username||state.user?.email||'user'}.`,'ok');}catch{logout();}}
+async function ensureSepolia(){if(!window.ethereum)throw new Error('No browser wallet detected. Install MetaMask or another EVM wallet.');let chain=await ethereum.request({method:'eth_chainId'});if(chain.toLowerCase()!==CONFIG.chainHex){try{await ethereum.request({method:'wallet_switchEthereumChain',params:[{chainId:CONFIG.chainHex}]});}catch(e){throw new Error('Switch your wallet to Ethereum Sepolia and try again.');}}}
+async function connectWallet(){try{await ensureSepolia();const accounts=await ethereum.request({method:'eth_requestAccounts'});state.address=accounts[0]||'';$('walletAddress').textContent=short(state.address);$('networkName').textContent='Ethereum Sepolia';$('verifyBtn').disabled=!state.token||!state.address;setMsg('walletMsg',`Connected: ${state.address}`,'ok');await Promise.all([loadMyzBalance(),loadNfts()]);}catch(e){setMsg('walletMsg',e.message,'err');}}
+async function verifyWallet(){try{if(!state.token)throw new Error('Sign in first.');if(!state.address)throw new Error('Connect a wallet first.');const c=await api('/api/wallet/challenge',{method:'POST',body:JSON.stringify({address:state.address,chainId:CONFIG.chainId})});const sig=await ethereum.request({method:'personal_sign',params:[c.message,state.address]});const v=await api('/api/wallet/verify',{method:'POST',body:JSON.stringify({address:state.address,chainId:CONFIG.chainId,signature:sig})});state.verified=!!v?.wallet?.verified;setMsg('walletMsg',state.verified?'Wallet verified with MyZubster.':'Wallet verification was not confirmed.',state.verified?'ok':'err');await refreshPrivate();}catch(e){setMsg('walletMsg',e.message,'err');}}
+async function refreshPrivate(){if(!state.token)return;try{const w=await api('/api/wallet/me');const wallets=w.wallets||w.data?.wallets||w.data||[];if(Array.isArray(wallets)&&wallets.length&&!state.address){const verified=wallets.find(x=>x.verified)||wallets[0];state.address=verified.address||'';state.verified=!!verified.verified;$('walletAddress').textContent=short(state.address);$('networkName').textContent=Number(verified.chainId)===CONFIG.chainId?'Ethereum Sepolia':String(verified.chainId||'—');$('verifyBtn').disabled=!state.address;}await Promise.all([loadMyzBalance(),loadNfts()]);}catch(e){console.warn(e);}}
+async function loadMyzBalance(){if(!state.address||!window.ethereum){$('myzBalance').textContent='—';return;}try{await ensureSepolia();const addr=state.address.toLowerCase().replace(/^0x/,'').padStart(64,'0');const data='0x70a08231'+addr;const hex=await ethereum.request({method:'eth_call',params:[{to:CONFIG.myzToken,data},'latest']});const raw=BigInt(hex);const whole=raw/1000000000000000000n;const frac=(raw%1000000000000000000n).toString().padStart(18,'0').slice(0,4).replace(/0+$/,'');$('myzBalance').textContent=frac?`${whole}.${frac} MYZ`:`${whole} MYZ`;}catch{$('myzBalance').textContent='Unavailable';}}
+async function loadNfts(){const box=$('nftList');if(!state.address){box.innerHTML='<div class="empty">Connect a wallet to load owned assets.</div>';return;}try{const b=await api('/api/nft');const assets=b.assets||b.data?.assets||b.data||[];const mine=(Array.isArray(assets)?assets:[]).filter(a=>(a.ownerWallet||'').toLowerCase()===state.address.toLowerCase());box.innerHTML=mine.length?mine.map(a=>`<div class="item"><strong>${escapeHtml(a.type||'NFT')} · Token #${escapeHtml(a.tokenId||'—')}</strong><small>Status: ${escapeHtml(a.status||'—')}<br>Contract: ${escapeHtml(short(a.contractAddress))}</small></div>`).join(''):'<div class="empty">No MyZubster NFT owned by this wallet.</div>';}catch(e){box.innerHTML=`<div class="empty">${escapeHtml(e.message)}</div>`;}}
+async function loadMarket(){const box=$('marketList');try{const b=await api('/api/marketplace');const listings=b.listings||b.data?.listings||b.data||[];const active=(Array.isArray(listings)?listings:[]).filter(x=>!x.status||x.status==='active');box.innerHTML=active.length?active.map(x=>`<div class="item"><strong>${escapeHtml(x.assetId||'NFT listing')}</strong><small>${escapeHtml(String(x.priceMyz??'—'))} MYZ · ${escapeHtml(x.status||'active')}<br>Seller: ${escapeHtml(short(x.sellerWallet))}</small></div>`).join(''):'<div class="empty">No active listings right now.</div>';}catch(e){box.innerHTML=`<div class="empty">${escapeHtml(e.message)}</div>`;}}
+function escapeHtml(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
+$('loginBtn').addEventListener('click',login);$('logoutBtn').addEventListener('click',logout);$('connectBtn').addEventListener('click',connectWallet);$('verifyBtn').addEventListener('click',verifyWallet);$('refreshBtn').addEventListener('click',async()=>{await restoreProfile();await refreshPrivate();await loadMarket();});
+if(window.ethereum){ethereum.on?.('accountsChanged',a=>{state.address=a?.[0]||'';$('walletAddress').textContent=short(state.address);state.verified=false;loadMyzBalance();loadNfts();});ethereum.on?.('chainChanged',()=>location.reload());}
+(async()=>{await restoreProfile();await loadMarket();if(state.token)await refreshPrivate();})();
+</script>
 </body>
 </html>
