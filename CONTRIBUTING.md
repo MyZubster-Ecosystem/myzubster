@@ -1,146 +1,141 @@
-## 📝 Open Code Review Process
+# Contributing to MyZubster
 
-We follow an **Open Code Review** model inspired by industry leaders like Alibaba.
+MyZubster is open to contributors from different backgrounds and skill levels. You do **not** need to be a professional developer, use your legal name, complete KYC, own crypto, or have an existing MyZubster contribution to start participating.
 
-### Why Open Code Review?
+You can contribute with code, documentation, testing, translation, design, accessibility, research, public/authorized observations, photography, datasets, issue triage, security review within an explicitly authorized scope, or original visual storytelling.
 
-| Benefit | Description |
-|---------|-------------|
-| **Quality** | More eyes catch more bugs |
-| **Learning** | Everyone learns from reviews |
-| **Transparency** | All decisions are documented |
-| **Community** | Builds trust and collaboration |
-| **Standardization** | Consistent code quality |
+## Quick start — join in 5 steps
 
-### Our Review Process
+1. Explore the public repository and choose an issue, task, documentation page or observation workflow that you understand.
+2. Comment on the relevant issue if you want to claim or discuss the task. New contributors are welcome to ask questions before starting.
+3. Fork the repository or create a branch where you have permission.
+4. Make a focused change and include the evidence/tests appropriate to that change.
+5. Open a pull request for public review.
 
-#### 1. Opening a PR
+Repository: https://github.com/MyZubster-Ecosystem/myzubster
 
-```yaml
-Title: [TYPE] Brief description
-Labels: [appropriate labels]
-Assignees: [optional]
+Interactive public story: https://www.myzubster.com/fumetto
 
-Description:
-- **What:** Brief description of changes
-- **Why:** Reason for the change
-- **How:** Technical approach
-- **Testing:** How it was tested
-- **Screenshots:** If applicable
+Character Registry: https://github.com/MyZubster-Ecosystem/myzubster/issues/617
 
-2. Review Checklist
+## Who can participate?
 
-Reviewers check:
+Everyone who follows the project rules and contributes lawfully and respectfully can participate, including:
 
-    □
+- developers and maintainers;
+- first-time open-source contributors;
+- designers, illustrators and storytellers;
+- translators and documentation contributors;
+- testers and accessibility reviewers;
+- researchers and students;
+- photographers and people documenting public/authorized observations;
+- data, GIS, IoT and robotics contributors;
+- privacy and Monero/XMR contributors working within the documented integration boundaries;
+- community members proposing ideas, reporting reproducible bugs or reviewing public work.
 
-    Code compiles without errors
-    □
+Participation does not imply employment, partnership, payment, ownership, endorsement or identity verification.
 
-    Tests pass
-    □
+## Public identity and privacy
 
-    Code follows style guide
-    □
+You may use a public alias. A legal name is not required for ordinary GitHub participation.
 
-    Documentation is updated
-    □
+Do not publish unnecessary personal information, credentials, wallet seeds, private keys, private contact details, precise sensitive locations or confidential material. Only submit observations and media that you are allowed to publish.
 
-    No security issues
-    □
+## Create your MyZubster character
 
-    Performance is acceptable
-    □
+A contributor may optionally create an original character/avatar representing their public contribution role in the GitHub-native visual world.
 
-    Edge cases are handled
+Start here: https://github.com/MyZubster-Ecosystem/myzubster/issues/617
 
-3. Review Comments
+Character participation is voluntary. A character is not KYC and does not prove employment, payment, partnership or ownership. AI-generated visual assets must be labelled as AI-generated and are not evidence of a contribution.
 
-All review comments are:
+## Evidence-first contribution model
 
-    Public - Everyone can see them
+```text
+IDEA / OBSERVATION
+→ ISSUE / MISSION
+→ WORK
+→ PR + EVIDENCE
+→ PUBLIC REVIEW
+→ VERIFIED / REJECTED
+→ WORLD STATE UPDATE
+```
 
-    Constructive - Focus on the code, not the person
+An issue is not a completed mission. A PR is not an accepted contribution until reviewed. A merge is not proof of external payment. A visual is not evidence unless the underlying evidence is linked separately.
 
-    Actionable - Clear what needs to change
+## Opening a pull request
 
-    Documented - Why the change is needed
+Use a clear title and include:
 
-4. Approval Process
-Step	Action	Who
-1	Submit PR	Contributor
-2	Initial review	Maintainer
-3	Community review	Anyone
-4	Changes made	Contributor
-5	Final approval	Maintainer
-6	Merge	Maintainer
-Review Etiquette
-For Reviewers
+```text
+What: what changed
+Why: why the change is useful
+How: implementation or method
+Testing / evidence: how it was checked
+Screenshots: when relevant
+Privacy / safety notes: when relevant
+Related issue: if applicable
+```
 
-✅ DO:
+Keep PRs focused whenever possible. Large changes may be easier to review when split into smaller PRs.
 
-    Be respectful and constructive
+## Review process
 
-    Explain why something should change
+1. Contributor submits a PR.
+2. Maintainers and community members may review publicly.
+3. Review comments should be constructive and actionable.
+4. Contributor addresses feedback or explains the reasoning.
+5. A maintainer decides whether the change is ready to merge.
 
-    Suggest alternatives when possible
+Community review is welcome. Final merge authority remains with repository maintainers.
 
-    Acknowledge good work
+## Review etiquette
 
-    Respond in a timely manner
+For everyone:
 
-❌ DON'T:
+- be respectful and discuss the work, not the person;
+- explain why a change is requested;
+- ask questions when requirements are unclear;
+- acknowledge uncertainty and evidence limits;
+- do not harass, discriminate, threaten, dox or impersonate others;
+- do not pressure contributors to disclose private identity information.
 
-    Be rude or dismissive
+See `CODE_OF_CONDUCT.md` for the community baseline.
 
-    Leave vague comments
+## Bounties and rewards
 
-    Request changes without reason
+Some issues may define a bounty or reward lifecycle. Read the issue and `BOUNTIES.md` before starting.
 
-    Block PRs without explanation
+MYZ is currently documented as an internal reward/accounting ledger. XMR or another external settlement, where explicitly defined, is a separate process and requires independent verification. An issue, assignment, PR, merge or ledger entry is not proof of payment.
 
-For Contributors
+## Security contributions
 
-✅ DO:
+Only test systems you own or have explicit authorization to test. Do not attack third-party infrastructure, bypass access controls, obtain credentials, or publish exploitable private data.
 
-    Respond to all comments
+Report security issues according to the repository's security/disclosure guidance when available.
 
-    Explain your reasoning
+## Real-world observations and photos
 
-    Ask clarifying questions
+Use public or explicitly authorized observations only. Keep observation and interpretation separate. A photograph documents what is visible; stronger claims require additional evidence.
 
-    Be open to feedback
+Do not publish sensitive/restricted locations or unnecessary personal information.
 
-    Keep PRs small and focused
+## First contribution ideas
 
-❌ DON'T:
+If you are new, useful first contributions include:
 
-    Ignore review comments
+- fix documentation or broken links;
+- improve translations;
+- add tests for an existing behavior;
+- reproduce and document a bug;
+- improve accessibility or mobile readability;
+- review an issue or PR and provide evidence-based feedback;
+- submit a safe public observation using the documented schema;
+- create an original character proposal with `status: proposed`;
+- improve the public comic/visual documentation while clearly separating fiction from evidence.
 
-    Take feedback personally
+## Need help?
 
-    Push without addressing feedback
+Open or comment on a relevant public GitHub issue and explain what you want to contribute. You may begin with a small proposal; there is no requirement to arrive with a finished implementation.
 
-    Open large, unfocused PRs
-
-Review Metrics
-
-We track:
-Metric	Target	How to Improve
-Review Time	< 24 hours	More reviewers
-PR Size	< 200 lines	Smaller PRs
-Comments per PR	3-10	Better documentation
-Time to Merge	< 48 hours	Faster responses
-Learning from Reviews
-
-All reviews are opportunities to learn:
-
-    Review the review - What was good/bad?
-
-    Document patterns - Common issues and solutions
-
-    Share knowledge - What did we learn?
-
-    Improve process - How can we do better?
-
-Remember: Code review is about making the code better, not about being right. Everyone is here to learn and improve together.
+**Welcome to MyZubster. Build in public, protect privacy, and keep evidence stronger than claims.**
