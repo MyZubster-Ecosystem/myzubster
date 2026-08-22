@@ -1,0 +1,52 @@
+{
+  "schema": "myzubster.xmr-digital-identity/v1",
+  "artifact_id": "MYZ-XMR-ID-001",
+  "title": "MyZubster XMR Digital Identity Artifact #001",
+  "project": "MyZubster",
+  "status": "prepared_not_anchored",
+  "network": "stagenet",
+  "created_at": "2026-08-22",
+  "issuer": {
+    "type": "self_attested_project_identity",
+    "project": "MyZubster",
+    "github_org": "https://github.com/MyZubster-Ecosystem"
+  },
+  "public_references": {
+    "core_repo": "https://github.com/MyZubster-Ecosystem/myzubster",
+    "gateway_repo": "https://github.com/MyZubster-Ecosystem/MyZubsterGateway",
+    "app_repo": "https://github.com/MyZubster-Ecosystem/MyZubster-App"
+  },
+  "content": {
+    "image_sha256": "8f812f70881007a39344efc9ca61496919d319d175bd70a01b7fa1d79db7acd1",
+    "identity_proof_sha256": "6451e9abdc43d2737347afd046f19d706d2f850d6bbd3c39f713aeaa9e95ef84",
+    "ipfs_image_cid": null,
+    "ipfs_metadata_cid": null,
+    "ipfs_identity_proof_cid": null
+  },
+  "monero_anchor": {
+    "txid": null,
+    "tx_key_disclosure": "optional_never_commit_secret_material",
+    "payment_id": null,
+    "amount_xmr": null,
+    "destination_address": null,
+    "block_height": null,
+    "confirmed": false,
+    "verification_method": "independent_wallet_or_tx_proof",
+    "verification_state": "NOT_ANCHORED"
+  },
+  "privacy": {
+    "publish_home_address": false,
+    "publish_personal_phone": false,
+    "publish_personal_email": false,
+    "publish_private_view_key": false,
+    "publish_wallet_seed": false,
+    "publish_private_spend_key": false
+  },
+  "claims": {
+    "is_nft": false,
+    "is_legal_identity_certificate": false,
+    "is_qualified_electronic_signature": false,
+    "is_partnership_or_funding_proof": false,
+    "description": "A provenance artifact that can be anchored to a Monero transaction and independently verified. Monero does not provide native NFT semantics."
+  }
+}
