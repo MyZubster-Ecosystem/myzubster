@@ -44,8 +44,6 @@ function connectMongo() {
 }
 
 if (process.env.NODE_ENV !== 'test') {
-  // Start the connection on cold start, but let request-specific middleware
-  // await it before executing database-backed registration work.
   connectMongo().catch(() => {});
 }
 
@@ -69,10 +67,10 @@ const zorgaxRoutes = require('./src/routes/zorgaxRoutes');
 const githubBountySyncRoutes = require('./src/routes/githubBountySyncRoutes');
 const researchRoutes = require('./src/routes/researchRoutes');
 const municipalityRoutes = require('./src/routes/municipalityRoutes');
+const nftRoutes = require('./src/routes/nftRoutes');
+const marketplaceRoutes = require('./src/routes/marketplaceRoutes');
+const walletRoutes = require('./src/routes/walletRoutes');
 
-// Registration is database-backed. On Vercel a cold start can receive the
-// request before Mongoose has finished connecting, so wait explicitly here
-// instead of relying on Mongoose's operation buffering timeout.
 app.post('/api/auth/register', async (_req, res, next) => {
   try {
     await connectMongo();
@@ -105,19 +103,27 @@ app.use('/api/grok', grokRoutes);
 app.use('/api/zorgax', zorgaxRoutes);
 app.use('/api/github-bounties', githubBountySyncRoutes);
 app.use('/api/research', researchRoutes);
+app.use('/api/nft', nftRoutes);
+app.use('/api/marketplace', marketplaceRoutes);
+app.use('/api/wallet', walletRoutes);
 
 app.get('/', (req, res) => {
   res.status(200).json({
     ok: true,
     service: 'MyZubster Gateway',
     status: 'online',
-    version: '1.1.0-life',
+    version: '1.3.0-nft-wallet-verification',
     port: process.env.PORT || 5003,
     api: '/api',
     life: {
       municipalities: '/api/municipalities',
       gardens: '/api/gardens',
       zorgax: '/api/zorgax'
+    },
+    nft: {
+      assets: '/api/nft',
+      marketplace: '/api/marketplace',
+      wallet: '/api/wallet'
     }
   });
 });
