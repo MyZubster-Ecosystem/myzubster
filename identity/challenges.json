@@ -1,0 +1,66 @@
+{
+  "program": "MyZubster Identity Bounty Program",
+  "reward_asset": "MYZ",
+  "currency_model": "internal_reward_accounting_unit",
+  "last_updated": "2026-08-21",
+  "challenges": [
+    {
+      "id": "ID-BNT-0001",
+      "title": "Independent hash verification",
+      "category": "integrity",
+      "status": "OPEN",
+      "reward_myz": 100,
+      "objective": "Independently reproduce the canonical SHA-256 verification of the published MyZubster digital identity artifact and document deterministic steps.",
+      "acceptance": [
+        "Reproduction steps are complete and repeatable",
+        "Expected canonicalization is explicitly documented",
+        "Result is checked against the published integrity reference",
+        "No private or unnecessary personal data is collected"
+      ]
+    },
+    {
+      "id": "ID-BNT-0002",
+      "title": "Open-source identity verifier",
+      "category": "tooling",
+      "status": "OPEN",
+      "reward_myz": 500,
+      "objective": "Implement a small deterministic verifier that validates the identity JSON structure and SHA-256 integrity reference.",
+      "acceptance": [
+        "Verifier runs locally with documented commands",
+        "Success and failure cases are tested",
+        "Tampered payloads are rejected",
+        "No external secret is required"
+      ]
+    },
+    {
+      "id": "ID-BNT-0003",
+      "title": "Signed identity credential design",
+      "category": "cryptography",
+      "status": "OPEN",
+      "reward_myz": 2500,
+      "objective": "Design and implement a verifiable signed representation of the MyZubster technical identity with public-key verification and key-rotation guidance.",
+      "acceptance": [
+        "Public verification is reproducible",
+        "Private keys are never committed",
+        "Signature substitution/tampering is detected",
+        "Key rotation and revocation/status strategy is documented",
+        "Current self-attested status is not misrepresented as government/legal identity certification"
+      ]
+    },
+    {
+      "id": "ID-BNT-0004",
+      "title": "Critical impersonation resistance review",
+      "category": "security",
+      "status": "OPEN",
+      "reward_myz": 10000,
+      "minimum_reward": true,
+      "objective": "Identify a reproducible weakness in the MyZubster-controlled identity verification flow that could allow a forged technical identity assertion to be accepted as authentic.",
+      "acceptance": [
+        "Finding is reproducible within explicitly authorized MyZubster-controlled scope",
+        "No destructive testing or third-party compromise occurs",
+        "Sensitive exploit details are privately disclosed before public publication",
+        "Impact and remediation are documented"
+      ]
+    }
+  ]
+}
