@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -54,10 +54,7 @@ const MapController = ({ gardens, centerOn }) => {
 };
 
 const GardenMap = ({ gardens = [], onGardenClick, centerOn }) => {
-  const [selectedGarden, setSelectedGarden] = useState(null);
-
   const handleMarkerClick = (garden) => {
-    setSelectedGarden(garden);
     if (onGardenClick) onGardenClick(garden);
   };
 
