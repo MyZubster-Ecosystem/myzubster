@@ -1,0 +1,112 @@
+name: MYZ Verified Bounty
+about: Create a lawful, evidence-based MyZubster bounty
+labels: ["bounty", "myz-reward"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template for lawful, scoped and verifiable work only. Illegal activity, unauthorized access, stolen data, extortion, or fabricated evidence are never reward-eligible.
+
+  - type: input
+    id: title
+    attributes:
+      label: Bounty title
+      placeholder: "Document and verify soil observation metadata"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: action_type
+    attributes:
+      label: Action type
+      options:
+        - DISCOVERY
+        - VERIFICATION
+        - REMEDIATION
+        - RETEST
+        - DOCUMENTATION
+        - DATA_VALIDATION
+        - RECOVERY
+        - PUBLIC_INTEREST_REPORT
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Authorized scope
+      description: Define exactly what systems, datasets, locations, repositories or assets are in scope.
+    validations:
+      required: true
+
+  - type: textarea
+    id: exclusions
+    attributes:
+      label: Explicit exclusions
+      description: State what must not be touched or included.
+      placeholder: "No production credential testing; no personal data; no third-party systems."
+    validations:
+      required: true
+
+  - type: textarea
+    id: deliverables
+    attributes:
+      label: Required deliverables
+      description: List objectively verifiable outputs.
+    validations:
+      required: true
+
+  - type: input
+    id: base_reward
+    attributes:
+      label: Base reward (MYZ)
+      placeholder: "120"
+    validations:
+      required: true
+
+  - type: input
+    id: max_reward
+    attributes:
+      label: Maximum reward (MYZ)
+      placeholder: "180"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: risk
+    attributes:
+      label: Verification risk level
+      options:
+        - low
+        - medium
+        - high
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence requirements
+      description: Specify hashes, screenshots, logs, PRs, measurements, photos, or other public-safe proof required for acceptance.
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Define what must be true for the bounty to be marked VERIFIED.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: policy
+    attributes:
+      label: Policy acknowledgement
+      options:
+        - label: This bounty rewards lawful contribution only.
+          required: true
+        - label: Unauthorized exploitation or illegal activity is not eligible for MYZ rewards.
+          required: true
+        - label: Secrets, private keys, seed phrases and unnecessary personal data must not be submitted as evidence.
+          required: true

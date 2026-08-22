@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://myzubster.org/schemas/myz-bounty-schema.json",
+  "title": "MyZubster MYZ Verified Bounty",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "bounty_id",
+    "title",
+    "action_type",
+    "scope_id",
+    "scope",
+    "base_reward_myz",
+    "max_reward_myz",
+    "risk_level",
+    "status",
+    "evidence_requirements",
+    "acceptance_criteria"
+  ],
+  "properties": {
+    "schema_version": {"type": "string", "const": "1.0"},
+    "bounty_id": {"type": "string", "pattern": "^MYZ-BTY-[A-Z0-9-]+$"},
+    "title": {"type": "string", "minLength": 3},
+    "action_type": {
+      "type": "string",
+      "enum": ["DISCOVERY", "VERIFICATION", "REMEDIATION", "RETEST", "DOCUMENTATION", "DATA_VALIDATION", "RECOVERY", "PUBLIC_INTEREST_REPORT"]
+    },
+    "scope_id": {"type": "string"},
+    "scope": {"type": "string", "minLength": 1},
+    "explicit_exclusions": {"type": "array", "items": {"type": "string"}},
+    "base_reward_myz": {"type": "number", "minimum": 0},
+    "max_reward_myz": {"type": "number", "minimum": 0},
+    "risk_level": {"type": "string", "enum": ["low", "medium", "high"]},
+    "status": {
+      "type": "string",
+      "enum": ["DRAFT", "OPEN", "CLAIMED", "SUBMITTED", "SCOPE_CHECKED", "UNDER_VERIFICATION", "VERIFIED", "REJECTED", "NEEDS_MORE_EVIDENCE", "REWARDED", "CLOSED_NO_REWARD", "FINAL"]
+    },
+    "evidence_requirements": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+    "acceptance_criteria": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+    "required_verifiers": {"type": "integer", "minimum": 1, "default": 1},
+    "maintainer_approval_required": {"type": "boolean", "default": false},
+    "legal_policy": {
+      "type": "object",
+      "properties": {
+        "lawful_only": {"type": "boolean", "const": true},
+        "unauthorized_access_prohibited": {"type": "boolean", "const": true},
+        "illegal_activity_reward_myz": {"type": "number", "const": 0}
+      },
+      "required": ["lawful_only", "unauthorized_access_prohibited", "illegal_activity_reward_myz"]
+    },
+    "settlement": {
+      "type": "object",
+      "properties": {
+        "approved_reward_myz": {"type": "number", "minimum": 0},
+        "contribution_id": {"type": "string"},
+        "evidence_root_hash": {"type": "string"},
+        "external_payment_reference": {"type": ["string", "null"]},
+        "settlement_status": {"type": "string", "enum": ["NOT_APPROVED", "APPROVED", "PENDING", "SETTLED", "DISPUTED"]}
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"risk_level": {"const": "high"}}},
+      "then": {
+        "properties": {
+          "required_verifiers": {"minimum": 2},
+          "maintainer_approval_required": {"const": true}
+        }
+      }
+    }
+  ]
+}
