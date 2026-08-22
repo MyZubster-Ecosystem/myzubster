@@ -1,6 +1,6 @@
 import unittest
 
-from health_controller import HealthController, HealthState, Observation
+from onion.health_controller import HealthController, HealthState, Observation
 
 
 class HealthControllerTests(unittest.TestCase):
