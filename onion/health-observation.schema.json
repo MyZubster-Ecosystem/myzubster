@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MyZubster Onion Health Observation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["node_id", "observer_id", "observed_at", "result"],
+  "properties": {
+    "node_id": {"type": "string", "minLength": 16, "maxLength": 128},
+    "observer_id": {"type": "string", "minLength": 16, "maxLength": 128},
+    "observed_at": {"type": "string", "format": "date-time"},
+    "result": {"type": "string", "enum": ["success", "failure"]},
+    "latency_ms": {"type": ["integer", "null"], "minimum": 0},
+    "http_status": {"type": ["integer", "null"], "minimum": 100, "maximum": 599},
+    "error_class": {"type": ["string", "null"], "enum": ["local_network", "tor_connectivity", "onion_connect", "application_timeout", "application_error", null]}
+  }
+}

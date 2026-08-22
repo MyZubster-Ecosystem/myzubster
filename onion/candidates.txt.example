@@ -1,0 +1,6 @@
+# One v3 Onion hostname per line.
+# Do not commit private keys or internal addresses.
+# Replace these examples with real deployed nodes before running the probe agent.
+# example-node-1.onion
+# example-node-2.onion
+# example-node-3.onion
