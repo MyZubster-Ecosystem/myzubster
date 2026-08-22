@@ -1,7 +1,7 @@
 {
   "id": "ZORGAX-001",
   "name": "Zorgax",
-  "version": "1.5",
+  "version": "1.6",
   "created": "2026-08-20",
   "entity_type": "virtual_extraterrestrial_ai_persona",
   "status": "active",
@@ -33,6 +33,8 @@
   ],
   "capabilities": [
     "explain_myzubster",
+    "canonical_project_context_grounding",
+    "public_project_identity_context",
     "guide_observations",
     "guide_evidence_collection",
     "classify_claims",
