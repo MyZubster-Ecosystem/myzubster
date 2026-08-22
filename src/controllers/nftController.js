@@ -1,6 +1,8 @@
 const crypto = require('crypto');
 const NFTAsset = require('../models/NFTAsset');
 const MarketplaceListing = require('../models/MarketplaceListing');
+const Wallet = require('../models/Wallet');
+const { verifyMintReceipt } = require('../services/blockchainVerificationService');
 
 function newId(prefix) {
   return `${prefix}_${crypto.randomUUID()}`;
@@ -8,15 +10,15 @@ function newId(prefix) {
 
 exports.createDraft = async (req, res) => {
   try {
-    const { type, creatorUserId, ownerUserId, ownerWallet, metadataUri, contentHash, github, edition, attributes } = req.body;
+    const { type, ownerWallet, metadataUri, contentHash, github, edition, attributes } = req.body;
     if (!type) return res.status(400).json({ success: false, message: 'type is required' });
 
     const asset = await NFTAsset.create({
       assetId: newId('nft'),
       type,
-      creatorUserId: creatorUserId || null,
-      ownerUserId: ownerUserId || null,
-      ownerWallet: ownerWallet || null,
+      creatorUserId: req.userId,
+      ownerUserId: req.userId,
+      ownerWallet: ownerWallet ? ownerWallet.toLowerCase() : null,
       metadataUri: metadataUri || null,
       contentHash: contentHash || null,
       github: github || {},
@@ -41,38 +43,76 @@ exports.listAssets = async (req, res) => {
   const filter = {};
   if (req.query.type) filter.type = req.query.type;
   if (req.query.status) filter.status = req.query.status;
-  if (req.query.ownerWallet) filter.ownerWallet = req.query.ownerWallet;
+  if (req.query.ownerWallet) filter.ownerWallet = req.query.ownerWallet.toLowerCase();
   const assets = await NFTAsset.find(filter).sort({ createdAt: -1 }).limit(100).lean();
   return res.json({ success: true, assets });
 };
 
-// MyZubster does not custody private keys in this MVP. The client/wallet performs
-// the mint and then submits the resulting chain identifiers for verification/persistence.
 exports.confirmMint = async (req, res) => {
-  const { chainId, contractAddress, tokenId, mintTxHash, ownerWallet, metadataUri } = req.body;
-  if (!chainId || !contractAddress || !tokenId || !mintTxHash) {
-    return res.status(400).json({ success: false, message: 'chainId, contractAddress, tokenId and mintTxHash are required' });
-  }
+  try {
+    const { chainId, contractAddress, tokenId, mintTxHash, ownerWallet, metadataUri } = req.body;
+    if (!chainId || !contractAddress || !tokenId || !mintTxHash || !ownerWallet) {
+      return res.status(400).json({ success: false, message: 'chainId, contractAddress, tokenId, mintTxHash and ownerWallet are required' });
+    }
 
-  const asset = await NFTAsset.findOneAndUpdate(
-    { assetId: req.params.assetId },
-    {
-      $set: {
-        chainId,
-        contractAddress,
-        tokenId,
-        mintTxHash,
-        ownerWallet: ownerWallet || null,
-        metadataUri: metadataUri || undefined,
-        status: 'minted',
-        mintedAt: new Date()
+    const asset = await NFTAsset.findOne({ assetId: req.params.assetId });
+    if (!asset) return res.status(404).json({ success: false, message: 'NFT asset not found' });
+    if (!asset.creatorUserId || asset.creatorUserId.toString() !== req.userId.toString()) {
+      return res.status(403).json({ success: false, message: 'Non puoi confermare il mint di un asset creato da un altro utente' });
+    }
+    if (asset.type !== 'character') {
+      return res.status(409).json({ success: false, message: 'Questo endpoint verificato è abilitato al Character NFT MVP' });
+    }
+
+    const normalizedOwner = ownerWallet.toLowerCase();
+    const verifiedWallet = await Wallet.findOne({
+      userId: req.userId,
+      address: normalizedOwner,
+      chainId: Number(chainId),
+      verified: true
+    });
+    if (!verifiedWallet) {
+      return res.status(403).json({ success: false, message: 'Wallet non verificato per questo utente e chainId' });
+    }
+
+    asset.status = 'mint_pending';
+    await asset.save();
+
+    const verification = await verifyMintReceipt({
+      chainId: Number(chainId),
+      contractAddress,
+      tokenId,
+      mintTxHash,
+      ownerWallet: normalizedOwner
+    });
+
+    asset.chainId = Number(chainId);
+    asset.contractAddress = verification.contractAddress;
+    asset.tokenId = verification.tokenId;
+    asset.mintTxHash = verification.transactionHash;
+    asset.ownerWallet = verification.ownerWallet;
+    asset.ownerUserId = req.userId;
+    if (metadataUri) asset.metadataUri = metadataUri;
+    asset.status = 'minted';
+    asset.mintedAt = new Date();
+    asset.attributes = {
+      ...(asset.attributes || {}),
+      mintVerification: {
+        verifiedOnChain: true,
+        blockNumber: verification.blockNumber,
+        verifiedAt: new Date().toISOString()
       }
-    },
-    { new: true, runValidators: true }
-  );
+    };
+    await asset.save();
 
-  if (!asset) return res.status(404).json({ success: false, message: 'NFT asset not found' });
-  return res.json({ success: true, asset });
+    return res.json({ success: true, verifiedOnChain: true, asset });
+  } catch (error) {
+    await NFTAsset.updateOne(
+      { assetId: req.params.assetId, status: 'mint_pending' },
+      { $set: { status: 'draft' } }
+    ).catch(() => {});
+    return res.status(400).json({ success: false, message: error.message });
+  }
 };
 
 exports.createListing = async (req, res) => {
@@ -104,8 +144,6 @@ exports.listMarketplace = async (_req, res) => {
   return res.json({ success: true, listings });
 };
 
-// Settlement is non-custodial: record a completed MYZ/NFT transfer after the wallet
-// or marketplace contract returns a transaction hash.
 exports.confirmSale = async (req, res) => {
   const { buyerUserId, buyerWallet, saleTxHash } = req.body;
   if (!saleTxHash) return res.status(400).json({ success: false, message: 'saleTxHash is required' });
