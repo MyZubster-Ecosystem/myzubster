@@ -31,6 +31,13 @@ const UserSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  github: {
+    id: { type: String, sparse: true },
+    login: { type: String, trim: true },
+    avatarUrl: { type: String, trim: true },
+    profileUrl: { type: String, trim: true },
+    verifiedAt: { type: Date }
+  },
   isVerified: {
     type: Boolean,
     default: false
@@ -43,6 +50,8 @@ const UserSchema = new mongoose.Schema({
     type: Date
   }
 });
+
+UserSchema.index({ 'github.id': 1 }, { unique: true, sparse: true });
 
 // Hash password prima di salvare
 UserSchema.pre('save', async function(next) {
