@@ -1,0 +1,1 @@
+This package is part of the Zorgax Visual Intelligence series. Future visual-source revisions should be proposed through dedicated branches and draft pull requests. The explanatory semantics derive from the canonical `BOUNTIES.md` contract.
