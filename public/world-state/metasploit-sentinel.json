@@ -1,0 +1,33 @@
+{
+  "schema": "myzubster.world-state.record.v1",
+  "id": "metasploit-sentinel-pr-12",
+  "updated_at": "2026-08-22",
+  "type": "community-visual-character",
+  "title": "Metasploit Sentinel",
+  "state": "INTEGRATED",
+  "narrative_status": "CONCEPT_ONLY / PROPOSED",
+  "evidence": {
+    "kind": "merged_pull_request",
+    "label": "MyZubster-Visual PR #12",
+    "url": "https://github.com/MyZubster-Ecosystem/MyZubster-Visual/pull/12",
+    "merge_commit": "e00227994334632041856139c684a85533d97518"
+  },
+  "contributor": {
+    "public_alias": "Aming9303",
+    "source": "https://github.com/Aming9303"
+  },
+  "assets": [
+    "https://raw.githubusercontent.com/MyZubster-Ecosystem/MyZubster-Visual/main/assets/comic/metasploit-sentinel-character-sheet.png",
+    "https://raw.githubusercontent.com/MyZubster-Ecosystem/MyZubster-Visual/main/assets/comic/metasploit-sentinel-cover.png",
+    "https://raw.githubusercontent.com/MyZubster-Ecosystem/MyZubster-Visual/main/assets/comic/metasploit-sentinel-scope-first.png"
+  ],
+  "claim": "A community-contributed Metasploit Sentinel visual set was reviewed and merged into MyZubster-Visual.",
+  "does_not_imply": [
+    "Metasploit or Rapid7 affiliation",
+    "external endorsement",
+    "production security deployment",
+    "real vulnerability evidence",
+    "payment or reward settlement"
+  ],
+  "classification": "AI-assisted narrative visual; not real-world evidence"
+}
