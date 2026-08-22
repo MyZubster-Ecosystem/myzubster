@@ -13,6 +13,16 @@
       "note": "Open issue; no character submission is implied by the invitation itself."
     },
     {
+      "id": "metasploit-sentinel-pr-12",
+      "type": "community-visual-character",
+      "title": "Metasploit Sentinel",
+      "state": "INTEGRATED",
+      "claim": "A community-contributed Sentinel visual set was reviewed and merged into MyZubster-Visual.",
+      "evidence_label": "Merged PR #12",
+      "evidence_url": "https://github.com/MyZubster-Ecosystem/MyZubster-Visual/pull/12",
+      "note": "Merge commit e00227994334632041856139c684a85533d97518. Assets remain CONCEPT_ONLY / PROPOSED, AI-assisted narrative material. Merge does not imply Metasploit/Rapid7 affiliation, deployment, payment or real vulnerability evidence."
+    },
+    {
       "id": "visual-001-pr-614",
       "type": "visual-package",
       "title": "Visual #001 — Ecosystem Architecture",
