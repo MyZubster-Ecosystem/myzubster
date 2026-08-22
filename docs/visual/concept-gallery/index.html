@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MyZubster / Zorgax Concept Gallery</title>
+<style>
+:root{color-scheme:dark;--bg:#060914;--panel:#0d1324;--text:#eefaff;--muted:#9eb6c8;--cyan:#2fdcff;--mag:#ff4bd8;--amber:#ffc857;--line:#27435f}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 15% 5%,#17102d 0,#060914 38%),#060914;color:var(--text);font:16px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}.shell{max-width:1180px;margin:auto;padding:34px 20px 70px}a{color:var(--cyan)}.hero{padding:28px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(135deg,rgba(47,220,255,.07),rgba(255,75,216,.07))}.eyebrow{color:var(--mag);font-weight:800;letter-spacing:.12em}.warning{margin-top:16px;padding:14px;border:1px solid var(--amber);border-radius:12px;color:#ffe8ad;background:#1a160c}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:24px}.card{padding:20px;border:1px solid var(--line);border-radius:16px;background:var(--panel)}.card h2{font-size:1.05rem;margin:.25rem 0;overflow-wrap:anywhere}.meta{color:var(--muted);font-size:.9rem}.badge{display:inline-block;margin-top:10px;padding:5px 8px;border-radius:999px;border:1px solid var(--mag);color:#ffc8f3;font-size:.72rem;font-weight:800}.external{border-color:var(--amber)}.external .badge{border-color:var(--amber);color:#ffe8ad}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.actions a{padding:8px 10px;border:1px solid var(--line);border-radius:9px;text-decoration:none}.footer{margin-top:30px;color:var(--muted)}@media(max-width:760px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body><main class="shell">
+<section class="hero"><div class="eyebrow">ZORGAX VISUAL INTELLIGENCE · ARCHIVE CATALOG</div><h1>Concept Image Gallery</h1><p>Catalog of all AI/narrative PNGs from the PC Upload Pack. These records preserve provenance without upgrading the images into factual evidence.</p><div class="warning"><strong>AI-GENERATED / ILLUSTRATIVE / NOT EVIDENCE.</strong> Drive is an archive, not proof. Public claims must be supported by canonical GitHub/runtime evidence.</div><p><a href="../index.html">← Back to Visual Hub</a> · <a href="README.md">Policy</a> · <a href="manifest.json">Machine-readable manifest</a></p></section>
+<section id="grid" class="grid" aria-live="polite"></section>
+<footer class="footer">Special rule: the Metasploit concept is UNVERIFIED EXTERNAL CANDIDATE / NO AFFILIATION.</footer>
+</main>
+<script>
+const drive=id=>`https://drive.google.com/file/d/${id}/view`;
+fetch('manifest.json').then(r=>r.json()).then(data=>{
+ const grid=document.getElementById('grid');
+ data.assets.forEach((a,i)=>{
+  const ext=a.status==='unverified-external-candidate';
+  const c=document.createElement('article');c.className='card'+(ext?' external':'');
+  const canonical=a.canonical_path||a.canonical_source||'';
+  c.innerHTML=`<div class="meta">#${String(i+1).padStart(2,'0')} · ${a.category}</div><h2>${a.filename}</h2><span class="badge">${ext?'UNVERIFIED / NO AFFILIATION':'CONCEPT · NOT EVIDENCE'}</span><div class="actions"><a href="${drive(a.drive_file_id)}">Drive archive</a>${canonical?`<a href="${canonical}">Canonical source</a>`:''}</div>`;
+  grid.appendChild(c);
+ });
+}).catch(()=>{document.getElementById('grid').innerHTML='<p>Unable to load manifest.</p>'});
+</script></body></html>
