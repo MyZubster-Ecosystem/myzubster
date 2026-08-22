@@ -1,6 +1,6 @@
 {
   "name": "MyZubster GitHub Visual Hub",
-  "version": 3,
+  "version": 4,
   "status": "draft",
   "maintainer_role": "Zorgax Visual Intelligence",
   "purpose": "Interactive evidence-first index for MyZubster visual documentation",
@@ -24,6 +24,19 @@
     {"path":"adoption-ladder/index.html","type":"interactive-documentation","evidence":false},
     {"path":"concept-gallery/index.html","type":"narrative-archive-index","evidence":false},
     {"path":"concept-gallery/manifest.json","type":"provenance-catalog","evidence":false}
+  ],
+  "community_characters": [
+    {
+      "id": "metasploit-sentinel-pr-12",
+      "name": "Metasploit Sentinel",
+      "state": "INTEGRATED",
+      "narrative_status": "CONCEPT_ONLY / PROPOSED",
+      "contributor": "Aming9303",
+      "evidence": "https://github.com/MyZubster-Ecosystem/MyZubster-Visual/pull/12",
+      "live_chronicle": "https://www.myzubster.com/fumetto/sentinel",
+      "world_state": "https://www.myzubster.com/world-state/metasploit-sentinel.json",
+      "does_not_imply": ["Metasploit/Rapid7 affiliation","endorsement","production deployment","payment","real vulnerability evidence"]
+    }
   ],
   "external_candidate_guardrail": {
     "asset": "external-git-metasploit-UNVERIFIED-CONCEPT.png",
