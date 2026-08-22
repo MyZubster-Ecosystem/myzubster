@@ -16,6 +16,10 @@ The hub is intentionally plain HTML/CSS/JavaScript so it can be hosted on GitHub
 - **#002 — Contributor → Evidence** — bounty, evidence, review and settlement separation.
 - **#003 — GitHub-Native Metaverse** — repository → mission → contributor → evidence → verification → ecosystem change.
 - **#004 — Maturity Map** — maturity vocabulary; individual component classifications remain evidence-dependent.
+- **#005 — Public Repository Map** — searchable public repository inventory.
+- **#006 — Contributor Journey** — discovery → mission → evidence → review → verified ecosystem change.
+- **#007 — World State / Evidence Ledger** — explicit claim states capped by linked evidence.
+- **#009 — Adoption Ladder** — discovery → interest → fork → contribution → integration → deployment → verified adoption.
 
 ## Evidence guardrails
 
@@ -26,17 +30,18 @@ PR merged          != external payment
 AI-generated image != evidence
 Roadmap item       != released feature
 Indexing           != endorsement
+Discovery          != adoption
 ```
 
 Every visual package should include provenance notes or a manifest describing its source and whether it is documentation, evidence, official material or narrative illustration.
 
 ## Next priorities
 
-1. repository map;
-2. contributor journey;
-3. world-state / evidence ledger;
-4. first full interactive Zorgax Chronicle;
-5. adoption ladder.
+1. first full interactive Zorgax Chronicle;
+2. Character Registry view;
+3. Gateway architecture package;
+4. Marketplace/App visual package;
+5. robotics/IoT visual package.
 
 ## Governance
 
