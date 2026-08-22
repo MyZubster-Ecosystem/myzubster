@@ -4,6 +4,15 @@
 
 You do not need a legal-name profile, KYC, cryptocurrency, a company affiliation, an invitation, or previous MyZubster experience to begin. You may use a public GitHub alias.
 
+## Start with the simple guide
+
+If this is your first time here, open the intuitive workflow first:
+
+- Website: https://www.myzubster.com/come-funziona
+- Repository guide: [`docs/COME_FUNZIONA.md`](docs/COME_FUNZIONA.md)
+
+It explains the path from discovery to mission, `CLAIM` / PR, review, optional character creation, World State and Chronicle.
+
 ## Choose your path
 
 ### I am a developer
@@ -29,12 +38,13 @@ Start small: ask a question on an issue, fix a typo, reproduce a bug, improve a 
 
 ## Start here
 
-1. Read [`CONTRIBUTING.md`](CONTRIBUTING.md).
-2. Explore the public issues: https://github.com/MyZubster-Ecosystem/myzubster/issues
-3. Comment on a task or ask a question before starting if anything is unclear.
-4. Fork or branch the repository.
-5. Submit a focused pull request with tests/evidence appropriate to the change.
-6. Respond to public review.
+1. Open https://www.myzubster.com/come-funziona
+2. Read [`CONTRIBUTING.md`](CONTRIBUTING.md).
+3. Explore the public issues: https://github.com/MyZubster-Ecosystem/myzubster/issues
+4. Comment on a task or ask a question before starting if anything is unclear.
+5. Fork or branch the repository.
+6. Submit a focused pull request with tests/evidence appropriate to the change.
+7. Respond to public review.
 
 ## Create your character
 
