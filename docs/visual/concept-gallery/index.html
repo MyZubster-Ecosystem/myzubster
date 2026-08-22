@@ -22,6 +22,6 @@ fetch('manifest.json').then(r=>r.json()).then(data=>{
   const canonical=a.canonical_path||a.canonical_source||'';
   c.innerHTML=`<div class="meta">#${String(i+1).padStart(2,'0')} · ${a.category}</div><h2>${a.filename}</h2><span class="badge">${ext?'UNVERIFIED / NO AFFILIATION':'CONCEPT · NOT EVIDENCE'}</span><div class="actions"><a href="${drive(a.drive_file_id)}">Drive archive</a>${canonical?`<a href="${canonical}">Canonical source</a>`:''}</div><div class="note">Archive ID: ${a.drive_file_id}</div>`;
   grid.appendChild(c);
- }).catch(()=>{});
+ });
 }).catch(()=>{document.getElementById('grid').innerHTML='<p>Unable to load manifest.</p>'});
 </script></body></html>
