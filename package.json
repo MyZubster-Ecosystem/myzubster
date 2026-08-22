@@ -10,7 +10,8 @@
     "build": "npm install",
     "smoke:zorgax-research": "node scripts/zorgax-research-vps-smoke.js",
     "nft:compile": "hardhat compile",
-    "nft:deploy:sepolia": "hardhat run scripts/deploy-character-nft.cjs --network sepolia"
+    "nft:deploy:sepolia": "hardhat run scripts/deploy-character-nft.cjs --network sepolia",
+    "myz:deploy:sepolia": "hardhat run scripts/deploy-myz-token.cjs --network sepolia"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.9.6",
