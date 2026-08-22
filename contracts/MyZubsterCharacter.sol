@@ -3,7 +3,7 @@ pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/Pausable.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
 
 contract MyZubsterCharacter is ERC721URIStorage, Ownable, Pausable {
     uint256 public immutable maxSupply;
@@ -13,10 +13,7 @@ contract MyZubsterCharacter is ERC721URIStorage, Ownable, Pausable {
 
     event CharacterMinted(address indexed owner, uint256 indexed tokenId, string tokenURI);
 
-    constructor(uint256 maxSupply_, address initialOwner)
-        ERC721("MyZubster Character", "MYZCHAR")
-        Ownable(initialOwner)
-    {
+    constructor(uint256 maxSupply_) ERC721("MyZubster Character", "MYZCHAR") {
         require(maxSupply_ > 0, "max supply is zero");
         maxSupply = maxSupply_;
     }
