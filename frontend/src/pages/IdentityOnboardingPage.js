@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 const shell = {
   minHeight: '100vh',
@@ -56,28 +56,20 @@ function avatarDataUri(name, archetype, traits) {
 }
 
 function deriveIdentity(profile, repos) {
-  const text = [
-    profile.bio || '',
-    ...repos.flatMap(repo => [repo.language || '', repo.description || '', ...(repo.topics || [])]),
-  ].join(' ').toLowerCase();
-
+  const text = [profile.bio || '', ...repos.flatMap(repo => [repo.language || '', repo.description || '', ...(repo.topics || [])])].join(' ').toLowerCase();
   const scores = {
     guardian: /(security|privacy|crypto|tor|cyber|auth|identity|zero trust)/g,
     caretaker: /(climate|environment|water|civic|community|green|sustainab|health)/g,
     explorer: /(ai|machine learning|data|science|research|space|experimental|web3)/g,
     builder: /(javascript|typescript|python|java|rust|go|docker|devops|api|frontend|backend|open source)/g,
   };
-
-  const ranked = Object.entries(scores).map(([id, rx]) => [id, (text.match(rx) || []).length]);
-  ranked.sort((a, b) => b[1] - a[1]);
-  const archetype = archetypes.find(item => item.id === ranked[0][0]) || archetypes[1];
-
+  const ranked = Object.entries(scores).map(([id, rx]) => [id, (text.match(rx) || []).length]).sort((a, b) => b[1] - a[1]);
+  const selected = archetypes.find(item => item.id === ranked[0][0]) || archetypes[1];
   const languages = [...new Set(repos.map(r => r.language).filter(Boolean))].slice(0, 3);
   const topics = [...new Set(repos.flatMap(r => r.topics || []))].slice(0, 4);
-  const traits = [...languages, ...topics].slice(0, 4);
-  if (!traits.length) traits.push('open-source', 'builder', 'future');
-
-  return { archetype, traits };
+  const suggestions = [...languages, ...topics].slice(0, 4);
+  if (!suggestions.length) suggestions.push('open-source', 'builder', 'future');
+  return { archetype: selected, traits: suggestions };
 }
 
 function IdentityOnboardingPage({ onContinue, onSkip }) {
@@ -91,11 +83,80 @@ function IdentityOnboardingPage({ onContinue, onSkip }) {
   const [githubUsername, setGithubUsername] = useState('');
   const [githubStatus, setGithubStatus] = useState('');
   const [githubProfile, setGithubProfile] = useState(null);
+  const [githubVerificationToken, setGithubVerificationToken] = useState('');
   const [importingGithub, setImportingGithub] = useState(false);
 
   const traitList = useMemo(() => traits.split(',').map(v => v.trim()).filter(Boolean).slice(0, 4), [traits]);
   const displayName = name.trim() || 'Your Zubster';
   const avatar = useMemo(() => avatarDataUri(displayName, archetype, traitList), [displayName, archetype, traitList]);
+
+  async function applyGithubProfile(login, verified = null) {
+    const [profileRes, reposRes] = await Promise.all([
+      fetch(`https://api.github.com/users/${encodeURIComponent(login)}`),
+      fetch(`https://api.github.com/users/${encodeURIComponent(login)}/repos?per_page=100&sort=updated`),
+    ]);
+    if (!profileRes.ok) throw new Error('Profilo GitHub non trovato o non accessibile.');
+    const profile = await profileRes.json();
+    const repos = reposRes.ok ? await reposRes.json() : [];
+    const safeRepos = Array.isArray(repos) ? repos.filter(r => !r.fork) : [];
+    const derived = deriveIdentity(profile, safeRepos);
+    setName(profile.name || profile.login || login);
+    setAccount(v => ({ ...v, username: v.username || profile.login || login, email: v.email || verified?.email || '' }));
+    setArchetype(derived.archetype);
+    setTraits(derived.traits.join(', '));
+    setGithubProfile({
+      id: verified?.id || null,
+      login: profile.login,
+      url: profile.html_url,
+      avatarUrl: profile.avatar_url,
+      bio: profile.bio || '',
+      publicRepos: profile.public_repos || safeRepos.length,
+      verified: Boolean(verified?.id),
+      verifiedAt: verified?.id ? new Date().toISOString() : null,
+    });
+    setGithubUsername(profile.login);
+    setGithubStatus(verified?.id ? `✓ GitHub @${profile.login} verificato. ${safeRepos.length} repository pubblici analizzati.` : `Profilo pubblico importato: ${safeRepos.length} repository analizzati. Verifica GitHub per provare che è tuo.`);
+    setStep(2);
+  }
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const ticket = params.get('github_oauth_ticket');
+    const oauthState = params.get('github_oauth');
+    const oauthMessage = params.get('github_oauth_message');
+
+    const pending = localStorage.getItem('myzubster-oauth-pending');
+    if (pending) {
+      try {
+        const draft = JSON.parse(pending);
+        if (draft.name) setName(draft.name);
+        if (draft.traits) setTraits(draft.traits);
+        if (draft.archetypeId) setArchetype(archetypes.find(a => a.id === draft.archetypeId) || archetypes[1]);
+      } catch (_) {}
+      localStorage.removeItem('myzubster-oauth-pending');
+    }
+
+    if (oauthState === 'error') {
+      setGithubStatus(oauthMessage || 'Verifica GitHub non riuscita.');
+    }
+    if (!ticket) return;
+
+    setGithubStatus('Verifica GitHub in corso…');
+    fetch('/api/auth/github/verify-ticket', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ticket }),
+    })
+      .then(async response => {
+        const data = await response.json();
+        if (!response.ok || !data.success) throw new Error(data.message || 'Verifica GitHub non valida');
+        setGithubVerificationToken(ticket);
+        await applyGithubProfile(data.data.github.login, data.data.github);
+      })
+      .catch(error => setGithubStatus(error.message))
+      .finally(() => {
+        const cleanUrl = `${window.location.pathname}${window.location.hash || ''}`;
+        window.history.replaceState({}, document.title, cleanUrl);
+      });
+  }, []);
 
   async function importFromGithub() {
     const username = githubUsername.trim().replace(/^@/, '');
@@ -103,34 +164,18 @@ function IdentityOnboardingPage({ onContinue, onSkip }) {
     setImportingGithub(true);
     setGithubStatus('Leggo il profilo pubblico GitHub…');
     try {
-      const [profileRes, reposRes] = await Promise.all([
-        fetch(`https://api.github.com/users/${encodeURIComponent(username)}`),
-        fetch(`https://api.github.com/users/${encodeURIComponent(username)}/repos?per_page=100&sort=updated`),
-      ]);
-      if (!profileRes.ok) throw new Error('Profilo GitHub non trovato o non accessibile.');
-      const profile = await profileRes.json();
-      const repos = reposRes.ok ? await reposRes.json() : [];
-      const safeRepos = Array.isArray(repos) ? repos.filter(r => !r.fork) : [];
-      const derived = deriveIdentity(profile, safeRepos);
-
-      setName(profile.name || profile.login || username);
-      setAccount(v => ({ ...v, username: v.username || profile.login || username }));
-      setArchetype(derived.archetype);
-      setTraits(derived.traits.join(', '));
-      setGithubProfile({
-        login: profile.login,
-        url: profile.html_url,
-        avatarUrl: profile.avatar_url,
-        bio: profile.bio || '',
-        publicRepos: profile.public_repos || safeRepos.length,
-      });
-      setGithubStatus(`Import completato: ${safeRepos.length} repository pubblici analizzati.`);
-      setStep(2);
+      setGithubVerificationToken('');
+      await applyGithubProfile(username);
     } catch (error) {
       setGithubStatus(error.message);
     } finally {
       setImportingGithub(false);
     }
+  }
+
+  function startGithubOAuth() {
+    localStorage.setItem('myzubster-oauth-pending', JSON.stringify({ name, archetypeId: archetype.id, traits }));
+    window.location.assign('/api/auth/github/start');
   }
 
   function makeDraft(extra = {}) {
@@ -164,12 +209,14 @@ function IdentityOnboardingPage({ onContinue, onSkip }) {
     setStatus('Creazione account e identità…');
     try {
       const response = await fetch('/api/auth/register', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(account),
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...account, githubVerificationToken: githubVerificationToken || undefined }),
       });
       const data = await response.json();
       if (!response.ok || !data.success) throw new Error(data.message || 'Registrazione non riuscita');
       if (data.data?.token) localStorage.setItem('myzubster-token', data.data.token);
-      persistAndContinue(makeDraft({ accountLinked: true, username: account.username }));
+      persistAndContinue(makeDraft({ accountLinked: true, username: account.username, githubVerified: Boolean(data.data?.user?.github?.id) }));
       setStatus('Identità salvata e account creato.');
     } catch (error) {
       setStatus(error.message);
@@ -179,7 +226,7 @@ function IdentityOnboardingPage({ onContinue, onSkip }) {
   }
 
   function saveLocalOnly() {
-    persistAndContinue(makeDraft({ accountLinked: false }));
+    persistAndContinue(makeDraft({ accountLinked: false, githubVerified: Boolean(githubProfile?.verified) }));
   }
 
   return (
@@ -194,27 +241,33 @@ function IdentityOnboardingPage({ onContinue, onSkip }) {
           <div style={card}>
             <div style={{ color: '#67e8f9', fontSize: 12, fontWeight: 900, letterSpacing: 1.4 }}>IDENTITY ONBOARDING · {step}/4</div>
             <h1 style={{ fontSize: 'clamp(38px,7vw,68px)', lineHeight: 1, margin: '14px 0' }}>Chi vuoi essere su MyZubster?</h1>
-            <p style={{ color: '#aebdca', fontSize: 18, lineHeight: 1.55, maxWidth: 620 }}>Parti da zero oppure lascia che il tuo GitHub pubblico suggerisca una prima identità.</p>
+            <p style={{ color: '#aebdca', fontSize: 18, lineHeight: 1.55, maxWidth: 620 }}>Parti da zero, importa un profilo pubblico oppure collega GitHub per creare un’identità verificata.</p>
 
             {step === 1 && <div style={{ marginTop: 24, display: 'grid', gap: 14 }}>
               <div style={{ ...card, padding: 16, borderColor: '#334d6d' }}>
-                <strong>⚡ Crea dal mio GitHub</strong>
-                <div style={{ color: '#91a4b5', margin: '5px 0 10px' }}>Usiamo solo profilo e repository pubblici. Nessuna autorizzazione richiesta in questo MVP.</div>
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                  <input value={githubUsername} onChange={e => setGithubUsername(e.target.value)} onKeyDown={e => e.key === 'Enter' && importFromGithub()} placeholder="username GitHub" style={{ ...input, flex: '1 1 220px' }} />
-                  <button onClick={importFromGithub} disabled={importingGithub} style={{ ...primary, opacity: importingGithub ? .65 : 1 }}>{importingGithub ? 'Analisi…' : 'Importa da GitHub'}</button>
-                </div>
-                {githubStatus && <div style={{ marginTop: 9, color: githubStatus.startsWith('Import') ? '#86efac' : '#fbbf24' }}>{githubStatus}</div>}
+                <strong>✓ Collega e verifica GitHub</strong>
+                <div style={{ color: '#91a4b5', margin: '5px 0 10px' }}>GitHub ti chiederà autorizzazione. MyZubster non salva il token GitHub: riceve solo una prova temporanea dell’account verificato.</div>
+                <button onClick={startGithubOAuth} style={primary}>Continua con GitHub →</button>
               </div>
 
-              <div style={{ textAlign: 'center', color: '#64748b', fontWeight: 800 }}>oppure</div>
+              <div style={{ ...card, padding: 16 }}>
+                <strong>⚡ Oppure analizza un profilo pubblico</strong>
+                <div style={{ color: '#91a4b5', margin: '5px 0 10px' }}>Utile per provare il generatore; non dimostra che il profilo appartenga a te.</div>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  <input value={githubUsername} onChange={e => setGithubUsername(e.target.value)} onKeyDown={e => e.key === 'Enter' && importFromGithub()} placeholder="username GitHub" style={{ ...input, flex: '1 1 220px' }} />
+                  <button onClick={importFromGithub} disabled={importingGithub} style={{ ...secondary, opacity: importingGithub ? .65 : 1 }}>{importingGithub ? 'Analisi…' : 'Analizza'}</button>
+                </div>
+                {githubStatus && <div style={{ marginTop: 9, color: githubProfile?.verified ? '#86efac' : '#fbbf24' }}>{githubStatus}</div>}
+              </div>
+
+              <div style={{ textAlign: 'center', color: '#64748b', fontWeight: 800 }}>oppure crea manualmente</div>
               <label style={{ fontWeight: 800 }}>Come vuoi chiamarti qui?</label>
               <input autoFocus value={name} onChange={e => setName(e.target.value)} placeholder="Nome, alias o callsign" maxLength={32} style={input} />
               <button onClick={() => setStep(2)} style={primary}>Continua →</button>
             </div>}
 
             {step === 2 && <div style={{ marginTop: 24 }}>
-              {githubProfile && <div style={{ marginBottom: 12, padding: 12, borderRadius: 12, background: '#0b1725', color: '#bae6fd' }}>GitHub @{githubProfile.login} ha suggerito <strong>{archetype.label}</strong>. Puoi cambiarlo liberamente.</div>}
+              {githubProfile && <div style={{ marginBottom: 12, padding: 12, borderRadius: 12, background: '#0b1725', color: githubProfile.verified ? '#86efac' : '#bae6fd' }}>{githubProfile.verified ? '✓ GitHub verificato' : 'GitHub pubblico'} · @{githubProfile.login} ha suggerito <strong>{archetype.label}</strong>. Puoi cambiarlo liberamente.</div>}
               <div style={{ fontWeight: 800, marginBottom: 10 }}>Scegli un archetipo</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,minmax(0,1fr))', gap: 10 }}>
                 {archetypes.map(item => (
@@ -241,7 +294,7 @@ function IdentityOnboardingPage({ onContinue, onSkip }) {
             </div>}
 
             {step === 4 && <form onSubmit={registerAndSave} style={{ marginTop: 24, display: 'grid', gap: 12 }}>
-              <div><strong>Salva la tua identità</strong><div style={{ color: '#91a4b5', marginTop: 5 }}>Crea l’account adesso oppure continua con una bozza solo locale.</div></div>
+              <div><strong>Salva la tua identità</strong><div style={{ color: '#91a4b5', marginTop: 5 }}>{githubProfile?.verified ? `GitHub @${githubProfile.login} verrà collegato come account verificato.` : 'Crea l’account adesso oppure continua con una bozza solo locale.'}</div></div>
               <input required minLength={3} value={account.username} onChange={e => setAccount({ ...account, username: e.target.value })} placeholder="Username" style={input} />
               <input required type="email" value={account.email} onChange={e => setAccount({ ...account, email: e.target.value })} placeholder="Email" style={input} />
               <input required minLength={6} type="password" value={account.password} onChange={e => setAccount({ ...account, password: e.target.value })} placeholder="Password (minimo 6 caratteri)" style={input} />
@@ -261,7 +314,7 @@ function IdentityOnboardingPage({ onContinue, onSkip }) {
                 <img src={avatar} alt={`Avatar preview di ${displayName}`} style={{ width: 128, height: 128, borderRadius: 24, display: 'block', border: '1px solid rgba(255,255,255,.18)' }} />
                 <h2 style={{ fontSize: 34, margin: '18px 0 4px' }}>{displayName}</h2>
                 <div style={{ color: '#67e8f9', fontWeight: 800 }}>{archetype.label}</div>
-                {githubProfile && <div style={{ marginTop: 7, color: '#94a3b8' }}>↳ derived from GitHub @{githubProfile.login}</div>}
+                {githubProfile && <div style={{ marginTop: 8, color: githubProfile.verified ? '#86efac' : '#93c5fd', fontSize: 13 }}>{githubProfile.verified ? '✓ GitHub verified' : 'GitHub source'} · @{githubProfile.login}</div>}
                 <p style={{ color: '#c2ced8', lineHeight: 1.55 }}>Una nuova identità MyZubster orientata a {archetype.tone.replaceAll(' · ', ', ')}.</p>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 18 }}>
                   {(traitList.length ? traitList : ['identity', 'future']).map(trait => <span key={trait} style={{ padding: '7px 10px', borderRadius: 999, background: '#0b1d2a', border: '1px solid #27465c', color: '#bae6fd', fontSize: 13 }}>#{trait.replace(/\s+/g, '-')}</span>)}
@@ -269,8 +322,8 @@ function IdentityOnboardingPage({ onContinue, onSkip }) {
               </div>
             </div>
             <div style={{ marginTop: 22, color: '#91a4b5', lineHeight: 1.55, fontSize: 14 }}>
-              <strong style={{ color: '#fff' }}>GitHub è una sorgente, non la tua identità.</strong><br />
-              MyZubster usa i segnali pubblici solo per proporre una bozza: nome, archetipo e traits restano sempre modificabili prima del salvataggio.
+              <strong style={{ color: '#fff' }}>GitHub è una fonte, non la tua identità.</strong><br />
+              Anche dopo la verifica puoi cambiare nome, archetipo, traits e avatar prima di salvare.
             </div>
           </aside>
         </section>
