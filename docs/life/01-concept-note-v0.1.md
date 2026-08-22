@@ -10,6 +10,8 @@
 
 > This document is not a final LIFE application. Pilot, partners, baseline, targets and budget are intentionally marked as provisional until independently confirmed.
 
+> **Official-source check (22 August 2026):** CINEA lists both Nature SAP topics above as open, single-stage calls with the 22 September 2026, 17:00 CEST deadline. CINEA also states that natural persons are not eligible applicants; the specific MyZubster legal applicant remains to be verified. See [`../life-2026/generated/2026-08-22-official-source-update.md`](../life-2026/generated/2026-08-22-official-source-update.md).
+
 ## 1. Executive summary
 
 MyZubster-Nature proposes a privacy-aware digital evidence and monitoring workflow for biodiversity and protected-area management. The demonstrator connects field observations, geolocation and media, structured registry records, validation status, evidence records and an institutional dashboard.
@@ -110,7 +112,7 @@ Observation ingestion, registry, validation, evidence, mapping and dashboard.
 Deployment, field testing, stakeholder participation and monitoring.
 
 ### WP5 — Impact, replication and sustainability
-Impact assessment, replication package, institutional adoption pathway and After-LIFE sustainability.
+Impact assessment, replication package, institutional adoption pathway and preparation of the **After-LIFE Conservation Plan** required by the current LIFE 2026 FAQ for SAP Nature projects. The plan must address continuation and consolidation of biodiversity/conservation results after LIFE funding; technology continuation is subordinate to those environmental outcomes.
 
 ### WP6 — Communication and dissemination
 Stakeholder engagement, public communication and transfer of results.
@@ -127,7 +129,7 @@ NAT-NATURE is potentially stronger if the project is designed around a concrete 
 
 ## 10. Consortium — provisional
 
-- Coordinator/applicant: MyZubster legal entity — **to be verified**.
+- Coordinator/applicant: eligible public or private legal entity — **specific MyZubster entity, registration and eligibility to be verified; an individual cannot be the LIFE applicant**.
 - Technology: MyZubster.
 - Scientific methodology: **partner to be identified**.
 - Pilot authority: **candidate only**.
@@ -138,6 +140,7 @@ No organisation is represented as a confirmed beneficiary until formal confirmat
 ## 11. Risks
 
 - Topic mismatch between governance/information and direct conservation action.
+- No verified eligible applicant/legal entity yet.
 - No confirmed pilot authority.
 - No confirmed scientific partner.
 - Insufficient baseline data.
@@ -158,8 +161,9 @@ No organisation is represented as a confirmed beneficiary until formal confirmat
 - [ ] Confirm topic fit with NCP.
 - [ ] Secure pilot discussion.
 - [ ] Identify scientific partner.
-- [ ] Confirm applicant/legal entity and Participant Register requirements.
+- [ ] Verify the eligible applicant/legal entity, registration status and Participant Register/PIC readiness.
 - [ ] Build vertical slice.
 - [ ] Define baseline/KPIs.
+- [ ] Draft the required After-LIFE Conservation Plan structure around measurable biodiversity/conservation outcomes.
 - [ ] Draft budget and Gantt.
 - [ ] Produce final concept/application package before the 22 September 2026 deadline.
