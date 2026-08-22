@@ -1,0 +1,17 @@
+{
+  "id": "MYZ-VIS-ZORGAX-002",
+  "title": "Contributor Evidence Verification Flow",
+  "status": "documentation-visual",
+  "canonical_source": "BOUNTIES.md",
+  "style": "original-cyberpunk-myzubster-zorgax",
+  "evidence": false,
+  "assets": [
+    {
+      "name": "zorgax-visual-002-contributor-evidence-cyberpunk.png",
+      "type": "ai-generated",
+      "purpose": "presentation",
+      "probatory": false
+    }
+  ],
+  "notes": "The visual explains canonical workflow boundaries. It is not evidence of payment, deployment, or bounty completion."
+}
