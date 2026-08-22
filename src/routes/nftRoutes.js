@@ -1,11 +1,14 @@
 const express = require('express');
+const auth = require('../middleware/auth');
 const controller = require('../controllers/nftController');
 
 const router = express.Router();
 
 router.get('/', controller.listAssets);
-router.post('/', controller.createDraft);
 router.get('/:assetId', controller.getAsset);
-router.post('/:assetId/confirm-mint', controller.confirmMint);
+
+// Public reads, authenticated writes.
+router.post('/', auth.authenticate, controller.createDraft);
+router.post('/:assetId/confirm-mint', auth.authenticate, controller.confirmMint);
 
 module.exports = router;
