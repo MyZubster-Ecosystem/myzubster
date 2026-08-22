@@ -1,36 +1,46 @@
 {
   "name": "MyZubster GitHub Visual Hub",
-  "version": 2,
+  "version": 3,
   "status": "draft",
   "maintainer_role": "Zorgax Visual Intelligence",
   "purpose": "Interactive evidence-first index for MyZubster visual documentation",
-  "packages": [
-    {"id":"001","path":"architecture/README.md","type":"official-documentation-derived","interactive":false,"evidence":false,"source":"docs/ECOSYSTEM.md","archive_png_drive_file_id":"17to0RFWaOnP6sLSSUjSdUShEvlVKFoGO"},
-    {"id":"002","path":"contributor-flow/README.md","type":"official-documentation-derived","interactive":false,"evidence":false,"source":"BOUNTIES.md"},
-    {"id":"003","path":"github-native-metaverse/README.md","type":"official-documentation-derived","interactive":false,"evidence":false,"source":"docs/MYZUBSTER_METAVERSE.md"},
-    {"id":"004","path":"../MYZUBSTER_METAVERSE.md","type":"status-vocabulary","interactive":false,"evidence":false},
-    {"id":"005","path":"repository-map/index.html","type":"public-repository-inventory","interactive":true,"evidence":true},
-    {"id":"006","path":"contributor-journey/index.html","type":"workflow-view","interactive":true,"evidence":false},
-    {"id":"007","path":"world-state/index.html","type":"claim-ledger","interactive":true,"evidence":true},
-    {"id":"009","path":"adoption-ladder/index.html","type":"adoption-state-model","interactive":true,"evidence":false}
-  ],
-  "character_registry": {
-    "status": "source-issue",
-    "issue": 617,
-    "url": "https://github.com/MyZubster-Ecosystem/myzubster/issues/617",
-    "guardrail": "Contributor character status must be backed by public contribution evidence and does not imply KYC, employment, partnership, payment or endorsement."
+  "pc_upload_pack": {
+    "date": "2026-08-22",
+    "source": "PC-UPLOAD-PACK-2026-08-22",
+    "ready_for_github_assets": 1,
+    "concept_not_evidence_assets": 11,
+    "concept_catalog": "concept-gallery/manifest.json"
   },
   "files": [
     {"path":"index.html","type":"official-doc","evidence":false},
     {"path":"styles.css","type":"official-doc","evidence":false},
     {"path":"script.js","type":"official-doc","evidence":false},
-    {"path":"README.md","type":"official-doc","evidence":false}
+    {"path":"README.md","type":"official-doc","evidence":false},
+    {"path":"architecture/myzubster-ecosystem-architecture-zorgax-001.svg","type":"official-documentation-derived","evidence":false,"source":"docs/ECOSYSTEM.md"},
+    {"path":"github-native-metaverse/github-native-metaverse-flow.svg","type":"official-documentation-derived","evidence":false},
+    {"path":"repository-map/index.html","type":"interactive-inventory","evidence":false},
+    {"path":"contributor-journey/index.html","type":"interactive-documentation","evidence":false},
+    {"path":"world-state/index.html","type":"interactive-evidence-index","evidence":false},
+    {"path":"adoption-ladder/index.html","type":"interactive-documentation","evidence":false},
+    {"path":"concept-gallery/index.html","type":"narrative-archive-index","evidence":false},
+    {"path":"concept-gallery/manifest.json","type":"provenance-catalog","evidence":false}
   ],
+  "external_candidate_guardrail": {
+    "asset": "external-git-metasploit-UNVERIFIED-CONCEPT.png",
+    "status": "UNVERIFIED EXTERNAL CANDIDATE / NO AFFILIATION",
+    "evidence": false
+  },
+  "character_registry": {
+    "source": "https://github.com/MyZubster-Ecosystem/myzubster/issues/617",
+    "meaning": "public contribution-role registry",
+    "does_not_imply": ["KYC","legal identity verification","employment","partnership","payment","endorsement","ownership"]
+  },
   "guardrails": [
     "visual storytelling does not upgrade evidence",
     "AI-generated illustrations are not evidence",
     "individual maturity classifications require repository-specific verification",
-    "external tools/projects are not partners without independent evidence",
+    "Drive is working archive metadata, not proof",
+    "external projects are not partners unless independently verified",
     "human review is required before merge"
   ]
 }
