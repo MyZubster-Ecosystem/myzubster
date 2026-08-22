@@ -11,7 +11,9 @@
     "smoke:zorgax-research": "node scripts/zorgax-research-vps-smoke.js",
     "nft:compile": "hardhat compile",
     "nft:deploy:sepolia": "hardhat run scripts/deploy-character-nft.cjs --network sepolia",
-    "myz:deploy:sepolia": "hardhat run scripts/deploy-myz-token.cjs --network sepolia"
+    "myz:deploy:sepolia": "hardhat run scripts/deploy-myz-token.cjs --network sepolia",
+    "marketplace:escrow:deploy:sepolia": "hardhat run scripts/deploy-marketplace-escrow.cjs --network sepolia",
+    "marketplace:escrow:test": "hardhat test test/MyZubsterMarketplaceEscrow.test.cjs"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.9.6",
