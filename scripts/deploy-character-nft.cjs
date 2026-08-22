@@ -12,7 +12,7 @@ async function main() {
   console.log('Max supply:', maxSupply);
 
   const factory = await hre.ethers.getContractFactory('MyZubsterCharacter');
-  const contract = await factory.deploy(maxSupply, deployer.address);
+  const contract = await factory.deploy(maxSupply);
   await contract.waitForDeployment();
 
   const address = await contract.getAddress();
