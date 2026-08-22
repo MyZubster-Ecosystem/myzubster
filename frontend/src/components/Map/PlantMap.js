@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -39,10 +39,7 @@ const MapController = ({ plants }) => {
 };
 
 const PlantMap = ({ plants = [], onPlantClick }) => {
-  const [selectedPlant, setSelectedPlant] = useState(null);
-
   const handleMarkerClick = (plant) => {
-    setSelectedPlant(plant);
     if (onPlantClick) onPlantClick(plant);
   };
 
