@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "ignoreCommand": "bash scripts/vercel-ignore-build.sh",
   "builds": [
     {
       "src": "api/index.js",
