@@ -1,6 +1,6 @@
 # MyZubster / Zorgax Concept Image Gallery
 
-This directory catalogs the visual assets staged in `PC-UPLOAD-PACK-2026-08-22/CONCEPT-NOT-EVIDENCE`.
+This directory catalogs **all 11** visual assets found in the Drive staging folder `PC-UPLOAD-PACK-2026-08-22/CONCEPT-NOT-EVIDENCE` during the 2026-08-22 integration pass.
 
 ## Rule
 
@@ -19,7 +19,21 @@ Canonical claims remain grounded in GitHub repository state, public issues/PRs, 
 
 ## Catalog
 
-See [`manifest.json`](manifest.json) for all 11 concept PNGs and their Drive archive IDs.
+See [`manifest.json`](manifest.json) for all 11 concept PNGs and their Drive archive IDs. Open [`index.html`](index.html) for the interactive catalog.
+
+Catalogued assets:
+
+1. `zorgax-chronicle-001-signal-garden-CONCEPT.png`
+2. `zorgax-visual-intelligence-001-CONCEPT.png`
+3. `global-visual-overview-CONCEPT-NOT-EVIDENCE.png`
+4. `009-evidence-ledger-CONCEPT-NOT-EVIDENCE.png`
+5. `008-chronicle-character-registry-CONCEPT-NOT-EVIDENCE.png`
+6. `external-git-metasploit-UNVERIFIED-CONCEPT.png`
+7. `008-character-registry-cyberpunk-CONCEPT.png`
+8. `006-contributor-journey-cyberpunk-CONCEPT.png`
+9. `004-maturity-map-cyberpunk-CONCEPT.png`
+10. `003-github-native-metaverse-cyberpunk-CONCEPT.png`
+11. `002-contributor-evidence-cyberpunk-CONCEPT.png`
 
 ### Special warning — external Metasploit visual
 
