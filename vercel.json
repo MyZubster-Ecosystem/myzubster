@@ -15,6 +15,14 @@
     {
       "src": "public/fumetto.html",
       "use": "@vercel/static"
+    },
+    {
+      "src": "public/fumetto-sentinel.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "public/world-state/metasploit-sentinel.json",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
@@ -37,6 +45,18 @@
     {
       "src": "/api/(.*)",
       "dest": "/api/index.js"
+    },
+    {
+      "src": "/fumetto/sentinel/?",
+      "dest": "/public/fumetto-sentinel.html"
+    },
+    {
+      "src": "/comic/sentinel/?",
+      "dest": "/public/fumetto-sentinel.html"
+    },
+    {
+      "src": "/world-state/metasploit-sentinel.json",
+      "dest": "/public/world-state/metasploit-sentinel.json"
     },
     {
       "src": "/fumetto/?",
