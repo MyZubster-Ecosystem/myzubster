@@ -2,6 +2,8 @@
 
 This directory contains reusable visual documentation. These assets explain repository architecture and workflow; they are **not real-world evidence** and do not prove deployment, adoption, payment or partnership.
 
+The canonical documentation placement for this package is [`docs/VISUAL-FOUNDATION.md`](../../docs/VISUAL-FOUNDATION.md), which embeds the repository SVGs with descriptive alt text and keeps the Chronicle narrative asset in a separate evidence class.
+
 | ID | Asset | Purpose | Source / provenance | Evidence class |
 |---|---|---|---|---|
 | `MYZ-VIS-008` | `MYZ-VIS-008-ecosystem-architecture.svg` | Canonical ecosystem and settlement-boundary map | Derived from `docs/ECOSYSTEM.md` on 2026-08-22; Zorgax Visual Intelligence; original SVG layout | `DOCUMENTATION_VISUAL` |
@@ -19,9 +21,19 @@ This directory contains reusable visual documentation. These assets explain repo
 
 ## Usage
 
-SVG is used so diagrams stay readable at desktop and mobile widths and remain inspectable/versionable in Git. When embedded in Markdown, provide descriptive alt text.
+SVG is used so diagrams stay readable at desktop and mobile widths and remain inspectable/versionable in Git. When embedded in Markdown, provide descriptive alt text. The canonical embeds and alt text live in [`docs/VISUAL-FOUNDATION.md`](../../docs/VISUAL-FOUNDATION.md).
 
 Narrative Chronicle illustrations are catalogued separately from documentation visuals and real-world evidence. They may communicate a story or workflow, but they must never be presented as photographic proof of a physical-world event.
+
+## Review status
+
+The Foundation 001 review confirms that:
+
+- the architecture visual preserves the separate settlement/verifier boundary described in `docs/ECOSYSTEM.md`;
+- contributor/evidence wording does not equate merge, MYZ accounting or CID existence with external payment;
+- maturity labels remain development, integration, internal or experimental rather than claiming production readiness;
+- all three SVGs include accessible `<title>` and `<desc>` metadata and are embedded with descriptive Markdown alt text in the canonical documentation page;
+- the Chronicle illustration remains explicitly classified as `NARRATIVE_ILLUSTRATION` and its successful Drive archive is recorded separately from evidence.
 
 ## Provenance contract
 
