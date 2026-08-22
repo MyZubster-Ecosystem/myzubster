@@ -370,6 +370,8 @@ Public IPFS metadata must be sanitized before publication.
 
 MyZubster's public evolution has also been documented outside this repository. These sources are useful as a **public chronology of ideas and development claims**, but author publications do not replace code, tests, CI or independent verification.
 
+The maintained source-by-source chronology is available in [`docs/PUBLIC-TIMELINE.md`](docs/PUBLIC-TIMELINE.md).
+
 ### DEV Community — Daniel Ioni
 
 - [Building MyZubster: An Open-Source Skill Exchange Platform with Monero Payments](https://dev.to/danielioni/building-myzubster-an-open-source-skill-exchange-platform-with-monero-payments-5dco)
@@ -384,10 +386,12 @@ MyZubster's public evolution has also been documented outside this repository. T
 
 ### External discovery
 
-During August 2026, MyZubster content and/or bounty pages were observed in external indexes and aggregators including KMP Weekly, ContributeHub/Orion, TensorHack, JS Good First Issues Finder, TechForDev, Tech Spindle and other software/content discovery services. These are treated as **discovery signals only** — not evidence of endorsement, active users, partnerships, funding or completed settlement.
+During August 2026, MyZubster content and/or bounty pages were observed in external indexes and aggregators including KMP Weekly, ContributeHub/Orion, TensorHack, JS Good First Issues Finder, TechForDev, Tech Spindle, OpenIssueMap, BountyScout and other software/content discovery services. These are treated as **discovery signals only** — not evidence of endorsement, active users, partnerships, funding or completed settlement.
 
 Notable external discovery signals include:
 
+- **OpenIssueMap** — publicly indexes `MyZubsterGateway` contribution opportunities, including security-audit and collaborative mapping/verification work. This is treated as high-confidence evidence that public MyZubster issues are being consumed by another contributor-discovery service; it is not evidence of endorsement, completed work or payment.
+- **BountyScout** — surfaced a `MyZubster-App` issue concerning gateway job publication/acceptance in an automated public bounty-opportunity scan. This is an additional discoverability signal only; inclusion does not establish that a bounty is funded, claimed, completed or settled.
 - **Zenn (Japan)** — an independent technical analysis of 122 OSS bounty opportunities referenced `MyZubster-Ecosystem` as a recurring source of indexed bounty issues and noted that, in one snapshot of its ranking, 8 of the top 10 results came from the organization. The analysis also highlighted that multiple bounty-labeled issues did not expose an explicit reward amount. This is a useful external quality signal: bounty pages should be machine-readable and transparent enough to show reward amount, currency/rail, funding state, eligibility, acceptance criteria, verification and settlement conditions.
 - **JS Good First Issues Finder** — indexes MyZubster JavaScript contribution opportunities from repositories including `MyZubster-Marketplace` and `MyZubsterGateway`, providing an additional discovery path for first-time and external contributors.
 - **ContributeHub / Orion** — indexed multiple MyZubster bounty opportunities across ecosystem areas, including EVA IONI, Arduino/IoT, urban-garden workflows, escrow and payment-related tasks, increasing discoverability among external open-source contributors.
@@ -441,6 +445,7 @@ Official references:
 - [Ecosystem Architecture](docs/ECOSYSTEM.md)
 - [Bounty System](BOUNTIES.md)
 - [Rewards Ledger](REWARDS_LEDGER.md)
+- [Public Discovery Timeline](docs/PUBLIC-TIMELINE.md)
 - [Documentation Hub](https://github.com/MyZubster-Ecosystem/myzubster-docs)
 - [Manuals](https://github.com/MyZubster-Ecosystem/myzubster-manuals)
 
