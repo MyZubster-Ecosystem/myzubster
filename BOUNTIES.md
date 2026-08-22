@@ -193,6 +193,18 @@ A reservation is not a payment. A submitted transaction is not a confirmed payme
 
 Treasury implementations must prevent duplicate/overspent allocations and preserve an auditable history of reservation, release, retry, cancellation and reconciliation.
 
+### Pre-marketplace operating model
+
+Until MyZubster App / Marketplace revenue rails are actually implemented, reviewed and activated:
+
+- MYZ remains an internal accounting/reward unit;
+- MYZ does not accrue interest or guaranteed yield;
+- MYZ is not silently convertible to XMR, fiat or another token;
+- no marketplace fee, revenue share or treasury contribution is assumed to exist unless it is recorded in a live, auditable implementation;
+- no project treasury, founder/maintainer reserve or personal beneficiary account should be described as receiving interest or revenue automatically without an explicit published policy and auditable accounting.
+
+If future App/Marketplace activity generates fees or other project revenue, any allocation to ecosystem treasury, maintenance, contributors, reserves or a founder/maintainer fund must be defined by an explicit versioned policy, with legal/tax review where applicable and separation between project accounting and personal funds. A future revenue allocation is not the same thing as guaranteed interest.
+
 ## 10. Security bounty rules
 
 Security work requires explicit authorization and responsible disclosure.
