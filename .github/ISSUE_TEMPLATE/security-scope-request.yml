@@ -1,0 +1,82 @@
+name: Security Research Scope Request
+description: Request explicit authorization for defensive security research against a defined MyZubster target.
+title: "[Security Scope Request] "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this public form only to request authorization. **Do not include vulnerability details, credentials, secrets, exploit code or sensitive evidence here.**
+
+  - type: input
+    id: researcher
+    attributes:
+      label: Researcher handle
+      description: GitHub handle or pseudonymous research identity.
+      placeholder: "@handle"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: activity
+    attributes:
+      label: Requested activity
+      options:
+        - Static/code review
+        - Dependency/configuration review
+        - Sandbox/lab validation
+        - Staging application testing
+        - Defensive tooling validation
+        - Retest of an accepted remediation
+        - Other defensive research
+    validations:
+      required: true
+
+  - type: textarea
+    id: target
+    attributes:
+      label: Requested target and scope
+      description: Identify the exact repository, lab, staging service or other MyZubster-controlled asset you want authorized.
+      placeholder: "Repository/path/lab/staging target only — no vulnerability details."
+    validations:
+      required: true
+
+  - type: textarea
+    id: methods
+    attributes:
+      label: Techniques requested
+      description: Describe the testing classes you want permission to use at a high level.
+      placeholder: "Example: authenticated input validation tests, dependency checks, rate-limited scanner in sandbox."
+    validations:
+      required: true
+
+  - type: textarea
+    id: limits
+    attributes:
+      label: Proposed safety limits
+      description: State rate limits, data-handling limits, time window and any other safeguards.
+    validations:
+      required: true
+
+  - type: input
+    id: reward
+    attributes:
+      label: MYZ bounty requested (optional)
+      description: Proposed maximum reward. Final amount requires maintainer approval and Proof-of-Contribution verification.
+      placeholder: "e.g. 250 MYZ"
+
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Authorization acknowledgment
+      options:
+        - label: I will not test until maintainers explicitly approve the scope in writing.
+          required: true
+        - label: I will not access third-party systems, user data, credentials, private keys or seed phrases.
+          required: true
+        - label: I will not perform denial-of-service, destructive actions, persistence, malware deployment or social engineering unless separately and explicitly authorized.
+          required: true
+        - label: I will use private vulnerability reporting for sensitive findings and will not publish exploitable details in this issue.
+          required: true
+        - label: I understand unauthorized or illegal activity is worth 0 MYZ.
+          required: true
