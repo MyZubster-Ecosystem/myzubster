@@ -21,6 +21,10 @@
       "use": "@vercel/static"
     },
     {
+      "src": "public/come-funziona.html",
+      "use": "@vercel/static"
+    },
+    {
       "src": "public/world-state/metasploit-sentinel.json",
       "use": "@vercel/static"
     }
@@ -45,6 +49,14 @@
     {
       "src": "/api/(.*)",
       "dest": "/api/index.js"
+    },
+    {
+      "src": "/come-funziona/?",
+      "dest": "/public/come-funziona.html"
+    },
+    {
+      "src": "/how-it-works/?",
+      "dest": "/public/come-funziona.html"
     },
     {
       "src": "/fumetto/sentinel/?",
