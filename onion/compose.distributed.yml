@@ -1,0 +1,37 @@
+services:
+  onion:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      ONION_TARGET_HOST: frontend
+      ONION_TARGET_PORT: 3000
+    volumes:
+      - onion_data:/var/lib/tor/myzubster
+    networks: [onion_net]
+    restart: unless-stopped
+
+  probe-agent:
+    build:
+      context: .
+      dockerfile: probe-agent.Dockerfile
+    environment:
+      OBSERVER_ID: ${OBSERVER_ID:-observer-local}
+      CANDIDATES_FILE: /config/candidates.txt
+      OBSERVATIONS_FILE: /data/observations.jsonl
+      PROBE_INTERVAL_SECONDS: ${PROBE_INTERVAL_SECONDS:-30}
+      PROBE_TIMEOUT_SECONDS: ${PROBE_TIMEOUT_SECONDS:-15}
+    volumes:
+      - ./candidates.txt:/config/candidates.txt:ro
+      - probe_data:/data
+    networks: [probe_net]
+    restart: unless-stopped
+
+volumes:
+  onion_data:
+  probe_data:
+
+networks:
+  onion_net:
+    internal: true
+  probe_net: {}
