@@ -69,6 +69,7 @@ const researchRoutes = require('./src/routes/researchRoutes');
 const municipalityRoutes = require('./src/routes/municipalityRoutes');
 const nftRoutes = require('./src/routes/nftRoutes');
 const marketplaceRoutes = require('./src/routes/marketplaceRoutes');
+const walletRoutes = require('./src/routes/walletRoutes');
 
 app.post('/api/auth/register', async (_req, res, next) => {
   try {
@@ -104,13 +105,14 @@ app.use('/api/github-bounties', githubBountySyncRoutes);
 app.use('/api/research', researchRoutes);
 app.use('/api/nft', nftRoutes);
 app.use('/api/marketplace', marketplaceRoutes);
+app.use('/api/wallet', walletRoutes);
 
 app.get('/', (req, res) => {
   res.status(200).json({
     ok: true,
     service: 'MyZubster Gateway',
     status: 'online',
-    version: '1.2.0-nft-mvp',
+    version: '1.3.0-nft-wallet-verification',
     port: process.env.PORT || 5003,
     api: '/api',
     life: {
@@ -120,7 +122,8 @@ app.get('/', (req, res) => {
     },
     nft: {
       assets: '/api/nft',
-      marketplace: '/api/marketplace'
+      marketplace: '/api/marketplace',
+      wallet: '/api/wallet'
     }
   });
 });
