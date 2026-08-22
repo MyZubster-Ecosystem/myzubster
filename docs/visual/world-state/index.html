@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>MyZubster World State / Evidence Ledger</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <p class="eyebrow">ZORGAX VISUAL #007</p>
+      <h1>World State / Evidence Ledger</h1>
+      <p>Public claims are shown with an explicit state and a direct evidence link. A visual never upgrades a claim beyond its source.</p>
+      <a href="../index.html">← Visual Hub</a>
+    </header>
+
+    <section class="legend" aria-label="World State legend">
+      <div><b>PROPOSED</b><span>idea, issue or submitted definition</span></div>
+      <div><b>IN_REVIEW</b><span>open PR / review is not acceptance</span></div>
+      <div><b>VERIFIED</b><span>source supports the stated claim</span></div>
+      <div><b>DEPLOYED</b><span>requires separate runtime/deployment evidence</span></div>
+      <div><b>NOT_VERIFIED</b><span>insufficient or contradictory evidence</span></div>
+    </section>
+
+    <section class="controls">
+      <input id="search" type="search" placeholder="Search ledger…" aria-label="Search ledger">
+      <select id="stateFilter" aria-label="Filter by state"><option value="all">All states</option><option>PROPOSED</option><option>IN_REVIEW</option><option>VERIFIED</option><option>DEPLOYED</option><option>NOT_VERIFIED</option></select>
+    </section>
+
+    <section id="ledger" class="ledger" aria-live="polite"></section>
+
+    <section class="guardrails">
+      <h2>Evidence guardrails</h2>
+      <p>Issue ≠ completed mission · PR ≠ accepted contribution · merge ≠ external payment · AI image ≠ evidence · repository existence ≠ production readiness · deployment status needs runtime evidence.</p>
+    </section>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>

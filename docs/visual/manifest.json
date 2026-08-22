@@ -1,0 +1,59 @@
+{
+  "name": "MyZubster GitHub Visual Hub",
+  "version": 4,
+  "status": "draft",
+  "maintainer_role": "Zorgax Visual Intelligence",
+  "purpose": "Interactive evidence-first index for MyZubster visual documentation",
+  "pc_upload_pack": {
+    "date": "2026-08-22",
+    "source": "PC-UPLOAD-PACK-2026-08-22",
+    "ready_for_github_assets": 1,
+    "concept_not_evidence_assets": 11,
+    "concept_catalog": "concept-gallery/manifest.json"
+  },
+  "files": [
+    {"path":"index.html","type":"official-doc","evidence":false},
+    {"path":"styles.css","type":"official-doc","evidence":false},
+    {"path":"script.js","type":"official-doc","evidence":false},
+    {"path":"README.md","type":"official-doc","evidence":false},
+    {"path":"architecture/myzubster-ecosystem-architecture-zorgax-001.svg","type":"official-documentation-derived","evidence":false,"source":"docs/ECOSYSTEM.md"},
+    {"path":"github-native-metaverse/github-native-metaverse-flow.svg","type":"official-documentation-derived","evidence":false},
+    {"path":"repository-map/index.html","type":"interactive-inventory","evidence":false},
+    {"path":"contributor-journey/index.html","type":"interactive-documentation","evidence":false},
+    {"path":"world-state/index.html","type":"interactive-evidence-index","evidence":false},
+    {"path":"adoption-ladder/index.html","type":"interactive-documentation","evidence":false},
+    {"path":"concept-gallery/index.html","type":"narrative-archive-index","evidence":false},
+    {"path":"concept-gallery/manifest.json","type":"provenance-catalog","evidence":false}
+  ],
+  "community_characters": [
+    {
+      "id": "metasploit-sentinel-pr-12",
+      "name": "Metasploit Sentinel",
+      "state": "INTEGRATED",
+      "narrative_status": "CONCEPT_ONLY / PROPOSED",
+      "contributor": "Aming9303",
+      "evidence": "https://github.com/MyZubster-Ecosystem/MyZubster-Visual/pull/12",
+      "live_chronicle": "https://www.myzubster.com/fumetto/sentinel",
+      "world_state": "https://www.myzubster.com/world-state/metasploit-sentinel.json",
+      "does_not_imply": ["Metasploit/Rapid7 affiliation","endorsement","production deployment","payment","real vulnerability evidence"]
+    }
+  ],
+  "external_candidate_guardrail": {
+    "asset": "external-git-metasploit-UNVERIFIED-CONCEPT.png",
+    "status": "UNVERIFIED EXTERNAL CANDIDATE / NO AFFILIATION",
+    "evidence": false
+  },
+  "character_registry": {
+    "source": "https://github.com/MyZubster-Ecosystem/myzubster/issues/617",
+    "meaning": "public contribution-role registry",
+    "does_not_imply": ["KYC","legal identity verification","employment","partnership","payment","endorsement","ownership"]
+  },
+  "guardrails": [
+    "visual storytelling does not upgrade evidence",
+    "AI-generated illustrations are not evidence",
+    "individual maturity classifications require repository-specific verification",
+    "Drive is working archive metadata, not proof",
+    "external projects are not partners unless independently verified",
+    "human review is required before merge"
+  ]
+}

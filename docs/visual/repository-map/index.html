@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>MyZubster Repository Map — Visual #005</title>
+  <meta name="description" content="Clickable public repository map for the MyZubster ecosystem.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <p class="eyebrow">ZORGAX VISUAL #005</p>
+      <h1>MyZubster Public Repository Map</h1>
+      <p class="lede">A clickable, evidence-first map of public MyZubster-Ecosystem repositories. Repository presence proves a public code/documentation surface — not production maturity, deployment, adoption or payment.</p>
+      <nav class="actions">
+        <a href="../index.html">← Visual Hub</a>
+        <a href="../../ECOSYSTEM.md">Canonical ecosystem docs</a>
+      </nav>
+    </header>
+
+    <section class="controls" aria-label="Repository filters">
+      <label for="search">Search repositories</label>
+      <input id="search" type="search" placeholder="gateway, robot, docs…" autocomplete="off">
+      <div class="filters" id="filters" aria-label="Repository groups"></div>
+      <p id="count" class="count" aria-live="polite"></p>
+    </section>
+
+    <section class="map" aria-label="Repository map">
+      <div class="core-orbit">
+        <div class="hub-node">
+          <span class="pulse" aria-hidden="true"></span>
+          <strong>MYZUBSTER</strong>
+          <small>public construction layer</small>
+        </div>
+      </div>
+      <div id="groups" class="groups"></div>
+    </section>
+
+    <section class="guardrails">
+      <h2>Evidence guardrails</h2>
+      <div class="guard-grid">
+        <p><strong>Repository exists</strong><span>≠ production-ready product</span></p>
+        <p><strong>Active branch</strong><span>≠ validated deployment</span></p>
+        <p><strong>Issue / PR</strong><span>≠ completed mission</span></p>
+        <p><strong>Merge</strong><span>≠ external payment</span></p>
+      </div>
+    </section>
+
+    <footer>
+      <p>Inventory scope: public repositories only. Private repository names and metadata are intentionally excluded from this public visual.</p>
+      <p>MyZubster — build the world in public.</p>
+    </footer>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>

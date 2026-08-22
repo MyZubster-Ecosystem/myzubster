@@ -1,0 +1,66 @@
+{
+  "generated_at": "2026-08-22",
+  "scope": "public MyZubster GitHub evidence only",
+  "records": [
+    {
+      "id": "character-registry-617",
+      "type": "character-registry",
+      "title": "Contributor Character Registry",
+      "state": "PROPOSED",
+      "claim": "A public invitation exists for contributors to propose Git-linked MyZubster characters.",
+      "evidence_label": "Issue #617",
+      "evidence_url": "https://github.com/MyZubster-Ecosystem/myzubster/issues/617",
+      "note": "Open issue; no character submission is implied by the invitation itself."
+    },
+    {
+      "id": "metasploit-sentinel-pr-12",
+      "type": "community-visual-character",
+      "title": "Metasploit Sentinel",
+      "state": "INTEGRATED",
+      "claim": "A community-contributed Sentinel visual set was reviewed and merged into MyZubster-Visual.",
+      "evidence_label": "Merged PR #12",
+      "evidence_url": "https://github.com/MyZubster-Ecosystem/MyZubster-Visual/pull/12",
+      "note": "Merge commit e00227994334632041856139c684a85533d97518. Assets remain CONCEPT_ONLY / PROPOSED, AI-assisted narrative material. Merge does not imply Metasploit/Rapid7 affiliation, deployment, payment or real vulnerability evidence."
+    },
+    {
+      "id": "visual-001-pr-614",
+      "type": "visual-package",
+      "title": "Visual #001 — Ecosystem Architecture",
+      "state": "IN_REVIEW",
+      "claim": "A draft PR proposes the ecosystem architecture visual package.",
+      "evidence_label": "Draft PR #614",
+      "evidence_url": "https://github.com/MyZubster-Ecosystem/myzubster/pull/614",
+      "note": "Open draft PR; not merged."
+    },
+    {
+      "id": "visual-003-pr-615",
+      "type": "visual-package",
+      "title": "Visual #003 — GitHub-Native Metaverse",
+      "state": "IN_REVIEW",
+      "claim": "A draft PR proposes the GitHub-native metaverse visual package.",
+      "evidence_label": "Draft PR #615",
+      "evidence_url": "https://github.com/MyZubster-Ecosystem/myzubster/pull/615",
+      "note": "Open draft PR; not merged."
+    },
+    {
+      "id": "visual-hub-pr-616",
+      "type": "visual-hub",
+      "title": "MyZubster GitHub Visual Hub",
+      "state": "IN_REVIEW",
+      "claim": "The interactive Visual Hub and its current packages are proposed in a draft PR.",
+      "evidence_label": "Draft PR #616",
+      "evidence_url": "https://github.com/MyZubster-Ecosystem/myzubster/pull/616",
+      "note": "Open draft PR; human review required before merge."
+    },
+    {
+      "id": "visual-storytelling-rule",
+      "type": "policy",
+      "title": "Evidence-first visual storytelling",
+      "state": "VERIFIED",
+      "claim": "The Visual Hub explicitly states that visual storytelling must not upgrade a claim beyond its evidence.",
+      "evidence_label": "Visual Hub source",
+      "evidence_url": "https://github.com/MyZubster-Ecosystem/myzubster/blob/zorgax/visual-hub/docs/visual/index.html",
+      "note": "Verified as a published rule in the current draft branch; this verifies the rule text, not deployment."
+    }
+  ]
+}
