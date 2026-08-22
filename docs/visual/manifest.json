@@ -1,0 +1,19 @@
+{
+  "name": "MyZubster GitHub Visual Hub",
+  "version": 1,
+  "status": "draft",
+  "maintainer_role": "Zorgax Visual Intelligence",
+  "purpose": "Interactive evidence-first index for MyZubster visual documentation",
+  "files": [
+    {"path":"index.html","type":"official-doc","evidence":false},
+    {"path":"styles.css","type":"official-doc","evidence":false},
+    {"path":"script.js","type":"official-doc","evidence":false},
+    {"path":"README.md","type":"official-doc","evidence":false}
+  ],
+  "guardrails": [
+    "visual storytelling does not upgrade evidence",
+    "AI-generated illustrations are not evidence",
+    "individual maturity classifications require repository-specific verification",
+    "human review is required before merge"
+  ]
+}
