@@ -37,3 +37,90 @@ jobs:
 
       - name: Build
         run: npm run build --if-present
+
+  p0-mongo-replica-set:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout codice
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: npm
+
+      - name: Installa dipendenze
+        run: npm ci
+
+      - name: Start MongoDB replica set
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker run -d --name p0-mongo -p 27017:27017 mongo:7 --replSet rs0 --bind_ip_all
+
+          for i in {1..60}; do
+            if docker exec p0-mongo mongosh --quiet --eval 'db.adminCommand({ ping: 1 }).ok' 2>/dev/null | grep -q '^1$'; then
+              break
+            fi
+            if [ "$i" -eq 60 ]; then
+              docker logs p0-mongo
+              exit 1
+            fi
+            sleep 1
+          done
+
+          docker exec p0-mongo mongosh --quiet --eval 'rs.initiate({_id:"rs0",members:[{_id:0,host:"127.0.0.1:27017"}]})'
+
+          for i in {1..60}; do
+            if docker exec p0-mongo mongosh --quiet --eval 'rs.status().myState' 2>/dev/null | grep -q '^1$'; then
+              exit 0
+            fi
+            if [ "$i" -eq 60 ]; then
+              docker logs p0-mongo
+              exit 1
+            fi
+            sleep 1
+          done
+
+      - name: P0 persistent Treasury integration
+        env:
+          P0_TREASURY_MONGODB_URI: mongodb://127.0.0.1:27017/?replicaSet=rs0
+          P0_TREASURY_TEST_DB: myzubster_p0_ci
+        run: node scripts/p0-mongo-treasury-integration.js
+
+      - name: Seed pre-crash Treasury state
+        env:
+          P0_TREASURY_MONGODB_URI: mongodb://127.0.0.1:27017/?replicaSet=rs0
+          P0_TREASURY_TEST_DB: myzubster_p0_crash_ci
+          P0_TREASURY_CRASH_STATE: .p0-treasury-crash-state.json
+        run: node scripts/p0-mongo-crash-seed.js
+
+      - name: Recover Treasury in a new Node process
+        env:
+          P0_TREASURY_MONGODB_URI: mongodb://127.0.0.1:27017/?replicaSet=rs0
+          P0_TREASURY_CRASH_STATE: .p0-treasury-crash-state.json
+        run: node scripts/p0-mongo-crash-recover.js
+
+      - name: Seed ambiguous payment attempt before process crash
+        env:
+          P0_TREASURY_MONGODB_URI: mongodb://127.0.0.1:27017/?replicaSet=rs0
+          P0_TREASURY_TEST_DB: myzubster_p0_payment_attempt_ci
+          P0_PAYMENT_ATTEMPT_CASE_FILE: .p0-payment-attempt-case.json
+        run: node scripts/p0-payment-attempt-crash-seed.js
+
+      - name: Recover payment attempt without duplicate submit
+        env:
+          P0_TREASURY_MONGODB_URI: mongodb://127.0.0.1:27017/?replicaSet=rs0
+          P0_TREASURY_TEST_DB: myzubster_p0_payment_attempt_ci
+          P0_PAYMENT_ATTEMPT_CASE_FILE: .p0-payment-attempt-case.json
+        run: node scripts/p0-payment-attempt-crash-recover.js
+
+      - name: MongoDB logs on failure
+        if: failure()
+        run: docker logs p0-mongo || true
+
+      - name: Stop MongoDB
+        if: always()
+        run: docker rm -f p0-mongo || true
