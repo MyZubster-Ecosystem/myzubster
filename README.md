@@ -334,7 +334,7 @@ There are several ways to participate:
 
 ![Discuss, design and solve MyZubster bounties with MYZ](assets/readme/bounty-myz-discussion.png)
 
-The canonical rules live in [`BOUNTIES.md`](BOUNTIES.md).
+The canonical rules live in [`BOUNTIES.md`](BOUNTIES.md). Canonical public reward and settlement status lives in [`REWARDS_LEDGER.md`](REWARDS_LEDGER.md).
 
 ```text
 PROPOSED
@@ -440,6 +440,7 @@ Official references:
 - [🌍 Universal / Multilingual Guide](docs/i18n/README.md)
 - [Ecosystem Architecture](docs/ECOSYSTEM.md)
 - [Bounty System](BOUNTIES.md)
+- [Rewards Ledger](REWARDS_LEDGER.md)
 - [Documentation Hub](https://github.com/MyZubster-Ecosystem/myzubster-docs)
 - [Manuals](https://github.com/MyZubster-Ecosystem/myzubster-manuals)
 
