@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import LifePortalPage from './pages/LifePortalPage';
+import IdentityOnboardingPage from './pages/IdentityOnboardingPage';
 import MapPage from './pages/MapPage';
 import GardensPage from './pages/GardensPage';
 import PilotDashboardPage from './pages/PilotDashboardPage';
@@ -8,6 +9,19 @@ import AgentsPage from './pages/AgentsPage';
 
 function App() {
   const [legacy, setLegacy] = useState(null);
+  const [showOnboarding, setShowOnboarding] = useState(() => localStorage.getItem('myzubster-onboarding-seen') !== '1');
+
+  if (showOnboarding) {
+    return (
+      <IdentityOnboardingPage
+        onSkip={() => {
+          localStorage.setItem('myzubster-onboarding-seen', '1');
+          setShowOnboarding(false);
+        }}
+        onContinue={() => setShowOnboarding(false)}
+      />
+    );
+  }
 
   if (!legacy) {
     return <LifePortalPage openLegacy={setLegacy} />;
