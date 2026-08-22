@@ -1,0 +1,21 @@
+{
+  "schema": "myzubster.visual-manifest.v1",
+  "generated_on": "2026-08-22",
+  "assets": [
+    {
+      "id": "MYZ-VIS-ZORGAX-001",
+      "file": "myzubster-ecosystem-architecture-zorgax-001.svg",
+      "title": "MyZubster Ecosystem — Zorgax Architecture Map",
+      "type": "official-derived",
+      "creative_layer": "original-svg",
+      "style": "cyberpunk",
+      "purpose": "architecture-onboarding",
+      "evidence": false,
+      "source": "docs/ECOSYSTEM.md",
+      "source_role": "canonical architecture reference",
+      "maturity_guardrail": "Repository names describe responsibility boundaries and do not imply production readiness.",
+      "settlement_guardrail": "External settlement requires independent verification.",
+      "rights_note": "Original project documentation visual; review project license and contributor policy before downstream redistribution."
+    }
+  ]
+}
