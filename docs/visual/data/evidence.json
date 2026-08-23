@@ -1,0 +1,88 @@
+{
+  "generated_at": "2026-08-23",
+  "scope": "public MyZubster GitHub evidence",
+  "rules": {
+    "world_state": ["PROPOSED", "IN_REVIEW", "VERIFIED", "DEPLOYED", "NOT_VERIFIED"],
+    "adoption_ladder": ["DISCOVERY", "INTEREST", "FORK", "CONTRIBUTION", "INTEGRATION", "DEPLOYMENT", "VERIFIED_ADOPTION"]
+  },
+  "records": [
+    {
+      "id": "character-registry-617",
+      "date": "2026-08-22",
+      "type": "issue",
+      "title": "Contributor Character Registry opened",
+      "world_state": "PROPOSED",
+      "adoption_stage": "INTEREST",
+      "claim": "A public invitation exists for contributors to propose Git-linked MyZubster characters.",
+      "evidence_label": "Issue #617",
+      "evidence_url": "https://github.com/MyZubster-Ecosystem/myzubster/issues/617",
+      "chronicle": true,
+      "note": "An invitation does not prove a submitted character or external adoption."
+    },
+    {
+      "id": "external-contribution-pr-602",
+      "date": "2026-08-22",
+      "type": "pull_request",
+      "title": "External contributor proposes signed credential verification",
+      "world_state": "IN_REVIEW",
+      "adoption_stage": "CONTRIBUTION",
+      "claim": "Aming9303 submitted substantive Ed25519 technical credential verification code and tests in PR #602.",
+      "evidence_label": "PR #602",
+      "evidence_url": "https://github.com/MyZubster-Ecosystem/myzubster/pull/602",
+      "chronicle": true,
+      "note": "Open, non-draft PR; contribution is verified as submitted, but acceptance, deployment, payment and adoption are not implied."
+    },
+    {
+      "id": "visual-001-pr-614",
+      "date": "2026-08-22",
+      "type": "visual_package",
+      "title": "Visual #001 — Ecosystem Architecture",
+      "world_state": "IN_REVIEW",
+      "adoption_stage": "DISCOVERY",
+      "claim": "A draft PR proposes the ecosystem architecture visual package.",
+      "evidence_label": "Draft PR #614",
+      "evidence_url": "https://github.com/MyZubster-Ecosystem/myzubster/pull/614",
+      "chronicle": false,
+      "note": "Open draft PR; not merged."
+    },
+    {
+      "id": "visual-003-pr-615",
+      "date": "2026-08-22",
+      "type": "visual_package",
+      "title": "Visual #003 — GitHub-Native Metaverse",
+      "world_state": "IN_REVIEW",
+      "adoption_stage": "DISCOVERY",
+      "claim": "A draft PR proposes the GitHub-native metaverse visual package.",
+      "evidence_label": "Draft PR #615",
+      "evidence_url": "https://github.com/MyZubster-Ecosystem/myzubster/pull/615",
+      "chronicle": false,
+      "note": "Open draft PR; not merged."
+    },
+    {
+      "id": "visual-hub-pr-616",
+      "date": "2026-08-22",
+      "type": "visual_hub",
+      "title": "MyZubster GitHub Visual Hub",
+      "world_state": "IN_REVIEW",
+      "adoption_stage": "DISCOVERY",
+      "claim": "The interactive Visual Hub is proposed in draft PR #616.",
+      "evidence_label": "Draft PR #616",
+      "evidence_url": "https://github.com/MyZubster-Ecosystem/myzubster/pull/616",
+      "chronicle": true,
+      "note": "Open draft PR; human review required before merge."
+    },
+    {
+      "id": "evidence-first-rule",
+      "date": "2026-08-22",
+      "type": "policy",
+      "title": "Evidence-first visual storytelling rule",
+      "world_state": "VERIFIED",
+      "adoption_stage": "DISCOVERY",
+      "claim": "The Visual Hub source explicitly states that visual storytelling must not upgrade a claim beyond its evidence.",
+      "evidence_label": "Visual Hub source",
+      "evidence_url": "https://github.com/MyZubster-Ecosystem/myzubster/blob/zorgax/visual-hub/docs/visual/index.html",
+      "chronicle": false,
+      "note": "This verifies the published rule text, not deployment."
+    }
+  ]
+}
