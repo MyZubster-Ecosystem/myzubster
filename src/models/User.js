@@ -31,6 +31,16 @@ const UserSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  communityProfile: {
+    pgpPublicKey: { type: String, trim: true, maxlength: 20000 },
+    tariWallet: { type: String, trim: true, maxlength: 300 },
+    myzWallet: { type: String, trim: true, maxlength: 300 },
+    displayLocation: { type: String, trim: true, maxlength: 160 },
+    bio: { type: String, trim: true, maxlength: 1000 },
+    seedExchangeEnabled: { type: Boolean, default: false },
+    petCommunityEnabled: { type: Boolean, default: false },
+    updatedAt: { type: Date }
+  },
   github: {
     id: { type: String, sparse: true },
     login: { type: String, trim: true },
