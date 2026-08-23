@@ -3,7 +3,29 @@
   "asset": "MYZ",
   "asset_type": "internal-reward-accounting-unit",
   "on_chain": false,
-  "entries": [],
+  "entries": [
+    {
+      "entry_id": "MYZ-LEDGER-000001",
+      "timestamp": "2026-08-23T02:37:00Z",
+      "account_id": "contributor:github:Luzijano",
+      "amount_myz": 80,
+      "entry_type": "BOUNTY_REWARD",
+      "reference": {
+        "program": "gateway-marketing",
+        "bounty_id": "GATEWAY-383",
+        "issue": 383,
+        "pull_request": 420,
+        "repository": "MyZubster-Ecosystem/MyZubsterGateway"
+      },
+      "status": "RECORDED",
+      "evidence": [
+        "https://github.com/MyZubster-Ecosystem/MyZubsterGateway/issues/383",
+        "https://github.com/MyZubster-Ecosystem/MyZubsterGateway/pull/420"
+      ],
+      "reverses_entry_id": null,
+      "note": "Verified contribution merged in PR #420; bounty #383 completed. Internal MYZ accounting credit only."
+    }
+  ],
   "integrity": {
     "canonicalization": "json-key-sort-v1",
     "sha256": null,
