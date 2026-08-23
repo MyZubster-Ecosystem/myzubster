@@ -26,6 +26,10 @@
       "use": "@vercel/static"
     },
     {
+      "src": "public/tv.html",
+      "use": "@vercel/static"
+    },
+    {
       "src": "public/come-funziona.html",
       "use": "@vercel/static"
     },
@@ -78,6 +82,14 @@
     {
       "src": "/community-marketplace.html",
       "dest": "/public/community-marketplace.html"
+    },
+    {
+      "src": "/tv/?",
+      "dest": "/public/tv.html"
+    },
+    {
+      "src": "/tv.html",
+      "dest": "/public/tv.html"
     },
     {
       "src": "/come-funziona/?",
