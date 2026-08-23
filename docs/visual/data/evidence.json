@@ -3,7 +3,8 @@
   "scope": "public MyZubster GitHub evidence",
   "rules": {
     "world_state": ["PROPOSED", "IN_REVIEW", "VERIFIED", "DEPLOYED", "NOT_VERIFIED"],
-    "adoption_ladder": ["DISCOVERY", "INTEREST", "FORK", "CONTRIBUTION", "INTEGRATION", "DEPLOYMENT", "VERIFIED_ADOPTION"]
+    "adoption_ladder": ["DISCOVERY", "INTEREST", "FORK", "CONTRIBUTION", "INTEGRATION", "DEPLOYMENT", "VERIFIED_ADOPTION"],
+    "character_registry": ["PROPOSED", "REVIEWED", "VERIFIED_CONTRIBUTOR", "ACTIVE"]
   },
   "records": [
     {
@@ -11,13 +12,16 @@
       "date": "2026-08-22",
       "type": "issue",
       "title": "Contributor Character Registry opened",
+      "character": true,
+      "character_name": "Character Registry invitation",
+      "character_status": "PROPOSED",
       "world_state": "PROPOSED",
       "adoption_stage": "INTEREST",
       "claim": "A public invitation exists for contributors to propose Git-linked MyZubster characters.",
       "evidence_label": "Issue #617",
       "evidence_url": "https://github.com/MyZubster-Ecosystem/myzubster/issues/617",
       "chronicle": true,
-      "note": "An invitation does not prove a submitted character or external adoption."
+      "note": "An invitation does not prove a submitted character, verified contributor identity or external adoption."
     },
     {
       "id": "external-contribution-pr-602",
