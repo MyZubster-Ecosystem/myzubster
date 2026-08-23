@@ -10,6 +10,40 @@ Entries must not imply partnership, endorsement, payment, commercial adoption or
 
 ## Timeline
 
+### 2026-08-23 — CONTRIBUTION — wasim-builds / Application and security fixes
+
+External contributor `wasim-builds` opened PR #636 from the public fork `wasim-builds/myzubster`, proposing fixes for 20 concrete application, security, API and performance issues.
+
+- **Component:** `MyZubster-Ecosystem/myzubster`
+- **Classification:** `CONTRIBUTION`
+- **Confidence:** `HIGH`
+- **Evidence:** https://github.com/MyZubster-Ecosystem/myzubster/pull/636
+- **Status:** open / not merged at last verification
+- **Boundary:** verifies a substantial independent code contribution; it does not establish external deployment, commercial use, partnership, endorsement or payment.
+
+### 2026-08-23 — CONTRIBUTION — Aming9303 / Proof-of-Contribution hardening and workflow visuals
+
+Returning contributor `Aming9303` opened PRs #634 and #635, contributing an original workflow visual package and technical Proof-of-Contribution schema/test hardening.
+
+- **Component:** `MyZubster-Ecosystem/myzubster`
+- **Classification:** `CONTRIBUTION`
+- **Confidence:** `HIGH`
+- **Evidence:** https://github.com/MyZubster-Ecosystem/myzubster/pull/634
+- **Evidence:** https://github.com/MyZubster-Ecosystem/myzubster/pull/635
+- **Signal:** returning contributor with repeated substantive work
+- **Boundary:** contribution activity does not establish independent deployment, payment, partnership, endorsement or commercial adoption.
+
+### 2026-08-23 — CONTRIBUTION — Aming9303 / MyZubsterGateway legacy bounty audit
+
+Returning contributor `Aming9303` opened PR #1386 from a personal Gateway fork, adding a reproducible audit of legacy bounty settlement wording and a GitHub API audit script.
+
+- **Component:** `MyZubster-Ecosystem/MyZubsterGateway`
+- **Classification:** `CONTRIBUTION`
+- **Confidence:** `HIGH`
+- **Evidence:** https://github.com/MyZubster-Ecosystem/MyZubsterGateway/pull/1386
+- **Status:** open / not merged at last verification
+- **Boundary:** verifies continued external contribution across repositories; it does not verify payment, external settlement, deployment, partnership, endorsement or commercial adoption.
+
 ### 2026-08-23 — CONTRIBUTION — Aming9303 / Signed technical identity
 
 External contributor `Aming9303` submitted PR #602 and the contribution was merged into `main`. It defines an Ed25519-signed technical identity credential, an external trusted-key registry, strict canonicalization, signing/verifying CLIs, key fingerprint checks, revocation/rotation handling, validity windows and a broader negative-path test suite.
