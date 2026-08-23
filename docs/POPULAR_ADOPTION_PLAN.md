@@ -3,10 +3,23 @@
 ## Objective
 Move MyZubster from a founder-led ecosystem into a product that is independently used, tested, integrated and discussed by people who are not part of the core maintainer circle.
 
-## North-star metric
-**Independent Weekly Active Users (IWAU):** unique external users who complete at least one verifiable MyZubster action in a 7-day period (for example: submit an observation, call a documented API successfully, contribute a validated asset, run a reproducible demo, or integrate a MyZubster component).
+## Primary public use case
+**Publish one local observation with public evidence.**
 
-Do not count maintainer-only activity, stars, passive page views, unchanged forks, indexation, or unverifiable claims as adoption.
+User problem: **I want to document something I directly observed in my local environment or public space and leave a public, verifiable record that others can review.**
+
+Primary CTA: **Submit an observation**.
+
+Target user: resident, contributor, developer, researcher, civic observer or community member with a GitHub account and one piece of public evidence.
+
+First-success path: `docs/QUICKSTART_OBSERVATION.md` → GitHub issue form `🌍 Submit a MyZubster observation`.
+
+Success evidence: a public observation issue containing category, direct observation, date, approximate location, evidence and contributor declarations. Maintainer approval is not required for the submission itself to exist.
+
+## North-star metric
+**Independent Weekly Active Users (IWAU):** unique external users who complete at least one verifiable MyZubster action in a 7-day period (for example: submit a qualifying observation, call a documented API successfully, contribute a validated asset, run a reproducible demo, or integrate a MyZubster component).
+
+Do not count maintainer-only activity, stars, passive page views, unchanged forks, indexation, spam, duplicates or unverifiable claims as adoption.
 
 ## Adoption ladder
 1. DISCOVERY — someone finds the project.
@@ -20,7 +33,7 @@ Do not count maintainer-only activity, stars, passive page views, unchanged fork
 ## Phase 1 — Make the first useful action obvious
 Target: 0–30 days.
 
-- One public landing path with one primary CTA: **Try MyZubster**.
+- One public landing path with one primary CTA: **Submit an observation**.
 - One 5-minute quickstart for a real action.
 - One public demo that works without maintainer intervention.
 - One copy-paste API example with expected output.
@@ -73,7 +86,7 @@ Suggested threshold:
 - organic mentions and technical references that can be verified publicly.
 
 ## Product priorities
-1. **Primary use case:** define one thing MyZubster does better and faster than alternatives.
+1. **Primary use case:** publish one verifiable local observation.
 2. **Quickstart:** first success in minutes, not hours.
 3. **Evidence:** every adoption claim links to public proof.
 4. **Reliability:** public endpoint/deployment status must be reproducible.
@@ -91,15 +104,16 @@ Publish only metrics that can be independently checked where practical:
 - independent deployments
 - reproducible demos
 - external technical issues opened
+- qualifying observation submissions
 - successful quickstart runs
 - median time-to-first-success
 
 ## Evidence boundary
-Do not infer partnership, endorsement, commercial adoption, payment, market value, institutional support, environmental impact, or production deployment unless explicit evidence supports the claim.
+Do not infer partnership, endorsement, commercial adoption, payment, market value, institutional support, environmental impact, scientific validation or production deployment unless explicit evidence supports the claim.
 
 ## Immediate backlog
-- [ ] Define one primary public use case and CTA.
-- [ ] Create a 5-minute quickstart.
+- [x] Define one primary public use case and CTA: **Submit an observation**.
+- [x] Create the first 5-minute quickstart and observation issue form. External timing validation is still required before #626 can be considered complete.
 - [ ] Create a reproducible public demo.
 - [ ] Add `SHOWCASE.md` for independent integrations and deployments.
 - [ ] Add a weekly adoption scorecard template.
