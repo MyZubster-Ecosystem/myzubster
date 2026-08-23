@@ -1,0 +1,15 @@
+{
+  "id": "myz-visual-011-gateway-system",
+  "title": "MyZubster Gateway System Visual",
+  "type": "official-derived",
+  "evidence_role": "architecture-reference-only",
+  "source_repository": "MyZubster-Ecosystem/MyZubsterGateway",
+  "source_file": "README.md",
+  "maturity": "MVP / active validation",
+  "claims": [
+    "Gateway is an integration boundary",
+    "external settlement requires independent verification",
+    "runtime/deployment status requires separate evidence"
+  ],
+  "not_evidence_for": ["payment-finality", "production-deployment", "provider-affiliation", "on-chain-settlement"]
+}
