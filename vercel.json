@@ -30,6 +30,10 @@
       "use": "@vercel/static"
     },
     {
+      "src": "public/community-marketplace.html",
+      "use": "@vercel/static"
+    },
+    {
       "src": "public/world-state/metasploit-sentinel.json",
       "use": "@vercel/static"
     }
@@ -58,6 +62,22 @@
     {
       "src": "/api/(.*)",
       "dest": "/api/index.js"
+    },
+    {
+      "src": "/community/?",
+      "dest": "/public/community-marketplace.html"
+    },
+    {
+      "src": "/marketplace/?",
+      "dest": "/public/community-marketplace.html"
+    },
+    {
+      "src": "/gardens-map/?",
+      "dest": "/public/community-marketplace.html"
+    },
+    {
+      "src": "/community-marketplace.html",
+      "dest": "/public/community-marketplace.html"
     },
     {
       "src": "/come-funziona/?",
