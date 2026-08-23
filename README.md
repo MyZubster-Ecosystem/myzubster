@@ -24,6 +24,9 @@ OBSERVE → DOCUMENT → CONNECT → COLLABORATE → VERIFY → PUBLISH → REWA
 
 ![How MyZubster works](assets/readme/how-it-works.png)
 
+An original seven-panel Italian field guide and high-resolution edition are available in
+[`docs/comic/`](docs/comic/README.md).
+
 ```text
 users / contributors
        |
