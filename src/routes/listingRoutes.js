@@ -1,32 +1,151 @@
 const express = require('express');
 const router = express.Router();
+const User = require('../models/User');
+const { authenticate } = require('../middleware/auth');
 
-// Simulazione database annunci
+// MVP store: listings remain process-local until the marketplace persistence layer is promoted.
 let listings = [];
 
-// GET - Lista annunci
+const ALLOWED_CURRENCIES = new Set(['XMR', 'MYZ', 'TARI', 'BARTER', 'FREE']);
+const ALLOWED_CATEGORIES = new Set([
+  'seeds',
+  'plants',
+  'produce',
+  'tools',
+  'services',
+  'volunteering',
+  'pet_adoption',
+  'pet_lost_found',
+  'pet_services'
+]);
+
+function containsPrivateKeyMaterial(value) {
+  const text = String(value || '').toUpperCase();
+  return /PRIVATE KEY|BEGIN PGP PRIVATE|BEGIN OPENSSH PRIVATE|SEED PHRASE|MNEMONIC/.test(text);
+}
+
+// GET - Lista annunci; filtri facoltativi per categoria, valuta e località.
 router.get('/', (req, res) => {
-  res.json({ success: true, count: listings.length, listings });
+  const { category, currency, location } = req.query;
+  let result = listings;
+  if (category) result = result.filter(item => item.category === category);
+  if (currency) result = result.filter(item => item.currency === String(currency).toUpperCase());
+  if (location) result = result.filter(item => String(item.location || '').toLowerCase().includes(String(location).toLowerCase()));
+  res.json({ success: true, count: result.length, listings: result });
 });
 
-// POST - Crea annuncio
-router.post('/create', (req, res) => {
-  const { title, category, price, currency, description, location, features, contact, escrow, stock } = req.body;
-  if (!title || !category || !price) {
-    return res.status(400).json({ error: 'Titolo, categoria e prezzo sono obbligatori' });
+// GET - Profilo community dell'utente autenticato.
+router.get('/profile/me', authenticate, async (req, res) => {
+  try {
+    const user = await User.findById(req.userId).select('username moneroWallet communityProfile');
+    if (!user) return res.status(404).json({ success: false, message: 'Utente non trovato' });
+    res.json({ success: true, profile: user });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Errore nel recupero del profilo community' });
   }
-  const newListing = {
-    id: `LIST-${Date.now()}`,
+});
+
+// PATCH - PGP e wallet sono SOLO dati pubblici opzionali. Mai chiavi private o seed.
+router.patch('/profile/me', authenticate, async (req, res) => {
+  try {
+    const {
+      pgpPublicKey = '',
+      tariWallet = '',
+      myzWallet = '',
+      displayLocation = '',
+      bio = '',
+      seedExchangeEnabled = false,
+      petCommunityEnabled = false
+    } = req.body || {};
+
+    if ([pgpPublicKey, tariWallet, myzWallet, bio].some(containsPrivateKeyMaterial)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Inserisci solo chiavi PGP pubbliche e indirizzi wallet pubblici. Seed phrase e chiavi private sono vietati.'
+      });
+    }
+    if (pgpPublicKey && !String(pgpPublicKey).includes('BEGIN PGP PUBLIC KEY BLOCK')) {
+      return res.status(400).json({ success: false, message: 'La chiave PGP deve essere una chiave pubblica ASCII-armored.' });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.userId,
+      {
+        $set: {
+          communityProfile: {
+            pgpPublicKey: String(pgpPublicKey).trim(),
+            tariWallet: String(tariWallet).trim(),
+            myzWallet: String(myzWallet).trim(),
+            displayLocation: String(displayLocation).trim(),
+            bio: String(bio).trim(),
+            seedExchangeEnabled: Boolean(seedExchangeEnabled),
+            petCommunityEnabled: Boolean(petCommunityEnabled),
+            updatedAt: new Date()
+          }
+        }
+      },
+      { new: true, runValidators: true }
+    ).select('username moneroWallet communityProfile');
+
+    if (!user) return res.status(404).json({ success: false, message: 'Utente non trovato' });
+    res.json({ success: true, profile: user });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message || 'Profilo community non aggiornato' });
+  }
+});
+
+// POST - Crea annuncio. Baratto e regalo non richiedono prezzo.
+router.post('/create', authenticate, (req, res) => {
+  const {
     title,
     category,
     price,
-    currency: currency || 'XMR',
-    description: description || '',
-    location: location || '',
-    features: features || [],
+    currency,
+    description,
+    location,
+    features,
+    contact,
+    stock,
+    exchangeMode,
+    species,
+    variety,
+    pet
+  } = req.body || {};
+
+  const normalizedCurrency = String(currency || (exchangeMode === 'gift' ? 'FREE' : exchangeMode === 'barter' ? 'BARTER' : 'MYZ')).toUpperCase();
+  if (!title || !category) return res.status(400).json({ error: 'Titolo e categoria sono obbligatori' });
+  if (!ALLOWED_CATEGORIES.has(category)) return res.status(400).json({ error: 'Categoria marketplace non supportata' });
+  if (!ALLOWED_CURRENCIES.has(normalizedCurrency)) return res.status(400).json({ error: 'Valuta/modalità non supportata' });
+  if (!['FREE', 'BARTER'].includes(normalizedCurrency) && (price === undefined || price === null || Number(price) < 0)) {
+    return res.status(400).json({ error: 'Prezzo non valido' });
+  }
+  if (category.startsWith('pet_') && pet?.sale === true) {
+    return res.status(400).json({ error: 'Il modulo pet supporta adozioni, smarriti/trovati e servizi; non la vendita diretta di animali.' });
+  }
+
+  const newListing = {
+    id: `LIST-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    ownerId: String(req.userId),
+    ownerUsername: req.username,
+    title: String(title).trim(),
+    category,
+    price: ['FREE', 'BARTER'].includes(normalizedCurrency) ? 0 : Number(price),
+    currency: normalizedCurrency,
+    exchangeMode: exchangeMode || (normalizedCurrency === 'FREE' ? 'gift' : normalizedCurrency === 'BARTER' ? 'barter' : 'payment'),
+    description: String(description || '').trim(),
+    location: String(location || '').trim(),
+    species: String(species || '').trim(),
+    variety: String(variety || '').trim(),
+    features: Array.isArray(features) ? features.slice(0, 20) : [],
     contact: contact || {},
-    escrow: escrow || false,
-    stock: stock || 1,
+    pet: category.startsWith('pet_') ? {
+      name: String(pet?.name || '').trim(),
+      species: String(pet?.species || '').trim(),
+      age: String(pet?.age || '').trim(),
+      adoptionOnly: category === 'pet_adoption'
+    } : null,
+    stock: Math.max(1, Number(stock) || 1),
+    status: 'active',
     createdAt: new Date().toISOString()
   };
   listings.push(newListing);
