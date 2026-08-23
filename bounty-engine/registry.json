@@ -1,6 +1,6 @@
 {
   "schema": "myzubster-bounty-registry/v1",
-  "generated_at": "2026-08-21T12:25:00Z",
+  "generated_at": "2026-08-23T10:52:00Z",
   "status": "active-draft",
   "bounties": [
     {
@@ -41,15 +41,23 @@
       "title": "Signed identity credential design",
       "category": "cryptography",
       "reward_myz": 2500,
-      "status": "OPEN",
+      "status": "MYZ_RECORDED",
       "source_issue": "https://github.com/MyZubster-Ecosystem/myzubster/issues/566",
-      "source_pr": 563,
-      "source_branch": "add-digital-identity-proof",
-      "claimant": null,
-      "submission": null,
-      "review": null,
-      "ledger_entry_id": null,
-      "history": [{"at":"2026-08-21T12:25:00Z","from":null,"to":"OPEN","actor":"registry-import","note":"Normalized from identity/challenges.json and public issue #566; source PR remains draft."}]
+      "source_pr": 602,
+      "source_branch": "bounty/signed-identity-566",
+      "claimant": "Aming9303",
+      "submission": "https://github.com/MyZubster-Ecosystem/myzubster/pull/602",
+      "review": {
+        "result": "VERIFIED",
+        "evidence": "docs/bounties/ID-BNT-0003-VERIFICATION.md",
+        "merge_commit": "6bbcfa172dc38f31cc00696e1dbeaa27bdca2a75"
+      },
+      "ledger_entry_id": "MYZ-LEDGER-000002",
+      "history": [
+        {"at":"2026-08-21T12:25:00Z","from":null,"to":"OPEN","actor":"registry-import","note":"Normalized from identity/challenges.json and public issue #566."},
+        {"at":"2026-08-23T10:49:00Z","from":"OPEN","to":"VERIFIED","actor":"maintainer-review","note":"PR #602 passed final review and was merged; verification provenance recorded."},
+        {"at":"2026-08-23T10:52:00Z","from":"VERIFIED","to":"MYZ_RECORDED","actor":"myz-ledger","note":"2,500 MYZ internal accounting credit recorded as MYZ-LEDGER-000002. No external settlement implied."}
+      ]
     },
     {
       "bounty_id": "ID-BNT-0004",
