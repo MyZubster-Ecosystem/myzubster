@@ -7,6 +7,10 @@
       "use": "@vercel/node"
     },
     {
+      "src": "api/bounties-registry.js",
+      "use": "@vercel/node"
+    },
+    {
       "src": "frontend/package.json",
       "use": "@vercel/static-build",
       "config": {
@@ -46,6 +50,10 @@
     {
       "src": "/api/zargox/(.*)",
       "dest": "https://myzubster-gateway.vercel.app/api/zargox/$1"
+    },
+    {
+      "src": "/api/bounties/?",
+      "dest": "/api/bounties-registry.js"
     },
     {
       "src": "/api/(.*)",
