@@ -1,0 +1,112 @@
+{
+  "version": "2.0.0",
+  "generated_at": "2026-08-23T05:08:00+02:00",
+  "canonical_policy": {
+    "bounties": "https://github.com/MyZubster-Ecosystem/myzubster/blob/main/BOUNTIES.md",
+    "treasury": "https://github.com/MyZubster-Ecosystem/myzubster/blob/main/TREASURY.md",
+    "ledger": "https://github.com/MyZubster-Ecosystem/myzubster/blob/main/myz/LEDGER.md"
+  },
+  "entries": [
+    {
+      "id": "robot-31-singapore",
+      "repository": "MyZubster-Ecosystem/MyZubster-Robot",
+      "issue_number": 31,
+      "title": "[Singapore] MyZubster adoption in Singapore",
+      "url": "https://github.com/MyZubster-Ecosystem/MyZubster-Robot/issues/31",
+      "classification": "MYZ",
+      "work_state": "PROPOSED",
+      "settlement_state": "NOT_STARTED",
+      "rewards": [
+        {"asset":"MYZ","amount":2500,"unit":"MYZ","kind":"internal_accounting","funding_state":"PROPOSED","funding_source":null,"reservation_evidence":null},
+        {"asset":"XMR","amount":0.12,"unit":"XMR","kind":"historical_reference","funding_state":"HISTORICAL","funding_source":null,"reservation_evidence":null}
+      ],
+      "evidence": {"issue":"https://github.com/MyZubster-Ecosystem/MyZubster-Robot/issues/31","pull_requests":[],"verification":[],"settlement":[]},
+      "notes": ["2,500 MYZ is not a conversion from 0.12 XMR.","No verified external funding reservation is linked."],
+      "updated_at": "2026-08-23T05:08:00+02:00"
+    },
+    {
+      "id": "gateway-144-arduino-ingestion",
+      "repository": "MyZubster-Ecosystem/MyZubsterGateway",
+      "issue_number": 144,
+      "title": "[BOUNTY · EXTERNAL_UNFUNDED] API for Arduino sensor data ingestion",
+      "url": "https://github.com/MyZubster-Ecosystem/MyZubsterGateway/issues/144",
+      "classification": "EXTERNAL_UNFUNDED",
+      "work_state": "PROPOSED",
+      "settlement_state": "NOT_STARTED",
+      "rewards": [{"asset":"XMR","amount":0.08,"unit":"XMR","kind":"historical_reference","funding_state":"UNFUNDED","funding_source":null,"reservation_evidence":null}],
+      "evidence": {"issue":"https://github.com/MyZubster-Ecosystem/MyZubsterGateway/issues/144","pull_requests":[],"verification":[],"settlement":[]},
+      "notes": ["Legacy external reward reference only; not guaranteed."],
+      "updated_at": "2026-08-23T05:08:00+02:00"
+    },
+    {
+      "id": "gateway-215-test-bounty",
+      "repository": "MyZubster-Ecosystem/MyZubsterGateway",
+      "issue_number": 215,
+      "title": "[BOUNTY · EXTERNAL_UNFUNDED · TEST] Test bounty system",
+      "url": "https://github.com/MyZubster-Ecosystem/MyZubsterGateway/issues/215",
+      "classification": "EXTERNAL_UNFUNDED",
+      "work_state": "PROPOSED",
+      "settlement_state": "NOT_STARTED",
+      "rewards": [{"asset":"XMR","amount":0.05,"unit":"XMR","kind":"historical_reference","funding_state":"UNFUNDED","funding_source":null,"reservation_evidence":null}],
+      "evidence": {"issue":"https://github.com/MyZubster-Ecosystem/MyZubsterGateway/issues/215","pull_requests":[],"verification":[],"settlement":[]},
+      "notes": ["Test fixture; not evidence of a funded XMR pool."],
+      "updated_at": "2026-08-23T05:08:00+02:00"
+    },
+    {
+      "id": "photos-3-gps-roadmap",
+      "repository": "MyZubster-Ecosystem/MyZubster-Photos",
+      "issue_number": 3,
+      "title": "[BOUNTY · EXTERNAL_UNFUNDED] Daniel Ioni — GPS Photo Metadata Discovery Roadmap",
+      "url": "https://github.com/MyZubster-Ecosystem/MyZubster-Photos/issues/3",
+      "classification": "EXTERNAL_UNFUNDED",
+      "work_state": "PROPOSED",
+      "settlement_state": "NOT_STARTED",
+      "rewards": [{"asset":"XMR","amount":0.5,"unit":"XMR","kind":"historical_reference","funding_state":"UNFUNDED","funding_source":null,"reservation_evidence":null}],
+      "evidence": {"issue":"https://github.com/MyZubster-Ecosystem/MyZubster-Photos/issues/3","pull_requests":[],"verification":[],"settlement":[]},
+      "notes": ["Milestone amounts are historical proposed values only."],
+      "updated_at": "2026-08-23T05:08:00+02:00"
+    },
+    {
+      "id": "core-489-security-bounty",
+      "repository": "MyZubster-Ecosystem/myzubster",
+      "issue_number": 489,
+      "title": "Security Bounty — MYZ primary / external settlement only when funded",
+      "url": "https://github.com/MyZubster-Ecosystem/myzubster/issues/489",
+      "classification": "MYZ",
+      "work_state": "PROPOSED",
+      "settlement_state": "NOT_STARTED",
+      "rewards": [{"asset":"MYZ","amount":"severity-based","unit":"MYZ","kind":"internal_accounting","funding_state":"PROPOSED","funding_source":null,"reservation_evidence":null}],
+      "evidence": {"issue":"https://github.com/MyZubster-Ecosystem/myzubster/issues/489","pull_requests":[],"verification":[],"settlement":[]},
+      "notes": ["No automatic MYZ↔XMR conversion.","Any future XMR component must be separately funded and reserved."],
+      "updated_at": "2026-08-23T05:08:00+02:00"
+    },
+    {
+      "id": "core-526-visual-comic",
+      "repository": "MyZubster-Ecosystem/myzubster",
+      "issue_number": 526,
+      "title": "[BOUNTY · OPEN FOR CONTRIBUTORS] Crea il fumetto visuale “Come funziona MyZubster” — 300 MYZ proposed",
+      "url": "https://github.com/MyZubster-Ecosystem/myzubster/issues/526",
+      "classification": "MYZ",
+      "work_state": "PROPOSED",
+      "settlement_state": "NOT_STARTED",
+      "rewards": [{"asset":"MYZ","amount":300,"unit":"MYZ","kind":"internal_accounting","funding_state":"PROPOSED","funding_source":null,"reservation_evidence":null}],
+      "evidence": {"issue":"https://github.com/MyZubster-Ecosystem/myzubster/issues/526","pull_requests":[],"verification":[],"settlement":[]},
+      "notes": ["Internal reward/accounting only until verification."],
+      "updated_at": "2026-08-23T05:08:00+02:00"
+    },
+    {
+      "id": "core-216-earn-xmr-historical",
+      "repository": "MyZubster-Ecosystem/myzubster",
+      "issue_number": 216,
+      "title": "[HISTORICAL] Centralized \"Earn Your First XMR\" reward table",
+      "url": "https://github.com/MyZubster-Ecosystem/myzubster/issues/216",
+      "classification": "HISTORICAL",
+      "work_state": "PROPOSED",
+      "settlement_state": "NOT_APPLICABLE",
+      "rewards": [{"asset":"XMR","amount":"0.001/0.002 references","unit":"XMR","kind":"historical_reference","funding_state":"HISTORICAL","funding_source":null,"reservation_evidence":null}],
+      "evidence": {"issue":"https://github.com/MyZubster-Ecosystem/myzubster/issues/216","pull_requests":[],"verification":[],"settlement":[]},
+      "notes": ["Not a current payout table."],
+      "updated_at": "2026-08-23T05:08:00+02:00"
+    }
+  ]
+}
