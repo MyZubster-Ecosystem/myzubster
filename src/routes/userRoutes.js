@@ -1,4 +1,9 @@
 const express = require('express');
 const router = express.Router();
-router.get('/', (req, res) => res.json({ message: 'User routes - placeholder' }));
+const { authenticate } = require('../middleware/auth');
+const characterProfileController = require('../controllers/characterProfileController');
+
+router.get('/me/character', authenticate, characterProfileController.getMyCharacter);
+router.put('/me/character', authenticate, characterProfileController.putMyCharacter);
+
 module.exports = router;
