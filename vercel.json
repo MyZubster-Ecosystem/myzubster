@@ -30,6 +30,10 @@
       "use": "@vercel/static"
     },
     {
+      "src": "public/tv-garden-live.html",
+      "use": "@vercel/static"
+    },
+    {
       "src": "public/come-funziona.html",
       "use": "@vercel/static"
     },
@@ -90,6 +94,14 @@
     {
       "src": "/tv.html",
       "dest": "/public/tv.html"
+    },
+    {
+      "src": "/tv-garden-live/?",
+      "dest": "/public/tv-garden-live.html"
+    },
+    {
+      "src": "/tv-garden-live.html",
+      "dest": "/public/tv-garden-live.html"
     },
     {
       "src": "/come-funziona/?",
