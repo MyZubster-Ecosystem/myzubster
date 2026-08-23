@@ -61,19 +61,19 @@
     },
     {
       "src": "/come-funziona/?",
-      "dest": "/public/come-funziona.html"
+      "dest": "/api/index.js"
     },
     {
       "src": "/how-it-works/?",
-      "dest": "/public/come-funziona.html"
+      "dest": "/api/index.js"
     },
     {
       "src": "/fumetto/sentinel/?",
-      "dest": "/public/fumetto-sentinel.html"
+      "dest": "/api/index.js"
     },
     {
       "src": "/comic/sentinel/?",
-      "dest": "/public/fumetto-sentinel.html"
+      "dest": "/api/index.js"
     },
     {
       "src": "/world-state/metasploit-sentinel.json",
@@ -81,19 +81,19 @@
     },
     {
       "src": "/fumetto/?",
-      "dest": "/public/fumetto.html"
+      "dest": "/api/index.js"
     },
     {
       "src": "/fumetto.html",
-      "dest": "/public/fumetto.html"
+      "dest": "/api/index.js"
     },
     {
       "src": "/comic/?",
-      "dest": "/public/fumetto.html"
+      "dest": "/api/index.js"
     },
     {
       "src": "/comic.html",
-      "dest": "/public/fumetto.html"
+      "dest": "/api/index.js"
     },
     {
       "src": "/robots.txt",
