@@ -42,6 +42,6 @@ The page provides:
 
 ## Integration
 
-The intended public entry point is `/chronicle-universe.html`. The canonical Gateway home links to this page as `Chronicle Universe`.
+The public entry points are `/chronicle-universe` and `/chronicle-universe.html`, both routed directly to the static Chronicle page. This fresh completion-sprint branch does not modify the legacy Gateway index, which keeps the change isolated from unrelated gateway markup.
 
 No Drive permission changes, secrets or unnecessary personal data are required by this integration.
