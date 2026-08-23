@@ -9,6 +9,8 @@ body:
         ## MyZubster public observation
         Use this form to document something you directly observed in your territory.
 
+        **Quickstart target:** if this is your first MyZubster action, start a timer now. The target is 5 minutes and the Phase 1 maximum is 10 minutes.
+
         **Evidence boundary:** an observation is a public record of what you saw or documented. It is not automatically proof of environmental impact, institutional endorsement, causation, partnership or scientific validation.
 
         Do not publish private addresses, credentials, sensitive personal data, faces without an appropriate reason/permission, or precise locations for vulnerable people/species when disclosure could create risk.
@@ -72,6 +74,40 @@ body:
       label: Interpretation or hypothesis (optional)
       description: Keep interpretation separate from direct observation. State uncertainty explicitly.
       placeholder: "Possible interpretation: ... / Confidence: low|medium|high"
+
+  - type: dropdown
+    id: first_action
+    attributes:
+      label: Is this your first MyZubster action?
+      description: Used only to evaluate the external quickstart; it does not change how the observation is reviewed.
+      options:
+        - "Yes"
+        - "No"
+        - "Not sure"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: completion_time
+    attributes:
+      label: Time to complete this submission
+      description: If you followed the quickstart, report the approximate elapsed time from opening the form to being ready to submit.
+      options:
+        - "Under 3 minutes"
+        - "3–5 minutes"
+        - "6–10 minutes"
+        - "11–15 minutes"
+        - "More than 15 minutes"
+        - "Not measured"
+    validations:
+      required: true
+
+  - type: textarea
+    id: friction
+    attributes:
+      label: What slowed you down? (optional)
+      description: Mention unclear wording, missing evidence instructions, GitHub friction or anything else that made the first action harder.
+      placeholder: "Example: I was unsure what counted as public evidence."
 
   - type: checkboxes
     id: declaration
