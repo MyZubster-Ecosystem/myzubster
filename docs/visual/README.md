@@ -12,7 +12,7 @@ The hub is intentionally plain HTML/CSS/JavaScript so it can be hosted on GitHub
 
 ## Canonical evidence model
 
-Interactive evidence-first views read `data/evidence.json`. World State, Adoption Ladder, Chronicle, Character Registry and Mission-to-Chronicle must preserve the states and source boundaries recorded there; a view may filter or reorganize records but must not promote them.
+Interactive evidence-first views read `data/evidence.json`. World State, Adoption Ladder, Chronicle, Character Registry, Mission-to-Chronicle and Evidence Freshness Monitor must preserve the states and source boundaries recorded there; a view may filter, audit or reorganize records but must not promote them.
 
 ## Public visual asset layer
 
@@ -40,6 +40,7 @@ The binary PNG asset layer lives in the dedicated public repository `MyZubster-E
 - **#018 — Evidence Provenance Inspector** — source and claim-boundary inspection.
 - **#019 — Contributor Trust / Verification Journey** — contribution history → contextual trust; reward is not trust.
 - **#020 — Mission-to-Chronicle Renderer** — mission/evidence records → bounded narrative, preserving missing transitions as evidence gaps.
+- **#021 — Evidence Freshness / Contradiction Monitor** — deterministic freshness and internal-consistency review signals over the canonical evidence dataset.
 - **Concept Image Archive** — AI/narrative assets catalogued without promotion to evidence.
 
 ## Character Registry
@@ -61,6 +62,8 @@ Token/reward       != trust or identity
 Repository relation!= live integration
 Roadmap item       != released feature
 Discovery          != adoption
+Fresh              != true
+Stale              != false
 ```
 
 Every visual package should include provenance notes or a manifest describing its source and whether it is documentation, evidence, official material or narrative illustration.
@@ -78,9 +81,9 @@ Every visual package should include provenance notes or a manifest describing it
 
 ## Next priorities
 
-1. **#021 — Evidence Freshness / Contradiction Monitor**;
-2. next evidence-first system view justified by current repository state;
-3. review-readiness pass across canonical data, navigation and accessibility.
+1. **#022 — Public Ecosystem Status Console**;
+2. review-readiness pass across canonical data, navigation and accessibility;
+3. next evidence-first system view only if justified by verified repository state.
 
 ## Governance
 
