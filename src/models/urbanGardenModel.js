@@ -3,10 +3,28 @@ const urbanGardenSchema = new mongoose.Schema({
   gardenId: {type: String, required: true, unique: true, index: true},
   name: {type: String, required: true},
   ownerId: {type: String, required: true},
-  category: {type: String, enum: ['fruit_tree','vegetable_garden','herb_garden','community_garden','rooftop_garden'], required: true},
+  category: {
+    type: String,
+    enum: [
+      'fruit_tree',
+      'vegetable_garden',
+      'herb_garden',
+      'community_garden',
+      'municipal_garden',
+      'botanical_garden',
+      'permaculture_site',
+      'seed_bank',
+      'rooftop_garden'
+    ],
+    required: true
+  },
   location: {lat: {type: Number, required: true}, lng: {type: Number, required: true}, address: String},
   size: {type: String, enum: ['small','medium','large','xlarge'], default: 'small'},
   plants: [{plantName: String, plantType: String, quantity: Number, plantedAt: Date}],
+  seedExchange: {
+    enabled: { type: Boolean, default: false },
+    notes: { type: String, maxlength: 500 }
+  },
   status: {type: String, enum: ['active','dormant','harvested','abandoned'], default: 'active'},
   isPublic: {type: Boolean, default: true},
   certifications: [{type: String, certId: String, issuedAt: Date}],
