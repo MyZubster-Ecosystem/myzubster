@@ -1,0 +1,15 @@
+{
+  "name": "myzubster-nft-mint-verification",
+  "private": true,
+  "version": "0.1.0",
+  "type": "commonjs",
+  "scripts": {
+    "test": "node --test"
+  },
+  "dependencies": {
+    "ethers": "^6.15.0"
+  },
+  "engines": {
+    "node": "24.x"
+  }
+}
