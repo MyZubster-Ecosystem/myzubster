@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/MyZubster-Ecosystem/myzubster/blob/main/bounty-engine/registry-v2.schema.json",
+  "title": "MyZubster Bounty Registry v2",
+  "type": "object",
+  "required": ["version", "generated_at", "canonical_policy", "entries"],
+  "properties": {
+    "version": { "const": "2.0.0" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "canonical_policy": {
+      "type": "object",
+      "required": ["bounties", "treasury", "ledger"],
+      "properties": {
+        "bounties": { "type": "string", "format": "uri" },
+        "treasury": { "type": "string", "format": "uri" },
+        "ledger": { "type": "string", "format": "uri" }
+      },
+      "additionalProperties": false
+    },
+    "entries": { "type": "array", "items": { "$ref": "#/$defs/bounty" } }
+  },
+  "$defs": {
+    "rewardComponent": {
+      "type": "object",
+      "required": ["asset", "amount", "kind", "funding_state"],
+      "properties": {
+        "asset": { "enum": ["MYZ", "XMR", "FIAT", "TOKEN", "FREE"] },
+        "amount": { "type": ["number", "string", "null"] },
+        "unit": { "type": ["string", "null"] },
+        "kind": { "enum": ["internal_accounting", "external_settlement", "free_contribution", "historical_reference"] },
+        "funding_state": { "enum": ["PROPOSED", "UNFUNDED", "RESERVED", "FUNDED", "HISTORICAL", "FREE"] },
+        "funding_source": { "type": ["string", "null"] },
+        "reservation_evidence": { "type": ["string", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "evidence": {
+      "type": "object",
+      "required": ["issue", "pull_requests", "verification", "settlement"],
+      "properties": {
+        "issue": { "type": ["string", "null"] },
+        "pull_requests": { "type": "array", "items": { "type": "string" } },
+        "verification": { "type": "array", "items": { "type": "string" } },
+        "settlement": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "bounty": {
+      "type": "object",
+      "required": ["id", "repository", "issue_number", "title", "classification", "work_state", "settlement_state", "rewards", "evidence"],
+      "properties": {
+        "id": { "type": "string" },
+        "repository": { "type": "string" },
+        "issue_number": { "type": "integer", "minimum": 1 },
+        "title": { "type": "string" },
+        "url": { "type": "string", "format": "uri" },
+        "classification": { "enum": ["MYZ", "EXTERNAL_UNFUNDED", "FUNDED", "HISTORICAL", "FREE", "MIXED"] },
+        "work_state": { "enum": ["PROPOSED", "VALIDATED", "APPROVED", "ACTIVE", "CLAIMED", "SUBMITTED", "UNDER_REVIEW", "VERIFIED", "REJECTED", "CLOSED"] },
+        "settlement_state": { "enum": ["NOT_APPLICABLE", "NOT_STARTED", "REWARD_RECORDED", "SETTLEMENT_PENDING", "SUBMITTED", "CONFIRMED", "PAID", "FAILED", "CANCELLED"] },
+        "rewards": { "type": "array", "items": { "$ref": "#/$defs/rewardComponent" } },
+        "evidence": { "$ref": "#/$defs/evidence" },
+        "notes": { "type": "array", "items": { "type": "string" } },
+        "updated_at": { "type": "string", "format": "date-time" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
