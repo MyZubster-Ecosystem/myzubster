@@ -10,6 +10,18 @@ Entries must not imply partnership, endorsement, payment, commercial adoption or
 
 ## Timeline
 
+### 2026-08-23 — CONTRIBUTION — Shweta-singh24 / Jurisdiction capability enforcement
+
+External contributor `Shweta-singh24` opened PR #1385 implementing jurisdiction-based capability enforcement in `MyZubsterGateway`, including a centralized deny-by-default policy service, `jurisdictionGate` middleware, and protections for Tari/MYZ and XMR wallet-transfer and external-settlement endpoints.
+
+- **Component:** `MyZubster-Ecosystem/MyZubsterGateway`
+- **Classification:** `CONTRIBUTION`
+- **Confidence:** `HIGH`
+- **Evidence:** https://github.com/MyZubster-Ecosystem/MyZubsterGateway/pull/1385
+- **Status:** open / not merged / mergeable at last verification
+- **Validation:** capability policy checks 8/8 passed; syntax and diff checks passed according to the PR
+- **Boundary:** verifies a substantial external code contribution. It does not establish independent deployment, end-user adoption, partnership, endorsement, payment or commercial use.
+
 ### 2026-08-23 — CONTRIBUTION — wasim-builds / Application and security fixes
 
 External contributor `wasim-builds` opened PR #636 from the public fork `wasim-builds/myzubster`, proposing fixes for 20 concrete application, security, API and performance issues.
