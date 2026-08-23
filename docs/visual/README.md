@@ -14,6 +14,8 @@ The hub is intentionally plain HTML/CSS/JavaScript so it can be hosted on GitHub
 
 Interactive evidence-first views read `data/evidence.json`. World State, Adoption Ladder, Chronicle, Character Registry, Mission-to-Chronicle, Evidence Freshness Monitor and Public Ecosystem Status Console must preserve the states and source boundaries recorded there; a view may filter, audit or reorganize records but must not promote them.
 
+The current human review gate is documented in [`REVIEW-READINESS.md`](REVIEW-READINESS.md). Review-ready means coherent enough for human inspection; it does not mean merged, deployed, adopted, production-ready or externally endorsed.
+
 ## Public visual asset layer
 
 The binary PNG asset layer lives in the dedicated public repository `MyZubster-Ecosystem/MyZubster-Visual`. Narrative/AI images remain illustrative and **NOT EVIDENCE**. Public availability does not establish deployment, adoption, affiliation, identity, payment or physical truth.
@@ -83,14 +85,14 @@ Every visual package should include provenance notes or a manifest describing it
 
 ## Next priorities
 
-1. review-readiness pass across canonical data, navigation and accessibility;
-2. reconcile stale/open PR evidence against current public GitHub state without automatic promotion;
+1. human accessibility/mobile review using `REVIEW-READINESS.md`;
+2. keep canonical PR-backed records reconciled against public GitHub state without automatic promotion;
 3. add another evidence-first system view only if justified by verified repository state.
 
 ## Governance
 
 Visual packages should normally be introduced through a dedicated branch and **draft pull request**. Human review remains required before merge.
 
-See also `ASSET_PIPELINE.md`, `../ZORGAX_SYSTEM.md`, `../ZORGAX_AUTOMATION.md`, `../MYZUBSTER_METAVERSE.md`, and `../../BOUNTIES.md`.
+See also `ASSET_PIPELINE.md`, `REVIEW-READINESS.md`, `../ZORGAX_SYSTEM.md`, `../ZORGAX_AUTOMATION.md`, `../MYZUBSTER_METAVERSE.md`, and `../../BOUNTIES.md`.
 
 **MyZubster — build the world in public.**
