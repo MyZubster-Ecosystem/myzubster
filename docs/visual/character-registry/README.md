@@ -27,3 +27,5 @@ These states describe the registry/visual workflow only. `VERIFIED_CONTRIBUTOR` 
 ## Entry point
 
 Public invitation: `https://github.com/MyZubster-Ecosystem/myzubster/issues/617`
+
+The registry intentionally renders only evidence-linked character records. It does not auto-create fictional contributor identities from usernames or repository activity.
