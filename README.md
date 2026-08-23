@@ -125,7 +125,7 @@ PERSONAL SALARY / SAVINGS / EMPLOYMENT
 
 When App / Marketplace begins generating real revenue, a **versioned and auditable governance/accounting policy** must define how revenue is allocated among operating costs, ecosystem treasury, bounty reserves, contributors, maintenance, development and any other approved project purpose. No personal or founder allocation is automatic, and project revenue should not be described as “interest” unless a lawful, implemented and auditable interest-bearing mechanism actually exists.
 
-Canonical rules: [`BOUNTIES.md`](BOUNTIES.md) · MYZ ledger: [`myz/LEDGER.md`](myz/LEDGER.md)
+Canonical rules: [`BOUNTIES.md`](BOUNTIES.md) · Treasury policy: [`TREASURY.md`](TREASURY.md) · MYZ ledger: [`myz/LEDGER.md`](myz/LEDGER.md)
 
 ## 🎨 Create a MyZubster comic — complete contributor workflow
 
@@ -390,7 +390,7 @@ There are several ways to participate:
 
 ![Discuss, design and solve MyZubster bounties with MYZ](assets/readme/bounty-myz-discussion.png)
 
-The canonical rules live in [`BOUNTIES.md`](BOUNTIES.md). Canonical public reward and settlement status lives in [`REWARDS_LEDGER.md`](REWARDS_LEDGER.md).
+The canonical rules live in [`BOUNTIES.md`](BOUNTIES.md). Treasury/funding rules live in [`TREASURY.md`](TREASURY.md). Canonical public reward and settlement status lives in [`REWARDS_LEDGER.md`](REWARDS_LEDGER.md).
 
 ```text
 PROPOSED
@@ -500,6 +500,7 @@ Official references:
 - [🌍 Universal / Multilingual Guide](docs/i18n/README.md)
 - [Ecosystem Architecture](docs/ECOSYSTEM.md)
 - [Bounty System](BOUNTIES.md)
+- [Treasury Policy](TREASURY.md)
 - [Rewards Ledger](REWARDS_LEDGER.md)
 - [Public Discovery Timeline](docs/PUBLIC-TIMELINE.md)
 - [Documentation Hub](https://github.com/MyZubster-Ecosystem/myzubster-docs)
