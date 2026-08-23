@@ -2,6 +2,8 @@
 
 This is the canonical bounty contract for the MyZubster ecosystem. Repository-specific `BOUNTIES.md` files may narrow scope, but they must not weaken the verification, privacy, treasury or settlement requirements in this document.
 
+The canonical treasury and funding policy is [`TREASURY.md`](TREASURY.md).
+
 ## 1. Core principle
 
 A bounty represents **verifiable work**, not an automatic payment promise.
@@ -169,6 +171,8 @@ An adapter/provider response alone must not promote a payout to `PAID`.
 
 ## 9. Treasury and funding
 
+Detailed treasury source, reservation, separation-of-funds and overspending rules are defined in [`TREASURY.md`](TREASURY.md).
+
 ### Ecosystem-funded rule
 
 **All MyZubster bounty programs must be designed to sustain themselves from the MyZubster ecosystem, not from the personal finances of the founder or any contributor.**
@@ -325,6 +329,9 @@ A good bounty issue follows this structure:
 Merge or acceptance does not by itself prove external payment. `PAID` requires the applicable verified settlement evidence. Personal income or unrelated employment income is not a default settlement source.
 ```
 
-## Related architecture
+## Related architecture and policies
 
-See [`docs/ECOSYSTEM.md`](docs/ECOSYSTEM.md) for the repository map, IPFS layer and settlement/verifier boundaries.
+- [`TREASURY.md`](TREASURY.md) — canonical ecosystem treasury and funding rules
+- [`myz/LEDGER.md`](myz/LEDGER.md) — MYZ internal accounting model
+- [`REWARDS_LEDGER.md`](REWARDS_LEDGER.md) — public reward/settlement status
+- [`docs/ECOSYSTEM.md`](docs/ECOSYSTEM.md) — repository map, IPFS layer and settlement/verifier boundaries
