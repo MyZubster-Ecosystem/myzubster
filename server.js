@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 require('dotenv').config();
 
 const app = express();
@@ -11,6 +12,45 @@ app.use('/api/github-bounties/webhook', express.json({
   verify: (req, res, buf) => { req.rawBody = Buffer.from(buf); }
 }));
 app.use(express.json());
+
+// Inject Vercel Web Analytics into every public HTML page at response time.
+// This keeps analytics coverage consistent across the static portal, comic,
+// observation explorer and other HTML entry points without duplicating tags.
+const publicRoot = path.resolve(__dirname, 'public');
+const htmlAliases = new Map([
+  ['/', 'index.html'],
+  ['/fumetto', 'fumetto.html'],
+  ['/comic', 'fumetto.html'],
+  ['/grok', 'grok.html'],
+  ['/zorgax', 'zorgax.html'],
+  ['/research-search', 'research-search.html'],
+]);
+const vercelAnalyticsSnippet = `
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+</script>
+<script defer src="https://cdn.vercel-insights.com/v1/script.debug.js"></script>
+`;
+
+app.use((req, res, next) => {
+  if (req.method !== 'GET') return next();
+
+  const alias = htmlAliases.get(req.path);
+  const relativePath = alias || (req.path.endsWith('.html') ? req.path.replace(/^\/+/, '') : null);
+  if (!relativePath) return next();
+
+  const filePath = path.resolve(publicRoot, relativePath);
+  if (filePath !== publicRoot && !filePath.startsWith(`${publicRoot}${path.sep}`)) return next();
+
+  fs.readFile(filePath, 'utf8', (error, html) => {
+    if (error) return next();
+    const instrumented = html.includes('</head>')
+      ? html.replace('</head>', `${vercelAnalyticsSnippet}</head>`)
+      : `${vercelAnalyticsSnippet}${html}`;
+    res.type('html').status(200).send(instrumented);
+  });
+});
+
 app.use(express.static('public'));
 app.use('/data', express.static('data'));
 
