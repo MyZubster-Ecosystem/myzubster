@@ -50,6 +50,7 @@ If evidence is unavailable, the status must remain no stronger than the stronges
 
 | Repository / Issue | Contributor | Historical / proposed reward | Work state visible on GitHub | Reward-record status | External settlement status | Evidence / notes |
 |---|---|---:|---|---|---|---|
+| `myzubster#566` / PR `#602` — Signed identity credential design | `Aming9303` | 2,500 MYZ | **VERIFIED** — approved after security hardening and merged | **NOT YET RECORDED** | **NOT VERIFIED** | Verification provenance: `docs/bounties/ID-BNT-0003-VERIFICATION.md`. Merge/verification does not itself create a MYZ accounting entry. |
 | `MyZubsterGateway#257` — Wallet reale per Tari (MYZ) | `laurentketterle-hub` | 150 MYZ | Issue closed as completed | **NOT ESTABLISHED BY ISSUE** | **NOT VERIFIED** | Historical issue wording said payment after merge; issue was corrected on 2026-08-22 to clarify that closure/merge is not payment proof. |
 
 ## Legacy wording audit
