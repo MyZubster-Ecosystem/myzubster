@@ -1,16 +1,16 @@
 # Legacy bounty cleanup — 2026-08-23
 
-This audit note records the first cleanup pass that aligns legacy MyZubster bounty/reward issues with the canonical ecosystem-funded model in `BOUNTIES.md` and `TREASURY.md`.
+This audit note records the cleanup passes that align legacy MyZubster bounty/reward issues with the canonical ecosystem-funded model in `BOUNTIES.md` and `TREASURY.md`.
 
 ## Canonical classifications
 
 - `MYZ` — internal MyZubster reward/accounting unit.
 - `EXTERNAL_UNFUNDED` — an external XMR/fiat/token amount may be historically/provisionally stated, but no verified ecosystem treasury reservation is linked.
-- `FUNDED` — only when an auditable ecosystem funding reservation exists. This cleanup pass does not classify any legacy XMR issue as FUNDED without such evidence.
+- `FUNDED` — only when an auditable ecosystem funding reservation exists. This cleanup does not classify any legacy XMR issue as FUNDED without such evidence.
 - `HISTORICAL` — legacy table/test/product-design reference that must not be treated as a current payout promise.
 - `FREE` — community contribution with no external reward committed.
 
-## Updated in this pass
+## Updated issues
 
 | Repository | Issue | Classification | Legacy external reference |
 |---|---:|---|---:|
@@ -30,6 +30,28 @@ This audit note records the first cleanup pass that aligns legacy MyZubster boun
 | myzubster | #63 | EXTERNAL_UNFUNDED | 0.08 XMR |
 | myzubster | #530 | funding clarification | personal income removed as assumed bounty source |
 
+## Label cleanup pass
+
+Legacy labels must not override the canonical funding state expressed by the issue body and Treasury records.
+
+Removed from active legacy issues where they implied a fixed XMR payout tier:
+
+- `💰 premium` from MyZubsterGateway #57;
+- `💰 spicciona` from MyZubsterGateway #58;
+- `💰 spicciona` from MyZubster-App #18 and #19;
+- legacy `bounty` label from core security issues #489 and #490 where its repository description said the bounty was paid in Monero.
+
+Where the repository already exposes canonical labels, issues were normalized to combinations such as:
+
+- `type:bounty`
+- `status:proposed`
+- `reward:myz`
+- `reward:xmr`
+
+`reward:xmr` means an XMR external-settlement component/reference may exist; it does **not** mean funded or paid. `status:proposed` remains the controlling visible state until the required Treasury reservation and approval gates are satisfied.
+
+Examples normalized in this pass include MyZubsterGateway #57/#58/#144/#215 and core #63/#182/#489/#490.
+
 ## Rules applied
 
 1. No personal salary, savings, employment income or unrelated private assets are treated as default project treasury.
@@ -39,6 +61,7 @@ This audit note records the first cleanup pass that aligns legacy MyZubster boun
 5. `PAID` requires independently verified settlement evidence.
 6. Issue assignment, PR, merge, closure or internal MYZ ledger entry is not proof of external payment.
 7. Historical amounts are preserved as history where useful, but are explicitly labeled so external indexers/contributors do not interpret them as guaranteed payouts.
+8. A decorative/tier label must never be treated as funding evidence.
 
 ## Already aligned / no destructive rewrite needed
 
