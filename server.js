@@ -13,14 +13,18 @@ app.use('/api/github-bounties/webhook', express.json({
 }));
 app.use(express.json());
 
-// Inject Vercel Web Analytics into every public HTML page at response time.
-// This keeps analytics coverage consistent across the static portal, comic,
-// observation explorer and other HTML entry points without duplicating tags.
+// Inject Vercel Web Analytics into public HTML pages served by Express.
 const publicRoot = path.resolve(__dirname, 'public');
 const htmlAliases = new Map([
   ['/', 'index.html'],
   ['/fumetto', 'fumetto.html'],
+  ['/fumetto.html', 'fumetto.html'],
   ['/comic', 'fumetto.html'],
+  ['/comic.html', 'fumetto.html'],
+  ['/fumetto/sentinel', 'fumetto-sentinel.html'],
+  ['/comic/sentinel', 'fumetto-sentinel.html'],
+  ['/come-funziona', 'come-funziona.html'],
+  ['/how-it-works', 'come-funziona.html'],
   ['/grok', 'grok.html'],
   ['/zorgax', 'zorgax.html'],
   ['/research-search', 'research-search.html'],
@@ -84,8 +88,6 @@ function connectMongo() {
 }
 
 if (process.env.NODE_ENV !== 'test') {
-  // Start the connection on cold start, but let request-specific middleware
-  // await it before executing database-backed registration work.
   connectMongo().catch(() => {});
 }
 
@@ -110,9 +112,6 @@ const githubBountySyncRoutes = require('./src/routes/githubBountySyncRoutes');
 const researchRoutes = require('./src/routes/researchRoutes');
 const municipalityRoutes = require('./src/routes/municipalityRoutes');
 
-// Registration is database-backed. On Vercel a cold start can receive the
-// request before Mongoose has finished connecting, so wait explicitly here
-// instead of relying on Mongoose's operation buffering timeout.
 app.post('/api/auth/register', async (_req, res, next) => {
   try {
     await connectMongo();
