@@ -1,0 +1,3 @@
+MyZubster Comic Universe deployment trigger
+Date: 2026-08-23
+Purpose: force Vercel runtime rebuild after interactive comic update.
