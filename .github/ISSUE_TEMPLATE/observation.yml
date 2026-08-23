@@ -1,0 +1,84 @@
+name: "🌍 Submit a MyZubster observation"
+description: "Publish a local environmental, civic or territorial observation with public provenance."
+title: "observation: "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## MyZubster public observation
+        Use this form to document something you directly observed in your territory.
+
+        **Evidence boundary:** an observation is a public record of what you saw or documented. It is not automatically proof of environmental impact, institutional endorsement, causation, partnership or scientific validation.
+
+        Do not publish private addresses, credentials, sensitive personal data, faces without an appropriate reason/permission, or precise locations for vulnerable people/species when disclosure could create risk.
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      description: Choose the closest category.
+      options:
+        - Water
+        - Soil / garden / vegetation
+        - Biodiversity
+        - Waste / circularity
+        - Public space / civic infrastructure
+        - Mobility
+        - Air / weather observation
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: observation
+    attributes:
+      label: What did you observe?
+      description: Describe only what you directly observed. Separate facts from interpretation.
+      placeholder: "Example: I observed a public drinking-water point in use during a local event."
+    validations:
+      required: true
+
+  - type: input
+    id: date
+    attributes:
+      label: Observation date
+      description: Use YYYY-MM-DD when possible.
+      placeholder: "2026-08-23"
+    validations:
+      required: true
+
+  - type: input
+    id: location
+    attributes:
+      label: Approximate location
+      description: City/area is usually enough. Avoid unnecessary precise personal or sensitive locations.
+      placeholder: "Rimini, Emilia-Romagna, Italy"
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Public evidence
+      description: Add one or more public links to your photo, repository file, dataset, official source or other evidence. If you do not yet have a public link, explain what evidence you have and where it can safely be published.
+      placeholder: "https://github.com/..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: interpretation
+    attributes:
+      label: Interpretation or hypothesis (optional)
+      description: Keep interpretation separate from direct observation. State uncertainty explicitly.
+      placeholder: "Possible interpretation: ... / Confidence: low|medium|high"
+
+  - type: checkboxes
+    id: declaration
+    attributes:
+      label: Contributor declaration
+      options:
+        - label: "I am submitting this as my own observation or as evidence I am authorized to share."
+          required: true
+        - label: "I understand that this submission does not by itself prove impact, partnership, endorsement or adoption."
+          required: true
