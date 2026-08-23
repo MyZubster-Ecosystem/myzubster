@@ -34,6 +34,22 @@ SMOKE_TIMEOUT_MS=15000
 
 Use only endpoints that are safe to query with GET. Do not put credentials, tokens, wallet material, private endpoints or personal data into workflow variables or committed configuration.
 
+## Verified public target decision — 2026-08-23
+
+The public web surface currently resolves at `https://www.myzubster.com`. The apex domain `https://myzubster.com` is also publicly reachable but redirects toward the `www` host in observed requests. For operational smoke configuration, the recommended `APP_URL` target is therefore:
+
+```text
+https://www.myzubster.com
+```
+
+The conservative default `SMOKE_PATHS` remains:
+
+```text
+/
+```
+
+This is deliberate. Public pages expose links for API-style paths, but the current external verification pass did not establish a stable direct response contract for those paths through the same public host. Backend-specific paths should only be added after their deployment target is independently confirmed.
+
 ## Production interpretation
 
 A successful `/` check proves only that the configured public endpoint is reachable and returns a successful HTTP response.
