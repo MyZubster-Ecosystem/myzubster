@@ -3,10 +3,23 @@ set -u
 
 # Vercel interprets exit 0 as "ignore this build" and exit 1 as "continue building".
 # Be deliberately conservative: only skip when every changed file is clearly documentation-only.
-BASE_SHA="${VERCEL_GIT_PREVIOUS_SHA:-HEAD^}"
+BASE_SHA="${VERCEL_GIT_PREVIOUS_SHA:-}"
 
-if ! git rev-parse "$BASE_SHA" >/dev/null 2>&1; then
-  echo "Unable to resolve previous deployment SHA; continue with build."
+# Vercel can expose the previous successful deployment SHA even when that commit is
+# not present in the local clone used by the Ignored Build Step. In that case,
+# fall back to the immediate parent, which is the comparison form shown in Vercel's
+# official ignoreCommand example. If neither ref is resolvable, build safely.
+if [ -n "$BASE_SHA" ] && ! git rev-parse "$BASE_SHA" >/dev/null 2>&1; then
+  echo "Previous deployment SHA is not available in this clone; falling back to HEAD^."
+  BASE_SHA=""
+fi
+
+if [ -z "$BASE_SHA" ] && git rev-parse HEAD^ >/dev/null 2>&1; then
+  BASE_SHA="HEAD^"
+fi
+
+if [ -z "$BASE_SHA" ]; then
+  echo "Unable to resolve a comparison SHA; continue with build."
   exit 1
 fi
 
