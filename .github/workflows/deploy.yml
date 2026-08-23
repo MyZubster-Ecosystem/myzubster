@@ -28,6 +28,11 @@ jobs:
       - name: Install Vercel CLI
         if: steps.vercel_token.outputs.available == 'true'
         run: npm install -g vercel
+      - name: Enable Vercel Web Analytics
+        if: steps.vercel_token.outputs.available == 'true'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: vercel project web-analytics my-zubster-app --scope Myzubster --token "$VERCEL_TOKEN" --format json
       - name: Deploy to Vercel
         if: steps.vercel_token.outputs.available == 'true'
         env:
