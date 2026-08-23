@@ -2,6 +2,104 @@ import crypto from 'node:crypto';
 
 export const SCHEMA_VERSION = 'myzubster-technical-identity/v1';
 
+export function parseJsonNoDuplicateKeys(text) {
+  if (typeof text !== 'string') throw new TypeError('JSON input must be text');
+  let position = 0;
+
+  function skipWhitespace() {
+    while (position < text.length && /\s/.test(text[position])) position += 1;
+  }
+
+  function readString() {
+    if (text[position] !== '"') throw new SyntaxError('expected JSON string');
+    const start = position;
+    position += 1;
+    while (position < text.length) {
+      const character = text[position];
+      if (character === '"') {
+        position += 1;
+        return JSON.parse(text.slice(start, position));
+      }
+      if (character === '\\') position += 1;
+      position += 1;
+    }
+    throw new SyntaxError('unterminated JSON string');
+  }
+
+  function readValue() {
+    skipWhitespace();
+    const character = text[position];
+    if (character === '"') return readString();
+    if (character === '{') return readObject();
+    if (character === '[') return readArray();
+    for (const [literal, value] of [['true', true], ['false', false], ['null', null]]) {
+      if (text.startsWith(literal, position)) {
+        position += literal.length;
+        return value;
+      }
+    }
+    const match = text.slice(position).match(/^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?/);
+    if (!match) throw new SyntaxError('invalid JSON value');
+    position += match[0].length;
+    const value = Number(match[0]);
+    if (!Number.isFinite(value)) throw new SyntaxError('JSON number must be finite');
+    return value;
+  }
+
+  function readArray() {
+    position += 1;
+    const result = [];
+    skipWhitespace();
+    if (text[position] === ']') {
+      position += 1;
+      return result;
+    }
+    while (true) {
+      result.push(readValue());
+      skipWhitespace();
+      if (text[position] === ']') {
+        position += 1;
+        return result;
+      }
+      if (text[position] !== ',') throw new SyntaxError('expected comma in JSON array');
+      position += 1;
+    }
+  }
+
+  function readObject() {
+    position += 1;
+    const result = {};
+    const keys = new Set();
+    skipWhitespace();
+    if (text[position] === '}') {
+      position += 1;
+      return result;
+    }
+    while (true) {
+      skipWhitespace();
+      const key = readString();
+      if (keys.has(key)) throw new SyntaxError('duplicate JSON object key: ' + key);
+      keys.add(key);
+      skipWhitespace();
+      if (text[position] !== ':') throw new SyntaxError('expected colon in JSON object');
+      position += 1;
+      result[key] = readValue();
+      skipWhitespace();
+      if (text[position] === '}') {
+        position += 1;
+        return result;
+      }
+      if (text[position] !== ',') throw new SyntaxError('expected comma in JSON object');
+      position += 1;
+    }
+  }
+
+  const result = readValue();
+  skipWhitespace();
+  if (position !== text.length) throw new SyntaxError('unexpected trailing JSON content');
+  return result;
+}
+
 function hasLoneSurrogate(value) {
   for (let index = 0; index < value.length; index += 1) {
     const code = value.charCodeAt(index);

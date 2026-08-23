@@ -21,7 +21,7 @@ The credential references a `key_id`, but it does not embed or choose its own tr
 - `claims`: explicitly self-attested claims, including `legal_identity_document: false`
 - `signature`: base64 Ed25519 signature over canonical JSON with the signature field removed
 
-Canonicalization follows the RFC 8785/JCS data model: object keys are sorted by UTF-16 code units, array order is preserved, numbers use ECMAScript JSON serialization (`-0` becomes `0`), output is compact UTF-8 JSON, and only the top-level `signature` field is excluded. Non-finite numbers and non-JSON values are rejected before signing or verification. Inputs parsed from JSON must not contain duplicate object keys.
+Canonicalization follows the RFC 8785/JCS data model: object keys are sorted by UTF-16 code units, array order is preserved, numbers use ECMAScript JSON serialization (`-0` becomes `0`), output is compact UTF-8 JSON, and only the top-level `signature` field is excluded. Non-finite numbers, non-JSON values, invalid Unicode and duplicate object keys are rejected before signing or verification. Both CLIs use the same duplicate-aware parser.
 
 ## Sign without committing a private key
 
@@ -58,4 +58,4 @@ The verifier deliberately reports registry freshness as `not_evaluated`; it cann
 node --test identity/credential/credential.test.mjs
 ```
 
-Tests generate keys only in memory and cover canonicalization, valid verification, payload tampering, signer substitution, revocation, strict timestamps, malformed and duplicate registries, inactive keys, algorithm and fingerprint mismatch, malformed base64, and expiration. No private key fixture is written or committed.
+Tests generate keys only in memory and cover canonicalization, duplicate JSON fields, valid verification, payload tampering, signer substitution, revocation, strict timestamps, malformed and duplicate registries, inactive keys, algorithm and fingerprint mismatch, malformed base64, and expiration. No private key fixture is written or committed.

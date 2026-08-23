@@ -2,7 +2,13 @@ import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import test from 'node:test';
 
-import { canonicalCredential, publicKeyId, signCredential, verifyCredential } from './lib.mjs';
+import {
+  canonicalCredential,
+  parseJsonNoDuplicateKeys,
+  publicKeyId,
+  signCredential,
+  verifyCredential,
+} from './lib.mjs';
 
 function fixture() {
   const { publicKey, privateKey } = crypto.generateKeyPairSync('ed25519');
@@ -120,4 +126,29 @@ test('rejects malformed base64 signatures', () => {
   const result = verifyCredential(signed, registry, verificationTime);
   assert.equal(result.ok, false);
   assert.equal(result.checks.signature_valid, false);
+});
+
+test('rejects duplicate keys before credential or registry verification', () => {
+  assert.throws(
+    () => parseJsonNoDuplicateKeys('{"key_id":"trusted","key_id":"attacker"}'),
+    /duplicate JSON object key: key_id/,
+  );
+  assert.throws(
+    () => parseJsonNoDuplicateKeys('{"signature":"valid","signature":"substituted"}'),
+    /duplicate JSON object key: signature/,
+  );
+  assert.throws(
+    () => parseJsonNoDuplicateKeys('{"keys":[{"id":"trusted","id":"attacker"}],"revoked_key_ids":[]}'),
+    /duplicate JSON object key: id/,
+  );
+  assert.throws(
+    () => parseJsonNoDuplicateKeys('{"claims":{"status":"valid","status":"forged"}}'),
+    /duplicate JSON object key: status/,
+  );
+});
+
+test('strict parser preserves ordinary JSON values', () => {
+  const value = parseJsonNoDuplicateKeys('{"array":[1,true,null,{"nested":"value"}]}');
+  assert.deepEqual(value, { array: [1, true, null, { nested: 'value' }] });
+  assert.throws(() => parseJsonNoDuplicateKeys('{"value":1} trailing'), /trailing JSON content/);
 });
