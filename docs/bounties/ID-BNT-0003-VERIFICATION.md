@@ -19,14 +19,24 @@ PR #602 implemented the Ed25519 signed technical identity credential, external t
 
 Therefore the contribution state is recorded as `VERIFIED`.
 
-## Accounting boundary
+## Accounting state
 
-`VERIFIED` does **not** mean that 2,500 MYZ has been recorded in the canonical internal rewards ledger. It also does not establish funding, an external settlement rail, cash value, blockchain transfer, or payment.
+A canonical internal MYZ accounting entry has now been created and cross-linked:
 
-Until a separate canonical accounting entry is intentionally created and checked, the correct reward-record state is:
+- Ledger entry: `MYZ-LEDGER-000002`
+- Account: `contributor:github:Aming9303`
+- Amount: `2,500 MYZ`
+- Entry type: `BOUNTY_REWARD`
+- Reward record: `REWARD_RECORDED`
+
+## Settlement boundary
+
+`REWARD_RECORDED` means an internal MYZ accounting credit. It does **not** establish funding, an external settlement rail, cash value, blockchain transfer, or payment.
+
+The correct state is therefore:
 
 - Contribution verification: `VERIFIED`
-- Reward record: `NOT YET RECORDED`
+- Reward record: `REWARD_RECORDED`
 - External settlement: `NOT VERIFIED`
 
-This file is provenance/evidence for a future registry/ledger transition; it is not itself a settlement instruction.
+This file is provenance for the verified contribution and internal accounting state; it is not proof of external settlement.
