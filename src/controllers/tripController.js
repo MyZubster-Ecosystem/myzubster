@@ -1,8 +1,10 @@
 const Trip = require('../models/Trip');
 
 // Saldo utenti (condiviso con githubWebhookController)
+const DEFAULT_WALLET = process.env.DEFAULT_WALLET_ADDRESS || '';
+
 const users = {
-  'DanielIoni-creator': { walletAddress: '45M4DW1ug8bdQowWpxucTpgsfjLbVxbYaAra79VewmBobuuhgqTjyD4R3DzpqLM2veiphcB16n24qN1QbLg3y2PYGK3Qkoe', myzBalance: 100 }
+  'DanielIoni-creator': { walletAddress: DEFAULT_WALLET, myzBalance: 100 }
 };
 
 const REWARD_PER_KM = 0.2;     // MYZ per km

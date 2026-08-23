@@ -3,6 +3,18 @@ const payments = require('../services/payment');
 
 const router = express.Router();
 const VALID_CURRENCIES = ['MYZ', 'XMR'];
+const ADMIN_API_KEY = process.env.ADMIN_API_KEY;
+
+function requireAdminKey(req, res, next) {
+  if (!ADMIN_API_KEY) return next();
+  const key = req.header('x-admin-api-key') || req.header('authorization')?.replace('Bearer ', '');
+  if (!key || key !== ADMIN_API_KEY) {
+    return res.status(401).json({ success: false, error: 'Admin API key required' });
+  }
+  next();
+}
+
+router.use(requireAdminKey);
 
 // POST /api/bounty-payments - create a payment record
 router.post('/', async (req, res) => {

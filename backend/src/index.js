@@ -20,7 +20,8 @@ const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/myzubs
 
 app.disable('x-powered-by');
 app.use(helmet());
-app.use(cors());
+const allowedOrigins = (process.env.CORS_ORIGIN || '').split(',').map(s => s.trim()).filter(Boolean);
+app.use(cors(allowedOrigins.length > 0 ? { origin: allowedOrigins } : undefined));
 app.use(express.json({ limit: '2mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan(process.env.NODE_ENV === 'test' ? 'tiny' : 'dev'));
@@ -181,7 +182,19 @@ async function startServer() {
 }
 
 if (require.main === module) {
-  startServer().catch((error) => {
+  startServer().then((server) => {
+    const gracefulShutdown = async (signal) => {
+      console.log(`\n${signal} received: closing server...`);
+      server.close(() => {
+        console.log('HTTP server closed');
+      });
+      await disconnectDatabase();
+      console.log('MongoDB disconnected');
+      process.exit(0);
+    };
+    process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+    process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+  }).catch((error) => {
     console.error('❌ Failed to start MyZubster backend:', error);
     process.exit(1);
   });

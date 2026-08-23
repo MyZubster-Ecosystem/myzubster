@@ -4,11 +4,13 @@ const axios = require('axios');
 const EXCHANGE_RATE = parseFloat(process.env.MYZ_TO_XMR_RATE) || 0.001; // 1 MYZ = 0.001 XMR
 
 // Se SIMULATE_XMR è true, salta la chiamata RPC
-const SIMULATE_XMR = process.env.SIMULATE_XMR === 'true' || true; // Default true per test
+const SIMULATE_XMR = process.env.SIMULATE_XMR === 'true';
 
 // Database utenti (condiviso con githubWebhookController)
+const DEFAULT_WALLET = process.env.DEFAULT_WALLET_ADDRESS || '';
+
 const users = {
-  'DanielIoni-creator': { walletAddress: '45M4DW1ug8bdQowWpxucTpgsfjLbVxbYaAra79VewmBobuuhgqTjyD4R3DzpqLM2veiphcB16n24qN1QbLg3y2PYGK3Qkoe', myzBalance: 100 }
+  'DanielIoni-creator': { walletAddress: DEFAULT_WALLET, myzBalance: 100 }
 };
 
 // Storico conversioni

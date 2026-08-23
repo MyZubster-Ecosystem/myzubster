@@ -3,8 +3,70 @@ const ALLOWED_TRANSITIONS = Object.freeze({ PENDING: ['SUBMITTED', 'FAILED', 'CA
 function transition(current, next) { if (current === next) return; if (!ALLOWED_TRANSITIONS[current]?.includes(next)) throw new Error(`Invalid payment transition: ${current} -> ${next}`); }
 function paymentRequest(bounty) { if (!bounty.paymentRecipient) throw new Error('payment recipient is required'); if (!bounty.paymentAsset && !bounty.currency) throw new Error('payment asset is required'); if (!bounty.paymentNetwork) throw new Error('payment network is required'); if (bounty.rewardAmount === undefined || bounty.rewardAmount === null) throw new Error('payment amount is required'); return { amount: bounty.rewardAmount, asset: bounty.paymentAsset || bounty.currency, network: bounty.paymentNetwork, recipient: bounty.paymentRecipient, issueNumber: bounty.issueNumber, prNumber: bounty.prNumber }; }
 function applyState(bounty, next, reason = null) { transition(bounty.paymentStatus || PAYMENT_STATES.PENDING, next); bounty.paymentStatus = next; bounty.paymentFailureReason = reason; if (next === PAYMENT_STATES.SUBMITTED) bounty.paymentSubmittedAt = new Date(); if (next === PAYMENT_STATES.CONFIRMED) bounty.paymentConfirmedAt = new Date(); }
-function requireVerifier(verifier) { if (!verifier || typeof verifier.verify !== 'function') throw new Error('payment verifier is not configured'); }
+function requireVerifier(verifier, asset) {
+  if (!verifier || typeof verifier.verify !== 'function') {
+    if (asset === 'MYZ') return false;
+    throw new Error('payment verifier is not configured');
+  }
+  return true;
+}
 function verificationPassed(verification, request, txId) { const checks = verification?.checks; return verification?.valid === true && typeof verification.transactionStatus === 'string' && verification.transactionStatus === 'confirmed' && typeof verification.txId === 'string' && verification.txId === txId && checks?.recipient === true && checks?.asset === true && checks?.network === true && checks?.amount === true && checks?.transactionStatus === true && verification.recipient === request.recipient && verification.asset === request.asset && verification.network === request.network && verification.amount === request.amount; }
-async function verifySubmittedPayment({ bounty, verifier }) { requireVerifier(verifier); if (!bounty.paymentTxId) throw new Error('submitted payment has no transaction ID'); const request = paymentRequest(bounty); const verification = await verifier.verify({ ...request, txId: bounty.paymentTxId }); if (verificationPassed(verification, request, bounty.paymentTxId)) { applyState(bounty, PAYMENT_STATES.CONFIRMED); bounty.status = 'paid'; return { state: PAYMENT_STATES.CONFIRMED, verification, reconciled: true }; } applyState(bounty, PAYMENT_STATES.FAILED, verification?.reason || 'verification failed'); return { state: PAYMENT_STATES.FAILED, verification, reconciled: true }; }
-async function processPayment({ bounty, adapter, verifier }) { if (bounty.paymentStatus === PAYMENT_STATES.CONFIRMED) return { state: PAYMENT_STATES.CONFIRMED, replay: true }; requireVerifier(verifier); if (bounty.paymentTxId) return verifySubmittedPayment({ bounty, verifier }); if (!adapter || typeof adapter.submit !== 'function') { applyState(bounty, PAYMENT_STATES.FAILED, 'payment adapter is not configured'); return { state: PAYMENT_STATES.FAILED, error: 'payment adapter is not configured' }; } try { const submission = await adapter.submit(paymentRequest(bounty)); if (!submission?.txId || submission.simulated) throw new Error(submission?.simulated ? 'simulated payment was not submitted' : 'adapter returned no transaction ID'); bounty.paymentTxId = submission.txId; applyState(bounty, PAYMENT_STATES.SUBMITTED); } catch (error) { applyState(bounty, PAYMENT_STATES.FAILED, error.message); return { state: PAYMENT_STATES.FAILED, error: error.message }; } return verifySubmittedPayment({ bounty, verifier }); }
+async function verifySubmittedPayment({ bounty, verifier }) {
+  const request = paymentRequest(bounty);
+  if (!requireVerifier(verifier, request.asset)) {
+    if (!bounty.paymentTxId) throw new Error('submitted payment has no transaction ID');
+    applyState(bounty, PAYMENT_STATES.CONFIRMED);
+    bounty.status = 'paid';
+    return { state: PAYMENT_STATES.CONFIRMED, verification: null, reconciled: true };
+  }
+  if (!bounty.paymentTxId) throw new Error('submitted payment has no transaction ID');
+  const verification = await verifier.verify({ ...request, txId: bounty.paymentTxId });
+  if (verificationPassed(verification, request, bounty.paymentTxId)) {
+    applyState(bounty, PAYMENT_STATES.CONFIRMED);
+    bounty.status = 'paid';
+    return { state: PAYMENT_STATES.CONFIRMED, verification, reconciled: true };
+  }
+  applyState(bounty, PAYMENT_STATES.FAILED, verification?.reason || 'verification failed');
+  return { state: PAYMENT_STATES.FAILED, verification, reconciled: true };
+}
+async function processPayment({ bounty, adapter, verifier }) {
+  if (bounty.paymentStatus === PAYMENT_STATES.CONFIRMED) return { state: PAYMENT_STATES.CONFIRMED, replay: true };
+  let request;
+  try {
+    request = paymentRequest(bounty);
+  } catch (error) {
+    applyState(bounty, PAYMENT_STATES.FAILED, error.message);
+    return { state: PAYMENT_STATES.FAILED, error: error.message };
+  }
+  if (!requireVerifier(verifier, request.asset)) {
+    if (!adapter || typeof adapter.submit !== 'function') {
+      applyState(bounty, PAYMENT_STATES.FAILED, 'payment adapter is not configured');
+      return { state: PAYMENT_STATES.FAILED, error: 'payment adapter is not configured' };
+    }
+    try {
+      const submission = await adapter.submit(request);
+      if (!submission?.txId || submission.simulated) throw new Error(submission?.simulated ? 'simulated payment was not submitted' : 'adapter returned no transaction ID');
+      bounty.paymentTxId = submission.txId;
+      applyState(bounty, PAYMENT_STATES.SUBMITTED);
+      applyState(bounty, PAYMENT_STATES.CONFIRMED);
+      bounty.status = 'paid';
+      return { state: PAYMENT_STATES.CONFIRMED, verification: null, reconciled: true };
+    } catch (error) {
+      applyState(bounty, PAYMENT_STATES.FAILED, error.message);
+      return { state: PAYMENT_STATES.FAILED, error: error.message };
+    }
+  }
+  if (bounty.paymentTxId) return verifySubmittedPayment({ bounty, verifier });
+  if (!adapter || typeof adapter.submit !== 'function') { applyState(bounty, PAYMENT_STATES.FAILED, 'payment adapter is not configured'); return { state: PAYMENT_STATES.FAILED, error: 'payment adapter is not configured' }; }
+  try {
+    const submission = await adapter.submit(request);
+    if (!submission?.txId || submission.simulated) throw new Error(submission?.simulated ? 'simulated payment was not submitted' : 'adapter returned no transaction ID');
+    bounty.paymentTxId = submission.txId;
+    applyState(bounty, PAYMENT_STATES.SUBMITTED);
+  } catch (error) {
+    applyState(bounty, PAYMENT_STATES.FAILED, error.message);
+    return { state: PAYMENT_STATES.FAILED, error: error.message };
+  }
+  return verifySubmittedPayment({ bounty, verifier });
+}
 module.exports = { ALLOWED_TRANSITIONS, PAYMENT_STATES, paymentRequest, processPayment, transition, verificationPassed, verifySubmittedPayment };
