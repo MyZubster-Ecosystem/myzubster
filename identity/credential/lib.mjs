@@ -2,17 +2,56 @@ import crypto from 'node:crypto';
 
 export const SCHEMA_VERSION = 'myzubster-technical-identity/v1';
 
+function hasLoneSurrogate(value) {
+  for (let index = 0; index < value.length; index += 1) {
+    const code = value.charCodeAt(index);
+    if (code >= 0xd800 && code <= 0xdbff) {
+      const next = value.charCodeAt(index + 1);
+      if (!(next >= 0xdc00 && next <= 0xdfff)) return true;
+      index += 1;
+    } else if (code >= 0xdc00 && code <= 0xdfff) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function assertJsonValue(value, path = '$') {
+  if (value === null || typeof value === 'boolean') return;
+  if (typeof value === 'string') {
+    if (hasLoneSurrogate(value)) throw new TypeError(path + ' must contain valid Unicode');
+    return;
+  }
+  if (typeof value === 'number') {
+    if (!Number.isFinite(value)) throw new TypeError(path + ' must contain a finite JSON number');
+    return;
+  }
+  if (Array.isArray(value)) {
+    value.forEach((entry, index) => assertJsonValue(entry, path + '[' + index + ']'));
+    return;
+  }
+  if (typeof value === 'object' && Object.getPrototypeOf(value) === Object.prototype) {
+    for (const [key, entry] of Object.entries(value)) {
+      if (hasLoneSurrogate(key)) throw new TypeError(path + ' must contain valid Unicode property names');
+      assertJsonValue(entry, path + '.' + key);
+    }
+    return;
+  }
+  throw new TypeError(path + ' must contain only JSON-compatible values');
+}
+
 function stable(value) {
   if (Array.isArray(value)) return value.map(stable);
   if (value && typeof value === 'object') {
     return Object.fromEntries(Object.keys(value).sort().map((key) => [key, stable(value[key])]));
   }
-  return value;
+  return Object.is(value, -0) ? 0 : value;
 }
 
 export function canonicalCredential(credential) {
   const payload = structuredClone(credential);
   delete payload.signature;
+  assertJsonValue(payload);
   return JSON.stringify(stable(payload));
 }
 
@@ -35,8 +74,42 @@ export function signCredential(unsignedCredential, privateKey) {
   return { ...structuredClone(unsignedCredential), signature };
 }
 
-function validDate(value) {
-  return typeof value === 'string' && Number.isFinite(Date.parse(value));
+function parseCanonicalTimestamp(value) {
+  if (typeof value !== 'string'
+    || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/.test(value)) return NaN;
+  const timestamp = Date.parse(value);
+  if (!Number.isFinite(timestamp)) return NaN;
+  const canonical = new Date(timestamp).toISOString();
+  return value === canonical || value === canonical.replace('.000Z', 'Z') ? timestamp : NaN;
+}
+
+function decodeBase64(value) {
+  if (typeof value !== 'string' || value.length % 4 !== 0
+    || !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(value)) return null;
+  const decoded = Buffer.from(value, 'base64');
+  return decoded.toString('base64') === value ? decoded : null;
+}
+
+function inspectRegistry(registry) {
+  const objectReadable = registry !== null && typeof registry === 'object' && !Array.isArray(registry);
+  const keys = objectReadable && Array.isArray(registry.keys) ? registry.keys : [];
+  const revoked = objectReadable && Array.isArray(registry.revoked_key_ids) ? registry.revoked_key_ids : [];
+  const entriesWellFormed = keys.every((entry) => entry !== null
+    && typeof entry === 'object'
+    && !Array.isArray(entry)
+    && typeof entry.id === 'string'
+    && typeof entry.algorithm === 'string'
+    && typeof entry.status === 'string'
+    && typeof entry.public_key_pem === 'string');
+  const revokedWellFormed = revoked.every((id) => typeof id === 'string');
+  const ids = entriesWellFormed ? keys.map((entry) => entry.id) : [];
+  return {
+    keys,
+    revoked,
+    wellFormed: objectReadable && Array.isArray(registry.keys)
+      && Array.isArray(registry.revoked_key_ids) && entriesWellFormed && revokedWellFormed,
+    uniqueIds: entriesWellFormed && new Set(ids).size === ids.length,
+  };
 }
 
 function trustedOrganization(value) {
@@ -53,19 +126,19 @@ function trustedOrganization(value) {
 
 export function verifyCredential(credential, registry, now = new Date()) {
   const objectReadable = credential !== null && typeof credential === 'object' && !Array.isArray(credential);
-  const keys = Array.isArray(registry?.keys) ? registry.keys : [];
-  const trustedKey = objectReadable ? keys.find((entry) => entry.id === credential.key_id) : undefined;
+  const registryInspection = inspectRegistry(registry);
+  const trustedKey = objectReadable && registryInspection.wellFormed && registryInspection.uniqueIds
+    ? registryInspection.keys.find((entry) => entry.id === credential.key_id)
+    : undefined;
   let fingerprintMatches = false;
   let signatureValid = false;
 
   if (trustedKey?.public_key_pem) {
     try {
       fingerprintMatches = publicKeyId(trustedKey.public_key_pem) === trustedKey.id;
-      const signature = typeof credential.signature === 'string'
-        ? Buffer.from(credential.signature, 'base64')
-        : Buffer.alloc(0);
+      const signature = decodeBase64(credential.signature);
       signatureValid = fingerprintMatches
-        && signature.length === 64
+        && signature?.length === 64
         && crypto.verify(null, Buffer.from(canonicalCredential(credential)), trustedKey.public_key_pem, signature);
     } catch {
       fingerprintMatches = false;
@@ -73,10 +146,9 @@ export function verifyCredential(credential, registry, now = new Date()) {
     }
   }
 
-  const issued = objectReadable && validDate(credential.issued_at) ? Date.parse(credential.issued_at) : NaN;
-  const expires = objectReadable && validDate(credential.expires_at) ? Date.parse(credential.expires_at) : NaN;
+  const issued = objectReadable ? parseCanonicalTimestamp(credential.issued_at) : NaN;
+  const expires = objectReadable ? parseCanonicalTimestamp(credential.expires_at) : NaN;
   const timestamp = now.getTime();
-  const revokedIds = Array.isArray(registry?.revoked_key_ids) ? registry.revoked_key_ids : [];
   const checks = {
     schema_readable: objectReadable,
     schema_version_supported: objectReadable && credential.schema_version === SCHEMA_VERSION,
@@ -84,11 +156,15 @@ export function verifyCredential(credential, registry, now = new Date()) {
     legal_identity_claim_disabled: objectReadable && credential.claims?.legal_identity_document === false,
     github_org_present: objectReadable && trustedOrganization(credential.subject?.github_organization),
     validity_window_well_formed: Number.isFinite(issued) && Number.isFinite(expires) && issued < expires,
+    issued_not_in_future: Number.isFinite(issued) && issued <= timestamp,
     currently_valid: Number.isFinite(issued) && Number.isFinite(expires) && issued <= timestamp && timestamp <= expires,
+    registry_well_formed: registryInspection.wellFormed,
+    registry_key_ids_unique: registryInspection.uniqueIds,
     key_trusted: Boolean(trustedKey),
     key_algorithm_ed25519: trustedKey?.algorithm === 'Ed25519',
     key_active: trustedKey?.status === 'active',
-    key_not_revoked: objectReadable && !revokedIds.includes(credential.key_id),
+    key_not_revoked: objectReadable && registryInspection.wellFormed
+      && !registryInspection.revoked.includes(credential.key_id),
     key_fingerprint_matches: fingerprintMatches,
     signature_valid: signatureValid,
   };
@@ -99,6 +175,7 @@ export function verifyCredential(credential, registry, now = new Date()) {
     credential_id: objectReadable && typeof credential.credential_id === 'string' ? credential.credential_id : null,
     key_id: objectReadable && typeof credential.key_id === 'string' ? credential.key_id : null,
     checks,
+    registry_freshness: 'not_evaluated; caller must authenticate and refresh the registry source',
     scope: 'self-attested technical/project identity only; not legal identity certification',
   };
 }
