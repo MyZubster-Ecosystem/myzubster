@@ -1,0 +1,68 @@
+name: Notify
+
+on:
+  workflow_call:
+    inputs:
+      status:
+        description: Result of the calling pipeline (success, failure, cancelled, skipped)
+        required: true
+        type: string
+      environment:
+        description: Name of the pipeline (e.g. CI, Staging deploy, Production deploy)
+        required: true
+        type: string
+    secrets:
+      TELEGRAM_BOT_TOKEN:
+        required: false
+      TELEGRAM_CHAT_ID:
+        required: false
+      SLACK_WEBHOOK_URL:
+        required: false
+
+jobs:
+  notify:
+    name: Send build notifications
+    runs-on: ubuntu-latest
+    steps:
+      - name: Compose message
+        id: message
+        run: |
+          case "${{ inputs.status }}" in
+            success)   ICON="✅" ;;
+            failure)   ICON="❌" ;;
+            cancelled) ICON="⚠️" ;;
+            *)         ICON="ℹ️" ;;
+          esac
+          {
+            echo "message<<EOF_NOTIFY"
+            printf '%s MyZubster - %s: %s\n' "$ICON" "${{ inputs.environment }}" "${{ inputs.status }}"
+            printf 'Repository: %s\n' "${{ github.repository }}"
+            printf 'Branch: %s\n' "${{ github.ref_name }}"
+            printf 'Commit: %s\n' "${{ github.sha }}"
+            printf 'Triggered by: %s\n' "${{ github.actor }}"
+            printf 'Run: %s/%s/actions/runs/%s\n' "${{ github.server_url }}" "${{ github.repository }}" "${{ github.run_id }}"
+            echo "EOF_NOTIFY"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Send Telegram alert
+        if: ${{ secrets.TELEGRAM_BOT_TOKEN != '' && secrets.TELEGRAM_CHAT_ID != '' }}
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          MESSAGE: ${{ steps.message.outputs.message }}
+        run: |
+          curl -sf -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}" \
+            --data-urlencode "text=${MESSAGE}" \
+            --data-urlencode "disable_web_page_preview=true" \
+            || echo "::warning::Telegram notification failed"
+
+      - name: Send Slack alert
+        if: ${{ secrets.SLACK_WEBHOOK_URL != '' }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          MESSAGE: ${{ steps.message.outputs.message }}
+        run: |
+          PAYLOAD=$(jq -cn --arg text "$MESSAGE" '{text: $text}')
+          curl -sf -X POST -H 'Content-Type: application/json' -d "$PAYLOAD" "$SLACK_WEBHOOK_URL" \
+            || echo "::warning::Slack notification failed"

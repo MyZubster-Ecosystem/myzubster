@@ -1,36 +1,51 @@
-name: CI – Test e Lint
+name: CI
 
 on:
-  pull_request:
-    branches: [main, develop]
   push:
-    branches: [main]
-  workflow_dispatch:
+    branches: ["**"]
+  pull_request:
 
-permissions:
-  contents: read
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
+    name: Install & Test (Node ${{ matrix.node-version }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: ["20.x", "22.x"]
     steps:
-      - name: Checkout codice
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Set up Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
-          node-version-file: package.json
-          cache: npm
+          node-version: ${{ matrix.node-version }}
 
-      - name: Installa dipendenze
-        run: npm ci
+      - name: Install dependencies
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci --no-audit --no-fund
+          else
+            npm install --no-audit --no-fund
+          fi
 
       - name: Lint
         run: npm run lint --if-present
 
-      - name: Unit test
-        run: npm test
+      - name: Run tests
+        run: npm test --if-present
 
-      - name: Build
-        run: npm run build --if-present
+  notify:
+    name: Notify build status
+    if: always() && needs.test.result != 'cancelled'
+    needs: test
+    uses: ./.github/workflows/notify.yml
+    with:
+      status: ${{ needs.test.result }}
+      environment: CI
+    secrets: inherit

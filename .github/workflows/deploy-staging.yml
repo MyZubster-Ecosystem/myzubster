@@ -1,0 +1,96 @@
+name: Deploy Staging
+
+on:
+  push:
+    branches: [dev]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: false
+
+jobs:
+  test:
+    name: Pre-deploy tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.x"
+
+      - name: Install dependencies
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci --no-audit --no-fund
+          else
+            npm install --no-audit --no-fund
+          fi
+
+      - name: Run tests
+        run: npm test --if-present
+
+  deploy:
+    name: Deploy to staging
+    needs: test
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.x"
+
+      - name: Install dependencies
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci --no-audit --no-fund
+          else
+            npm install --no-audit --no-fund
+          fi
+
+      - name: Build
+        run: npm run build --if-present
+
+      - name: Run project deploy script
+        run: npm run deploy:staging --if-present
+
+      - name: Deploy via SSH (if configured)
+        env:
+          DEPLOY_HOST: ${{ secrets.STAGING_HOST }}
+          DEPLOY_USER: ${{ secrets.STAGING_USER }}
+          DEPLOY_KEY: ${{ secrets.STAGING_SSH_KEY }}
+          DEPLOY_PATH: ${{ vars.STAGING_DEPLOY_PATH }}
+        run: |
+          if [ -z "$DEPLOY_HOST" ] || [ -z "$DEPLOY_KEY" ]; then
+            echo "::warning::STAGING_HOST / STAGING_SSH_KEY are not configured - skipping SSH deploy."
+            exit 0
+          fi
+          TARGET_PATH="${DEPLOY_PATH:-/var/www/myzubster}"
+          mkdir -p ~/.ssh
+          printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          rsync -az --delete \
+            --exclude '.git' --exclude 'node_modules' --exclude '.env*' \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new" \
+            ./ "${DEPLOY_USER:-deploy}@${DEPLOY_HOST}:${TARGET_PATH}/"
+          ssh -i ~/.ssh/deploy_key "${DEPLOY_USER:-deploy}@${DEPLOY_HOST}" \
+            "cd ${TARGET_PATH} && (npm ci --omit=dev --no-audit --no-fund || npm install --omit=dev --no-audit --no-fund) && (command -v pm2 >/dev/null && pm2 restart all --update-env || echo 'pm2 not found - skipping process restart')"
+
+  notify:
+    name: Notify deployment status
+    if: always()
+    needs: [test, deploy]
+    uses: ./.github/workflows/notify.yml
+    with:
+      status: ${{ needs.deploy.result }}
+      environment: Staging deploy
+    secrets: inherit
