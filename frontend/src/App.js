@@ -62,8 +62,8 @@ function App() {
     return <AppsDownloadPage />;
   }
 
-  if (['/entities', '/agents', '/assistants'].includes(path)) {
-    return <AgentsPage />;
+  if (['/entities', '/agents', '/assistants', '/entity-bounties'].includes(path)) {
+    return <AgentsPage initialPanel={path === '/entity-bounties' ? 'bounties' : 'chat'} />;
   }
 
   if (path === '/onboarding') {

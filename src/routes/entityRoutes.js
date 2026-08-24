@@ -1,6 +1,10 @@
 const express = require('express');
 const rateLimit = require('express-rate-limit');
 const entities = require('../../frontend/src/data/canonicalEntities.json');
+const {
+  buildEntityBundle,
+  buildProgramBundle
+} = require('../services/entityBountyService');
 
 const router = express.Router();
 const OLLAMA_URL = String(process.env.OLLAMA_URL || 'http://127.0.0.1:11434').replace(/\/+$/, '');
@@ -82,11 +86,13 @@ async function ollamaChat(entity, message) {
 }
 
 router.get('/', (_req, res) => {
+  const bountyProgram = buildProgramBundle(entities);
   res.json({
     ok: true,
     schemaVersion: '1.0.0',
     count: entities.length,
     entities: entities.map(publicEntity),
+    bountyProgram: bountyProgram.summary,
     policy: {
       localFirst: true,
       evidenceFirst: true,
@@ -94,6 +100,17 @@ router.get('/', (_req, res) => {
       automaticSettlement: false
     }
   });
+});
+
+router.get('/bounties', (req, res) => {
+  const track = typeof req.query.track === 'string'
+    ? req.query.track.trim().toLowerCase()
+    : null;
+  const status = typeof req.query.status === 'string'
+    ? req.query.status.trim().toUpperCase()
+    : null;
+
+  return res.json(buildProgramBundle(entities, { track, status }));
 });
 
 router.get('/:slug/status', async (req, res) => {
@@ -110,6 +127,12 @@ router.get('/:slug/status', async (req, res) => {
   } catch (error) {
     return res.json({ ok: true, entity: entity.id, provider: 'registry', model: null, available: true, modelLoaded: false, mode: 'guided-fallback', detail: 'Motore generativo non raggiungibile; guida canonica disponibile.' });
   }
+});
+
+router.get('/:slug/bounties', (req, res) => {
+  const entity = findEntity(req.params.slug);
+  if (!entity) return res.status(404).json({ ok: false, error: 'Entità non trovata' });
+  return res.json(buildEntityBundle(entity));
 });
 
 router.get('/:slug', (req, res) => {

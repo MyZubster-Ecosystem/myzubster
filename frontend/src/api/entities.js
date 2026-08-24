@@ -14,6 +14,17 @@ export async function getEntityStatus(slug) {
   return data;
 }
 
+export async function getEntityBounties(slug) {
+  const response = await fetch(`/api/entities/${encodeURIComponent(slug)}/bounties`, {
+    headers: { Accept: 'application/json' }
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok || !data.ok || !Array.isArray(data.bounties)) {
+    throw new Error(data.error || 'Bounty entità non disponibili');
+  }
+  return data;
+}
+
 export async function askEntity(slug, message) {
   const response = await fetch(`/api/entities/${encodeURIComponent(slug)}/chat`, {
     method: 'POST',
