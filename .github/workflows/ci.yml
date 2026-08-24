@@ -31,11 +31,12 @@ jobs:
 
       - name: Installa dipendenze frontend
         working-directory: frontend
-        # The current frontend manifest contains Leaflet dependencies that are
-        # not yet represented in the committed lockfile. Keep CI observable and
-        # test the actual manifest without forcing/hand-editing lock metadata.
-        # Restore `npm ci` once frontend/package-lock.json is regenerated and
-        # committed by a dedicated dependency-maintenance change.
+        # Known baseline drift: frontend/package.json declares Leaflet packages
+        # not yet represented in frontend/package-lock.json. `npm install` keeps
+        # the CI fix observable without hand-editing lock metadata. A dedicated
+        # dependency-maintenance change must regenerate/commit the lockfile and
+        # restore this step to `npm ci` before treating lock reproducibility as
+        # fully remediated.
         run: npm install --no-audit --no-fund
 
       - name: Lint backend
