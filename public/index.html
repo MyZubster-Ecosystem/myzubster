@@ -3,64 +3,37 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MyZubster Gateway</title>
-  <meta name="description" content="MyZubster Ecosystem Gateway">
+  <title>MyZubster — Ecosystem & Downloads</title>
+  <meta name="description" content="MyZubster ecosystem: orti, osservazioni, Zorgax, app e MyZubster TV.">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: Arial, Helvetica, sans-serif; min-height: 100vh; color: #fff; background: radial-gradient(circle at top left, #3b176d 0%, transparent 35%), radial-gradient(circle at bottom right, #0d5c55 0%, transparent 35%), #090914; }
-    .container { width: min(1200px, 94%); margin: auto; padding: 40px 0; }
-    header { text-align: center; margin-bottom: 45px; }
-    .logo { font-size: 70px; margin-bottom: 10px; }
-    h1 { font-size: clamp(2.4rem, 6vw, 4.5rem); background: linear-gradient(90deg, #a855f7, #ec4899, #22c55e); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .subtitle { margin-top: 10px; color: #aaa; font-size: 1.1rem; }
-    .status { display: inline-block; margin-top: 18px; padding: 8px 18px; border-radius: 30px; background: rgba(34,197,94,.15); border: 1px solid rgba(34,197,94,.4); color: #4ade80; }
-    section { margin-bottom: 40px; } h2 { margin-bottom: 18px; font-size: 1.5rem; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
-    a.card { display: block; padding: 22px; text-decoration: none; color: #fff; border-radius: 18px; background: rgba(255,255,255,.055); border: 1px solid rgba(255,255,255,.1); transition: .2s; }
-    a.card:hover { transform: translateY(-4px); border-color: #a855f7; background: rgba(168,85,247,.12); }
-    .icon { font-size: 2rem; margin-bottom: 10px; } .name { font-size: 1.1rem; font-weight: bold; } .path { margin-top: 7px; color: #999; font-size: .85rem; word-break: break-all; }
-    footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1px solid rgba(255,255,255,.08); color: #777; } footer a { color: #a855f7; text-decoration: none; margin: 0 10px; }
+    *{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,Helvetica,sans-serif;min-height:100vh;color:#fff;background:radial-gradient(circle at top left,#3b176d 0%,transparent 35%),radial-gradient(circle at bottom right,#0d5c55 0%,transparent 35%),#090914}.container{width:min(1200px,94%);margin:auto;padding:40px 0}header{text-align:center;margin-bottom:45px}.logo{font-size:70px;margin-bottom:10px}h1{font-size:clamp(2.4rem,6vw,4.5rem);background:linear-gradient(90deg,#a855f7,#ec4899,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent}.subtitle{margin:10px auto 0;color:#bbb;font-size:1.1rem;max-width:760px;line-height:1.55}.status,.badge{display:inline-block;margin-top:18px;padding:8px 18px;border-radius:30px;background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.4);color:#4ade80}.badge{margin:0 0 12px;font-size:.78rem}.badge.dev{color:#facc15;border-color:rgba(250,204,21,.4);background:rgba(250,204,21,.1)}section{margin-bottom:40px}h2{margin-bottom:18px;font-size:1.5rem}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}.card{display:block;padding:22px;text-decoration:none;color:#fff;border-radius:18px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.1);transition:.2s}.card:hover{transform:translateY(-4px);border-color:#a855f7;background:rgba(168,85,247,.12)}.icon{font-size:2rem;margin-bottom:10px}.name{font-size:1.1rem;font-weight:bold}.path,.desc{margin-top:7px;color:#aaa;font-size:.88rem;line-height:1.45}.download{border-color:rgba(34,197,94,.35)}.notice{padding:18px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:#bbb;line-height:1.55;margin-top:16px}.hash{margin-top:10px;color:#9ca3af;font-size:.78rem;line-height:1.35;word-break:break-all}footer{text-align:center;margin-top:50px;padding-top:25px;border-top:1px solid rgba(255,255,255,.08);color:#777}footer a{color:#a855f7;text-decoration:none;margin:0 10px}
   </style>
 </head>
 <body><div class="container">
-<header><div class="logo">👽</div><h1>MyZubster</h1><div class="subtitle">MyZubster Ecosystem Gateway</div><div class="status">● Gateway Online</div></header>
+<header><div class="logo">👽</div><h1>MyZubster</h1><div class="subtitle">Un unico punto di accesso all'ecosistema MyZubster: osservazioni, orti, Zorgax, app mobile e esperienza TV.</div><div class="status">● Gateway Online</div></header>
+
+<section id="downloads"><h2>📲 Download MyZubster</h2><div class="grid">
+<a class="card download" href="https://github.com/MyZubster-Ecosystem/MyZubster-App" target="_blank" rel="noopener"><span class="badge">APP</span><div class="icon">📱</div><div class="name">MyZubster App</div><div class="desc">Repository ufficiale dell'app Android. Le build pubbliche verificate saranno collegate qui quando disponibili come release.</div><div class="path">GitHub · MyZubster-App</div></a>
+<a class="card download" href="https://drive.google.com/uc?export=download&id=18zJD_T_YdBSkE01BpHXUes62yvJF1dBK" target="_blank" rel="noopener"><span class="badge dev">TEST BUILD · DOWNLOAD</span><div class="icon">📺</div><div class="name">MyZubster TV — Google TV / Android TV</div><div class="desc">Scarica il pacchetto di test archiviato della build Android TV. È una build debug/RC: installabile per il collaudo, ma non ancora dichiarata stabile finché non supera il gate su dispositivo reale.</div><div class="path">MYZUBSTER-TV-DEBUG-APK-001.zip · source commit 3c7236c</div><div class="hash"><strong>SHA-256:</strong> ff782915f1cfeb79300136819971db071cb99957f454220b10ef49bc57b80bad</div></a>
+<a class="card" href="https://github.com/MyZubster-Ecosystem/myzubster/pull/641" target="_blank" rel="noopener"><span class="badge dev">BUILD EVIDENCE</span><div class="icon">🧾</div><div class="name">Verifica build TV</div><div class="desc">Provenance, workflow, artifact ID e confine di verifica della build TV.</div><div class="path">GitHub · build evidence</div></a>
+<a class="card" href="https://github.com/MyZubster-Ecosystem/myzubster" target="_blank" rel="noopener"><span class="badge dev">COMING NEXT</span><div class="icon">🧪</div><div class="name">MyZubster Beta</div><div class="desc">La nuova beta avrà un download dedicato da MyZubster dopo build, firma/checksum e verifica. Nessun link fittizio viene pubblicato prima dell'artefatto.</div><div class="path">Beta channel · in preparazione</div></a>
+</div><div class="notice"><strong>Download sicuri:</strong> MyZubster distingue sempre build di test, beta e release stabile. La build TV qui collegata è l'archivio già registrato nella provenance del progetto; il checksum permette di verificare che il file scaricato corrisponda all'artefatto documentato. Il download non implica ancora compatibilità verificata su ogni Google TV/Android TV.</div></section>
+
 <section><h2>🚀 Ecosistema</h2><div class="grid">
+<a class="card" href="/come-funziona"><div class="icon">🧭</div><div class="name">Come funziona</div><div class="path">/come-funziona</div></a>
+<a class="card" href="/zorgax"><div class="icon">👽</div><div class="name">Zorgax</div><div class="path">/zorgax</div></a>
+<a class="card" href="/api/gardens"><div class="icon">🌳</div><div class="name">Orti</div><div class="path">/api/gardens</div></a>
+<a class="card" href="/observation-explorer.html"><div class="icon">🗺️</div><div class="name">Observation Explorer</div><div class="path">/observation-explorer.html</div></a>
+<a class="card" href="/photos.html"><div class="icon">📷</div><div class="name">Photo Archive</div><div class="path">/photos.html</div></a>
+<a class="card" href="/fumetto"><div class="icon">🎨</div><div class="name">MyZubster Chronicle</div><div class="path">/fumetto</div></a>
+</div></section>
+
+<section><h2>🛠️ Servizi verificabili</h2><div class="grid">
 <a class="card" href="/api/health"><div class="icon">❤️</div><div class="name">Health</div><div class="path">/api/health</div></a>
 <a class="card" href="/api/status"><div class="icon">📡</div><div class="name">Status</div><div class="path">/api/status</div></a>
-<a class="card" href="/api/info"><div class="icon">ℹ️</div><div class="name">Gateway Info</div><div class="path">/api/info</div></a>
-<a class="card" href="/api/gardens"><div class="icon">🌳</div><div class="name">Gardens</div><div class="path">/api/gardens</div></a>
-</div></section>
-<section><h2>🌍 Observations</h2><div class="grid">
-<a class="card" href="/photos.html"><div class="icon">📷</div><div class="name">Photo Archive</div><div class="path">/photos.html</div></a>
-<a class="card" href="/observation-explorer.html"><div class="icon">🗺️</div><div class="name">Observation Explorer</div><div class="path">/observation-explorer.html</div></a>
-</div></section>
-<section><h2>🌿 Plants & Gardens</h2><div class="grid">
-<a class="card" href="/api/plants"><div class="icon">🌱</div><div class="name">Plants</div><div class="path">/api/plants</div></a>
-<a class="card" href="/api/gardens"><div class="icon">🌳</div><div class="name">Urban Gardens</div><div class="path">/api/gardens</div></a>
-<a class="card" href="/api/nearby"><div class="icon">📍</div><div class="name">Nearby</div><div class="path">/api/nearby</div></a>
-<a class="card" href="/api/geocode"><div class="icon">🗺️</div><div class="name">Geocode</div><div class="path">/api/geocode</div></a>
-</div></section>
-<section><h2>💰 Economy</h2><div class="grid">
 <a class="card" href="/api/bounties"><div class="icon">🎯</div><div class="name">Bounties</div><div class="path">/api/bounties</div></a>
-<a class="card" href="/api/rewards"><div class="icon">🏆</div><div class="name">Rewards</div><div class="path">/api/rewards</div></a>
-<a class="card" href="/api/referrals"><div class="icon">🔗</div><div class="name">Referrals</div><div class="path">/api/referrals</div></a>
-<a class="card" href="/api/coupons"><div class="icon">🎟️</div><div class="name">Coupons</div><div class="path">/api/coupons</div></a>
+<a class="card" href="/api/research"><div class="icon">🔎</div><div class="name">Research</div><div class="path">/api/research</div></a>
 </div></section>
-<section><h2>👥 Users & Content</h2><div class="grid">
-<a class="card" href="/api/auth"><div class="icon">🔐</div><div class="name">Authentication</div><div class="path">/api/auth</div></a>
-<a class="card" href="/api/users"><div class="icon">👤</div><div class="name">Users</div><div class="path">/api/users</div></a>
-<a class="card" href="/api/listings"><div class="icon">📋</div><div class="name">Listings</div><div class="path">/api/listings</div></a>
-<a class="card" href="/api/search"><div class="icon">🔎</div><div class="name">Search</div><div class="path">/api/search</div></a>
-</div></section>
-<section><h2>🚀 Services</h2><div class="grid">
-<a class="card" href="/api/trips"><div class="icon">✈️</div><div class="name">Trips</div><div class="path">/api/trips</div></a>
-<a class="card" href="/api/ai-forward"><div class="icon">🧠</div><div class="name">AI Forward</div><div class="path">/api/ai-forward</div></a>
-<a class="card" href="/api/grok/status"><div class="icon">🤖</div><div class="name">Grok AI</div><div class="path">/api/grok/status</div></a>
-<a class="card" href="/temporal"><div class="icon">⏳</div><div class="name">Pytho Temporal</div><div class="path">/temporal</div></a>
-</div></section>
-<section><h2>🔗 Ecosystem Links</h2><div class="grid">
-<a class="card" href="/api/dashboard"><div class="icon">📊</div><div class="name">Dashboard</div><div class="path">/api/dashboard</div></a>
-<a class="card" href="https://github.com/MyZubster-Ecosystem/MyZubsterGateway" target="_blank"><div class="icon">🐙</div><div class="name">GitHub</div><div class="path">MyZubsterGateway</div></a>
-</div></section>
-<footer><div>👽 MyZubster Ecosystem</div><div style="margin-top:10px"><a href="/api/health">Health</a><a href="/api/status">Status</a><a href="/api/info">Info</a><a href="/photos.html">Photos</a><a href="/observation-explorer.html">Explorer</a><a href="/ecosystem.html">Ecosystem</a><a href="/ecosystem-dashboard.html">Dashboard</a><a href="https://github.com/MyZubster-Ecosystem/MyZubsterGateway" target="_blank">GitHub</a></div><div style="margin-top:15px">MIT License · 2024-2026</div></footer>
+
+<footer><div>👽 MyZubster Ecosystem</div><div style="margin-top:10px"><a href="#downloads">Download</a><a href="/come-funziona">Come funziona</a><a href="/zorgax">Zorgax</a><a href="https://github.com/MyZubster-Ecosystem/myzubster" target="_blank" rel="noopener">GitHub</a></div><div style="margin-top:15px">MIT License · 2024-2026</div></footer>
 </div></body></html>
