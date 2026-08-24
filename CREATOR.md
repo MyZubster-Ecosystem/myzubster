@@ -37,6 +37,32 @@ This evidence supports the limited claim that Daniel has documented employment w
 
 Any such relationship requires separate explicit evidence.
 
+## Personal banking boundary
+
+Daniel has declared that the personal bank account used in connection with his employment income is associated with the branch/location at **Rimini — Circonvallazione Occidentale, 72**.
+
+This is recorded only as a **personal banking relationship declared by the creator**. It must not be interpreted as a banking integration, sponsorship, endorsement, treasury service or partnership involving MyZubster.
+
+The correct separation is:
+
+```text
+FUTURA employment income
+        ↓
+Daniel's personal bank account
+        ↓
+personal finances
+
+MYZUBSTER PROJECT / TREASURY
+        ↓
+separate governance + accounting + evidence
+```
+
+No IBAN, account number, card number, login credential, transaction credential or other confidential banking information belongs in this repository.
+
+If Daniel voluntarily contributes personal funds to MyZubster, that contribution must be explicit and separately documented under the applicable project accounting/governance policy. Personal salary or employment income must never be treated as automatic MyZubster funding.
+
+The Rimini branch/location above is user-declared and is not presented here as independently verified evidence of any institutional relationship with MyZubster.
+
 ## Why this separation matters
 
 MyZubster should clearly identify its creator while preserving a clean boundary between:
