@@ -111,6 +111,7 @@ const zorgaxRoutes = require('./src/routes/zorgaxRoutes');
 const githubBountySyncRoutes = require('./src/routes/githubBountySyncRoutes');
 const researchRoutes = require('./src/routes/researchRoutes');
 const municipalityRoutes = require('./src/routes/municipalityRoutes');
+const entityRoutes = require('./src/routes/entityRoutes');
 
 app.post('/api/auth/register', async (_req, res, next) => {
   try {
@@ -144,6 +145,7 @@ app.use('/api/grok', grokRoutes);
 app.use('/api/zorgax', zorgaxRoutes);
 app.use('/api/github-bounties', githubBountySyncRoutes);
 app.use('/api/research', researchRoutes);
+app.use('/api/entities', entityRoutes);
 
 app.get('/', (req, res) => {
   res.status(200).json({
