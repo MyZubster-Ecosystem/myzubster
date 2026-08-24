@@ -1,0 +1,137 @@
+{
+  "schemaVersion": "1.0.0",
+  "updatedAt": "2026-08-24",
+  "network": {
+    "id": "myzubster-dao-v1",
+    "name": "MyZubster DAO",
+    "mode": "off-chain-git-native",
+    "canonicalRepository": "https://github.com/MyZubster-Ecosystem/myzubster",
+    "ledgerPath": "frontend/src/data/daoGovernance.json",
+    "automaticExecution": false,
+    "externalSettlement": false
+  },
+  "constitution": {
+    "decisionModel": "dual-chamber-human-ratification",
+    "approvalThresholdBps": 6000,
+    "timelockHours": 48,
+    "delegationMaxDepth": 1,
+    "chambers": [
+      {
+        "id": "community",
+        "label": "Comunità",
+        "quorum": 3,
+        "weightPerMember": 1
+      },
+      {
+        "id": "stewards",
+        "label": "Steward",
+        "quorum": 2,
+        "weightPerMember": 1
+      }
+    ],
+    "membership": {
+      "source": "git-reviewed-registry",
+      "minimumIndependentReviewers": 2,
+      "publicKeyAlgorithm": "Ed25519",
+      "oneBallotPerKey": true,
+      "sybilResistance": "reviewed-membership"
+    },
+    "aiActors": {
+      "advisoryOnly": true,
+      "bindingVotingWeight": 0,
+      "humanRatificationRequired": true
+    },
+    "execution": {
+      "kind": "human-reviewed-change",
+      "automaticTreasuryTransfers": false,
+      "maintainerApprovalRequired": true,
+      "evidenceRequired": true
+    }
+  },
+  "members": [],
+  "proposals": [
+    {
+      "id": "MIP-001",
+      "version": 1,
+      "title": "Ratifica del programma bounty per entità e visual",
+      "summary": "Portare le 24 bounty proposte sotto un processo DAO con evidenze, doppia camera e ratifica umana.",
+      "description": "La proposta adotta il programma MYZ-ENTITY-COMPLETION-001 come catalogo ufficiale delle attività, mantenendo MYZ come contabilità interna e impedendo qualunque settlement automatico.",
+      "category": "bounty-policy",
+      "proposerDid": "system:bootstrap",
+      "target": {
+        "type": "bounty-program",
+        "id": "MYZ-ENTITY-COMPLETION-001",
+        "url": "/entity-bounties"
+      },
+      "opensAt": "2026-08-24T00:00:00.000Z",
+      "closesAt": "2026-09-07T23:59:59.000Z",
+      "approvalThresholdBps": 6000,
+      "quorum": {
+        "community": 3,
+        "stewards": 2
+      },
+      "timelockHours": 48,
+      "execution": {
+        "kind": "human-reviewed-change",
+        "automatic": false,
+        "deliverable": "Pull request che aggiorna il registro bounty e include evidenze di revisione."
+      }
+    },
+    {
+      "id": "MIP-002",
+      "version": 1,
+      "title": "Standard visuale accessibile per le entità canoniche",
+      "summary": "Definire contrasto, provenienza, licenza e formati minimi dei kit visuali delle 12 entità.",
+      "description": "La proposta rende vincolanti i criteri visuali già inclusi nelle bounty, senza approvare automaticamente singole opere o licenze.",
+      "category": "visual-standard",
+      "proposerDid": "system:bootstrap",
+      "target": {
+        "type": "bounty-track",
+        "id": "visual-identity",
+        "url": "/entity-bounties"
+      },
+      "opensAt": "2026-09-08T00:00:00.000Z",
+      "closesAt": "2026-09-22T23:59:59.000Z",
+      "approvalThresholdBps": 6000,
+      "quorum": {
+        "community": 3,
+        "stewards": 2
+      },
+      "timelockHours": 48,
+      "execution": {
+        "kind": "human-reviewed-change",
+        "automatic": false,
+        "deliverable": "Versione ratificata dello standard visuale e checklist pubblica."
+      }
+    },
+    {
+      "id": "MIP-003",
+      "version": 1,
+      "title": "Ammissione iniziale degli steward umani",
+      "summary": "Avviare la camera degli steward tramite chiavi pubbliche revisionate e conflitti di interesse dichiarati.",
+      "description": "Ogni candidato pubblica la propria chiave Ed25519, una prova di controllo e una dichiarazione dei conflitti. Due reviewer indipendenti sono necessari prima dell'inserimento nel registro.",
+      "category": "membership",
+      "proposerDid": "system:bootstrap",
+      "target": {
+        "type": "dao-registry",
+        "id": "members",
+        "url": "https://github.com/MyZubster-Ecosystem/myzubster/issues"
+      },
+      "opensAt": "2026-08-24T00:00:00.000Z",
+      "closesAt": "2026-09-14T23:59:59.000Z",
+      "approvalThresholdBps": 6000,
+      "quorum": {
+        "community": 3,
+        "stewards": 2
+      },
+      "timelockHours": 48,
+      "execution": {
+        "kind": "human-reviewed-change",
+        "automatic": false,
+        "deliverable": "Pull request con membri, chiavi e prove di revisione."
+      }
+    }
+  ],
+  "ballots": [],
+  "delegations": []
+}

@@ -97,6 +97,7 @@ function LifePortalPage({ initialView = 'home', onNavigate, openLegacy }) {
     ['register', '👤', 'Account MyZubster', 'Crea un account per le funzioni applicative che richiedono autenticazione.'],
     ['agents', '🧠', 'Entità AI', 'Parla con le 12 entità canoniche e ottieni un prossimo passo verificabile.'],
     ['entity-bounties', '🎯', 'Bounty entità', 'Completa le entità e i visual kit con criteri ed evidenze verificabili.'],
+    ['dao', '🏛️', 'DAO verificabile', 'Firma proposte e deleghe con un’identità Ed25519 locale.'],
     ['zorgax', '✨', 'Zorgax AI', 'Esplora il progetto con l’AI pubblica, senza account.'],
     ['municipality', '🏛️', 'Comuni', 'Registra un Comune o un ente territoriale.'],
     ['gardens', '🌱', 'Orti & Pilot', 'Accedi agli orti, al verde urbano e ai siti pilota.'],
@@ -123,6 +124,7 @@ function LifePortalPage({ initialView = 'home', onNavigate, openLegacy }) {
             <a href="/fumetto" style={outlineLink}>Fumetto</a>
             <a href="/entities" style={outlineLink}>Entità AI</a>
             <a href="/entity-bounties" style={outlineLink}>Bounty</a>
+            <a href="/dao" style={outlineLink}>DAO</a>
             <a href="/zorgax" style={linkButton}>Zorgax AI</a>
           </div>
         </div>
@@ -178,6 +180,7 @@ function LifePortalPage({ initialView = 'home', onNavigate, openLegacy }) {
               <button key={id} onClick={() => {
                 if (id === 'agents') window.location.assign('/entities');
                 else if (id === 'entity-bounties') window.location.assign('/entity-bounties');
+                else if (id === 'dao') window.location.assign('/dao');
                 else if (id === 'zorgax') window.location.assign('/zorgax');
                 else if (id === 'identity') window.location.assign('/onboarding');
                 else goToView(id);
