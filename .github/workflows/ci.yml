@@ -7,11 +7,8 @@ on:
     branches: [main]
   workflow_dispatch:
 
-# TEMPORARY bootstrap permission: this branch-only CI run regenerates and commits
-# frontend/package-lock.json from frontend/package.json. This is reverted to
-# contents: read immediately after the generated lockfile lands.
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   test:
@@ -19,8 +16,6 @@ jobs:
     steps:
       - name: Checkout codice
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -33,18 +28,6 @@ jobs:
 
       - name: Installa dipendenze backend
         run: npm ci
-
-      - name: Rigenera e committa lockfile frontend
-        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
-        run: |
-          npm install --package-lock-only --no-audit --no-fund --prefix frontend
-          if ! git diff --quiet -- frontend/package-lock.json; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add frontend/package-lock.json
-            git commit -m "fix(ci): sync frontend lockfile"
-            git push origin HEAD:${{ github.head_ref }}
-          fi
 
       - name: Installa dipendenze frontend
         working-directory: frontend
