@@ -22,15 +22,29 @@ jobs:
         with:
           node-version-file: package.json
           cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            frontend/package-lock.json
 
-      - name: Installa dipendenze
+      - name: Installa dipendenze backend
         run: npm ci
 
-      - name: Lint
+      - name: Lint backend
         run: npm run lint --if-present
 
-      - name: Unit test
+      - name: Unit test backend
         run: npm test
 
-      - name: Build
-        run: npm run build --if-present
+      - name: Installa dipendenze frontend
+        working-directory: frontend
+        run: npm ci
+
+      - name: Unit test frontend
+        working-directory: frontend
+        env:
+          CI: 'true'
+        run: npm test -- --watchAll=false
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
