@@ -13,15 +13,16 @@ The profile URL was supplied directly by the creator. This record establishes th
 ## Instagram
 
 - Handle shown in supplied account screenshot: `@daniel.nonso.9699`
-- Profile: https://www.instagram.com/daniel.nonso.9699/
-- Evidence status: `CREATOR_SUPPLIED_SCREENSHOT`
+- Exact creator-supplied link: https://www.instagram.com/daniel.nonso.9699?igsi=cG1lZzV5aDNxbmo0
+- Canonical profile: https://www.instagram.com/daniel.nonso.9699/
+- Evidence status: `CREATOR_SUPPLIED_SCREENSHOT_AND_LINK`
 
-The creator supplied a screenshot showing the Instagram account `daniel.nonso.9699`. The screenshot also shows the associated Facebook profile inside Meta's account interface. This documents the creator-declared account association; it is not a platform verification badge or independent identity verification.
+The creator supplied both the account screenshot and the exact Instagram link above. The screenshot also shows the associated Facebook profile inside Meta's account interface. This documents the creator-declared account association; it is not a platform verification badge or independent identity verification.
 
 ## Facebook
 
 - Display name shown in supplied screenshots: `Dani El`
-- Creator-supplied share link: https://www.facebook.com/share/19k8akLkgZ/
+- Exact creator-supplied share link: https://www.facebook.com/share/19k8akLkgZ/
 - Evidence status: `CREATOR_SUPPLIED_SCREENSHOT_AND_LINK`
 
 The creator supplied both a Facebook profile screenshot and the exact Facebook share link above. The screenshot shows the Facebook profile as `Dani El` and, in Meta's account interface, alongside Instagram account `daniel.nonso.9699`. This records the supplied association without claiming Meta endorsement or independent platform identity verification.
