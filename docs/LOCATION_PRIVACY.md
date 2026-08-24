@@ -54,3 +54,5 @@ npm run privacy:migrate-locations -- --apply
 ```
 
 Take a database backup first. Review the dry-run count and verify the encryption key before using `--apply`.
+
+Historical observations committed to `data/observations.geojson` are also treated as legacy-unverified. Their public geometry, coordinate fields, street addresses, and direct map links are redacted. A maintainer may republish a projection only after recording explicit consent under the current policy.
