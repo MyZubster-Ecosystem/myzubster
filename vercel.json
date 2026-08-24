@@ -26,6 +26,10 @@
       "use": "@vercel/static"
     },
     {
+      "src": "public/chronicle-universe.html",
+      "use": "@vercel/static"
+    },
+    {
       "src": "public/come-funziona.html",
       "use": "@vercel/static"
     },
@@ -78,6 +82,14 @@
     {
       "src": "/community-marketplace.html",
       "dest": "/public/community-marketplace.html"
+    },
+    {
+      "src": "/chronicle-universe/?",
+      "dest": "/public/chronicle-universe.html"
+    },
+    {
+      "src": "/chronicle-universe.html",
+      "dest": "/public/chronicle-universe.html"
     },
     {
       "src": "/come-funziona/?",
