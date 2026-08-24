@@ -36,24 +36,51 @@ function systemPrompt(entity) {
     `Capacità: ${entity.capabilities.join(', ')}.`,
     `Limiti: ${entity.boundaries.join(' ')}`,
     `Repository di riferimento: ${entity.repository.url}.`,
+    'Rispondi prima alla domanda reale dell’utente. La validazione deve supportare la risposta, non sostituirla.',
+    'Quando l’utente vuole contribuire dati, guidalo in linguaggio naturale e chiedi solo i dati mancanti.',
     'Lavora evidence-first. Distingui sempre fatti verificati, inferenze e informazioni mancanti.',
     'Non inventare stato dei servizi, misure, finanziamenti, partnership, pagamenti, approvazioni o deploy.',
     'MYZ è un registro interno di ricompense/contabilità; qualsiasi settlement esterno richiede verifica indipendente.',
-    'Rispondi nella lingua dell’utente. Sii operativo, conciso e indica il prossimo passo verificabile.'
+    'Rispondi nella lingua dell’utente. Sii operativo, conciso e indica il prossimo passo verificabile solo quando è utile.'
   ].join('\n');
 }
 
+function normalizedMessage(message) {
+  return String(message || '')
+    .trim()
+    .toLocaleLowerCase('it-IT')
+    .replace(/[!?.,;:]+/g, '')
+    .replace(/\s+/g, ' ');
+}
+
 function guidedFallback(entity, message) {
-  const excerpt = String(message || '').trim().replace(/\s+/g, ' ').slice(0, 180);
+  const normalized = normalizedMessage(message);
+  const statusQuestions = new Set([
+    'adesso funzioni',
+    'ora funzioni',
+    'funzioni',
+    'sei attivo',
+    'sei online',
+    'ci sei'
+  ]);
+
+  if (statusQuestions.has(normalized)) {
+    return `Sì, sono ${entity.displayName} e posso risponderti. In questo momento sto usando la guida locale di MyZubster perché il motore generativo avanzato non è raggiungibile da questo nodo. Puoi comunque farmi domande o chiedermi aiuto per inserire un’osservazione.`;
+  }
+
+  if (/^(ciao|salve|buongiorno|buonasera|hey|hello)$/.test(normalized)) {
+    return `Ciao! Sono ${entity.displayName}. Come posso aiutarti? Posso rispondere alle tue domande oppure guidarti nell’inserimento di dati e osservazioni in MyZubster.`;
+  }
+
+  if (/(inser|aggiung|registr|segnal|caric).*(dato|dati|osservaz|piant|animal|foto|luog|posto)/.test(normalized)) {
+    return `Certo. Ti aiuto a preparare l’inserimento. Dimmi prima cosa vuoi registrare; poi ti chiederò solo le informazioni mancanti. Se il salvataggio richiede una funzione non disponibile da questo nodo, te lo dirò chiaramente prima di confermare qualsiasi operazione.`;
+  }
+
   return [
-    `${entity.icon} Sono ${entity.displayName}. Ho ricevuto la richiesta: “${excerpt}”.`,
+    `Posso aiutarti con questa richiesta: “${String(message || '').trim().replace(/\s+/g, ' ').slice(0, 180)}”.`,
     '',
-    `Percorso consigliato: ${entity.workflow.join(' → ')}.`,
-    `Primo passo verificabile: ${entity.suggestions[0]}.`,
-    `Confine da rispettare: ${entity.boundaries[0]}`,
-    '',
-    'Il motore generativo non è raggiungibile da questo nodo web: questa è una guida canonica locale, non una risposta generata né una prova dello stato del progetto.',
-    `Riferimento pubblico: ${entity.repository.url}`
+    'Il motore generativo avanzato non è raggiungibile da questo nodo, quindi non voglio fingere di avere generato una risposta completa.',
+    `Posso comunque guidarti nelle funzioni disponibili di ${entity.displayName}. Prova a formulare la domanda in modo diretto oppure dimmi quale dato o osservazione vuoi inserire.`
   ].join('\n');
 }
 
@@ -125,7 +152,7 @@ router.get('/:slug/status', async (req, res) => {
     const modelLoaded = models.some(model => model.name === OLLAMA_MODEL || model.name?.startsWith(`${OLLAMA_MODEL}:`));
     return res.json({ ok: true, entity: entity.id, provider: 'ollama', model: OLLAMA_MODEL, available: true, modelLoaded, mode: 'generative' });
   } catch (error) {
-    return res.json({ ok: true, entity: entity.id, provider: 'registry', model: null, available: true, modelLoaded: false, mode: 'guided-fallback', detail: 'Motore generativo non raggiungibile; guida canonica disponibile.' });
+    return res.json({ ok: true, entity: entity.id, provider: 'registry', model: null, available: true, modelLoaded: false, mode: 'guided-fallback', detail: 'Motore generativo non raggiungibile; guida locale disponibile.' });
   }
 });
 
@@ -180,3 +207,4 @@ router.post('/:slug/chat', chatLimiter, async (req, res) => {
 module.exports = router;
 module.exports.findEntity = findEntity;
 module.exports.systemPrompt = systemPrompt;
+module.exports.guidedFallback = guidedFallback;
