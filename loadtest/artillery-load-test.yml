@@ -1,0 +1,38 @@
+# Artillery load test for the MyZubster API (issue #99).
+#
+# Run:
+#   npx artillery run loadtest/artillery-load-test.yml
+#   npx artillery report --output loadtest-report.html <output.json>
+#
+# Override target with: BASE_URL=https://api.example.com npx artillery run ... --target "$BASE_URL"
+config:
+  target: "http://localhost:3000"
+  phases:
+    - duration: 120
+      arrivalRate: 10
+      name: warm-up
+    - duration: 300
+      arrivalRate: 50
+      name: steady-state
+    - duration: 120
+      arrivalRate: 150
+      name: spike
+  defaults:
+    headers:
+      x-load-test: artillery
+  ensure:
+    p95: 400
+    maxErrorRate: 1
+scenarios:
+  - name: health-and-bounties
+    flow:
+      - get:
+          url: "/health"
+      - think: 1
+      - get:
+          url: "/api/bounties"
+          qs:
+            limit: 20
+      - think: 1
+      - get:
+          url: "/perf-summary"
