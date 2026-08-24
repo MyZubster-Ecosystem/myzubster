@@ -1,4 +1,5 @@
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+const API_URL = (process.env.REACT_APP_API_URL || '').replace(/\/+$/, '');
+const apiUrl = (path) => `${API_URL}${path}`;
 
 /**
  * Ottiene l'elenco di tutti gli orti.
@@ -10,7 +11,7 @@ export const getGardens = async (filters = {}) => {
   if (filters.status) params.append('status', filters.status);
   if (filters.size) params.append('size', filters.size);
 
-  const res = await fetch(`${API_URL}/api/gardens?${params.toString()}`);
+  const res = await fetch(apiUrl(`/api/gardens?${params.toString()}`));
   if (!res.ok) throw new Error('Errore recupero orti');
   return res.json();
 };
@@ -21,7 +22,7 @@ export const getGardens = async (filters = {}) => {
  * @returns {Promise<Object>}
  */
 export const getGardenById = async (id) => {
-  const res = await fetch(`${API_URL}/api/gardens/${id}`);
+  const res = await fetch(apiUrl(`/api/gardens/${id}`));
   if (!res.ok) throw new Error('Orto non trovato');
   return res.json();
 };
@@ -32,7 +33,7 @@ export const getGardenById = async (id) => {
  * @returns {Promise<Object>}
  */
 export const createGarden = async (data) => {
-  const res = await fetch(`${API_URL}/api/gardens`, {
+  const res = await fetch(apiUrl('/api/gardens'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
@@ -47,7 +48,7 @@ export const createGarden = async (data) => {
  * @returns {Promise<Object>}
  */
 export const searchGardens = async (q) => {
-  const res = await fetch(`${API_URL}/api/gardens/search?q=${encodeURIComponent(q)}`);
+  const res = await fetch(apiUrl(`/api/gardens/search?q=${encodeURIComponent(q)}`));
   if (!res.ok) throw new Error('Errore ricerca orti');
   return res.json();
 };
@@ -60,7 +61,7 @@ export const searchGardens = async (q) => {
  * @returns {Promise<Object>}
  */
 export const nearbyGardens = async (lat, lng, radius = 5000) => {
-  const res = await fetch(`${API_URL}/api/gardens/nearby?lat=${lat}&lng=${lng}&radius=${radius}`);
+  const res = await fetch(apiUrl(`/api/gardens/nearby?lat=${lat}&lng=${lng}&radius=${radius}`));
   if (!res.ok) throw new Error('Errore ricerca per coordinate');
   return res.json();
 };
@@ -71,7 +72,7 @@ export const nearbyGardens = async (lat, lng, radius = 5000) => {
  * @returns {Promise<Object>}
  */
 export const geocodeAddress = async (q) => {
-  const res = await fetch(`${API_URL}/api/gardens/geocode?q=${encodeURIComponent(q)}`);
+  const res = await fetch(apiUrl(`/api/gardens/geocode?q=${encodeURIComponent(q)}`));
   if (!res.ok) throw new Error('Errore geocoding');
   return res.json();
 };
