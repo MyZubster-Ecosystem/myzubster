@@ -1,0 +1,53 @@
+name: DAO Ledger Integrity
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - frontend/src/data/daoGovernance.json
+      - src/services/decentralizedDaoService.js
+      - src/routes/decentralizedDaoRoutes.js
+      - scripts/validate-dao-ledger.js
+      - tests/decentralizedDao.test.js
+      - .github/workflows/dao-ledger-integrity.yml
+  push:
+    branches: [main]
+    paths:
+      - frontend/src/data/daoGovernance.json
+      - src/services/decentralizedDaoService.js
+      - src/routes/decentralizedDaoRoutes.js
+      - scripts/validate-dao-ledger.js
+      - tests/decentralizedDao.test.js
+      - .github/workflows/dao-ledger-integrity.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dao-ledger-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout canonical ledger
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: package.json
+          cache: npm
+
+      - name: Validate syntax and signed ledger
+        run: |
+          node --check src/services/decentralizedDaoService.js
+          node scripts/validate-dao-ledger.js
+
+      - name: Install locked dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Run DAO security tests
+        run: npm test -- tests/decentralizedDao.test.js --runInBand

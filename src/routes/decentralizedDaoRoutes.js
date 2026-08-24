@@ -5,6 +5,7 @@ const {
   governanceOverview,
   publicProposal,
   registry,
+  validateRegistry,
   verifyBallotEnvelope,
   verifyDelegationEnvelope
 } = require('../services/decentralizedDaoService');
@@ -58,6 +59,15 @@ router.get('/members', publicCache, (_req, res) => {
       status,
       admittedAt
     }))
+  });
+});
+
+router.get('/integrity', publicCache, (_req, res) => {
+  const integrity = validateRegistry(registry);
+  res.status(integrity.valid ? 200 : 503).json({
+    ok: integrity.valid,
+    sourceOfTruth: registry.network.ledgerPath,
+    integrity
   });
 });
 

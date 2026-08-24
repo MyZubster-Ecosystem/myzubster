@@ -1,0 +1,67 @@
+name: DAO Independent Review
+description: Record an independent cryptographic, governance or implementation review of the DAO.
+title: "[DAO Review] "
+labels: []
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: Review area
+      options:
+        - Ed25519 signing and canonical serialization
+        - Membership and Sybil-resistance model
+        - Ballot, replay and duplicate protections
+        - Delegation, revocation and tally logic
+        - Quorum, thresholds and timelock
+        - CI and branch-protection controls
+        - Full governance review
+    validations:
+      required: true
+
+  - type: input
+    id: commit
+    attributes:
+      label: Reviewed commit
+      placeholder: "Full Git commit SHA"
+    validations:
+      required: true
+
+  - type: textarea
+    id: methods
+    attributes:
+      label: Methods and evidence
+      description: Describe the review method and link non-sensitive evidence or test output.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: outcome
+    attributes:
+      label: Outcome
+      options:
+        - Approved
+        - Approved with non-blocking findings
+        - Changes required
+        - Rejected
+    validations:
+      required: true
+
+  - type: textarea
+    id: findings
+    attributes:
+      label: Findings and required changes
+      description: Do not disclose exploitable security details publicly. Use private reporting when necessary.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: independence
+    attributes:
+      label: Reviewer statement
+      options:
+        - label: I am not the author of the reviewed implementation.
+          required: true
+        - label: I disclosed relevant conflicts of interest.
+          required: true
+        - label: I verified the exact commit named above.
+          required: true

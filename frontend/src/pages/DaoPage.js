@@ -199,6 +199,7 @@ export default function DaoPage() {
             <span className="dao-mode">OFF-CHAIN / BOOTSTRAP</span>
             <strong>Nessuna esecuzione automatica</strong>
             <p>MYZ resta contabilità interna. Ogni risultato richiede una modifica revisionata e ratifica umana.</p>
+            <small className={overview.summary.integrityValid ? 'dao-integrity dao-integrity--valid' : 'dao-integrity dao-integrity--invalid'}>{overview.summary.integrityValid ? '✓ Ledger integro' : '✕ Integrità ledger non valida'}</small>
             <a href={`${overview.network.canonicalRepository}/blob/main/${overview.network.ledgerPath}`} target="_blank" rel="noreferrer">Apri il ledger canonico ↗</a>
           </aside>
         </section>

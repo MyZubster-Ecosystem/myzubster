@@ -65,7 +65,23 @@ Le deleghe usano lo stesso formato firmato e possono essere globali o limitate a
 - il voto diretto del delegante deve avere precedenza su una delega;
 - una delega scaduta non può essere conteggiata.
 
-L'MVP verifica e prepara deleghe/revoche. L'aggregatore canonico deve essere esteso con test specifici prima di conteggiare deleghe nel tally vincolante.
+L'aggregatore canonico applica la delega diretta al voto del delegato usando le camere del delegante. Un voto diretto del delegante prevale sempre; catene di profondità superiore a uno non vengono seguite e i cicli bloccano il merge. La revoca firmata più recente per lo stesso scope disattiva la delega precedente.
+
+## Merge gate del ledger
+
+Il workflow `DAO Ledger Integrity` viene eseguito per ogni modifica al registro o al verificatore. `scripts/validate-dao-ledger.js` blocca il merge quando rileva:
+
+- firma o chiave Ed25519 non valida;
+- DID non derivato dalla chiave pubblica;
+- membro osservatore o AI in un artefatto vincolante;
+- più schede dello stesso DID per la stessa proposta;
+- nonce o ricevuta riutilizzati;
+- digest di ricevuta non corrispondente;
+- delega ciclica, scaduta, auto-diretta o verso uno scope sconosciuto;
+- quorum, soglie o finestre temporali malformati;
+- esecuzione automatica o settlement esterno abilitati nel registro.
+
+Il risultato è disponibile anche su `GET /api/dao/integrity`.
 
 ## Collegamento a entità e bounty
 
@@ -80,6 +96,7 @@ Una ratifica non finanzia automaticamente una bounty e non crea una promessa di 
 | `GET` | `/api/dao` | Registro, Costituzione, riepilogo e proposte |
 | `GET` | `/api/dao/constitution` | Regole di governance |
 | `GET` | `/api/dao/members` | Membri ammessi senza dati privati |
+| `GET` | `/api/dao/integrity` | Esito del validatore canonico |
 | `GET` | `/api/dao/proposals` | Proposte e tally per camera |
 | `GET` | `/api/dao/proposals/:id` | Proposta, digest e stato |
 | `POST` | `/api/dao/ballots/verify` | Verifica stateless di una scheda firmata |
@@ -126,8 +143,7 @@ Le chiavi dell'oggetto sono serializzate in ordine lessicografico prima della fi
 
 1. Revisione indipendente del codice crittografico e del threat model.
 2. Ammissione trasparente dei primi membri umani.
-3. Workflow CI che verifica tutti gli artefatti aggiunti al ledger e impedisce duplicati/replay.
-4. Conteggio completo delle deleghe con precedenza del voto diretto e rilevamento cicli.
-5. Protezione del branch canonico e requisito di almeno due approvazioni.
-6. Backup/mirror del repository e procedura di recovery.
-7. Eventuale contratto on-chain separato, solo dopo scelta della chain, audit e decisione esplicita della comunità.
+3. Rendere obbligatorio il check `DAO Ledger Integrity` nelle regole del branch `main`.
+4. Proteggere il branch canonico con requisito di almeno due approvazioni indipendenti.
+5. Backup/mirror del repository e procedura di recovery.
+6. Eventuale contratto on-chain separato, solo dopo scelta della chain, audit e decisione esplicita della comunità.

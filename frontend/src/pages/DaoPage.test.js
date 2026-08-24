@@ -14,7 +14,8 @@ const overview = {
     proposalCount: 1,
     openProposalCount: 1,
     admittedMemberCount: 0,
-    chamberCount: 2
+    chamberCount: 2,
+    integrityValid: true
   },
   proposals: [{
     id: 'MIP-001',
@@ -68,6 +69,7 @@ describe('DaoPage', () => {
     expect(container.textContent).toContain('Steward');
     expect(container.textContent).toContain('MYZ-ENTITY-COMPLETION-001');
     expect(container.textContent).toContain('Zorgax è consultivo');
+    expect(container.textContent).toContain('Ledger integro');
   });
 
   test('offers local signing but never automatic execution', async () => {

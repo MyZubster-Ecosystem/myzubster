@@ -26,6 +26,9 @@
 .dao-trust-card { padding: 20px; display: grid; gap: 10px; border: 1px solid #45521f; border-radius: 18px; background: linear-gradient(145deg, rgba(39, 51, 19, .88), rgba(15, 18, 19, .96)); box-shadow: 0 20px 80px rgba(0, 0, 0, .26); }
 .dao-trust-card p { color: #bcc5ae; margin: 0; line-height: 1.5; }
 .dao-trust-card a { color: var(--dao-lime); font-weight: 800; }
+.dao-integrity { width: max-content; border-radius: 999px; padding: 5px 8px; font-size: 10px; font-weight: 900; }
+.dao-integrity--valid { color: #bffb70; background: rgba(88, 130, 24, .26); border: 1px solid #526d28; }
+.dao-integrity--invalid { color: #fecaca; background: rgba(127, 29, 29, .3); border: 1px solid #7f1d1d; }
 .dao-mode, .dao-key-status { width: max-content; padding: 5px 8px; border-radius: 5px; color: #0a0c08; background: var(--dao-lime); font-size: 10px; font-weight: 950; letter-spacing: .08em; }
 .dao-metrics { display: grid; grid-template-columns: repeat(4, 1fr); margin: 28px 0 14px; border: 1px solid var(--dao-border); border-radius: 16px; overflow: hidden; background: rgba(16, 19, 22, .75); }
 .dao-metrics article { padding: 15px 18px; display: grid; grid-template-columns: 1fr auto; gap: 2px 14px; border-right: 1px solid var(--dao-border); }
