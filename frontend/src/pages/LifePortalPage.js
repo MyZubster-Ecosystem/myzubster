@@ -77,6 +77,7 @@ function LifePortalPage({ openLegacy }) {
 
   const actions = [
     ['register', '👤', 'Account MyZubster', 'Crea un account per le funzioni applicative che richiedono autenticazione.'],
+    ['agents', '🧠', 'Entità AI', 'Parla con le 12 entità canoniche e ottieni un prossimo passo verificabile.'],
     ['zorgax', '✨', 'Zorgax AI', 'Esplora il progetto con l’AI pubblica, senza account.'],
     ['municipality', '🏛️', 'Comuni', 'Registra un Comune o un ente territoriale.'],
     ['gardens', '🌱', 'Orti & Pilot', 'Accedi agli orti, al verde urbano e ai siti pilota.'],
@@ -101,6 +102,7 @@ function LifePortalPage({ openLegacy }) {
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             <a href={JOIN} target="_blank" rel="noreferrer" style={outlineLink}>Join MyZubster</a>
             <a href="/fumetto" style={outlineLink}>Fumetto</a>
+            <a href="/entities" style={outlineLink}>Entità AI</a>
             <button onClick={() => setView('zorgax')} style={primary}>Zorgax AI</button>
           </div>
         </div>
@@ -153,7 +155,7 @@ function LifePortalPage({ openLegacy }) {
 
           <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(230px,1fr))', gap: 12, marginTop: 24 }}>
             {actions.map(([id, icon, title, text]) => (
-              <button key={id} onClick={() => setView(id)} style={{ ...card, textAlign: 'left', color: '#fff', cursor: 'pointer' }}>
+              <button key={id} onClick={() => id === 'agents' ? window.location.assign('/entities') : setView(id)} style={{ ...card, textAlign: 'left', color: '#fff', cursor: 'pointer' }}>
                 <div style={{ fontSize: 30 }}>{icon}</div>
                 <h2 style={{ margin: '10px 0 6px', fontSize: 20 }}>{title}</h2>
                 <div style={{ color: '#9fb0bd', lineHeight: 1.5 }}>{text}</div>

@@ -16,6 +16,11 @@ function App() {
     return <AppsDownloadPage />;
   }
 
+  const directPath = window.location.pathname.replace(/\/+$/, '') || '/';
+  if (['/entities', '/agents', '/assistants'].includes(directPath)) {
+    return <AgentsPage />;
+  }
+
   if (showOnboarding) {
     return (
       <IdentityOnboardingPage
