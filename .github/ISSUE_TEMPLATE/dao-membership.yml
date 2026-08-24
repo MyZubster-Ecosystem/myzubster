@@ -1,0 +1,77 @@
+name: DAO Membership Request
+description: Propose a human-controlled Ed25519 identity for admission to a DAO chamber.
+title: "[DAO Membership] "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This form proposes a public voting identity. Never publish a private key, seed phrase, password, personal document or unnecessary personal information.
+
+  - type: input
+    id: did
+    attributes:
+      label: MyZubster DID
+      description: The `did:myz:` value generated locally by the DAO interface.
+      placeholder: "did:myz:…"
+    validations:
+      required: true
+
+  - type: textarea
+    id: public-key
+    attributes:
+      label: Ed25519 SPKI public key
+      description: Base64 public key only. Never submit the private key.
+      render: text
+    validations:
+      required: true
+
+  - type: dropdown
+    id: chamber
+    attributes:
+      label: Requested chamber
+      options:
+        - community
+        - stewards
+        - community and stewards
+    validations:
+      required: true
+
+  - type: textarea
+    id: control-proof
+    attributes:
+      label: Proof of key control
+      description: Link a signed public challenge produced with the same key.
+      placeholder: "Public URL and receipt digest"
+    validations:
+      required: true
+
+  - type: textarea
+    id: contribution
+    attributes:
+      label: Relevant contribution evidence
+      description: Link public issues, pull requests or reviewed work that supports admission.
+    validations:
+      required: true
+
+  - type: textarea
+    id: conflicts
+    attributes:
+      label: Conflicts of interest
+      description: Declare relevant conflicts, or write `None declared`.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: acknowledgments
+    attributes:
+      label: Governance acknowledgments
+      options:
+        - label: I control the submitted key and have not shared the private key.
+          required: true
+        - label: I understand that two independent reviews and a merged registry pull request are required before my vote counts.
+          required: true
+        - label: I understand that MYZ is internal accounting and membership creates no payment entitlement.
+          required: true
+        - label: I am a human applicant; AI agents and automated identities have binding voting weight zero.
+          required: true

@@ -1,0 +1,158 @@
+:root {
+  --dao-bg: #070809;
+  --dao-panel: #101316;
+  --dao-panel-2: #15191d;
+  --dao-border: #2a3035;
+  --dao-muted: #9ba6ad;
+  --dao-lime: #c9ff63;
+  --dao-cyan: #62e9ff;
+  --dao-orange: #ffac5b;
+}
+
+* { box-sizing: border-box; }
+
+.dao-shell { min-height: 100vh; color: #f5f7f8; background: radial-gradient(circle at 12% -5%, rgba(123, 177, 42, .16), transparent 26%), radial-gradient(circle at 86% 2%, rgba(48, 171, 203, .12), transparent 24%), var(--dao-bg); font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
+.dao-topbar { min-height: 70px; padding: 12px max(18px, calc((100vw - 1500px) / 2)); display: flex; align-items: center; gap: 18px; border-bottom: 1px solid var(--dao-border); background: rgba(7, 8, 9, .9); backdrop-filter: blur(20px); position: sticky; top: 0; z-index: 20; }
+.dao-brand { color: #fff; font-size: 20px; font-weight: 950; text-decoration: none; }
+.dao-topbar > div { display: grid; gap: 2px; flex: 1; }
+.dao-topbar small { color: var(--dao-muted); font-family: ui-monospace, SFMono-Regular, monospace; }
+.dao-topbar nav { display: flex; gap: 8px; }
+.dao-topbar nav a, .dao-target-link { color: #dce4e8; border: 1px solid var(--dao-border); border-radius: 9px; padding: 9px 12px; text-decoration: none; font-size: 13px; font-weight: 800; }
+.dao-main { max-width: 1500px; margin: auto; padding: 34px 18px 70px; }
+.dao-hero { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 28px; align-items: end; }
+.dao-eyebrow { color: var(--dao-lime); letter-spacing: .16em; font-size: 11px; font-weight: 950; }
+.dao-hero h1 { margin: 9px 0 14px; font-size: clamp(44px, 7vw, 86px); line-height: .9; letter-spacing: -.055em; }
+.dao-hero > div > p { max-width: 900px; margin: 0; color: #b2bdc3; line-height: 1.65; font-size: 17px; }
+.dao-trust-card { padding: 20px; display: grid; gap: 10px; border: 1px solid #45521f; border-radius: 18px; background: linear-gradient(145deg, rgba(39, 51, 19, .88), rgba(15, 18, 19, .96)); box-shadow: 0 20px 80px rgba(0, 0, 0, .26); }
+.dao-trust-card p { color: #bcc5ae; margin: 0; line-height: 1.5; }
+.dao-trust-card a { color: var(--dao-lime); font-weight: 800; }
+.dao-integrity { width: max-content; border-radius: 999px; padding: 5px 8px; font-size: 10px; font-weight: 900; }
+.dao-integrity--valid { color: #bffb70; background: rgba(88, 130, 24, .26); border: 1px solid #526d28; }
+.dao-integrity--invalid { color: #fecaca; background: rgba(127, 29, 29, .3); border: 1px solid #7f1d1d; }
+.dao-mode, .dao-key-status { width: max-content; padding: 5px 8px; border-radius: 5px; color: #0a0c08; background: var(--dao-lime); font-size: 10px; font-weight: 950; letter-spacing: .08em; }
+.dao-metrics { display: grid; grid-template-columns: repeat(4, 1fr); margin: 28px 0 14px; border: 1px solid var(--dao-border); border-radius: 16px; overflow: hidden; background: rgba(16, 19, 22, .75); }
+.dao-metrics article { padding: 15px 18px; display: grid; grid-template-columns: 1fr auto; gap: 2px 14px; border-right: 1px solid var(--dao-border); }
+.dao-metrics article:last-child { border-right: 0; }
+.dao-metrics span, .dao-metrics small { color: var(--dao-muted); font-size: 12px; }
+.dao-metrics strong { grid-row: span 2; font-size: 30px; color: var(--dao-lime); }
+.dao-bootstrap-notice { display: flex; gap: 12px; align-items: center; padding: 12px 16px; color: #ffddb7; background: rgba(92, 47, 11, .32); border: 1px solid #7a4a24; border-radius: 12px; }
+.dao-bootstrap-notice span { color: #d9c2ad; font-size: 13px; }
+.dao-error { margin-top: 12px; border: 1px solid #7f1d1d; background: #2b1012; color: #fecaca; padding: 12px 14px; border-radius: 10px; }
+.dao-workspace { display: grid; grid-template-columns: 260px minmax(0, 1fr) 260px; gap: 14px; margin-top: 18px; align-items: start; }
+.dao-proposal-list, .dao-proposal-detail, .dao-identity-panel { border: 1px solid var(--dao-border); background: rgba(16, 19, 22, .92); border-radius: 16px; overflow: hidden; }
+.dao-section-title { min-height: 46px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; color: var(--dao-muted); border-bottom: 1px solid var(--dao-border); font-size: 10px; font-weight: 900; letter-spacing: .12em; }
+.dao-section-title b { color: var(--dao-lime); }
+.dao-proposal-card { width: 100%; display: grid; gap: 8px; text-align: left; padding: 14px; color: #eef2f4; background: transparent; border: 0; border-bottom: 1px solid var(--dao-border); cursor: pointer; }
+.dao-proposal-card:last-child { border-bottom: 0; }
+.dao-proposal-card:hover { background: #181d20; }
+.dao-proposal-card--active { background: linear-gradient(90deg, rgba(201, 255, 99, .12), transparent); box-shadow: inset 3px 0 var(--dao-lime); }
+.dao-proposal-card > strong { color: var(--dao-muted); font-size: 11px; font-family: ui-monospace, SFMono-Regular, monospace; }
+.dao-proposal-card h2 { margin: 0; font-size: 15px; line-height: 1.35; }
+.dao-proposal-card small { color: #7f8b92; }
+.dao-state { width: max-content; padding: 5px 7px; color: #051106; background: #6fec82; border-radius: 5px; font-size: 9px; font-weight: 950; letter-spacing: .05em; text-transform: uppercase; }
+.dao-state--scheduled { color: #111827; background: #93c5fd; }
+.dao-state--ratified { background: var(--dao-lime); }
+.dao-state--rejected, .dao-state--quorum_not_met { color: #fff; background: #9f2c37; }
+.dao-proposal-detail { min-width: 0; }
+.dao-detail-head { display: grid; grid-template-columns: minmax(0, 1fr) 180px; gap: 18px; padding: 22px; border-bottom: 1px solid var(--dao-border); }
+.dao-detail-head h2 { margin: 12px 0 8px; font-size: clamp(25px, 3vw, 38px); line-height: 1.05; letter-spacing: -.025em; }
+.dao-detail-head p { color: #b0bbc1; line-height: 1.6; margin: 0; }
+.dao-target-link { align-self: start; display: grid; gap: 4px; color: var(--dao-muted); overflow-wrap: anywhere; }
+.dao-target-link strong { color: var(--dao-cyan); }
+.dao-digest-row { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 7px 14px; padding: 14px 22px; background: #0c0e10; border-bottom: 1px solid var(--dao-border); font-size: 12px; }
+.dao-digest-row span { color: var(--dao-muted); }
+.dao-digest-row code, .dao-identity-panel code, .dao-receipt code { color: var(--dao-cyan); overflow-wrap: anywhere; }
+.dao-chambers { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 18px 22px; border-bottom: 1px solid var(--dao-border); }
+.dao-chamber { padding: 14px; border: 1px solid var(--dao-border); border-radius: 12px; background: var(--dao-panel-2); }
+.dao-chamber-head { display: flex; justify-content: space-between; gap: 10px; }
+.dao-chamber-head span, .dao-chamber small { color: var(--dao-muted); font-size: 11px; }
+.dao-progress { height: 7px; margin: 11px 0; overflow: hidden; border-radius: 99px; background: #070809; }
+.dao-progress i { display: block; height: 100%; background: linear-gradient(90deg, #79bd2c, var(--dao-lime)); }
+.dao-chamber-votes { display: flex; gap: 11px; flex-wrap: wrap; margin-bottom: 8px; color: var(--dao-muted); font-size: 10px; }
+.dao-chamber-votes b { color: #fff; }
+.dao-vote-box, .dao-delegation-box { padding: 20px 22px; border-bottom: 1px solid var(--dao-border); }
+.dao-delegation-box { border-bottom: 0; }
+.dao-box-heading { display: flex; justify-content: space-between; gap: 15px; align-items: start; margin-bottom: 12px; }
+.dao-box-heading span { color: var(--dao-lime); font-size: 9px; letter-spacing: .12em; font-weight: 950; }
+.dao-box-heading h3 { margin: 4px 0 0; font-size: 20px; }
+.dao-box-heading small { color: var(--dao-muted); }
+.dao-choice-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+.dao-choice, .dao-inline-actions button { border: 1px solid var(--dao-border); border-radius: 9px; padding: 10px; color: #d4dce0; background: #0c0f11; cursor: pointer; font-weight: 850; }
+.dao-choice--active { color: #071006; border-color: var(--dao-lime); background: var(--dao-lime); }
+.dao-choice--against.dao-choice--active { color: #fff; border-color: #e85663; background: #a72834; }
+.dao-choice--abstain.dao-choice--active { color: #111827; border-color: #b8c4cb; background: #b8c4cb; }
+.dao-vote-box textarea, .dao-delegation-box input { width: 100%; margin: 9px 0; border: 1px solid #374047; border-radius: 9px; background: #090b0c; color: #fff; padding: 11px 12px; font: inherit; outline: none; }
+.dao-vote-box textarea:focus, .dao-delegation-box input:focus { border-color: var(--dao-lime); box-shadow: 0 0 0 3px rgba(201, 255, 99, .1); }
+.dao-primary { border: 0; border-radius: 9px; padding: 11px 14px; color: #081006; background: var(--dao-lime); cursor: pointer; font-weight: 950; }
+.dao-primary:disabled, .dao-inline-actions button:disabled { opacity: .45; cursor: not-allowed; }
+.dao-receipt { margin: 0 22px 18px; padding: 14px; display: grid; gap: 10px; border: 1px solid #43581d; border-radius: 11px; background: rgba(53, 74, 19, .25); }
+.dao-receipt--observer { border-color: #6d4826; background: rgba(80, 43, 12, .26); }
+.dao-receipt > div:first-child { display: grid; gap: 3px; }
+.dao-receipt span { color: var(--dao-lime); font-size: 9px; font-weight: 950; letter-spacing: .1em; }
+.dao-receipt--observer span { color: var(--dao-orange); }
+.dao-receipt-actions, .dao-inline-actions, .dao-mini-receipt { display: flex; gap: 7px; flex-wrap: wrap; align-items: center; }
+.dao-receipt-actions button, .dao-receipt-actions a, .dao-mini-receipt button, .dao-mini-receipt a { border: 1px solid #49545a; border-radius: 8px; padding: 8px 10px; color: #e4eaed; background: #111517; cursor: pointer; text-decoration: none; font-size: 11px; font-weight: 800; }
+.dao-inline-actions button { flex: 1; }
+.dao-mini-receipt { margin-top: 9px; padding: 10px; color: #cceba1; background: #171d12; border-radius: 8px; font-size: 11px; }
+.dao-identity-panel { position: sticky; top: 88px; padding-bottom: 16px; }
+.dao-identity-panel > :not(.dao-section-title, .dao-key-visual, hr) { margin-left: 14px; margin-right: 14px; }
+.dao-identity-panel > strong { display: block; margin-top: 12px; }
+.dao-identity-panel p { color: var(--dao-muted); font-size: 12px; line-height: 1.5; }
+.dao-identity-panel code { display: block; margin-top: 10px; font-size: 10px; }
+.dao-identity-panel small { display: block; margin-top: 6px; color: #748087; }
+.dao-identity-panel hr { margin: 16px 0; border: 0; border-top: 1px solid var(--dao-border); }
+.dao-identity-panel ul { list-style: none; padding: 0; display: grid; gap: 8px; color: var(--dao-muted); font-size: 12px; }
+.dao-identity-panel li b { color: #ecf0f2; }
+.dao-key-visual { height: 115px; display: flex; align-items: end; justify-content: center; gap: 7px; padding: 25px; background: radial-gradient(circle, rgba(201, 255, 99, .12), transparent 65%), #0b0d0f; }
+.dao-key-visual i { width: 9px; border-radius: 2px; background: var(--dao-lime); box-shadow: 0 0 18px rgba(201, 255, 99, .35); }
+.dao-key-visual i:nth-child(1) { height: 25px; }.dao-key-visual i:nth-child(2) { height: 48px; }.dao-key-visual i:nth-child(3) { height: 66px; }.dao-key-visual i:nth-child(4) { height: 38px; }.dao-key-visual i:nth-child(5) { height: 55px; }
+.dao-flow { margin-top: 18px; padding: 18px; display: grid; grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr; gap: 14px; align-items: center; border: 1px solid var(--dao-border); border-radius: 16px; background: #0d1012; }
+.dao-flow div { display: grid; grid-template-columns: 28px 1fr; gap: 2px 8px; }
+.dao-flow div span { grid-row: span 2; display: grid; place-items: center; color: #0c1108; background: var(--dao-lime); border-radius: 50%; width: 28px; height: 28px; font-size: 10px; font-weight: 950; }
+.dao-flow div small { color: var(--dao-muted); }
+.dao-flow > b { color: #4d5a61; }
+.dao-loading { display: grid; place-items: center; align-content: center; gap: 10px; }
+.dao-loading p { color: #fca5a5; }
+
+@media (max-width: 1150px) {
+  .dao-workspace { grid-template-columns: 230px minmax(0, 1fr); }
+  .dao-identity-panel { position: static; grid-column: 1 / -1; display: grid; grid-template-columns: 180px minmax(0, 1fr); align-items: center; }
+  .dao-identity-panel .dao-section-title { grid-column: 1 / -1; }
+  .dao-identity-panel .dao-key-visual { grid-row: span 5; }
+  .dao-identity-panel hr, .dao-identity-panel ul { display: none; }
+}
+
+@media (max-width: 760px) {
+  .dao-topbar { align-items: flex-start; flex-wrap: wrap; }
+  .dao-topbar > div { order: 3; flex-basis: 100%; }
+  .dao-topbar nav { margin-left: auto; }
+  .dao-topbar nav a:first-child { display: none; }
+  .dao-main { padding-top: 22px; }
+  .dao-hero { grid-template-columns: 1fr; }
+  .dao-hero h1 { font-size: 51px; }
+  .dao-metrics { grid-template-columns: repeat(2, 1fr); }
+  .dao-metrics article:nth-child(2) { border-right: 0; }
+  .dao-metrics article:nth-child(-n+2) { border-bottom: 1px solid var(--dao-border); }
+  .dao-bootstrap-notice { align-items: flex-start; flex-direction: column; }
+  .dao-workspace { grid-template-columns: 1fr; }
+  .dao-proposal-list { display: grid; grid-template-columns: repeat(3, minmax(230px, 1fr)); overflow-x: auto; }
+  .dao-proposal-list .dao-section-title { display: none; }
+  .dao-proposal-card { border-right: 1px solid var(--dao-border); border-bottom: 0; }
+  .dao-detail-head { grid-template-columns: 1fr; }
+  .dao-chambers { grid-template-columns: 1fr; }
+  .dao-identity-panel { grid-column: auto; grid-template-columns: 110px minmax(0, 1fr); }
+  .dao-key-visual { height: 100%; padding: 14px; }
+  .dao-flow { grid-template-columns: 1fr; }
+  .dao-flow > b { display: none; }
+}
+
+@media (max-width: 480px) {
+  .dao-topbar nav a { padding: 7px 9px; }
+  .dao-hero h1 { font-size: 42px; }
+  .dao-metrics article { padding: 12px; }
+  .dao-choice-row { grid-template-columns: 1fr; }
+  .dao-detail-head, .dao-vote-box, .dao-delegation-box, .dao-chambers { padding-left: 15px; padding-right: 15px; }
+  .dao-digest-row { grid-template-columns: 1fr; padding-left: 15px; padding-right: 15px; }
+  .dao-identity-panel { display: block; }
+  .dao-key-visual { height: 90px; }
+}

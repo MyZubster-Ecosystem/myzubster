@@ -123,6 +123,7 @@ export default function AgentsPage({ initialPanel = 'chat' }) {
           <span>12 assistenti · 24 bounty · un’unica interfaccia</span>
         </div>
         <a className="entity-home-link" href="/entity-bounties">Bounty entità</a>
+        <a className="entity-home-link" href="/dao">DAO</a>
         <a className="entity-home-link" href="/">Torna alla home</a>
       </header>
 

@@ -125,7 +125,7 @@ PERSONAL SALARY / SAVINGS / EMPLOYMENT
 
 When App / Marketplace begins generating real revenue, a **versioned and auditable governance/accounting policy** must define how revenue is allocated among operating costs, ecosystem treasury, bounty reserves, contributors, maintenance, development and any other approved project purpose. No personal or founder allocation is automatic, and project revenue should not be described as “interest” unless a lawful, implemented and auditable interest-bearing mechanism actually exists.
 
-Canonical rules: [`BOUNTIES.md`](BOUNTIES.md) · Treasury policy: [`TREASURY.md`](TREASURY.md) · MYZ ledger: [`myz/LEDGER.md`](myz/LEDGER.md)
+Canonical rules: [`BOUNTIES.md`](BOUNTIES.md) · Treasury policy: [`TREASURY.md`](TREASURY.md) · MYZ ledger: [`myz/LEDGER.md`](myz/LEDGER.md) · Verifiable DAO: [`docs/DECENTRALIZED_DAO.md`](docs/DECENTRALIZED_DAO.md)
 
 ## 🎨 Create a MyZubster comic — complete contributor workflow
 
