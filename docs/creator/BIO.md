@@ -2,6 +2,18 @@
 
 This page records creator-supplied biographical information for MyZubster documentation. Statements on this page are not presented as independent third-party verification unless separately evidenced.
 
+## Employment
+
+- Employer documented in retained payroll evidence: **FUTURA SOC.COOP.SOCIALE**
+- Role documented in the payroll evidence: **operatore ecologico**
+- Evidence status: `VERIFIED_PRIVATE_DOCUMENT`
+
+A July 2026 payroll document retained privately identifies Daniel Ioni as an employee of **FUTURA SOC.COOP.SOCIALE**, with the role `operatore ecologico` and an employment start date of 16 March 2026.
+
+The original payroll document is intentionally not published in the repository because it contains private employment and personal information. The evidence status refers only to the employment facts supported by that document.
+
+This evidence does **not** by itself establish that Futura belongs to Gruppo Hera, nor does it establish a partnership, sponsorship, endorsement or other formal relationship between MyZubster, Futura and Hera. Any such relationship must be documented and verified separately before being presented as fact.
+
 ## Creative / free-party identity
 
 - Nickname used in free-party contexts: **H4X0R**
