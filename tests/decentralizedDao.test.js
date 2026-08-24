@@ -284,6 +284,31 @@ describe('Decentralized Git-native DAO', () => {
     expect(tally.delegatedBallotCount).toBe(0);
   });
 
+  test('the latest signed revocation disables an earlier delegation', () => {
+    const delegator = createIdentity();
+    const delegate = createIdentity();
+    const source = {
+      ...registry,
+      members: [member(delegator, ['community']), member(delegate, ['community'])],
+      ballots: [
+        signEnvelope(ballotPayload(delegate, registry.proposals[0], { nonce: crypto.randomBytes(16).toString('hex') }), delegate)
+      ],
+      delegations: [
+        signEnvelope(delegationPayload(delegator, delegate.did, { issuedAt: '2026-08-25T12:05:00.000Z' }), delegator),
+        signEnvelope(delegationPayload(delegator, delegate.did, {
+          action: 'revoke',
+          nonce: crypto.randomBytes(16).toString('hex'),
+          issuedAt: '2026-08-25T12:10:00.000Z'
+        }), delegator)
+      ]
+    };
+    const tally = tallyProposal(source.proposals[0], { source, now: new Date('2026-08-26T00:00:00.000Z') });
+    expect(tally.directBallotCount).toBe(1);
+    expect(tally.delegatedBallotCount).toBe(0);
+    expect(tally.validMemberBallots).toBe(1);
+    expect(validateRegistry(source, { now: new Date('2026-08-26T00:00:00.000Z') }).valid).toBe(true);
+  });
+
   test('the merge gate rejects duplicate ballots, nonce replay and delegation cycles', () => {
     const memberA = createIdentity();
     const memberB = createIdentity();
