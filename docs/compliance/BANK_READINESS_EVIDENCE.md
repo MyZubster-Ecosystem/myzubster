@@ -18,6 +18,7 @@ This document records a privacy-safe inventory of evidence currently available t
 | `PEC_PUBLIC_ADMIN_USE` | A certified-mail message from Comune di Rimini confirms protocol activity via PEC. | `DOCUMENTED` | Evidence that certified email has been used in an institutional communication flow. | It does not establish endorsement, partnership, funding or approval of MyZubster by Comune di Rimini. |
 | `EMPLOYMENT` | A July 2026 payroll document retained privately identifies FUTURA SOC.COOP.SOCIALE as employer, Daniel Ioni as employee, role `operatore ecologico`, with employment start date 16 March 2026. | `VERIFIED_PRIVATE_DOCUMENT` | Employment relationship as stated in that payroll document. | It does not establish a MyZubster–Futura partnership or sponsorship. |
 | `BANK_ACCOUNT` | The creator states that a personal bank account associated with employment income is connected to a branch/location in Rimini. Sensitive account details remain private. | `DECLARED / PRIVATE_EVIDENCE_REQUIRED` | A declared personal banking relationship. | It does not establish that the bank has approved, integrated, sponsored or partnered with MyZubster. |
+| `BANK_INTERLOCUTORS_INFORMED` | Daniel reports that the bank director and a staff member identified to him as Claudia have been informed about the existence of MyZubster and the possibility of future project-related transaction activity. | `DECLARED_VERBAL_CONFIRMATION` | Records the creator's statement that these bank interlocutors are aware of the project context. | It is not written approval, partnership, endorsement, product onboarding, legal advice or authorisation for every future transaction. |
 | `BANK_VERBAL_FEEDBACK` | Daniel reports that, during a bank conversation, staff stated that they did not identify a present problem and that the bank would contact him when material transaction activity begins. | `DECLARED_VERBAL_CONFIRMATION` | Records the creator's account of the bank's verbal position and expected future transaction review/contact. | It is not written bank approval, a compliance clearance, a commitment to accept all future crypto/fiat flows, or a partnership/endorsement of MyZubster. |
 | `MYZUBSTER_BANK_RELATIONSHIP` | No explicit bank agreement, onboarding confirmation, merchant agreement, project account contract, sponsorship, API integration approval or bank endorsement has been verified in this inventory. | `NOT_VERIFIED` | Defines the current evidence boundary. | MyZubster must not claim to be “approved by”, “partnered with”, or formally integrated with a bank on the basis of the evidence above. |
 
@@ -38,12 +39,14 @@ employment evidence retained privately
   ↓
 personal banking relationship declared
   ↓
+bank director + Claudia reported as informed about MyZubster
+  ↓
 verbal bank feedback reported by creator
   ↓
 future transaction monitoring/contact if activity becomes material
 ```
 
-The bank conversation is currently recorded as **verbal, creator-reported evidence**. It should be upgraded only if a written confirmation or another independently verifiable bank record is obtained.
+The bank conversations are currently recorded as **verbal, creator-reported evidence**. They should be upgraded only if written confirmation or another independently verifiable bank record is obtained.
 
 It does **not** yet support:
 
@@ -62,6 +65,8 @@ personal bank account
 Based on the creator's report of the bank conversation, the current working expectation is:
 
 ```text
+bank interlocutors informed about project context
+        ↓
 no present objection reported
         ↓
 real transactions begin
