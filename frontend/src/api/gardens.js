@@ -1,5 +1,7 @@
-const API_URL = (process.env.REACT_APP_API_URL || '').replace(/\/+$/, '');
-const apiUrl = (path) => `${API_URL}${path}`;
+// Gardens is served by the same Vercel application. Keeping these requests
+// same-origin avoids mixed-content failures when legacy build variables still
+// point at the retired HTTP service.
+const apiUrl = (path) => path;
 
 /**
  * Ottiene l'elenco di tutti gli orti.
