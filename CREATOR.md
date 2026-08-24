@@ -22,6 +22,21 @@ GitHub profile and extended personal biography:
 
 The personal profile is the appropriate place for Daniel's broader life story and autobiographical background. MyZubster repositories should normally reference that profile instead of duplicating sensitive or unrelated personal details across technical documentation.
 
+## Employment evidence boundary
+
+A **July 2026 payroll document** supplied by Daniel and retained privately identifies **FUTURA SOC.COOP.SOCIALE** as the issuing employer, Daniel Ioni as the employee, the role as **operatore ecologico**, and an employment start date of **16 March 2026**.
+
+The original payroll document is intentionally **not published in this repository** because it contains unnecessary personal, financial, banking, tax and address data.
+
+This evidence supports the limited claim that Daniel has documented employment with **FUTURA SOC.COOP.SOCIALE**. It does **not**, by itself:
+
+- establish that `Futura Ambiente` is the legal name of that employer;
+- establish a partnership between MyZubster and FUTURA SOC.COOP.SOCIALE;
+- establish employer sponsorship, endorsement, funding or adoption of MyZubster;
+- establish any LIFE consortium or institutional commitment.
+
+Any such relationship requires separate explicit evidence.
+
 ## Why this separation matters
 
 MyZubster should clearly identify its creator while preserving a clean boundary between:
