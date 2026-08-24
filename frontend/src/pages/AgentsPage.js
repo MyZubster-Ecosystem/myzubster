@@ -38,6 +38,7 @@ export default function AgentsPage() {
   const bottomRef = useRef(null);
 
   const selected = entities.find(entity => entity.slug === selectedSlug) || entities[0];
+  const activeSlug = selected?.slug;
   const conversation = messages[selected?.slug] || [];
   const filtered = useMemo(() => {
     const value = query.trim().toLowerCase();
@@ -55,15 +56,15 @@ export default function AgentsPage() {
   }, []);
 
   useEffect(() => {
-    if (!selected) return;
+    if (!activeSlug) return;
     setRuntime({ mode: 'checking', label: 'Verifica motore…' });
-    getEntityStatus(selected.slug)
+    getEntityStatus(activeSlug)
       .then(status => setRuntime({
         mode: status.mode,
         label: status.mode === 'generative' && status.modelLoaded ? `AI locale · ${status.model}` : 'Guida canonica attiva'
       }))
       .catch(() => setRuntime({ mode: 'browser-fallback', label: 'Guida browser attiva' }));
-  }, [selected?.slug]);
+  }, [activeSlug]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
