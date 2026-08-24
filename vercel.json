@@ -41,7 +41,7 @@
   "routes": [
     {
       "src": "/zorgax/?",
-      "dest": "https://myzubster-gateway.vercel.app/zargox"
+      "dest": "/api/index.js"
     },
     {
       "src": "/zargox/?",
@@ -117,11 +117,19 @@
     },
     {
       "src": "/robots.txt",
-      "dest": "/robots.txt"
+      "dest": "/frontend/robots.txt"
     },
     {
       "src": "/sitemap.xml",
-      "dest": "/sitemap.xml"
+      "dest": "/frontend/sitemap.xml"
+    },
+    {
+      "src": "/manifest.json",
+      "dest": "/frontend/manifest.json"
+    },
+    {
+      "src": "/favicon.svg",
+      "dest": "/frontend/favicon.svg"
     },
     {
       "src": "/static/(.*)",

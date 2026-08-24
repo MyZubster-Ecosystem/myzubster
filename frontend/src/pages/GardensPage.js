@@ -20,17 +20,12 @@ const GardensPage = () => {
   const [nearbyRadius, setNearbyRadius] = useState(5000);
   const [filters, setFilters] = useState({ status: 'active', size: '' });
 
-  // Carica tutti gli orti all'iniziale
-  useEffect(() => {
-    fetchAllGardens();
-  }, []);
-
-  const fetchAllGardens = async () => {
+  const fetchAllGardens = useCallback(async (nextFilters = {}) => {
     setLoading(true);
     setSearchMode(SEARCH_MODES.NONE);
     setSearchMeta(null);
     try {
-      const data = await getGardens(filters);
+      const data = await getGardens(nextFilters);
       setGardens(data.gardens || []);
       setError(null);
     } catch (err) {
@@ -39,14 +34,18 @@ const GardensPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchAllGardens(filters);
+  }, [fetchAllGardens, filters]);
 
   // Ricerca testuale
   const handleSearch = async (e) => {
     e.preventDefault();
     const q = searchQuery.trim();
     if (!q) {
-      fetchAllGardens();
+      fetchAllGardens(filters);
       return;
     }
 
@@ -107,7 +106,7 @@ const GardensPage = () => {
   }, [nearbyRadius]);
 
   const handleFilterChange = (key, value) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
+    setFilters((current) => ({ ...current, [key]: value }));
   };
 
   const handleGardenClick = (garden) => {
@@ -139,7 +138,7 @@ const GardensPage = () => {
       }}>
         <span>📍 {label} — <strong>{gardens.length}</strong> orti trovati</span>
         <button
-          onClick={fetchAllGardens}
+          onClick={() => fetchAllGardens(filters)}
           style={{
             padding: '4px 12px',
             background: '#1976d2',
@@ -245,8 +244,9 @@ const GardensPage = () => {
         >
           <option value="">Tutti gli stati</option>
           <option value="active">Attivi</option>
-          <option value="inactive">Inattivi</option>
-          <option value="pending">In attesa</option>
+          <option value="dormant">Dormienti</option>
+          <option value="harvested">Raccolti</option>
+          <option value="abandoned">Abbandonati</option>
         </select>
         <select
           value={filters.size}
