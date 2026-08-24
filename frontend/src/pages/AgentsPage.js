@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import canonicalEntities from '../data/canonicalEntities.json';
+import EntityBountyPanel from '../components/EntityBountyPanel';
 import { askEntity, getCanonicalEntities, getEntityStatus } from '../api/entities';
+import { getEntityCompletion, getProgramSummary } from '../data/entityBounties';
 import './AgentsPage.css';
 
 function initialEntity() {
@@ -26,9 +28,10 @@ function localGuidance(entity, question) {
   };
 }
 
-export default function AgentsPage() {
+export default function AgentsPage({ initialPanel = 'chat' }) {
   const [entities, setEntities] = useState(canonicalEntities);
   const [selectedSlug, setSelectedSlug] = useState(initialEntity);
+  const [activePanel, setActivePanel] = useState(initialPanel);
   const [query, setQuery] = useState('');
   const [draft, setDraft] = useState('');
   const [messages, setMessages] = useState({});
@@ -40,6 +43,7 @@ export default function AgentsPage() {
   const selected = entities.find(entity => entity.slug === selectedSlug) || entities[0];
   const activeSlug = selected?.slug;
   const conversation = messages[selected?.slug] || [];
+  const bountyProgram = useMemo(() => getProgramSummary(entities), [entities]);
   const filtered = useMemo(() => {
     const value = query.trim().toLowerCase();
     if (!value) return entities;
@@ -116,8 +120,9 @@ export default function AgentsPage() {
         <a className="entity-brand" href="/">🌍 MyZubster</a>
         <div className="entity-topbar-copy">
           <strong>Entità canoniche</strong>
-          <span>12 assistenti · repository separati · un’unica interfaccia</span>
+          <span>12 assistenti · 24 bounty · un’unica interfaccia</span>
         </div>
+        <a className="entity-home-link" href="/entity-bounties">Bounty entità</a>
         <a className="entity-home-link" href="/">Torna alla home</a>
       </header>
 
@@ -131,6 +136,7 @@ export default function AgentsPage() {
           <div className="entity-policy-card">
             <span className={`entity-status entity-status--${runtime.mode}`}>{runtime.label}</span>
             <strong>{registryMode === 'live' ? 'Registro API sincronizzato' : 'Registro integrato offline'}</strong>
+            <small>{bountyProgram.bountyCount} bounty · {bountyProgram.proposedMYZ.toLocaleString('it-IT')} MYZ proposti</small>
             <small>MYZ: ledger interno · nessun settlement automatico</small>
           </div>
         </section>
@@ -140,18 +146,25 @@ export default function AgentsPage() {
             <label className="entity-search-label" htmlFor="entity-search">Cerca un’entità</label>
             <input id="entity-search" className="entity-search" value={query} onChange={event => setQuery(event.target.value)} placeholder="MRV, sicurezza, mappe…" />
             <div className="entity-list">
-              {filtered.map(entity => (
-                <button
-                  type="button"
-                  key={entity.slug}
-                  className={`entity-card ${entity.slug === selected.slug ? 'entity-card--active' : ''}`}
-                  style={{ '--entity-accent': entity.accent }}
-                  onClick={() => selectEntity(entity.slug)}
-                >
-                  <span className="entity-card-icon">{entity.icon}</span>
-                  <span><strong>{entity.displayName}</strong><small>{entity.role}</small></span>
-                </button>
-              ))}
+              {filtered.map(entity => {
+                const completion = getEntityCompletion(entity);
+                return (
+                  <button
+                    type="button"
+                    key={entity.slug}
+                    className={`entity-card ${entity.slug === selected.slug ? 'entity-card--active' : ''}`}
+                    style={{ '--entity-accent': entity.accent }}
+                    onClick={() => selectEntity(entity.slug)}
+                  >
+                    <span className="entity-card-icon">{entity.icon}</span>
+                    <span>
+                      <strong>{entity.displayName}</strong>
+                      <small>{entity.role}</small>
+                      <span className="entity-card-progress"><i style={{ width: `${completion.percent}%` }} /><em>{completion.percent}% pronta</em></span>
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </aside>
 
@@ -173,42 +186,51 @@ export default function AgentsPage() {
               <div className="entity-workflow">{selected.workflow.map((step, index) => <React.Fragment key={step}><span>{step}</span>{index < selected.workflow.length - 1 && <b>→</b>}</React.Fragment>)}</div>
             </div>
 
-            <div className="entity-chat" aria-live="polite">
-              {conversation.length === 0 && (
-                <div className="entity-welcome">
-                  <div className="entity-welcome-icon">{selected.icon}</div>
-                  <h3>Come posso aiutarti?</h3>
-                  <p>Scegli una domanda rapida oppure scrivi una richiesta. I limiti dell’entità restano sempre attivi.</p>
-                  <div className="entity-suggestions">
-                    {selected.suggestions.map(suggestion => <button type="button" key={suggestion} onClick={() => send(suggestion)}>{suggestion}</button>)}
-                  </div>
-                </div>
-              )}
-              {conversation.map((message, index) => (
-                <article key={`${message.role}-${index}`} className={`entity-message entity-message--${message.role}`}>
-                  <strong>{message.role === 'user' ? 'Tu' : selected.displayName}</strong>
-                  <div>{message.text}</div>
-                  {message.mode && <small>{message.mode === 'generative' ? 'Risposta AI locale' : 'Guida canonica di fallback'}</small>}
-                  {message.references?.length > 0 && <div className="entity-references">Riferimenti: {message.references.map(reference => <a key={reference.url} href={reference.url} target="_blank" rel="noreferrer">{reference.label}</a>)}</div>}
-                </article>
-              ))}
-              {sending && <div className="entity-typing"><span /><span /><span /> {selected.displayName} sta elaborando…</div>}
-              <div ref={bottomRef} />
+            <div className="entity-console-tabs" role="tablist" aria-label="Strumenti dell'entità">
+              <button type="button" role="tab" aria-selected={activePanel === 'chat'} className={activePanel === 'chat' ? 'entity-console-tab--active' : ''} onClick={() => setActivePanel('chat')}>💬 Conversazione</button>
+              <button type="button" role="tab" aria-selected={activePanel === 'bounties'} className={activePanel === 'bounties' ? 'entity-console-tab--active' : ''} onClick={() => setActivePanel('bounties')}>🎯 Bounty &amp; visual</button>
             </div>
 
-            <div className="entity-composer">
-              <textarea
-                aria-label={`Scrivi a ${selected.displayName}`}
-                value={draft}
-                onChange={event => setDraft(event.target.value)}
-                onKeyDown={onKeyDown}
-                maxLength={4000}
-                placeholder={`Scrivi a ${selected.displayName}…`}
-                disabled={sending}
-              />
-              <button type="button" onClick={() => send()} disabled={sending || !draft.trim()}>Invia</button>
-              <div className="entity-composer-meta"><span>Invio: Enter · nuova riga: Shift+Enter</span><button type="button" onClick={() => setMessages(current => ({ ...current, [selected.slug]: [] }))}>Cancella chat locale</button></div>
-            </div>
+            {activePanel === 'chat' ? (
+              <>
+                <div className="entity-chat" aria-live="polite">
+                  {conversation.length === 0 && (
+                    <div className="entity-welcome">
+                      <div className="entity-welcome-icon">{selected.icon}</div>
+                      <h3>Come posso aiutarti?</h3>
+                      <p>Scegli una domanda rapida oppure scrivi una richiesta. I limiti dell’entità restano sempre attivi.</p>
+                      <div className="entity-suggestions">
+                        {selected.suggestions.map(suggestion => <button type="button" key={suggestion} onClick={() => send(suggestion)}>{suggestion}</button>)}
+                      </div>
+                    </div>
+                  )}
+                  {conversation.map((message, index) => (
+                    <article key={`${message.role}-${index}`} className={`entity-message entity-message--${message.role}`}>
+                      <strong>{message.role === 'user' ? 'Tu' : selected.displayName}</strong>
+                      <div>{message.text}</div>
+                      {message.mode && <small>{message.mode === 'generative' ? 'Risposta AI locale' : 'Guida canonica di fallback'}</small>}
+                      {message.references?.length > 0 && <div className="entity-references">Riferimenti: {message.references.map(reference => <a key={reference.url} href={reference.url} target="_blank" rel="noreferrer">{reference.label}</a>)}</div>}
+                    </article>
+                  ))}
+                  {sending && <div className="entity-typing"><span /><span /><span /> {selected.displayName} sta elaborando…</div>}
+                  <div ref={bottomRef} />
+                </div>
+
+                <div className="entity-composer">
+                  <textarea
+                    aria-label={`Scrivi a ${selected.displayName}`}
+                    value={draft}
+                    onChange={event => setDraft(event.target.value)}
+                    onKeyDown={onKeyDown}
+                    maxLength={4000}
+                    placeholder={`Scrivi a ${selected.displayName}…`}
+                    disabled={sending}
+                  />
+                  <button type="button" onClick={() => send()} disabled={sending || !draft.trim()}>Invia</button>
+                  <div className="entity-composer-meta"><span>Invio: Enter · nuova riga: Shift+Enter</span><button type="button" onClick={() => setMessages(current => ({ ...current, [selected.slug]: [] }))}>Cancella chat locale</button></div>
+                  </div>
+              </>
+            ) : <EntityBountyPanel entity={selected} />}
 
             <footer className="entity-boundary">
               <strong>Confini attivi</strong>

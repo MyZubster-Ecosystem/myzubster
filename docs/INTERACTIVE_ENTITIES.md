@@ -16,7 +16,11 @@ The public MyZubster frontend exposes all 12 canonical entities at `/entities` (
 - `GET /api/entities`
 - `GET /api/entities/:slug`
 - `GET /api/entities/:slug/status`
+- `GET /api/entities/bounties`
+- `GET /api/entities/:slug/bounties`
 - `POST /api/entities/:slug/chat` with `{ "message": "..." }`
+
+The direct `/entity-bounties` view and the **Bounty & visual** tab expose the completion program for every entity. See [`ENTITY_BOUNTY_SYSTEM.md`](ENTITY_BOUNTY_SYSTEM.md) for reward boundaries, milestones, deliverables and the evidence-first review flow.
 
 Environment variables:
 

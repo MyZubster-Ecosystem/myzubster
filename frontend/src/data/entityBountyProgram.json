@@ -1,0 +1,115 @@
+{
+  "schemaVersion": "1.0.0",
+  "updatedAt": "2026-08-24",
+  "program": {
+    "id": "MYZ-ENTITY-COMPLETION-001",
+    "name": "Canonical Entity Completion Bounties",
+    "description": "Percorso evidence-first per completare le entità canoniche e i relativi kit visuali.",
+    "documentationReviewUrl": "https://github.com/MyZubster-Ecosystem/myzubster/pull/669"
+  },
+  "policy": {
+    "rewardAsset": "MYZ",
+    "rewardKind": "internal_accounting",
+    "fundingState": "PROPOSED",
+    "automaticSettlement": false,
+    "externalPaymentPromise": false,
+    "claimCreatesGitHubIssue": true,
+    "minimumIndependentReviewers": 1,
+    "maintainerApprovalRequired": true
+  },
+  "milestones": [
+    {
+      "id": "canonical-profile",
+      "label": "Profilo canonico",
+      "description": "ID, missione, workflow, capacità e confini sono nel registro canonico."
+    },
+    {
+      "id": "interactive-api",
+      "label": "API e chat",
+      "description": "Profilo, stato e chat sono esposti con fallback guidato."
+    },
+    {
+      "id": "entity-readme",
+      "label": "README entità",
+      "description": "La documentazione dedicata è revisionata e collegata all'indice."
+    },
+    {
+      "id": "repository-adoption",
+      "label": "Adozione repository",
+      "description": "Il repository dell'entità espone contratto, ownership e health check."
+    },
+    {
+      "id": "visual-kit",
+      "label": "Visual identity kit",
+      "description": "Avatar, hero, badge, sorgenti, licenza e alt text sono consegnati."
+    },
+    {
+      "id": "acceptance-verification",
+      "label": "Verifica finale",
+      "description": "Test, evidenze e revisione indipendente soddisfano i criteri."
+    }
+  ],
+  "defaultMilestoneStates": {
+    "canonical-profile": "COMPLETE",
+    "interactive-api": "COMPLETE",
+    "entity-readme": "IN_REVIEW",
+    "repository-adoption": "OPEN",
+    "visual-kit": "OPEN",
+    "acceptance-verification": "OPEN"
+  },
+  "tracks": [
+    {
+      "id": "entity-completion",
+      "code": "ENTITY",
+      "label": "Completamento operativo",
+      "icon": "⚙️",
+      "description": "Porta l'entità dal profilo centrale a un'implementazione adottata e verificabile nel suo repository.",
+      "rewardMYZ": 250,
+      "deliverables": [
+        "README operativo con missione, ownership, avvio locale e confini",
+        "Contratto API o capability manifest versionato",
+        "Health check e test automatici per il percorso principale",
+        "Collegamento bidirezionale tra repository e hub /entities"
+      ],
+      "acceptanceCriteria": [
+        "La pull request è collegata alla bounty e supera i controlli del repository",
+        "Nessun segreto, dato personale o stato non verificato è pubblicato",
+        "Un reviewer indipendente verifica le evidenze e un maintainer approva",
+        "La documentazione distingue implementato, verificato e distribuito"
+      ],
+      "evidenceRequired": [
+        "URL della pull request",
+        "URL o log dei test riusciti",
+        "Screenshot o risposta del health check",
+        "Checklist dei criteri di accettazione"
+      ]
+    },
+    {
+      "id": "visual-identity",
+      "code": "VISUAL",
+      "label": "Visual identity kit",
+      "icon": "🎨",
+      "description": "Crea un sistema visuale riconoscibile, accessibile e riutilizzabile per l'entità.",
+      "rewardMYZ": 150,
+      "deliverables": [
+        "Avatar quadrato 1024×1024 in PNG o WebP",
+        "Hero 16:9 minimo 1600×900",
+        "Badge o simbolo vettoriale SVG",
+        "File sorgente, palette, licenza e alt text in italiano e inglese"
+      ],
+      "acceptanceCriteria": [
+        "Il design usa l'accent color canonico senza compromettere il contrasto",
+        "Avatar, hero e badge restano leggibili su sfondo chiaro e scuro",
+        "I file non contengono marchi o materiali senza licenza compatibile",
+        "Un reviewer verifica dimensioni, accessibilità, provenienza e riuso"
+      ],
+      "evidenceRequired": [
+        "Anteprime avatar, hero e badge",
+        "File sorgente e file esportati",
+        "Nota di licenza e provenienza",
+        "Risultato del controllo contrasto e checklist accessibilità"
+      ]
+    }
+  ],
+  "entityOverrides": {}
+}
