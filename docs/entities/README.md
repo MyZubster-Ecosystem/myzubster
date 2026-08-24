@@ -4,7 +4,7 @@ Questa cartella raccoglie un README sintetico per ogni entità funzionale princi
 
 Ogni README chiarisce: scopo, repository/componenti collegati, stato, input/output, dipendenze, confini di sicurezza, evidenza richiesta e definition of done.
 
-## Entità
+## Entità funzionali
 
 - [Core / Platform](core-platform/README.md)
 - [MyZubster App](app/README.md)
@@ -21,6 +21,12 @@ Ogni README chiarisce: scopo, repository/componenti collegati, stato, input/outp
 - [Public Evidence / IPFS](public-evidence-ipfs/README.md)
 - [Documentation / Manuals](docs-manuals/README.md)
 - [Experimental Robotics / EVA / Space](experimental-robotics-space/README.md)
+
+## Entità AI canoniche
+
+Le 12 entità interattive esposte dall'hub `/entities` e dalle API `/api/entities` sono documentate nell'[indice delle entità AI canoniche](canonical-ai/README.md).
+
+Questa sezione mantiene separati i confini funzionali dell'ecosistema dalle identità operative degli assistenti AI.
 
 ## Regola di maturità
 
