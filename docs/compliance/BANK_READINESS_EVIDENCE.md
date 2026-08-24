@@ -18,6 +18,7 @@ This document records a privacy-safe inventory of evidence currently available t
 | `PEC_PUBLIC_ADMIN_USE` | A certified-mail message from Comune di Rimini confirms protocol activity via PEC. | `DOCUMENTED` | Evidence that certified email has been used in an institutional communication flow. | It does not establish endorsement, partnership, funding or approval of MyZubster by Comune di Rimini. |
 | `EMPLOYMENT` | A July 2026 payroll document retained privately identifies FUTURA SOC.COOP.SOCIALE as employer, Daniel Ioni as employee, role `operatore ecologico`, with employment start date 16 March 2026. | `VERIFIED_PRIVATE_DOCUMENT` | Employment relationship as stated in that payroll document. | It does not establish a MyZubster–Futura partnership or sponsorship. |
 | `BANK_ACCOUNT` | The creator states that a personal bank account associated with employment income is connected to a branch/location in Rimini. Sensitive account details remain private. | `DECLARED / PRIVATE_EVIDENCE_REQUIRED` | A declared personal banking relationship. | It does not establish that the bank has approved, integrated, sponsored or partnered with MyZubster. |
+| `BANK_VERBAL_FEEDBACK` | Daniel reports that, during a bank conversation, staff stated that they did not identify a present problem and that the bank would contact him when material transaction activity begins. | `DECLARED_VERBAL_CONFIRMATION` | Records the creator's account of the bank's verbal position and expected future transaction review/contact. | It is not written bank approval, a compliance clearance, a commitment to accept all future crypto/fiat flows, or a partnership/endorsement of MyZubster. |
 | `MYZUBSTER_BANK_RELATIONSHIP` | No explicit bank agreement, onboarding confirmation, merchant agreement, project account contract, sponsorship, API integration approval or bank endorsement has been verified in this inventory. | `NOT_VERIFIED` | Defines the current evidence boundary. | MyZubster must not claim to be “approved by”, “partnered with”, or formally integrated with a bank on the basis of the evidence above. |
 
 ## Current evidence-backed chain
@@ -36,9 +37,13 @@ digital-signature service ordered + recognition/request workflow
 employment evidence retained privately
   ↓
 personal banking relationship declared
+  ↓
+verbal bank feedback reported by creator
+  ↓
+future transaction monitoring/contact if activity becomes material
 ```
 
-The chain currently stops there.
+The bank conversation is currently recorded as **verbal, creator-reported evidence**. It should be upgraded only if a written confirmation or another independently verifiable bank record is obtained.
 
 It does **not** yet support:
 
@@ -49,7 +54,35 @@ personal bank account
   ≠ bank partnership
   ≠ bank endorsement
   ≠ regulatory/compliance certification
+  ≠ blanket approval for future crypto/fiat transactions
 ```
+
+## Transaction-readiness record
+
+Based on the creator's report of the bank conversation, the current working expectation is:
+
+```text
+no present objection reported
+        ↓
+real transactions begin
+        ↓
+bank may contact account holder
+        ↓
+source / nature of transactions may be reviewed
+        ↓
+additional documentation may be requested
+```
+
+For any future Monero/fiat or other crypto-related activity, retain evidence appropriate to the actual flow, including where applicable:
+
+- transaction/exchange receipts;
+- identity of the external service provider used;
+- source-of-funds/source-of-income records;
+- clear separation between personal funds and any MyZubster treasury/accounting activity;
+- transaction purpose and accounting records;
+- any written bank requests and responses.
+
+Do not infer from the verbal conversation that the bank has pre-approved all future transaction types, volumes or counterparties.
 
 ## Bank-ready gate
 
@@ -61,7 +94,8 @@ Before describing MyZubster as formally documented with a bank, obtain and priva
 4. bank onboarding/account documentation that explicitly identifies that legal subject;
 5. where relevant, documented source-of-funds/source-of-income material supplied through the bank's authorised process;
 6. if MyZubster itself is to receive or manage funds, a clearly separated accounting/treasury model appropriate to its legal structure;
-7. any bank-specific KYC/AML, merchant, payment, API or service agreement actually required for the intended use.
+7. any bank-specific KYC/AML, merchant, payment, API or service agreement actually required for the intended use;
+8. written confirmation of any specific bank position that MyZubster intends to cite publicly.
 
 The exact requirements are determined by the bank and applicable legal/regulatory framework. This repository does not certify compliance.
 
@@ -89,6 +123,7 @@ Use these phrases precisely:
 - **`DOCUMENTED`** — supporting correspondence or workflow material exists, but a final state may not be proven.
 - **`PENDING / NEEDS_RECHECK`** — evidence shows an unfinished or subsequently requested step.
 - **`DECLARED`** — creator-provided statement not independently established by the evidence inventory.
+- **`DECLARED_VERBAL_CONFIRMATION`** — creator-reported verbal statement from an external organisation; useful context, but not equivalent to written evidence.
 - **`NOT_VERIFIED`** — do not make the corresponding public claim.
 
-**Evidence-first principle:** possession of PEC, digital-signature services, employment records or a personal bank account does not automatically make MyZubster a legal entity, bank customer, regulated service, bank partner or bank-approved project.
+**Evidence-first principle:** possession of PEC, digital-signature services, employment records, a personal bank account or a verbal bank conversation does not automatically make MyZubster a legal entity, bank customer, regulated service, bank partner or bank-approved project.
