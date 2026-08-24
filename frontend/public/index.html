@@ -10,6 +10,17 @@
     window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
   </script>
   <script defer src="https://cdn.vercel-insights.com/v1/script.debug.js"></script>
+  <script>
+    document.addEventListener('click', function (event) {
+      var button = event.target && event.target.closest ? event.target.closest('button') : null;
+      if (!button) return;
+      var label = (button.textContent || '').replace(/\s+/g, ' ').trim();
+      if (label.indexOf('Zorgax AI') === -1) return;
+      event.preventDefault();
+      event.stopPropagation();
+      window.location.assign('/zorgax');
+    }, true);
+  </script>
 </head>
 <body>
   <noscript>You need to enable JavaScript to run this app.</noscript>
