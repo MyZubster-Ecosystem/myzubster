@@ -104,6 +104,7 @@ const searchRoutes = require('./src/routes/searchRoutes');
 const nearbyRoutes = require('./src/routes/nearbyRoutes');
 const aiForwardRoutes = require('./src/routes/aiForwardRoutes');
 const gardenRoutes = require('./src/routes/urbanGardenRoutes');
+const permacultureRoutes = require('./src/routes/permacultureRoutes');
 const geocodeRoutes = require('./src/routes/mapRoutes');
 const healthRoutes = require('./src/api/routes');
 const grokRoutes = require('./src/routes/grokRoutes');
@@ -138,6 +139,7 @@ app.use('/api/search', searchRoutes);
 app.use('/api/nearby', nearbyRoutes);
 app.use('/api/ai-forward', aiForwardRoutes);
 app.use('/api/gardens', gardenRoutes);
+app.use('/api/permaculture', permacultureRoutes);
 app.use('/api/municipalities', municipalityRoutes);
 app.use('/api/geocode', geocodeRoutes);
 app.use('/api', healthRoutes);
@@ -158,6 +160,7 @@ app.get('/', (req, res) => {
     life: {
       municipalities: '/api/municipalities',
       gardens: '/api/gardens',
+      permaculture: '/api/permaculture',
       zorgax: '/api/zorgax'
     }
   });
