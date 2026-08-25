@@ -92,6 +92,14 @@ The execution principle remains:
 BUILD → STABILIZE → VERIFY → DEMONSTRATE → PILOT → SCALE
 ```
 
+## Public community activity
+
+MyZubster now maintains a public, evidence-first view of attributable GitHub participation: [Public GitHub Community Activity](docs/PUBLIC-COMMUNITY-ACTIVITY.md).
+
+The page records only interactions supported by public repository evidence (for example PRs, issues/reports or attributable review activity). **Passive repository visitors are not identified**, and website analytics must not be used to deanonymize them.
+
+Current public evidence includes external contributions from `Aming9303` and `Luzijano`, a public security interaction from `Cub4nH1`, and additional publicly documented contributor/review activity. The adoption scorecard deliberately distinguishes contribution from stronger claims such as independent integration, deployment or verified adoption.
+
 ## 🌱 LIFE 2027 — work completed and current direction
 
 MyZubster is preparing a **LIFE 2027-aligned environmental pilot architecture**. This work is preparatory: it does not imply LIFE funding, EU endorsement, an approved application or a formally completed consortium.
@@ -213,6 +221,7 @@ Official LIFE information must be verified against European Commission/CINEA/Fun
 
 - [🌍 Universal / Multilingual Guide](docs/i18n/README.md)
 - [Ecosystem Architecture](docs/ECOSYSTEM.md)
+- [Public GitHub Community Activity](docs/PUBLIC-COMMUNITY-ACTIVITY.md)
 - [Bounty System](BOUNTIES.md)
 - [Treasury Policy](TREASURY.md)
 - [Rewards Ledger](REWARDS_LEDGER.md)
