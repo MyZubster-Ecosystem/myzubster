@@ -16,6 +16,10 @@ app.use(express.json());
 const publicRoot = path.resolve(__dirname, 'public');
 const htmlAliases = new Map([
   ['/', 'index.html'],
+  ['/press', 'press.html'],
+  ['/press.html', 'press.html'],
+  ['/media', 'press.html'],
+  ['/media-kit', 'press.html'],
   ['/fumetto', 'fumetto.html'],
   ['/fumetto.html', 'fumetto.html'],
   ['/comic', 'fumetto.html'],
