@@ -1,10 +1,14 @@
 # Private geolocation
 
-MyZubster stores exact coordinates and addresses only as AES-256-GCM ciphertext. Public API responses are derived from a separate projection with one of three visibility levels:
+MyZubster stores exact plant, animal and urban-garden coordinates and addresses only as AES-256-GCM ciphertext. Public API responses are derived from a separate projection with one of three visibility levels:
 
 - `private`: no coordinates or city; country may be shown;
 - `approximate`: coordinates rounded to two decimals (roughly kilometre-scale), without street address;
 - `public`: exact coordinates and address, only after explicit consent.
+
+Animal positions are forced to `private` at P0. This protects pets, homes, nests, dens and vulnerable wildlife even if a client requests broader visibility. Urban gardens default to non-public; any public map result is projected according to the recorded consent.
+
+The standalone `backend/src/routes/gardens.js` API is disabled with HTTP 410 because it previously exposed plaintext coordinates without authentication or consent. Use the privacy-ready authenticated urban-garden API instead; do not re-enable the legacy route.
 
 NFT metadata never contains coordinates or street addresses, including for public records. It may contain city/country plus a SHA-256 commitment to the encrypted off-chain payload.
 
@@ -30,8 +34,8 @@ Never commit the key. Back it up separately from the database; losing it makes p
 ```json
 {
   "location": {
-    "lat": 44.0637353,
-    "lng": 12.5678873,
+    "lat": 44.000001,
+    "lng": 12.000001,
     "address": "Private address",
     "city": "Rimini",
     "country": "IT",
