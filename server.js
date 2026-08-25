@@ -33,7 +33,7 @@ const vercelAnalyticsSnippet = `
 <script>
   window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
 </script>
-<script defer src="https://cdn.vercel-insights.com/v1/script.debug.js"></script>
+<script defer src="/_vercel/insights/script.js"></script>
 `;
 
 app.use((req, res, next) => {
