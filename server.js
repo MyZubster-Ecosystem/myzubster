@@ -104,6 +104,8 @@ const searchRoutes = require('./src/routes/searchRoutes');
 const nearbyRoutes = require('./src/routes/nearbyRoutes');
 const aiForwardRoutes = require('./src/routes/aiForwardRoutes');
 const gardenRoutes = require('./src/routes/urbanGardenRoutes');
+const permacultureRoutes = require('./src/routes/permacultureRoutes');
+const permacultureVisionRoutes = require('./src/routes/permacultureVisionRoutes');
 const geocodeRoutes = require('./src/routes/mapRoutes');
 const healthRoutes = require('./src/api/routes');
 const grokRoutes = require('./src/routes/grokRoutes');
@@ -138,6 +140,8 @@ app.use('/api/search', searchRoutes);
 app.use('/api/nearby', nearbyRoutes);
 app.use('/api/ai-forward', aiForwardRoutes);
 app.use('/api/gardens', gardenRoutes);
+app.use('/api/permaculture', permacultureVisionRoutes);
+app.use('/api/permaculture', permacultureRoutes);
 app.use('/api/municipalities', municipalityRoutes);
 app.use('/api/geocode', geocodeRoutes);
 app.use('/api', healthRoutes);
@@ -158,6 +162,7 @@ app.get('/', (req, res) => {
     life: {
       municipalities: '/api/municipalities',
       gardens: '/api/gardens',
+      permaculture: '/api/permaculture',
       zorgax: '/api/zorgax'
     }
   });
@@ -167,6 +172,18 @@ app.get('/grok', (req, res) => res.sendFile(path.join(__dirname, 'public', 'grok
 app.get('/zorgax', (req, res) => res.sendFile(path.join(__dirname, 'public', 'zorgax.html')));
 app.get('/research-search', (req, res) => res.sendFile(path.join(__dirname, 'public', 'research-search.html')));
 app.get(['/fumetto', '/comic'], (req, res) => res.sendFile(path.join(__dirname, 'public', 'fumetto.html')));
+
+app.use((error, req, res, next) => {
+  const isPhotoAnalysis = /^\/api\/permaculture\/[^/]+\/photo-analysis(?:\?|$)/.test(req.originalUrl);
+  if (error?.type === 'entity.too.large' && isPhotoAnalysis) {
+    return res.status(413).json({
+      success: false,
+      error: 'Photo exceeds the 8 MB limit',
+      code: 'PERMACULTURE_VISION_PHOTO_TOO_LARGE'
+    });
+  }
+  return next(error);
+});
 
 module.exports = app;
 

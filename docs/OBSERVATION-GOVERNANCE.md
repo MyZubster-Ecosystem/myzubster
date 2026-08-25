@@ -2,135 +2,51 @@
 
 ## Purpose
 
-MyZubster observations connect real-world media, structured metadata, Git history and optional bounty/payment references. The goal is to make observations inspectable and reproducible without publishing wallet secrets or unnecessary private information.
+MyZubster collega media, metadati e provenienza senza pubblicare wallet, coordinate precise o informazioni personali non necessarie. La privacy della posizione è il valore predefinito, non un'eccezione.
 
 ## Canonical flow
 
-Capture or Drive import → VPS staging → validation → classification → public media path → metadata record → Git commit → public archive → optional bounty link → verification.
+Capture → private staging → EXIF removal → sensitivity review → encrypted exact location (optional) → public projection → validation → publication.
 
-## Media hierarchy
+## Public observation registry
 
-Use a predictable hierarchy:
+`data/observations.json` e `data/observations.geojson` possono contenere:
 
-`public/media/{city}/{category}/{subject}/{filename}`
+- identificatore, titolo e descrizione;
+- paese e, solo se non sensibile, area generale;
+- categoria, tag, provenienza e stato;
+- riferimenti a media già bonificati;
+- digest SHA-256 e commit di riferimento;
+- `location_visibility`, `location_precision` e stato del consenso.
 
-Examples:
+Non devono contenere coordinate esatte, indirizzi, link diretti a mappe, wallet, dati di pagamento personali o metadati GPS/EXIF. I valori storici senza consenso verificabile sono `legacy-unverified` e restano privati.
 
-- `public/media/rimini/sky/clouds/rimini-sky-clouds-001.jpg`
-- `public/media/rimini/landmarks/fontana-della-pigna/fontana-della-pigna-001.jpg`
-- `public/media/rimini/civic/comune-di-rimini/comune-di-rimini-001.jpg`
+## Location classes
 
-Project architecture media must remain separate under `public/media/ecosystem/`.
+| Classe | Dato pubblico | Uso |
+| --- | --- | --- |
+| `private` | paese, se appropriato | default; animali, abitazioni, giardini privati, specie e habitat sensibili |
+| `approximate` | area e coordinate arrotondate a 2 decimali | solo con consenso e rischio basso |
+| `public` | posizione esatta | solo con consenso esplicito e revisione documentata |
 
-## Naming rules
+La posizione esatta ammessa per funzioni operative viene conservata come AES-256-GCM ciphertext. Le API pubbliche usano esclusivamente la proiezione consentita.
 
-Use lowercase kebab-case. Prefer stable subject names and numeric sequence suffixes. Avoid spaces, timestamps as the only identifier, personal secrets, wallet addresses in filenames, and opaque camera names when a descriptive name is available.
+## Media privacy
 
-## Observation registry
-
-Public observation metadata lives in `data/observations.json`.
-
-Each observation should contain:
-
-- `observation_id`
-- `title`
-- `description`
-- `city`
-- `country`
-- optional `latitude` and `longitude`
-- optional `captured_at`
-- `imported_at`
-- `media_path`
-- `sha256`
-- `category`
-- `tags`
-- `source`
-- `status`
-- optional `bounty_id`
-- optional `monero_txid`
-- optional `repository_commit`
-
-Unknown values should be `null`. Do not invent coordinates, capture times, transaction IDs or hashes.
-
-## Integrity
-
-Every published media file should eventually have a SHA-256 digest. The digest proves which exact file version is referenced by an observation record. A changed file must produce a new digest and should be reviewed before the observation remains `VERIFIED`.
+Ogni immagine pubblica deve essere controllata per GPS/EXIF, indirizzi, targhe, volti e dettagli di proprietà privata. I nomi dei file non contengono coordinate. Una modifica al file produce un nuovo digest SHA-256 e richiede nuova verifica.
 
 ## Lifecycle
 
-`STAGED` means the file has arrived but is not yet validated.
-
-`VALIDATED` means filename, file type, basic metadata and destination have been checked.
-
-`PUBLISHED` means the file and observation record are publicly reachable and committed.
-
-`BOUNTY_LINKED` means a real bounty or payment reference has been explicitly associated with the observation.
-
-`VERIFIED` means integrity and provenance checks have been completed, including SHA-256 and relevant repository references.
+- `STAGED`: contenuto non pubblico in attesa di controllo;
+- `VALIDATED`: tipo, metadati, sensibilità e destinazione verificati;
+- `PUBLISHED`: contenuto bonificato e raggiungibile;
+- `BOUNTY_LINKED`: riferimento di bounty verificato, senza wallet nel record;
+- `VERIFIED`: integrità, provenienza e consenso controllati.
 
 ## Monero and payment safety
 
-The observation registry may store a public transaction reference when there is a real relationship between an observation and a bounty/payment.
+Non pubblicare indirizzi wallet dei contributori, seed, chiavi, password o credenziali RPC. I dettagli per un bounty vengono richiesti tramite un canale privato verificato solo dopo l'approvazione. Un riferimento pubblico a transazione è ammesso esclusivamente quando necessario e supportato da evidenza esplicita.
 
-Never store any of the following in Git, JSON, public HTML, issue text or photo metadata:
+## Definition of done
 
-- wallet mnemonic seed
-- private spend key
-- private view key
-- wallet password
-- RPC authentication secrets
-
-A transaction must not be linked to a photo merely because timestamps are close. The association should be based on explicit project evidence.
-
-## Privacy
-
-Do not publish exact GPS coordinates when they reveal a private residence, private garden, sensitive personal location or another person’s private information unless publication is intentional and appropriate. Personal photographs should be reviewed before being made public.
-
-## Definition of done for a photo
-
-A new public observation is complete when:
-
-- the media file is valid and opens correctly;
-- the filename follows the naming convention;
-- the media lives in the correct canonical directory;
-- an observation record exists;
-- SHA-256 is recorded or explicitly pending;
-- the public media URL returns HTTP 200;
-- the file is committed to Git;
-- no secret material is present;
-- any bounty or Monero transaction link is evidence-based and optional.
-
-## Repository responsibilities
-
-- `public/media/` stores public assets.
-- `data/observations.json` stores observation records.
-- `data/ecosystem.json` stores software ecosystem/dashboard data.
-- `public/photos.html` is the photo archive entry point.
-- `public/observation.html` renders individual observation records.
-- this document defines the governance rules.
-
-## Roadmap
-
-### Phase 1 — Standardize archive
-
-Normalize paths, filenames and categories. Remove misplaced duplicates and calculate SHA-256 digests.
-
-### Phase 2 — Observation registry
-
-Populate `data/observations.json` for existing and new photographs.
-
-### Phase 3 — Observation detail pages
-
-Provide a public detail view for each observation with media, metadata, integrity state and repository references.
-
-### Phase 4 — Bounty and transaction references
-
-Allow explicit associations between observations, MyZubster bounty records and public Monero transaction references without storing wallet secrets.
-
-### Phase 5 — Verification and API
-
-Add validation tooling and an API for observation lookup, integrity checks and status filters.
-
-### Phase 6 — Geographic and timeline explorer
-
-Build map and timeline views over verified observations while respecting privacy rules.
+Un'osservazione pubblica è completa quando media e metadati sono validi, il digest è registrato, la sensibilità è stata revisionata, il consenso è tracciato quando necessario, la proiezione non espone dati eccedenti e nessun segreto o dato di pagamento personale è presente.
