@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 const ORG = 'MyZubster-Ecosystem';
 const REPO = 'https://github.com/MyZubster-Ecosystem/myzubster';
@@ -30,10 +30,19 @@ function LifePortalPage({ initialView = 'home', onNavigate, openLegacy }) {
   const [municipalityStatus, setMunicipalityStatus] = useState('');
   const [repos, setRepos] = useState([]);
   const [repoQuery, setRepoQuery] = useState('');
+  const isInitialRender = useRef(true);
 
   useEffect(() => {
     setView(initialView);
   }, [initialView]);
+
+  useEffect(() => {
+    if (isInitialRender.current) {
+      isInitialRender.current = false;
+      return;
+    }
+    document.getElementById('main-content')?.focus();
+  }, [view]);
 
   const goToView = (nextView) => {
     const nextPath = VIEW_PATHS[nextView];
