@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MyZubster Lavori · Scambio competenze</title>
+<style>
+body{margin:0;font-family:system-ui,-apple-system,sans-serif;background:#08111f;color:#e5edf8}main{max-width:980px;margin:auto;padding:28px}h1{font-size:clamp(2rem,5vw,4rem);margin:.2em 0}.tag{color:#55e6c1;font-weight:800;letter-spacing:.12em}.box,.card{background:#101c30;border:1px solid #253652;border-radius:16px;padding:18px;margin:14px 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}input,textarea,select,button{font:inherit;border-radius:10px;border:1px solid #354967;padding:11px;background:#0b1627;color:#fff;box-sizing:border-box;width:100%}button{background:#19c5a5;color:#03120f;font-weight:900;cursor:pointer}.secondary{background:#1c2a42;color:#e5edf8}.muted{color:#9fb0c8}.skills{color:#84f4db;font-weight:700}.status{font-size:.8rem;font-weight:900;text-transform:uppercase}.actions{display:flex;gap:8px;flex-wrap:wrap}.actions button{width:auto}.hidden{display:none}.error{color:#ff9a9a}a{color:#8bd9ff}
+</style>
+</head><body><main>
+<div class="tag">MYZUBSTER BETA</div><h1>Lavori · Scambio competenze</h1>
+<p class="muted">Offri ciò che sai fare e cerca la competenza che ti serve. Nessun pagamento automatico: MYZ, wallet e settlement restano separati.</p>
+<section class="box" id="authBox"><h2>Accedi</h2><div class="grid"><input id="email" type="email" placeholder="Email"><input id="password" type="password" placeholder="Password"><button onclick="login()">ACCEDI</button></div><p id="authMsg" class="muted"></p></section>
+<section class="box hidden" id="createBox"><h2>Pubblica uno scambio</h2><div class="grid"><input id="title" placeholder="Titolo"><input id="offered" placeholder="Io offro…"><input id="requested" placeholder="Io cerco…"><select id="mode"><option value="remote">Remoto</option><option value="local">Locale</option><option value="hybrid">Ibrido</option></select><input id="location" placeholder="Luogo (facoltativo)"></div><textarea id="description" rows="3" placeholder="Descrivi lo scambio" style="margin-top:10px"></textarea><button onclick="createOffer()" style="margin-top:10px">PUBBLICA</button><button class="secondary" onclick="logout()" style="margin-top:8px">ESCI</button></section>
+<section><div class="actions"><button onclick="loadOffers()">AGGIORNA</button><a href="https://github.com/MyZubster-Ecosystem/MyZubster-App/pull/101">App Android su GitHub</a></div><div id="message" class="muted"></div><div id="offers"></div></section>
+</main><script>
+const TOKEN_KEY='myzubster_lavori_token';let token=localStorage.getItem(TOKEN_KEY)||'';
+const headers=()=>({'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})});
+function syncAuth(){document.getElementById('createBox').classList.toggle('hidden',!token);document.getElementById('authBox').classList.toggle('hidden',!!token)}
+async function request(url,opts={}){const r=await fetch(url,{...opts,headers:{...headers(),...(opts.headers||{})}});const data=await r.json().catch(()=>({}));if(!r.ok)throw new Error(data.message||data.error||`HTTP ${r.status}`);return data}
+async function login(){try{const data=await request('/api/auth/login',{method:'POST',body:JSON.stringify({email:email.value.trim(),password:password.value})});token=data.token||data.data?.token||'';if(!token)throw new Error('Token non ricevuto');localStorage.setItem(TOKEN_KEY,token);authMsg.textContent='Accesso effettuato';syncAuth();loadOffers()}catch(e){authMsg.textContent=e.message;authMsg.className='error'}}
+function logout(){token='';localStorage.removeItem(TOKEN_KEY);syncAuth()}
+async function createOffer(){try{await request('/api/skill-exchange/offers',{method:'POST',body:JSON.stringify({title:title.value,description:description.value,offeredSkill:offered.value,requestedSkill:requested.value,mode:mode.value,location:location.value})});[title,description,offered,requested,location].forEach(x=>x.value='');message.textContent='Offerta pubblicata.';loadOffers()}catch(e){message.textContent=e.message;message.className='error'}}
+async function apply(id){if(!token){message.textContent='Accedi prima di candidarti.';return}const note=prompt('Messaggio per chi ha pubblicato l’offerta (facoltativo):','')??'';try{await request(`/api/skill-exchange/offers/${id}/applications`,{method:'POST',body:JSON.stringify({message:note})});message.textContent='Candidatura inviata.'}catch(e){message.textContent=e.message;message.className='error'}}
+function esc(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+async function loadOffers(){try{const data=await request('/api/skill-exchange/offers');const list=data.offers||[];offers.innerHTML=list.length?list.map(o=>`<article class="card"><div class="status">${esc(o.status)}</div><h2>${esc(o.title)}</h2><div class="skills">Offro: ${esc(o.offeredSkill)} · Cerco: ${esc(o.requestedSkill)}</div><p>${esc(o.description)}</p><p class="muted">${esc(o.mode)}${o.location?' · '+esc(o.location):''}</p><div class="actions"><button onclick="apply('${esc(o._id)}')">CANDIDATI</button></div></article>`).join(''):'<p class="muted">Nessuna offerta aperta. Pubblica la prima.</p>';message.textContent=''}catch(e){message.textContent=e.message;message.className='error'}}
+syncAuth();loadOffers();
+</script></body></html>
