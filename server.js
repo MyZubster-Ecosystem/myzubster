@@ -17,6 +17,9 @@ app.use(express.json());
 const publicRoot = path.resolve(__dirname, 'public');
 const htmlAliases = new Map([
   ['/', 'index.html'],
+  ['/lavori', 'lavori.html'],
+  ['/jobs', 'lavori.html'],
+  ['/skill-exchange', 'lavori.html'],
   ['/fumetto', 'fumetto.html'],
   ['/fumetto.html', 'fumetto.html'],
   ['/comic', 'fumetto.html'],
@@ -112,6 +115,7 @@ const githubBountySyncRoutes = require('./src/routes/githubBountySyncRoutes');
 const researchRoutes = require('./src/routes/researchRoutes');
 const municipalityRoutes = require('./src/routes/municipalityRoutes');
 const entityRoutes = require('./src/routes/entityRoutes');
+const skillExchangeRoutes = require('./src/routes/skillExchangeRoutes');
 
 app.post('/api/auth/register', async (_req, res, next) => {
   try {
@@ -146,6 +150,7 @@ app.use('/api/zorgax', zorgaxRoutes);
 app.use('/api/github-bounties', githubBountySyncRoutes);
 app.use('/api/research', researchRoutes);
 app.use('/api/entities', entityRoutes);
+app.use('/api/skill-exchange', skillExchangeRoutes);
 
 app.get('/', (req, res) => {
   res.status(200).json({
@@ -158,11 +163,13 @@ app.get('/', (req, res) => {
     life: {
       municipalities: '/api/municipalities',
       gardens: '/api/gardens',
-      zorgax: '/api/zorgax'
+      zorgax: '/api/zorgax',
+      lavori: '/lavori'
     }
   });
 });
 
+app.get('/lavori', (req, res) => res.sendFile(path.join(__dirname, 'public', 'lavori.html')));
 app.get('/grok', (req, res) => res.sendFile(path.join(__dirname, 'public', 'grok.html')));
 app.get('/zorgax', (req, res) => res.sendFile(path.join(__dirname, 'public', 'zorgax.html')));
 app.get('/research-search', (req, res) => res.sendFile(path.join(__dirname, 'public', 'research-search.html')));
