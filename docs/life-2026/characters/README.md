@@ -6,6 +6,14 @@ Their purpose is to make the consortium workflow understandable and interactive 
 
 The machine-readable source of truth is [`life-characters.json`](./life-characters.json).
 
+## Visual overview
+
+![MyZubster LIFE 2026 Characters — Cyberpunk Visual](https://drive.google.com/uc?export=view&id=1RE_Amrg46V2-KoQymCRwjEf7qoELmO_m)
+
+**Visual source:** [MyZubster LIFE 2026 Characters — Cyberpunk](https://drive.google.com/file/d/1RE_Amrg46V2-KoQymCRwjEf7qoELmO_m/view?usp=drivesdk)
+
+The visual summarises the six LIFE role characters, their interaction flow, the public status model, the GitHub manifest and Issue #711 that tracks UI integration.
+
 ## Why these characters exist
 
 LIFE projects involve people and organisations with very different responsibilities: scientific validation, access to operational datasets, technical interpretation, pilot execution, replication and policy uptake. MyZubster turns those responsibilities into visible roles that can interact with data, evidence, assets, KPIs and milestones.
