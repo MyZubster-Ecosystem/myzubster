@@ -1,0 +1,85 @@
+{
+  "program": "MyZubster Comics Bounty Program",
+  "reward_asset": "MYZ",
+  "currency_model": "internal_reward_accounting_unit",
+  "last_updated": "2026-08-21",
+  "challenges": [
+    {
+      "id": "COMIC-BNT-0001",
+      "title": "MyZubster comic story concept",
+      "category": "writing",
+      "status": "OPEN",
+      "reward_myz": 250,
+      "objective": "Create an original short comic concept set in the MyZubster universe, including premise, audience, main conflict and a 6-10 beat story outline.",
+      "acceptance": [
+        "Original concept with clear beginning, middle and end",
+        "Suitable for a short illustrated comic",
+        "MyZubster is meaningfully integrated into the story",
+        "No unauthorized third-party characters or protected franchise material",
+        "Any material AI assistance is disclosed"
+      ]
+    },
+    {
+      "id": "COMIC-BNT-0002",
+      "title": "Character design sheet",
+      "category": "visual-design",
+      "status": "OPEN",
+      "reward_myz": 500,
+      "objective": "Create a production-ready character sheet for an original MyZubster comic character with consistent front/side/three-quarter views and expression references.",
+      "acceptance": [
+        "At least three consistent character views",
+        "At least four readable expressions",
+        "Visual design is original and reproducible across comic panels",
+        "Web-ready export and source/editable file are provided when applicable",
+        "Rights and AI-assistance disclosures are complete"
+      ]
+    },
+    {
+      "id": "COMIC-BNT-0003",
+      "title": "Storyboard and page layout",
+      "category": "storyboard",
+      "status": "OPEN",
+      "reward_myz": 750,
+      "objective": "Turn an approved MyZubster comic script or concept into a readable storyboard for 4-6 comic pages, showing panel flow, dialogue placement and key visual beats.",
+      "acceptance": [
+        "4-6 pages of clear sequential storytelling",
+        "Panel order and reading direction are unambiguous",
+        "Dialogue/caption placement is planned",
+        "Characters and environments remain visually consistent",
+        "Storyboard can be handed off to a final artist"
+      ]
+    },
+    {
+      "id": "COMIC-BNT-0004",
+      "title": "Finished comic sequence",
+      "category": "comic-art",
+      "status": "OPEN",
+      "reward_myz": 1500,
+      "objective": "Produce a polished 4-6 page MyZubster comic sequence from an approved script/storyboard, including final art and lettering.",
+      "acceptance": [
+        "4-6 finished sequential pages",
+        "Readable lettering and coherent page flow",
+        "Consistent character and environment design",
+        "Publication-ready PDF or high-resolution image exports",
+        "Required rights, source-file and AI disclosures are supplied"
+      ]
+    },
+    {
+      "id": "COMIC-BNT-0005",
+      "title": "Complete MyZubster short comic",
+      "category": "flagship-comic",
+      "status": "OPEN",
+      "reward_myz": 5000,
+      "objective": "Create a complete original MyZubster short comic/episode suitable for public release, covering script, sequential art, lettering and final publication assets.",
+      "acceptance": [
+        "Complete self-contained story with an approved scope",
+        "Professional and internally consistent sequential art",
+        "Final lettering is readable on desktop and mobile",
+        "Cover/title treatment and publication-ready export are included",
+        "All submitted materials can be legally used under the bounty license terms",
+        "Any material AI assistance is disclosed",
+        "Source/editable assets required by the issue are delivered"
+      ]
+    }
+  ]
+}

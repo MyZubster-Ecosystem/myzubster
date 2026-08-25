@@ -1,49 +1,94 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { STATUS_LABELS, calculateMetrics } from '../data/pilotSyntheticData';
+import {
+  INITIAL_AUDIT,
+  INITIAL_INTERVENTIONS,
+  NEXT_STATUS,
+  STATUS_LABELS,
+  advance,
+  calculateMetrics,
+} from '../data/pilotSyntheticData';
 
-const API_URL = process.env.REACT_APP_PILOT_API_URL || 'http://localhost:3001';
+const API_URL = (process.env.REACT_APP_PILOT_API_URL || '').replace(/\/+$/, '');
+const ACTION_BY_STATUS = {
+  assigned: 'ASSIGNED',
+  in_progress: 'STARTED',
+  verification: 'SUBMITTED_FOR_VERIFICATION',
+  closed: 'CLOSED',
+};
 
 export default function PilotDashboardPage() {
-  const [items, setItems] = useState([]);
-  const [audit, setAudit] = useState([]);
+  const [items, setItems] = useState(INITIAL_INTERVENTIONS);
+  const [auditById, setAuditById] = useState(INITIAL_AUDIT);
   const [selectedId, setSelectedId] = useState('INT-001');
-  const [apiState, setApiState] = useState('connecting');
+  const [apiState, setApiState] = useState(API_URL ? 'connecting' : 'demo locale');
+  const audit = auditById[selectedId] || [];
   const metrics = useMemo(() => calculateMetrics(items), [items]);
 
   const loadItems = async () => {
+    if (!API_URL) return;
     try {
       const response = await fetch(`${API_URL}/interventions`);
       if (!response.ok) throw new Error('API error');
       setItems(await response.json());
       setApiState('connected');
     } catch (_error) {
-      setApiState('offline');
+      setApiState('demo locale (fallback)');
     }
   };
 
   const loadAudit = async (id) => {
+    if (!API_URL) return;
     try {
       const response = await fetch(`${API_URL}/interventions/${id}/audit`);
       if (!response.ok) throw new Error('API error');
-      setAudit(await response.json());
+      const remoteAudit = await response.json();
+      setAuditById(current => ({ ...current, [id]: remoteAudit }));
     } catch (_error) {
-      setAudit([]);
+      setApiState('demo locale (fallback)');
     }
   };
 
   useEffect(() => { loadItems(); }, []);
   useEffect(() => { loadAudit(selectedId); }, [selectedId]);
 
+  const advanceLocalItem = (id) => {
+    const currentItem = items.find(item => item.id === id);
+    if (!currentItem) return;
+    const updated = advance(currentItem);
+    if (updated.status === currentItem.status) return;
+    const event = {
+      at: new Date().toISOString(),
+      actor: 'demo-operator',
+      from: currentItem.status,
+      to: updated.status,
+      action: ACTION_BY_STATUS[updated.status] || 'ADVANCED',
+    };
+    setItems(currentItems => currentItems.map(item => item.id === id ? updated : item));
+    setAuditById(current => ({ ...current, [id]: [...(current[id] || []), event] }));
+  };
+
   const advanceItem = async (id) => {
-    const role = id === selectedId ? 'operator' : 'operator';
-    const response = await fetch(`${API_URL}/interventions/${id}/advance`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ actor: 'demo-operator', role }),
-    });
-    if (!response.ok) return;
-    await loadItems();
-    if (selectedId === id) await loadAudit(id);
+    if (!API_URL || apiState.startsWith('demo locale')) {
+      advanceLocalItem(id);
+      return;
+    }
+
+    try {
+      const item = items.find(candidate => candidate.id === id);
+      const nextStatus = item ? NEXT_STATUS[item.status] : null;
+      const role = nextStatus === 'closed' ? 'reviewer' : 'operator';
+      const response = await fetch(`${API_URL}/interventions/${id}/advance`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ actor: 'demo-operator', role }),
+      });
+      if (!response.ok) throw new Error('API error');
+      await loadItems();
+      if (selectedId === id) await loadAudit(id);
+    } catch (_error) {
+      setApiState('demo locale (fallback)');
+      advanceLocalItem(id);
+    }
   };
 
   return (
@@ -51,7 +96,7 @@ export default function PilotDashboardPage() {
       <div style={{ marginBottom: 24 }}>
         <h2>🧩 Pilot Dashboard</h2>
         <p>Dati sintetici — workflow + API + audit trail MyZubster MVP</p>
-        <small>API: {apiState}</small>
+        <small>Modalità dati: {apiState}</small>
       </div>
       <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(180px,1fr))', gap: 16 }}>
         {[[ 'Interventi', metrics.total ], [ 'Chiusi', metrics.closed ], [ 'Completion rate', `${metrics.completionRate}%` ], [ 'Tempo medio chiusura', `${metrics.avgCloseMinutes} min` ]].map(([label, value]) => (

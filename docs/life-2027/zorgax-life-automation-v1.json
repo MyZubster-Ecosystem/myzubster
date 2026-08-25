@@ -1,0 +1,112 @@
+{
+  "schemaVersion": "1.0",
+  "name": "Zorgax LIFE Automation v1",
+  "scope": "LIFE-2027",
+  "mode": "evidence_orchestration",
+  "humanInTheLoop": true,
+  "inputTypes": ["csv", "json", "api_batch", "manual_observation"],
+  "states": [
+    "RECEIVED",
+    "SCHEMA_CHECKED",
+    "NORMALIZED",
+    "PROVENANCE_ATTACHED",
+    "DRAFT_EVIDENCE",
+    "TECHNICAL_REVIEW",
+    "SCIENTIFIC_REVIEW",
+    "VALIDATED",
+    "REPORTABLE",
+    "REPLICABLE",
+    "REJECTED_SCHEMA",
+    "MISSING_CONTEXT",
+    "ANOMALY_REVIEW",
+    "ACCESS_RESTRICTED",
+    "SUPERSEDED"
+  ],
+  "pipeline": [
+    {"step": "ingest", "actor": "zorgax", "output": "RECEIVED"},
+    {"step": "schema_check", "actor": "zorgax", "output": "SCHEMA_CHECKED", "onFailure": "REJECTED_SCHEMA"},
+    {"step": "normalize", "actor": "zorgax", "output": "NORMALIZED"},
+    {"step": "attach_provenance", "actor": "zorgax", "output": "PROVENANCE_ATTACHED"},
+    {"step": "create_evidence", "actor": "zorgax", "output": "DRAFT_EVIDENCE"},
+    {"step": "technical_review", "actor": "life-technical-data-validator", "output": "TECHNICAL_REVIEW"},
+    {"step": "scientific_review", "actor": "life-scientific-coordinator", "output": "SCIENTIFIC_REVIEW"},
+    {"step": "validate", "actor": "authorized_human", "output": "VALIDATED"},
+    {"step": "make_reportable", "actor": "zorgax", "requires": ["VALIDATED"], "output": "REPORTABLE"},
+    {"step": "make_replicable", "actor": "life-replication-policy-lead", "requires": ["VALIDATED"], "output": "REPLICABLE"}
+  ],
+  "triggers": [
+    "NEW_DATASET",
+    "SCHEDULED_REFRESH",
+    "MISSING_REQUIRED_FIELD",
+    "ANOMALY_THRESHOLD",
+    "KPI_INPUTS_COMPLETE",
+    "TECHNICAL_REVIEW_COMPLETED",
+    "SCIENTIFIC_VALIDATION_COMPLETED"
+  ],
+  "roleRouting": {
+    "dataAccess": "life-water-data-steward",
+    "technicalInterpretation": "life-technical-data-validator",
+    "scientificValidation": "life-scientific-coordinator",
+    "fieldContext": "life-pilot-operator",
+    "replication": "life-replication-policy-lead",
+    "transnationalReplication": "life-mediterranean-replication-partner"
+  },
+  "evidenceRecordRequiredFields": [
+    "recordId",
+    "sourceId",
+    "observationTimestamp",
+    "ingestionTimestamp",
+    "variable",
+    "rawValue",
+    "normalizedValue",
+    "unit",
+    "assetRef",
+    "provenance",
+    "qualityFlags",
+    "accessClass",
+    "kpiRefs",
+    "technicalReviewStatus",
+    "scientificReviewStatus",
+    "auditEvents"
+  ],
+  "automationPermissions": {
+    "may": [
+      "ingest_approved_source",
+      "validate_schema",
+      "normalize_units",
+      "attach_provenance",
+      "detect_duplicates",
+      "create_draft_evidence",
+      "calculate_approved_kpi",
+      "route_anomaly",
+      "create_review_task",
+      "append_audit_event",
+      "prepare_draft_report"
+    ],
+    "mustNot": [
+      "invent_missing_values",
+      "approve_scientific_claims",
+      "publish_restricted_data",
+      "change_kpi_formula_without_review",
+      "declare_partner_confirmed",
+      "submit_life_application",
+      "approve_budget_or_contract",
+      "store_secrets_in_repository"
+    ]
+  },
+  "phase1": {
+    "data": "synthetic_only",
+    "acceptance": [
+      "csv_json_ingestion",
+      "schema_validation",
+      "normalization",
+      "provenance",
+      "evidence_record",
+      "versioned_kpi",
+      "anomaly_routing",
+      "review_states",
+      "audit_history",
+      "validated_export"
+    ]
+  }
+}

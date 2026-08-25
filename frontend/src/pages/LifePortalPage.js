@@ -1,10 +1,17 @@
 import React, { useEffect, useMemo, useState } from 'react';
 
-const GATEWAY = process.env.REACT_APP_GATEWAY_URL || 'https://myzubster-gateway.vercel.app';
 const ORG = 'MyZubster-Ecosystem';
 const REPO = 'https://github.com/MyZubster-Ecosystem/myzubster';
 const JOIN = `${REPO}/blob/main/JOIN.md`;
 const CHARACTER_REGISTRY = `${REPO}/issues/617`;
+const VIEW_PATHS = {
+  home: '/',
+  register: '/account',
+  municipality: '/comuni',
+  gardens: '/orti',
+  repos: '/repositories',
+  life: '/life',
+};
 
 const shell = { minHeight: '100vh', background: '#071018', color: '#f8fafc' };
 const card = { background: '#0f1b27', border: '1px solid #213547', borderRadius: 18, padding: 18 };
@@ -14,8 +21,8 @@ const secondary = { ...primary, background: '#182938' };
 const linkButton = { ...primary, display: 'inline-block', textDecoration: 'none', textAlign: 'center' };
 const outlineLink = { ...linkButton, background: '#10202e', border: '1px solid #2d5266' };
 
-function LifePortalPage({ openLegacy }) {
-  const [view, setView] = useState('home');
+function LifePortalPage({ initialView = 'home', onNavigate, openLegacy }) {
+  const [view, setView] = useState(initialView);
   const [register, setRegister] = useState({ username: '', email: '', password: '', moneroWallet: '' });
   const [showXmr, setShowXmr] = useState(false);
   const [registerStatus, setRegisterStatus] = useState('');
@@ -23,6 +30,16 @@ function LifePortalPage({ openLegacy }) {
   const [municipalityStatus, setMunicipalityStatus] = useState('');
   const [repos, setRepos] = useState([]);
   const [repoQuery, setRepoQuery] = useState('');
+
+  useEffect(() => {
+    setView(initialView);
+  }, [initialView]);
+
+  const goToView = (nextView) => {
+    const nextPath = VIEW_PATHS[nextView];
+    if (onNavigate && nextPath) onNavigate(nextPath);
+    else setView(nextView);
+  };
 
   useEffect(() => {
     fetch(`https://api.github.com/orgs/${ORG}/repos?per_page=100&sort=updated`)
@@ -76,7 +93,10 @@ function LifePortalPage({ openLegacy }) {
   }
 
   const actions = [
+    ['identity', '🪪', 'Identità MyZubster', 'Crea o importa un’identità e collegala facoltativamente a GitHub.'],
     ['register', '👤', 'Account MyZubster', 'Crea un account per le funzioni applicative che richiedono autenticazione.'],
+    ['agents', '🧠', 'Entità AI', 'Parla con le 12 entità canoniche e ottieni un prossimo passo verificabile.'],
+    ['entity-bounties', '🎯', 'Bounty entità', 'Completa le entità e i visual kit con criteri ed evidenze verificabili.'],
     ['zorgax', '✨', 'Zorgax AI', 'Esplora il progetto con l’AI pubblica, senza account.'],
     ['municipality', '🏛️', 'Comuni', 'Registra un Comune o un ente territoriale.'],
     ['gardens', '🌱', 'Orti & Pilot', 'Accedi agli orti, al verde urbano e ai siti pilota.'],
@@ -97,11 +117,13 @@ function LifePortalPage({ openLegacy }) {
     <div style={shell}>
       <header style={{ borderBottom: '1px solid #1f3342', background: '#09141e', position: 'sticky', top: 0, zIndex: 5 }}>
         <div style={{ maxWidth: 1160, margin: '0 auto', padding: '13px 16px', display: 'flex', gap: 12, alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-          <button onClick={() => setView('home')} style={{ background: 'none', border: 0, color: '#fff', cursor: 'pointer', fontSize: 20, fontWeight: 900 }}>🌍 MyZubster</button>
+          <button onClick={() => goToView('home')} style={{ background: 'none', border: 0, color: '#fff', cursor: 'pointer', fontSize: 20, fontWeight: 900 }}>🌍 MyZubster</button>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             <a href={JOIN} target="_blank" rel="noreferrer" style={outlineLink}>Join MyZubster</a>
             <a href="/fumetto" style={outlineLink}>Fumetto</a>
-            <button onClick={() => setView('zorgax')} style={primary}>Zorgax AI</button>
+            <a href="/entities" style={outlineLink}>Entità AI</a>
+            <a href="/entity-bounties" style={outlineLink}>Bounty</a>
+            <a href="/zorgax" style={linkButton}>Zorgax AI</a>
           </div>
         </div>
       </header>
@@ -153,7 +175,13 @@ function LifePortalPage({ openLegacy }) {
 
           <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(230px,1fr))', gap: 12, marginTop: 24 }}>
             {actions.map(([id, icon, title, text]) => (
-              <button key={id} onClick={() => setView(id)} style={{ ...card, textAlign: 'left', color: '#fff', cursor: 'pointer' }}>
+              <button key={id} onClick={() => {
+                if (id === 'agents') window.location.assign('/entities');
+                else if (id === 'entity-bounties') window.location.assign('/entity-bounties');
+                else if (id === 'zorgax') window.location.assign('/zorgax');
+                else if (id === 'identity') window.location.assign('/onboarding');
+                else goToView(id);
+              }} style={{ ...card, textAlign: 'left', color: '#fff', cursor: 'pointer' }}>
                 <div style={{ fontSize: 30 }}>{icon}</div>
                 <h2 style={{ margin: '10px 0 6px', fontSize: 20 }}>{title}</h2>
                 <div style={{ color: '#9fb0bd', lineHeight: 1.5 }}>{text}</div>
@@ -176,7 +204,7 @@ function LifePortalPage({ openLegacy }) {
         </>}
 
         {view === 'register' && <section style={{ maxWidth: 620, margin: '12px auto' }}>
-          <button onClick={() => setView('home')} style={{ ...secondary, marginBottom: 12 }}>← Home</button>
+          <button onClick={() => goToView('home')} style={{ ...secondary, marginBottom: 12 }}>← Home</button>
           <div style={card}>
             <h1 style={{ marginTop: 0 }}>Crea il tuo account MyZubster</h1>
             <p style={{ color: '#a9bac7', lineHeight: 1.6 }}>L’account serve per le funzioni applicative che richiedono autenticazione. Per contribuire al codice pubblico puoi invece usare direttamente GitHub.</p>
@@ -197,19 +225,8 @@ function LifePortalPage({ openLegacy }) {
           </div>
         </section>}
 
-        {view === 'zorgax' && <section>
-          <button onClick={() => setView('home')} style={{ ...secondary, marginBottom: 12 }}>← Home</button>
-          <div style={card}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
-              <div><h1 style={{ margin: 0 }}>Zorgax AI</h1><p style={{ color: '#a9bac7' }}>Pubblica e accessibile a tutti.</p></div>
-              <a href={`${GATEWAY}/zargox`} target="_blank" rel="noreferrer" style={linkButton}>Apri a schermo intero</a>
-            </div>
-            <iframe title="Zorgax AI" src={`${GATEWAY}/zargox`} style={{ width: '100%', minHeight: 700, border: '1px solid #243b4a', borderRadius: 14, background: '#090b14' }} />
-          </div>
-        </section>}
-
         {view === 'municipality' && <section style={{ maxWidth: 700, margin: '12px auto' }}>
-          <button onClick={() => setView('home')} style={{ ...secondary, marginBottom: 12 }}>← Home</button>
+          <button onClick={() => goToView('home')} style={{ ...secondary, marginBottom: 12 }}>← Home</button>
           <div style={card}>
             <h1 style={{ marginTop: 0 }}>Registra Comune / Ente</h1>
             <p style={{ color: '#a9bac7' }}>Modulo essenziale. I dettagli del pilot possono essere aggiunti dopo.</p>
@@ -227,7 +244,7 @@ function LifePortalPage({ openLegacy }) {
         </section>}
 
         {view === 'gardens' && <section>
-          <button onClick={() => setView('home')} style={{ ...secondary, marginBottom: 12 }}>← Home</button>
+          <button onClick={() => goToView('home')} style={{ ...secondary, marginBottom: 12 }}>← Home</button>
           <div style={card}>
             <h1 style={{ marginTop: 0 }}>Orti & Pilot</h1>
             <p style={{ color: '#a9bac7', lineHeight: 1.6 }}>Gestione di orti, verde urbano e siti dimostrativi con territorio, acqua, sensori, materiali, osservazioni e KPI/MRV.</p>
@@ -239,7 +256,7 @@ function LifePortalPage({ openLegacy }) {
         </section>}
 
         {view === 'repos' && <section>
-          <button onClick={() => setView('home')} style={{ ...secondary, marginBottom: 12 }}>← Home</button>
+          <button onClick={() => goToView('home')} style={{ ...secondary, marginBottom: 12 }}>← Home</button>
           <div style={card}>
             <div style={{ display: 'flex', gap: 10, justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' }}>
               <div><h1 style={{ margin: 0 }}>Repository MyZubster</h1><p style={{ color: '#a9bac7' }}>{repos.length ? `${repos.length} repository pubblici indicizzati.` : 'Caricamento repository…'}</p></div>
@@ -257,7 +274,7 @@ function LifePortalPage({ openLegacy }) {
         </section>}
 
         {view === 'life' && <section>
-          <button onClick={() => setView('home')} style={{ ...secondary, marginBottom: 12 }}>← Home</button>
+          <button onClick={() => goToView('home')} style={{ ...secondary, marginBottom: 12 }}>← Home</button>
           <div style={card}>
             <h1 style={{ marginTop: 0 }}>MyZubster LIFE 2026</h1>
             <p style={{ color: '#a9bac7', lineHeight: 1.7 }}>Struttura digitale per living lab territoriale, efficienza e riuso dell’acqua, circolarità, dati IoT, Monitoring Reporting & Verification e replicazione open-source. Questo percorso resta in esplorazione / pre-candidature finché l’evidenza pubblica non supporta uno stato più avanzato.</p>

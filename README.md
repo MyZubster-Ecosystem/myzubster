@@ -4,356 +4,289 @@
   <img src="assets/readme/myzubster-core.png" alt="MyZubster ecosystem overview" width="100%">
 </p>
 
-> **Open-source infrastructure for connecting real-world observations, verifiable evidence, collaborative bounties and privacy-aware digital workflows.**
+> **Open-source infrastructure for real-world observations, verifiable evidence, collaborative workflows, privacy-aware automation and reproducible pilots.**
 
-MyZubster is an evolving open-source ecosystem that turns observations from the real world — photos, places, environmental data, services and technical contributions — into structured, reviewable and reusable information.
+MyZubster turns authorized real-world observations — photos, places, environmental data, services and technical contributions — into structured information that can be connected, reviewed, validated and reused.
 
-The project connects **mapping, evidence, bounties, IPFS/IPNS, AI/automation, IoT/robotics and optional external settlement layers** while keeping verification, privacy and safety boundaries explicit.
+**Current state:** MVP / active development and validation. Some components are operational, others experimental or specified for future implementation. A roadmap, issue or discussion is not proof of deployment, partnership, adoption or funding.
 
-> 🌍 **Multilingual documentation:** [English · Italiano · Español · Français · Deutsch · Português · 中文 · 日本語 · 한국어 · العربية · हिन्दी · Русский · Türkçe · Bahasa Indonesia · Polski · Українська · বাংলা · اردو · فارسی · Kiswahili](docs/i18n/README.md)
+## 🧭 Start here — complete MyZubster index
 
-## Why MyZubster?
+| I want to… | Start here |
+|---|---|
+| Understand MyZubster | This README → **How MyZubster works** |
+| Join the community | [`JOIN.md`](JOIN.md) |
+| Contribute code/docs/design | [`CONTRIBUTING.md`](CONTRIBUTING.md) |
+| Find work / missions | [GitHub Issues](https://github.com/MyZubster-Ecosystem/myzubster/issues) |
+| Submit independent evidence | [Community evidence issue #715](https://github.com/MyZubster-Ecosystem/myzubster/issues/715) |
+| See public community evidence | [`docs/PUBLIC-COMMUNITY-ACTIVITY.md`](docs/PUBLIC-COMMUNITY-ACTIVITY.md) |
+| Understand ecosystem architecture | [`docs/ECOSYSTEM.md`](docs/ECOSYSTEM.md) |
+| Follow globalization | [`docs/GLOBALIZATION_ROADMAP_2026_2028.md`](docs/GLOBALIZATION_ROADMAP_2026_2028.md) |
+| Read multilingual docs | [`docs/i18n/README.md`](docs/i18n/README.md) |
+| Understand bounties | [`BOUNTIES.md`](BOUNTIES.md) |
+| Understand internal rewards | [`REWARDS_LEDGER.md`](REWARDS_LEDGER.md) |
+| Understand treasury boundaries | [`TREASURY.md`](TREASURY.md) |
+| Follow public discovery/history | [`docs/PUBLIC-TIMELINE.md`](docs/PUBLIC-TIMELINE.md) |
+| Explore documentation hub | [myzubster-docs](https://github.com/MyZubster-Ecosystem/myzubster-docs) |
+| Read manuals | [myzubster-manuals](https://github.com/MyZubster-Ecosystem/myzubster-manuals) |
+| Open the public website | [myzubster.com](https://www.myzubster.com/) |
+| Explore DAO public area | [myzubster.com/dao](https://www.myzubster.com/dao) |
+| Explore the Chronicle | [myzubster.com/fumetto](https://www.myzubster.com/fumetto) |
 
-A photo can be more than a photo. A contribution can be more than a GitHub issue. MyZubster explores a workflow where real-world observations can become structured evidence, be connected to collaborative tasks, reviewed, published as sanitized public data and — where explicitly defined — associated with platform rewards or independently verified external settlement.
+> 🌍 **Languages:** English · Italiano · Español · Français · Deutsch · Português · 中文 · 日本語 · 한국어 · العربية · हिन्दी · Русский · Türkçe · Bahasa Indonesia · Polski · Українська · বাংলা · اردو · فارسی · Kiswahili — see [`docs/i18n/README.md`](docs/i18n/README.md).
 
-```text
-OBSERVE → DOCUMENT → CONNECT → COLLABORATE → VERIFY → PUBLISH → REWARD / SETTLEMENT
-```
+## ⚙️ How MyZubster works
 
-## How it works
-
-![How MyZubster works](assets/readme/how-it-works.png)
-
-```text
-users / contributors
-       |
-       v
-   App / Web
-       |
-       v
- Core MyZubster
-   |    |     |
-   v    v     v
- map  bounty  observations/media
-          \    /
-           \  /
-            v
-       verification
-            |
-            v
-    sanitized snapshots
-        IPFS / IPNS
-
-optional external settlement boundary:
-Core → Gateway → payment/treasury → independent verifier
-```
-
-### 1. Observe
-Document something useful from the real world: a public place, environmental observation, plant, urban service, technical experiment or other authorized contribution.
-
-### 2. Document
-Attach structured information such as captions, timestamps, permitted location data, media or other evidence required by a workflow.
-
-### 3. Connect
-Link the observation to the map, a project, dataset or bounty.
-
-### 4. Collaborate
-
-![MyZubster collaborative voting](assets/readme/myzubster-vote.png)
-Contributors can work on explicitly defined tasks with acceptance criteria and evidence requirements.
-
-### 5. Verify
-Evidence is reviewed against the task criteria. The existence of a photo, issue, PR or CID alone does not prove successful completion.
-
-### 6. Publish
-Public, sanitized information can be exposed as content-addressed snapshots through IPFS/IPNS. Sensitive or unnecessary personal information must stay out of public datasets.
-
-### 7. Reward / settle
-**MYZ currently represents an internal reward/accounting ledger.** It must not be described automatically as an on-chain payment. XMR or other external settlement, when a bounty explicitly defines it, remains a separate process and requires independent verification before it can be considered `PAID`.
-
-## 💚 Ecosystem-funded bounty model
-
-MyZubster is designed so that **the bounty system is sustained by the ecosystem, not by the personal finances of Daniel Ioni or any other founder, maintainer or contributor**.
-
-Personal salary, savings, employment income and employment benefits remain outside MyZubster by default. A private employment relationship — including an indefinite/permanent employment contract with an external employer — is **not** project treasury, bounty collateral or a guaranteed source of contributor payment. If an individual voluntarily contributes funds to the project, that contribution must be separate, explicit and recorded under the applicable project governance/accounting policy.
-
-### Current pre-Marketplace model
-
-Until MyZubster App / Marketplace revenue rails are actually implemented, reviewed and auditable:
-
-- **MYZ** is the internal reward/accounting unit used to record verified contributor rewards;
-- MYZ does **not** represent guaranteed fiat value, interest or yield;
-- MYZ is not automatically convertible to XMR, fiat or another token;
-- an issue, claim, PR, merge or MYZ ledger entry is not proof of external payment;
-- XMR, fiat or another external reward can be called `FUNDED` only when a real ecosystem source has been reserved and can be verified.
-
-Potential future ecosystem funding sources include:
-
-- App / Marketplace fees and project revenue once those rails are live;
-- project treasury funds;
-- grants and public funding;
-- sponsorships;
-- donations explicitly made to MyZubster;
-- commercial revenue generated by MyZubster activities;
-- other documented ecosystem income approved by governance.
-
-The intended separation is:
-
-```text
-PERSONAL SALARY / SAVINGS / EMPLOYMENT
-                 X
-                 |   not automatic project funding
-                 X
-          MYZUBSTER ECOSYSTEM
-                 |
-        +--------+---------+
-        |                  |
-        v                  v
- internal MYZ       verified ecosystem
- reward ledger      revenue / grants /
-                    sponsorship / donations
-                           |
-                           v
-                     bounty reserve
-                           |
-                           v
-                     verified work
-                           |
-                           v
-               external settlement, if funded
-```
-
-When App / Marketplace begins generating real revenue, a **versioned and auditable governance/accounting policy** must define how revenue is allocated among operating costs, ecosystem treasury, bounty reserves, contributors, maintenance, development and any other approved project purpose. No personal or founder allocation is automatic, and project revenue should not be described as “interest” unless a lawful, implemented and auditable interest-bearing mechanism actually exists.
-
-Canonical rules: [`BOUNTIES.md`](BOUNTIES.md) · Treasury policy: [`TREASURY.md`](TREASURY.md) · MYZ ledger: [`myz/LEDGER.md`](myz/LEDGER.md)
-
-## 🎨 Create a MyZubster comic — complete contributor workflow
-
-MyZubster welcomes illustrators, designers, storytellers and AI-assisted creators. The goal is not simply to produce promotional art: a MyZubster comic should turn a **real, authorized observation, discovery, contribution or documented platform workflow** into an original visual story whose real-world evidence and fictional elements remain clearly distinguishable.
-
-The current entry point for the core visual guide is [bounty #526 — “Come funziona MyZubster”](https://github.com/MyZubster-Ecosystem/myzubster/issues/526). The wider community program is maintained in [`MyZubster-Visual`](https://github.com/MyZubster-Ecosystem/MyZubster-Visual/issues/1).
-
-### Step 1 — Choose what you want to create
-
-You can create:
-
-- a visual explanation of how MyZubster works;
-- a cyberpunk story inspired by your own MyZubster discovery or contribution;
-- a short Discovery Spark;
-- a multi-page Discovery Episode;
-- a connected Discovery Series;
-- a world/character guide tied to documented discoveries;
-- multilingual versions of an accepted visual story.
-
-Do not invent a real platform capability, payment, partnership, user metric or environmental result merely for the story. Fiction is welcome, but it must be recognizable as fiction.
-
-### Step 2 — Find or document the real connection
-
-Before drawing, identify the source material. Examples include a public/authorized plant or environmental observation, a place, a garden, a technical contribution, a completed workflow, a public dataset, a robot/IoT experiment or another safe MyZubster-related discovery.
-
-Record only the evidence needed for the story. Remove unnecessary personal information, secrets, precise sensitive locations, wallet addresses, credentials and restricted-area details.
-
-### Step 3 — Claim the bounty before starting
-
-On the relevant GitHub issue, comment:
-
-```text
-CLAIM
-Creator / public alias: <name>
-Series/title: <working title>
-Language: <language>
-Style: <visual style>
-Workflow: human-made / AI-assisted / mixed
-Real MyZubster connection: <short description>
-Planned deliverable: <pages/panels/assets>
-First draft ETA: <date>
-Rights/consent: I confirm I can submit the material used.
-```
-
-Wait for the maintainer to confirm that there is no conflicting active claim. For bounty #526, a first draft is recommended within **72 hours of an accepted claim**. If there is no update, the task may be reopened to another contributor.
-
-### Step 4 — Plan the story
-
-For the “How MyZubster works” comic, the seven stages should remain recognizable:
+The core operating model is:
 
 ```text
 OBSERVE
-  ↓
+   ↓
 DOCUMENT
-  ↓
-CONNECT
-  ↓
+   ↓
+CONNECT TO MAP / DATASET / MISSION
+   ↓
 COLLABORATE
-  ↓
-VERIFY
-  ↓
-PUBLISH
-  ↓
-REWARD / SETTLEMENT
+   ↓
+VERIFY EVIDENCE
+   ↓
+PUBLISH SANITIZED / AUTHORIZED OUTPUT
+   ↓
+REWARD ACCOUNTING
+   ↓
+OPTIONAL INDEPENDENT EXTERNAL SETTLEMENT
 ```
 
-A useful storyboard is:
+### 1 — Observe
+A contributor records an authorized real-world observation: for example a public place, environmental measurement, plant, service, media contribution or technical test.
 
-1. **Observe** — the character finds or documents something useful in the real world.
-2. **Document** — permitted photos/data/context become structured evidence.
-3. **Connect** — the evidence is linked to the map, project, dataset or bounty.
-4. **Collaborate** — contributors work against explicit acceptance criteria.
-5. **Verify** — evidence is reviewed; existence of a file or PR alone is not proof of completion.
-6. **Publish** — sanitized public information can become a reusable snapshot/dataset.
-7. **Reward / settlement** — MYZ may record an internal reward; external settlement is a separate independently verified process.
+### 2 — Document
+The observation is enriched with the information required by its workflow: timestamp, permitted location information, media, structured fields, source/provenance and supporting evidence.
 
-### Step 5 — Create the visual
+### 3 — Connect
+The record can be associated with mapping, a dataset, a project, a bounty/mission or another MyZubster workflow.
 
-Human-made, AI-assisted and mixed workflows are allowed when the relevant bounty permits them. Regardless of tooling:
+### 4 — Collaborate
+Developers, researchers, designers, testers and other contributors can work through public issues and explicitly scoped tasks.
 
-- create original material and respect copyright/licensing;
-- keep characters, captions and UI readable on mobile as well as desktop;
-- do not expose prompts/workflows containing secrets or private data;
-- do not represent an AI-generated fictional screenshot as real evidence;
-- keep real-world evidence visually or textually distinguishable from fictional/cyberpunk scenes;
-- represent MYZ accurately as the current internal reward/accounting layer;
-- represent XMR/token/external settlement, when relevant, as separate and independently verified.
+### 5 — Verify
+Evidence is evaluated against stated acceptance criteria. A photo, issue, PR, CID, database row or automated output does **not** by itself prove successful completion.
 
-For bounty #526, the expected minimum is **4–8 panels/pages plus a cover, or an equivalent highly readable visual composition**.
+### 6 — Publish
+Only authorized and appropriately sanitized information should become public. Content-addressed publication through IPFS/IPNS is part of the ecosystem direction; confidential partner data and unnecessary personal information stay outside public datasets.
 
-### Step 6 — Export everything needed for reuse
+### 7 — Reward / settlement
+`MYZ` currently represents internal reward/accounting logic. It must not automatically be represented as an on-chain payment. XMR or another external settlement mechanism is a separate boundary and requires actual independent verification.
 
-Unless the bounty says otherwise, provide:
+## 🏗️ Architecture at a glance
 
 ```text
-README/web version: PNG or WebP, optimized
-High-resolution version: PNG or equivalent lossless/high-quality format
-Editable source OR documented regeneration workflow
-Author/rights/license note
-Optional sanitized public evidence/CID
+                    PEOPLE / CONTRIBUTORS
+                             │
+                    Web / App / GitHub
+                             │
+                             ▼
+                      MYZUBSTER CORE
+                ┌────────────┼────────────┐
+                ▼            ▼            ▼
+          Observations      Map       Missions/Bounties
+                │            │            │
+                └────────────┼────────────┘
+                             ▼
+                    Evidence / Provenance
+                             │
+                   ┌─────────┴─────────┐
+                   ▼                   ▼
+                Zorgax             Human Review
+                   │                   │
+                   └─────────┬─────────┘
+                             ▼
+                  Validated / Sanitized Output
+                   ┌─────────┼─────────┐
+                   ▼         ▼         ▼
+               Dashboard   IPFS/IPNS  Reports
+                             │
+                  optional separate boundary
+                             ▼
+                Gateway / External Settlement
 ```
 
-Suggested paths for the core comic are:
+## 🤖 Zorgax — automation boundary
+
+Zorgax is the automation/orchestration track of MyZubster. Its intended role is to help with bounded processing such as routing, schema checks, normalization, provenance preparation, anomaly detection and draft evidence.
+
+For environmental/LIFE-oriented workflows:
 
 ```text
-docs/comic/myzubster-how-it-works.png
-docs/comic/myzubster-how-it-works-hires.png
-docs/comic/README.md
+AUTHORIZED DATA / SENSORS
+          ↓
+        INGEST
+          ↓
+     SCHEMA CHECK
+          ↓
+    NORMALIZATION
+          ↓
+      PROVENANCE
+          ↓
+    DRAFT EVIDENCE
+          ↓
+   TECHNICAL REVIEW
+          ↓
+   SCIENTIFIC REVIEW
+          ↓
+    VALIDATED KPI
+          ↓
+ DASHBOARD / REPORTABLE EVIDENCE
 ```
 
-If AI tools were used, document enough of the workflow to allow maintainers to understand or regenerate the asset without publishing private credentials, private source material or unnecessary personal data.
+Zorgax must not invent missing measurements, silently approve scientific claims, publish restricted partner data, authorize consequential governance actions or replace required human review.
 
-### Step 7 — Self-review before submission
+Implementation planning is tracked in **#713 — Zorgax LIFE Automation v1** and **#714 — ChatGPT × Zorgax v2 research/automation**.
 
-Check every item:
+## 🏛️ DAO / governance
 
-- [ ] I created/originally assembled the submitted work and can grant the required rights.
-- [ ] The real MyZubster connection is explained.
-- [ ] Real evidence and fictional narrative are distinguishable.
-- [ ] The visual does not claim unreleased features as production-ready.
-- [ ] MYZ is not presented as an automatic blockchain payment.
-- [ ] Any external settlement is shown as a separate verified process.
-- [ ] No secret, credential, private key, wallet seed or unnecessary personal data is present.
-- [ ] No sensitive/restricted location or security detail is exposed.
-- [ ] The visual is readable on desktop and mobile.
-- [ ] Source files or regeneration instructions are included.
-- [ ] Evidence/screenshots/render previews are ready for the PR.
+MyZubster exposes a public DAO/governance area at [myzubster.com/dao](https://www.myzubster.com/dao).
 
-### Step 8 — Submit through a pull request
-
-Fork or branch the repository, add the assets and documentation, then open a PR. For bounty #526, include:
+The governance direction separates:
 
 ```text
-Closes #526
-
-Creator: <alias>
-Workflow: human-made / AI-assisted / mixed
-Real-world connection: <summary>
-Assets added: <paths>
-Rights/license: <summary>
-Evidence: <links or repository paths>
+COMMUNITY INPUT
+      ↓
+PROPOSAL / EVIDENCE
+      ↓
+ZORGAX-ASSISTED PREPARATION
+      ↓
+HUMAN / GOVERNANCE REVIEW
+      ↓
+AUTHORIZED ACTION
 ```
 
-In the PR description, walk through the acceptance criteria one by one. Include render previews/screenshots so reviewers do not have to reconstruct the asset locally just to understand the submission.
+Automation is assistance, not authority. Scientific validation, formal partnerships, treasury operations and other consequential decisions require explicit controls appropriate to the action.
 
-### Step 9 — Review and corrections
+## 🌍 Open Community
 
-The maintainer checks architecture accuracy, readability, rights, privacy/safety, evidence and the bounty-specific criteria. A submission can move to `UNDER_REVIEW`, require changes, be verified or be rejected with reasons.
+Public GitHub contribution does not require a private invitation. Contributors may participate using a public alias, subject to GitHub and project rules. An application account is only required for application functions that actually require authentication.
 
-A merge by itself does **not** prove a reward or external payment.
+Contribution paths include:
 
-### Step 10 — Reward lifecycle
+- 🧑‍💻 **Develop** — code, tests, API, frontend/backend, DevOps, documentation;
+- 🎨 **Create** — UX, visuals, characters, storytelling, translations;
+- 📷 **Observe** — authorized/public observations and provenance-aware media;
+- 🔬 **Research** — datasets, environment, IoT, GIS, privacy and technical verification;
+- 🧪 **Test** — reproduce bugs and workflows, accessibility and usability;
+- 🌎 **Participate** — start with [`JOIN.md`](JOIN.md) and a small public mission.
 
-The canonical lifecycle remains:
+Participation is voluntary. A contribution, character, issue or PR does not automatically imply employment, partnership, payment or endorsement.
+
+## 📊 Public evidence & adoption
+
+MyZubster separates anonymous interest from attributable public participation and stronger adoption evidence.
 
 ```text
-PROPOSED
-→ VALIDATED
-→ APPROVED
-→ FUNDED (when required)
-→ ACTIVE
-→ SUBMITTED
-→ UNDER_REVIEW
-→ VERIFIED / REJECTED
-→ REWARD_RECORDED
-→ SETTLEMENT_PENDING / SETTLED (only when applicable)
+Website analytics
+→ anonymous interest
+
+GitHub PR / issue / review / reproducible test
+→ attributable public participation
+
+Independent reproduction / integration
+→ stronger adoption evidence
+
+Authorized real-world pilot
+→ operational evidence
 ```
 
-Current comic/community bounty amounts are **proposed definitions until the applicable approval and verification gates are satisfied**. MYZ is an internal reward/accounting ledger. An issue, claim, uploaded image, PR, merge, publication or ledger entry must never be presented as proof of an external payment.
+See [`docs/PUBLIC-COMMUNITY-ACTIVITY.md`](docs/PUBLIC-COMMUNITY-ACTIVITY.md) and submit reproducible external evidence through [issue #715](https://github.com/MyZubster-Ecosystem/myzubster/issues/715).
 
-### Quick start for a new comic contributor
+Passive visitors must not be deanonymized or correlated with GitHub identities without an explicit legitimate privacy-respecting basis.
+
+## 🌱 LIFE 2027 direction
+
+MyZubster is preparing an environmental pilot architecture toward a possible **LIFE 2027** pathway. This is pre-candidature work: it does **not** imply LIFE funding, European Commission/CINEA endorsement, an approved application or a completed consortium.
+
+Completed/documented preparation includes:
+
+- working concept note and consortium-role modelling;
+- technical/data architecture and scientific briefing;
+- KPI/provenance/evidence workflow;
+- LIFE operational character/role archetypes;
+- Zorgax LIFE automation specification;
+- partner-data onboarding specification;
+- IoT, validation, dashboard and replication work packages/issues;
+- planning for one controlled end-to-end reference pilot.
+
+Current discussions with scientific, technical, industrial and territorial actors must be described according to their actual documented status. Interest, meetings and data discussions are not represented as formal partnerships until formally agreed.
+
+Target vertical slice:
 
 ```text
-1. Open the comic bounty/program issue
-2. Read scope + acceptance criteria
-3. Comment CLAIM
-4. Wait for claim confirmation
-5. Document a safe real MyZubster connection
-6. Storyboard the comic
-7. Create original visuals
-8. Export README + high-resolution assets
-9. Add source/regeneration notes
-10. Self-review privacy, rights and technical claims
-11. Open PR + evidence
-12. Respond to review
-13. Verification happens
-14. Reward is recorded only if all applicable gates pass
+AUTHORIZED SAMPLE DATA
+        ↓
+ZORGAX INGESTION
+        ↓
+PROVENANCE + VALIDATION
+        ↓
+APPROVED KPI / EVIDENCE
+        ↓
+HUMAN SCIENTIFIC + TECHNICAL REVIEW
+        ↓
+INSTITUTIONAL DASHBOARD / REPORT
 ```
 
-**Do not start from the assumption that a bounty is automatically paid. Start from the deliverable, evidence and verification criteria.**
+Real partner data must remain outside public GitHub unless publication rights and data-governance conditions explicitly permit publication.
 
-## What can be built with it?
+## 🌐 Globalization roadmap 2026–2028
 
-Current and experimental tracks include:
+The public roadmap is [`docs/GLOBALIZATION_ROADMAP_2026_2028.md`](docs/GLOBALIZATION_ROADMAP_2026_2028.md).
 
-- 🗺️ real-world mapping and GeoJSON datasets;
-- 🌱 environmental observations, biodiversity and urban-green workflows;
-- 📷 verifiable photo/media contributions;
-- 🎯 collaborative bounty workflows;
-- 🧾 public evidence snapshots through IPFS/IPNS;
-- 🔐 privacy-aware integrations and optional Monero/XMR settlement layers;
-- 🤖 AI-assisted automation with human/security boundaries;
-- 📡 IoT, sensors and robotics experiments;
-- 🧑‍💻 open-source contributor workflows and integrations.
+```text
+OPEN SOURCE
+    ↓
+OPEN COMMUNITY
+    ↓
+VERIFIED ITALIAN REFERENCE PILOT
+    ↓
+PUBLIC REPLICATION KIT
+    ↓
+FIRST INDEPENDENT INTERNATIONAL NODE
+    ↓
+MULTI-REGION REPLICATION
+    ↓
+INTERNATIONAL GOVERNANCE
+    ↓
+MYZUBSTER GLOBAL NETWORK
+```
 
-Not every track is production-ready. See **Project status** below.
+The March 2027 target is **one verifiable Italian vertical slice + a public Replication Kit + at least one external actor beginning an independent international reproduction**. This is a target, not a claim of completion.
 
-## Project status
+## 📌 Project status index
 
-**MVP / active development and validation.**
-
-MyZubster spans multiple repositories and maturity levels. Components may be production-oriented, under development, experimental, simulated or proposed. Documentation should never turn a roadmap item into a released feature merely because it appears in an issue or article.
-
-| Area | Current documentation status |
+| Area | Status |
 |---|---|
 | Core observations / mapping | Development / validation |
+| Public website | Deployed / evolving |
+| Open Community / contributor paths | Public |
+| Community evidence page | Public |
 | Bounty workflow | Development / validation |
 | MYZ reward accounting | Internal ledger |
 | IPFS/IPNS public snapshots | Development / integration |
 | Gateway / external settlement | Separate integration boundary |
-| Monero/XMR | External settlement track; verify independently |
-| AI / automation | Experimental + development tracks |
-| IoT / robotics | Prototype / experimental tracks |
-| LIFE 2026 work | Exploration / pre-candidature |
+| Zorgax AI / automation | Development / experimental |
+| DAO public surface | Public; governance implementation evolving |
+| IoT / robotics | Prototype / experimental |
+| LIFE evidence automation | Specified; implementation tracked |
+| LIFE 2027 | Pre-candidature / consortium + pilot development |
+| Environmental reference pilot | Partner/data discovery; site not formally selected |
+| Global Replication Kit | Roadmap target |
+| International independent node | Roadmap target; not yet claimed |
 
-For repository boundaries and canonical architecture, see [`docs/ECOSYSTEM.md`](docs/ECOSYSTEM.md).
+Execution principle:
 
-## Quick start
+```text
+BUILD → STABILIZE → VERIFY → DEMONSTRATE → PILOT → REPLICATE → SCALE
+```
+
+## 🧪 Quick start for developers
 
 ### Requirements
 
@@ -369,151 +302,82 @@ npm test
 npm run build --if-present
 ```
 
-Use the repository's environment templates/placeholders where available. **Never commit real `.env` secrets, private keys, wallet seeds or production credentials.**
+Never commit real `.env` secrets, credentials, private keys, wallet seeds, confidential datasets or restricted partner material.
 
-## Contribute
+## 🗂️ Repository / documentation map
 
-There are several ways to participate:
+### Community
+- [`JOIN.md`](JOIN.md) — first contributor entry point
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) — contribution rules
+- [`docs/PUBLIC-COMMUNITY-ACTIVITY.md`](docs/PUBLIC-COMMUNITY-ACTIVITY.md) — evidence-first public participation
+- [Issue #715](https://github.com/MyZubster-Ecosystem/myzubster/issues/715) — submit independent evidence
 
-1. explore the repository and documentation;
-2. run the project locally and report reproducible problems;
-3. improve tests, documentation, accessibility or translations;
-4. contribute to an open issue or bounty whose scope you understand;
-5. submit a PR with evidence/tests appropriate to the task;
-6. help improve datasets using only public or explicitly authorized observations.
+### Architecture & operation
+- [`docs/ECOSYSTEM.md`](docs/ECOSYSTEM.md) — ecosystem architecture
+- [`BOUNTIES.md`](BOUNTIES.md) — bounty rules
+- [`REWARDS_LEDGER.md`](REWARDS_LEDGER.md) — reward-accounting model
+- [`TREASURY.md`](TREASURY.md) — treasury policy/boundaries
 
-![MyZubster contribution organization with Linear and Canvas](assets/readme/contribution-organization-linear-canvas.png)
+### Internationalization & history
+- [`docs/i18n/README.md`](docs/i18n/README.md) — multilingual documentation
+- [`docs/GLOBALIZATION_ROADMAP_2026_2028.md`](docs/GLOBALIZATION_ROADMAP_2026_2028.md) — globalization roadmap
+- [`docs/PUBLIC-TIMELINE.md`](docs/PUBLIC-TIMELINE.md) — public discovery timeline
 
-### Bounties
+### External documentation repositories
+- [MyZubster Documentation Hub](https://github.com/MyZubster-Ecosystem/myzubster-docs)
+- [MyZubster Manuals](https://github.com/MyZubster-Ecosystem/myzubster-manuals)
 
-![MyZubster bounty system](assets/readme/myzubster-bounty.png)
+### LIFE / pilot implementation references
+- #395 — Stabilize → MVP → Pilot → Scale
+- #510 — LIFE vertical slice
+- #533 — baseline, KPI & evidence framework
+- #534 — IoT sensing & auditable environmental data adapter
+- #535 — human-in-the-loop AI recommendation/intervention log
+- #536 — automation safety & manual override
+- #537 — environmental dashboard & KPI evidence
+- #538 — pilot replication package
+- #711 — LIFE stakeholder-character UI integration
+- #713 — Zorgax LIFE Automation v1
+- #714 — ChatGPT × Zorgax v2
+- #715 — public independent evidence entry point
 
-![Discuss, design and solve MyZubster bounties with MYZ](assets/readme/bounty-myz-discussion.png)
+## 🔐 Safety, privacy & evidence rules
 
-The canonical rules live in [`BOUNTIES.md`](BOUNTIES.md). Treasury/funding rules live in [`TREASURY.md`](TREASURY.md). Canonical public reward and settlement status lives in [`REWARDS_LEDGER.md`](REWARDS_LEDGER.md).
+MyZubster is designed around public or explicitly authorized observation and verifiable contribution.
 
-```text
-PROPOSED
- → VALIDATED
- → APPROVED
- → FUNDED (when required)
- → ACTIVE
- → SUBMITTED
- → UNDER_REVIEW
- → VERIFIED / REJECTED
- → REWARD_RECORDED
- → SETTLEMENT_PENDING / SETTLED
-```
+Do not publish:
 
-A GitHub issue, assignment, PR, merge or application reward record **is not proof of an external payment**.
-
-Security-related contributions require explicit authorization and responsible disclosure. Do not test third-party systems without permission.
-
-## Safety, privacy and evidence
-
-MyZubster is designed around public/authorized observation and verifiable contribution. Do not submit or publish:
-
-- private keys, wallet seeds or credentials;
+- credentials, tokens or secrets;
+- private keys or wallet seeds;
 - unnecessary personal/confidential information;
-- precise sensitive locations;
-- restricted-area or security-system details;
-- material obtained through unauthorized access;
-- evidence requiring trespassing or bypassing access controls.
+- restricted partner datasets;
+- sensitive locations or restricted-area/security information;
+- material obtained or published without authorization.
 
-Public IPFS metadata must be sanitized before publication.
+Public evidence must be sanitized. Provenance should explain where information came from and under which conditions it may be used.
 
-## External public sources & project history
+## 🧩 What counts as proof?
 
-MyZubster's public evolution has also been documented outside this repository. These sources are useful as a **public chronology of ideas and development claims**, but author publications do not replace code, tests, CI or independent verification.
-
-The maintained source-by-source chronology is available in [`docs/PUBLIC-TIMELINE.md`](docs/PUBLIC-TIMELINE.md).
-
-### DEV Community — Daniel Ioni
-
-- [Building MyZubster: An Open-Source Skill Exchange Platform with Monero Payments](https://dev.to/danielioni/building-myzubster-an-open-source-skill-exchange-platform-with-monero-payments-5dco)
-- [I built a Monero payment platform with Admin Panel, WebSocket, and advanced security](https://dev.to/danielioni/i-built-a-monero-payment-platform-with-admin-panel-websocket-and-advanced-security-57ji)
-- [MyZubster Architecture Deep Dive](https://dev.to/danielioni/myzubster-architecture-deep-dive-3fbi)
-- [How I Integrated Kali Linux and DeepSeek (Local AI) to Build a Self-Defending Security Bot for MyZubster](https://dev.to/danielioni/how-i-integrated-kali-linux-and-deepseek-local-ai-to-build-a-self-defending-security-bot-for-47lk)
-- [Building an AI Automation System for MyZubster](https://dev.to/danielioni/building-an-ai-automation-system-for-myzubster-4k2)
-
-### LinkedIn
-
-- [Public post on AI agents in the physical world and MyZubster](https://www.linkedin.com/posts/daniel-ioni-62b2b9423_github-danielioni-creatormyzubstergateway-activity-7485379054464835584-vEOI)
-
-### External discovery
-
-During August 2026, MyZubster content and/or bounty pages were observed in external indexes and aggregators including KMP Weekly, ContributeHub/Orion, TensorHack, JS Good First Issues Finder, TechForDev, Tech Spindle, OpenIssueMap, BountyScout and other software/content discovery services. These are treated as **discovery signals only** — not evidence of endorsement, active users, partnerships, funding or completed settlement.
-
-Notable external discovery signals include:
-
-- **OpenIssueMap** — publicly indexes `MyZubsterGateway` contribution opportunities, including security-audit and collaborative mapping/verification work. This is treated as high-confidence evidence that public MyZubster issues are being consumed by another contributor-discovery service; it is not evidence of endorsement, completed work or payment.
-- **BountyScout** — surfaced a `MyZubster-App` issue concerning gateway job publication/acceptance in an automated public bounty-opportunity scan. This is an additional discoverability signal only; inclusion does not establish that a bounty is funded, claimed, completed or settled.
-- **Zenn (Japan)** — an independent technical analysis of 122 OSS bounty opportunities referenced `MyZubster-Ecosystem` as a recurring source of indexed bounty issues and noted that, in one snapshot of its ranking, 8 of the top 10 results came from the organization. The analysis also highlighted that multiple bounty-labeled issues did not expose an explicit reward amount. This is a useful external quality signal: bounty pages should be machine-readable and transparent enough to show reward amount, currency/rail, funding state, eligibility, acceptance criteria, verification and settlement conditions.
-- **JS Good First Issues Finder** — indexes MyZubster JavaScript contribution opportunities from repositories including `MyZubster-Marketplace` and `MyZubsterGateway`, providing an additional discovery path for first-time and external contributors.
-- **ContributeHub / Orion** — indexed multiple MyZubster bounty opportunities across ecosystem areas, including EVA IONI, Arduino/IoT, urban-garden workflows, escrow and payment-related tasks, increasing discoverability among external open-source contributors.
-- **TensorHack** — surfaced MyZubster development opportunities, including Monero/XMR wallet-related work and MyZubsterWeb bounties, showing that issue metadata is being consumed by additional external opportunity aggregators.
-- **KMP Weekly** — indexed the MyZubster NFC payments guide in the Kotlin Multiplatform ecosystem, providing an external technical-community discovery signal beyond MyZubster-owned channels.
-- **Tech Spindle** — indexed *Building an AI Automation System for MyZubster* as an automation project and assigned its own impact/innovation scoring. Because the page is derived from the original DEV publication, it is recorded as external indexing/classification rather than independent technical validation.
-- **TechForDev** — indexed/re-published MyZubster material including *MyZubster is Now Live! A Decentralized Global Map for Plants and Animals* and, on 13 August 2026, *Urban Lab: Building a Smart Scooter with AI and Reinforcement Learning*. These pages provide additional propagation/discovery signals, but are treated as syndication rather than independent reporting.
-- **WorldProgramming.org** — indexed/re-published *From Urban Gardens to Clean Streets: Building a Decentralized Robot Ecosystem with MyZubster and Monero*, adding another external content-discovery path while remaining derivative of the original publication.
-- **WorldProgramming / WPS — TAZ DAY** — indexed/re-published *MYZUBSTER TAZ DAY — From Open Source to a Real-World Robotics Test in Riccione*, derived from a DEV Community publication dated **10 August 2026**. The item is recorded as evidence that the TAZ DAY concept/publication exists and that the project publicly framed it as a real-world robotics test. It is **not**, by itself, proof of a production-ready robot fleet, completed physical deployment or independently measured field result.
-- **WorldProgramming / WPS — robot/space-sector article** — indexed/re-published *MyZubster: 36 Robot Projects, 119 XMR in Bounties, and a New Space Sector*, also derived from a DEV Community publication dated **10 August 2026**. The published figures — including **36 robot projects** and **119 XMR in bounties** — are treated here as **historical/publication claims or declared allocation/scope**, not as proof that 36 physical robots were built or that 119 XMR were funded, paid or independently verified. Any external settlement claim must be reconciled with canonical bounty records and independent settlement evidence before being described as `PAID`.
-
-### Public-history interpretation rule
-
-For historical articles, mirrors and syndicated posts, MyZubster uses the following distinction:
+MyZubster uses an evidence ladder:
 
 ```text
-ARTICLE / INDEX EXISTS
-        ≠
-IMPLEMENTATION VERIFIED
-        ≠
-PHYSICAL DEPLOYMENT VERIFIED
-        ≠
-REWARD RECORDED
-        ≠
-EXTERNAL SETTLEMENT VERIFIED / PAID
+CLAIM
+  < DOCUMENTED IMPLEMENTATION
+  < REPRODUCIBLE TEST
+  < INDEPENDENT REPRODUCTION
+  < AUTHORIZED REAL-WORLD PILOT
 ```
 
-Numbers appearing in a historical publication may describe roadmap scope, software/project counts, proposed bounty pools, internal accounting, experiments or author-reported results. They must not be promoted into current canonical metrics unless the repository links them to reproducible evidence or an appropriate independent verifier.
-
-Because external aggregators may automatically interpret GitHub issues, every public bounty should clearly state its **reward (or explicitly say that no external reward is committed), currency/payment rail, funding state, current status, acceptance criteria, eligibility, verification process and settlement conditions**. Indexing by an external service does not imply endorsement, funding, partnership or successful payment.
-
-A further discovery signal was observed through **TriploHub / Central de Inteligência WebMCP**, which indexed Portuguese-language material describing the MyZubster MCP Server and its agent/automation, payment, robotics and IoT-related development claims. This is recorded as external indexing only and does **not** constitute independent validation of the implementation, adoption or partnership.
-
-**Artemida.team** also surfaced MyZubster Robot material for a Russian-speaking audience through an automated DEV.to/RSS-style content ingest. This is recorded as an additional international discovery/mirroring signal, not as independent editorial coverage, endorsement or technical validation.
-
-## LIFE 2026 exploration
-
-MyZubster is exploring the EU **LIFE Programme 2021–2027** as a possible framework for environmental pilots involving observations, urban biodiversity, water/resource efficiency, IoT/robotics, geospatial evidence, citizen science and replication.
-
-**Status: exploration / pre-candidature / partner discovery.** This repository does not claim LIFE funding, an approved application or an official EU/CINEA partnership.
-
-Official references:
-
-- [European Commission — LIFE Programme](https://commission.europa.eu/funding-and-tenders/find-funding/eu-funding-programmes/programme-environment-and-climate-action-life_en)
-- [CINEA — LIFE](https://cinea.ec.europa.eu/programmes/life_en)
-- [EU Funding & Tenders Portal — LIFE](https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/programmes/life2027)
-
-## Documentation
-
-- [🌍 Universal / Multilingual Guide](docs/i18n/README.md)
-- [Ecosystem Architecture](docs/ECOSYSTEM.md)
-- [Bounty System](BOUNTIES.md)
-- [Treasury Policy](TREASURY.md)
-- [Rewards Ledger](REWARDS_LEDGER.md)
-- [Public Discovery Timeline](docs/PUBLIC-TIMELINE.md)
-- [Documentation Hub](https://github.com/MyZubster-Ecosystem/myzubster-docs)
-- [Manuals](https://github.com/MyZubster-Ecosystem/myzubster-manuals)
-
-## Roadmap direction
-
-The long-term direction is to make MyZubster easier for someone new to discover, run, understand and contribute to: clearer onboarding, demonstrable workflows, visual documentation, stronger tests, interoperable public datasets and well-defined boundaries between experimental components and verified production capabilities.
+Repository code and tests take precedence over promotional descriptions. Discussions are not partnerships. Merges are not payments. Internal reward accounting is not external settlement. A roadmap milestone is not a completed milestone until evidence exists.
 
 ## License
 
-MIT License. See `LICENSE`.
+MIT License. See [`LICENSE`](LICENSE).
 
 ---
 
-**Transparency note:** MyZubster is an evolving project. Code, tests, CI and independently verifiable evidence take precedence over promotional descriptions. Proposed features are not released features; merges are not payments; external mentions are not partnerships; and settlement is not `PAID` until verified according to the applicable rail.
+### MyZubster North Star
+
+> **One reproducible public vertical slice, one real measurable authorized pilot, one public replication protocol, then independent international replication.**
+
+**Build in public. Verify independently. Replicate responsibly.**

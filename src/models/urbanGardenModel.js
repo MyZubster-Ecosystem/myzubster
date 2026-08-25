@@ -32,7 +32,14 @@ const urbanGardenSchema = new mongoose.Schema({
   updatedAt: {type: Date, default: Date.now}
 });
 urbanGardenSchema.statics.findByCategory = function(cat) { return this.find({category: cat, isPublic: true}); };
-urbanGardenSchema.statics.findNearby = function(lat, lng, maxDist) {
-  return this.find({isPublic: true, 'location.lat': {$gte: lat-maxDist, $lte: lat+maxDist}, 'location.lng': {$gte: lng-maxDist, $lte: lng+maxDist}});
+urbanGardenSchema.statics.findNearby = function(lat, lng, radiusMeters) {
+  const latDelta = radiusMeters / 111320;
+  const longitudeScale = Math.max(Math.cos((lat * Math.PI) / 180), 0.01);
+  const lngDelta = radiusMeters / (111320 * longitudeScale);
+  return this.find({
+    isPublic: true,
+    'location.lat': {$gte: lat-latDelta, $lte: lat+latDelta},
+    'location.lng': {$gte: lng-lngDelta, $lte: lng+lngDelta}
+  });
 };
 module.exports = mongoose.model('UrbanGarden', urbanGardenSchema);
