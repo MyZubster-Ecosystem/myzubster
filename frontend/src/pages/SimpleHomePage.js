@@ -22,17 +22,18 @@ function SimpleHomePage({ onExplore }) {
 
   return (
     <div style={shell}>
+      <a href="#contenuto-principale" style={{ display: 'inline-block', margin: '8px 18px', color: '#67e8f9', fontWeight: 800 }}>Vai al contenuto principale</a>
       <header style={{ borderBottom: '1px solid #1f3342', background: '#08141d' }}>
         <div style={{ ...wrap, paddingTop: 14, paddingBottom: 14, display: 'flex', gap: 12, alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
           <strong style={{ fontSize: 21 }}>🌍 MyZubster</strong>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <nav aria-label="Navigazione principale" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             <a href={`${REPO}/blob/main/JOIN.md`} target="_blank" rel="noreferrer" style={secondary}>Partecipa</a>
             <button type="button" onClick={onExplore} style={{ ...primary, border: 0, cursor: 'pointer' }}>Esplora l’ecosistema →</button>
-          </div>
+          </nav>
         </div>
       </header>
 
-      <main style={{ ...wrap, paddingTop: 44, paddingBottom: 72 }}>
+      <main id="contenuto-principale" tabIndex="-1" style={{ ...wrap, paddingTop: 44, paddingBottom: 72 }}>
         <section style={{ maxWidth: 900 }}>
           <div style={{ color: '#67e8f9', fontWeight: 900, fontSize: 13, letterSpacing: 1.2 }}>CAPISCI MYZUBSTER IN 30 SECONDI</div>
           <h1 style={{ fontSize: 'clamp(42px,7vw,76px)', lineHeight: 0.98, margin: '12px 0 18px' }}>Problemi reali → azioni verificabili.</h1>
@@ -48,15 +49,15 @@ function SimpleHomePage({ onExplore }) {
         <section style={{ marginTop: 50 }}>
           <div style={{ color: '#67e8f9', fontWeight: 900, fontSize: 13 }}>COME FUNZIONA CONCRETAMENTE</div>
           <h2 style={{ fontSize: 34, margin: '8px 0 18px' }}>Un solo filo principale.</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(180px,1fr))', gap: 12 }}>
+          <ol aria-label="Workflow MyZubster in cinque passaggi" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(180px,1fr))', gap: 12, listStyle: 'none', padding: 0 }}>
             {steps.map(([n, title, text]) => (
-              <div key={n} style={card}>
-                <div style={{ color: '#67e8f9', fontWeight: 950 }}>{n}</div>
+              <li key={n} style={card}>
+                <div aria-hidden="true" style={{ color: '#67e8f9', fontWeight: 950 }}>{n}</div>
                 <h3 style={{ margin: '8px 0', fontSize: 22 }}>{title}</h3>
                 <div style={{ color: '#aabcc9', lineHeight: 1.55 }}>{text}</div>
-              </div>
+              </li>
             ))}
-          </div>
+          </ol>
         </section>
 
         <section id="caso-reale" style={{ marginTop: 56 }}>
