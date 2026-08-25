@@ -8,9 +8,10 @@ This module creates privacy-first permaculture sites, generates preliminary AI-a
 authenticated site creation
   → encrypted exact location + public projection
   → privacy-safe planning context
+  → optional in-memory photo analysis with local Ollama Vision
   → Ollama plan or deterministic fallback
   → human review required
-  → canonical NFT metadata + SHA-256 commitments
+  → canonical NFT metadata + plan/photo SHA-256 commitments
   → optional off-chain simulation
 ```
 
@@ -34,6 +35,22 @@ It never receives the site name, owner ID, address, city, latitude, longitude, e
 
 Every plan includes an input commitment and `humanReviewRequired: true`. It is a preliminary design, not agronomic, geological, hydrological, construction, fire-safety, or regulatory approval.
 
+## Photo recognition and advice
+
+An authenticated owner can upload one JPEG, PNG or WebP image (maximum 8 MB). The vision model separates visible evidence from hypotheses and returns:
+
+- observable water, soil, vegetation, biodiversity, infrastructure and risk elements;
+- signs associated with the twelve permaculture principles;
+- missing evidence that a single image cannot provide;
+- prioritized actions, rationale, timeframe and confidence;
+- an overall classification: clear signals, partial signals, insufficient evidence, or not permaculture.
+
+The image is held only in process memory for the request and is not saved. The database stores the structured result and a SHA-256 image digest, not the photo or its base64 representation. The service does not identify people, transcribe personal data, infer an address/GPS position, or claim a certain diagnosis of species, disease, soil, drainage or hydrology from one image. Sensitive model output is rejected before persistence.
+
+Photo bytes are sent only to the configured Ollama endpoint. By default, that endpoint must be loopback (`localhost`, `127.0.0.1` or `::1`). Setting `PERMACULTURE_VISION_ALLOW_REMOTE=true` is an explicit privacy opt-in and must be covered by a separate processor/privacy review.
+
+The implementation uses [Ollama Vision](https://docs.ollama.com/capabilities/vision) with [structured outputs](https://docs.ollama.com/capabilities/structured-outputs). The default model is [Qwen2.5-VL](https://ollama.com/library/qwen2.5vl); its Ollama page specifies Ollama 0.7.0 or newer.
+
 ## NFT boundary
 
 NFT metadata contains only:
@@ -41,6 +58,7 @@ NFT metadata contains only:
 - a pseudonymous site ID;
 - coarse design attributes;
 - plan and encrypted-location SHA-256 commitments;
+- the latest photo-analysis commitment, when an analysis exists;
 - country/city labels only when allowed by the location projection.
 
 It never contains coordinates, street address, owner identity, wallet, or the encrypted payload itself. Preparing metadata does not mint anything. After a real mint is eventually recorded, that design version is immutable; a different plan must use a new site/design version.
@@ -57,10 +75,19 @@ PERMACULTURE_AI_MODE=hybrid
 PERMACULTURE_OLLAMA_MODEL=qwen2.5:3b
 PERMACULTURE_AI_TIMEOUT_MS=45000
 OLLAMA_URL=http://127.0.0.1:11434
+PERMACULTURE_VISION_MODEL=qwen2.5vl:3b
+PERMACULTURE_VISION_TIMEOUT_MS=90000
+PERMACULTURE_VISION_ALLOW_REMOTE=false
 NFT_MINT_MODE=disabled
 ```
 
 Keep all secrets in the deployment secret manager.
+
+Install the local vision model before using the endpoint:
+
+```bash
+ollama pull qwen2.5vl:3b
+```
 
 ## API
 
@@ -103,6 +130,22 @@ POST /api/permaculture/:siteId/ai-plan
 Authorization: Bearer <token>
 ```
 
+Analyze a photo and receive evidence-based advice:
+
+```bash
+curl -X POST "http://localhost:5003/api/permaculture/<siteId>/photo-analysis" \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: image/jpeg" \
+  --data-binary @garden.jpg
+```
+
+The response includes `observations`, `permacultureSignals`, `missingEvidence`, `recommendations`, `cautions`, `overallAssessment`, confidence values and `humanReviewRequired: true`. Retrieve the most recent stored result without re-uploading the image:
+
+```http
+GET /api/permaculture/:siteId/photo-analysis/latest
+Authorization: Bearer <token>
+```
+
 Prepare privacy-safe NFT metadata:
 
 ```http
@@ -116,6 +159,8 @@ Other endpoints:
 - `GET /api/permaculture/mine` — authenticated owner's sites;
 - `GET /api/permaculture/:siteId` — public site detail;
 - `GET /api/permaculture/:siteId/location/private` — owner/admin exact location;
+- `POST /api/permaculture/:siteId/photo-analysis` — owner/admin in-memory photo analysis;
+- `GET /api/permaculture/:siteId/photo-analysis/latest` — owner/admin latest structured result;
 - `GET /api/permaculture/nft/:metadataHash` — metadata for a public site.
 
 ## On-chain activation checklist

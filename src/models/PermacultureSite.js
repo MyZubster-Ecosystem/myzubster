@@ -76,6 +76,69 @@ const AiPlanSchema = new mongoose.Schema({
   humanReviewRequired: { type: Boolean, default: true }
 }, { _id: false });
 
+const VisionObservationSchema = new mongoose.Schema({
+  category: {
+    type: String,
+    required: true,
+    enum: ['water', 'soil', 'vegetation', 'biodiversity', 'infrastructure', 'risk', 'unknown']
+  },
+  label: { type: String, required: true, maxlength: 120 },
+  evidence: { type: String, required: true, maxlength: 400 },
+  confidence: { type: Number, required: true, min: 0, max: 1 }
+}, { _id: false });
+
+const PermacultureSignalSchema = new mongoose.Schema({
+  principle: {
+    type: String,
+    required: true,
+    enum: [
+      'observe_interact', 'catch_store_energy', 'obtain_yield', 'self_regulate_feedback',
+      'renewable_resources', 'no_waste', 'patterns_to_details', 'integrate_not_segregate',
+      'small_slow_solutions', 'diversity', 'edges_marginal', 'respond_to_change'
+    ]
+  },
+  evidence: { type: String, required: true, maxlength: 400 },
+  confidence: { type: Number, required: true, min: 0, max: 1 }
+}, { _id: false });
+
+const VisionRecommendationSchema = new mongoose.Schema({
+  priority: { type: String, required: true, enum: ['high', 'medium', 'low'] },
+  action: { type: String, required: true, maxlength: 400 },
+  reason: { type: String, required: true, maxlength: 500 },
+  confidence: { type: Number, required: true, min: 0, max: 1 },
+  timeframe: {
+    type: String,
+    required: true,
+    enum: ['observe_first', 'now', 'this_season', 'long_term']
+  }
+}, { _id: false });
+
+const VisionAssessmentSchema = new mongoose.Schema({
+  classification: {
+    type: String,
+    required: true,
+    enum: ['clear_signals', 'partial_signals', 'insufficient_evidence', 'not_permaculture']
+  },
+  confidence: { type: Number, required: true, min: 0, max: 1 },
+  explanation: { type: String, required: true, maxlength: 600 }
+}, { _id: false });
+
+const VisionAnalysisSchema = new mongoose.Schema({
+  schemaVersion: { type: String, default: 'permaculture-vision-v1' },
+  provider: { type: String, enum: ['ollama'], required: true },
+  model: { type: String, required: true, maxlength: 120 },
+  analyzedAt: { type: Date, required: true },
+  imageSha256: { type: String, required: true, match: /^[a-f0-9]{64}$/ },
+  mimeType: { type: String, required: true, enum: ['image/jpeg', 'image/png', 'image/webp'] },
+  observations: { type: [VisionObservationSchema], default: [] },
+  permacultureSignals: { type: [PermacultureSignalSchema], default: [] },
+  missingEvidence: [{ type: String, maxlength: 300 }],
+  recommendations: { type: [VisionRecommendationSchema], default: [] },
+  cautions: [{ type: String, maxlength: 300 }],
+  overallAssessment: { type: VisionAssessmentSchema, required: true },
+  humanReviewRequired: { type: Boolean, default: true }
+}, { _id: false });
+
 const NftSchema = new mongoose.Schema({
   state: { type: String, enum: ['none', 'prepared', 'simulated', 'minted'], default: 'none' },
   onChain: { type: Boolean, default: false },
@@ -103,6 +166,7 @@ const PermacultureSiteSchema = new mongoose.Schema({
   isPublic: { type: Boolean, default: false, index: true },
   status: { type: String, enum: ['draft', 'active', 'archived'], default: 'draft' },
   aiPlans: { type: [AiPlanSchema], default: [] },
+  visionAnalyses: { type: [VisionAnalysisSchema], default: [] },
   nft: { type: NftSchema, default: () => ({ state: 'none', onChain: false }) },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }

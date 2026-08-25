@@ -34,6 +34,27 @@ const site = {
     soilStrategy: ['Mulch'],
     biodiversityStrategy: ['Flowers'],
     risks: ['Human review']
+  }],
+  visionAnalyses: [{
+    schemaVersion: 'permaculture-vision-v1',
+    imageSha256: 'c'.repeat(64),
+    observations: [{ category: 'soil', label: 'Mulch', evidence: 'Visible cover', confidence: 0.9 }],
+    permacultureSignals: [{ principle: 'no_waste', evidence: 'Residues reused', confidence: 0.8 }],
+    missingEvidence: ['Seasonal water behavior'],
+    recommendations: [{
+      priority: 'high',
+      action: 'Observe rainfall',
+      reason: 'Image is a snapshot',
+      confidence: 0.9,
+      timeframe: 'observe_first'
+    }],
+    cautions: ['Human review'],
+    overallAssessment: {
+      classification: 'partial_signals',
+      confidence: 0.8,
+      explanation: 'Some compatible signals are visible.'
+    },
+    humanReviewRequired: true
   }]
 };
 
@@ -48,6 +69,9 @@ describe('permaculture NFT safety', () => {
     expect(serialized).not.toContain('12.5678873');
     expect(result.metadata.properties.location.commitment).toMatch(/^[a-f0-9]{64}$/);
     expect(result.metadata.properties.commitments.design).toMatch(/^[a-f0-9]{64}$/);
+    expect(result.metadata.properties.commitments.latestPhotoAnalysis).toMatch(/^[a-f0-9]{64}$/);
+    expect(serialized).not.toContain('Visible cover');
+    expect(serialized).not.toContain('Observe rainfall');
   });
 
   test('simulation is explicit and never claims an on-chain mint', () => {

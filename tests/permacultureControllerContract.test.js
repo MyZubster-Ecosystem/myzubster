@@ -16,13 +16,19 @@ describe('permaculture public API contract', () => {
       privateLocation: { ciphertext: 'encrypted-location' },
       profile: { areaSqm: 500, climateZone: 'mediterranean' },
       aiPlans: [],
+      visionAnalyses: [{
+        imageSha256: 'a'.repeat(64),
+        observations: [{ evidence: 'Private greenhouse beside the house' }]
+      }],
       nft: { state: 'none', onChain: false }
     });
     const serialized = JSON.stringify(result);
     expect(result.ownerId).toBeUndefined();
     expect(result.privateLocation).toBeUndefined();
+    expect(result.visionAnalyses).toBeUndefined();
     expect(result.location).toEqual({ visibility: 'private', precision: 'hidden', country: 'IT' });
     expect(serialized).not.toContain('44.0637353');
     expect(serialized).not.toContain('Private street 1');
+    expect(serialized).not.toContain('Private greenhouse');
   });
 });

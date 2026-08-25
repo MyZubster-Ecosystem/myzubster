@@ -8,6 +8,10 @@ const {
 } = require('../services/locationPrivacyService');
 const { generatePermaculturePlan } = require('../services/permacultureAiService');
 const {
+  PermacultureVisionError,
+  analyzePermacultureImage
+} = require('../services/permacultureVisionService');
+const {
   buildPermacultureNftMetadata,
   simulatePermacultureNft
 } = require('../services/permacultureNftService');
@@ -36,6 +40,7 @@ function publicSite(site) {
   delete data.privateLocation;
   delete data.ownerId;
   delete data.aiPlans;
+  delete data.visionAnalyses;
   data.location = projectPublicLocation(data.location);
   data.aiPlan = plan;
   data.nft = {
@@ -70,6 +75,9 @@ function sendError(res, error, fallback = 'Permaculture request failed') {
   }
   if (error instanceof LocationPrivacyError || error.name === 'ValidationError') {
     return res.status(400).json({ success: false, error: error.message, code: error.code });
+  }
+  if (error instanceof PermacultureVisionError) {
+    return res.status(error.status).json({ success: false, error: error.message, code: error.code });
   }
   if (error.code === 'PERMACULTURE_PLAN_REQUIRED') {
     return res.status(409).json({ success: false, error: error.message, code: error.code });
@@ -175,6 +183,54 @@ exports.generatePlan = async (req, res) => {
     });
   } catch (error) {
     return sendError(res, error, 'Unable to generate permaculture plan');
+  }
+};
+
+exports.analyzePhoto = async (req, res) => {
+  try {
+    const site = await ownedSite(req.params.siteId, req);
+    const mimeType = String(req.get('content-type') || '').split(';')[0].trim().toLowerCase();
+    const analysis = await analyzePermacultureImage(req.body, mimeType, site);
+    site.visionAnalyses.push(analysis);
+    if (site.visionAnalyses.length > 10) site.visionAnalyses = site.visionAnalyses.slice(-10);
+
+    // A new evidence record changes future NFT provenance. Existing real mints stay immutable.
+    if (['prepared', 'simulated'].includes(site.nft?.state)) {
+      site.nft = { state: 'none', onChain: false };
+    }
+    await site.save();
+    res.set('Cache-Control', 'no-store');
+    return res.json({
+      success: true,
+      data: plain(site.visionAnalyses[site.visionAnalyses.length - 1]),
+      disclosure: [
+        'The photo was processed in memory and was not stored.',
+        'Observations and advice are preliminary; field verification is required.'
+      ].join(' '),
+      nftLinkState: site.nft?.state === 'minted'
+        ? 'not_linked_to_existing_mint'
+        : 'included_when_metadata_is_next_prepared'
+    });
+  } catch (error) {
+    return sendError(res, error, 'Unable to analyze permaculture photo');
+  }
+};
+
+exports.getLatestPhotoAnalysis = async (req, res) => {
+  try {
+    const site = await ownedSite(req.params.siteId, req);
+    const analyses = Array.isArray(site.visionAnalyses) ? site.visionAnalyses : [];
+    if (analyses.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'No photo analysis found',
+        code: 'PERMACULTURE_VISION_NOT_FOUND'
+      });
+    }
+    res.set('Cache-Control', 'no-store');
+    return res.json({ success: true, data: plain(analyses[analyses.length - 1]) });
+  } catch (error) {
+    return sendError(res, error, 'Unable to load permaculture photo analysis');
   }
 };
 

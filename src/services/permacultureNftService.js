@@ -11,6 +11,11 @@ function latestPlan(site) {
   return plans.length ? plain(plans[plans.length - 1]) : null;
 }
 
+function latestVisionAnalysis(site) {
+  const analyses = Array.isArray(site.visionAnalyses) ? site.visionAnalyses : [];
+  return analyses.length ? plain(analyses[analyses.length - 1]) : null;
+}
+
 function areaBand(areaSqm) {
   if (areaSqm < 100) return 'micro';
   if (areaSqm < 500) return 'small';
@@ -33,6 +38,7 @@ function buildPermacultureNftMetadata(site) {
   const source = plain(site);
   const profile = plain(source.profile);
   const plan = latestPlan(source);
+  const visionAnalysis = latestVisionAnalysis(source);
   if (!plan) {
     const error = new Error('An AI permaculture plan is required before preparing NFT metadata');
     error.code = 'PERMACULTURE_PLAN_REQUIRED';
@@ -48,6 +54,17 @@ function buildPermacultureNftMetadata(site) {
     biodiversityStrategy: plan.biodiversityStrategy,
     risks: plan.risks
   });
+  const visionCommitment = visionAnalysis ? sha256Canonical({
+    schemaVersion: visionAnalysis.schemaVersion,
+    imageSha256: visionAnalysis.imageSha256,
+    observations: visionAnalysis.observations,
+    permacultureSignals: visionAnalysis.permacultureSignals,
+    missingEvidence: visionAnalysis.missingEvidence,
+    recommendations: visionAnalysis.recommendations,
+    cautions: visionAnalysis.cautions,
+    overallAssessment: visionAnalysis.overallAssessment,
+    humanReviewRequired: true
+  }) : null;
   const metadata = {
     schemaVersion: 'myzubster-permaculture-nft-v1',
     name: `MyZubster Permaculture Design ${source.siteId}`,
@@ -67,7 +84,8 @@ function buildPermacultureNftMetadata(site) {
       location,
       commitments: {
         planningInput: plan.inputCommitment,
-        design: designCommitment
+        design: designCommitment,
+        ...(visionCommitment ? { latestPhotoAnalysis: visionCommitment } : {})
       }
     }
   };
