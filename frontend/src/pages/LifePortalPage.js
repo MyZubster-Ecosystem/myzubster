@@ -140,6 +140,7 @@ function LifePortalPage({ initialView = 'home', onNavigate, openLegacy }) {
 
   return (
     <div style={shell}>
+      <a href="#main-content" style={{ position: 'absolute', left: 12, top: 12, zIndex: 10, padding: '10px 14px', borderRadius: 9, background: '#f8fafc', color: '#071018', fontWeight: 800, transform: 'translateY(-200%)' }} onFocus={e => { e.currentTarget.style.transform = 'translateY(0)'; }} onBlur={e => { e.currentTarget.style.transform = 'translateY(-200%)'; }}>Vai al contenuto principale</a>
       <header style={{ borderBottom: '1px solid #1f3342', background: '#09141e', position: 'sticky', top: 0, zIndex: 5 }}>
         <div role="navigation" aria-label="Navigazione principale" style={{ maxWidth: 1160, margin: '0 auto', padding: '13px 16px', display: 'flex', gap: 12, alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
           <button onClick={() => goToView('home')} style={{ background: 'none', border: 0, color: '#fff', cursor: 'pointer', fontSize: 20, fontWeight: 900 }}>🌍 MyZubster</button>
