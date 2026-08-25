@@ -30,7 +30,10 @@ describe('Life portal accessibility contract', () => {
   });
 
   test('announces asynchronous form and repository status updates', () => {
-    expect(portalSource.match(/role="status" aria-live="polite"/g)).toHaveLength(2);
-    expect(portalSource).toContain('<p aria-live="polite"');
+    expect(portalSource.match(/role="status" aria-live="polite"/g)).toHaveLength(3);
+    expect(portalSource).toContain("const [repoStatus, setRepoStatus] = useState('loading');");
+    expect(portalSource).toContain("setRepoStatus('ready');");
+    expect(portalSource).toContain("setRepoStatus('error');");
+    expect(portalSource).toContain('Repository temporaneamente non disponibili.');
   });
 });
