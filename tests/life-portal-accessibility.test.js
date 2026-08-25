@@ -1,0 +1,33 @@
+const fs = require('fs');
+const path = require('path');
+
+const portalSource = fs.readFileSync(
+  path.join(__dirname, '..', 'frontend', 'src', 'pages', 'LifePortalPage.js'),
+  'utf8'
+);
+
+describe('Life portal accessibility contract', () => {
+  test('exposes navigation and a focusable main landmark', () => {
+    expect(portalSource).toContain('role="navigation" aria-label="Navigazione principale"');
+    expect(portalSource).toContain('<main id="main-content" tabIndex={-1}');
+  });
+
+  test.each([
+    'Username',
+    'Email account',
+    'Password account',
+    'Indirizzo pubblico Monero o XMR',
+    'Nome Comune o Ente',
+    'Provincia',
+    'Regione',
+    'Email referente',
+    'Cerca repository',
+  ])('provides the accessible input name %s', (label) => {
+    expect(portalSource).toContain(`aria-label="${label}"`);
+  });
+
+  test('announces asynchronous form and repository status updates', () => {
+    expect(portalSource.match(/role="status" aria-live="polite"/g)).toHaveLength(2);
+    expect(portalSource).toContain('<p aria-live="polite"');
+  });
+});
