@@ -121,13 +121,13 @@ exports.githubCallback = async (req, res) => {
     }
 
     const ticket = signGithubVerification(profile);
-    const redirect = new URL(frontendUrl);
+    const redirect = new URL('/onboarding', `${frontendUrl}/`);
     redirect.searchParams.set('github_oauth_ticket', ticket);
     redirect.searchParams.set('github_oauth', 'verified');
     res.redirect(redirect.toString());
   } catch (error) {
     console.error('GitHub OAuth callback error:', error);
-    const redirect = new URL(frontendUrl);
+    const redirect = new URL('/onboarding', `${frontendUrl}/`);
     redirect.searchParams.set('github_oauth', 'error');
     redirect.searchParams.set('github_oauth_message', error.message.slice(0, 180));
     res.redirect(redirect.toString());
