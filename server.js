@@ -27,6 +27,7 @@ const htmlAliases = new Map([
   ['/how-it-works', 'come-funziona.html'],
   ['/grok', 'grok.html'],
   ['/zorgax', 'zorgax.html'],
+  ['/zorgax-build', 'zorgax-build.html'],
   ['/research-search', 'research-search.html'],
 ]);
 const vercelAnalyticsSnippet = `
@@ -108,6 +109,7 @@ const geocodeRoutes = require('./src/routes/mapRoutes');
 const healthRoutes = require('./src/api/routes');
 const grokRoutes = require('./src/routes/grokRoutes');
 const zorgaxRoutes = require('./src/routes/zorgaxRoutes');
+const zorgaxBuildRoutes = require('./src/routes/zorgaxBuildRoutes');
 const githubBountySyncRoutes = require('./src/routes/githubBountySyncRoutes');
 const researchRoutes = require('./src/routes/researchRoutes');
 const municipalityRoutes = require('./src/routes/municipalityRoutes');
@@ -143,6 +145,7 @@ app.use('/api/geocode', geocodeRoutes);
 app.use('/api', healthRoutes);
 app.use('/api/grok', grokRoutes);
 app.use('/api/zorgax', zorgaxRoutes);
+app.use('/api/zorgax/build', zorgaxBuildRoutes);
 app.use('/api/github-bounties', githubBountySyncRoutes);
 app.use('/api/research', researchRoutes);
 app.use('/api/entities', entityRoutes);
@@ -158,13 +161,15 @@ app.get('/', (req, res) => {
     life: {
       municipalities: '/api/municipalities',
       gardens: '/api/gardens',
-      zorgax: '/api/zorgax'
+      zorgax: '/api/zorgax',
+      zorgax_build: '/api/zorgax/build'
     }
   });
 });
 
 app.get('/grok', (req, res) => res.sendFile(path.join(__dirname, 'public', 'grok.html')));
 app.get('/zorgax', (req, res) => res.sendFile(path.join(__dirname, 'public', 'zorgax.html')));
+app.get('/zorgax-build', (req, res) => res.sendFile(path.join(__dirname, 'public', 'zorgax-build.html')));
 app.get('/research-search', (req, res) => res.sendFile(path.join(__dirname, 'public', 'research-search.html')));
 app.get(['/fumetto', '/comic'], (req, res) => res.sendFile(path.join(__dirname, 'public', 'fumetto.html')));
 
