@@ -9,6 +9,7 @@ const portalSource = fs.readFileSync(
 describe('Life portal accessibility contract', () => {
   test('exposes navigation and manages focus on view changes', () => {
     expect(portalSource).toContain('role="navigation" aria-label="Navigazione principale"');
+    expect(portalSource).toContain('href="#main-content"');
     expect(portalSource).toContain('<main id="main-content" tabIndex={-1}');
     expect(portalSource).toContain('const isInitialRender = useRef(true);');
     expect(portalSource).toContain("document.getElementById('main-content')?.focus();");
