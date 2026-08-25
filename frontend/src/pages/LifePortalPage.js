@@ -29,6 +29,7 @@ function LifePortalPage({ initialView = 'home', onNavigate, openLegacy }) {
   const [municipality, setMunicipality] = useState({ name: '', province: '', region: '', contactEmail: '' });
   const [municipalityStatus, setMunicipalityStatus] = useState('');
   const [repos, setRepos] = useState([]);
+  const [repoStatus, setRepoStatus] = useState('loading');
   const [repoQuery, setRepoQuery] = useState('');
   const isInitialRender = useRef(true);
 
@@ -52,10 +53,25 @@ function LifePortalPage({ initialView = 'home', onNavigate, openLegacy }) {
 
   useEffect(() => {
     fetch(`https://api.github.com/orgs/${ORG}/repos?per_page=100&sort=updated`)
-      .then(r => r.ok ? r.json() : [])
-      .then(data => setRepos(Array.isArray(data) ? data : []))
-      .catch(() => setRepos([]));
+      .then(r => {
+        if (!r.ok) throw new Error('Repository request failed');
+        return r.json();
+      })
+      .then(data => {
+        setRepos(Array.isArray(data) ? data : []);
+        setRepoStatus('ready');
+      })
+      .catch(() => {
+        setRepos([]);
+        setRepoStatus('error');
+      });
   }, []);
+
+  const repoStatusText = repoStatus === 'error'
+    ? 'Repository temporaneamente non disponibili.'
+    : repoStatus === 'ready'
+      ? `${repos.length} repository pubblici indicizzati.`
+      : 'Caricamento repository…';
 
   const filteredRepos = useMemo(() => {
     const q = repoQuery.trim().toLowerCase();
@@ -268,7 +284,7 @@ function LifePortalPage({ initialView = 'home', onNavigate, openLegacy }) {
           <button onClick={() => goToView('home')} style={{ ...secondary, marginBottom: 12 }}>← Home</button>
           <div style={card}>
             <div style={{ display: 'flex', gap: 10, justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' }}>
-              <div><h1 style={{ margin: 0 }}>Repository MyZubster</h1><p aria-live="polite" style={{ color: '#a9bac7' }}>{repos.length ? `${repos.length} repository pubblici indicizzati.` : 'Caricamento repository…'}</p></div>
+              <div><h1 style={{ margin: 0 }}>Repository MyZubster</h1><p role="status" aria-live="polite" style={{ color: repoStatus === 'error' ? '#fbbf24' : '#a9bac7' }}>{repoStatusText}</p></div>
               <a href={JOIN} target="_blank" rel="noreferrer" style={linkButton}>Come contribuire</a>
             </div>
             <input type="search" aria-label="Cerca repository" placeholder="Cerca per nome, linguaggio o argomento" value={repoQuery} onChange={e => setRepoQuery(e.target.value)} style={{ ...input, marginBottom: 12 }} />
