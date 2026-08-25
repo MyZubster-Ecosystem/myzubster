@@ -34,11 +34,23 @@
       "use": "@vercel/static"
     },
     {
+      "src": "public/zorgax-build.html",
+      "use": "@vercel/static"
+    },
+    {
       "src": "public/world-state/metasploit-sentinel.json",
       "use": "@vercel/static"
     }
   ],
   "routes": [
+    {
+      "src": "/zorgax-build/?",
+      "dest": "/public/zorgax-build.html"
+    },
+    {
+      "src": "/api/zorgax/build/(.*)",
+      "dest": "/api/index.js"
+    },
     {
       "src": "/zorgax/?",
       "dest": "/api/index.js"
