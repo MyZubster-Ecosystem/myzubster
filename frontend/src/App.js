@@ -7,6 +7,7 @@ import PilotDashboardPage from './pages/PilotDashboardPage';
 import ClowbotBountiesPage from './pages/ClowbotBountiesPage';
 import AgentsPage from './pages/AgentsPage';
 import AppsDownloadPage from './pages/AppsDownloadPage';
+import DaoPage from './pages/DaoPage';
 
 const PORTAL_VIEWS = {
   '/': 'home',
@@ -60,6 +61,10 @@ function App() {
 
   if (path === '/apps' || path === '/download') {
     return <AppsDownloadPage />;
+  }
+
+  if (path === '/dao') {
+    return <DaoPage />;
   }
 
   if (['/entities', '/agents', '/assistants', '/entity-bounties'].includes(path)) {
