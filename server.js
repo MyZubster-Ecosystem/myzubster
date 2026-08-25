@@ -13,7 +13,6 @@ app.use('/api/github-bounties/webhook', express.json({
 }));
 app.use(express.json());
 
-// Inject Vercel Web Analytics into public HTML pages served by Express.
 const publicRoot = path.resolve(__dirname, 'public');
 const htmlAliases = new Map([
   ['/', 'index.html'],
@@ -39,14 +38,11 @@ const vercelAnalyticsSnippet = `
 
 app.use((req, res, next) => {
   if (req.method !== 'GET') return next();
-
   const alias = htmlAliases.get(req.path);
   const relativePath = alias || (req.path.endsWith('.html') ? req.path.replace(/^\/+/, '') : null);
   if (!relativePath) return next();
-
   const filePath = path.resolve(publicRoot, relativePath);
   if (filePath !== publicRoot && !filePath.startsWith(`${publicRoot}${path.sep}`)) return next();
-
   fs.readFile(filePath, 'utf8', (error, html) => {
     if (error) return next();
     const instrumented = html.includes('</head>')
@@ -66,31 +62,22 @@ function connectMongo() {
   if (process.env.NODE_ENV === 'test') return Promise.resolve();
   if (mongoose.connection.readyState === 1) return Promise.resolve();
   if (mongoConnectionPromise) return mongoConnectionPromise;
-
   if (!mongoUri) {
     const error = new Error('MongoDB non configurato: impostare MONGODB_URI (o MONGO_URI)');
     console.error(`❌ ${error.message}`);
     return Promise.reject(error);
   }
-
-  mongoConnectionPromise = mongoose.connect(mongoUri, {
-    serverSelectionTimeoutMS: 10000
-  })
-    .then(() => {
-      console.log('✅ Connected to MongoDB');
-    })
+  mongoConnectionPromise = mongoose.connect(mongoUri, { serverSelectionTimeoutMS: 10000 })
+    .then(() => console.log('✅ Connected to MongoDB'))
     .catch((err) => {
       mongoConnectionPromise = null;
       console.error('❌ MongoDB connection error:', err);
       throw err;
     });
-
   return mongoConnectionPromise;
 }
 
-if (process.env.NODE_ENV !== 'test') {
-  connectMongo().catch(() => {});
-}
+if (process.env.NODE_ENV !== 'test') connectMongo().catch(() => {});
 
 const authRoutes = require('./src/routes/authRoutes');
 const userRoutes = require('./src/routes/userRoutes');
@@ -110,21 +97,15 @@ const healthRoutes = require('./src/api/routes');
 const grokRoutes = require('./src/routes/grokRoutes');
 const zorgaxRoutes = require('./src/routes/zorgaxRoutes');
 const zorgaxBuildRoutes = require('./src/routes/zorgaxBuildRoutes');
+const zorgaxAssistantRoutes = require('./src/routes/zorgaxAssistantRoutes');
 const githubBountySyncRoutes = require('./src/routes/githubBountySyncRoutes');
 const researchRoutes = require('./src/routes/researchRoutes');
 const municipalityRoutes = require('./src/routes/municipalityRoutes');
 const entityRoutes = require('./src/routes/entityRoutes');
 
 app.post('/api/auth/register', async (_req, res, next) => {
-  try {
-    await connectMongo();
-    next();
-  } catch (error) {
-    res.status(503).json({
-      success: false,
-      message: 'Database temporaneamente non disponibile'
-    });
-  }
+  try { await connectMongo(); next(); }
+  catch (_error) { res.status(503).json({ success: false, message: 'Database temporaneamente non disponibile' }); }
 });
 
 app.use('/api/auth', authRoutes);
@@ -144,13 +125,14 @@ app.use('/api/municipalities', municipalityRoutes);
 app.use('/api/geocode', geocodeRoutes);
 app.use('/api', healthRoutes);
 app.use('/api/grok', grokRoutes);
-app.use('/api/zorgax', zorgaxRoutes);
+app.use('/api/zorgax/assistant', zorgaxAssistantRoutes);
 app.use('/api/zorgax/build', zorgaxBuildRoutes);
+app.use('/api/zorgax', zorgaxRoutes);
 app.use('/api/github-bounties', githubBountySyncRoutes);
 app.use('/api/research', researchRoutes);
 app.use('/api/entities', entityRoutes);
 
-app.get('/', (req, res) => {
+app.get('/', (_req, res) => {
   res.status(200).json({
     ok: true,
     service: 'MyZubster Gateway',
@@ -162,6 +144,7 @@ app.get('/', (req, res) => {
       municipalities: '/api/municipalities',
       gardens: '/api/gardens',
       zorgax: '/api/zorgax',
+      zorgax_assistant: '/api/zorgax/assistant',
       zorgax_build: '/api/zorgax/build'
     }
   });

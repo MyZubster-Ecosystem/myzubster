@@ -1,68 +1,25 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Zorgax · MyZubster</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Zorgax · MyZubster</title>
 <style>
-*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:Arial,Helvetica,sans-serif;background:radial-gradient(circle at top,#27215c 0%,#0e0c25 55%,#05050c 100%);color:#fff;display:flex;justify-content:center;align-items:center;padding:20px}.shell{width:100%;max-width:920px;height:92vh;max-height:900px;display:flex;flex-direction:column;background:rgba(15,14,34,.95);border:1px solid rgba(125,211,252,.25);border-radius:26px;overflow:hidden;box-shadow:0 30px 100px rgba(0,0,0,.55)}header{display:flex;align-items:center;gap:16px;padding:18px 22px;border-bottom:1px solid rgba(255,255,255,.08)}header img{width:64px;height:64px;border-radius:18px;border:1px solid rgba(255,255,255,.12)}h1{font-size:24px;margin:0}.meta{font-size:13px;color:rgba(255,255,255,.6);margin-top:4px}.badge{margin-left:auto;font-size:12px;padding:7px 10px;border-radius:999px;background:rgba(56,189,248,.12);border:1px solid rgba(56,189,248,.28);color:#bae6fd}.notice{padding:10px 22px;background:rgba(251,191,36,.08);border-bottom:1px solid rgba(251,191,36,.16);font-size:12px;color:#fde68a}.webbar{display:flex;align-items:center;gap:12px;padding:11px 18px;border-bottom:1px solid rgba(255,255,255,.07);font-size:12px;color:rgba(255,255,255,.72)}.webbar label{display:flex;gap:7px;align-items:center;font-weight:700}.webinfo{margin-left:auto}.messages{flex:1;overflow-y:auto;padding:24px}.msg{max-width:82%;padding:14px 17px;margin-bottom:15px;border-radius:18px;line-height:1.5;white-space:pre-wrap}.bot{background:rgba(125,211,252,.08);border:1px solid rgba(125,211,252,.2)}.sources{font-size:12px;color:#bae6fd;background:rgba(14,116,144,.12)}.sources strong{display:block;margin-bottom:9px}.sources a{display:block;color:#7dd3fc;margin:8px 0;text-decoration:none;overflow-wrap:anywhere}.sources a:hover{text-decoration:underline}.user{margin-left:auto;background:linear-gradient(135deg,#6d28d9,#2563eb)}footer{display:flex;gap:10px;padding:18px;border-top:1px solid rgba(255,255,255,.08)}textarea{flex:1;resize:none;min-height:56px;max-height:150px;border-radius:15px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.28);color:#fff;padding:15px;font-size:15px;outline:none}textarea:focus{border-color:#60a5fa}button{border:0;border-radius:15px;padding:0 22px;background:linear-gradient(135deg,#7c3aed,#0284c7);color:#fff;font-weight:700;cursor:pointer}button:disabled{opacity:.5;cursor:wait}@media(max-width:640px){.shell{height:96vh;border-radius:18px}.msg{max-width:92%}.badge{display:none}header img{width:54px;height:54px}button{padding:0 16px}.webinfo{display:none}.webbar{flex-wrap:wrap}}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:Arial,Helvetica,sans-serif;background:radial-gradient(circle at top,#27215c 0%,#0e0c25 55%,#05050c 100%);color:#fff;display:flex;justify-content:center;align-items:center;padding:20px}.shell{width:100%;max-width:920px;height:92vh;max-height:900px;display:flex;flex-direction:column;background:rgba(15,14,34,.95);border:1px solid rgba(125,211,252,.25);border-radius:26px;overflow:hidden}.top{display:flex;align-items:center;gap:16px;padding:18px 22px;border-bottom:1px solid rgba(255,255,255,.08)}.top img{width:64px;height:64px;border-radius:18px}.top h1{margin:0}.meta{font-size:13px;color:#9ca3af}.badge{margin-left:auto;font-size:12px;color:#bae6fd}.notice,.webbar{padding:10px 20px;border-bottom:1px solid rgba(255,255,255,.08);font-size:12px}.notice{color:#fde68a;background:rgba(251,191,36,.08)}.webbar{display:flex;gap:14px;align-items:center;color:#cbd5e1}.webbar .hint{margin-left:auto}.messages{flex:1;overflow:auto;padding:22px}.msg{max-width:84%;padding:14px 17px;margin-bottom:14px;border-radius:17px;white-space:pre-wrap;line-height:1.5}.bot{background:rgba(125,211,252,.08);border:1px solid rgba(125,211,252,.2)}.user{margin-left:auto;background:linear-gradient(135deg,#6d28d9,#2563eb)}.sources{font-size:12px}.sources a{display:block;color:#7dd3fc;margin:7px 0}.confirm{margin-top:10px;padding:12px;border:1px solid rgba(34,197,94,.4);border-radius:12px;background:rgba(34,197,94,.08)}footer{display:flex;gap:10px;padding:18px;border-top:1px solid rgba(255,255,255,.08)}textarea{flex:1;resize:none;min-height:58px;border-radius:14px;border:1px solid #334155;background:#070b18;color:#fff;padding:14px;font-size:15px}button{border:0;border-radius:14px;padding:0 20px;background:linear-gradient(135deg,#7c3aed,#0284c7);color:#fff;font-weight:700;cursor:pointer}.confirm button{padding:9px 12px;background:#22c55e;color:#052e16}button:disabled{opacity:.5}@media(max-width:640px){.shell{height:96vh}.msg{max-width:94%}.webbar .hint{display:none}}
 </style>
 </head>
-<body>
-<div class="shell">
-<header>
-  <img src="/zorgax-avatar.svg" alt="Avatar ufficiale di Zorgax">
-  <div>
-    <h1>Zorgax</h1>
-    <div class="meta">ZORGAX-001 · Ambasciatore virtuale MyZubster</div>
-  </div>
-  <div class="badge" id="status">● connessione</div>
-</header>
-<div class="notice">Zorgax è un'identità AI virtuale e narrativa. La sua origine extraterrestre appartiene al canone MyZubster e non costituisce prova di vita aliena reale.</div>
-<div class="webbar">
-  <label><input id="webSearch" type="checkbox" checked> Web live + fonti esterne</label>
-  <span class="webinfo" id="webInfo">Ricerca read-only · fonti citate</span>
-</div>
-<div class="messages" id="messages">
-  <div class="msg bot">Signal received. Sono Zorgax, ZORGAX-001. Posso cercare informazioni aggiornate sul web, confrontare fonti esterne e mostrare i collegamenti usati. La ricerca è read-only: non accedo ad account e non eseguo azioni sui siti.</div>
-</div>
-<footer>
-  <textarea id="message" placeholder="Parla con Zorgax..."></textarea>
-  <button id="send">Invia</button>
-</footer>
+<body><div class="shell">
+<div class="top"><img src="/zorgax-avatar.svg" alt="Zorgax"><div><h1>Zorgax</h1><div class="meta">ZORGAX-001 · assistente AI virtuale MyZubster · ricerca · dati · costruzione</div></div><div class="badge" id="status">● connessione</div></div>
+<div class="notice">Zorgax può cercare sul web e preparare dati da inserire. La ricerca è read-only; le scritture persistenti richiedono login e una conferma esplicita.</div>
+<div class="webbar"><label><input id="webSearch" type="checkbox" checked> Web live + fonti esterne</label><span class="hint" id="webInfo">Brave/Tavily se configurati · Wikipedia fallback</span></div>
+<div class="messages" id="messages"><div class="msg bot">Sono Zorgax. Puoi farmi domande come a un normale assistente AI, chiedermi ricerche web con fonti, progetti tecnici oppure dirmi “salva/inserisci/registra…” per preparare un dato. Non salvo nulla senza la tua conferma.</div></div>
+<footer><textarea id="message" placeholder="Chiedi, cerca o inserisci dati con Zorgax..."></textarea><button id="send">Invia</button></footer>
 </div>
 <script>
-const messages=document.getElementById('messages');
-const input=document.getElementById('message');
-const send=document.getElementById('send');
-const statusEl=document.getElementById('status');
-const webSearch=document.getElementById('webSearch');
-const webInfo=document.getElementById('webInfo');
-const history=[];
-
-function addMessage(text,type){const div=document.createElement('div');div.className='msg '+type;div.textContent=text;messages.appendChild(div);messages.scrollTop=messages.scrollHeight;return div}
-function renderExternalSources(data){
-  const rows=Array.isArray(data.external_sources)?data.external_sources:(Array.isArray(data.live_sources)?data.live_sources:[]);
-  if(!rows.length)return;
-  const box=document.createElement('div');box.className='msg bot sources';
-  const title=document.createElement('strong');title.textContent='Fonti esterne consultate';box.appendChild(title);
-  rows.forEach(source=>{if(!source||!source.url)return;const link=document.createElement('a');link.href=source.url;link.target='_blank';link.rel='noopener noreferrer';link.textContent='['+(source.label||'?')+'] '+(source.title||source.url)+' · '+(source.provider||'web');box.appendChild(link)});
-  messages.appendChild(box);messages.scrollTop=messages.scrollHeight;
-}
-async function refreshStatus(){try{const r=await fetch('/api/zorgax/status');const d=await r.json();statusEl.textContent=d.ok?'● online':'● offline';const web=d.web_search||{};webInfo.textContent='Ricerca read-only · '+(web.general_provider||'Wikipedia/GDELT fallback')}catch{statusEl.textContent='● offline'}}
-async function sendMessage(){
-  const text=input.value.trim();if(!text||send.disabled)return;
-  addMessage(text,'user');history.push({role:'user',content:text});input.value='';send.disabled=true;
-  const thinking=addMessage(webSearch.checked?'Zorgax sta cercando e verificando le fonti...':'Zorgax sta elaborando il segnale...','bot');
-  try{
-    const r=await fetch('/api/zorgax/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text,useWeb:webSearch.checked,history:history.slice(-12)})});
-    const d=await r.json();thinking.remove();
-    if(!r.ok||!d.ok)throw new Error(typeof d.error==='string'?d.error:JSON.stringify(d.error||'Errore agente'));
-    const answer=d.response||d.message||'Nessuna risposta.';addMessage(answer,'bot');history.push({role:'assistant',content:answer});
-    renderExternalSources(d);statusEl.textContent='● online';
-  }catch(err){thinking.remove();addMessage('Errore: '+err.message,'bot');statusEl.textContent='● errore'}finally{send.disabled=false;input.focus()}
-}
-send.addEventListener('click',sendMessage);input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage()}});refreshStatus();input.focus();
-</script>
-</body>
-</html>
+const messages=document.getElementById('messages'),input=document.getElementById('message'),send=document.getElementById('send'),statusEl=document.getElementById('status'),webSearch=document.getElementById('webSearch'),webInfo=document.getElementById('webInfo');const history=[];
+function addMessage(text,type){const d=document.createElement('div');d.className='msg '+type;d.textContent=text;messages.appendChild(d);messages.scrollTop=messages.scrollHeight;return d}
+function token(){return localStorage.getItem('token')||localStorage.getItem('accessToken')||sessionStorage.getItem('token')||''}
+function renderSources(rows){if(!Array.isArray(rows)||!rows.length)return;const b=document.createElement('div');b.className='msg bot sources';const s=document.createElement('strong');s.textContent='Fonti esterne consultate';b.appendChild(s);rows.forEach(x=>{if(!x?.url)return;const a=document.createElement('a');a.href=x.url;a.target='_blank';a.rel='noopener noreferrer';a.textContent='['+(x.label||'?')+'] '+(x.title||x.url)+' · '+(x.provider||'web');b.appendChild(a)});messages.appendChild(b)}
+function renderDataPreview(dp){if(!dp?.preview)return;const b=document.createElement('div');b.className='msg bot confirm';const pre=document.createElement('pre');pre.textContent=JSON.stringify(dp.preview,null,2);pre.style.whiteSpace='pre-wrap';b.appendChild(pre);const btn=document.createElement('button');btn.textContent=dp.confirmation+' e salva';btn.onclick=async()=>{const t=token();if(!t){addMessage('Per salvare devi prima accedere a MyZubster. L’anteprima resta non persistente.','bot');return}btn.disabled=true;try{const r=await fetch('/api/zorgax/assistant/data/commit',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+t},body:JSON.stringify({preview:dp.preview,digest:dp.digest,confirmation:dp.confirmation})});const d=await r.json();if(!r.ok||!d.ok)throw new Error(d.error||d.message||'Salvataggio fallito');addMessage('Dato salvato con conferma. ID: '+d.id,'bot');btn.remove()}catch(e){addMessage('Errore salvataggio: '+e.message,'bot')}finally{btn.disabled=false}};b.appendChild(btn);messages.appendChild(b);messages.scrollTop=messages.scrollHeight}
+async function refreshStatus(){try{const r=await fetch('/api/zorgax/assistant/status');const d=await r.json();statusEl.textContent=d.ok?'● online':'● offline';webInfo.textContent='Web: '+[d.providers?.brave_search?'Brave':null,d.providers?.tavily?'Tavily':null,'Wikipedia'].filter(Boolean).join(' + ')}catch{statusEl.textContent='● offline'}}
+async function sendMessage(){const text=input.value.trim();if(!text||send.disabled)return;addMessage(text,'user');history.push({role:'user',content:text});input.value='';send.disabled=true;const thinking=addMessage(webSearch.checked?'Zorgax sta cercando e ragionando...':'Zorgax sta ragionando...','bot');try{const r=await fetch('/api/zorgax/assistant/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text,useWeb:webSearch.checked,history:history.slice(-12),limit:6})});const d=await r.json();thinking.remove();if(!r.ok||!d.ok)throw new Error(d.error||'Errore assistente');const answer=d.response||'Nessuna risposta.';addMessage(answer,'bot');history.push({role:'assistant',content:answer});renderSources(d.external_sources||d.sources);renderDataPreview(d.data_preview);statusEl.textContent='● online'}catch(e){thinking.remove();addMessage('Errore: '+e.message,'bot');statusEl.textContent='● errore'}finally{send.disabled=false;input.focus()}}
+send.onclick=sendMessage;input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage()}});refreshStatus();input.focus();
+</script></body></html>
