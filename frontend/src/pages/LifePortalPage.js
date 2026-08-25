@@ -116,7 +116,7 @@ function LifePortalPage({ initialView = 'home', onNavigate, openLegacy }) {
   return (
     <div style={shell}>
       <header style={{ borderBottom: '1px solid #1f3342', background: '#09141e', position: 'sticky', top: 0, zIndex: 5 }}>
-        <div style={{ maxWidth: 1160, margin: '0 auto', padding: '13px 16px', display: 'flex', gap: 12, alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+        <div role="navigation" aria-label="Navigazione principale" style={{ maxWidth: 1160, margin: '0 auto', padding: '13px 16px', display: 'flex', gap: 12, alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
           <button onClick={() => goToView('home')} style={{ background: 'none', border: 0, color: '#fff', cursor: 'pointer', fontSize: 20, fontWeight: 900 }}>🌍 MyZubster</button>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             <a href={JOIN} target="_blank" rel="noreferrer" style={outlineLink}>Join MyZubster</a>
@@ -128,7 +128,7 @@ function LifePortalPage({ initialView = 'home', onNavigate, openLegacy }) {
         </div>
       </header>
 
-      <main style={{ maxWidth: 1160, margin: '0 auto', padding: '28px 16px 60px' }}>
+      <main id="main-content" tabIndex={-1} style={{ maxWidth: 1160, margin: '0 auto', padding: '28px 16px 60px' }}>
         {view === 'home' && <>
           <section style={{ padding: '28px 0 18px' }}>
             <div style={{ color: '#67e8f9', fontWeight: 800, letterSpacing: 1, fontSize: 13 }}>MYZUBSTER · OPEN SOURCE · OPEN COMMUNITY</div>
@@ -209,19 +209,19 @@ function LifePortalPage({ initialView = 'home', onNavigate, openLegacy }) {
             <h1 style={{ marginTop: 0 }}>Crea il tuo account MyZubster</h1>
             <p style={{ color: '#a9bac7', lineHeight: 1.6 }}>L’account serve per le funzioni applicative che richiedono autenticazione. Per contribuire al codice pubblico puoi invece usare direttamente GitHub.</p>
             <form onSubmit={submitRegistration} style={{ display: 'grid', gap: 12 }}>
-              <input required minLength={3} placeholder="Username" value={register.username} onChange={e => setRegister({ ...register, username: e.target.value })} style={input} />
-              <input required type="email" placeholder="Email" value={register.email} onChange={e => setRegister({ ...register, email: e.target.value })} style={input} />
-              <input required minLength={6} type="password" placeholder="Password (minimo 6 caratteri)" value={register.password} onChange={e => setRegister({ ...register, password: e.target.value })} style={input} />
+              <input required minLength={3} aria-label="Username" autoComplete="username" placeholder="Username" value={register.username} onChange={e => setRegister({ ...register, username: e.target.value })} style={input} />
+              <input required type="email" aria-label="Email account" autoComplete="email" placeholder="Email" value={register.email} onChange={e => setRegister({ ...register, email: e.target.value })} style={input} />
+              <input required minLength={6} type="password" aria-label="Password account" autoComplete="new-password" placeholder="Password (minimo 6 caratteri)" value={register.password} onChange={e => setRegister({ ...register, password: e.target.value })} style={input} />
               <label style={{ display: 'flex', gap: 9, alignItems: 'center', color: '#b5c4cf' }}>
                 <input type="checkbox" checked={showXmr} onChange={e => setShowXmr(e.target.checked)} /> Aggiungi un indirizzo XMR pubblico (opzionale)
               </label>
               {showXmr && <>
-                <input placeholder="Indirizzo pubblico Monero/XMR" value={register.moneroWallet} onChange={e => setRegister({ ...register, moneroWallet: e.target.value.trim() })} style={input} />
+                <input aria-label="Indirizzo pubblico Monero o XMR" autoComplete="off" placeholder="Indirizzo pubblico Monero/XMR" value={register.moneroWallet} onChange={e => setRegister({ ...register, moneroWallet: e.target.value.trim() })} style={input} />
                 <small style={{ color: '#8fa4b3' }}>Non inserire mai seed phrase o chiavi private. MyZubster usa solo l’indirizzo pubblico.</small>
               </>}
               <button style={primary}>Registrati</button>
             </form>
-            {registerStatus && <div style={{ marginTop: 12, color: registerStatus.startsWith('Account') ? '#86efac' : '#fbbf24' }}>{registerStatus}</div>}
+            {registerStatus && <div role="status" aria-live="polite" style={{ marginTop: 12, color: registerStatus.startsWith('Account') ? '#86efac' : '#fbbf24' }}>{registerStatus}</div>}
           </div>
         </section>}
 
@@ -231,15 +231,15 @@ function LifePortalPage({ initialView = 'home', onNavigate, openLegacy }) {
             <h1 style={{ marginTop: 0 }}>Registra Comune / Ente</h1>
             <p style={{ color: '#a9bac7' }}>Modulo essenziale. I dettagli del pilot possono essere aggiunti dopo.</p>
             <form onSubmit={submitMunicipality} style={{ display: 'grid', gap: 12 }}>
-              <input required placeholder="Nome Comune / Ente" value={municipality.name} onChange={e => setMunicipality({ ...municipality, name: e.target.value })} style={input}/>
+              <input required aria-label="Nome Comune o Ente" autoComplete="organization" placeholder="Nome Comune / Ente" value={municipality.name} onChange={e => setMunicipality({ ...municipality, name: e.target.value })} style={input}/>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 12 }}>
-                <input placeholder="Provincia" value={municipality.province} onChange={e => setMunicipality({ ...municipality, province: e.target.value })} style={input}/>
-                <input placeholder="Regione" value={municipality.region} onChange={e => setMunicipality({ ...municipality, region: e.target.value })} style={input}/>
+                <input aria-label="Provincia" autoComplete="address-level2" placeholder="Provincia" value={municipality.province} onChange={e => setMunicipality({ ...municipality, province: e.target.value })} style={input}/>
+                <input aria-label="Regione" autoComplete="address-level1" placeholder="Regione" value={municipality.region} onChange={e => setMunicipality({ ...municipality, region: e.target.value })} style={input}/>
               </div>
-              <input type="email" placeholder="Email referente" value={municipality.contactEmail} onChange={e => setMunicipality({ ...municipality, contactEmail: e.target.value })} style={input}/>
+              <input type="email" aria-label="Email referente" autoComplete="email" placeholder="Email referente" value={municipality.contactEmail} onChange={e => setMunicipality({ ...municipality, contactEmail: e.target.value })} style={input}/>
               <button style={primary}>Registra ente</button>
             </form>
-            {municipalityStatus && <div style={{ marginTop: 12, color: '#fbbf24' }}>{municipalityStatus}</div>}
+            {municipalityStatus && <div role="status" aria-live="polite" style={{ marginTop: 12, color: '#fbbf24' }}>{municipalityStatus}</div>}
           </div>
         </section>}
 
@@ -259,10 +259,10 @@ function LifePortalPage({ initialView = 'home', onNavigate, openLegacy }) {
           <button onClick={() => goToView('home')} style={{ ...secondary, marginBottom: 12 }}>← Home</button>
           <div style={card}>
             <div style={{ display: 'flex', gap: 10, justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' }}>
-              <div><h1 style={{ margin: 0 }}>Repository MyZubster</h1><p style={{ color: '#a9bac7' }}>{repos.length ? `${repos.length} repository pubblici indicizzati.` : 'Caricamento repository…'}</p></div>
+              <div><h1 style={{ margin: 0 }}>Repository MyZubster</h1><p aria-live="polite" style={{ color: '#a9bac7' }}>{repos.length ? `${repos.length} repository pubblici indicizzati.` : 'Caricamento repository…'}</p></div>
               <a href={JOIN} target="_blank" rel="noreferrer" style={linkButton}>Come contribuire</a>
             </div>
-            <input placeholder="Cerca per nome, linguaggio o argomento" value={repoQuery} onChange={e => setRepoQuery(e.target.value)} style={{ ...input, marginBottom: 12 }} />
+            <input type="search" aria-label="Cerca repository" placeholder="Cerca per nome, linguaggio o argomento" value={repoQuery} onChange={e => setRepoQuery(e.target.value)} style={{ ...input, marginBottom: 12 }} />
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(260px,1fr))', gap: 10 }}>
               {filteredRepos.map(r => <a key={r.id} href={r.html_url} target="_blank" rel="noreferrer" style={{ ...card, padding: 14, color: '#fff', textDecoration: 'none' }}>
                 <strong style={{ color: '#67e8f9' }}>{r.name}</strong>
