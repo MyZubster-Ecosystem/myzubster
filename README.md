@@ -240,6 +240,17 @@ See [`docs/PUBLIC-COMMUNITY-ACTIVITY.md`](docs/PUBLIC-COMMUNITY-ACTIVITY.md) and
 
 Passive visitors must not be deanonymized or correlated with GitHub identities without an explicit legitimate privacy-respecting basis.
 
+## 📰 Independent external mentions
+
+Public third-party discovery is tracked separately from MyZubster-owned publications and from upstream contribution status. These references show that independent platforms or authors have surfaced MyZubster-related work; they do **not** imply partnership, endorsement, affiliation, adoption or formal validation.
+
+| External source | Independent mention | Evidence |
+|---|---|---|
+| **KMP Weekly** | Listed **“📱 NFC Payments in MyZubster: A Complete Guide”** in its Kotlin Multiplatform news/tutorial feed, providing external discovery within a specialized developer community. | [KMP Weekly](https://kmpweekly.com/) |
+| **Shamyl Bin Mansoor — DEV Community** | Published **“From Robot Photos to 3D Meshes: Building a Photogrammetric Reconstruction Pipeline with MyZubster Robots”**, independently connecting MyZubster with robotics, 3D reconstruction and photogrammetry. | [DEV profile / article listing](https://dev.to/shamylbm) |
+
+External mentions are treated as **public discovery evidence**, not as proof of deployment, partnership, endorsement or independent technical reproduction unless stronger reproducible evidence is available.
+
 ## 🌱 LIFE 2027 direction
 
 MyZubster is preparing an environmental pilot architecture toward a possible **LIFE 2027** pathway. This is pre-candidature work: it does **not** imply LIFE funding, European Commission/CINEA endorsement, an approved application or a completed consortium.
