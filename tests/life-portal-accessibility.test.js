@@ -14,6 +14,7 @@ describe('Life portal accessibility contract', () => {
     expect(portalSource).toContain('const isInitialRender = useRef(true);');
     expect(portalSource).toContain("document.getElementById('main-content')?.focus();");
     expect(portalSource).toContain('}, [view]);');
+    expect(portalSource.match(/aria-hidden="true" style=\{\{ fontSize: 30 \}\}>\{icon\}/g)).toHaveLength(2);
   });
 
   test.each([
