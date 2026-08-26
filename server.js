@@ -102,6 +102,7 @@ const grokRoutes = require('./src/routes/grokRoutes');
 const zorgaxRoutes = require('./src/routes/zorgaxRoutes');
 const zorgaxBuildRoutes = require('./src/routes/zorgaxBuildRoutes');
 const zorgaxAssistantRoutes = require('./src/routes/zorgaxAssistantRoutes');
+const zorgaxLifeRoutes = require('./src/routes/zorgaxLifeRoutes');
 const githubBountySyncRoutes = require('./src/routes/githubBountySyncRoutes');
 const researchRoutes = require('./src/routes/researchRoutes');
 const municipalityRoutes = require('./src/routes/municipalityRoutes');
@@ -131,6 +132,7 @@ app.use('/api', healthRoutes);
 app.use('/api/grok', grokRoutes);
 app.use('/api/zorgax/assistant', zorgaxAssistantRoutes);
 app.use('/api/zorgax/build', zorgaxBuildRoutes);
+app.use('/api/zorgax/life', zorgaxLifeRoutes);
 app.use('/api/zorgax', zorgaxRoutes);
 app.use('/api/github-bounties', githubBountySyncRoutes);
 app.use('/api/research', researchRoutes);
@@ -149,7 +151,8 @@ app.get('/', (_req, res) => {
       gardens: '/api/gardens',
       zorgax: '/api/zorgax',
       zorgax_assistant: '/api/zorgax/assistant',
-      zorgax_build: '/api/zorgax/build'
+      zorgax_build: '/api/zorgax/build',
+      zorgax_life: '/api/zorgax/life/status'
     }
   });
 });
