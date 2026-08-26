@@ -1,0 +1,19 @@
+{
+  "schema_version": "0.1",
+  "worlds": [
+    {
+      "id": "vircadia-world",
+      "name": "Vircadia World",
+      "type": "external_metaverse",
+      "status": "experimental",
+      "upstream": "https://github.com/vircadia/vircadia-world",
+      "entry_url": null,
+      "auth_mode": "external",
+      "asset_policy": "reference_only_unless_licensed",
+      "provenance_required": true,
+      "partnership_claim": false,
+      "upstream_validated": false,
+      "tracking_issue": 726
+    }
+  ]
+}
