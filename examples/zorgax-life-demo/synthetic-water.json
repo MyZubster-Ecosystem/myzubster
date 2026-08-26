@@ -1,0 +1,29 @@
+[
+  {
+    "sourceId": "synthetic-water-001",
+    "observationTimestamp": "2027-01-15T10:00:00Z",
+    "variable": "nitrate",
+    "rawValue": 1200,
+    "unit": "ug/L",
+    "assetRef": "synthetic://pilot/water/001",
+    "accessClass": "public"
+  },
+  {
+    "sourceId": "synthetic-water-002",
+    "observationTimestamp": "2027-01-15T10:05:00Z",
+    "variable": "ph",
+    "rawValue": 7.3,
+    "unit": "pH",
+    "assetRef": "synthetic://pilot/water/002",
+    "accessClass": "public"
+  },
+  {
+    "sourceId": "synthetic-water-003",
+    "observationTimestamp": "2027-01-15T10:10:00Z",
+    "variable": "temperature",
+    "rawValue": 18.4,
+    "unit": "C",
+    "assetRef": "synthetic://pilot/water/003",
+    "accessClass": "public"
+  }
+]
