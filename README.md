@@ -17,6 +17,7 @@ MyZubster turns authorized real-world observations — photos, places, environme
 | Understand MyZubster | This README → **How MyZubster works** |
 | Join the community | [`JOIN.md`](JOIN.md) |
 | Contribute code/docs/design | [`CONTRIBUTING.md`](CONTRIBUTING.md) |
+| See external upstream contributions | This README → **External upstream contributions** |
 | Find work / missions | [GitHub Issues](https://github.com/MyZubster-Ecosystem/myzubster/issues) |
 | Submit independent evidence | [Community evidence issue #715](https://github.com/MyZubster-Ecosystem/myzubster/issues/715) |
 | See public community evidence | [`docs/PUBLIC-COMMUNITY-ACTIVITY.md`](docs/PUBLIC-COMMUNITY-ACTIVITY.md) |
@@ -178,6 +179,31 @@ Contribution paths include:
 
 Participation is voluntary. A contribution, character, issue or PR does not automatically imply employment, partnership, payment or endorsement.
 
+## 🤝 External upstream contributions
+
+MyZubster follows a **contribute first, integrate second** approach when interacting with independent open-source ecosystems. The entries below are public technical contributions or contribution branches; they are evidence of participation only and **do not imply partnership, endorsement, affiliation or adoption** by the upstream projects.
+
+| Upstream project | Contribution | Public evidence | Current evidence status |
+|---|---|---|---|
+| **Vircadia World** | Documentation clarifying external integration boundaries, API separation, identity boundaries, licensing and reproducible provenance. | [vircadia/vircadia-world PR #17](https://github.com/vircadia/vircadia-world/pull/17) | **Upstream PR open / under review** |
+| **Decentraland JS SDK Toolchain** | Fix preserving CRDT state-sync retries when a state response comes from a non-authoritative peer, with a regression test. | [decentraland/js-sdk-toolchain PR #1556](https://github.com/decentraland/js-sdk-toolchain/pull/1556) | **Upstream PR open / review required** |
+| **Monero Docs** | Wallet RPC documentation clarification for the `get_transfers` `pending` parameter, linked to issue #252. | [monero-project/monero-docs PR #389](https://github.com/monero-project/monero-docs/pull/389) | **Upstream PR open / checks + review pending** |
+| **Immersive Web / WebXR Samples** | Experimental `visibility-mask-change` sample work prepared in a fork branch. | [`feat/visibility-mask-change-sample`](https://github.com/DanielIoni-creator/webxr-samples/tree/feat/visibility-mask-change-sample) | **Fork branch prepared; no upstream PR claimed** |
+
+Evidence vocabulary used here:
+
+```text
+FORK / BRANCH
+    ↓
+UPSTREAM PR SUBMITTED
+    ↓
+UPSTREAM REVIEW
+    ↓
+UPSTREAM ACCEPTED / MERGED
+```
+
+Only the last state may be described as accepted upstream. A fork, commit or open PR must never be presented as an upstream merge or formal relationship.
+
 ## 📊 Public evidence & adoption
 
 MyZubster separates anonymous interest from attributable public participation and stronger adoption evidence.
@@ -267,6 +293,7 @@ The March 2027 target is **one verifiable Italian vertical slice + a public Repl
 | Public website | Deployed / evolving |
 | Open Community / contributor paths | Public |
 | Community evidence page | Public |
+| External upstream contributions | Public evidence tracked; open PRs are not treated as accepted upstream |
 | Bounty workflow | Development / validation |
 | MYZ reward accounting | Internal ledger |
 | IPFS/IPNS public snapshots | Development / integration |
