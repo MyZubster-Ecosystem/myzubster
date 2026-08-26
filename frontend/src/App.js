@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import LifePortalPage from './pages/LifePortalPage';
+import LifeGatewayPage from './pages/LifeGatewayPage';
 import IdentityOnboardingPage from './pages/IdentityOnboardingPage';
 import MapPage from './pages/MapPage';
 import GardensPage from './pages/GardensPage';
@@ -15,7 +16,6 @@ const PORTAL_VIEWS = {
   '/comuni': 'municipality',
   '/orti': 'gardens',
   '/repositories': 'repos',
-  '/life': 'life',
 };
 
 const OPERATIONAL_VIEWS = {
@@ -65,6 +65,10 @@ function App() {
 
   if (path === '/dao') {
     return <DaoPage />;
+  }
+
+  if (path === '/life') {
+    return <LifeGatewayPage onHome={() => navigate('/')} />;
   }
 
   if (['/entities', '/agents', '/assistants', '/entity-bounties'].includes(path)) {
