@@ -1,6 +1,8 @@
 # MyZubster Interactive Canonical Entities
 
-The public MyZubster frontend exposes all 12 canonical entities at `/entities` (aliases: `/agents` and `/assistants`). The same page is also reachable from the main portal.
+The public MyZubster frontend exposes all 16 canonical entities at `/entities` (aliases: `/agents` and `/assistants`). The same page is also reachable from the main portal.
+
+The roster includes Selya-9, Khar-Vel, Nythera and Oruun alongside the existing twelve entities. Canonical activation means they are available through the shared entity hub; it does not claim a separate deployed agent, trained model, scientific validation, partnership, funding or external settlement.
 
 ## Flow
 
