@@ -10,6 +10,20 @@ MyZubster turns authorized real-world observations — photos, places, environme
 
 **Current state:** MVP / active development and validation. Some components are operational, others experimental or specified for future implementation. A roadmap, issue or discussion is not proof of deployment, partnership, adoption or funding.
 
+## 👤 Daniel Ioni — Founder & Builder
+
+Daniel Ioni (`DanielIoni-creator`) is the creator and lead builder of **MyZubster**, an open digital ecosystem focused on interoperability, immersive experiences, open-source development and the emerging **MyZubster LIFE 2027** initiative.
+
+Alongside MyZubster development, he submits upstream contributions to independent open-source ecosystems. Public GitHub evidence currently includes pull requests to **Vircadia World**, **Decentraland JS SDK Toolchain** and **Monero Docs**, covering external-integration documentation, distributed state-synchronization retry behavior and Wallet RPC documentation. Experimental contribution work is also maintained in a fork of **Immersive Web / WebXR Samples**.
+
+His contribution-first workflow is:
+
+```text
+STUDY → FORK → BUILD → TEST → UPSTREAM PR → REVIEW → INTEROPERABILITY
+```
+
+See **External upstream contributions** below for direct public evidence and current status. Open pull requests and fork branches are independent open-source contributions; they do **not** imply partnership, endorsement, affiliation, acceptance upstream or formal contributor status with the respective projects.
+
 ## 🧭 Start here — complete MyZubster index
 
 | I want to… | Start here |
