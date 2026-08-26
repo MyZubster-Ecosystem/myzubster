@@ -191,7 +191,7 @@ function LifePortalPage({ initialView = 'home', onNavigate, openLegacy }) {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(245px,1fr))', gap: 12 }}>
               {contributorPaths.map(([icon, title, text]) => (
                 <div key={title} style={card}>
-                  <div style={{ fontSize: 30 }}>{icon}</div>
+                  <div aria-hidden="true" style={{ fontSize: 30 }}>{icon}</div>
                   <h3 style={{ margin: '10px 0 6px', fontSize: 20 }}>{title}</h3>
                   <div style={{ color: '#9fb0bd', lineHeight: 1.55 }}>{text}</div>
                 </div>
@@ -208,7 +208,7 @@ function LifePortalPage({ initialView = 'home', onNavigate, openLegacy }) {
                 else if (id === 'identity') window.location.assign('/onboarding');
                 else goToView(id);
               }} style={{ ...card, textAlign: 'left', color: '#fff', cursor: 'pointer' }}>
-                <div style={{ fontSize: 30 }}>{icon}</div>
+                <div aria-hidden="true" style={{ fontSize: 30 }}>{icon}</div>
                 <h2 style={{ margin: '10px 0 6px', fontSize: 20 }}>{title}</h2>
                 <div style={{ color: '#9fb0bd', lineHeight: 1.5 }}>{text}</div>
               </button>
