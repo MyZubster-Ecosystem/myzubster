@@ -8,6 +8,10 @@ Today, that reverse-engineering mindset is directed toward lawful, defensive and
 
 Alongside MyZubster development, Daniel submits upstream contributions to independent open-source ecosystems. Public GitHub evidence currently includes pull requests to **Vircadia World**, **Decentraland JS SDK Toolchain** and **Monero Docs**, as well as experimental contribution work maintained in a fork of **Immersive Web / WebXR Samples**.
 
+## Discipline & Training
+
+Daniel regularly practices **calisthenics and Muay Thai (Thai boxing)**. Physical training is part of his personal discipline: a way to maintain consistency, physical control and mental focus while pursuing his work, projects and everyday life. For him, training is not separate from his path — **it is part of his discipline**.
+
 His contribution-first workflow is:
 
 ```text
