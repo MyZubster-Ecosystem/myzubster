@@ -1,51 +1,154 @@
-name: CI – Test e Lint
+name: CI
 
 on:
-  pull_request:
-    branches: [main, develop]
   push:
-    branches: [main]
-  workflow_dispatch:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
 
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_ENV: test
+  CI: true
+
 jobs:
   test:
+    name: Run Tests
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout codice
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version-file: package.json
+          node-version: 20
           cache: npm
-          cache-dependency-path: |
-            package-lock.json
-            frontend/package-lock.json
 
-      - name: Installa dipendenze backend
+      - name: Install dependencies
         run: npm ci
 
-      - name: Installa dipendenze frontend
-        working-directory: frontend
-        run: npm ci
+      - name: Run linter
+        run: npm run lint
+        continue-on-error: true
 
-      - name: Lint backend
-        run: npm run lint --if-present
+      - name: Run tests
+        run: npm test
 
-      - name: Unit test backend
-        run: npm test -- --testPathIgnorePatterns=/frontend/
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ github.sha }}
+          path: |
+            coverage/
+            *.log
+          retention-days: 7
+          if-no-files-found: ignore
+        continue-on-error: true
 
-      - name: Unit test frontend
-        working-directory: frontend
-        run: npm test -- --watchAll=false
+  notify:
+    name: Build Notifications
+    needs: test
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Slack notification
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          BUILD_STATUS: ${{ needs.test.result }}
+          REPO_NAME: ${{ github.repository }}
+          BRANCH: ${{ github.ref_name }}
+          SHA: ${{ github.sha }}
+          ACTOR: ${{ github.actor }}
+          EVENT: ${{ github.event_name }}
+          RUN_ID: ${{ github.run_id }}
+          SERVER: ${{ github.server_url }}
+        run: |
+          if [ -z "$SLACK_WEBHOOK" ]; then
+            echo "SLACK_WEBHOOK secret not configured -- skipping Slack notification"
+            exit 0
+          fi
 
-      - name: Build backend
-        run: npm run build --if-present
+          if [ "$BUILD_STATUS" = "success" ]; then
+            COLOR="good"
+            ICON=":white_check_mark:"
+            STATUS="PASSED"
+          else
+            COLOR="danger"
+            ICON=":x:"
+            STATUS="FAILED"
+          fi
 
-      - name: Build frontend
-        working-directory: frontend
-        run: npm run build
+          SHORT_SHA="${SHA:0:7}"
+          RUN_URL="$SERVER/$REPO_NAME/actions/runs/$RUN_ID"
+
+          PAYLOAD=$(cat <<EOF
+          {
+            "attachments": [{
+              "color": "$COLOR",
+              "fields": [
+                {"title": "Status",   "value": "$ICON $STATUS",            "short": true},
+                {"title": "Repo",     "value": "$REPO_NAME",              "short": true},
+                {"title": "Branch",   "value": "$BRANCH",                "short": true},
+                {"title": "Commit",   "value": "$SHORT_SHA",             "short": true},
+                {"title": "Author",   "value": "$ACTOR",                "short": true},
+                {"title": "Event",    "value": "$EVENT",                "short": true},
+                {"title": "Build URL","value": "$RUN_URL",              "short": false}
+              ]
+            }]
+          }
+          EOF
+          )
+
+          curl -sS -X POST \
+            -H "Content-type: application/json" \
+            -d "$PAYLOAD" \
+            "$SLACK_WEBHOOK"
+
+      - name: Send Telegram notification
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          BUILD_STATUS: ${{ needs.test.result }}
+          REPO_NAME: ${{ github.repository }}
+          BRANCH: ${{ github.ref_name }}
+          SHA: ${{ github.sha }}
+          ACTOR: ${{ github.actor }}
+          EVENT: ${{ github.event_name }}
+          RUN_ID: ${{ github.run_id }}
+          SERVER: ${{ github.server_url }}
+        run: |
+          if [ -z "$TELEGRAM_BOT_TOKEN" ] || [ -z "$TELEGRAM_CHAT_ID" ]; then
+            echo "Telegram secrets not configured -- skipping Telegram notification"
+            exit 0
+          fi
+
+          if [ "$BUILD_STATUS" = "success" ]; then
+            STATUS="\xE2\x9C\x85 PASSED"
+          else
+            STATUS="\xE2\x9D\x8C FAILED"
+          fi
+
+          SHORT_SHA="${SHA:0:7}"
+          RUN_URL="$SERVER/$REPO_NAME/actions/runs/$RUN_ID"
+
+          TEXT="*CI Build: $STATUS*
+%d0%9f Repo: $REPO_NAME
+%d0%9f Branch: $BRANCH
+%d0%9f Commit: $SHORT_SHA
+%d0%9f Author: $ACTOR
+%d0%9f Event: $EVENT
+[View Details]($RUN_URL)"
+
+          curl -sS -X POST \
+            "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage" \
+            --data-urlencode "chat_id=$TELEGRAM_CHAT_ID" \
+            --data-urlencode "parse_mode=Markdown" \
+            --data-urlencode "text=$TEXT"

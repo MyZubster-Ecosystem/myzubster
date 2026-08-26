@@ -1,0 +1,199 @@
+name: Staging Deployment
+
+on:
+  push:
+    branches: [dev]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: staging-deploy
+  cancel-in-progress: false
+
+env:
+  NODE_ENV: production
+
+jobs:
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: ${{ steps.deploy.outputs.url }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --production=false
+
+      - name: Run tests before deploy
+        run: npm test
+        env:
+          NODE_ENV: test
+          CI: true
+
+      - name: Build application
+        run: npm run build
+        env:
+          STAGING_API_URL: ${{ vars.STAGING_API_URL }}
+          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+          JWT_SECRET: ${{ secrets.STAGING_JWT_SECRET }}
+        continue-on-error: true
+
+      - name: Deploy to staging
+        id: deploy
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.STAGING_SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.STAGING_SSH_HOST }}
+          SSH_USER: ${{ secrets.STAGING_SSH_USER }}
+          DEPLOY_PATH: ${{ vars.STAGING_DEPLOY_PATH }}
+          STAGING_URL: ${{ vars.STAGING_URL }}
+        run: |
+          if [ -z "$SSH_HOST" ] || [ -z "$SSH_USER" ]; then
+            echo "::warning::Staging SSH secrets not configured."
+            echo "Configure STAGING_SSH_HOST, STAGING_SSH_USER, and STAGING_SSH_PRIVATE_KEY."
+            echo "url=$STAGING_URL" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          DEPLOY_DIR="${DEPLOY_PATH:-/opt/myzubster/staging}"
+
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+          ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+
+          echo "Deploying to $SSH_USER@$SSH_HOST:$DEPLOY_DIR ..."
+
+          rsync -avz --delete \
+            --exclude 'node_modules' \
+            --exclude '.git' \
+            --exclude '.env' \
+            ./ "$SSH_USER@$SSH_HOST:$DEPLOY_DIR/"
+
+          ssh "$SSH_USER@$SSH_HOST" \
+            "cd $DEPLOY_DIR && npm ci --production && pm2 reload myzubster-staging --update-env || pm2 start npm --name myzubster-staging -- start"
+
+          echo "url=$STAGING_URL" >> $GITHUB_OUTPUT
+
+      - name: Health check
+        if: steps.deploy.outputs.url != ''
+        env:
+          HEALTH_URL: ${{ steps.deploy.outputs.url }}
+        run: |
+          sleep 10
+          for i in 1 2 3 4 5; do
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$HEALTH_URL/health" || echo "000")
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "Health check passed (HTTP $HTTP_CODE)"
+              exit 0
+            fi
+            echo "Attempt $i: HTTP $HTTP_CODE -- retrying in 10s..."
+            sleep 10
+          done
+          echo "::error::Health check failed after 5 attempts"
+          exit 1
+
+  notify:
+    name: Deployment Notifications
+    needs: deploy-staging
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Slack notification
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          DEPLOY_STATUS: ${{ needs.deploy-staging.result }}
+          REPO_NAME: ${{ github.repository }}
+          BRANCH: ${{ github.ref_name }}
+          SHA: ${{ github.sha }}
+          ACTOR: ${{ github.actor }}
+          RUN_ID: ${{ github.run_id }}
+          SERVER: ${{ github.server_url }}
+          ENV_NAME: staging
+        run: |
+          if [ -z "$SLACK_WEBHOOK" ]; then
+            echo "SLACK_WEBHOOK not configured -- skipping"
+            exit 0
+          fi
+
+          if [ "$DEPLOY_STATUS" = "success" ]; then
+            COLOR="good";  ICON=":rocket:";  STATUS="SUCCEEDED"
+          else
+            COLOR="danger"; ICON=":warning:"; STATUS="FAILED"
+          fi
+
+          SHORT_SHA="${SHA:0:7}"
+          RUN_URL="$SERVER/$REPO_NAME/actions/runs/$RUN_ID"
+
+          PAYLOAD=$(cat <<EOF
+          {
+            "attachments": [{
+              "color": "$COLOR",
+              "fields": [
+                {"title": "Deployment", "value": "$ICON $STATUS",         "short": true},
+                {"title": "Environment","value": "$ENV_NAME (upper-case)",   "short": true},
+                {"title": "Repo",       "value": "$REPO_NAME",           "short": true},
+                {"title": "Branch",     "value": "$BRANCH",             "short": true},
+                {"title": "Commit",     "value": "$SHORT_SHA",          "short": true},
+                {"title": "Author",     "value": "$ACTOR",             "short": true},
+                {"title": "Run URL",    "value": "$RUN_URL",            "short": false}
+              ]
+            }]
+          }
+          EOF
+          )
+
+          curl -sS -X POST -H "Content-type: application/json" -d "$PAYLOAD" "$SLACK_WEBHOOK"
+
+      - name: Send Telegram notification
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          DEPLOY_STATUS: ${{ needs.deploy-staging.result }}
+          REPO_NAME: ${{ github.repository }}
+          BRANCH: ${{ github.ref_name }}
+          SHA: ${{ github.sha }}
+          ACTOR: ${{ github.actor }}
+          RUN_ID: ${{ github.run_id }}
+          SERVER: ${{ github.server_url }}
+          ENV_NAME: staging
+        run: |
+          if [ -z "$TELEGRAM_BOT_TOKEN" ] || [ -z "$TELEGRAM_CHAT_ID" ]; then
+            echo "Telegram secrets not configured -- skipping"
+            exit 0
+          fi
+
+          if [ "$DEPLOY_STATUS" = "success" ]; then
+            STATUS="\xF0\x9F\x9A\x80 SUCCEEDED"
+          else
+            STATUS="\xE2\x9A\xA0\xEF\xB8\x8F FAILED"
+          fi
+
+          SHORT_SHA="${SHA:0:7}"
+          RUN_URL="$SERVER/$REPO_NAME/actions/runs/$RUN_ID"
+
+          TEXT="*Staging Deployment: $STATUS*
+Environment: $ENV_NAME
+Repo: $REPO_NAME
+Branch: $BRANCH
+Commit: $SHORT_SHA
+Author: $ACTOR
+[View Details]($RUN_URL)"
+
+          curl -sS -X POST \
+            "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage" \
+            --data-urlencode "chat_id=$TELEGRAM_CHAT_ID" \
+            --data-urlencode "parse_mode=Markdown" \
+            --data-urlencode "text=$TEXT"

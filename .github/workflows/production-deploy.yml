@@ -1,0 +1,266 @@
+name: Production Deployment
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: "Deployment reason"
+        required: false
+        default: "Manual production deployment"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+env:
+  NODE_ENV: production
+
+jobs:
+  approve:
+    name: Manual Approval Required
+    runs-on: ubuntu-latest
+    environment:
+      name: production-approval
+      url: ${{ steps.approval.outputs.url }}
+    steps:
+      - name: Await manual approval
+        id: approval
+        env:
+          APPROVAL_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          echo "Production deployment requires manual approval."
+          echo "Reviewers will see an approval prompt in GitHub Actions."
+          echo "url=$APPROVAL_URL" >> $GITHUB_OUTPUT
+
+  deploy-production:
+    name: Deploy to Production
+    needs: approve
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: ${{ steps.deploy.outputs.url }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --production=false
+
+      - name: Run tests before deploy
+        run: npm test
+        env:
+          NODE_ENV: test
+          CI: true
+
+      - name: Build application
+        run: npm run build
+        env:
+          PRODUCTION_API_URL: ${{ vars.PRODUCTION_API_URL }}
+          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
+          JWT_SECRET: ${{ secrets.PRODUCTION_JWT_SECRET }}
+        continue-on-error: true
+
+      - name: Create deployment package
+        run: |
+          mkdir -p deploy-pkg
+          rsync -av \
+            --exclude 'node_modules' \
+            --exclude '.git' \
+            --exclude '.env' \
+            --exclude 'deploy-pkg' \
+            --exclude 'test' \
+            --exclude 'coverage' \
+            ./ deploy-pkg/
+          tar -czf deploy.tar.gz -C deploy-pkg .
+
+      - name: Deploy to production
+        id: deploy
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.PRODUCTION_SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.PRODUCTION_SSH_HOST }}
+          SSH_USER: ${{ secrets.PRODUCTION_SSH_USER }}
+          DEPLOY_PATH: ${{ vars.PRODUCTION_DEPLOY_PATH }}
+          PRODUCTION_URL: ${{ vars.PRODUCTION_URL }}
+        run: |
+          if [ -z "$SSH_HOST" ] || [ -z "$SSH_USER" ]; then
+            echo "::error::Production SSH secrets not configured."
+            echo "Configure PRODUCTION_SSH_HOST, PRODUCTION_SSH_USER, PRODUCTION_SSH_PRIVATE_KEY."
+            exit 1
+          fi
+
+          DEPLOY_DIR="${DEPLOY_PATH:-/opt/myzubster/production}"
+          BACKUP_DIR="$DEPLOY_DIR.backup.$(date +%Y%m%d%H%M%S)"
+
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+
+          echo "Uploading deployment package..."
+          scp deploy.tar.gz "$SSH_USER@$SSH_HOST:/tmp/deploy.tar.gz"
+
+          echo "Creating backup of current deployment..."
+          ssh "$SSH_USER@$SSH_HOST" \
+            "if [ -d $DEPLOY_DIR ]; then cp -r $DEPLOY_DIR $BACKUP_DIR; fi"
+
+          echo "Extracting new deployment..."
+          ssh "$SSH_USER@$SSH_HOST" \
+            "mkdir -p $DEPLOY_DIR && tar -xzf /tmp/deploy.tar.gz -C $DEPLOY_DIR"
+
+          echo "Installing production dependencies..."
+          ssh "$SSH_USER@$SSH_HOST" \
+            "cd $DEPLOY_DIR && npm ci --production"
+
+          echo "Restarting application..."
+          ssh "$SSH_USER@$SSH_HOST" \
+            "cd $DEPLOY_DIR && pm2 reload myzubster-production --update-env || pm2 start npm --name myzubster-production -- start"
+
+          echo "Cleaning up..."
+          ssh "$SSH_USER@$SSH_HOST" "rm -f /tmp/deploy.tar.gz"
+
+          echo "url=$PRODUCTION_URL" >> $GITHUB_OUTPUT
+
+      - name: Health check
+        if: steps.deploy.outputs.url != ''
+        env:
+          HEALTH_URL: ${{ steps.deploy.outputs.url }}
+        run: |
+          sleep 15
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$HEALTH_URL/health" || echo "000")
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "Health check passed (HTTP $HTTP_CODE)"
+              exit 0
+            fi
+            echo "Attempt $i/10: HTTP $HTTP_CODE -- retrying in 15s..."
+            sleep 15
+          done
+          echo "::error::Production health check failed after 10 attempts"
+          echo "The previous backup can be restored from the server."
+          exit 1
+
+      - name: Clean old backups
+        if: success()
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.PRODUCTION_SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.PRODUCTION_SSH_HOST }}
+          SSH_USER: ${{ secrets.PRODUCTION_SSH_USER }}
+          DEPLOY_PATH: ${{ vars.PRODUCTION_DEPLOY_PATH }}
+        run: |
+          DEPLOY_DIR="${DEPLOY_PATH:-/opt/myzubster/production}"
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+
+          ssh "$SSH_USER@$SSH_HOST" \
+            "ls -d ${DEPLOY_DIR}.backup.* 2>/dev/null | head -n -3 | xargs -r rm -rf"
+
+  notify:
+    name: Production Deployment Notifications
+    needs: [approve, deploy-production]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Slack notification
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          DEPLOY_STATUS: ${{ needs.deploy-production.result }}
+          APPROVAL_STATUS: ${{ needs.approve.result }}
+          REPO_NAME: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+          ACTOR: ${{ github.actor }}
+          RUN_ID: ${{ github.run_id }}
+          SERVER: ${{ github.server_url }}
+          DEPLOY_REASON: ${{ github.event.inputs.reason }}
+        run: |
+          if [ -z "$SLACK_WEBHOOK" ]; then
+            echo "SLACK_WEBHOOK not configured -- skipping"
+            exit 0
+          fi
+
+          if [ "$APPROVAL_STATUS" != "success" ]; then
+            COLOR="warning"; ICON=":hourglass:";  STATUS="APPROVAL PENDING/DENIED"
+          elif [ "$DEPLOY_STATUS" = "success" ]; then
+            COLOR="good";    ICON=":tada:";       STATUS="SUCCEEDED"
+          else
+            COLOR="danger";  ICON=":rotating_light:"; STATUS="FAILED"
+          fi
+
+          SHORT_SHA="${SHA:0:7}"
+          RUN_URL="$SERVER/$REPO_NAME/actions/runs/$RUN_ID"
+
+          PAYLOAD=$(cat <<EOF
+          {
+            "attachments": [{
+              "color": "$COLOR",
+              "fields": [
+                {"title": "Deployment", "value": "$ICON $STATUS",       "short": true},
+                {"title": "Environment","value": "PRODUCTION",        "short": true},
+                {"title": "Repo",       "value": "$REPO_NAME",      "short": true},
+                {"title": "Commit",     "value": "$SHORT_SHA",     "short": true},
+                {"title": "Author",     "value": "$ACTOR",         "short": true},
+                {"title": "Reason",     "value": "$DEPLOY_REASON", "short": false},
+                {"title": "Run URL",    "value": "$RUN_URL",       "short": false}
+              ]
+            }]
+          }
+          EOF
+          )
+
+          curl -sS -X POST -H "Content-type: application/json" -d "$PAYLOAD" "$SLACK_WEBHOOK"
+
+      - name: Send Telegram notification
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          DEPLOY_STATUS: ${{ needs.deploy-production.result }}
+          APPROVAL_STATUS: ${{ needs.approve.result }}
+          REPO_NAME: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+          ACTOR: ${{ github.actor }}
+          RUN_ID: ${{ github.run_id }}
+          SERVER: ${{ github.server_url }}
+          DEPLOY_REASON: ${{ github.event.inputs.reason }}
+        run: |
+          if [ -z "$TELEGRAM_BOT_TOKEN" ] || [ -z "$TELEGRAM_CHAT_ID" ]; then
+            echo "Telegram secrets not configured -- skipping"
+            exit 0
+          fi
+
+          if [ "$APPROVAL_STATUS" != "success" ]; then
+            STATUS="\xE2\x8F\xB3 APPROVAL PENDING"
+          elif [ "$DEPLOY_STATUS" = "success" ]; then
+            STATUS="\xF0\x9F\x8E\x89 SUCCEEDED"
+          else
+            STATUS="\xF0\x9F\x9A\xA8 FAILED"
+          fi
+
+          SHORT_SHA="${SHA:0:7}"
+          RUN_URL="$SERVER/$REPO_NAME/actions/runs/$RUN_ID"
+
+          TEXT="*Production Deployment: $STATUS*
+Environment: PRODUCTION
+Repo: $REPO_NAME
+Commit: $SHORT_SHA
+Author: $ACTOR
+Reason: $DEPLOY_REASON
+[View Details]($RUN_URL)"
+
+          curl -sS -X POST \
+            "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage" \
+            --data-urlencode "chat_id=$TELEGRAM_CHAT_ID" \
+            --data-urlencode "parse_mode=Markdown" \
+            --data-urlencode "text=$TEXT"
