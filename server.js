@@ -16,6 +16,10 @@ app.use(express.json());
 const publicRoot = path.resolve(__dirname, 'public');
 const htmlAliases = new Map([
   ['/', 'index.html'],
+  ['/press', 'press.html'],
+  ['/press.html', 'press.html'],
+  ['/media', 'press.html'],
+  ['/media-kit', 'press.html'],
   ['/fumetto', 'fumetto.html'],
   ['/fumetto.html', 'fumetto.html'],
   ['/comic', 'fumetto.html'],
@@ -33,7 +37,7 @@ const vercelAnalyticsSnippet = `
 <script>
   window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
 </script>
-<script defer src="https://cdn.vercel-insights.com/v1/script.debug.js"></script>
+<script defer src="/_vercel/insights/script.js"></script>
 `;
 
 app.use((req, res, next) => {

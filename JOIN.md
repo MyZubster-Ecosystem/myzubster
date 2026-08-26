@@ -32,6 +32,9 @@ Improve documentation, translations, tutorials, onboarding or public explanation
 ### I am a researcher / student
 Review architecture, datasets, methods, assumptions and evidence. Clearly distinguish proposals from verified results.
 
+### I am a journalist / reporter / media researcher
+Use the public Press Kit and repository as primary project sources, inspect evidence, ask questions, reproduce public workflows, submit factual corrections or link independent reporting. You may optionally create a `MEDIA / JOURNALIST` character. A character does not by itself verify professional credentials or imply endorsement by a media organization. See [`docs/MEDIA_JOURNALIST_PROGRAM.md`](docs/MEDIA_JOURNALIST_PROGRAM.md) and https://www.myzubster.com/press.
+
 ### I am interested in privacy / Monero / settlement
 Review or contribute to the documented external-settlement boundary. XMR settlement is separate from the internal MYZ accounting/reward layer and must be independently verified where applicable.
 
@@ -56,6 +59,8 @@ Optional Character Registry:
 https://github.com/MyZubster-Ecosystem/myzubster/issues/617
 
 Your character may represent your public contributor alias and role. It is optional and does not represent KYC, employment, partnership, payment or ownership.
+
+Journalists and media contributors can use the `MEDIA / JOURNALIST` character type documented in [`docs/MEDIA_JOURNALIST_PROGRAM.md`](docs/MEDIA_JOURNALIST_PROGRAM.md). A claimed media affiliation remains unverified unless appropriate evidence is reviewed, and verification does not imply endorsement by the employer/publication.
 
 ### Automatic Zorgax draft
 
@@ -88,9 +93,10 @@ Useful evidence can include, depending on the task:
 - authorized observation records;
 - sanitized photos/media;
 - public datasets;
-- review results.
+- review results;
+- independent articles, interviews, fact-checks or corrections from media contributors.
 
-A PR, image or issue by itself does not automatically prove deployment, payment, adoption or partnership.
+A PR, image, issue or article by itself does not automatically prove deployment, payment, adoption, partnership or endorsement.
 
 ## Privacy and safety
 
