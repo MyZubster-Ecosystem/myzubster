@@ -248,6 +248,7 @@ Public third-party discovery is tracked separately from MyZubster-owned publicat
 |---|---|---|
 | **KMP Weekly** | Listed **“📱 NFC Payments in MyZubster: A Complete Guide”** in its Kotlin Multiplatform news/tutorial feed, providing external discovery within a specialized developer community. | [KMP Weekly](https://kmpweekly.com/) |
 | **Shamyl Bin Mansoor — DEV Community** | Published **“From Robot Photos to 3D Meshes: Building a Photogrammetric Reconstruction Pipeline with MyZubster Robots”**, independently connecting MyZubster with robotics, 3D reconstruction and photogrammetry. | [DEV profile / article listing](https://dev.to/shamylbm) |
+| **kuroji — Zenn** | An independent OSS-bounty scanner analysis reported that MyZubster-Ecosystem issues occupied **8 of the top 10** results in a no-explicit-cash-amount ranking before the author added a per-repository cap. This is external discovery evidence and also highlights that bounty metadata should be easy for third-party scanners to interpret. | [Zenn article](https://zenn.dev/kuroji/articles/oss-bounty-122-to-8) |
 
 External mentions are treated as **public discovery evidence**, not as proof of deployment, partnership, endorsement or independent technical reproduction unless stronger reproducible evidence is available.
 
