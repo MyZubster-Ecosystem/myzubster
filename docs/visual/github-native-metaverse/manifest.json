@@ -1,0 +1,32 @@
+{
+  "id": "MYZ-VIS-ZORGAX-003",
+  "title": "GitHub-Native Metaverse",
+  "date": "2026-08-22",
+  "category": "architecture/how-it-works",
+  "assets": [
+    {
+      "filename": "github-native-metaverse-flow.svg",
+      "type": "official-documentation-derived",
+      "origin": "Zorgax original vector based on canonical MyZubster docs",
+      "narrative": false,
+      "evidence": false,
+      "rights_note": "Original documentation asset for MyZubster repository use"
+    },
+    {
+      "filename": "zorgax-visual-003-github-native-metaverse-cyberpunk.png",
+      "type": "ai-generated",
+      "origin": "Zorgax Visual Intelligence",
+      "narrative": true,
+      "evidence": false,
+      "drive_file_id": "1NtlaOkagIbXRzSAVKZ-YD2ON6l_nuyDg",
+      "rights_note": "Narrative/educational visual; not proof of implementation, adoption, settlement or deployment"
+    }
+  ],
+  "source_documents": [
+    "docs/MYZUBSTER_METAVERSE.md",
+    "docs/ECOSYSTEM.md",
+    "BOUNTIES.md",
+    "docs/ZORGAX_AUTOMATION.md",
+    "docs/ZORGAX_SYSTEM.md"
+  ]
+}
