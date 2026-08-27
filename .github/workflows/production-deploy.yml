@@ -1,0 +1,120 @@
+name: Production Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: Deployment reason
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: ${{ steps.deploy.outputs.url }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: package.json
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            frontend/package-lock.json
+
+      - name: Validate production configuration
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.PRODUCTION_SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.PRODUCTION_SSH_HOST }}
+          SSH_USER: ${{ secrets.PRODUCTION_SSH_USER }}
+          PRODUCTION_URL: ${{ vars.PRODUCTION_URL }}
+        run: |
+          test -n "$SSH_PRIVATE_KEY" || { echo '::error::PRODUCTION_SSH_PRIVATE_KEY is required'; exit 1; }
+          test -n "$SSH_HOST" || { echo '::error::PRODUCTION_SSH_HOST is required'; exit 1; }
+          test -n "$SSH_USER" || { echo '::error::PRODUCTION_SSH_USER is required'; exit 1; }
+          test -n "$PRODUCTION_URL" || { echo '::error::PRODUCTION_URL is required'; exit 1; }
+
+      - name: Install backend dependencies
+        run: npm ci
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Run backend tests
+        env:
+          NODE_ENV: test
+          CI: true
+        run: npm test -- --testPathIgnorePatterns=/frontend/
+
+      - name: Run frontend tests
+        working-directory: frontend
+        run: npm test -- --watchAll=false
+
+      - name: Build backend
+        run: npm run build --if-present
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+
+      - name: Create deployment package
+        run: |
+          mkdir -p deploy-pkg
+          rsync -a --delete \
+            --exclude '.git' \
+            --exclude '.env*' \
+            --exclude 'node_modules' \
+            --exclude 'frontend/node_modules' \
+            --exclude 'deploy-pkg' \
+            ./ deploy-pkg/
+          tar -czf deploy.tar.gz -C deploy-pkg .
+
+      - name: Deploy to production
+        id: deploy
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.PRODUCTION_SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.PRODUCTION_SSH_HOST }}
+          SSH_USER: ${{ secrets.PRODUCTION_SSH_USER }}
+          DEPLOY_PATH: ${{ vars.PRODUCTION_DEPLOY_PATH }}
+          PRODUCTION_URL: ${{ vars.PRODUCTION_URL }}
+        run: |
+          set -euo pipefail
+          DEPLOY_DIR="${DEPLOY_PATH:-/opt/myzubster/production}"
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          scp deploy.tar.gz "$SSH_USER@$SSH_HOST:/tmp/myzubster-deploy.tar.gz"
+          ssh "$SSH_USER@$SSH_HOST" \
+            "set -e; mkdir -p '$DEPLOY_DIR'; tar -xzf /tmp/myzubster-deploy.tar.gz -C '$DEPLOY_DIR'; cd '$DEPLOY_DIR'; npm ci --omit=dev; pm2 reload myzubster-production --update-env || pm2 start npm --name myzubster-production -- start; rm -f /tmp/myzubster-deploy.tar.gz"
+          echo "url=$PRODUCTION_URL" >> "$GITHUB_OUTPUT"
+
+      - name: Health check
+        env:
+          HEALTH_URL: ${{ vars.PRODUCTION_URL }}
+        run: |
+          set -euo pipefail
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            if curl -fsS "$HEALTH_URL/health" >/dev/null; then
+              echo 'Production health check passed.'
+              exit 0
+            fi
+            sleep 15
+          done
+          echo '::error::Production health check failed.'
+          exit 1
