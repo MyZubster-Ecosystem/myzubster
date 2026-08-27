@@ -205,9 +205,32 @@ exports.applyDraft = async (req, res) => {
 };
 
 exports.autoSyncStatus = async (req, res) => {
-  const user = await User.findById(req.userId).select('zorgaxProfile gmailProfileSync.enabled gmailProfileSync.consentedAt gmailProfileSync.lastSyncedAt gmailProfileSync.lastStatus gmailProfileSync.lastError gmailProfileSync.historyWindowDays gmailProfileSync.sampleSize');
+  const user = await User.findById(req.userId).select('+gmailProfileSync.refreshTokenEncrypted zorgaxProfile gmailProfileSync');
   if (!user) return res.status(404).json({ success: false, message: 'Utente non trovato' });
-  res.json({ success: true, data: { sync: user.gmailProfileSync || { enabled: false }, profile: user.zorgaxProfile || null } });
+
+  const sync = user.gmailProfileSync || {};
+  const lastSyncedAt = sync.lastSyncedAt ? new Date(sync.lastSyncedAt).getTime() : 0;
+  const stale = !lastSyncedAt || (Date.now() - lastSyncedAt) >= 24 * 60 * 60 * 1000;
+
+  if (sync.enabled && sync.refreshTokenEncrypted && stale) {
+    try {
+      await syncUser(user);
+    } catch (error) {
+      console.error('Lazy Gmail profile sync error:', error);
+    }
+  }
+
+  const safeSync = user.gmailProfileSync ? {
+    enabled: Boolean(user.gmailProfileSync.enabled),
+    consentedAt: user.gmailProfileSync.consentedAt,
+    lastSyncedAt: user.gmailProfileSync.lastSyncedAt,
+    lastStatus: user.gmailProfileSync.lastStatus,
+    lastError: user.gmailProfileSync.lastError,
+    historyWindowDays: user.gmailProfileSync.historyWindowDays,
+    sampleSize: user.gmailProfileSync.sampleSize
+  } : { enabled: false };
+
+  res.json({ success: true, data: { sync: safeSync, profile: user.zorgaxProfile || null } });
 };
 
 exports.disableAutoSync = async (req, res) => {
