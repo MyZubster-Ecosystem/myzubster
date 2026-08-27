@@ -11,6 +11,13 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: decentraland-sdk7-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  DCL_DISABLE_ANALYTICS: 'true'
+
 jobs:
   sdk7-proof:
     runs-on: ubuntu-latest
@@ -26,9 +33,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
+          cache-dependency-path: integrations/decentraland/package-lock.json
 
-      - name: Install SDK7 dependencies
-        run: npm install
+      - name: Install locked SDK7 dependencies
+        run: npm ci --ignore-scripts
 
       - name: Typecheck scene
         run: npm run lint
@@ -42,7 +51,9 @@ jobs:
           grep -q 'myz-rimini-place-001' src/index.ts
           grep -q 'myz-rimini-plant-001' src/index.ts
           grep -q 'myz-life-env-001' src/index.ts
-          test -f bin/index.js
+          grep -q 'myz-rimini-place-001' bin/index.js
+          grep -q 'myz-rimini-plant-001' bin/index.js
+          grep -q 'myz-life-env-001' bin/index.js
           echo 'Decentraland SDK7 build contains all three MyZubster demo markers.'
 
   bevy-visual-proof:
@@ -59,13 +70,14 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
+          cache-dependency-path: integrations/decentraland/package-lock.json
 
-      - name: Install SDK7 and browser dependencies
+      - name: Install locked dependencies and Chromium
         run: |
           set -euxo pipefail
-          npm install
-          npm install --no-save playwright pngjs
-          npx playwright install --with-deps chromium
+          npm ci --ignore-scripts
+          ./node_modules/.bin/playwright install --with-deps chromium
 
       - name: Start Decentraland local preview server
         run: |
@@ -130,15 +142,19 @@ jobs:
             page.on('console', (msg) => console.log(`[browser:${msg.type()}] ${msg.text()}`))
             page.on('pageerror', (err) => console.error(`[browser:error] ${err.message}`))
 
-            const preview = 'https://decentraland.org/bevy-web/?preview=true&realm=http://127.0.0.1:8000&position=0,0&skip-auth-screen=true'
+            const preview = 'https://decentraland.org/bevy-web/?preview=true&realm=http://127.0.0.1:8000&position=0,0'
             await page.goto(preview, { waitUntil: 'domcontentloaded', timeout: 90000 })
 
-            // SDK scene console output is isolated from the top-level Bevy page, so visual
-            // evidence is evaluated from rendered pixels rather than browser console logs.
+            const guestButton = page.getByText(/explore as guest/i).first()
+            await guestButton.waitFor({ state: 'visible', timeout: 90000 })
+            await guestButton.click()
+            await guestButton.waitFor({ state: 'hidden', timeout: 90000 })
+            await page.locator('canvas').first().waitFor({ state: 'visible', timeout: 90000 })
+
             const screenshot = 'decentraland-myzubster-visual-proof.png'
             let best = { blue: 0, green: 0, orange: 0 }
-            for (let attempt = 1; attempt <= 6; attempt++) {
-              await page.waitForTimeout(15000)
+            for (let attempt = 1; attempt <= 8; attempt++) {
+              await page.waitForTimeout(10000)
               await page.screenshot({ path: screenshot, fullPage: true })
               const counts = countMarkerPixels(screenshot)
               console.log(`Visual marker pixel counts attempt ${attempt}: ${JSON.stringify(counts)}`)
@@ -154,13 +170,20 @@ jobs:
               }
             }
 
-            throw new Error(`Could not positively identify all three marker color signatures. Best counts: ${JSON.stringify(best)}`)
+            throw new Error(`Could not positively identify all three marker color signatures after entering as guest. Best counts: ${JSON.stringify(best)}`)
           })().catch((error) => {
             console.error(error)
             process.exit(1)
           })
           JS
           node /tmp/verify-decentraland-visual.cjs
+
+      - name: Stop local preview server
+        if: always()
+        run: |
+          if [ -f /tmp/decentraland-preview.pid ]; then
+            kill "$(cat /tmp/decentraland-preview.pid)" 2>/dev/null || true
+          fi
 
       - name: Upload Decentraland visual proof
         if: always()

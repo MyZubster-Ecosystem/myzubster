@@ -16,7 +16,7 @@ type MyZubsterMarker = {
   scientificallyValidated?: false
 }
 
-const markers: MyZubsterMarker[] = [
+export const markers: MyZubsterMarker[] = [
   {
     id: 'myz-rimini-place-001',
     title: 'Rimini public place demo',

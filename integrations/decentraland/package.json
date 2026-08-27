@@ -9,10 +9,12 @@
     "lint": "tsc --noEmit"
   },
   "dependencies": {
-    "@dcl/js-runtime": "latest",
-    "@dcl/sdk": "latest"
+    "@dcl/js-runtime": "7.26.0",
+    "@dcl/sdk": "7.26.0"
   },
   "devDependencies": {
-    "typescript": "latest"
+    "playwright": "1.62.1",
+    "pngjs": "7.0.0",
+    "typescript": "5.9.3"
   }
 }
