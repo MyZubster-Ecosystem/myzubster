@@ -1,0 +1,86 @@
+name: Vircadia World Runtime Smoke
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/integrations/metaverse/**'
+      - 'fixtures/metaverse/**'
+      - 'tests/vircadia-world.test.js'
+      - '.github/workflows/vircadia-runtime-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  myzubster-adapter:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout MyZubster
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: package.json
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Vircadia adapter tests
+        run: npx jest tests/vircadia-world.test.js --runInBand
+
+  vircadia-upstream-preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout pinned Vircadia World
+        uses: actions/checkout@v4
+        with:
+          repository: vircadia/vircadia-world
+          ref: 9f185373ac89fb5834fda238fa83f51d1d6851a9
+          path: vircadia-world
+          submodules: recursive
+          lfs: true
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Verify pinned revision and runtime prerequisites
+        working-directory: vircadia-world
+        run: |
+          set -euxo pipefail
+          test "$(git rev-parse HEAD)" = "9f185373ac89fb5834fda238fa83f51d1d6851a9"
+          bun --version
+          docker --version
+          docker compose version
+          test -f cli/vircadia.cli.ts
+          test -f server/service/api_ws/volume/app/world.api.ws.manager.ts
+          test -f server/service/state/volume/app/world.state.manager.ts
+
+      - name: Install Vircadia workspace dependencies
+        working-directory: vircadia-world
+        run: bun install
+
+      - name: Validate current CLI bootstrap behavior
+        working-directory: vircadia-world/cli
+        run: |
+          set -euxo pipefail
+          output="$(bun run cli init 2>&1)"
+          printf '%s\n' "$output"
+          echo "$output" | grep -F 'Init command dispatched'
+          echo 'Pinned upstream currently dispatches init without performing bootstrap; full stack startup is therefore intentionally blocked in this smoke until upstream initialization is wired or a documented non-interactive bootstrap path is identified.'
+
+      - name: Verify world entity plumbing exists
+        working-directory: vircadia-world
+        run: |
+          set -euxo pipefail
+          grep -q 'resource: "entity"' server/service/api_ws/volume/app/world.api.ws.manager.ts
+          grep -q 'resource: "entity_metadata"' server/service/api_ws/volume/app/world.api.ws.manager.ts
+          grep -q 'syncGroup' server/service/api_ws/volume/app/world.api.ws.manager.ts
+          grep -q 'validateJWT' server/service/api_ws/volume/app/world.api.ws.manager.ts
