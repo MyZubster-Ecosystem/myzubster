@@ -1,0 +1,115 @@
+# MyZubster Contributors
+
+This document is the public, evidence-first contributor registry for MyZubster.
+
+A contributor entry records **public GitHub activity only**. It does not establish legal identity, employment, partnership, institutional affiliation, payment, endorsement, ownership, availability for future work or membership in a LIFE consortium.
+
+## Contributor states
+
+```text
+PROPOSED
+→ SUBMITTED
+→ REVIEWED
+→ MERGED
+→ VERIFIED_CONTRIBUTION
+```
+
+`VERIFIED_CONTRIBUTION` means that the referenced public contribution can be checked against repository evidence. It does not mean identity/KYC verification or external settlement.
+
+## Contributor paths
+
+- **First-time contributor** — docs, translations, small fixes, tests.
+- **Developer** — API, backend, frontend, database, automation.
+- **GIS / IoT** — mapping, geolocation, sensing, environmental data.
+- **Design / storytelling** — UX, visual guides, comics, accessibility.
+- **Research / LIFE-aligned** — KPI/MRV, evidence methodology, datasets, replication.
+- **QA / reproducibility** — CI, testing, security review, clean-checkout validation.
+
+## Public contributor registry
+
+| GitHub alias | Contribution path | Public evidence | Current evidence status | LIFE-aligned candidate lane |
+|---|---|---|---|---|
+| `@Aming9303` | Frontend / dashboard / visual documentation | PR #531; PR #634 | Public PR evidence | #537 dashboard & KPI evidence; evidence UX / visualization |
+| `@wasim-builds` | Security / QA / review | PR #636; PR #637 | Public PR evidence | #536 safety/review support; #713 evidence-integrity QA |
+
+Additional contributors should be added only after verifying the **actual public PR/issue author alias**. Do not infer identity from text, payout addresses, commit messages, email notifications or external profiles.
+
+## LIFE-aligned candidate pool
+
+MyZubster contributors may opt into preparatory LIFE-aligned technical work when their existing skills match a bounded issue.
+
+```text
+PUBLIC CONTRIBUTION EVIDENCE
+→ CANDIDATE LIFE LANE
+→ CONTRIBUTOR OPT-IN / CLAIM
+→ BOUNDED LIFE ISSUE
+→ PR + TESTS / EVIDENCE
+→ REVIEW
+→ VERIFIED LIFE-ALIGNED CONTRIBUTION
+```
+
+Current source-of-truth LIFE lanes:
+
+- #534 — IoT sensing & auditable environmental data adapter;
+- #535 — human-in-the-loop AI recommendation & intervention log;
+- #536 — automation safety & manual override;
+- #537 — environmental pilot dashboard & KPI evidence view;
+- #538 — pilot replication package;
+- #713 — Zorgax LIFE evidence automation.
+
+Candidate lane inclusion is **not** a partnership claim. A contributor becomes active on a LIFE-aligned task only through explicit public opt-in/claim or another clear contribution action.
+
+## Contributor claim template
+
+```text
+CLAIM
+GitHub username:
+Contributor path: first-time / developer / GIS-IoT / design / research / QA
+Issue:
+Proposed approach:
+Testing/evidence plan:
+Expected first milestone:
+```
+
+For LIFE-aligned work, contributors may use:
+
+```text
+LIFE INTEREST
+GitHub username:
+Preferred lane:
+Relevant public contribution:
+Availability / proposed first task:
+```
+
+## Evidence rules
+
+Valid evidence may include:
+
+- issue links;
+- pull requests;
+- commits;
+- reproducible tests;
+- review records;
+- public documentation contributions.
+
+Do not include private emails, phone numbers, home addresses, identity documents, private institutional discussions, credentials, wallet seeds or other unnecessary personal information.
+
+## Reward and settlement boundary
+
+Contribution status is independent from reward and settlement status.
+
+```text
+VERIFIED CONTRIBUTION ≠ REWARD RECORDED ≠ EXTERNAL SETTLEMENT ≠ PAID
+```
+
+See `BOUNTIES.md`, `REWARDS_LEDGER.md` and `TREASURY.md` for the canonical boundaries.
+
+## Related
+
+- #742 — Contributor onboarding system
+- #743 — Contributor evidence registry implementation
+- `JOIN.md`
+- `CONTRIBUTING.md`
+- `docs/PUBLIC-COMMUNITY-ACTIVITY.md`
+
+**One newcomer → one bounded task → one reproducible PR → one reviewed public contribution.**
