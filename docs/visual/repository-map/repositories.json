@@ -1,0 +1,20 @@
+{
+  "generatedAt": "2026-08-22",
+  "scope": "Public repositories returned for MyZubster-Ecosystem in the connected GitHub inventory. Private repositories are intentionally excluded.",
+  "repositories": [
+    {"name":"myzubster","fullName":"MyZubster-Ecosystem/myzubster","url":"https://github.com/MyZubster-Ecosystem/myzubster","group":"Core","role":"Canonical ecosystem hub and documentation","defaultBranch":"main"},
+    {"name":"MyZubsterGateway","fullName":"MyZubster-Ecosystem/MyZubsterGateway","url":"https://github.com/MyZubster-Ecosystem/MyZubsterGateway","group":"Core","role":"Gateway / integration boundary","defaultBranch":"main"},
+    {"name":"myzubster-platform","fullName":"MyZubster-Ecosystem/myzubster-platform","url":"https://github.com/MyZubster-Ecosystem/myzubster-platform","group":"Core","role":"Platform component","defaultBranch":"master"},
+    {"name":"MyZubster-App","fullName":"MyZubster-Ecosystem/MyZubster-App","url":"https://github.com/MyZubster-Ecosystem/MyZubster-App","group":"Interfaces","role":"Application client","defaultBranch":"main"},
+    {"name":"MyZubsterWeb","fullName":"MyZubster-Ecosystem/MyZubsterWeb","url":"https://github.com/MyZubster-Ecosystem/MyZubsterWeb","group":"Interfaces","role":"Web interface / web presence","defaultBranch":"main"},
+    {"name":"MyZubster-Marketplace","fullName":"MyZubster-Ecosystem/MyZubster-Marketplace","url":"https://github.com/MyZubster-Ecosystem/MyZubster-Marketplace","group":"Interfaces","role":"Marketplace component","defaultBranch":"main"},
+    {"name":"myzubster-animal-registry","fullName":"MyZubster-Ecosystem/myzubster-animal-registry","url":"https://github.com/MyZubster-Ecosystem/myzubster-animal-registry","group":"Real World","role":"Animal registry component","defaultBranch":"main"},
+    {"name":"MyZubster-Robot","fullName":"MyZubster-Ecosystem/MyZubster-Robot","url":"https://github.com/MyZubster-Ecosystem/MyZubster-Robot","group":"Real World","role":"Robotics component","defaultBranch":"master"},
+    {"name":"myzubster-space-station","fullName":"MyZubster-Ecosystem/myzubster-space-station","url":"https://github.com/MyZubster-Ecosystem/myzubster-space-station","group":"Experimental","role":"Experimental world / space-station track","defaultBranch":"main"},
+    {"name":"EVA-IONI","fullName":"MyZubster-Ecosystem/EVA-IONI","url":"https://github.com/MyZubster-Ecosystem/EVA-IONI","group":"Experimental","role":"Public experimental repository","defaultBranch":"main"},
+    {"name":"myzubster-docs","fullName":"MyZubster-Ecosystem/myzubster-docs","url":"https://github.com/MyZubster-Ecosystem/myzubster-docs","group":"Docs & Media","role":"Documentation repository","defaultBranch":"main"},
+    {"name":"myzubster-manuals","fullName":"MyZubster-Ecosystem/myzubster-manuals","url":"https://github.com/MyZubster-Ecosystem/myzubster-manuals","group":"Docs & Media","role":"Manuals repository","defaultBranch":"main"},
+    {"name":"MyZubster-Visual","fullName":"MyZubster-Ecosystem/MyZubster-Visual","url":"https://github.com/MyZubster-Ecosystem/MyZubster-Visual","group":"Docs & Media","role":"Visual content repository","defaultBranch":"main"},
+    {"name":"MyZubster-Photos","fullName":"MyZubster-Ecosystem/MyZubster-Photos","url":"https://github.com/MyZubster-Ecosystem/MyZubster-Photos","group":"Docs & Media","role":"Public photo / media repository","defaultBranch":"main"}
+  ]
+}

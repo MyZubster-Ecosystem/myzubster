@@ -1,0 +1,12 @@
+const state={repos:[],group:'All',query:''};
+const groupsEl=document.getElementById('groups');
+const filtersEl=document.getElementById('filters');
+const searchEl=document.getElementById('search');
+const countEl=document.getElementById('count');
+
+function escapeHtml(value){return String(value).replace(/[&<>"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));}
+function filtered(){const q=state.query.trim().toLowerCase();return state.repos.filter(r=>(state.group==='All'||r.group===state.group)&&(!q||[r.name,r.fullName,r.role,r.group].join(' ').toLowerCase().includes(q)));}
+function render(){const visible=filtered();const grouped=new Map();visible.forEach(repo=>{if(!grouped.has(repo.group))grouped.set(repo.group,[]);grouped.get(repo.group).push(repo);});groupsEl.innerHTML='';for(const [group,repos] of grouped){const section=document.createElement('section');section.className='group';section.innerHTML=`<h2>${escapeHtml(group)}</h2>`;repos.forEach(repo=>{const card=document.createElement('article');card.className='repo';card.innerHTML=`<h3>${escapeHtml(repo.name)}</h3><p>${escapeHtml(repo.role)}</p><div class="meta"><span>PUBLIC</span><span>${escapeHtml(repo.defaultBranch)}</span></div><a href="${repo.url}" target="_blank" rel="noopener noreferrer">Open repository ↗</a>`;section.appendChild(card);});groupsEl.appendChild(section);}countEl.textContent=`${visible.length} public repositories shown`;if(!visible.length)groupsEl.innerHTML='<section class="group"><h2>No match</h2><p>Try another search or group.</p></section>';}
+function renderFilters(){const groups=['All',...new Set(state.repos.map(r=>r.group))];filtersEl.innerHTML='';groups.forEach(group=>{const b=document.createElement('button');b.type='button';b.textContent=group;b.className=group===state.group?'active':'';b.addEventListener('click',()=>{state.group=group;renderFilters();render();});filtersEl.appendChild(b);});}
+fetch('repositories.json').then(r=>{if(!r.ok)throw new Error('Repository inventory unavailable');return r.json();}).then(data=>{state.repos=Array.isArray(data.repositories)?data.repositories:[];renderFilters();render();}).catch(()=>{countEl.textContent='Repository inventory could not be loaded.';groupsEl.innerHTML='<section class="group"><h2>Data unavailable</h2><p>Open repositories.json directly or reload from a static server.</p></section>';});
+searchEl.addEventListener('input',()=>{state.query=searchEl.value;render();});

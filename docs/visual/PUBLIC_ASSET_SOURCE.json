@@ -1,0 +1,12 @@
+{
+  "schema": "myzubster.public-visual-source.v1",
+  "updated_on": "2026-08-22",
+  "repository": "MyZubster-Ecosystem/MyZubster-Visual",
+  "branch": "update/drive-visuals-2026-08-21",
+  "commit": "bd29f4df18c527493b026f48319040c180042367",
+  "paths": {
+    "ready_for_github": "assets/zorgax/ready-for-github",
+    "concept_not_evidence": "assets/zorgax/concept-not-evidence"
+  },
+  "policy": "Public versioning does not upgrade evidentiary status."
+}

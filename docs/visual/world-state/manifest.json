@@ -1,0 +1,22 @@
+{
+  "id": "MYZ-VIS-ZORGAX-007",
+  "title": "World State / Evidence Ledger",
+  "status": "draft-pr",
+  "created": "2026-08-22",
+  "style": "original MyZubster/Zorgax cyberpunk",
+  "evidence_role": "index of explicitly scoped public claims",
+  "sources": [
+    "https://github.com/MyZubster-Ecosystem/myzubster/pull/614",
+    "https://github.com/MyZubster-Ecosystem/myzubster/pull/615",
+    "https://github.com/MyZubster-Ecosystem/myzubster/pull/616",
+    "https://github.com/MyZubster-Ecosystem/myzubster/issues/617"
+  ],
+  "guardrails": [
+    "issue != completed mission",
+    "PR != accepted contribution",
+    "merge != external payment",
+    "merge != production deployment",
+    "AI image != evidence",
+    "repository existence != production readiness"
+  ]
+}

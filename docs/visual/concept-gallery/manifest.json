@@ -1,0 +1,32 @@
+{
+  "schema": "myzubster.visual-concept-gallery.v1",
+  "generated_on": "2026-08-22",
+  "source": "Google Drive / PC-UPLOAD-PACK-2026-08-22 / CONCEPT-NOT-EVIDENCE",
+  "public_asset_repository": {
+    "repository": "MyZubster-Ecosystem/MyZubster-Visual",
+    "branch": "update/drive-visuals-2026-08-21",
+    "commit": "bd29f4df18c527493b026f48319040c180042367",
+    "base_path": "assets/zorgax/concept-not-evidence"
+  },
+  "policy": {
+    "ai_generated": true,
+    "illustrative": true,
+    "evidence": false,
+    "drive_is_archive_not_proof": true,
+    "github_asset_repo_is_publication_not_evidence": true,
+    "canonical_truth_source": "GitHub repository state and linked public evidence"
+  },
+  "assets": [
+    {"filename":"zorgax-chronicle-001-signal-garden-CONCEPT.png","drive_file_id":"1L7VAzirsJew30hZzql9OhqpABAN7GeQC","github_path":"assets/zorgax/concept-not-evidence/zorgax-chronicle-001-signal-garden-CONCEPT.png","category":"chronicle/narrative","status":"concept-not-evidence"},
+    {"filename":"zorgax-visual-intelligence-001-CONCEPT.png","drive_file_id":"158i-IoO8mMHKv_6N14v3zboMwUgdQ0nr","github_path":"assets/zorgax/concept-not-evidence/zorgax-visual-intelligence-001-CONCEPT.png","category":"visual-intelligence/narrative","status":"concept-not-evidence"},
+    {"filename":"global-visual-overview-CONCEPT-NOT-EVIDENCE.png","drive_file_id":"1M6_w6EAiBtVjv2v0wBUEJEryJxVABVDX","github_path":"assets/zorgax/concept-not-evidence/global-visual-overview-CONCEPT-NOT-EVIDENCE.png","category":"overview/narrative","status":"concept-not-evidence"},
+    {"filename":"009-evidence-ledger-CONCEPT-NOT-EVIDENCE.png","drive_file_id":"1itPam86kLCgl2sumAEnoNk3RKe_mp5_V","github_path":"assets/zorgax/concept-not-evidence/009-evidence-ledger-CONCEPT-NOT-EVIDENCE.png","category":"world-state/evidence-ledger-illustration","status":"concept-not-evidence","canonical_path":"../world-state/index.html"},
+    {"filename":"008-chronicle-character-registry-CONCEPT-NOT-EVIDENCE.png","drive_file_id":"1C2mBDiRoKwIqYL10TVQLAFpGq4dGaLdd","github_path":"assets/zorgax/concept-not-evidence/008-chronicle-character-registry-CONCEPT-NOT-EVIDENCE.png","category":"character-registry/chronicle","status":"concept-not-evidence","canonical_source":"https://github.com/MyZubster-Ecosystem/myzubster/issues/617"},
+    {"filename":"external-git-metasploit-UNVERIFIED-CONCEPT.png","drive_file_id":"1IoTR_cB2b9nvUzIj1-XdOc-GZXvGlT_I","github_path":"assets/zorgax/concept-not-evidence/external-git-metasploit-UNVERIFIED-CONCEPT.png","category":"external-candidate","status":"unverified-external-candidate","affiliation":"none-verified","warning":"NO AFFILIATION / NOT EVIDENCE"},
+    {"filename":"008-character-registry-cyberpunk-CONCEPT.png","drive_file_id":"16JuKpzD68wwmaKv84ZHYGfxMbv-ODnD1","github_path":"assets/zorgax/concept-not-evidence/008-character-registry-cyberpunk-CONCEPT.png","category":"character-registry/narrative","status":"concept-not-evidence","canonical_source":"https://github.com/MyZubster-Ecosystem/myzubster/issues/617"},
+    {"filename":"006-contributor-journey-cyberpunk-CONCEPT.png","drive_file_id":"1nlh3B4Zf_CufWmazUfqpfmo_HIXnbaQA","github_path":"assets/zorgax/concept-not-evidence/006-contributor-journey-cyberpunk-CONCEPT.png","category":"contributor-journey/narrative","status":"concept-not-evidence","canonical_path":"../contributor-journey/index.html"},
+    {"filename":"004-maturity-map-cyberpunk-CONCEPT.png","drive_file_id":"19tMJSsC7l5U2UxnvlO6I5KFU67E9aRTQ","github_path":"assets/zorgax/concept-not-evidence/004-maturity-map-cyberpunk-CONCEPT.png","category":"maturity/narrative","status":"concept-not-evidence","canonical_source":"../../MYZUBSTER_METAVERSE.md"},
+    {"filename":"003-github-native-metaverse-cyberpunk-CONCEPT.png","drive_file_id":"1K6hUmKQGHsMcq9963XaQrmbZuQkK6MTj","github_path":"assets/zorgax/concept-not-evidence/003-github-native-metaverse-cyberpunk-CONCEPT.png","category":"github-native-metaverse/narrative","status":"concept-not-evidence","canonical_path":"../github-native-metaverse/README.md"},
+    {"filename":"002-contributor-evidence-cyberpunk-CONCEPT.png","drive_file_id":"1d2JE626fWsCXFsoc5kG9Qbd_3OXgauX1","github_path":"assets/zorgax/concept-not-evidence/002-contributor-evidence-cyberpunk-CONCEPT.png","category":"contributor-evidence/narrative","status":"concept-not-evidence","canonical_path":"../contributor-flow/README.md"}
+  ]
+}

@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>MyZubster Character Registry</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <p class="eyebrow">ZORGAX VISUAL #010 · GIT-NATIVE CHARACTERS</p>
+      <h1>Character Registry</h1>
+      <p>Characters are visual interfaces for public contributor or component roles. Verification comes from linked Git evidence, not from the artwork.</p>
+      <div class="actions">
+        <a href="../index.html">← Visual Hub</a>
+        <a href="https://github.com/MyZubster-Ecosystem/myzubster/issues/617">Create your character ↗</a>
+        <a href="../world-state/index.html">World State</a>
+      </div>
+    </header>
+
+    <section class="states">
+      <div><b>PROPOSED</b><span>submitted concept / invitation</span></div>
+      <div><b>REVIEWED</b><span>reviewed definition, not identity proof</span></div>
+      <div><b>VERIFIED_CONTRIBUTOR</b><span>linked to verifiable public contribution</span></div>
+      <div><b>ACTIVE</b><span>used in the visual layer after review</span></div>
+    </section>
+
+    <section class="registry-head">
+      <div>
+        <h2>Evidence-linked entries</h2>
+        <p>The registry reads the same canonical dataset used by World State, Adoption Ladder and Chronicle.</p>
+      </div>
+      <input id="search" type="search" placeholder="Search characters / contributors…" aria-label="Search registry">
+    </section>
+
+    <section id="registry" class="registry" aria-live="polite"></section>
+
+    <section class="template">
+      <h2>Character manifest</h2>
+      <pre>id: your-character-id
+display_name: Your Character Name
+github_alias: your-github-alias
+role: contributor
+linked_repositories:
+  - MyZubster-Ecosystem/myzubster
+mission: "What your character contributes"
+visual:
+  type: original | ai-generated
+  path: assets/characters/your-character.png
+status: proposed</pre>
+      <p><strong>Rule:</strong> character art may be original or AI-generated, but only repository / issue / PR / commit evidence can support contribution claims.</p>
+    </section>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>
