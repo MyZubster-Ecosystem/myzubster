@@ -15,48 +15,4 @@
       "category": "open_source_ecosystem",
       "type": "external_metaverse",
       "status": "experimental",
-      "upstream": "https://github.com/vircadia/vircadia-world",
-      "life_gateway": "voluntary_contributor_entry",
-      "auth_mode": "external",
-      "partnership_claim": false,
-      "upstream_validated": false,
-      "tracking_issue": 726
-    },
-    {
-      "id": "decentraland-sdk",
-      "name": "Decentraland SDK",
-      "category": "open_source_ecosystem",
-      "type": "external_metaverse_toolchain",
-      "status": "experimental",
-      "upstream": "https://github.com/decentraland/js-sdk-toolchain",
-      "life_gateway": "voluntary_contributor_entry",
-      "auth_mode": "external",
-      "partnership_claim": false,
-      "upstream_validated": false
-    },
-    {
-      "id": "webxr",
-      "name": "Immersive Web / WebXR Samples",
-      "category": "open_standard_ecosystem",
-      "type": "xr_interoperability",
-      "status": "experimental",
-      "upstream": "https://github.com/immersive-web/webxr-samples",
-      "life_gateway": "voluntary_contributor_entry",
-      "auth_mode": "external_or_anonymous",
-      "partnership_claim": false,
-      "upstream_validated": false
-    },
-    {
-      "id": "aruba",
-      "name": "Aruba S.p.A.",
-      "category": "infrastructure_provider",
-      "type": "external_infrastructure",
-      "status": "exploratory",
-      "upstream": "https://www.aruba.it/",
-      "life_gateway": "provider_integration_only",
-      "auth_mode": "provider_specific",
-      "partnership_claim": false,
-      "upstream_validated": false
-    }
-  ]
-}
+      "upstream": "https://github.
