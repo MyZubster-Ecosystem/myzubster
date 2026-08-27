@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://myzubster.example/schemas/myz-identity.schema.json",
+  "title": "MyZubster Public Identity Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "myz_id", "record_type", "verification_status", "lifecycle_status", "created_at"],
+  "properties": {
+    "schema_version": {"type": "string", "const": "0.1.0"},
+    "myz_id": {"type": "string", "pattern": "^MYZ-(PERSON|ENTITY|DEMO)-[A-Z0-9-]+$"},
+    "record_type": {"type": "string", "enum": ["person", "entity", "demo"]},
+    "display_name": {"type": "string", "minLength": 1, "maxLength": 120},
+    "verification_status": {
+      "type": "string",
+      "enum": ["unverified", "self_attested", "reviewed", "cryptographically_verified"]
+    },
+    "lifecycle_status": {"type": "string", "enum": ["active", "suspended", "retired", "revoked"]},
+    "public_keys": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "type", "public_key"],
+        "properties": {
+          "id": {"type": "string"},
+          "type": {"type": "string"},
+          "public_key": {"type": "string"},
+          "status": {"type": "string", "enum": ["active", "revoked"]}
+        }
+      }
+    },
+    "attestations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["claim", "status"],
+        "properties": {
+          "claim": {"type": "string"},
+          "status": {"type": "string", "enum": ["self_attested", "reviewed", "cryptographically_verified", "revoked"]},
+          "evidence_hash": {"type": "string"},
+          "issued_at": {"type": "string", "format": "date-time"}
+        }
+      }
+    },
+    "character_refs": {"type": "array", "items": {"type": "string"}},
+    "created_at": {"type": "string", "format": "date-time"},
+    "updated_at": {"type": "string", "format": "date-time"}
+  }
+}
