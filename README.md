@@ -8,39 +8,38 @@
 
 MyZubster turns authorized real-world observations — photos, places, environmental data, services and technical contributions — into structured information that can be connected, reviewed, validated and reused.
 
-**Current state:** MVP / active development and validation. Some components are operational, others experimental or specified for future implementation. A roadmap, issue or discussion is not proof of deployment, partnership, adoption or funding.
+**Current state:** MVP / active development and validation. Some components are operational, others experimental or in active implementation. A roadmap, issue, PR, merge, discussion or automated test is not by itself proof of deployment, partnership, adoption, funding or external payment.
 
 ## 👤 Daniel Ioni — Founder & Builder
 
 Daniel Ioni (`DanielIoni-creator`) is the creator and lead builder of **MyZubster**, an open digital ecosystem focused on interoperability, immersive experiences, open-source development and the emerging **MyZubster LIFE 2027** initiative.
 
-Alongside MyZubster development, he submits upstream contributions to independent open-source ecosystems. Public GitHub evidence currently includes pull requests to **Vircadia World**, **Decentraland JS SDK Toolchain** and **Monero Docs**, covering external-integration documentation, distributed state-synchronization retry behavior and Wallet RPC documentation. Experimental contribution work is also maintained in a fork of **Immersive Web / WebXR Samples**.
+Alongside MyZubster development, public contribution work includes upstream pull requests or contribution branches involving **Vircadia World**, **Decentraland JS SDK Toolchain**, **Monero Docs** and experimental **WebXR Samples** work.
 
-His contribution-first workflow is:
+The contribution-first workflow is:
 
 ```text
 STUDY → FORK → BUILD → TEST → UPSTREAM PR → REVIEW → INTEROPERABILITY
 ```
 
-See **External upstream contributions** below for direct public evidence and current status. Open pull requests and fork branches are independent open-source contributions; they do **not** imply partnership, endorsement, affiliation, acceptance upstream or formal contributor status with the respective projects.
+Open pull requests and fork branches are independent open-source contributions; they do **not** imply partnership, endorsement, affiliation, acceptance upstream or formal contributor status with the respective projects.
 
-## 🧭 Start here — complete MyZubster index
+## 🧭 Start here
 
 | I want to… | Start here |
 |---|---|
 | Understand MyZubster | This README → **How MyZubster works** |
 | Join the community | [`JOIN.md`](JOIN.md) |
 | Contribute code/docs/design | [`CONTRIBUTING.md`](CONTRIBUTING.md) |
-| See external upstream contributions | This README → **External upstream contributions** |
-| Find work / missions | [GitHub Issues](https://github.com/MyZubster-Ecosystem/myzubster/issues) |
-| Submit independent evidence | [Community evidence issue #715](https://github.com/MyZubster-Ecosystem/myzubster/issues/715) |
-| See public community evidence | [`docs/PUBLIC-COMMUNITY-ACTIVITY.md`](docs/PUBLIC-COMMUNITY-ACTIVITY.md) |
 | Understand ecosystem architecture | [`docs/ECOSYSTEM.md`](docs/ECOSYSTEM.md) |
-| Follow globalization | [`docs/GLOBALIZATION_ROADMAP_2026_2028.md`](docs/GLOBALIZATION_ROADMAP_2026_2028.md) |
-| Read multilingual docs | [`docs/i18n/README.md`](docs/i18n/README.md) |
 | Understand bounties | [`BOUNTIES.md`](BOUNTIES.md) |
 | Understand internal rewards | [`REWARDS_LEDGER.md`](REWARDS_LEDGER.md) |
 | Understand treasury boundaries | [`TREASURY.md`](TREASURY.md) |
+| Read the XMR stagenet implementation status | [`docs/XMR-STAGENET-SETTLEMENT.md`](docs/XMR-STAGENET-SETTLEMENT.md) |
+| See public community evidence | [`docs/PUBLIC-COMMUNITY-ACTIVITY.md`](docs/PUBLIC-COMMUNITY-ACTIVITY.md) |
+| Submit independent evidence | [Community evidence issue #715](https://github.com/MyZubster-Ecosystem/myzubster/issues/715) |
+| Follow globalization | [`docs/GLOBALIZATION_ROADMAP_2026_2028.md`](docs/GLOBALIZATION_ROADMAP_2026_2028.md) |
+| Read multilingual docs | [`docs/i18n/README.md`](docs/i18n/README.md) |
 | Follow public discovery/history | [`docs/PUBLIC-TIMELINE.md`](docs/PUBLIC-TIMELINE.md) |
 | Explore documentation hub | [myzubster-docs](https://github.com/MyZubster-Ecosystem/myzubster-docs) |
 | Read manuals | [myzubster-manuals](https://github.com/MyZubster-Ecosystem/myzubster-manuals) |
@@ -51,8 +50,6 @@ See **External upstream contributions** below for direct public evidence and cur
 > 🌍 **Languages:** English · Italiano · Español · Français · Deutsch · Português · 中文 · 日本語 · 한국어 · العربية · हिन्दी · Русский · Türkçe · Bahasa Indonesia · Polski · Українська · বাংলা · اردو · فارسی · Kiswahili — see [`docs/i18n/README.md`](docs/i18n/README.md).
 
 ## ⚙️ How MyZubster works
-
-The core operating model is:
 
 ```text
 OBSERVE
@@ -124,7 +121,95 @@ Only authorized and appropriately sanitized information should become public. Co
                   optional separate boundary
                              ▼
                 Gateway / External Settlement
+                             │
+                             ▼
+                   Independent Verifier
 ```
+
+## 💸 XMR stagenet settlement — active implementation
+
+MyZubster now has a concrete implementation track for the first **verifiable Monero stagenet settlement** in [`MyZubsterGateway`](https://github.com/MyZubster-Ecosystem/MyZubsterGateway).
+
+Public implementation evidence:
+
+- [`MyZubsterGateway#1403`](https://github.com/MyZubster-Ecosystem/MyZubsterGateway/issues/1403) — P0 implementation / E2E validation gate;
+- [`MyZubsterGateway#1404`](https://github.com/MyZubster-Ecosystem/MyZubsterGateway/pull/1404) — runtime + tests for the first verifiable XMR stagenet path;
+- [`docs/XMR-STAGENET-SETTLEMENT.md`](docs/XMR-STAGENET-SETTLEMENT.md) — canonical implementation-status document.
+
+### Current runtime guarantees
+
+The current Gateway implementation includes:
+
+- **stagenet-only** gating for the first real E2E path;
+- canonical positive integer **XMR atomic amount** handling;
+- strict **64-hex TXID validation**;
+- explicit separation between the transaction **submitter** and an **independent verifier**;
+- submission logic that may produce `SUBMITTED`, but cannot self-declare `PAID`;
+- fail-closed handling when verification is unavailable or invalid;
+- recipient, amount, network and TXID consistency checks;
+- minimum-confirmation enforcement;
+- idempotent/replay-aware submission behavior;
+- negative-path tests for malformed amount, wrong network, duplicate submit, missing verifier, verifier timeout, wrong recipient, wrong amount, wrong TXID and insufficient confirmations;
+- a successful path to `PAID` only after independent evidence matches the expected settlement.
+
+The settlement lifecycle is deliberately evidence-first:
+
+```text
+PENDING
+  ↓
+ACCEPTED
+  ↓
+SUBMITTED
+  ↓
+CONFIRMED
+  ↓
+PAID
+```
+
+Recovery/failure states may include `UNSETTLED`, `FAILED` and `DISPUTED`.
+
+### Critical trust boundary
+
+A wallet/provider response alone is **not** finality.
+
+```text
+AUTHORIZED SETTLEMENT INTENT
+        ↓
+SUBMITTER / WALLET RPC
+        ↓
+TXID
+        ↓
+INDEPENDENT VERIFIER
+        ↓
+MATCH NETWORK + RECIPIENT + AMOUNT + TXID + CONFIRMATIONS
+        ↓
+CONFIRMED
+        ↓
+PAID
+```
+
+If the verifier is unavailable, times out or returns inconsistent evidence, the settlement must remain non-final rather than inferring success.
+
+### Automated validation status
+
+On the current XMR implementation branch, the principal functional CI workflows have passed, including the main `CI`, `CI Boost`, quality and lint/typecheck checks. A separate performance workflow has reported a failure and is tracked independently rather than being represented as proof of settlement failure or success.
+
+Automated tests prove behavior under the tested conditions. They do **not** prove that a real external transaction has already happened.
+
+### Next gate: real stagenet E2E
+
+The next milestone is to wire the runtime contracts to:
+
+1. an authorized `monero-wallet-rpc` configured for **stagenet**;
+2. a separately configured read-only / independent verification source;
+3. one tiny-value real stagenet transaction;
+4. a sanitized evidence package proving the lifecycle without publishing wallet seeds, private keys, passwords or other secrets.
+
+Until that real transaction is executed and independently verified, the correct status is:
+
+> **runtime + automated tests implemented; real stagenet transaction still pending validation.**
+
+Mainnet is explicitly outside this milestone. Passing stagenet tests is not authorization to activate production/mainnet settlement.
 
 ## 🤖 Zorgax — automation boundary
 
@@ -162,8 +247,6 @@ Implementation planning is tracked in **#713 — Zorgax LIFE Automation v1** and
 
 MyZubster exposes a public DAO/governance area at [myzubster.com/dao](https://www.myzubster.com/dao).
 
-The governance direction separates:
-
 ```text
 COMMUNITY INPUT
       ↓
@@ -180,7 +263,7 @@ Automation is assistance, not authority. Scientific validation, formal partnersh
 
 ## 🌍 Open Community
 
-Public GitHub contribution does not require a private invitation. Contributors may participate using a public alias, subject to GitHub and project rules. An application account is only required for application functions that actually require authentication.
+Public GitHub contribution does not require a private invitation. Contributors may participate using a public alias, subject to GitHub and project rules.
 
 Contribution paths include:
 
@@ -195,16 +278,14 @@ Participation is voluntary. A contribution, character, issue or PR does not auto
 
 ## 🤝 External upstream contributions
 
-MyZubster follows a **contribute first, integrate second** approach when interacting with independent open-source ecosystems. The entries below are public technical contributions or contribution branches; they are evidence of participation only and **do not imply partnership, endorsement, affiliation or adoption** by the upstream projects.
+MyZubster follows a **contribute first, integrate second** approach when interacting with independent open-source ecosystems. These entries are public technical contributions or contribution branches; they do **not** imply partnership, endorsement, affiliation or adoption.
 
 | Upstream project | Contribution | Public evidence | Current evidence status |
 |---|---|---|---|
 | **Vircadia World** | Documentation clarifying external integration boundaries, API separation, identity boundaries, licensing and reproducible provenance. | [vircadia/vircadia-world PR #17](https://github.com/vircadia/vircadia-world/pull/17) | **Upstream PR open / under review** |
 | **Decentraland JS SDK Toolchain** | Fix preserving CRDT state-sync retries when a state response comes from a non-authoritative peer, with a regression test. | [decentraland/js-sdk-toolchain PR #1556](https://github.com/decentraland/js-sdk-toolchain/pull/1556) | **Upstream PR open / review required** |
-| **Monero Docs** | Wallet RPC documentation clarification for the `get_transfers` `pending` parameter, linked to issue #252. | [monero-project/monero-docs PR #389](https://github.com/monero-project/monero-docs/pull/389) | **Upstream PR open / checks + review pending** |
+| **Monero Docs** | Wallet RPC documentation clarification for the `get_transfers` `pending` parameter. | [monero-project/monero-docs PR #389](https://github.com/monero-project/monero-docs/pull/389) | **Upstream PR open / checks + review pending** |
 | **Immersive Web / WebXR Samples** | Experimental `visibility-mask-change` sample work prepared in a fork branch. | [`feat/visibility-mask-change-sample`](https://github.com/DanielIoni-creator/webxr-samples/tree/feat/visibility-mask-change-sample) | **Fork branch prepared; no upstream PR claimed** |
-
-Evidence vocabulary used here:
 
 ```text
 FORK / BRANCH
@@ -216,7 +297,7 @@ UPSTREAM REVIEW
 UPSTREAM ACCEPTED / MERGED
 ```
 
-Only the last state may be described as accepted upstream. A fork, commit or open PR must never be presented as an upstream merge or formal relationship.
+Only the final state may be described as accepted upstream.
 
 ## 📊 Public evidence & adoption
 
@@ -242,18 +323,17 @@ Passive visitors must not be deanonymized or correlated with GitHub identities w
 
 ## 📰 Independent external mentions
 
-Public third-party discovery is tracked separately from MyZubster-owned publications and from upstream contribution status. These references show that independent platforms or authors have surfaced MyZubster-related work; they do **not** imply partnership, endorsement, affiliation, adoption or formal validation.
+Public third-party discovery is tracked separately from MyZubster-owned publications and upstream contribution status. These references are public discovery evidence, not proof of partnership or technical validation.
 
 | External source | Independent mention | Evidence |
 |---|---|---|
-| **KMP Weekly** | Listed **“📱 NFC Payments in MyZubster: A Complete Guide”** in its Kotlin Multiplatform news/tutorial feed, providing external discovery within a specialized developer community. | [KMP Weekly](https://kmpweekly.com/) |
-| **Shamyl Bin Mansoor — DEV Community** | Published **“From Robot Photos to 3D Meshes: Building a Photogrammetric Reconstruction Pipeline with MyZubster Robots”**, independently connecting MyZubster with robotics, 3D reconstruction and photogrammetry. | [DEV profile / article listing](https://dev.to/shamylbm) |
-| **kuroji — Zenn** | An independent OSS-bounty scanner analysis reported that MyZubster-Ecosystem issues occupied **8 of the top 10** results in a no-explicit-cash-amount ranking before the author added a per-repository cap. This is external discovery evidence and also highlights that bounty metadata should be easy for third-party scanners to interpret. | [Zenn article](https://zenn.dev/kuroji/articles/oss-bounty-122-to-8) |
-| **GyaanSetu Javascript — LinkedIn** | Published an independent post presenting MyZubster as a **real-world visual map**, describing a photo → repository → geographic/GPS data → public gallery workflow and surfacing concrete Rimini examples. This is third-party social discovery evidence, not a partnership or technical validation. | [LinkedIn post](https://www.linkedin.com/posts/gyaansetu-javascript_%F0%9D%97%95%F0%9D%98%82%F0%9D%97%B6%F0%9D%97%B9%F0%9D%97%B1%F0%9D%97%B6%F0%9D%97%BB%F0%9D%97%B4-%F0%9D%97%A0%F0%9D%98%86%F0%9D%97%AD%F0%9D%98%82%F0%9D%97%AF%F0%9D%98%80%F0%9D%98%81%F0%9D%97%B2%F0%9D%97%BF-%F0%9D%97%AE%F0%9D%98%80-activity-7495442870036819968-dVyV) |
-| **ShipRadar** | Independently indexed the GitHub bounty **“Crea il fumetto visuale ‘Come funziona MyZubster’ — 300 MYZ proposed”** as a developer opportunity. ShipRadar displayed the internal **300 MYZ** reward as a **$300 USD listed reward**; this is external discovery evidence but also an example of third-party reward-metadata misinterpretation. In MyZubster, MYZ is internal reward/accounting logic and must not be treated as automatically equivalent to USD or external settlement. | [ShipRadar](https://shipradar.com/) |
-| **ShipRadar — External & LIFE Bounty Federation** | ShipRadar also surfaced **“[PROGRAM · PROPOSED] External & LIFE Bounty Federation — Aruba, Metasploit, Monero, metaverse and partner-neutral tracks”** as an external GitHub opportunity, showing its own **73/100** opportunity score and labels including **“$733 USD listed reward”** and **“payout verified.”** Those monetary/payout labels are ShipRadar-generated metadata and are **not MyZubster evidence of a $733 promise or verified USD payout**. The underlying program remains proposed unless and until MyZubster's own evidence establishes otherwise. | [ShipRadar](https://shipradar.com/) |
+| **KMP Weekly** | Listed **“📱 NFC Payments in MyZubster: A Complete Guide”** in its Kotlin Multiplatform news/tutorial feed. | [KMP Weekly](https://kmpweekly.com/) |
+| **Shamyl Bin Mansoor — DEV Community** | Published **“From Robot Photos to 3D Meshes: Building a Photogrammetric Reconstruction Pipeline with MyZubster Robots”**. | [DEV profile](https://dev.to/shamylbm) |
+| **kuroji — Zenn** | An independent OSS-bounty scanner analysis reported strong MyZubster representation in its no-explicit-cash-amount ranking before per-repository capping. | [Zenn article](https://zenn.dev/kuroji/articles/oss-bounty-122-to-8) |
+| **GyaanSetu Javascript — LinkedIn** | Presented MyZubster as a real-world visual map using photo → repository → geographic/GPS data → public gallery flows. | [LinkedIn post](https://www.linkedin.com/posts/gyaansetu-javascript_%F0%9D%97%95%F0%9D%98%82%F0%9D%97%B6%F0%9D%97%B9%F0%9D%97%B1%F0%9D%97%B6%F0%9D%97%BB%F0%9D%97%B4-%F0%9D%97%A0%F0%9D%98%86%F0%9D%97%AD%F0%9D%98%82%F0%9D%97%AF%F0%9D%98%80%F0%9D%98%81%F0%9D%97%B2%F0%9D%97%BF-%F0%9D%97%AE%F0%9D%98%80-activity-7495442870036819968-dVyV) |
+| **ShipRadar** | Indexed MyZubster bounty/program opportunities. Third-party USD/payout labels are not authoritative MyZubster evidence. | [ShipRadar](https://shipradar.com/) |
 
-External mentions are treated as **public discovery evidence**, not as proof of deployment, partnership, endorsement or independent technical reproduction unless stronger reproducible evidence is available. Third-party reward displays may be inaccurate; authoritative bounty and settlement terms are defined by MyZubster's own published rules and independently verifiable settlement evidence.
+External mentions are treated as **public discovery evidence**, not as proof of deployment, partnership, endorsement or independent technical reproduction unless stronger reproducible evidence is available.
 
 ## 🌱 LIFE 2027 direction
 
@@ -269,8 +349,6 @@ Completed/documented preparation includes:
 - partner-data onboarding specification;
 - IoT, validation, dashboard and replication work packages/issues;
 - planning for one controlled end-to-end reference pilot.
-
-Current discussions with scientific, technical, industrial and territorial actors must be described according to their actual documented status. Interest, meetings and data discussions are not represented as formal partnerships until formally agreed.
 
 Target vertical slice:
 
@@ -325,6 +403,9 @@ The March 2027 target is **one verifiable Italian vertical slice + a public Repl
 | External upstream contributions | Public evidence tracked; open PRs are not treated as accepted upstream |
 | Bounty workflow | Development / validation |
 | MYZ reward accounting | Internal ledger |
+| **XMR settlement runtime** | **Implemented on stagenet validation branch with automated negative-path verification tests** |
+| **Real XMR stagenet E2E** | **Next validation gate; real tiny-value transaction not yet claimed complete** |
+| **XMR mainnet settlement** | **Not activated / outside current milestone** |
 | IPFS/IPNS public snapshots | Development / integration |
 | Gateway / external settlement | Separate integration boundary |
 | Zorgax AI / automation | Development / experimental |
@@ -344,7 +425,9 @@ BUILD → STABILIZE → VERIFY → DEMONSTRATE → PILOT → REPLICATE → SCALE
 
 ## 🧪 Quick start for developers
 
-### Requirements
+### Core repository
+
+Requirements:
 
 - Node.js 20+
 - MongoDB local or Atlas
@@ -358,6 +441,17 @@ npm test
 npm run build --if-present
 ```
 
+### Gateway / settlement implementation
+
+```bash
+git clone https://github.com/MyZubster-Ecosystem/MyZubsterGateway.git
+cd MyZubsterGateway
+npm ci
+npm test
+```
+
+The active XMR implementation is tracked on `feat/xmr-stagenet-e2e` and PR #1404 until merged.
+
 Never commit real `.env` secrets, credentials, private keys, wallet seeds, confidential datasets or restricted partner material.
 
 ## 🗂️ Repository / documentation map
@@ -368,11 +462,14 @@ Never commit real `.env` secrets, credentials, private keys, wallet seeds, confi
 - [`docs/PUBLIC-COMMUNITY-ACTIVITY.md`](docs/PUBLIC-COMMUNITY-ACTIVITY.md) — evidence-first public participation
 - [Issue #715](https://github.com/MyZubster-Ecosystem/myzubster/issues/715) — submit independent evidence
 
-### Architecture & operation
+### Architecture, rewards & settlement
 - [`docs/ECOSYSTEM.md`](docs/ECOSYSTEM.md) — ecosystem architecture
 - [`BOUNTIES.md`](BOUNTIES.md) — bounty rules
 - [`REWARDS_LEDGER.md`](REWARDS_LEDGER.md) — reward-accounting model
 - [`TREASURY.md`](TREASURY.md) — treasury policy/boundaries
+- [`docs/XMR-STAGENET-SETTLEMENT.md`](docs/XMR-STAGENET-SETTLEMENT.md) — XMR stagenet implementation, verification and mainnet gate
+- [`MyZubsterGateway#1403`](https://github.com/MyZubster-Ecosystem/MyZubsterGateway/issues/1403) — real stagenet E2E validation issue
+- [`MyZubsterGateway#1404`](https://github.com/MyZubster-Ecosystem/MyZubsterGateway/pull/1404) — XMR runtime + automated tests
 
 ### Internationalization & history
 - [`docs/i18n/README.md`](docs/i18n/README.md) — multilingual documentation
@@ -412,6 +509,15 @@ Do not publish:
 
 Public evidence must be sanitized. Provenance should explain where information came from and under which conditions it may be used.
 
+For external settlement specifically:
+
+- never commit wallet seeds or spend keys;
+- keep wallet/RPC credentials out of repositories;
+- do not expose unrestricted wallet RPC endpoints;
+- keep mainnet disabled unless separately authorized and reviewed;
+- never treat a DB state, issue closure, merge or provider response as payment proof;
+- require independent transaction verification before `PAID`.
+
 ## 🧩 What counts as proof?
 
 MyZubster uses an evidence ladder:
@@ -422,6 +528,22 @@ CLAIM
   < REPRODUCIBLE TEST
   < INDEPENDENT REPRODUCTION
   < AUTHORIZED REAL-WORLD PILOT
+```
+
+For external XMR settlement, use the more specific ladder:
+
+```text
+IMPLEMENTED
+    ↓
+AUTOMATED TESTS PASS
+    ↓
+STAGENET RUNTIME WIRED
+    ↓
+REAL STAGENET TX SUBMITTED
+    ↓
+INDEPENDENTLY VERIFIED
+    ↓
+REPRODUCIBLE E2E EVIDENCE
 ```
 
 Repository code and tests take precedence over promotional descriptions. Discussions are not partnerships. Merges are not payments. Internal reward accounting is not external settlement. A roadmap milestone is not a completed milestone until evidence exists.
