@@ -73,8 +73,8 @@ jobs:
           npm run start -- --ci --no-client --no-watch --port 8000 > /tmp/decentraland-preview.log 2>&1 &
           echo $! > /tmp/decentraland-preview.pid
           for i in $(seq 1 120); do
-            if curl -fsS http://127.0.0.1:8000/ >/dev/null; then
-              echo 'Local Decentraland preview server is reachable.'
+            if curl -fsS http://127.0.0.1:8000/about >/dev/null; then
+              echo 'Local Decentraland preview realm is reachable.'
               exit 0
             fi
             sleep 1
