@@ -14,6 +14,8 @@ You can contribute with code, documentation, testing, translation, design, acces
 
 Repository: https://github.com/MyZubster-Ecosystem/myzubster
 
+Contributor registry: [`docs/CONTRIBUTORS.md`](docs/CONTRIBUTORS.md)
+
 Interactive public story: https://www.myzubster.com/fumetto
 
 Character Registry: https://github.com/MyZubster-Ecosystem/myzubster/issues/617
@@ -34,6 +36,73 @@ Everyone who follows the project rules and contributes lawfully and respectfully
 - community members proposing ideas, reporting reproducible bugs or reviewing public work.
 
 Participation does not imply employment, partnership, payment, ownership, endorsement or identity verification.
+
+## Contributor paths
+
+Use the path that best matches the work you want to do:
+
+- **First-time contributor** — docs, translations, small fixes, basic tests;
+- **Developer** — API, backend, frontend, database, automation;
+- **GIS / IoT** — mapping, geolocation, sensing, environmental data;
+- **Design / storytelling** — UX, visual guides, comics, accessibility;
+- **Research / LIFE-aligned** — KPI/MRV, evidence methodology, datasets, replication;
+- **QA / reproducibility** — CI, testing, security review, clean-checkout validation.
+
+Issue #742 defines the public contributor-onboarding system. `docs/CONTRIBUTORS.md` is the public evidence registry.
+
+## Claim format
+
+For a normal bounded task, you can use:
+
+```text
+CLAIM
+GitHub username:
+Contributor path: first-time / developer / GIS-IoT / design / research / QA
+Issue:
+Proposed approach:
+Testing/evidence plan:
+Expected first milestone:
+```
+
+A maintainer may confirm scope, suggest a smaller first milestone, or route the contributor to an existing issue before substantial work starts.
+
+## LIFE-aligned contribution path
+
+MyZubster has preparatory open-source technical lanes for potential LIFE-aligned environmental work. See [`docs/life-2027/CONTRIBUTOR_POOL.md`](docs/life-2027/CONTRIBUTOR_POOL.md).
+
+Current source-of-truth issues include:
+
+- #534 — IoT sensing & auditable environmental data adapter;
+- #535 — human-in-the-loop AI recommendation & intervention log;
+- #536 — automation safety & manual override;
+- #537 — environmental pilot dashboard & KPI evidence view;
+- #538 — pilot replication package;
+- #713 — Zorgax LIFE evidence automation.
+
+To opt in, use:
+
+```text
+LIFE INTEREST
+GitHub username:
+Preferred lane:
+Relevant public contribution:
+What I would like to help with:
+Availability / first proposed task:
+```
+
+The activation path is:
+
+```text
+PUBLIC CONTRIBUTION EVIDENCE
+→ CANDIDATE LIFE LANE
+→ EXPLICIT OPT-IN / CLAIM
+→ BOUNDED LIFE ISSUE
+→ PR + TESTS / EVIDENCE
+→ REVIEW
+→ VERIFIED LIFE-ALIGNED CONTRIBUTION
+```
+
+A LIFE-aligned contribution does **not** by itself establish LIFE funding, EU/CINEA approval, university/company representation, partnership or consortium membership.
 
 ## Public identity and privacy
 
