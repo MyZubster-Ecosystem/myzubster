@@ -49,9 +49,9 @@ function guestCharacterName(displayName) {
     .toUpperCase() || 'EXPLORER';
 
   let suffix = Math.floor(Math.random() * 900) + 100;
-  if (globalThis.crypto?.getRandomValues) {
+  if (window.crypto?.getRandomValues) {
     const random = new Uint16Array(1);
-    globalThis.crypto.getRandomValues(random);
+    window.crypto.getRandomValues(random);
     suffix = 100 + (random[0] % 900);
   }
 
