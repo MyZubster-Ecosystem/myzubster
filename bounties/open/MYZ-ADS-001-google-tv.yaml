@@ -1,0 +1,52 @@
+id: MYZ-ADS-001
+title: Promote MyZubster Google TV Debug Build 001
+status: open
+category: marketing
+created_at: 2026-08-23
+owner: MyZubster
+reward:
+  unit: MYZ
+  base_social_post: 10
+  approved_original_creative: 15
+  valid_clicks_100: 20
+  verified_views_500: 25
+  verified_views_1000: 40
+  short_video: 30-50
+  qualified_lead: 50
+  kpi_bonus: 50-100
+objective: Increase verifiable awareness, qualified traffic and testing interest for the MyZubster Google TV Debug Build 001.
+destination:
+  type: github_prerelease
+  url: https://github.com/MyZubster-Ecosystem/myzubster/releases/tag/google-tv-debug-001
+product_status: development/debug build; not a production release
+allowed_channels:
+  - X/Twitter
+  - Instagram
+  - Facebook
+  - LinkedIn
+  - DEV Community
+  - YouTube
+  - approved community channels
+deliverables:
+  - Publish an accurate promotional contribution linking to the official prerelease.
+  - Clearly identify the APK as a debug/development build when discussing release maturity.
+  - Preserve concept-vs-evidence boundaries for any illustrative visual.
+evidence_required:
+  - Public post/content URL where applicable
+  - Screenshot of publication
+  - Platform analytics for metric-based rewards
+  - Contributor identifier
+  - Publication/completion date
+acceptance_criteria:
+  - Official GitHub prerelease is the destination or is clearly linked.
+  - No claim that Debug Build 001 is production-ready.
+  - No fabricated downloads, users, partnerships, endorsements or MYZ value claims.
+  - Evidence is sufficient for independent maintainer review.
+  - Engagement used for rewards is not known or suspected to be artificial.
+stacking:
+  allowed: true
+  rule: Distinct eligible outcomes may stack when each threshold has independent sufficient evidence; the same proof must not be counted twice for the same reward tier.
+verifier: maintainer-review
+policy:
+  - docs/MYZ_ADS_BOUNTY.md
+  - docs/marketing/README.md

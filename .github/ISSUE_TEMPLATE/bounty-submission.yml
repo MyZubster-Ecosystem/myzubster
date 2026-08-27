@@ -1,0 +1,51 @@
+name: Bounty submission
+description: Submit evidence for a MyZubster bounty reward
+title: "[BOUNTY] MYZ-BOUNTY-ID — "
+labels:
+  - bounty
+body:
+  - type: input
+    id: bounty_id
+    attributes:
+      label: Bounty ID
+      placeholder: MYZ-ADS-001
+    validations:
+      required: true
+  - type: input
+    id: contributor
+    attributes:
+      label: Contributor
+      description: GitHub username or public contributor identifier.
+    validations:
+      required: true
+  - type: textarea
+    id: deliverable
+    attributes:
+      label: Deliverable
+      description: Describe what you completed and provide the public artifact, PR, commit or URL.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Provide public URLs and sanitized evidence required by the bounty. Do not include secrets or unnecessary personal data.
+    validations:
+      required: true
+  - type: input
+    id: requested_myz
+    attributes:
+      label: Requested MYZ
+      description: Optional when the bounty has a fixed reward. Final amount is determined by verification.
+      placeholder: 10 MYZ
+  - type: checkboxes
+    id: declarations
+    attributes:
+      label: Declarations
+      options:
+        - label: I have not knowingly used bots, click farms, purchased engagement or fabricated evidence for this submission.
+          required: true
+        - label: I have not included credentials, private keys, seed phrases or unnecessary private information.
+          required: true
+        - label: Any concept or AI-generated material is disclosed and is not presented as operational evidence.
+          required: true
