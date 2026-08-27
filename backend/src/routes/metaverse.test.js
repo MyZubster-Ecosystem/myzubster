@@ -20,6 +20,9 @@ describe('MyZubster metaverse API', () => {
     expect(response.body.player.characterName).toBe('AERON-17');
     expect(response.body.player.identityStatus).toBe('guest');
     expect(response.body.identityMode).toBe('guest-unverified');
+    // The isolated API test intentionally has no Mongo connection. Production
+    // server.js gates /join on Mongo and therefore returns "durable" there.
+    expect(response.body.persistence).toBe('ephemeral');
   });
 
   test('moves a joined player inside world bounds', async () => {
