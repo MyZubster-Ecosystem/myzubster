@@ -44,3 +44,107 @@ jobs:
           grep -q 'myz-life-env-001' src/index.ts
           test -f bin/index.js
           echo 'Decentraland SDK7 build contains all three MyZubster demo markers.'
+
+  bevy-visual-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: integrations/decentraland
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install SDK7 and browser dependencies
+        run: |
+          set -euxo pipefail
+          npm install
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+
+      - name: Start Decentraland local preview server
+        run: |
+          set -euxo pipefail
+          npm run start -- --ci --no-client --no-watch --port 8000 > /tmp/decentraland-preview.log 2>&1 &
+          echo $! > /tmp/decentraland-preview.pid
+          for i in $(seq 1 120); do
+            if curl -fsS http://127.0.0.1:8000/ >/dev/null; then
+              echo 'Local Decentraland preview server is reachable.'
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/decentraland-preview.log
+          exit 1
+
+      - name: Render MyZubster scene in Decentraland Bevy Web
+        run: |
+          set -euxo pipefail
+          cat > /tmp/verify-decentraland-visual.cjs <<'JS'
+          const { chromium } = require(process.cwd() + '/node_modules/playwright')
+
+          ;(async () => {
+            const browser = await chromium.launch({
+              headless: true,
+              args: [
+                '--no-sandbox',
+                '--disable-dev-shm-usage',
+                '--enable-unsafe-swiftshader',
+                '--use-angle=swiftshader',
+                '--disable-features=LocalNetworkAccessChecks,PrivateNetworkAccessRespectPreflightResults'
+              ]
+            })
+            const page = await browser.newPage({ viewport: { width: 1440, height: 900 } })
+            const seen = []
+            page.on('console', (msg) => {
+              const text = msg.text()
+              console.log(`[browser:${msg.type()}] ${text}`)
+              if (text.includes('[MyZubster/Decentraland]')) seen.push(text)
+            })
+            page.on('pageerror', (err) => console.error(`[browser:error] ${err.message}`))
+
+            const preview = 'https://decentraland.org/bevy-web/?preview=true&realm=http://127.0.0.1:8000&position=76,-8'
+            await page.goto(preview, { waitUntil: 'domcontentloaded', timeout: 90000 })
+
+            const deadline = Date.now() + 120000
+            while (Date.now() < deadline) {
+              if (
+                seen.some((x) => x.includes('myz-rimini-place-001')) &&
+                seen.some((x) => x.includes('myz-rimini-plant-001')) &&
+                seen.some((x) => x.includes('myz-life-env-001'))
+              ) break
+              await page.waitForTimeout(1000)
+            }
+
+            const required = ['myz-rimini-place-001', 'myz-rimini-plant-001', 'myz-life-env-001']
+            for (const id of required) {
+              if (!seen.some((x) => x.includes(id))) {
+                throw new Error(`Decentraland Bevy preview did not report rendered marker ${id}`)
+              }
+            }
+
+            await page.waitForTimeout(5000)
+            await page.screenshot({ path: 'decentraland-myzubster-visual-proof.png', fullPage: true })
+            console.log(`Visual proof confirmed all ${required.length} MyZubster SDK7 markers.`)
+            await browser.close()
+          })().catch((error) => {
+            console.error(error)
+            process.exit(1)
+          })
+          JS
+          node /tmp/verify-decentraland-visual.cjs
+
+      - name: Upload Decentraland visual proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: decentraland-myzubster-visual-proof
+          path: |
+            integrations/decentraland/decentraland-myzubster-visual-proof.png
+            /tmp/decentraland-preview.log
+          if-no-files-found: warn
