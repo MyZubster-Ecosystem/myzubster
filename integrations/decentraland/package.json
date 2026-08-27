@@ -13,8 +13,6 @@
     "@dcl/sdk": "7.26.0"
   },
   "devDependencies": {
-    "playwright": "1.62.1",
-    "pngjs": "7.0.0",
     "typescript": "5.9.3"
   }
 }

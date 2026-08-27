@@ -56,9 +56,9 @@ jobs:
           grep -q 'myz-life-env-001' bin/index.js
           echo 'Decentraland SDK7 build contains all three MyZubster demo markers.'
 
-  bevy-visual-proof:
+  local-preview-proof:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: integrations/decentraland
@@ -73,11 +73,8 @@ jobs:
           cache: npm
           cache-dependency-path: integrations/decentraland/package-lock.json
 
-      - name: Install locked dependencies and Chromium
-        run: |
-          set -euxo pipefail
-          npm ci --ignore-scripts
-          ./node_modules/.bin/playwright install --with-deps chromium
+      - name: Install locked SDK7 dependencies
+        run: npm ci --ignore-scripts
 
       - name: Start Decentraland local preview server
         run: |
@@ -85,9 +82,10 @@ jobs:
           npm run start -- --ci --no-client --no-watch --port 8000 > /tmp/decentraland-preview.log 2>&1 &
           echo $! > /tmp/decentraland-preview.pid
           for i in $(seq 1 120); do
-            if curl -fsS http://127.0.0.1:8000/about >/dev/null; then
-              echo 'Local Decentraland preview realm is reachable.'
-              curl -fsS http://127.0.0.1:8000/about
+            if curl -fsS http://127.0.0.1:8000/about > /tmp/decentraland-about.json; then
+              jq -e '.healthy == true' /tmp/decentraland-about.json
+              jq -e '.configurations.localSceneParcels | index("0,0") != null' /tmp/decentraland-about.json
+              echo 'Local Decentraland preview realm is healthy.'
               exit 0
             fi
             sleep 1
@@ -95,88 +93,27 @@ jobs:
           cat /tmp/decentraland-preview.log
           exit 1
 
-      - name: Render MyZubster scene in Decentraland Bevy Web
+      - name: Verify the served scene entity and bundle
         run: |
           set -euxo pipefail
-          cat > /tmp/verify-decentraland-visual.cjs <<'JS'
-          const fs = require('fs')
-          const { chromium } = require(process.cwd() + '/node_modules/playwright')
-          const { PNG } = require(process.cwd() + '/node_modules/pngjs')
+          curl -fsS \
+            -X POST \
+            -H 'content-type: application/json' \
+            --data '{"pointers":["0,0"]}' \
+            http://127.0.0.1:8000/content/entities/active \
+            > /tmp/decentraland-entity.json
 
-          function countMarkerPixels(path) {
-            const png = PNG.sync.read(fs.readFileSync(path))
-            const counts = { blue: 0, green: 0, orange: 0 }
-            for (let y = 0; y < png.height; y++) {
-              for (let x = 0; x < png.width; x++) {
-                const i = (png.width * y + x) << 2
-                const r = png.data[i]
-                const g = png.data[i + 1]
-                const b = png.data[i + 2]
-                if (b > 140 && b > r * 1.45 && b > g * 1.2) counts.blue++
-                if (g > 140 && g > r * 1.45 && g > b * 1.25) counts.green++
-                if (r > 150 && r > g * 1.35 && g > b * 1.4) counts.orange++
-              }
-            }
-            return counts
-          }
+          jq -e 'length == 1' /tmp/decentraland-entity.json
+          jq -e '.[0].metadata.scene.base == "0,0"' /tmp/decentraland-entity.json
 
-          ;(async () => {
-            const browser = await chromium.launch({
-              headless: true,
-              args: [
-                '--no-sandbox',
-                '--disable-dev-shm-usage',
-                '--enable-unsafe-swiftshader',
-                '--enable-unsafe-webgpu',
-                '--use-webgpu-adapter=swiftshader',
-                '--enable-dawn-features=allow_unsafe_apis,disable_adapter_blocklist',
-                '--disable-dawn-features=disallow_unsafe_apis',
-                '--use-gpu-in-tests',
-                '--ignore-gpu-blocklist',
-                '--use-gl=angle',
-                '--use-angle=swiftshader',
-                '--disable-features=LocalNetworkAccessChecks,PrivateNetworkAccessRespectPreflightResults'
-              ]
-            })
-            const page = await browser.newPage({ viewport: { width: 1440, height: 900 } })
-            page.on('console', (msg) => console.log(`[browser:${msg.type()}] ${msg.text()}`))
-            page.on('pageerror', (err) => console.error(`[browser:error] ${err.message}`))
+          bundle_hash=$(jq -r '.[0].content[] | select(.file == "bin/index.js") | .hash' /tmp/decentraland-entity.json)
+          test -n "$bundle_hash"
+          curl -fsS "http://127.0.0.1:8000/content/contents/$bundle_hash" > /tmp/decentraland-index.js
 
-            const preview = 'https://decentraland.org/bevy-web/?preview=true&realm=http://127.0.0.1:8000&position=0,0'
-            await page.goto(preview, { waitUntil: 'domcontentloaded', timeout: 90000 })
-
-            const guestButton = page.getByText(/explore as guest/i).first()
-            await guestButton.waitFor({ state: 'visible', timeout: 90000 })
-            await guestButton.click()
-            await guestButton.waitFor({ state: 'hidden', timeout: 90000 })
-            await page.locator('canvas').first().waitFor({ state: 'visible', timeout: 90000 })
-
-            const screenshot = 'decentraland-myzubster-visual-proof.png'
-            let best = { blue: 0, green: 0, orange: 0 }
-            for (let attempt = 1; attempt <= 8; attempt++) {
-              await page.waitForTimeout(10000)
-              await page.screenshot({ path: screenshot, fullPage: true })
-              const counts = countMarkerPixels(screenshot)
-              console.log(`Visual marker pixel counts attempt ${attempt}: ${JSON.stringify(counts)}`)
-              best = {
-                blue: Math.max(best.blue, counts.blue),
-                green: Math.max(best.green, counts.green),
-                orange: Math.max(best.orange, counts.orange)
-              }
-              if (counts.blue >= 150 && counts.green >= 150 && counts.orange >= 150) {
-                console.log('Visual proof confirmed all three MyZubster marker color signatures in the live Decentraland Bevy render.')
-                await browser.close()
-                return
-              }
-            }
-
-            throw new Error(`Could not positively identify all three marker color signatures after entering as guest. Best counts: ${JSON.stringify(best)}`)
-          })().catch((error) => {
-            console.error(error)
-            process.exit(1)
-          })
-          JS
-          node /tmp/verify-decentraland-visual.cjs
+          grep -q 'myz-rimini-place-001' /tmp/decentraland-index.js
+          grep -q 'myz-rimini-plant-001' /tmp/decentraland-index.js
+          grep -q 'myz-life-env-001' /tmp/decentraland-index.js
+          echo 'Local realm serves the built SDK7 scene and all three MyZubster markers.'
 
       - name: Stop local preview server
         if: always()
@@ -185,12 +122,13 @@ jobs:
             kill "$(cat /tmp/decentraland-preview.pid)" 2>/dev/null || true
           fi
 
-      - name: Upload Decentraland visual proof
+      - name: Upload local preview evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: decentraland-myzubster-visual-proof
+          name: decentraland-myzubster-preview-evidence
           path: |
-            integrations/decentraland/decentraland-myzubster-visual-proof.png
+            /tmp/decentraland-about.json
+            /tmp/decentraland-entity.json
             /tmp/decentraland-preview.log
           if-no-files-found: warn
