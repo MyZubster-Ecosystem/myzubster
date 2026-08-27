@@ -210,7 +210,7 @@ exports.autoSyncStatus = async (req, res) => {
 
   const sync = user.gmailProfileSync || {};
   const lastSyncedAt = sync.lastSyncedAt ? new Date(sync.lastSyncedAt).getTime() : 0;
-  const stale = !lastSyncedAt || (Date.now() - lastSyncedAt) >= 24 * 60 * 60 * 1000;
+  const stale = !lastSyncedAt || (Date.now() - lastSyncedAt) >= 60 * 60 * 1000;
 
   if (sync.enabled && sync.refreshTokenEncrypted && stale) {
     try {
