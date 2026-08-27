@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Zorgax · Profilo da email</title>
+  <style>
+    body{margin:0;font-family:Inter,system-ui,sans-serif;background:#060914;color:#f8fafc}.wrap{max-width:820px;margin:auto;padding:32px 18px 72px}.card{background:#0b1220;border:1px solid #24364d;border-radius:20px;padding:22px;margin:16px 0}.btn{display:inline-block;border:0;border-radius:12px;padding:13px 18px;font-weight:800;background:linear-gradient(90deg,#8b5cf6,#ec4899);color:white;cursor:pointer;text-decoration:none}.muted{color:#94a3b8;line-height:1.55}.ok{color:#86efac}.err{color:#fca5a5}.pill{display:inline-block;padding:7px 10px;border:1px solid #334155;border-radius:999px;margin:4px;background:#111827}.chat{width:100%;min-height:100px;background:#08111f;border:1px solid #334155;border-radius:12px;color:#fff;padding:12px;box-sizing:border-box}.out{white-space:pre-wrap;line-height:1.55}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <h1>Zorgax · configura il tuo profilo con le tue email</h1>
+    <p class="muted">Collega volontariamente Gmail in sola lettura. MyZubster analizza un campione recente per proporre interessi e archetipo. I contenuti originali delle email e il token Gmail non vengono salvati nel profilo.</p>
+
+    <section class="card" id="connectCard">
+      <h2>1. Collega Gmail</h2>
+      <p class="muted">Google mostrerà la richiesta di accesso. Puoi revocarla dal tuo account Google in qualsiasi momento.</p>
+      <a class="btn" href="/api/auth/gmail/start">Collega Gmail →</a>
+    </section>
+
+    <section class="card" id="draftCard" hidden>
+      <h2>2. Bozza privata di Zorgax</h2>
+      <div id="draft"></div>
+      <p class="muted">La bozza non viene applicata finché non premi il pulsante qui sotto.</p>
+      <button class="btn" id="applyBtn">Approva e salva nel mio profilo</button>
+      <div id="applyStatus" class="muted"></div>
+    </section>
+
+    <section class="card" id="chatCard" hidden>
+      <h2>3. Parla con Zorgax usando questo profilo</h2>
+      <textarea class="chat" id="message" placeholder="Scrivi a Zorgax…"></textarea>
+      <p><button class="btn" id="sendBtn">Invia a Zorgax</button></p>
+      <div class="out" id="answer"></div>
+    </section>
+
+    <div id="status" class="muted"></div>
+  </main>
+<script>
+(() => {
+  const params = new URLSearchParams(location.search);
+  const ticket = params.get('email_profile_ticket');
+  const state = params.get('email_profile');
+  const message = params.get('email_profile_message');
+  const status = document.getElementById('status');
+  const draftCard = document.getElementById('draftCard');
+  const chatCard = document.getElementById('chatCard');
+  const draftEl = document.getElementById('draft');
+  const applyStatus = document.getElementById('applyStatus');
+  let profile = null;
+
+  if (state === 'error') status.innerHTML = '<span class="err">' + (message || 'Collegamento Gmail non riuscito') + '</span>';
+  if (!ticket) return;
+
+  fetch('/api/auth/gmail/verify-ticket', {
+    method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ticket})
+  }).then(r => r.json().then(data => ({ok:r.ok,data}))).then(({ok,data}) => {
+    if (!ok || !data.success) throw new Error(data.message || 'Bozza non valida');
+    profile = data.data.profile;
+    draftCard.hidden = false;
+    chatCard.hidden = false;
+    draftEl.innerHTML = '<p><strong>Archetipo:</strong> '+profile.archetype+'</p>' +
+      '<p><strong>Interessi:</strong> '+profile.traits.map(t => '<span class="pill">'+t+'</span>').join('')+'</p>' +
+      '<p class="muted">'+profile.summary+'</p>';
+    history.replaceState({}, document.title, location.pathname);
+  }).catch(err => status.innerHTML = '<span class="err">'+err.message+'</span>');
+
+  document.getElementById('applyBtn').addEventListener('click', async () => {
+    const token = localStorage.getItem('myzubster-token');
+    if (!token) {
+      applyStatus.innerHTML = '<span class="err">Prima accedi o crea il tuo account MyZubster, poi torna qui e ricollega Gmail.</span>';
+      return;
+    }
+    applyStatus.textContent = 'Salvataggio…';
+    try {
+      const response = await fetch('/api/auth/gmail/apply-profile', {
+        method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token}, body:JSON.stringify({ticket})
+      });
+      const data = await response.json();
+      if (!response.ok || !data.success) throw new Error(data.message || 'Salvataggio non riuscito');
+      localStorage.setItem('myzubster-zorgax-profile', JSON.stringify(data.data.profile));
+      applyStatus.innerHTML = '<span class="ok">Profilo Zorgax approvato e salvato.</span>';
+    } catch (err) {
+      applyStatus.innerHTML = '<span class="err">'+err.message+'</span>';
+    }
+  });
+
+  document.getElementById('sendBtn').addEventListener('click', async () => {
+    const userMessage = document.getElementById('message').value.trim();
+    if (!userMessage || !profile) return;
+    const answer = document.getElementById('answer');
+    answer.textContent = 'Zorgax sta pensando…';
+    const privateContext = `Profilo privato approvato dall'utente: archetipo=${profile.archetype}; interessi=${profile.traits.join(', ')}. Usa questo solo per personalizzare tono e suggerimenti. Non trattarlo come prova di fatti personali e non ripetere dettagli email.\n\nMessaggio utente: ${userMessage}`;
+    try {
+      const response = await fetch('/api/zorgax/chat', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:privateContext,useMemory:false})});
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Zorgax non disponibile');
+      answer.textContent = data.response || data.answer || data.message || JSON.stringify(data,null,2);
+    } catch (err) { answer.textContent = err.message; }
+  });
+})();
+</script>
+</body>
+</html>
