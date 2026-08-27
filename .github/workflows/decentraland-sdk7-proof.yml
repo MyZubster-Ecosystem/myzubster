@@ -26,11 +26,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
-          cache-dependency-path: integrations/decentraland/package-lock.json
 
       - name: Install SDK7 dependencies
-        run: npm install --package-lock-only && npm ci
+        run: npm install
 
       - name: Typecheck scene
         run: npm run lint
