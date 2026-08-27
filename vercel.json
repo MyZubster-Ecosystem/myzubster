@@ -13,9 +13,6 @@
     { "src": "public/zorgax-email-profile.html", "use": "@vercel/static" },
     { "src": "public/world-state/metasploit-sentinel.json", "use": "@vercel/static" }
   ],
-  "crons": [
-    { "path": "/api/auth/gmail/auto-sync/cron", "schedule": "0 4 * * *" }
-  ],
   "routes": [
     { "src": "/zorgax-build/?", "dest": "/public/zorgax-build.html" },
     { "src": "/zorgax-email-profile/?", "dest": "/public/zorgax-email-profile.html" },
