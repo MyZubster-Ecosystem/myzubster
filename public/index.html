@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MyZubster Gateway</title>
-  <meta name="description" content="MyZubster Ecosystem Gateway">
+  <meta name="description" content="MyZubster Ecosystem Gateway — real-world observations, evidence, metaverse interoperability and open-source experimentation.">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: Arial, Helvetica, sans-serif; min-height: 100vh; color: #fff; background: radial-gradient(circle at top left, #3b176d 0%, transparent 35%), radial-gradient(circle at bottom right, #0d5c55 0%, transparent 35%), #090914; }
@@ -18,15 +18,19 @@
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
     a.card { display: block; padding: 22px; text-decoration: none; color: #fff; border-radius: 18px; background: rgba(255,255,255,.055); border: 1px solid rgba(255,255,255,.1); transition: .2s; }
     a.card:hover { transform: translateY(-4px); border-color: #a855f7; background: rgba(168,85,247,.12); }
-    .icon { font-size: 2rem; margin-bottom: 10px; } .name { font-size: 1.1rem; font-weight: bold; } .path { margin-top: 7px; color: #999; font-size: .85rem; word-break: break-all; }
-    .community { padding: 25px; border-radius: 20px; background: rgba(34,197,94,.07); border: 1px solid rgba(74,222,128,.25); }
-    .community p { color: #bbb; line-height: 1.55; margin-bottom: 16px; }
-    .community strong { color: #fff; }
+    .icon { font-size: 2rem; margin-bottom: 10px; } .name { font-size: 1.1rem; font-weight: bold; } .path { margin-top: 7px; color: #999; font-size: .85rem; word-break: break-word; line-height: 1.45; }
+    .community, .metaverse { padding: 25px; border-radius: 20px; }
+    .community { background: rgba(34,197,94,.07); border: 1px solid rgba(74,222,128,.25); }
+    .metaverse { background: linear-gradient(135deg, rgba(168,85,247,.13), rgba(34,197,94,.07)); border: 1px solid rgba(168,85,247,.35); }
+    .community p, .metaverse p { color: #bbb; line-height: 1.55; margin-bottom: 16px; }
+    .community strong, .metaverse strong { color: #fff; }
+    .badge { display:inline-block; margin:0 8px 8px 0; padding:6px 10px; border-radius:999px; font-size:.78rem; color:#ddd; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12); }
     footer { text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1px solid rgba(255,255,255,.08); color: #777; } footer a { color: #a855f7; text-decoration: none; margin: 0 10px; }
   </style>
 </head>
 <body><div class="container">
 <header><div class="logo">👽</div><h1>MyZubster</h1><div class="subtitle">MyZubster Ecosystem Gateway</div><div class="status">● Gateway Online</div></header>
+<section class="metaverse"><h2>🌐 MyZubster Metaverse Interoperability</h2><p>Le osservazioni MyZubster possono essere trasformate in <strong>entità 3D con provenance</strong> attraverso vertical slice sperimentali e riproducibili. Il lavoro corrente copre <strong>Vircadia World</strong> e <strong>Decentraland SDK7</strong>: è interoperabilità open-source in sviluppo, non una partnership o endorsement delle piattaforme.</p><div><span class="badge">Vircadia World</span><span class="badge">Babylon.js</span><span class="badge">Decentraland SDK7</span><span class="badge">ECS</span><span class="badge">Provenance</span></div><div class="grid" style="margin-top:12px"><a class="card" href="https://github.com/MyZubster-Ecosystem/myzubster/pull/739" target="_blank" rel="noopener"><div class="icon">🪐</div><div class="name">Vircadia World</div><div class="path">3 marker MyZubster persistiti nel runtime Vircadia e renderizzati nel client Babylon.js con prova CI.</div></a><a class="card" href="https://github.com/MyZubster-Ecosystem/myzubster/pull/741" target="_blank" rel="noopener"><div class="icon">🏙️</div><div class="name">Decentraland Gateway</div><div class="path">Scena SDK7 con marker interattivi e MyZubster Gateway per navigare tra place, plant ed environment.</div></a><a class="card" href="https://github.com/MyZubster-Ecosystem/myzubster/issues/726" target="_blank" rel="noopener"><div class="icon">🔗</div><div class="name">Interoperability Track</div><div class="path">Track tecnico evidence-first per portare dati pubblici/sanificati MyZubster in mondi immersivi.</div></a></div></section>
 <section class="community"><h2>🌍 Public Community Activity</h2><p>MyZubster pubblica una vista <strong>evidence-first</strong> delle interazioni verificabili della community. Contributi, PR, review, segnalazioni e test indipendenti possono diventare evidenza pubblica; le semplici visite restano anonime e non vengono usate per identificare le persone.</p><div class="grid"><a class="card" href="https://github.com/MyZubster-Ecosystem/myzubster/blob/main/docs/PUBLIC-COMMUNITY-ACTIVITY.md" target="_blank" rel="noopener"><div class="icon">📈</div><div class="name">Community Activity</div><div class="path">Evidenze pubbliche e adoption baseline</div></a><a class="card" href="https://github.com/MyZubster-Ecosystem/myzubster/issues/715" target="_blank" rel="noopener"><div class="icon">🧪</div><div class="name">Partecipa al test</div><div class="path">Invia una prova indipendente e riproducibile</div></a><a class="card" href="/press"><div class="icon">📰</div><div class="name">Press & Media Kit</div><div class="path">Risorse ufficiali per media, giornalisti e ricercatori</div></a></div></section>
 <section><h2>🚀 Ecosistema</h2><div class="grid">
 <a class="card" href="/api/health"><div class="icon">❤️</div><div class="name">Health</div><div class="path">/api/health</div></a>
