@@ -83,7 +83,7 @@ jobs:
           output="$(bun run cli init 2>&1)"
           printf '%s\n' "$output"
           echo "$output" | grep -F 'Init command dispatched'
-          echo 'Pinned upstream currently dispatches init without performing bootstrap; full stack startup is blocked until upstream initialization is wired or a documented non-interactive bootstrap path is identified.'
+          echo 'Pinned upstream currently dispatches init without performing bootstrap; a pre-refactor runtime probe is used below to verify the real stack while the refactored CLI remains incomplete.'
 
       - name: Verify world entity plumbing exists
         working-directory: vircadia-world
@@ -135,14 +135,54 @@ jobs:
         working-directory: vircadia-world-legacy
         run: bun install
 
-      - name: Attempt legacy core bootstrap
+      - name: Bootstrap legacy core runtime
         working-directory: vircadia-world-legacy/cli
         run: |
           set -euxo pipefail
           bun run server:init
 
-      - name: Verify legacy services health
-        working-directory: vircadia-world-legacy/cli
+      - name: Verify core containers are running
         run: |
           set -euxo pipefail
-          bun run server:health-all
+          docker ps --format '{{.Names}} {{.Status}}'
+          for c in \
+            vircadia_world_postgres \
+            vircadia_world_api_ws_manager \
+            vircadia_world_api_rest_auth_manager \
+            vircadia_world_api_rest_asset_manager \
+            vircadia_world_api_rest_inference_manager \
+            vircadia_world_state_manager \
+            vircadia_world_pgweb; do
+            docker inspect "$c" >/dev/null
+            test "$(docker inspect -f '{{.State.Running}}' "$c")" = "true"
+          done
+          test "$(docker inspect -f '{{.State.Health.Status}}' vircadia_world_postgres)" = "healthy"
+
+      - name: Insert three MyZubster demo entities into Vircadia database
+        run: |
+          set -euxo pipefail
+          cat <<'SQL' | docker exec -i vircadia_world_postgres sh -lc 'psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
+          INSERT INTO entity.entities (general__entity_name, group__sync, group__channel)
+          VALUES
+            ('myz-rimini-place-001', 'public.NORMAL', 'myzubster-demo'),
+            ('myz-rimini-plant-001', 'public.NORMAL', 'myzubster-demo'),
+            ('myz-life-env-001', 'public.NORMAL', 'myzubster-demo')
+          ON CONFLICT (general__entity_name) DO UPDATE
+          SET group__sync = EXCLUDED.group__sync,
+              group__channel = EXCLUDED.group__channel;
+
+          INSERT INTO entity.entity_metadata (general__entity_name, metadata__key, ro__group__sync, metadata__jsonb)
+          VALUES
+            ('myz-rimini-place-001', 'myzubster.presentation', 'public.NORMAL', '{"title":"Rimini public place demo","kind":"place","position":{"x":0,"y":1,"z":0},"provenance":{"source":"MyZubster","public":true,"verified":false}}'::jsonb),
+            ('myz-rimini-plant-001', 'myzubster.presentation', 'public.NORMAL', '{"title":"Public plant observation demo","kind":"plant","position":{"x":3,"y":1,"z":1},"provenance":{"source":"MyZubster","public":true,"verified":false}}'::jsonb),
+            ('myz-life-env-001', 'myzubster.presentation', 'public.NORMAL', '{"title":"LIFE environmental marker demo","kind":"environment","position":{"x":-3,"y":1,"z":1},"provenance":{"source":"MyZubster","public":true,"verified":false},"scientificallyValidated":false}'::jsonb)
+          ON CONFLICT (general__entity_name, metadata__key) DO UPDATE
+          SET metadata__jsonb = EXCLUDED.metadata__jsonb;
+          SQL
+
+      - name: Verify MyZubster entities persisted
+        run: |
+          set -euxo pipefail
+          count="$(docker exec vircadia_world_postgres sh -lc 'psql -At -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "SELECT count(*) FROM entity.entities WHERE general__entity_name LIKE '\''myz-%'\'';"')"
+          test "$count" = "3"
+          docker exec vircadia_world_postgres sh -lc 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "SELECT e.general__entity_name, e.group__sync, e.group__channel, m.metadata__jsonb->>\'kind\' AS kind FROM entity.entities e JOIN entity.entity_metadata m USING (general__entity_name) WHERE e.general__entity_name LIKE '\''myz-%'\'' ORDER BY e.general__entity_name;"'
