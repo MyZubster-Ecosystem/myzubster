@@ -5,7 +5,6 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const bountyPaymentRoutes = require('./routes/bounty-payments');
-const bountyRoutes = require('./routes/bounties');
 const mongoose = require('mongoose');
 const gatewayRoutes = require('./routes/gateway');
 const daoRoutes = require('./routes/dao');
@@ -13,6 +12,7 @@ const zorgaxDaoRoutes = require('./routes/zorgax-dao');
 
 const gardenRoutes = require('./routes/gardens');
 const telemetryRoutes = require('./routes/telemetry');
+const metaverseRoutes = require('./routes/metaverse');
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3009;
@@ -49,10 +49,10 @@ app.get('/health', (_req, res) => {
 
 app.use('/api/gardens', gardenRoutes);
 app.use('/api/telemetry', telemetryRoutes);
+app.use('/api/metaverse', metaverseRoutes);
 app.use('/api/gateway', gatewayRoutes);
 app.use('/api/dao/zorgax', zorgaxDaoRoutes);
 app.use('/api/dao', daoRoutes);
-app.use('/api/bounties', bountyRoutes);
 
 app.get('/api/dashboard', (_req, res) => {
   res.json({
@@ -66,7 +66,7 @@ app.get('/api/dashboard', (_req, res) => {
       },
       dao: { status: 'online', endpoint: '/api/dao' },
       zorgaxGovernance: { status: 'advisory', endpoint: '/api/dao/zorgax', binding: false },
-      bounties: { status: 'online', endpoint: '/api/bounties', source: 'bounty-engine/registry-v2.json' }
+      metaverse: { status: 'prototype', endpoint: '/api/metaverse/world', identityMode: 'guest-unverified' }
     },
     stats: {
       totalIssues: 0,
@@ -144,8 +144,8 @@ app.get('/dashboard', (_req, res) => {
     <strong>Backend:</strong> online<br>
     <strong>Health:</strong> <a href="/health"><code>/health</code></a><br>
     <strong>Dashboard API:</strong> <a href="/api/dashboard"><code>/api/dashboard</code></a><br>
-    <strong>Bounty Registry API:</strong> <a href="/api/bounties"><code>/api/bounties</code></a><br>
     <strong>Gardens API:</strong> <a href="/api/gardens"><code>/api/gardens</code></a><br>
+    <strong>Metaverse API:</strong> <a href="/api/metaverse/world"><code>/api/metaverse/world</code></a> (prototype)<br>
     <strong>DAO API:</strong> <a href="/api/dao/proposals"><code>/api/dao/proposals</code></a><br>
     <strong>Zorgax DAO:</strong> <a href="/api/dao/zorgax/status"><code>/api/dao/zorgax/status</code></a> (advisory, non-binding)
   </div>
@@ -174,7 +174,7 @@ async function startServer() {
       console.log(`✅ MyZubster backend listening on port ${PORT}`);
       console.log(`📍 Health check: http://localhost:${PORT}/health`);
       console.log(`📍 Dashboard: http://localhost:${PORT}/dashboard`);
-      console.log(`📍 Bounties: http://localhost:${PORT}/api/bounties`);
+      console.log(`🪐 Metaverse world: http://localhost:${PORT}/api/metaverse/world`);
       resolve(server);
     });
   });
