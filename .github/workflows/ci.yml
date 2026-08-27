@@ -4,14 +4,23 @@ on:
   pull_request:
     branches: [main, develop]
   push:
-    branches: [main]
+    branches: [main, develop]
   workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_ENV: test
+  CI: true
+
 jobs:
   test:
+    name: Test, lint and build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout codice
@@ -49,3 +58,44 @@ jobs:
       - name: Build frontend
         working-directory: frontend
         run: npm run build
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ github.sha }}
+          path: |
+            coverage/
+            frontend/coverage/
+            *.log
+          retention-days: 7
+          if-no-files-found: ignore
+
+  notify:
+    name: Build notifications
+    needs: test
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Slack notification
+        continue-on-error: true
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          BUILD_STATUS: ${{ needs.test.result }}
+        run: |
+          if [ -z "$SLACK_WEBHOOK" ]; then exit 0; fi
+          curl -fsS -X POST -H 'Content-Type: application/json' \
+            --data "{\"text\":\"MyZubster CI: $BUILD_STATUS — $GITHUB_REPOSITORY@$GITHUB_SHA\"}" \
+            "$SLACK_WEBHOOK"
+
+      - name: Send Telegram notification
+        continue-on-error: true
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          BUILD_STATUS: ${{ needs.test.result }}
+        run: |
+          if [ -z "$TELEGRAM_BOT_TOKEN" ] || [ -z "$TELEGRAM_CHAT_ID" ]; then exit 0; fi
+          curl -fsS -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}" \
+            --data-urlencode "text=MyZubster CI: ${BUILD_STATUS} — ${GITHUB_REPOSITORY}@${GITHUB_SHA}"
