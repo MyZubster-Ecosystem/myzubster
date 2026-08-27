@@ -21,7 +21,7 @@ function gmailConfig() {
 function deriveProfile(messages) {
   const text = messages.map(item => `${item.subject || ''} ${item.snippet || ''}`).join(' ').toLowerCase();
   const groups = {
-    guardian: ['security', 'privacy', 'auth', 'cyber', 'risk', 'sicurezza', 'privacy', 'protezione'],
+    guardian: ['security', 'privacy', 'auth', 'cyber', 'risk', 'sicurezza', 'protezione'],
     builder: ['code', 'github', 'project', 'build', 'deploy', 'api', 'software', 'sviluppo', 'progetto', 'lavoro'],
     explorer: ['research', 'learn', 'travel', 'science', 'ai', 'future', 'ricerca', 'studio', 'viaggio', 'scienza'],
     caretaker: ['community', 'family', 'health', 'environment', 'garden', 'comunità', 'famiglia', 'salute', 'ambiente']
@@ -75,7 +75,7 @@ exports.gmailStart = async (_req, res) => {
       response_type: 'code',
       access_type: 'online',
       include_granted_scopes: 'true',
-      scope: 'openid email https://www.googleapis.com/auth/gmail.readonly',
+      scope: 'https://www.googleapis.com/auth/gmail.readonly',
       state,
       prompt: 'consent'
     });
@@ -105,19 +105,18 @@ exports.gmailCallback = async (req, res) => {
     if (!tokenResponse.ok || !tokenData.access_token) throw new Error(tokenData.error_description || tokenData.error || 'Scambio token Google non riuscito');
 
     const headers = { Authorization: `Bearer ${tokenData.access_token}` };
-    const listResponse = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=30&q=newer_than:180d', { headers });
+    const listResponse = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=12&q=newer_than:180d', { headers });
     const listData = await listResponse.json();
     if (!listResponse.ok) throw new Error(listData.error?.message || 'Impossibile leggere Gmail');
-    const ids = Array.isArray(listData.messages) ? listData.messages.slice(0, 30) : [];
+    const ids = Array.isArray(listData.messages) ? listData.messages.slice(0, 12) : [];
 
-    const messages = [];
-    for (const item of ids) {
+    const messages = (await Promise.all(ids.map(async item => {
       const messageResponse = await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${encodeURIComponent(item.id)}?format=metadata&metadataHeaders=Subject`, { headers });
-      if (!messageResponse.ok) continue;
+      if (!messageResponse.ok) return null;
       const message = await messageResponse.json();
       const subjectHeader = (message.payload?.headers || []).find(header => String(header.name).toLowerCase() === 'subject');
-      messages.push({ subject: subjectHeader?.value || '', snippet: String(message.snippet || '').slice(0, 240) });
-    }
+      return { subject: subjectHeader?.value || '', snippet: String(message.snippet || '').slice(0, 180) };
+    }))).filter(Boolean);
 
     const profile = deriveProfile(messages);
     const ticket = signProfileDraft(profile);
