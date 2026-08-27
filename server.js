@@ -114,6 +114,22 @@ app.post('/api/auth/register', async (_req, res, next) => {
   catch (_error) { res.status(503).json({ success: false, message: 'Database temporaneamente non disponibile' }); }
 });
 
+// Character creation is durable in production. Do not accept a new public
+// character if MongoDB is unavailable, otherwise users could believe their
+// character was saved when it only existed in one serverless instance.
+app.post('/api/metaverse/join', async (_req, res, next) => {
+  if (process.env.NODE_ENV === 'test') return next();
+  try {
+    await connectMongo();
+    return next();
+  } catch (_error) {
+    return res.status(503).json({
+      success: false,
+      error: 'Character storage is temporarily unavailable'
+    });
+  }
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/bounties', bountyRoutes);

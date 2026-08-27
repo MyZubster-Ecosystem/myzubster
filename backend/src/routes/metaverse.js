@@ -1,5 +1,7 @@
 const express = require('express');
 const crypto = require('crypto');
+const mongoose = require('mongoose');
+const MetaverseCharacter = require('../models/MetaverseCharacter');
 
 const router = express.Router();
 
@@ -105,6 +107,23 @@ function removeSession(sessionId) {
   }
 }
 
+async function persistCharacter(session) {
+  if (mongoose.connection.readyState !== 1) return 'ephemeral';
+
+  await MetaverseCharacter.create({
+    characterId: session.id,
+    displayName: session.displayName,
+    characterName: session.characterName,
+    archetype: session.archetype,
+    identityStatus: session.identityStatus,
+    worldId: WORLD.id,
+    createdFrom: 'public-web',
+    lastSeenAt: new Date()
+  });
+
+  return 'durable';
+}
+
 router.get('/world', (_req, res) => {
   res.json({
     success: true,
@@ -115,7 +134,7 @@ router.get('/world', (_req, res) => {
   });
 });
 
-router.post('/join', (req, res) => {
+router.post('/join', async (req, res) => {
   if (sessions.size >= WORLD.capacity) {
     return res.status(503).json({ success: false, error: 'Neon Plaza is at capacity' });
   }
@@ -148,18 +167,28 @@ router.post('/join', (req, res) => {
     joinedAt: new Date().toISOString()
   };
 
-  sessions.set(id, session);
-  broadcast({ type: 'join', player: publicPlayer(session), at: new Date().toISOString() });
+  try {
+    const persistence = await persistCharacter(session);
+    sessions.set(id, session);
+    broadcast({ type: 'join', player: publicPlayer(session), at: new Date().toISOString() });
 
-  return res.status(201).json({
-    success: true,
-    sessionId: id,
-    player: publicPlayer(session),
-    players: snapshot(),
-    world: WORLD,
-    identityMode: 'guest-unverified',
-    note: 'MYZ-ID values are display-only in v0.1 and are not treated as verified identity claims.'
-  });
+    return res.status(201).json({
+      success: true,
+      sessionId: id,
+      player: publicPlayer(session),
+      players: snapshot(),
+      world: WORLD,
+      identityMode: 'guest-unverified',
+      persistence,
+      note: 'MYZ-ID values are display-only in v0.1 and are not treated as verified identity claims.'
+    });
+  } catch (error) {
+    console.error('Metaverse character persistence error:', error);
+    return res.status(503).json({
+      success: false,
+      error: 'Character storage is temporarily unavailable'
+    });
+  }
 });
 
 router.get('/events', (req, res) => {
