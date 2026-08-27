@@ -1,0 +1,48 @@
+name: Decentraland SDK7 Proof
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'integrations/decentraland/**'
+      - '.github/workflows/decentraland-sdk7-proof.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sdk7-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: integrations/decentraland
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: integrations/decentraland/package-lock.json
+
+      - name: Install SDK7 dependencies
+        run: npm install --package-lock-only && npm ci
+
+      - name: Typecheck scene
+        run: npm run lint
+
+      - name: Build Decentraland scene
+        run: npm run build
+
+      - name: Assert MyZubster marker IDs are present
+        run: |
+          set -euxo pipefail
+          grep -q 'myz-rimini-place-001' src/index.ts
+          grep -q 'myz-rimini-plant-001' src/index.ts
+          grep -q 'myz-life-env-001' src/index.ts
+          test -f bin/index.js
+          echo 'Decentraland SDK7 build contains all three MyZubster demo markers.'
