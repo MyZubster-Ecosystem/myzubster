@@ -56,9 +56,20 @@ const UserSchema = new mongoose.Schema({
     },
     traits: [{ type: String, trim: true, maxlength: 80 }],
     summary: { type: String, trim: true, maxlength: 800 },
-    source: { type: String, enum: ['gmail-derived', 'manual'], default: 'manual' },
+    source: { type: String, enum: ['gmail-derived', 'gmail-auto-sync', 'manual'], default: 'manual' },
     approvedAt: { type: Date },
     updatedAt: { type: Date }
+  },
+  gmailProfileSync: {
+    enabled: { type: Boolean, default: false },
+    refreshTokenEncrypted: { type: String, select: false },
+    consentedAt: { type: Date },
+    lastSyncedAt: { type: Date },
+    revokedAt: { type: Date },
+    historyWindowDays: { type: Number, default: 180, min: 30, max: 365 },
+    sampleSize: { type: Number, default: 30, min: 5, max: 50 },
+    lastStatus: { type: String, enum: ['never', 'ready', 'success', 'error', 'revoked'], default: 'never' },
+    lastError: { type: String, trim: true, maxlength: 300 }
   },
   isVerified: {
     type: Boolean,
@@ -74,6 +85,7 @@ const UserSchema = new mongoose.Schema({
 });
 
 UserSchema.index({ 'github.id': 1 }, { unique: true, sparse: true });
+UserSchema.index({ 'gmailProfileSync.enabled': 1, 'gmailProfileSync.lastSyncedAt': 1 });
 
 // Hash password prima di salvare
 UserSchema.pre('save', async function(next) {
