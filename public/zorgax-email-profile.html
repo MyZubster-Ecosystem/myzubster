@@ -11,11 +11,11 @@
 <body>
   <main class="wrap">
     <h1>Zorgax · configura il tuo profilo con le tue email</h1>
-    <p class="muted">Collega volontariamente Gmail in sola lettura. MyZubster analizza un campione recente per proporre interessi e archetipo. I contenuti originali delle email e il token Gmail non vengono salvati nel profilo.</p>
+    <p class="muted">Collega volontariamente Gmail in sola lettura. MyZubster analizza un piccolo campione recente per proporre interessi e archetipo. I contenuti originali delle email e il token Gmail non vengono salvati nel profilo.</p>
 
     <section class="card" id="connectCard">
       <h2>1. Collega Gmail</h2>
-      <p class="muted">Google mostrerà la richiesta di accesso. Puoi revocarla dal tuo account Google in qualsiasi momento.</p>
+      <p class="muted">Google mostrerà la richiesta di accesso in sola lettura. Puoi revocarla dal tuo account Google in qualsiasi momento.</p>
       <a class="btn" href="/api/auth/gmail/start">Collega Gmail →</a>
     </section>
 
@@ -49,7 +49,38 @@
   const applyStatus = document.getElementById('applyStatus');
   let profile = null;
 
-  if (state === 'error') status.innerHTML = '<span class="err">' + (message || 'Collegamento Gmail non riuscito') + '</span>';
+  function showStatus(target, text, className) {
+    target.textContent = text;
+    target.className = className || 'muted';
+  }
+
+  function renderDraft(value) {
+    draftEl.replaceChildren();
+    const archetype = document.createElement('p');
+    const strong = document.createElement('strong');
+    strong.textContent = 'Archetipo: ';
+    archetype.append(strong, document.createTextNode(value.archetype));
+    draftEl.appendChild(archetype);
+
+    const traitsLine = document.createElement('p');
+    const traitsStrong = document.createElement('strong');
+    traitsStrong.textContent = 'Interessi: ';
+    traitsLine.appendChild(traitsStrong);
+    value.traits.forEach(trait => {
+      const pill = document.createElement('span');
+      pill.className = 'pill';
+      pill.textContent = trait;
+      traitsLine.appendChild(pill);
+    });
+    draftEl.appendChild(traitsLine);
+
+    const summary = document.createElement('p');
+    summary.className = 'muted';
+    summary.textContent = value.summary;
+    draftEl.appendChild(summary);
+  }
+
+  if (state === 'error') showStatus(status, message || 'Collegamento Gmail non riuscito', 'err');
   if (!ticket) return;
 
   fetch('/api/auth/gmail/verify-ticket', {
@@ -59,19 +90,17 @@
     profile = data.data.profile;
     draftCard.hidden = false;
     chatCard.hidden = false;
-    draftEl.innerHTML = '<p><strong>Archetipo:</strong> '+profile.archetype+'</p>' +
-      '<p><strong>Interessi:</strong> '+profile.traits.map(t => '<span class="pill">'+t+'</span>').join('')+'</p>' +
-      '<p class="muted">'+profile.summary+'</p>';
+    renderDraft(profile);
     history.replaceState({}, document.title, location.pathname);
-  }).catch(err => status.innerHTML = '<span class="err">'+err.message+'</span>');
+  }).catch(err => showStatus(status, err.message, 'err'));
 
   document.getElementById('applyBtn').addEventListener('click', async () => {
     const token = localStorage.getItem('myzubster-token');
     if (!token) {
-      applyStatus.innerHTML = '<span class="err">Prima accedi o crea il tuo account MyZubster, poi torna qui e ricollega Gmail.</span>';
+      showStatus(applyStatus, 'Prima accedi o crea il tuo account MyZubster, poi torna qui e ricollega Gmail.', 'err');
       return;
     }
-    applyStatus.textContent = 'Salvataggio…';
+    showStatus(applyStatus, 'Salvataggio…', 'muted');
     try {
       const response = await fetch('/api/auth/gmail/apply-profile', {
         method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token}, body:JSON.stringify({ticket})
@@ -79,9 +108,9 @@
       const data = await response.json();
       if (!response.ok || !data.success) throw new Error(data.message || 'Salvataggio non riuscito');
       localStorage.setItem('myzubster-zorgax-profile', JSON.stringify(data.data.profile));
-      applyStatus.innerHTML = '<span class="ok">Profilo Zorgax approvato e salvato.</span>';
+      showStatus(applyStatus, 'Profilo Zorgax approvato e salvato.', 'ok');
     } catch (err) {
-      applyStatus.innerHTML = '<span class="err">'+err.message+'</span>';
+      showStatus(applyStatus, err.message, 'err');
     }
   });
 
