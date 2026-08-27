@@ -6,6 +6,7 @@ const { authenticate, isAdmin } = require('../middleware/auth');
 // Route pubbliche
 router.get('/', plantController.getAll);
 router.get('/stats', plantController.getStats);
+router.get('/:id/location/private', authenticate, plantController.getPrivateLocation);
 router.get('/:id', plantController.getOne);
 
 // Route protette (autenticazione richiesta)
