@@ -1,41 +1,36 @@
 import React, { useState } from 'react';
 import MapPage from './pages/MapPage';
 import GardensPage from './pages/GardensPage';
-import PilotDashboardPage from './pages/PilotDashboardPage';
 import ClowbotBountiesPage from './pages/ClowbotBountiesPage';
-import AgentsPage from './pages/AgentsPage';
 import MetaversePage from './pages/MetaversePage';
 
 const TABS = {
-  PLANTS: 'plants',
+  WORLD: 'world',
+  EXPLORE: 'explore',
   GARDENS: 'gardens',
-  PILOT: 'pilot',
-  BOUNTIES: 'bounties',
-  AGENTS: 'agents',
-  METAVERSE: 'metaverse',
+  MISSIONS: 'missions'
 };
 
 function App() {
-  const [activeTab, setActiveTab] = useState(TABS.PILOT);
+  // Public visitors land directly in MyZubster World. Technical/admin surfaces
+  // stay out of the primary navigation so the product does not require users
+  // to understand the repository architecture before participating.
+  const [activeTab, setActiveTab] = useState(TABS.WORLD);
 
   return (
     <div className="App">
-      <nav style={{ padding: '12px 20px', display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+      <nav style={{ padding: '12px 20px', display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }} aria-label="MyZubster main navigation">
         <h1 style={{ margin: 0, fontSize: 20 }}>🌍 MyZubster</h1>
-        <button onClick={() => setActiveTab(TABS.METAVERSE)}>🪐 Metaverse</button>
-        <button onClick={() => setActiveTab(TABS.PILOT)}>🧩 Pilot</button>
-        <button onClick={() => setActiveTab(TABS.PLANTS)}>🌿 Piante</button>
-        <button onClick={() => setActiveTab(TABS.GARDENS)}>🌱 Orti & Giardini</button>
-        <button onClick={() => setActiveTab(TABS.BOUNTIES)}>🤖 Clowbot Bounties</button>
-        <button onClick={() => setActiveTab(TABS.AGENTS)}>🧠 AI & Bots</button>
+        <button onClick={() => setActiveTab(TABS.WORLD)}>Entra</button>
+        <button onClick={() => setActiveTab(TABS.EXPLORE)}>Esplora</button>
+        <button onClick={() => setActiveTab(TABS.GARDENS)}>Il mio giardino</button>
+        <button onClick={() => setActiveTab(TABS.MISSIONS)}>Missioni</button>
       </nav>
 
-      {activeTab === TABS.METAVERSE && <MetaversePage />}
-      {activeTab === TABS.PILOT && <PilotDashboardPage />}
-      {activeTab === TABS.PLANTS && <MapPage />}
+      {activeTab === TABS.WORLD && <MetaversePage />}
+      {activeTab === TABS.EXPLORE && <MapPage />}
       {activeTab === TABS.GARDENS && <GardensPage />}
-      {activeTab === TABS.BOUNTIES && <ClowbotBountiesPage />}
-      {activeTab === TABS.AGENTS && <AgentsPage />}
+      {activeTab === TABS.MISSIONS && <ClowbotBountiesPage />}
     </div>
   );
 }
