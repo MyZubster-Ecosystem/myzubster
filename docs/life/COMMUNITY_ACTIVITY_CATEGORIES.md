@@ -74,6 +74,10 @@ Use exact status language:
 
 None of these statuses alone proves LIFE funding, EU/CINEA endorsement, employment, payment, partnership or consortium membership.
 
+## Pilot project documents
+
+The [community pilot portfolio](pilots/README.md) contains a shared template and one preparatory pilot brief for every category. These documents remain concepts until the required scope, roles, baseline, permissions and reviews are completed.
+
 ## Implementation
 
 The canonical frontend taxonomy lives in frontend/src/data/lifeCommunityActivities.js.
