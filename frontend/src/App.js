@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import SimpleHomePage from './pages/SimpleHomePage';
 import LifePortalPage from './pages/LifePortalPage';
 import LifeGatewayPage from './pages/LifeGatewayPage';
 import IdentityOnboardingPage from './pages/IdentityOnboardingPage';
@@ -12,6 +13,7 @@ import DaoPage from './pages/DaoPage';
 
 const PORTAL_VIEWS = {
   '/': 'home',
+  '/ecosystem': 'home',
   '/account': 'register',
   '/comuni': 'municipality',
   '/orti': 'gardens',
@@ -58,6 +60,10 @@ function App() {
     setPath(normalized);
     window.scrollTo(0, 0);
   };
+
+  if (path === '/') {
+    return <SimpleHomePage onExplore={() => navigate('/ecosystem')} />;
+  }
 
   if (path === '/apps' || path === '/download') {
     return <AppsDownloadPage />;
