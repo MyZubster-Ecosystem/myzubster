@@ -1,0 +1,148 @@
+name: Publish signed MyZubster onion root
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      MANIFEST: docs/decentralized-onion.manifest.json
+      SIGNED_MANIFEST: docs/decentralized-onion.manifest.signed.json
+      IPNS_KEY_NAME: myzubster-onion
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Validate required secrets
+        shell: bash
+        env:
+          ONION_ED25519_PRIVATE_KEY_B64: ${{ secrets.ONION_ED25519_PRIVATE_KEY_B64 }}
+          IPNS_KEY_EXPORT_B64: ${{ secrets.IPNS_KEY_EXPORT_B64 }}
+        run: |
+          set -euo pipefail
+          test -n "$ONION_ED25519_PRIVATE_KEY_B64" || { echo 'Missing ONION_ED25519_PRIVATE_KEY_B64'; exit 1; }
+          test -n "$IPNS_KEY_EXPORT_B64" || { echo 'Missing IPNS_KEY_EXPORT_B64'; exit 1; }
+
+      - name: Materialize private keys in runner temp only
+        shell: bash
+        env:
+          ONION_ED25519_PRIVATE_KEY_B64: ${{ secrets.ONION_ED25519_PRIVATE_KEY_B64 }}
+          IPNS_KEY_EXPORT_B64: ${{ secrets.IPNS_KEY_EXPORT_B64 }}
+        run: |
+          set -euo pipefail
+          umask 077
+          printf '%s' "$ONION_ED25519_PRIVATE_KEY_B64" | base64 --decode > "$RUNNER_TEMP/onion-ed25519-private.pem"
+          printf '%s' "$IPNS_KEY_EXPORT_B64" | base64 --decode > "$RUNNER_TEMP/myzubster-onion.ipns.key"
+          echo "ONION_PRIVATE_KEY=$RUNNER_TEMP/onion-ed25519-private.pem" >> "$GITHUB_ENV"
+          echo "IPNS_KEY_FILE=$RUNNER_TEMP/myzubster-onion.ipns.key" >> "$GITHUB_ENV"
+
+      - name: Sign manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          node tools/onion/onionctl.mjs sign "$MANIFEST" "$ONION_PRIVATE_KEY" "$SIGNED_MANIFEST"
+
+      - name: Verify signed manifest locally
+        shell: bash
+        run: |
+          set -euo pipefail
+          node tools/onion/onionctl.mjs verify "$SIGNED_MANIFEST"
+          node tools/onion/onionctl.mjs root "$SIGNED_MANIFEST" | tee "$RUNNER_TEMP/root.txt"
+
+      - name: Install Kubo
+        shell: bash
+        run: |
+          set -euo pipefail
+          KUBO_VERSION=v0.30.0
+          curl -fsSLO "https://dist.ipfs.tech/kubo/${KUBO_VERSION}/kubo_${KUBO_VERSION}_linux-amd64.tar.gz"
+          tar -xzf "kubo_${KUBO_VERSION}_linux-amd64.tar.gz"
+          sudo bash kubo/install.sh
+          ipfs --version
+
+      - name: Initialize ephemeral IPFS node and import IPNS key
+        shell: bash
+        run: |
+          set -euo pipefail
+          export IPFS_PATH="$RUNNER_TEMP/ipfs"
+          ipfs init --profile=server
+          ipfs key import "$IPNS_KEY_NAME" "$IPNS_KEY_FILE"
+          ipfs daemon > "$RUNNER_TEMP/ipfs-daemon.log" 2>&1 &
+          echo $! > "$RUNNER_TEMP/ipfs-daemon.pid"
+          for i in $(seq 1 30); do
+            ipfs id >/dev/null 2>&1 && break
+            sleep 1
+          done
+          ipfs id >/dev/null
+          echo "IPFS_PATH=$IPFS_PATH" >> "$GITHUB_ENV"
+
+      - name: Add signed manifest to IPFS
+        id: add
+        shell: bash
+        run: |
+          set -euo pipefail
+          CID="$(ipfs add -Q --cid-version=1 "$SIGNED_MANIFEST")"
+          echo "cid=$CID" >> "$GITHUB_OUTPUT"
+          echo "CID=$CID" >> "$GITHUB_ENV"
+
+      - name: Publish CID to IPNS
+        id: publish
+        shell: bash
+        run: |
+          set -euo pipefail
+          IPNS_NAME="$(ipfs key list -l | awk -v key="$IPNS_KEY_NAME" '$2==key {print $1}')"
+          test -n "$IPNS_NAME"
+          ipfs name publish --key="$IPNS_KEY_NAME" --allow-offline=false "/ipfs/$CID"
+          RESOLVED="$(ipfs name resolve --nocache "/ipns/$IPNS_NAME")"
+          test "$RESOLVED" = "/ipfs/$CID"
+          echo "ipns=$IPNS_NAME" >> "$GITHUB_OUTPUT"
+          echo "resolved=$RESOLVED" >> "$GITHUB_OUTPUT"
+          echo "IPNS_NAME=$IPNS_NAME" >> "$GITHUB_ENV"
+
+      - name: Write publication receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT_SHA256="$(sha256sum "$SIGNED_MANIFEST" | awk '{print $1}')"
+          cat > "$RUNNER_TEMP/onion-publication-receipt.json" <<EOF
+          {
+            "schema": "myzubster-onion-publication-receipt/v1",
+            "cid": "$CID",
+            "ipns": "$IPNS_NAME",
+            "resolved": "/ipfs/$CID",
+            "signed_manifest_sha256": "$ROOT_SHA256",
+            "workflow_run": "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          }
+          EOF
+          cat "$RUNNER_TEMP/onion-publication-receipt.json"
+          {
+            echo '## MyZubster onion publication receipt'
+            echo
+            echo "- CID: \`$CID\`"
+            echo "- IPNS: \`$IPNS_NAME\`"
+            echo "- Resolved: \`/ipfs/$CID\`"
+            echo "- Signed manifest SHA-256: \`$ROOT_SHA256\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload publication receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: onion-publication-receipt
+          path: ${{ runner.temp }}/onion-publication-receipt.json
+          if-no-files-found: error
+
+      - name: Cleanup private material
+        if: always()
+        shell: bash
+        run: |
+          rm -f "$RUNNER_TEMP/onion-ed25519-private.pem" "$RUNNER_TEMP/myzubster-onion.ipns.key"
