@@ -1,0 +1,45 @@
+[
+  {
+    "id": "rimini-place-001",
+    "title": "Rimini public place demo",
+    "kind": "place",
+    "public": true,
+    "verified": false,
+    "sourceUrl": "https://www.myzubster.com/",
+    "position": { "x": 0, "y": 1, "z": 0 },
+    "metadata": {
+      "demo": true,
+      "city": "Rimini",
+      "dataClass": "synthetic-public-demo"
+    }
+  },
+  {
+    "id": "rimini-plant-001",
+    "title": "Public plant observation demo",
+    "kind": "plant",
+    "public": true,
+    "verified": false,
+    "sourceUrl": "https://www.myzubster.com/",
+    "position": { "x": 3, "y": 1, "z": 1 },
+    "metadata": {
+      "demo": true,
+      "species": "demo-species",
+      "dataClass": "synthetic-public-demo"
+    }
+  },
+  {
+    "id": "life-env-001",
+    "title": "LIFE environmental marker demo",
+    "kind": "environment",
+    "public": true,
+    "verified": false,
+    "sourceUrl": "https://www.myzubster.com/",
+    "position": { "x": -3, "y": 1, "z": 1 },
+    "metadata": {
+      "demo": true,
+      "measurement": "synthetic-only",
+      "scientificallyValidated": false,
+      "dataClass": "synthetic-public-demo"
+    }
+  }
+]
