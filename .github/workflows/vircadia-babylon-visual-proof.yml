@@ -110,7 +110,6 @@ jobs:
                   sphere.position = new Vector3(Number(position.x ?? 0), Number(position.y ?? 1), Number(position.z ?? 0));
                   sphere.isPickable = true;
                   sphere.metadata = { myzubster: true, entityName, title: data?.title ?? entityName, kind };
-
                   const material = new StandardMaterial(`${name}:material`, props.scene);
                   const color = markerColor(kind);
                   material.diffuseColor = color;
@@ -118,7 +117,6 @@ jobs:
                   sphere.material = material;
                   created.push(name);
               }
-
               (window as any).__MYZUBSTER_VIRCADIA_MARKERS__ = [...created];
               console.log(`[MyZubster] rendered ${created.length} Vircadia Babylon markers`);
           }
@@ -167,6 +165,7 @@ jobs:
           import { chromium } from "playwright";
 
           const browser = await chromium.launch({
+              executablePath: "/usr/bin/google-chrome",
               headless: true,
               args: ["--no-sandbox", "--disable-dev-shm-usage", "--enable-unsafe-swiftshader", "--use-angle=swiftshader"],
           });
