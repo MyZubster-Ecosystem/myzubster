@@ -103,6 +103,7 @@ const zorgaxRoutes = require('./src/routes/zorgaxRoutes');
 const zorgaxBuildRoutes = require('./src/routes/zorgaxBuildRoutes');
 const zorgaxAssistantRoutes = require('./src/routes/zorgaxAssistantRoutes');
 const zorgaxLifeRoutes = require('./src/routes/zorgaxLifeRoutes');
+const lifeHempRoutes = require('./src/routes/lifeHempRoutes');
 const githubBountySyncRoutes = require('./src/routes/githubBountySyncRoutes');
 const researchRoutes = require('./src/routes/researchRoutes');
 const municipalityRoutes = require('./src/routes/municipalityRoutes');
@@ -150,6 +151,7 @@ app.use('/api/grok', grokRoutes);
 app.use('/api/zorgax/assistant', zorgaxAssistantRoutes);
 app.use('/api/zorgax/build', zorgaxBuildRoutes);
 app.use('/api/zorgax/life', zorgaxLifeRoutes);
+app.use('/api/life/hemp', lifeHempRoutes);
 app.use('/api/zorgax', zorgaxRoutes);
 app.use('/api/github-bounties', githubBountySyncRoutes);
 app.use('/api/research', researchRoutes);
@@ -170,7 +172,8 @@ app.get('/', (_req, res) => {
       zorgax: '/api/zorgax',
       zorgax_assistant: '/api/zorgax/assistant',
       zorgax_build: '/api/zorgax/build',
-      zorgax_life: '/api/zorgax/life/status'
+      zorgax_life: '/api/zorgax/life/status',
+      hemp_circular_economy: '/api/life/hemp/status'
     }
   });
 });
