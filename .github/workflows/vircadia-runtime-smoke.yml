@@ -93,3 +93,56 @@ jobs:
           grep -q 'resource: "entity_metadata"' server/service/api_ws/volume/app/world.api.ws.manager.ts
           grep -q 'syncGroup' server/service/api_ws/volume/app/world.api.ws.manager.ts
           grep -q 'validateJWT' server/service/api_ws/volume/app/world.api.ws.manager.ts
+
+  vircadia-legacy-bootstrap-probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout pre-refactor Vircadia World
+        uses: actions/checkout@v4
+        with:
+          repository: vircadia/vircadia-world
+          ref: 20fc9118831e5144f9640406c4c5c40d1eb0938c
+          path: vircadia-world-legacy
+          submodules: false
+          lfs: false
+
+      - name: Initialize public SDK submodule only
+        working-directory: vircadia-world-legacy
+        run: |
+          set -euxo pipefail
+          git submodule sync sdk/vircadia-world-sdk-ts
+          git submodule update --init --depth=1 sdk/vircadia-world-sdk-ts
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Verify legacy bootstrap scripts exist
+        working-directory: vircadia-world-legacy
+        run: |
+          set -euxo pipefail
+          test "$(git rev-parse HEAD)" = "20fc9118831e5144f9640406c4c5c40d1eb0938c"
+          grep -q '"server:init"' cli/package.json
+          grep -q '"server:init-all"' cli/package.json
+          grep -q 'server:postgres:migrate' cli/package.json
+          grep -q 'server:postgres:seed:sql' cli/package.json
+          docker --version
+          docker compose version
+
+      - name: Install legacy workspace dependencies
+        working-directory: vircadia-world-legacy
+        run: bun install
+
+      - name: Attempt legacy core bootstrap
+        working-directory: vircadia-world-legacy/cli
+        run: |
+          set -euxo pipefail
+          bun run server:init
+
+      - name: Verify legacy services health
+        working-directory: vircadia-world-legacy/cli
+        run: |
+          set -euxo pipefail
+          bun run server:health-all
