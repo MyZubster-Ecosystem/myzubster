@@ -8,6 +8,17 @@ This directory contains an experimental, reproducible Decentraland SDK7 scene. I
 
 The scene is an independent interoperability proof. It does not claim a Decentraland partnership, endorsement, LAND ownership, production deployment, or scientific validation.
 
+## Interaction
+
+Each sphere is a native SDK7 ECS entity with a pointer collider. Hovering shows an inspection prompt. Clicking a marker expands its in-world label to show the provenance boundary:
+
+- source: `MyZubster`;
+- public: `true`;
+- verified: `false`;
+- LIFE environmental demo: `scientificallyValidated=false`.
+
+Clicking again collapses the label. The interaction deliberately exposes validation state instead of presenting a rendered object as proof of scientific verification.
+
 ## Local validation
 
 Use Node.js 22:
