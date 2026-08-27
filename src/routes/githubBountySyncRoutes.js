@@ -7,9 +7,11 @@ const router = express.Router();
 function auth(req, res, next) {
   const token = req.header('Authorization')?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ ok: false, error: 'No token provided' });
+  const secret = process.env.JWT_SECRET;
+  if (!secret) return res.status(503).json({ ok: false, error: 'Authentication is not configured' });
 
   try {
-    req.user = jwt.verify(token, process.env.JWT_SECRET || 'secret');
+    req.user = jwt.verify(token, secret);
     next();
   } catch (_) {
     return res.status(401).json({ ok: false, error: 'Invalid token' });

@@ -8,8 +8,10 @@ const auth = (req, res, next) => {
   if (!token) {
     return res.status(401).json({ error: 'No token provided' });
   }
+  const secret = process.env.JWT_SECRET;
+  if (!secret) return res.status(503).json({ error: 'Authentication is not configured' });
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret');
+    const decoded = jwt.verify(token, secret);
     req.user = decoded;
     next();
   } catch (error) {
