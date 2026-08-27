@@ -130,6 +130,25 @@ jobs:
         working-directory: vircadia-world/cli
         run: bun run install:playwright
 
+      - name: Resolve exposed Vircadia API ports
+        run: |
+          set -euxo pipefail
+          ws_port="$(docker port vircadia_world_api_ws_manager 3020/tcp | head -n1 | sed 's/.*://')"
+          auth_port="$(docker port vircadia_world_api_rest_auth_manager 3022/tcp | head -n1 | sed 's/.*://')"
+          asset_port="$(docker port vircadia_world_api_rest_asset_manager 3023/tcp | head -n1 | sed 's/.*://')"
+          inference_port="$(docker port vircadia_world_api_rest_inference_manager 3024/tcp | head -n1 | sed 's/.*://')"
+          test -n "$ws_port"
+          test -n "$auth_port"
+          test -n "$asset_port"
+          test -n "$inference_port"
+          echo "VRCA_WS_URI=127.0.0.1:$ws_port" >> "$GITHUB_ENV"
+          echo "VRCA_AUTH_URI=127.0.0.1:$auth_port" >> "$GITHUB_ENV"
+          echo "VRCA_ASSET_URI=127.0.0.1:$asset_port" >> "$GITHUB_ENV"
+          echo "VRCA_INFERENCE_URI=127.0.0.1:$inference_port" >> "$GITHUB_ENV"
+          curl -fsS "http://127.0.0.1:$ws_port/world/rest/ws/stats" >/dev/null
+          curl -fsS "http://127.0.0.1:$auth_port/world/rest/auth/stats" >/dev/null
+          echo "Vircadia APIs exposed: ws=$ws_port auth=$auth_port asset=$asset_port inference=$inference_port"
+
       - name: Start local Babylon client
         working-directory: vircadia-world
         run: |
@@ -138,7 +157,11 @@ jobs:
           test -n "$token"
           cd client/web_babylon_js
           VRCA_CLIENT_WEB_BABYLON_JS_DEBUG=1 \
-          VRCA_CLIENT_WEB_BABYLON_JS_DEFAULT_HOST=localhost \
+          VRCA_CLIENT_WEB_BABYLON_JS_DEFAULT_HOST=127.0.0.1 \
+          VRCA_CLIENT_WEB_BABYLON_JS_DEFAULT_WORLD_API_WS_URI="$VRCA_WS_URI" \
+          VRCA_CLIENT_WEB_BABYLON_JS_DEFAULT_WORLD_API_REST_AUTH_URI="$VRCA_AUTH_URI" \
+          VRCA_CLIENT_WEB_BABYLON_JS_DEFAULT_WORLD_API_REST_ASSET_URI="$VRCA_ASSET_URI" \
+          VRCA_CLIENT_WEB_BABYLON_JS_DEFAULT_WORLD_API_REST_INFERENCE_URI="$VRCA_INFERENCE_URI" \
           VRCA_CLIENT_WEB_BABYLON_JS_DEFAULT_WORLD_API_WS_URI_USING_SSL=false \
           VRCA_CLIENT_WEB_BABYLON_JS_DEFAULT_WORLD_API_REST_AUTH_URI_USING_SSL=false \
           VRCA_CLIENT_WEB_BABYLON_JS_DEFAULT_WORLD_API_REST_ASSET_URI_USING_SSL=false \
