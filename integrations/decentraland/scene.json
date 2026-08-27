@@ -1,0 +1,29 @@
+{
+  "ecs7": true,
+  "runtimeVersion": "7",
+  "display": {
+    "title": "MyZubster interoperability proof",
+    "description": "Experimental SDK7 scene rendering three provenance-tagged MyZubster demo markers. No partnership or endorsement implied."
+  },
+  "owner": "",
+  "contact": {
+    "name": "MyZubster Ecosystem",
+    "email": ""
+  },
+  "main": "bin/index.js",
+  "tags": ["interoperability", "experimental", "provenance"],
+  "scene": {
+    "parcels": ["0,0"],
+    "base": "0,0"
+  },
+  "spawnPoints": [
+    {
+      "name": "spawn",
+      "default": true,
+      "position": { "x": [7, 9], "y": [0, 0], "z": [2, 4] },
+      "cameraTarget": { "x": 8, "y": 1.5, "z": 8 }
+    }
+  ],
+  "featureToggles": {},
+  "name": "MyZubster Decentraland Vertical Slice"
+}
