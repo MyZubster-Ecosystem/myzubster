@@ -2,7 +2,7 @@
   "program": "MyZubster Identity Bounty Program",
   "reward_asset": "MYZ",
   "currency_model": "internal_reward_accounting_unit",
-  "last_updated": "2026-08-21",
+  "last_updated": "2026-08-23",
   "challenges": [
     {
       "id": "ID-BNT-0001",
@@ -36,8 +36,12 @@
       "id": "ID-BNT-0003",
       "title": "Signed identity credential design",
       "category": "cryptography",
-      "status": "OPEN",
+      "status": "MYZ_RECORDED",
       "reward_myz": 2500,
+      "ledger_entry_id": "MYZ-LEDGER-000002",
+      "contributor": "Aming9303",
+      "source_issue": 566,
+      "source_pull_request": 602,
       "objective": "Design and implement a verifiable signed representation of the MyZubster technical identity with public-key verification and key-rotation guidance.",
       "acceptance": [
         "Public verification is reproducible",
@@ -45,7 +49,8 @@
         "Signature substitution/tampering is detected",
         "Key rotation and revocation/status strategy is documented",
         "Current self-attested status is not misrepresented as government/legal identity certification"
-      ]
+      ],
+      "note": "Contribution verified and 2,500 MYZ recorded as internal accounting credit. This does not establish external settlement or payment."
     },
     {
       "id": "ID-BNT-0004",

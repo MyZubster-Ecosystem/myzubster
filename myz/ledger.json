@@ -24,6 +24,28 @@
       ],
       "reverses_entry_id": null,
       "note": "Verified contribution merged in PR #420; bounty #383 completed. Internal MYZ accounting credit only."
+    },
+    {
+      "entry_id": "MYZ-LEDGER-000002",
+      "timestamp": "2026-08-23T10:52:00Z",
+      "account_id": "contributor:github:Aming9303",
+      "amount_myz": 2500,
+      "entry_type": "BOUNTY_REWARD",
+      "reference": {
+        "program": "identity",
+        "bounty_id": "ID-BNT-0003",
+        "issue": 566,
+        "pull_request": 602,
+        "repository": "MyZubster-Ecosystem/myzubster"
+      },
+      "status": "RECORDED",
+      "evidence": [
+        "https://github.com/MyZubster-Ecosystem/myzubster/issues/566",
+        "https://github.com/MyZubster-Ecosystem/myzubster/pull/602",
+        "docs/bounties/ID-BNT-0003-VERIFICATION.md"
+      ],
+      "reverses_entry_id": null,
+      "note": "ID-BNT-0003 contribution verified through maintainer review and merged in PR #602. Internal MYZ accounting credit only; no external settlement or fiat/on-chain payment is implied."
     }
   ],
   "integrity": {
