@@ -185,4 +185,14 @@ jobs:
           set -euxo pipefail
           count="$(docker exec vircadia_world_postgres sh -lc 'psql -At -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "SELECT count(*) FROM entity.entities WHERE general__entity_name LIKE '\''myz-%'\'';"')"
           test "$count" = "3"
-          docker exec vircadia_world_postgres sh -lc 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "SELECT e.general__entity_name, e.group__sync, e.group__channel, m.metadata__jsonb->>\'kind\' AS kind FROM entity.entities e JOIN entity.entity_metadata m USING (general__entity_name) WHERE e.general__entity_name LIKE '\''myz-%'\'' ORDER BY e.general__entity_name;"'
+          cat <<'SQL' | docker exec -i vircadia_world_postgres sh -lc 'psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
+          SELECT
+            e.general__entity_name,
+            e.group__sync,
+            e.group__channel,
+            m.metadata__jsonb->>'kind' AS kind
+          FROM entity.entities e
+          JOIN entity.entity_metadata m USING (general__entity_name)
+          WHERE e.general__entity_name LIKE 'myz-%'
+          ORDER BY e.general__entity_name;
+          SQL
