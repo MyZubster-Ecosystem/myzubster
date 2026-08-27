@@ -41,6 +41,13 @@ const UserSchema = new mongoose.Schema({
     petCommunityEnabled: { type: Boolean, default: false },
     updatedAt: { type: Date }
   },
+  characterProfile: {
+    name: { type: String, trim: true, minlength: 2, maxlength: 40 },
+    archetype: { type: String, enum: ['guardian', 'explorer', 'builder', 'storyteller'] },
+    role: { type: String, enum: ['observer', 'contributor', 'verifier', 'mentor'] },
+    guidingValue: { type: String, enum: ['care', 'truth', 'courage', 'cooperation'] },
+    updatedAt: { type: Date }
+  },
   github: {
     id: { type: String, sparse: true },
     login: { type: String, trim: true },
