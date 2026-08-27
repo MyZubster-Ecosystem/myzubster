@@ -10,10 +10,15 @@
     { "src": "public/come-funziona.html", "use": "@vercel/static" },
     { "src": "public/community-marketplace.html", "use": "@vercel/static" },
     { "src": "public/zorgax-build.html", "use": "@vercel/static" },
+    { "src": "public/zorgax-email-profile.html", "use": "@vercel/static" },
     { "src": "public/world-state/metasploit-sentinel.json", "use": "@vercel/static" }
+  ],
+  "crons": [
+    { "path": "/api/auth/gmail/auto-sync/cron", "schedule": "0 4 * * *" }
   ],
   "routes": [
     { "src": "/zorgax-build/?", "dest": "/public/zorgax-build.html" },
+    { "src": "/zorgax-email-profile(?:\.html)?/?", "dest": "/public/zorgax-email-profile.html" },
     { "src": "/api/zorgax/assistant/(.*)", "dest": "/api/index.js" },
     { "src": "/api/zorgax/build/(.*)", "dest": "/api/index.js" },
     { "src": "/zorgax/?", "dest": "/api/index.js" },
