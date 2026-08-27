@@ -41,67 +41,74 @@ function savedProfile() {
   return null;
 }
 
-function AvatarCreator({ initialProfile, busy, error, onEnter }) {
-  const [form, setForm] = useState(initialProfile || {
-    displayName: '',
-    characterName: '',
-    archetype: 'explorer',
-    myzId: ''
-  });
+function guestCharacterName(displayName) {
+  const base = displayName
+    .normalize('NFKD')
+    .replace(/[^a-zA-Z0-9]/g, '')
+    .slice(0, 10)
+    .toUpperCase() || 'EXPLORER';
 
-  const update = (key) => (event) => setForm((current) => ({ ...current, [key]: event.target.value }));
+  let suffix = Math.floor(Math.random() * 900) + 100;
+  if (globalThis.crypto?.getRandomValues) {
+    const random = new Uint16Array(1);
+    globalThis.crypto.getRandomValues(random);
+    suffix = 100 + (random[0] % 900);
+  }
+
+  return `${base}-${suffix}`;
+}
+
+function AvatarCreator({ initialProfile, busy, error, onEnter }) {
+  const [displayName, setDisplayName] = useState(initialProfile?.displayName || '');
 
   const submit = (event) => {
     event.preventDefault();
+    const cleanName = displayName.trim();
+    if (!cleanName) return;
+
     onEnter({
-      displayName: form.displayName.trim(),
-      characterName: form.characterName.trim(),
-      archetype: form.archetype,
-      myzId: form.myzId.trim()
+      displayName: cleanName,
+      characterName: initialProfile?.characterName || guestCharacterName(cleanName),
+      archetype: initialProfile?.archetype || 'explorer',
+      myzId: initialProfile?.myzId || ''
     });
   };
 
   return (
     <div className="metaverse-entry-shell">
       <section className="metaverse-entry-card">
-        <div className="metaverse-kicker">MYZUBSTER METAVERSE / V0.1</div>
-        <h2>Enter Neon Plaza</h2>
+        <div className="metaverse-kicker">MYZUBSTER WORLD</div>
+        <h2>Entra nel mondo</h2>
         <p>
-          Create your public character and meet other MyZubster explorers. In this first release,
-          identities are guest/unverified even when a MYZ-ID is displayed.
+          Scegli un nome e inizia subito. Il personaggio viene creato automaticamente;
+          potrai personalizzarlo più avanti.
         </p>
 
         <form onSubmit={submit} className="metaverse-form">
           <label>
-            Public display name
-            <input maxLength={30} minLength={2} required value={form.displayName} onChange={update('displayName')} placeholder="Your public name" />
-          </label>
-
-          <label>
-            Character name
-            <input maxLength={30} minLength={2} required value={form.characterName} onChange={update('characterName')} placeholder="AERON-17" />
-          </label>
-
-          <label>
-            Archetype
-            <select value={form.archetype} onChange={update('archetype')}>
-              {Object.entries(ARCHETYPES).map(([key, value]) => (
-                <option key={key} value={key}>{value.glyph} {value.label}</option>
-              ))}
-            </select>
-          </label>
-
-          <label>
-            MYZ-ID (optional, display only in v0.1)
-            <input maxLength={64} value={form.myzId} onChange={update('myzId')} placeholder="MYZ-..." />
+            Il tuo nome pubblico
+            <input
+              autoFocus
+              autoComplete="nickname"
+              maxLength={30}
+              minLength={2}
+              required
+              value={displayName}
+              onChange={(event) => setDisplayName(event.target.value)}
+              placeholder="Come vuoi farti chiamare?"
+            />
           </label>
 
           {error && <div className="metaverse-error">{error}</div>}
 
           <button className="metaverse-primary" type="submit" disabled={busy}>
-            {busy ? 'Connecting…' : 'Enter the plaza'}
+            {busy ? 'Ingresso…' : 'Entra'}
           </button>
         </form>
+
+        <small className="metaverse-muted">
+          Nessun wallet, documento o account GitHub richiesto per esplorare come ospite.
+        </small>
       </section>
     </div>
   );
@@ -275,13 +282,13 @@ function MetaversePage() {
     <div className="metaverse-page">
       <header className="metaverse-topbar">
         <div>
-          <strong>🪐 MyZubster Neon Plaza</strong>
+          <strong>🪐 MyZubster World</strong>
           <span className={`metaverse-status status-${status}`}>{status}</span>
         </div>
         <div className="metaverse-topbar-meta">
           <span>{Object.keys(players).length} online</span>
           <span>{lastLandmark}</span>
-          <button onClick={resetProfile}>Change identity</button>
+          <button onClick={resetProfile}>Cambia personaggio</button>
         </div>
       </header>
 
@@ -310,7 +317,7 @@ function MetaversePage() {
                 {player.emote && <div className="metaverse-emote">{EMOTES[player.emote] || '✨'}</div>}
                 <div className="metaverse-avatar-body">{archetype.glyph}</div>
                 <strong>{player.characterName}</strong>
-                <small>{isMe ? 'YOU · ' : ''}{player.identityStatus === 'verified' ? 'MYZ VERIFIED' : 'GUEST'}</small>
+                <small>{isMe ? 'TU · ' : ''}{player.identityStatus === 'verified' ? 'MYZ VERIFIED' : 'OSPITE'}</small>
               </div>
             );
           })}
@@ -322,13 +329,13 @@ function MetaversePage() {
               <button onClick={() => moveBy(0, 2.5)}>▼</button>
               <button onClick={() => moveBy(2.5, 0)}>▶</button>
             </div>
-            <small>WASD / arrows</small>
+            <small>WASD / frecce</small>
           </div>
         </section>
 
         <aside className="metaverse-sidebar">
           <section className="metaverse-panel">
-            <h3>Your character</h3>
+            <h3>Il tuo personaggio</h3>
             <div className="metaverse-profile-line">
               <span className="metaverse-profile-glyph">{ARCHETYPES[me?.archetype]?.glyph || '🧭'}</span>
               <div>
@@ -336,13 +343,12 @@ function MetaversePage() {
                 <small>{profile?.displayName}</small>
               </div>
             </div>
-            <div className="metaverse-identity-badge">Guest identity · v0.1</div>
-            {profile?.myzId && <code>{profile.myzId}</code>}
+            <div className="metaverse-identity-badge">Ospite</div>
           </section>
 
           <section className="metaverse-panel">
-            <h3>Nearby characters</h3>
-            {nearby.length === 0 ? <p className="metaverse-muted">Move closer to another avatar to meet them.</p> : nearby.map((player) => (
+            <h3>Persone vicine</h3>
+            {nearby.length === 0 ? <p className="metaverse-muted">Muoviti nella Plaza per incontrare qualcuno.</p> : nearby.map((player) => (
               <div className="metaverse-nearby" key={player.id}>
                 <span>{ARCHETYPES[player.archetype]?.glyph || '🧭'}</span>
                 <div><strong>{player.characterName}</strong><small>{player.displayName}</small></div>
@@ -351,16 +357,16 @@ function MetaversePage() {
           </section>
 
           <section className="metaverse-panel">
-            <h3>Emotes</h3>
+            <h3>Emote</h3>
             <div className="metaverse-emote-row">
               {Object.entries(EMOTES).map(([name, glyph]) => <button key={name} onClick={() => emote(name)} title={name}>{glyph}</button>)}
             </div>
           </section>
 
           <section className="metaverse-panel metaverse-chat-panel">
-            <h3>Plaza chat</h3>
+            <h3>Chat</h3>
             <div className="metaverse-chat-log">
-              {messages.length === 0 && <p className="metaverse-muted">No messages yet.</p>}
+              {messages.length === 0 && <p className="metaverse-muted">Nessun messaggio.</p>}
               {messages.map((message) => (
                 <div key={message.id} className="metaverse-chat-message">
                   <strong>{message.characterName}</strong>
@@ -369,8 +375,8 @@ function MetaversePage() {
               ))}
             </div>
             <form onSubmit={submitChat} className="metaverse-chat-form">
-              <input maxLength={280} value={chatText} onChange={(event) => setChatText(event.target.value)} placeholder="Say something…" />
-              <button type="submit">Send</button>
+              <input maxLength={280} value={chatText} onChange={(event) => setChatText(event.target.value)} placeholder="Scrivi un messaggio…" />
+              <button type="submit">Invia</button>
             </form>
           </section>
         </aside>
