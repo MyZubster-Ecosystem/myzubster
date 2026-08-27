@@ -1,4 +1,13 @@
-import { engine, Material, MeshCollider, MeshRenderer, TextShape, Transform } from '@dcl/sdk/ecs'
+import {
+  engine,
+  InputAction,
+  Material,
+  MeshCollider,
+  MeshRenderer,
+  pointerEventsSystem,
+  TextShape,
+  Transform
+} from '@dcl/sdk/ecs'
 import { Color4, Vector3 } from '@dcl/sdk/math'
 
 type MarkerKind = 'place' | 'plant' | 'environment'
@@ -47,6 +56,15 @@ function markerColor(kind: MarkerKind): Color4 {
   return Color4.create(0.02, 0.35, 1, 1)
 }
 
+function compactLabel(marker: MyZubsterMarker): string {
+  return `MyZubster\n${marker.kind}\n${marker.id}\nClick for provenance`
+}
+
+function provenanceLabel(marker: MyZubsterMarker): string {
+  const validation = marker.scientificallyValidated === false ? '\nscientificallyValidated=false' : ''
+  return `${marker.title}\nsource=${marker.provenance.source}\npublic=${marker.provenance.public}\nverified=${marker.provenance.verified}${validation}\nClick to collapse`
+}
+
 export function main() {
   const rendered: string[] = []
 
@@ -74,12 +92,33 @@ export function main() {
       scale: Vector3.create(0.45, 0.45, 0.45)
     })
     TextShape.create(label, {
-      text: `MyZubster\n${marker.kind}\n${marker.id}`,
+      text: compactLabel(marker),
       fontSize: 2,
       textColor: Color4.White(),
       outlineColor: Color4.Black(),
       outlineWidth: 0.15
     })
+
+    let expanded = false
+    pointerEventsSystem.onPointerDown(
+      {
+        entity,
+        opts: {
+          button: InputAction.IA_PRIMARY,
+          hoverText: `Inspect ${marker.kind} provenance`,
+          maxDistance: 8,
+          showFeedback: true
+        }
+      },
+      () => {
+        expanded = !expanded
+        const text = TextShape.getMutable(label)
+        text.text = expanded ? provenanceLabel(marker) : compactLabel(marker)
+        console.log(
+          `[MyZubster/Decentraland] provenance ${expanded ? 'opened' : 'closed'} for ${marker.id} | source=${marker.provenance.source} | public=${marker.provenance.public} | verified=${marker.provenance.verified}`
+        )
+      }
+    )
 
     rendered.push(marker.id)
     console.log(
