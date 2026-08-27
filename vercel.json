@@ -18,7 +18,8 @@
   ],
   "routes": [
     { "src": "/zorgax-build/?", "dest": "/public/zorgax-build.html" },
-    { "src": "/zorgax-email-profile(?:\.html)?/?", "dest": "/public/zorgax-email-profile.html" },
+    { "src": "/zorgax-email-profile/?", "dest": "/public/zorgax-email-profile.html" },
+    { "src": "/zorgax-email-profile\.html", "dest": "/public/zorgax-email-profile.html" },
     { "src": "/api/zorgax/assistant/(.*)", "dest": "/api/index.js" },
     { "src": "/api/zorgax/build/(.*)", "dest": "/api/index.js" },
     { "src": "/zorgax/?", "dest": "/api/index.js" },
