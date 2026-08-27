@@ -1,0 +1,110 @@
+name: Staging Deployment
+
+on:
+  push:
+    branches: [develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: staging-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: ${{ steps.deploy.outputs.url }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: package.json
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            frontend/package-lock.json
+
+      - name: Validate staging configuration
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.STAGING_SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.STAGING_SSH_HOST }}
+          SSH_USER: ${{ secrets.STAGING_SSH_USER }}
+          STAGING_URL: ${{ vars.STAGING_URL }}
+        run: |
+          test -n "$SSH_PRIVATE_KEY" || { echo '::error::STAGING_SSH_PRIVATE_KEY is required'; exit 1; }
+          test -n "$SSH_HOST" || { echo '::error::STAGING_SSH_HOST is required'; exit 1; }
+          test -n "$SSH_USER" || { echo '::error::STAGING_SSH_USER is required'; exit 1; }
+          test -n "$STAGING_URL" || { echo '::error::STAGING_URL is required'; exit 1; }
+
+      - name: Install backend dependencies
+        run: npm ci
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Run backend tests
+        env:
+          NODE_ENV: test
+          CI: true
+        run: npm test -- --testPathIgnorePatterns=/frontend/
+
+      - name: Run frontend tests
+        working-directory: frontend
+        run: npm test -- --watchAll=false
+
+      - name: Build backend
+        run: npm run build --if-present
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+
+      - name: Deploy to staging
+        id: deploy
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.STAGING_SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.STAGING_SSH_HOST }}
+          SSH_USER: ${{ secrets.STAGING_SSH_USER }}
+          DEPLOY_PATH: ${{ vars.STAGING_DEPLOY_PATH }}
+          STAGING_URL: ${{ vars.STAGING_URL }}
+        run: |
+          set -euo pipefail
+          DEPLOY_DIR="${DEPLOY_PATH:-/opt/myzubster/staging}"
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          rsync -az --delete \
+            --exclude '.git' \
+            --exclude '.env*' \
+            --exclude 'node_modules' \
+            --exclude 'frontend/node_modules' \
+            ./ "$SSH_USER@$SSH_HOST:$DEPLOY_DIR/"
+          ssh "$SSH_USER@$SSH_HOST" \
+            "set -e; cd '$DEPLOY_DIR'; npm ci --omit=dev; pm2 reload myzubster-staging --update-env || pm2 start npm --name myzubster-staging -- start"
+          echo "url=$STAGING_URL" >> "$GITHUB_OUTPUT"
+
+      - name: Health check
+        env:
+          HEALTH_URL: ${{ vars.STAGING_URL }}
+        run: |
+          set -euo pipefail
+          for i in 1 2 3 4 5; do
+            if curl -fsS "$HEALTH_URL/health" >/dev/null; then
+              echo 'Staging health check passed.'
+              exit 0
+            fi
+            sleep 10
+          done
+          echo '::error::Staging health check failed.'
+          exit 1
