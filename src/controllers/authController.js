@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const MetaverseCharacter = require('../../backend/src/models/MetaverseCharacter');
 const jwt = require('jsonwebtoken');
 
 function isValidMoneroAddress(value) {
@@ -49,6 +50,85 @@ function verifyGithubTicket(ticket) {
     throw new Error('Ticket GitHub non valido');
   }
   return payload.github;
+}
+
+function safeCharacterName(value) {
+  const cleaned = String(value || 'Explorer')
+    .trim()
+    .replace(/[^a-zA-Z0-9 _-]+/g, '')
+    .replace(/\s+/g, ' ')
+    .slice(0, 30);
+  return cleaned || 'Explorer';
+}
+
+async function ensureGithubCharacter(user, verifiedGithub = null) {
+  const githubId = String(verifiedGithub?.id || user.github?.id || '');
+  const githubLogin = String(verifiedGithub?.login || user.github?.login || '').trim();
+  if (!githubId || !githubLogin) return null;
+
+  const existing = await MetaverseCharacter.findOne({
+    $or: [
+      { accountUserId: user._id },
+      { 'github.id': githubId }
+    ]
+  });
+
+  const displayName = safeCharacterName(verifiedGithub?.name || user.username || githubLogin);
+  const characterName = safeCharacterName(verifiedGithub?.name || githubLogin);
+  const githubProfileUrl = verifiedGithub?.profileUrl || user.github?.profileUrl || `https://github.com/${githubLogin}`;
+  const verifiedAt = user.github?.verifiedAt || new Date();
+
+  if (existing) {
+    existing.accountUserId = user._id;
+    existing.displayName = existing.displayName || displayName;
+    existing.characterName = existing.characterName || characterName;
+    existing.identityStatus = 'account-linked';
+    existing.createdFrom = 'account-github';
+    existing.github = {
+      id: githubId,
+      login: githubLogin,
+      profileUrl: githubProfileUrl,
+      verifiedAt
+    };
+    existing.lastSeenAt = new Date();
+    await existing.save();
+    return existing;
+  }
+
+  return MetaverseCharacter.create({
+    characterId: `account-${String(user._id)}`,
+    displayName,
+    characterName,
+    archetype: 'explorer',
+    identityStatus: 'account-linked',
+    worldId: 'neon-plaza',
+    createdFrom: 'account-github',
+    accountUserId: user._id,
+    github: {
+      id: githubId,
+      login: githubLogin,
+      profileUrl: githubProfileUrl,
+      verifiedAt
+    },
+    lastSeenAt: new Date()
+  });
+}
+
+function publicCharacter(character) {
+  if (!character) return null;
+  return {
+    characterId: character.characterId,
+    displayName: character.displayName,
+    characterName: character.characterName,
+    archetype: character.archetype,
+    identityStatus: character.identityStatus,
+    worldId: character.worldId,
+    github: character.github?.id ? {
+      login: character.github.login,
+      profileUrl: character.github.profileUrl,
+      verifiedAt: character.github.verifiedAt
+    } : null
+  };
 }
 
 exports.githubStart = async (req, res) => {
@@ -189,6 +269,15 @@ exports.register = async (req, res) => {
     });
     await user.save();
 
+    let character = null;
+    if (github?.id) {
+      try {
+        character = await ensureGithubCharacter(user, github);
+      } catch (characterError) {
+        console.error('Automatic character creation error:', characterError);
+      }
+    }
+
     const token = jwt.sign(
       { userId: user._id, username: user.username, role: user.role },
       jwtSecret(),
@@ -197,7 +286,7 @@ exports.register = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: 'Utente registrato con successo',
+      message: character ? 'Utente registrato e personaggio GitHub creato automaticamente' : 'Utente registrato con successo',
       data: {
         user: {
           id: user._id,
@@ -208,6 +297,8 @@ exports.register = async (req, res) => {
           github: user.github?.id ? user.github : null,
           createdAt: user.createdAt
         },
+        character: publicCharacter(character),
+        characterAutomation: github?.id ? (character ? 'ready' : 'retry-on-login') : 'requires-verified-github',
         token
       }
     });
@@ -231,6 +322,15 @@ exports.login = async (req, res) => {
     user.lastLogin = new Date();
     await user.save();
 
+    let character = null;
+    if (user.github?.id) {
+      try {
+        character = await ensureGithubCharacter(user);
+      } catch (characterError) {
+        console.error('Automatic character backfill error:', characterError);
+      }
+    }
+
     const token = jwt.sign(
       { userId: user._id, username: user.username, role: user.role },
       jwtSecret(),
@@ -250,6 +350,8 @@ exports.login = async (req, res) => {
           github: user.github?.id ? user.github : null,
           lastLogin: user.lastLogin
         },
+        character: publicCharacter(character),
+        characterAutomation: user.github?.id ? (character ? 'ready' : 'retry-next-login') : 'requires-verified-github',
         token
       }
     });
@@ -263,7 +365,15 @@ exports.getProfile = async (req, res) => {
   try {
     const user = await User.findById(req.userId).select('-password');
     if (!user) return res.status(404).json({ success: false, message: 'Utente non trovato' });
-    res.json({ success: true, data: { user } });
+    let character = null;
+    if (user.github?.id) {
+      try {
+        character = await ensureGithubCharacter(user);
+      } catch (characterError) {
+        console.error('Automatic character profile ensure error:', characterError);
+      }
+    }
+    res.json({ success: true, data: { user, character: publicCharacter(character) } });
   } catch (error) {
     console.error('Profile error:', error);
     res.status(500).json({ success: false, message: 'Errore durante il recupero del profilo', error: error.message });

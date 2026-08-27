@@ -48,6 +48,18 @@ const UserSchema = new mongoose.Schema({
     profileUrl: { type: String, trim: true },
     verifiedAt: { type: Date }
   },
+  zorgaxProfile: {
+    archetype: {
+      type: String,
+      enum: ['guardian', 'builder', 'explorer', 'caretaker'],
+      default: 'explorer'
+    },
+    traits: [{ type: String, trim: true, maxlength: 80 }],
+    summary: { type: String, trim: true, maxlength: 800 },
+    source: { type: String, enum: ['gmail-derived', 'manual'], default: 'manual' },
+    approvedAt: { type: Date },
+    updatedAt: { type: Date }
+  },
   isVerified: {
     type: Boolean,
     default: false
