@@ -9,6 +9,7 @@ import ClowbotBountiesPage from './pages/ClowbotBountiesPage';
 import AgentsPage from './pages/AgentsPage';
 import AppsDownloadPage from './pages/AppsDownloadPage';
 import DaoPage from './pages/DaoPage';
+import HowItWorksPage from './pages/HowItWorksPage';
 
 const PORTAL_VIEWS = {
   '/': 'home',
@@ -61,6 +62,10 @@ function App() {
 
   if (path === '/apps' || path === '/download') {
     return <AppsDownloadPage />;
+  }
+
+  if (path === '/come-funziona' || path === '/how-it-works') {
+    return <HowItWorksPage />;
   }
 
   if (path === '/dao') {
