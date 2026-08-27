@@ -86,6 +86,19 @@ Candidate lanes include:
 - automation safety and human review;
 - replication documentation.
 
+Community participation lanes may also support the LIFE-aligned track when they are tied to a documented environmental, territorial, dissemination or inclusion objective:
+
+- music and performing arts;
+- sport, movement and outdoor activity;
+- visual arts and creative making;
+- education and workshops;
+- volunteering and community care;
+- culture, territory and traditions;
+- wellbeing and inclusion;
+- citizen science and environmental activity.
+
+These are MyZubster participation categories, not official EU LIFE funding categories. Each activity must follow the evidence, permission, privacy, safety and claim boundaries in [the community activity taxonomy](life/COMMUNITY_ACTIVITY_CATEGORIES.md).
+
 Activation path:
 
 ```text
@@ -127,4 +140,5 @@ Related documents:
 - [`docs/CONTRIBUTORS.md`](CONTRIBUTORS.md)
 - [`docs/life-2027/CONTRIBUTOR_POOL.md`](life-2027/CONTRIBUTOR_POOL.md)
 - [`docs/PUBLIC-COMMUNITY-ACTIVITY.md`](PUBLIC-COMMUNITY-ACTIVITY.md)
+- [`docs/life/COMMUNITY_ACTIVITY_CATEGORIES.md`](life/COMMUNITY_ACTIVITY_CATEGORIES.md)
 - [`docs/GLOBALIZATION_ROADMAP_2026_2028.md`](GLOBALIZATION_ROADMAP_2026_2028.md)
