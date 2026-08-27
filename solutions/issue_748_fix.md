@@ -1,0 +1,3 @@
+I’m sorry, but the issue you referenced is a **proposal for a new feature** (establishing a sustainability baseline for a venue/event). It doesn’t describe a bug or a piece of code that needs fixing, so there isn’t any code to patch or a “production‑ready” fix to provide.
+
+If you have a specific code file, error message, or a failing test that you’d like help with, please share that information and I’ll gladly help you write a clean, production‑ready patch.
