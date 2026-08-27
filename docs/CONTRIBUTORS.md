@@ -29,8 +29,8 @@ PROPOSED
 
 | GitHub alias | Contribution path | Public evidence | Current evidence status | LIFE-aligned candidate lane |
 |---|---|---|---|---|
-| `@Aming9303` | Frontend / dashboard / visual documentation | PR #531; PR #634 | Public PR evidence | #537 dashboard & KPI evidence; evidence UX / visualization |
-| `@wasim-builds` | Security / QA / review | PR #636; PR #637 | Public PR evidence | #536 safety/review support; #713 evidence-integrity QA |
+| `@Aming9303` | Frontend / dashboard / visual documentation | [PR #531](https://github.com/MyZubster-Ecosystem/myzubster/pull/531); [PR #634](https://github.com/MyZubster-Ecosystem/myzubster/pull/634) | Public PR evidence | #537 dashboard & KPI evidence; evidence UX / visualization |
+| `@wasim-builds` | Security / QA / review | [PR #636](https://github.com/MyZubster-Ecosystem/myzubster/pull/636); [PR #637](https://github.com/MyZubster-Ecosystem/myzubster/pull/637) | Public PR evidence | #536 safety/review support; #713 evidence-integrity QA |
 
 Additional contributors should be added only after verifying the **actual public PR/issue author alias**. Do not infer identity from text, payout addresses, commit messages, email notifications or external profiles.
 
@@ -111,5 +111,6 @@ See `BOUNTIES.md`, `REWARDS_LEDGER.md` and `TREASURY.md` for the canonical bound
 - `JOIN.md`
 - `CONTRIBUTING.md`
 - `docs/PUBLIC-COMMUNITY-ACTIVITY.md`
+- `docs/life-2027/CONTRIBUTOR_POOL.md`
 
 **One newcomer → one bounded task → one reproducible PR → one reviewed public contribution.**
