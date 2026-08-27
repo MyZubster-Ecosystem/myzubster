@@ -1,4 +1,7 @@
-const API_URL = (process.env.REACT_APP_API_URL || '').replace(/\/$/, '');
+// MyZubster World is served by the same public Express/Vercel app.
+// Keep this flow strictly same-origin so a stale or insecure build-time
+// REACT_APP_API_URL cannot redirect HTTPS visitors to a legacy HTTP backend.
+const API_URL = '';
 
 async function jsonRequest(path, options = {}) {
   const response = await fetch(`${API_URL}${path}`, {
