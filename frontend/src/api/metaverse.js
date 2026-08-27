@@ -1,4 +1,4 @@
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3009';
+const API_URL = (process.env.REACT_APP_API_URL || '').replace(/\/$/, '');
 
 async function jsonRequest(path, options = {}) {
   const response = await fetch(`${API_URL}${path}`, {

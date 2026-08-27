@@ -107,6 +107,7 @@ const githubBountySyncRoutes = require('./src/routes/githubBountySyncRoutes');
 const researchRoutes = require('./src/routes/researchRoutes');
 const municipalityRoutes = require('./src/routes/municipalityRoutes');
 const entityRoutes = require('./src/routes/entityRoutes');
+const metaverseRoutes = require('./backend/src/routes/metaverse');
 
 app.post('/api/auth/register', async (_req, res, next) => {
   try { await connectMongo(); next(); }
@@ -137,6 +138,7 @@ app.use('/api/zorgax', zorgaxRoutes);
 app.use('/api/github-bounties', githubBountySyncRoutes);
 app.use('/api/research', researchRoutes);
 app.use('/api/entities', entityRoutes);
+app.use('/api/metaverse', metaverseRoutes);
 
 app.get('/', (_req, res) => {
   res.status(200).json({
