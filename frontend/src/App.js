@@ -3,18 +3,17 @@ import MapPage from './pages/MapPage';
 import GardensPage from './pages/GardensPage';
 import ClowbotBountiesPage from './pages/ClowbotBountiesPage';
 import MetaversePage from './pages/MetaversePage';
+import MarketplacePage from './pages/MarketplacePage';
 
 const TABS = {
   WORLD: 'world',
   EXPLORE: 'explore',
   GARDENS: 'gardens',
-  MISSIONS: 'missions'
+  MISSIONS: 'missions',
+  MARKETPLACE: 'marketplace'
 };
 
 function App() {
-  // Public visitors land directly in MyZubster World. Technical/admin surfaces
-  // stay out of the primary navigation so the product does not require users
-  // to understand the repository architecture before participating.
   const [activeTab, setActiveTab] = useState(TABS.WORLD);
 
   return (
@@ -25,12 +24,16 @@ function App() {
         <button onClick={() => setActiveTab(TABS.EXPLORE)}>Esplora</button>
         <button onClick={() => setActiveTab(TABS.GARDENS)}>Il mio giardino</button>
         <button onClick={() => setActiveTab(TABS.MISSIONS)}>Missioni</button>
+        <button onClick={() => setActiveTab(TABS.MARKETPLACE)}>Marketplace</button>
+        <a href="/zorgax">Zorgax</a>
+        <a href="/fumetto">Fumetto</a>
       </nav>
 
       {activeTab === TABS.WORLD && <MetaversePage />}
       {activeTab === TABS.EXPLORE && <MapPage />}
       {activeTab === TABS.GARDENS && <GardensPage />}
       {activeTab === TABS.MISSIONS && <ClowbotBountiesPage />}
+      {activeTab === TABS.MARKETPLACE && <MarketplacePage />}
     </div>
   );
 }
