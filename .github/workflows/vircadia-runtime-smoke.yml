@@ -43,8 +43,16 @@ jobs:
           repository: vircadia/vircadia-world
           ref: 9f185373ac89fb5834fda238fa83f51d1d6851a9
           path: vircadia-world
-          submodules: recursive
-          lfs: true
+          submodules: false
+          lfs: false
+
+      - name: Initialize public SDK submodule only
+        working-directory: vircadia-world
+        run: |
+          set -euxo pipefail
+          git submodule sync sdk/vircadia-world-sdk-ts
+          git submodule update --init --depth=1 sdk/vircadia-world-sdk-ts
+          echo 'The optional/client seed submodule is intentionally not initialized because its configured ED3N-Foundries repository is not publicly fetchable from GitHub Actions at the pinned revision.'
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -62,6 +70,7 @@ jobs:
           test -f cli/vircadia.cli.ts
           test -f server/service/api_ws/volume/app/world.api.ws.manager.ts
           test -f server/service/state/volume/app/world.state.manager.ts
+          test -f sdk/vircadia-world-sdk-ts/README.md
 
       - name: Install Vircadia workspace dependencies
         working-directory: vircadia-world
@@ -74,7 +83,7 @@ jobs:
           output="$(bun run cli init 2>&1)"
           printf '%s\n' "$output"
           echo "$output" | grep -F 'Init command dispatched'
-          echo 'Pinned upstream currently dispatches init without performing bootstrap; full stack startup is therefore intentionally blocked in this smoke until upstream initialization is wired or a documented non-interactive bootstrap path is identified.'
+          echo 'Pinned upstream currently dispatches init without performing bootstrap; full stack startup is blocked until upstream initialization is wired or a documented non-interactive bootstrap path is identified.'
 
       - name: Verify world entity plumbing exists
         working-directory: vircadia-world
