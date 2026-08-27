@@ -115,7 +115,7 @@ jobs:
             })
             page.on('pageerror', (err) => console.error(`[browser:error] ${err.message}`))
 
-            const preview = 'https://decentraland.org/bevy-web/?preview=true&realm=http://127.0.0.1:8000&position=76,-8'
+            const preview = 'https://decentraland.org/bevy-web/?preview=true&realm=http://127.0.0.1:8000&position=0,0'
             await page.goto(preview, { waitUntil: 'domcontentloaded', timeout: 90000 })
 
             const deadline = Date.now() + 120000
