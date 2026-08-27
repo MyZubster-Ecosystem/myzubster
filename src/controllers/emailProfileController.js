@@ -223,9 +223,10 @@ exports.disableAutoSync = async (req, res) => {
 };
 
 exports.runAutoSync = async (req, res) => {
-  const expected = process.env.CRON_SECRET;
-  const supplied = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '');
-  if (!expected || !supplied || !crypto.timingSafeEqual(Buffer.from(supplied), Buffer.from(expected))) {
+  const expected = Buffer.from(String(process.env.CRON_SECRET || ''));
+  const supplied = Buffer.from(String(req.headers.authorization || '').replace(/^Bearer\s+/i, ''));
+  const authorized = expected.length > 0 && expected.length === supplied.length && crypto.timingSafeEqual(supplied, expected);
+  if (!authorized) {
     return res.status(401).json({ success: false, message: 'Cron non autorizzato' });
   }
 
