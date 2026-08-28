@@ -4,13 +4,15 @@ import GardensPage from './pages/GardensPage';
 import ClowbotBountiesPage from './pages/ClowbotBountiesPage';
 import MetaversePage from './pages/MetaversePage';
 import MarketplacePage from './pages/MarketplacePage';
+import MarketplaceOpsPage from './pages/MarketplaceOpsPage';
 
 const TABS = {
   WORLD: 'world',
   EXPLORE: 'explore',
   GARDENS: 'gardens',
   MISSIONS: 'missions',
-  MARKETPLACE: 'marketplace'
+  MARKETPLACE: 'marketplace',
+  MARKETPLACE_OPS: 'marketplace-ops'
 };
 
 function App() {
@@ -25,6 +27,7 @@ function App() {
         <button onClick={() => setActiveTab(TABS.GARDENS)}>Il mio giardino</button>
         <button onClick={() => setActiveTab(TABS.MISSIONS)}>Missioni</button>
         <button onClick={() => setActiveTab(TABS.MARKETPLACE)}>Marketplace</button>
+        <button onClick={() => setActiveTab(TABS.MARKETPLACE_OPS)}>I miei scambi</button>
         <a href="/zorgax">Zorgax</a>
         <a href="/fumetto">Fumetto</a>
       </nav>
@@ -34,6 +37,7 @@ function App() {
       {activeTab === TABS.GARDENS && <GardensPage />}
       {activeTab === TABS.MISSIONS && <ClowbotBountiesPage />}
       {activeTab === TABS.MARKETPLACE && <MarketplacePage />}
+      {activeTab === TABS.MARKETPLACE_OPS && <MarketplaceOpsPage />}
     </div>
   );
 }
