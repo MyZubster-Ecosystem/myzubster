@@ -6,7 +6,6 @@
   <meta name="theme-color" content="#071018" />
   <meta name="description" content="MyZubster è un ecosistema open source per territorio, ambiente, robotica, identità digitali e contributi verificabili." />
   <meta name="robots" content="index,follow" />
-  <link rel="canonical" href="https://www.myzubster.com/" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="manifest" href="/manifest.json" />
   <meta property="og:type" content="website" />
@@ -19,6 +18,19 @@
   <meta name="twitter:title" content="MyZubster — Open Source, Territorio e Comunità" />
   <meta name="twitter:description" content="Osserva, crea e contribuisci a un ecosistema open source costruito in pubblico." />
   <title>MyZubster — Open Source, Territorio e Comunità</title>
+  <script>
+    (() => {
+      const rawPath = window.location.pathname.replace(/\/+$/, '') || '/';
+      const canonicalPath = rawPath === '/index.html' ? '/' : rawPath;
+      const canonicalUrl = `https://www.myzubster.com${canonicalPath === '/' ? '/' : canonicalPath}`;
+      const canonical = document.createElement('link');
+      canonical.rel = 'canonical';
+      canonical.href = canonicalUrl;
+      document.head.appendChild(canonical);
+      const ogUrl = document.querySelector('meta[property="og:url"]');
+      if (ogUrl) ogUrl.setAttribute('content', canonicalUrl);
+    })();
+  </script>
   <script>
     window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
   </script>
