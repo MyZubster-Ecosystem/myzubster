@@ -110,6 +110,7 @@ const bountyRoutes = require('./src/routes/bountyRoutes');
 const rewardRoutes = require('./src/routes/rewardRoutes');
 const referralRoutes = require('./src/routes/referralRoutes');
 const listingRoutes = require('./src/routes/listingRoutes');
+const marketplaceTrustRoutes = require('./src/routes/marketplaceTrustRoutes');
 const tripRoutes = require('./src/routes/tripRoutes');
 const couponRoutes = require('./src/routes/couponRoutes');
 const plantRoutes = require('./src/routes/plantRoutes');
@@ -135,9 +136,6 @@ app.post('/api/auth/register', async (_req, res, next) => {
   catch (_error) { res.status(503).json({ success: false, message: 'Database temporaneamente non disponibile' }); }
 });
 
-// Character creation is durable in production. Do not accept a new public
-// character if MongoDB is unavailable, otherwise users could believe their
-// character was saved when it only existed in one serverless instance.
 app.post('/api/metaverse/join', async (_req, res, next) => {
   if (process.env.NODE_ENV === 'test') return next();
   try {
@@ -157,6 +155,7 @@ app.use('/api/bounties', bountyRoutes);
 app.use('/api/rewards', rewardRoutes);
 app.use('/api/referrals', referralRoutes);
 app.use('/api/listings', listingRoutes);
+app.use('/api/marketplace', marketplaceTrustRoutes);
 app.use('/api/trips', tripRoutes);
 app.use('/api/coupons', couponRoutes);
 app.use('/api/plants', plantRoutes);
