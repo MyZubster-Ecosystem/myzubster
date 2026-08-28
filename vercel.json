@@ -34,7 +34,6 @@
     { "src": "/api/bounties/?", "dest": "/api/bounties-registry.js" },
     { "src": "/api/(.*)", "dest": "/api/index.js" },
     { "src": "/community/?", "dest": "/public/community-marketplace.html" },
-    { "src": "/marketplace/?", "dest": "/public/community-marketplace.html" },
     { "src": "/gardens-map/?", "dest": "/public/community-marketplace.html" },
     { "src": "/community-marketplace.html", "dest": "/public/community-marketplace.html" },
     { "src": "/come-funziona/?", "dest": "/api/index.js" },
