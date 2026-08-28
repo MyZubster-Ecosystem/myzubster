@@ -1,0 +1,99 @@
+name: Zorgax GitHub Assistant
+
+on:
+  issue_comment:
+    types: [created]
+  issues:
+    types: [opened, labeled]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: zorgax-${{ github.event.issue.number || github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  respond:
+    if: >-
+      github.event_name == 'issue_comment' &&
+      github.event.comment.user.type != 'Bot' &&
+      (startsWith(github.event.comment.body, '/zorgax') || contains(github.event.comment.body, '@zorgax'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Build scoped request
+        id: request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          COMMENT_BODY: ${{ github.event.comment.body }}
+        run: |
+          set -euo pipefail
+          issue="$(gh api "repos/$REPO/issues/$ISSUE_NUMBER")"
+          title="$(jq -r '.title' <<<"$issue")"
+          body="$(jq -r '.body // ""' <<<"$issue" | head -c 5000)"
+          command="$(printf '%s' "$COMMENT_BODY" | sed -E 's#^/zorgax[[:space:]]*##' | head -c 3000)"
+          if [ -z "$command" ]; then command="Aiuta a capire il prossimo passo concreto."; fi
+          jq -n \
+            --arg message "Sei Zorgax su GitHub. Rispondi in italiano in modo conciso e operativo. Non dichiarare partnership, finanziamenti, pagamenti o verifiche non dimostrate. Non chiedere o pubblicare secret, token, seed phrase, dati sanitari o altri dati sensibili. Non eseguire merge, pagamenti o modifiche: fornisci solo assistenza testuale. Repository: $REPO. Issue/PR #$ISSUE_NUMBER. Titolo: $title. Descrizione: $body. Richiesta utente: $command" \
+            '{message:$message,useWeb:false,history:[],limit:3}' > /tmp/request.json
+
+      - name: Ask Zorgax
+        id: zorgax
+        env:
+          ZORGAX_ENDPOINT: ${{ vars.ZORGAX_GITHUB_ASSISTANT_URL }}
+        run: |
+          set -euo pipefail
+          endpoint="${ZORGAX_ENDPOINT:-https://www.myzubster.com/api/zorgax/assistant/chat}"
+          http_code="$(curl --silent --show-error --max-time 35 \
+            -o /tmp/response.json -w '%{http_code}' \
+            -H 'Content-Type: application/json' \
+            --data-binary @/tmp/request.json \
+            "$endpoint")"
+          if [ "$http_code" -lt 200 ] || [ "$http_code" -ge 300 ]; then
+            echo "Zorgax endpoint returned HTTP $http_code" >&2
+            cat /tmp/response.json >&2 || true
+            exit 1
+          fi
+          answer="$(jq -r '.answer // .message // .text // empty' /tmp/response.json | head -c 8000)"
+          if [ -z "$answer" ]; then
+            answer="Zorgax non ha restituito una risposta utilizzabile. Riprova tra poco con \`/zorgax <richiesta>\`."
+          fi
+          printf '%s\n' "$answer" > /tmp/answer.txt
+
+      - name: Post Zorgax reply
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          set -euo pipefail
+          {
+            echo '### 🤖 Zorgax'
+            echo
+            cat /tmp/answer.txt
+            echo
+            echo '> Assistente automatico MyZubster. Risposta informativa: nessun merge, pagamento o modifica è stata eseguita.'
+          } > /tmp/comment.md
+          gh issue comment "$ISSUE_NUMBER" --repo "$REPO" --body-file /tmp/comment.md
+
+  triage:
+    if: >-
+      github.event_name == 'issues' &&
+      github.event.action == 'labeled' &&
+      github.event.label.name == 'zorgax'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Add activation instructions
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          gh issue comment "$ISSUE_NUMBER" --repo "$REPO" --body $'### 🤖 Zorgax disponibile\n\nScrivi `/zorgax <richiesta>` in un commento per ricevere assistenza automatica su questa issue. Zorgax resta in modalità assistiva: non effettua merge, pagamenti o modifiche autonome.'
