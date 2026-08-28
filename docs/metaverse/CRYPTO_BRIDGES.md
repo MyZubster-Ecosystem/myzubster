@@ -18,7 +18,7 @@ Flow:
 1. User links the public EVM address.
 2. `POST /api/metaverse/bridge/links/:worldId/challenge` creates a five-minute nonce and exact message.
 3. Wallet signs that exact text using `personal_sign` / EIP-191-style signing.
-4. `POST /api/metaverse/bridge/links/:worldId/verify` recovers the signer address through a configured EVM JSON-RPC node and the `ecrecover` precompile.
+4. `POST /api/metaverse/bridge/links/:worldId/verify` asks a configured EVM JSON-RPC node for the Ethereum signed-message hash and uses the chain's `ecrecover` precompile in read-only mode to recover the signer address.
 5. MyZubster sets `verifiedAt` only when the recovered address exactly matches the linked wallet.
 6. The nonce is deleted after successful verification, preventing normal replay of the completed challenge.
 
