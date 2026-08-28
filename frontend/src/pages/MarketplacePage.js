@@ -16,6 +16,8 @@ function MarketplacePage() {
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState({ title:'', category:'services', description:'', location:'', price:'', currency:'FREE' });
   const [message, setMessage] = useState('');
+  const [sellerPlan, setSellerPlan] = useState(null);
+  const [sellerState, setSellerState] = useState(null);
 
   const load = useCallback(async () => {
     setLoading(true); setError('');
@@ -30,13 +32,33 @@ function MarketplacePage() {
     } catch (e) { setError(e.message); } finally { setLoading(false); }
   }, [category, location]);
 
-  useEffect(() => { load(); }, [load]);
+  const loadSeller = useCallback(async () => {
+    try {
+      const planResponse = await fetch('/api/marketplace/seller/plan');
+      const planPayload = await planResponse.json().catch(() => ({}));
+      if (planResponse.ok) setSellerPlan(planPayload.plan || null);
+      if (!localStorage.getItem('myzubster-token')) return;
+      const stateResponse = await fetch('/api/marketplace/seller/me', { headers:authHeaders() });
+      const statePayload = await stateResponse.json().catch(() => ({}));
+      if (stateResponse.ok) setSellerState(statePayload);
+    } catch (_) {}
+  }, []);
+
+  useEffect(() => { load(); loadSeller(); }, [load, loadSeller]);
 
   async function apiAction(url, body) {
     const response = await fetch(url, { method:'POST', headers:authHeaders({ 'Content-Type':'application/json' }), body:JSON.stringify(body) });
     const payload = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(payload.message || payload.error || 'Operazione non riuscita');
+    if (!response.ok) { const error = new Error(payload.message || payload.error || 'Operazione non riuscita'); error.payload = payload; throw error; }
     return payload;
+  }
+
+  async function becomeSeller() {
+    try {
+      const payload = await apiAction('/api/marketplace/seller/subscribe', {});
+      setSellerState({ active:false, membership:payload.membership, plan:payload.plan });
+      setMessage(`Richiesta Seller creata: ${payload.plan.amount} ${payload.plan.currency}/mese. Riferimento: ${payload.membership.billingReference}. L'account viene attivato solo dopo verifica reale del pagamento.`);
+    } catch (e) { setMessage(e.message); }
   }
 
   async function createListing(event) {
@@ -45,7 +67,10 @@ function MarketplacePage() {
       const body = { ...form, price: ['FREE','BARTER'].includes(form.currency) ? 0 : Number(form.price) };
       await apiAction('/api/listings/create', body);
       setMessage('Annuncio pubblicato.'); setShowCreate(false); setForm({ title:'', category:'services', description:'', location:'', price:'', currency:'FREE' }); await load();
-    } catch (e) { setMessage(e.message); }
+    } catch (e) {
+      if (e.payload?.code === 'SELLER_MEMBERSHIP_REQUIRED') setMessage(`Serve un account Seller attivo (${e.payload.sellerPlan?.amount || sellerPlan?.amount || '?'} EUR/mese).`);
+      else setMessage(e.message);
+    }
   }
 
   async function requestListing(listing) {
@@ -59,37 +84,36 @@ function MarketplacePage() {
   async function reportListing(listing) {
     const reason = window.prompt('Motivo: prohibited_item, fraud, spam, harassment, unsafe, other', 'spam');
     if (!reason) return;
-    try {
-      await apiAction('/api/marketplace/reports', { listingId: listing.id || listing._id, reason, details: '' });
-      setMessage('Segnalazione registrata per moderazione.');
-    } catch (e) { setMessage(e.message); }
+    try { await apiAction('/api/marketplace/reports', { listingId: listing.id || listing._id, reason, details: '' }); setMessage('Segnalazione registrata per moderazione.'); }
+    catch (e) { setMessage(e.message); }
   }
 
   async function showReputation(listing) {
     const ownerId = typeof listing.ownerId === 'object' ? listing.ownerId?._id : listing.ownerId;
     if (!ownerId) return setMessage('Reputazione non disponibile per questo annuncio.');
     try {
-      const response = await fetch(`/api/marketplace/reputation/${ownerId}`);
-      const payload = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(payload.message || 'Reputazione non disponibile');
-      const r = payload.reputation || {};
+      const response = await fetch(`/api/marketplace/reputation/${ownerId}`); const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload.message || 'Reputazione non disponibile'); const r = payload.reputation || {};
       setMessage(`Reputazione venditore: ${r.average == null ? 'nessuna recensione' : `${r.average}/5 (${r.reviews})`} · scambi completati: ${r.completedSales || 0}`);
     } catch (e) { setMessage(e.message); }
   }
 
+  const sellerLabel = sellerState?.active ? 'Seller attivo' : sellerState?.membership?.status === 'PENDING_PAYMENT' ? 'Seller: pagamento da verificare' : 'Diventa Seller';
+
   return <main style={{ padding:24, maxWidth:1100, margin:'0 auto' }}>
-    <header style={{ marginBottom:24 }}><div style={{ fontSize:13, letterSpacing:1.4, opacity:.7 }}>MYZUBSTER MARKETPLACE</div><h2>Scambia con la comunità</h2><p>Annunci persistenti, richieste non-custodial, reputazione da scambi completati e segnalazioni. Nessuna richiesta sposta denaro: checkout e custody restano disattivati finché non superano i gate di sicurezza e compliance.</p><button onClick={() => setShowCreate(v => !v)}>{showCreate ? 'Chiudi' : 'Pubblica annuncio'}</button></header>
+    <header style={{ marginBottom:24 }}>
+      <div style={{ fontSize:13, letterSpacing:1.4, opacity:.7 }}>MYZUBSTER MARKETPLACE</div><h2>Scambia con la comunità</h2>
+      <p>Gli acquirenti usano il Marketplace gratuitamente. Per pubblicare annunci serve un account Seller mensile. Richieste e messaggi restano non-custodial: nessuna operazione sposta denaro automaticamente.</p>
+      <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}><button onClick={() => setShowCreate(v => !v)}>{showCreate ? 'Chiudi' : 'Pubblica annuncio'}</button>{!sellerState?.active && <button onClick={becomeSeller}>{sellerLabel}{sellerPlan ? ` · ${sellerPlan.amount} ${sellerPlan.currency}/mese` : ''}</button>}</div>
+    </header>
 
     {showCreate && <form onSubmit={createListing} style={{ display:'grid', gap:10, padding:16, border:'1px solid rgba(127,127,127,.3)', borderRadius:12, marginBottom:20 }}>
-      <input required placeholder="Titolo" value={form.title} onChange={e=>setForm({...form,title:e.target.value})}/>
-      <select value={form.category} onChange={e=>setForm({...form,category:e.target.value})}>{categories.map(c=><option key={c} value={c}>{c}</option>)}</select>
-      <textarea placeholder="Descrizione" value={form.description} onChange={e=>setForm({...form,description:e.target.value})}/>
-      <input placeholder="Località" value={form.location} onChange={e=>setForm({...form,location:e.target.value})}/>
+      <input required placeholder="Titolo" value={form.title} onChange={e=>setForm({...form,title:e.target.value})}/><select value={form.category} onChange={e=>setForm({...form,category:e.target.value})}>{categories.map(c=><option key={c} value={c}>{c}</option>)}</select>
+      <textarea placeholder="Descrizione" value={form.description} onChange={e=>setForm({...form,description:e.target.value})}/><input placeholder="Località" value={form.location} onChange={e=>setForm({...form,location:e.target.value})}/>
       <select value={form.currency} onChange={e=>setForm({...form,currency:e.target.value})}><option>FREE</option><option>BARTER</option><option>MYZ</option><option>XMR</option><option>TARI</option></select>
       {!['FREE','BARTER'].includes(form.currency) && <input required min="0" step="any" type="number" placeholder="Prezzo" value={form.price} onChange={e=>setForm({...form,price:e.target.value})}/>}<button type="submit">Pubblica</button>
     </form>}
     {message && <p role="status">{message}</p>}
-
     <section style={{ display:'flex', gap:10, flexWrap:'wrap', marginBottom:20 }}><select value={category} onChange={e=>setCategory(e.target.value)}><option value="">Tutte le categorie</option>{categories.map(c=><option key={c} value={c}>{c}</option>)}</select><input placeholder="Filtra località" value={location} onChange={e=>setLocation(e.target.value)}/><button onClick={load}>Aggiorna</button></section>
     {loading && <p>Caricamento annunci…</p>}{error && <p role="alert">{error}</p>}
     {!loading && !error && listings.length===0 && <section><h3>Nessun annuncio pubblico per ora</h3><p>Puoi essere il primo a pubblicarne uno.</p></section>}
