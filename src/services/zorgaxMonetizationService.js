@@ -1,5 +1,8 @@
 'use strict';
 
+const crypto = require('crypto');
+const ZorgaxPaymentIntent = require('../models/ZorgaxPaymentIntent');
+
 const PLANS = Object.freeze({
   free: { id: 'free', name: 'Zorgax Free', priceEur: 0, billing: 'free', features: ['assistant-base', 'limited-research'] },
   pro: { id: 'pro', name: 'Zorgax Pro', priceEur: 9.90, billing: 'monthly-equivalent', features: ['assistant-advanced', 'web-research', 'workspace', 'priority-usage'] },
@@ -7,6 +10,7 @@ const PLANS = Object.freeze({
 });
 
 const SUPPORTED_ASSETS = Object.freeze(['ETH', 'BTC', 'XMR', 'TARI']);
+const INTENT_TTL_MS = 15 * 60 * 1000;
 
 function publicWallets() {
   return {
@@ -30,7 +34,30 @@ function catalog() {
   };
 }
 
-async function createCheckoutIntent({ planId, asset }) {
+function publicIntent(doc, plan) {
+  return {
+    intentId: doc.intentId,
+    plan: { id: plan.id, name: plan.name, priceEur: plan.priceEur, billing: plan.billing },
+    asset: doc.asset,
+    destination: doc.destination,
+    quote: {
+      denomination: doc.quote.denomination,
+      amount: doc.quote.amount,
+      cryptoAmount: doc.quote.cryptoAmount,
+      eurPerCoin: doc.quote.eurPerCoin,
+      observedAt: doc.quote.observedAt,
+      source: doc.quote.source,
+      status: doc.quote.status
+    },
+    settlementStatus: doc.settlement.status,
+    accessStatus: 'NOT_ACTIVE',
+    requiresIndependentVerification: true,
+    expiresAt: doc.expiresAt
+  };
+}
+
+async function createCheckoutIntent({ ownerId, planId, asset }) {
+  if (!ownerId) throw new Error('Owner checkout non valido');
   const plan = PLANS[String(planId || '').toLowerCase()];
   const normalizedAsset = String(asset || '').toUpperCase();
   if (!plan || plan.id === 'free') throw new Error('Piano a pagamento non valido');
@@ -40,15 +67,37 @@ async function createCheckoutIntent({ planId, asset }) {
 
   const { quotePlan } = require('./zorgaxQuoteService');
   const quote = await quotePlan({ asset: normalizedAsset, priceEur: plan.priceEur });
-  return {
-    intentId: `zorgax_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`,
-    plan: { id: plan.id, name: plan.name, priceEur: plan.priceEur, billing: plan.billing },
+  const expiresAt = new Date(Date.now() + INTENT_TTL_MS);
+  const intent = await ZorgaxPaymentIntent.create({
+    intentId: `zorgax_${Date.now()}_${crypto.randomBytes(8).toString('hex')}`,
+    ownerId: String(ownerId),
+    plan: plan.id,
     asset: normalizedAsset,
     destination: address,
-    quote: { denomination: 'EUR', amount: plan.priceEur, cryptoAmount: quote.cryptoAmount, eurPerCoin: quote.eurPerCoin, observedAt: quote.observedAt, source: quote.source, status: 'QUOTED' },
-    settlementStatus: 'PENDING', accessStatus: 'NOT_ACTIVE', requiresIndependentVerification: true,
-    expiresAt: new Date(Date.now() + 15 * 60 * 1000).toISOString()
-  };
+    quote: {
+      denomination: 'EUR',
+      amount: plan.priceEur,
+      cryptoAmount: String(quote.cryptoAmount),
+      eurPerCoin: quote.eurPerCoin,
+      observedAt: quote.observedAt,
+      source: quote.source,
+      status: 'QUOTED'
+    },
+    settlement: { status: 'PENDING' },
+    expiresAt
+  });
+
+  return publicIntent(intent, plan);
 }
 
-module.exports = { PLANS, SUPPORTED_ASSETS, publicWallets, catalog, createCheckoutIntent };
+async function getPaymentIntent({ ownerId, intentId }) {
+  const intent = await ZorgaxPaymentIntent.findOne({ intentId: String(intentId || ''), ownerId: String(ownerId) }).lean();
+  if (!intent) throw new Error('Payment intent non trovato');
+  if (intent.settlement.status === 'PENDING' && intent.expiresAt <= new Date()) {
+    await ZorgaxPaymentIntent.updateOne({ _id: intent._id, 'settlement.status': 'PENDING' }, { $set: { 'settlement.status': 'EXPIRED' } });
+    intent.settlement.status = 'EXPIRED';
+  }
+  return publicIntent(intent, PLANS[intent.plan]);
+}
+
+module.exports = { PLANS, SUPPORTED_ASSETS, INTENT_TTL_MS, publicWallets, catalog, createCheckoutIntent, getPaymentIntent };
