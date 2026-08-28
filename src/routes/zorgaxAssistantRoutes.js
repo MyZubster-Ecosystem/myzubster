@@ -2,6 +2,7 @@ const express = require('express');
 const { authenticate } = require('../middleware/auth');
 const ZorgaxDataEntry = require('../models/ZorgaxDataEntry');
 const { answer, searchWeb, previewData, digestPreview } = require('../services/zorgaxAssistantService');
+const { catalog, createCheckoutIntent } = require('../services/zorgaxMonetizationService');
 
 const router = express.Router();
 
@@ -13,6 +14,7 @@ router.get('/status', (_req, res) => {
     chat: true,
     web_research: true,
     data_entry: true,
+    monetization: true,
     data_write_requires_auth: true,
     data_write_requires_confirmation: true,
     autonomous_persistent_writes: false,
@@ -23,6 +25,24 @@ router.get('/status', (_req, res) => {
       general_ai_gateway: true
     }
   });
+});
+
+router.get('/pricing', (_req, res) => {
+  res.json({ ok: true, entity: 'ZORGAX-001', ...catalog() });
+});
+
+router.post('/checkout/intent', authenticate, (req, res) => {
+  try {
+    const intent = createCheckoutIntent({ planId: req.body?.plan, asset: req.body?.asset });
+    res.status(201).json({
+      ok: true,
+      entity: 'ZORGAX-001',
+      intent,
+      warning: 'Il checkout non firma né invia fondi. Non inviare finché cryptoAmount non è quotato e il backend di verifica non è attivo.'
+    });
+  } catch (error) {
+    res.status(400).json({ ok: false, error: error.message });
+  }
 });
 
 router.post('/chat', async (req, res) => {
