@@ -2,6 +2,11 @@ import React, { useCallback, useEffect, useState } from 'react';
 
 const categories = ['seeds','plants','produce','tools','services','volunteering','pet_adoption','pet_lost_found','pet_services'];
 
+function authHeaders(extra = {}) {
+  const token = localStorage.getItem('myzubster-token');
+  return { ...extra, ...(token ? { Authorization: `Bearer ${token}` } : {}) };
+}
+
 function MarketplacePage() {
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -28,7 +33,7 @@ function MarketplacePage() {
   useEffect(() => { load(); }, [load]);
 
   async function apiAction(url, body) {
-    const response = await fetch(url, { method:'POST', headers:{ 'Content-Type':'application/json' }, credentials:'include', body:JSON.stringify(body) });
+    const response = await fetch(url, { method:'POST', headers:authHeaders({ 'Content-Type':'application/json' }), body:JSON.stringify(body) });
     const payload = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(payload.message || payload.error || 'Operazione non riuscita');
     return payload;
@@ -88,7 +93,7 @@ function MarketplacePage() {
     <section style={{ display:'flex', gap:10, flexWrap:'wrap', marginBottom:20 }}><select value={category} onChange={e=>setCategory(e.target.value)}><option value="">Tutte le categorie</option>{categories.map(c=><option key={c} value={c}>{c}</option>)}</select><input placeholder="Filtra località" value={location} onChange={e=>setLocation(e.target.value)}/><button onClick={load}>Aggiorna</button></section>
     {loading && <p>Caricamento annunci…</p>}{error && <p role="alert">{error}</p>}
     {!loading && !error && listings.length===0 && <section><h3>Nessun annuncio pubblico per ora</h3><p>Puoi essere il primo a pubblicarne uno.</p></section>}
-    <section style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(240px,1fr))', gap:16 }}>{listings.map(listing=><article key={listing.id || listing._id} style={{ border:'1px solid rgba(127,127,127,.3)', borderRadius:12, padding:16 }}><small>{listing.category}</small><h3>{listing.title}</h3>{listing.ownerUsername&&<p>di @{listing.ownerUsername}</p>}{listing.description&&<p>{listing.description}</p>}{listing.location&&<p>📍 {listing.location}</p>}<strong>{listing.currency==='FREE'?'Gratis':listing.currency==='BARTER'?'Baratto':`${listing.price} ${listing.currency}`}</strong><div style={{ display:'flex', gap:8, flexWrap:'wrap', marginTop:12 }}><button onClick={()=>requestListing(listing)}>Richiedi</button><button onClick={()=>showReputation(listing)}>Reputazione</button><button onClick={()=>reportListing(listing)}>Segnala</button></div></article>)}</section>
+    <section style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(240px,1fr))', gap:16 }}>{listings.map(listing=><article key={listing.id || listing._id} style={{ border:'1px solid rgba(127,127,127,.3)', borderRadius:12, padding:16 }}><small>{listing.category}</small><h3>{listing.title}</h3>{listing.ownerUsername&&<p>di @{listing.ownerUsername}</p>}{listing.description&&<p>{listing.description}</p>}{listing.location&&<p>📍 {listing.location}</p>}<p>Disponibilità: {listing.stock}</p><strong>{listing.currency==='FREE'?'Gratis':listing.currency==='BARTER'?'Baratto':`${listing.price} ${listing.currency}`}</strong><div style={{ display:'flex', gap:8, flexWrap:'wrap', marginTop:12 }}><button onClick={()=>requestListing(listing)}>Richiedi</button><button onClick={()=>showReputation(listing)}>Reputazione</button><button onClick={()=>reportListing(listing)}>Segnala</button></div></article>)}</section>
   </main>;
 }
 
