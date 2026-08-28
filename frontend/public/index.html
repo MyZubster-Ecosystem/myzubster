@@ -23,12 +23,74 @@
       const rawPath = window.location.pathname.replace(/\/+$/, '') || '/';
       const canonicalPath = rawPath === '/index.html' ? '/' : rawPath;
       const canonicalUrl = `https://www.myzubster.com${canonicalPath === '/' ? '/' : canonicalPath}`;
+
+      const defaultMeta = {
+        title: 'MyZubster — Open Source, Territorio e Comunità',
+        description: 'MyZubster è un ecosistema open source per territorio, ambiente, robotica, identità digitali e contributi verificabili.'
+      };
+
+      const pageMeta = {
+        '/onboarding': {
+          title: 'Onboarding MyZubster — Identità digitale e accesso',
+          description: 'Scopri il percorso di onboarding di MyZubster per creare la tua identità digitale, entrare nell’ecosistema e iniziare a contribuire.'
+        },
+        '/repositories': {
+          title: 'Repository MyZubster — Codice e progetti open source',
+          description: 'Esplora repository, codice e progetti open source di MyZubster, con percorsi pubblici per sviluppo, verifica e contributi.'
+        },
+        '/orti': {
+          title: 'Orti urbani MyZubster — Territorio e comunità',
+          description: 'Esplora gli orti e le iniziative territoriali di MyZubster, con dati, mappatura e contributi della comunità.'
+        },
+        '/gardens': {
+          title: 'Gardens MyZubster — Orti, mappa e partecipazione',
+          description: 'Scopri i giardini e gli orti urbani in MyZubster, consulta le risorse del territorio e partecipa alle attività della comunità.'
+        },
+        '/pilot': {
+          title: 'Pilot MyZubster — Sperimentazione e validazione',
+          description: 'Segui i pilot MyZubster: sperimentazioni controllate, raccolta di evidenze, validazione e documentazione pubblica dei risultati.'
+        },
+        '/life': {
+          title: 'MyZubster LIFE — Ambiente, dati e piloti verificabili',
+          description: 'Scopri il percorso ambientale MyZubster LIFE: dati, provenienza, KPI, evidenze e architetture di pilot in preparazione.'
+        },
+        '/entities': {
+          title: 'Entità MyZubster — Registry e identità digitali',
+          description: 'Esplora il registry delle entità MyZubster, le identità digitali e i dati strutturati usati nell’ecosistema.'
+        },
+        '/entity-bounties': {
+          title: 'Entity Bounties — Missioni e contributi MyZubster',
+          description: 'Scopri le missioni collegate alle entità MyZubster e i contributi verificabili che alimentano registry, evidenze e reputazione.'
+        },
+        '/apps': {
+          title: 'App MyZubster — Strumenti e download',
+          description: 'Scopri le applicazioni e gli strumenti MyZubster disponibili per usare, esplorare e contribuire all’ecosistema.'
+        },
+        '/dao': {
+          title: 'DAO MyZubster — Governance e partecipazione',
+          description: 'Scopri la governance MyZubster, le superfici DAO e i confini tra partecipazione comunitaria, automazione e decisioni autorizzate.'
+        }
+      };
+
+      const metadata = pageMeta[canonicalPath] || defaultMeta;
+      document.title = metadata.title;
+
+      const setMeta = (selector, value) => {
+        const node = document.querySelector(selector);
+        if (node) node.setAttribute('content', value);
+      };
+
+      setMeta('meta[name="description"]', metadata.description);
+      setMeta('meta[property="og:title"]', metadata.title);
+      setMeta('meta[property="og:description"]', metadata.description);
+      setMeta('meta[property="og:url"]', canonicalUrl);
+      setMeta('meta[name="twitter:title"]', metadata.title);
+      setMeta('meta[name="twitter:description"]', metadata.description);
+
       const canonical = document.createElement('link');
       canonical.rel = 'canonical';
       canonical.href = canonicalUrl;
       document.head.appendChild(canonical);
-      const ogUrl = document.querySelector('meta[property="og:url"]');
-      if (ogUrl) ogUrl.setAttribute('content', canonicalUrl);
     })();
   </script>
   <script>
