@@ -31,7 +31,19 @@ const htmlAliases = new Map([
   ['/grok', 'grok.html'],
   ['/zorgax', 'zorgax.html'],
   ['/zorgax-build', 'zorgax-build.html'],
+  ['/zorgax-email-profile', 'zorgax-email-profile.html'],
+  ['/zorgax-email-profile.html', 'zorgax-email-profile.html'],
   ['/research-search', 'research-search.html'],
+]);
+const canonicalHtmlRedirects = new Map([
+  ['/press.html', '/press'],
+  ['/media', '/press'],
+  ['/media-kit', '/press'],
+  ['/zorgax-email-profile.html', '/zorgax-email-profile'],
+]);
+const bundledHtmlPaths = new Map([
+  ['press.html', require.resolve('./public/press.html')],
+  ['zorgax-email-profile.html', require.resolve('./public/zorgax-email-profile.html')],
 ]);
 const vercelAnalyticsSnippet = `
 <script>
@@ -42,16 +54,25 @@ const vercelAnalyticsSnippet = `
 
 app.use((req, res, next) => {
   if (req.method !== 'GET') return next();
+  const destination = canonicalHtmlRedirects.get(req.path);
+  if (!destination) return next();
+  return res.redirect(308, destination);
+});
+
+app.use((req, res, next) => {
+  if (req.method !== 'GET') return next();
   const alias = htmlAliases.get(req.path);
   const relativePath = alias || (req.path.endsWith('.html') ? req.path.replace(/^\/+/, '') : null);
   if (!relativePath) return next();
-  const filePath = path.resolve(publicRoot, relativePath);
+  const filePath = bundledHtmlPaths.get(relativePath) || path.resolve(publicRoot, relativePath);
   if (filePath !== publicRoot && !filePath.startsWith(`${publicRoot}${path.sep}`)) return next();
   fs.readFile(filePath, 'utf8', (error, html) => {
     if (error) return next();
-    const instrumented = html.includes('</head>')
-      ? html.replace('</head>', `${vercelAnalyticsSnippet}</head>`)
-      : `${vercelAnalyticsSnippet}${html}`;
+    const instrumented = html.includes('/_vercel/insights/script.js')
+      ? html
+      : html.includes('</head>')
+        ? html.replace('</head>', `${vercelAnalyticsSnippet}</head>`)
+        : `${vercelAnalyticsSnippet}${html}`;
     res.type('html').status(200).send(instrumented);
   });
 });
