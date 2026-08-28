@@ -8,6 +8,8 @@ const schema = new mongoose.Schema({
   tokenSymbol: { type: String, required: true, trim: true, maxlength: 16 },
   verifiedAt: { type: Date, default: null },
   verificationMethod: { type: String, enum: ['wallet-signature'], default: 'wallet-signature' },
+  challengeNonce: { type: String, default: null, select: false },
+  challengeExpiresAt: { type: Date, default: null, select: false },
   lastSeenAt: { type: Date, default: Date.now }
 }, { timestamps: true });
 
