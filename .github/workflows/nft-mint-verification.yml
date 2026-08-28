@@ -1,0 +1,29 @@
+name: NFT Mint Verification Core
+
+on:
+  pull_request:
+    paths:
+      - 'nft-mint-verification/**'
+      - '.github/workflows/nft-mint-verification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: nft-mint-verification
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install dependencies
+        run: npm install --ignore-scripts
+      - name: Test
+        run: npm test
