@@ -1,5 +1,9 @@
 # MyZubster
 
+## 📣 Community updates
+
+- [Agosto 2026 — roadmap, social proof-of-work, global access e stabilizzazione](docs/community-updates/2026-08-community-update.md)
+
 <p align="center">
   <img src="assets/readme/myzubster-core.png" alt="MyZubster ecosystem overview" width="100%">
 </p>
