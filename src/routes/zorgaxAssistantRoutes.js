@@ -2,22 +2,27 @@ const express = require('express');
 const { authenticate } = require('../middleware/auth');
 const ZorgaxDataEntry = require('../models/ZorgaxDataEntry');
 const { answer, searchWeb, previewData, digestPreview } = require('../services/zorgaxAssistantService');
-const { catalog, createCheckoutIntent } = require('../services/zorgaxMonetizationService');
+const { catalog, createCheckoutIntent, getPaymentIntent } = require('../services/zorgaxMonetizationService');
 const { getAccess } = require('../services/zorgaxSubscriptionService');
 
 const router = express.Router();
 
 router.get('/status', (_req, res) => {
-  res.json({ ok: true, entity: 'ZORGAX-001', capability: 'general-assistant-v1', chat: true, web_research: true, data_entry: true, monetization: true, paid_access_lifecycle: true, payment_activation_requires_trusted_verifier: true, crypto_quotes_require_trusted_provider: true, data_write_requires_auth: true, data_write_requires_confirmation: true, autonomous_persistent_writes: false, providers: { brave_search: Boolean(process.env.BRAVE_SEARCH_API_KEY), tavily: Boolean(process.env.TAVILY_API_KEY), wikipedia: true, general_ai_gateway: true } });
+  res.json({ ok: true, entity: 'ZORGAX-001', capability: 'general-assistant-v1', chat: true, web_research: true, data_entry: true, monetization: true, paid_access_lifecycle: true, payment_intents_persisted: true, payment_activation_requires_trusted_verifier: true, crypto_quotes_require_trusted_provider: true, data_write_requires_auth: true, data_write_requires_confirmation: true, autonomous_persistent_writes: false, providers: { brave_search: Boolean(process.env.BRAVE_SEARCH_API_KEY), tavily: Boolean(process.env.TAVILY_API_KEY), wikipedia: true, general_ai_gateway: true } });
 });
 
 router.get('/pricing', (_req, res) => res.json({ ok: true, entity: 'ZORGAX-001', ...catalog() }));
 
 router.post('/checkout/intent', authenticate, async (req, res) => {
   try {
-    const intent = await createCheckoutIntent({ planId: req.body?.plan, asset: req.body?.asset });
+    const intent = await createCheckoutIntent({ ownerId: req.userId, planId: req.body?.plan, asset: req.body?.asset });
     res.status(201).json({ ok: true, entity: 'ZORGAX-001', intent, warning: 'Il checkout non firma né invia fondi. L’accesso resta inattivo finché il pagamento non è verificato indipendentemente.' });
   } catch (error) { res.status(400).json({ ok: false, error: error.message }); }
+});
+
+router.get('/checkout/intent/:intentId', authenticate, async (req, res) => {
+  try { res.json({ ok: true, entity: 'ZORGAX-001', intent: await getPaymentIntent({ ownerId: req.userId, intentId: req.params.intentId }) }); }
+  catch (error) { res.status(404).json({ ok: false, error: error.message }); }
 });
 
 router.get('/access', authenticate, async (req, res) => {
