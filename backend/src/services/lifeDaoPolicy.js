@@ -80,30 +80,41 @@ function getLifeDaoPublicState() {
   };
 }
 
-function lifeDaoBindingGuard(req, res, next) {
-  const method = String(req.method || '').toUpperCase();
-  const routePath = req.path || '';
+function getLifeBindingRestriction(method, routePath, body = {}, registry = loadLifeDaoRegistry()) {
+  const normalizedMethod = String(method || '').toUpperCase();
 
-  if ((method === 'POST' || method === 'PUT') && routePath === '/vote') {
-    const voterId = req.body && req.body.voterId;
-    if (isLifeAdvisoryIdentity(voterId)) {
-      return res.status(403).json({
-        success: false,
+  if ((normalizedMethod === 'POST' || normalizedMethod === 'PUT') && routePath === '/vote') {
+    if (isLifeAdvisoryIdentity(body.voterId, registry)) {
+      return {
         code: 'LIFE_ADVISORY_NON_BINDING',
         message: 'LIFE Observer/Advisor identities cannot cast binding DAO votes.',
-      });
+      };
     }
   }
 
-  if (method === 'POST' && routePath === '/delegate') {
-    const { delegatorId, delegateId } = req.body || {};
-    if (isLifeAdvisoryIdentity(delegatorId) || isLifeAdvisoryIdentity(delegateId)) {
-      return res.status(403).json({
-        success: false,
+  if (normalizedMethod === 'POST' && routePath === '/delegate') {
+    if (
+      isLifeAdvisoryIdentity(body.delegatorId, registry) ||
+      isLifeAdvisoryIdentity(body.delegateId, registry)
+    ) {
+      return {
         code: 'LIFE_ADVISORY_NON_BINDING',
         message: 'LIFE Observer/Advisor identities cannot give or receive binding DAO delegation.',
-      });
+      };
     }
+  }
+
+  return null;
+}
+
+function lifeDaoBindingGuard(req, res, next) {
+  const restriction = getLifeBindingRestriction(req.method, req.path || '', req.body || {});
+
+  if (restriction) {
+    return res.status(403).json({
+      success: false,
+      ...restriction,
+    });
   }
 
   return next();
@@ -112,6 +123,7 @@ function lifeDaoBindingGuard(req, res, next) {
 module.exports = {
   LIFE_DAO_POLICY,
   getLifeDaoPublicState,
+  getLifeBindingRestriction,
   isLifeAdvisoryIdentity,
   lifeDaoBindingGuard,
   loadLifeDaoRegistry,
