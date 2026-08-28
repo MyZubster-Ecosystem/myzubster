@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const MetaverseCharacter = require('../../backend/src/models/MetaverseCharacter');
 
-const PROVIDERS = new Set(['google', 'github']);
+const PROVIDERS = new Set(['google', 'github', 'facebook']);
 
 function jwtSecret() {
   if (!process.env.JWT_SECRET) throw new Error('JWT_SECRET non configurato');
