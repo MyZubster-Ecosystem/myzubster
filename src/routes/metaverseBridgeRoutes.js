@@ -62,7 +62,12 @@ router.post('/links/:worldId/verify', authenticate, async (req, res) => {
     if (!world) return res.status(404).json({ success: false, message: 'Metaverso non supportato' });
     const link = await MetaverseWalletLink.findOne({ userId: req.userId, worldId: world.id }).select('+challengeNonce +challengeExpiresAt');
     if (!link || !link.challengeNonce || !link.challengeExpiresAt) return res.status(400).json({ success: false, message: 'Genera prima una challenge di verifica' });
-    if (link.challengeExpiresAt.getTime() < Date.now()) return res.status(410).json({ success: false, message: 'Challenge scaduta. Generane una nuova.' });
+    if (link.challengeExpiresAt.getTime() < Date.now()) {
+      link.challengeNonce = null;
+      link.challengeExpiresAt = null;
+      await link.save();
+      return res.status(410).json({ success: false, message: 'Challenge scaduta. Generane una nuova.' });
+    }
     const message = [
       'MyZubster wallet verification',
       `User: ${String(req.userId)}`,
