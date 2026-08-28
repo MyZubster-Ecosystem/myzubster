@@ -1,6 +1,7 @@
 const request = require('supertest');
 const app = require('../src/index');
 const {
+  getLifeBindingRestriction,
   isLifeAdvisoryIdentity,
   LIFE_DAO_POLICY,
 } = require('../src/services/lifeDaoPolicy');
@@ -53,5 +54,40 @@ describe('LIFE DAO advisory governance lane', () => {
     expect(isLifeAdvisoryIdentity('life-demo-advisor', syntheticRegistry)).toBe(true);
     expect(isLifeAdvisoryIdentity('ordinary-member', syntheticRegistry)).toBe(false);
     expect(LIFE_DAO_POLICY.bindingVotingPower).toBe(0);
+  });
+
+  test('blocks binding vote and delegation for LIFE advisory identities', () => {
+    const syntheticRegistry = {
+      participants: [
+        {
+          memberId: 'life-demo-advisor',
+          daoRole: 'life_advisor',
+          status: 'active',
+        },
+      ],
+    };
+
+    const voteRestriction = getLifeBindingRestriction(
+      'POST',
+      '/vote',
+      { voterId: 'life-demo-advisor' },
+      syntheticRegistry
+    );
+    const delegationRestriction = getLifeBindingRestriction(
+      'POST',
+      '/delegate',
+      { delegatorId: 'ordinary-member', delegateId: 'life-demo-advisor' },
+      syntheticRegistry
+    );
+    const ordinaryVote = getLifeBindingRestriction(
+      'POST',
+      '/vote',
+      { voterId: 'ordinary-member' },
+      syntheticRegistry
+    );
+
+    expect(voteRestriction.code).toBe('LIFE_ADVISORY_NON_BINDING');
+    expect(delegationRestriction.code).toBe('LIFE_ADVISORY_NON_BINDING');
+    expect(ordinaryVote).toBeNull();
   });
 });
