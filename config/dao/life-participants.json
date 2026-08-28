@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "governanceLane": "life-advisory",
+  "enrollment": "explicit-consent-only",
+  "participants": [],
+  "roleSlots": [
+    {
+      "slot": "pilot-data",
+      "title": "Pilot & Data Observer",
+      "daoRole": "life_observer",
+      "advisoryScopes": ["pilot_technical", "kpi_mrv"],
+      "bindingVotingPower": 0
+    },
+    {
+      "slot": "scientific-validation",
+      "title": "Scientific Advisor",
+      "daoRole": "life_advisor",
+      "advisoryScopes": ["pilot_technical", "kpi_mrv", "evidence_quality"],
+      "bindingVotingPower": 0
+    },
+    {
+      "slot": "field-execution",
+      "title": "Field Execution Advisor",
+      "daoRole": "life_advisor",
+      "advisoryScopes": ["pilot_technical", "replication"],
+      "bindingVotingPower": 0
+    },
+    {
+      "slot": "digital-mrv",
+      "title": "Digital / MRV Advisor",
+      "daoRole": "life_advisor",
+      "advisoryScopes": ["kpi_mrv", "data_governance", "replication"],
+      "bindingVotingPower": 0
+    },
+    {
+      "slot": "replication",
+      "title": "Replication Observer",
+      "daoRole": "life_observer",
+      "advisoryScopes": ["replication", "community_feedback"],
+      "bindingVotingPower": 0
+    }
+  ],
+  "notes": [
+    "Do not add a person or organization without explicit consent suitable for public display.",
+    "Registration here does not imply LIFE consortium membership, funding, endorsement, contractual authority or EU approval.",
+    "LIFE Observer and LIFE Advisor roles are advisory only and never receive binding DAO voting power through this registry."
+  ]
+}

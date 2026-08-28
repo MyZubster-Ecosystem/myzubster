@@ -9,6 +9,8 @@ const mongoose = require('mongoose');
 const gatewayRoutes = require('./routes/gateway');
 const daoRoutes = require('./routes/dao');
 const zorgaxDaoRoutes = require('./routes/zorgax-dao');
+const lifeDaoRoutes = require('./routes/dao-life');
+const { lifeDaoBindingGuard } = require('./services/lifeDaoPolicy');
 
 const gardenRoutes = require('./routes/gardens');
 const telemetryRoutes = require('./routes/telemetry');
@@ -52,6 +54,8 @@ app.use('/api/telemetry', telemetryRoutes);
 app.use('/api/metaverse', metaverseRoutes);
 app.use('/api/gateway', gatewayRoutes);
 app.use('/api/dao/zorgax', zorgaxDaoRoutes);
+app.use('/api/dao/life', lifeDaoRoutes);
+app.use('/api/dao', lifeDaoBindingGuard);
 app.use('/api/dao', daoRoutes);
 
 app.get('/api/dashboard', (_req, res) => {
@@ -66,6 +70,12 @@ app.get('/api/dashboard', (_req, res) => {
       },
       dao: { status: 'online', endpoint: '/api/dao' },
       zorgaxGovernance: { status: 'advisory', endpoint: '/api/dao/zorgax', binding: false },
+      lifeGovernance: {
+        status: 'advisory',
+        endpoint: '/api/dao/life/status',
+        binding: false,
+        consentRequired: true
+      },
       metaverse: { status: 'prototype', endpoint: '/api/metaverse/world', identityMode: 'guest-unverified' }
     },
     stats: {
@@ -147,7 +157,8 @@ app.get('/dashboard', (_req, res) => {
     <strong>Gardens API:</strong> <a href="/api/gardens"><code>/api/gardens</code></a><br>
     <strong>Metaverse API:</strong> <a href="/api/metaverse/world"><code>/api/metaverse/world</code></a> (prototype)<br>
     <strong>DAO API:</strong> <a href="/api/dao/proposals"><code>/api/dao/proposals</code></a><br>
-    <strong>Zorgax DAO:</strong> <a href="/api/dao/zorgax/status"><code>/api/dao/zorgax/status</code></a> (advisory, non-binding)
+    <strong>Zorgax DAO:</strong> <a href="/api/dao/zorgax/status"><code>/api/dao/zorgax/status</code></a> (advisory, non-binding)<br>
+    <strong>LIFE DAO lane:</strong> <a href="/api/dao/life/status"><code>/api/dao/life/status</code></a> (consent-gated, advisory, non-binding)
   </div>
 </body>
 </html>`);

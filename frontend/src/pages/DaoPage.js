@@ -43,6 +43,15 @@ export default function DaoPage() {
           </div>
 
           <div style={cardStyle}>
+            <div style={{ fontSize: 28 }}>🌱</div>
+            <h2>LIFE advisory lane</h2>
+            <p style={{ color: '#94a3b8', lineHeight: 1.5 }}>
+              LIFE participants can opt in as Observer or Advisor for technical, scientific, KPI/MRV and replication discussions. Their binding DAO voting power remains zero.
+            </p>
+            <a style={linkStyle} href="/api/dao/life/status">View LIFE DAO status →</a>
+          </div>
+
+          <div style={cardStyle}>
             <div style={{ fontSize: 28 }}>🔎</div>
             <h2>Evidence-first governance</h2>
             <p style={{ color: '#94a3b8', lineHeight: 1.5 }}>Public issues, commits, reviews and independently reproducible evidence are the source of truth. A proposal, merge or vote does not automatically authorize settlement or treasury movement.</p>
@@ -58,6 +67,7 @@ export default function DaoPage() {
               ['Independent review', 'REQUIRED'],
               ['Human member bootstrap', 'IN PROGRESS'],
               ['AI binding voting power', 'DISABLED'],
+              ['LIFE Observer / Advisor binding power', '0'],
               ['Automatic treasury execution', 'NOT PUBLICLY ENABLED'],
               ['MYZ', 'INTERNAL REWARD / ACCOUNTING'],
             ].map(([label, value]) => (
@@ -66,6 +76,33 @@ export default function DaoPage() {
                 <div style={{ marginTop: 6, fontWeight: 900 }}>{value}</div>
               </div>
             ))}
+          </div>
+        </section>
+
+        <section style={{ ...cardStyle, marginBottom: 24 }}>
+          <h2>🌱 LIFE participatory governance</h2>
+          <p style={{ color: '#94a3b8', lineHeight: 1.6, maxWidth: 900 }}>
+            This DAO lane is intentionally separate from the legal governance of any LIFE proposal or funded project. A LIFE Observer or LIFE Advisor may contribute evidence-backed recommendations, but cannot authorize treasury transfers, project budget or co-financing commitments, Grant Agreement changes, Consortium Agreement changes or other legal commitments.
+          </p>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, marginTop: 16 }}>
+            <div style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: 12, padding: 16 }}>
+              <strong>LIFE Observer</strong>
+              <p style={{ color: '#94a3b8', lineHeight: 1.5 }}>Observes public governance and contributes bounded feedback after explicit opt-in.</p>
+            </div>
+            <div style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: 12, padding: 16 }}>
+              <strong>LIFE Advisor</strong>
+              <p style={{ color: '#94a3b8', lineHeight: 1.5 }}>Provides scoped technical, scientific, KPI/MRV, data-governance or replication advice.</p>
+            </div>
+            <div style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: 12, padding: 16 }}>
+              <strong>Consent gate</strong>
+              <p style={{ color: '#94a3b8', lineHeight: 1.5 }}>No person or organization is publicly registered as a LIFE DAO participant without explicit consent and maintainer review.</p>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14, marginTop: 16 }}>
+            <a style={linkStyle} href="/api/dao/life/participants">Public participant registry →</a>
+            <a style={linkStyle} href="https://github.com/MyZubster-Ecosystem/myzubster/blob/main/docs/LIFE_DAO_GOVERNANCE.md" target="_blank" rel="noopener noreferrer">Governance policy →</a>
           </div>
         </section>
 
