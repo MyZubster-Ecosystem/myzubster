@@ -4,6 +4,7 @@ const ZorgaxDataEntry = require('../models/ZorgaxDataEntry');
 const { answer, searchWeb, previewData, digestPreview } = require('../services/zorgaxAssistantService');
 const { catalog, createCheckoutIntent, getPaymentIntent } = require('../services/zorgaxMonetizationService');
 const { getAccess } = require('../services/zorgaxSubscriptionService');
+const { verifyAndActivatePaymentIntent } = require('../services/zorgaxPaymentIntentService');
 
 const router = express.Router();
 
@@ -23,6 +24,16 @@ router.post('/checkout/intent', authenticate, async (req, res) => {
 router.get('/checkout/intent/:intentId', authenticate, async (req, res) => {
   try { res.json({ ok: true, entity: 'ZORGAX-001', intent: await getPaymentIntent({ ownerId: req.userId, intentId: req.params.intentId }) }); }
   catch (error) { res.status(404).json({ ok: false, error: error.message }); }
+});
+
+router.post('/checkout/intent/:intentId/verify', authenticate, async (req, res) => {
+  try {
+    const result = await verifyAndActivatePaymentIntent({ ownerId: req.userId, intentId: req.params.intentId, paymentReference: req.body?.paymentReference, renewalOf: req.body?.renewalOf });
+    res.json({ ok: true, entity: 'ZORGAX-001', ...result });
+  } catch (error) {
+    const status = /non trovato/i.test(error.message) ? 404 : /scaduto|insufficienti|non verificato|non verificabile/i.test(error.message) ? 422 : 400;
+    res.status(status).json({ ok: false, error: error.message });
+  }
 });
 
 router.get('/access', authenticate, async (req, res) => {
