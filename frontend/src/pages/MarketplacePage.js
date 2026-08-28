@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import WalletHubPanel from '../components/WalletHubPanel';
 
 const categories = ['seeds','plants','produce','tools','services','volunteering','pet_adoption','pet_lost_found','pet_services'];
+const currencies = ['FREE','BARTER','MYZ','ETH','BTC','XMR','TARI'];
 
 function authHeaders(extra = {}) {
   const token = localStorage.getItem('myzubster-token');
@@ -52,7 +54,7 @@ function MarketplacePage() {
     try {
       const note = window.prompt('Messaggio opzionale per il venditore:', '') || '';
       await apiAction('/api/marketplace/orders', { listingId: listing.id || listing._id, quantity: 1, note });
-      setMessage('Richiesta inviata. Il pagamento non viene eseguito da questa operazione.');
+      setMessage('Richiesta inviata. Il Market non firma né sposta fondi: usa il Wallet Hub per il rail concordato e verifica la transazione separatamente.');
     } catch (e) { setMessage(e.message); }
   }
 
@@ -78,14 +80,16 @@ function MarketplacePage() {
   }
 
   return <main style={{ padding:24, maxWidth:1100, margin:'0 auto' }}>
-    <header style={{ marginBottom:24 }}><div style={{ fontSize:13, letterSpacing:1.4, opacity:.7 }}>MYZUBSTER MARKETPLACE</div><h2>Scambia con la comunità</h2><p>Annunci persistenti, richieste non-custodial, reputazione da scambi completati e segnalazioni. Nessuna richiesta sposta denaro: checkout e custody restano disattivati finché non superano i gate di sicurezza e compliance.</p><button onClick={() => setShowCreate(v => !v)}>{showCreate ? 'Chiudi' : 'Pubblica annuncio'}</button></header>
+    <header style={{ marginBottom:24 }}><div style={{ fontSize:13, letterSpacing:1.4, opacity:.7 }}>MYZUBSTER MARKETPLACE · METAVERSE</div><h2>Scambia con la comunità</h2><p>Annunci persistenti, richieste non-custodial, reputazione da scambi completati e Wallet Hub multichain. Il Market non custodisce seed o chiavi private e non firma transazioni per conto dell'utente.</p><button onClick={() => setShowCreate(v => !v)}>{showCreate ? 'Chiudi' : 'Pubblica annuncio'}</button></header>
+
+    <WalletHubPanel />
 
     {showCreate && <form onSubmit={createListing} style={{ display:'grid', gap:10, padding:16, border:'1px solid rgba(127,127,127,.3)', borderRadius:12, marginBottom:20 }}>
       <input required placeholder="Titolo" value={form.title} onChange={e=>setForm({...form,title:e.target.value})}/>
       <select value={form.category} onChange={e=>setForm({...form,category:e.target.value})}>{categories.map(c=><option key={c} value={c}>{c}</option>)}</select>
       <textarea placeholder="Descrizione" value={form.description} onChange={e=>setForm({...form,description:e.target.value})}/>
       <input placeholder="Località" value={form.location} onChange={e=>setForm({...form,location:e.target.value})}/>
-      <select value={form.currency} onChange={e=>setForm({...form,currency:e.target.value})}><option>FREE</option><option>BARTER</option><option>MYZ</option><option>XMR</option><option>TARI</option></select>
+      <select value={form.currency} onChange={e=>setForm({...form,currency:e.target.value})}>{currencies.map(c=><option key={c}>{c}</option>)}</select>
       {!['FREE','BARTER'].includes(form.currency) && <input required min="0" step="any" type="number" placeholder="Prezzo" value={form.price} onChange={e=>setForm({...form,price:e.target.value})}/>}<button type="submit">Pubblica</button>
     </form>}
     {message && <p role="status">{message}</p>}
