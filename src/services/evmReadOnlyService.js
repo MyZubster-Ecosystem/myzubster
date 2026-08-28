@@ -43,7 +43,6 @@ async function recoverPersonalSignAddress(rpcUrl, message, signature) {
 }
 
 function balanceOfData(address) {
-  // ERC-20 balanceOf(address) selector 0x70a08231.
   return `0x70a08231${pad64(normalizeAddress(address))}`;
 }
 
