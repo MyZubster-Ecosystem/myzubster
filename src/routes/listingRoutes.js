@@ -2,14 +2,21 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const MarketplaceListing = require('../models/MarketplaceListing');
+const SellerMembership = require('../models/SellerMembership');
 const { authenticate } = require('../middleware/auth');
 
 const ALLOWED_CURRENCIES = new Set(['XMR', 'MYZ', 'TARI', 'BARTER', 'FREE']);
 const ALLOWED_CATEGORIES = new Set(['seeds','plants','produce','tools','services','volunteering','pet_adoption','pet_lost_found','pet_services']);
+const SELLER_MONTHLY_EUR = Math.max(0, Number(process.env.MARKETPLACE_SELLER_MONTHLY_EUR || 9.90));
 
 function containsPrivateKeyMaterial(value) {
   const text = String(value || '').toUpperCase();
   return /PRIVATE KEY|BEGIN PGP PRIVATE|BEGIN OPENSSH PRIVATE|SEED PHRASE|MNEMONIC/.test(text);
+}
+
+async function activeSeller(userId) {
+  const now = new Date();
+  return SellerMembership.findOne({ userId, status: 'ACTIVE', expiresAt: { $gt: now } }).lean();
 }
 
 router.get('/', async (req, res) => {
@@ -21,18 +28,14 @@ router.get('/', async (req, res) => {
     if (location) query.location = { $regex: String(location).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), $options: 'i' };
     const listings = await MarketplaceListing.find(query).sort({ createdAt: -1 }).limit(200).lean();
     res.json({ success: true, count: listings.length, listings: listings.map(item => ({ ...item, id: String(item._id) })) });
-  } catch (error) {
-    res.status(500).json({ success: false, message: 'Marketplace non disponibile' });
-  }
+  } catch (_error) { res.status(500).json({ success: false, message: 'Marketplace non disponibile' }); }
 });
 
 router.get('/mine', authenticate, async (req, res) => {
   try {
     const listings = await MarketplaceListing.find({ ownerId: req.userId }).sort({ createdAt: -1 }).lean();
     res.json({ success: true, listings: listings.map(item => ({ ...item, id: String(item._id) })) });
-  } catch (error) {
-    res.status(500).json({ success: false, message: 'Impossibile recuperare i tuoi annunci' });
-  }
+  } catch (_error) { res.status(500).json({ success: false, message: 'Impossibile recuperare i tuoi annunci' }); }
 });
 
 router.get('/profile/me', authenticate, async (req, res) => {
@@ -40,9 +43,7 @@ router.get('/profile/me', authenticate, async (req, res) => {
     const user = await User.findById(req.userId).select('username moneroWallet communityProfile');
     if (!user) return res.status(404).json({ success: false, message: 'Utente non trovato' });
     res.json({ success: true, profile: user });
-  } catch (error) {
-    res.status(500).json({ success: false, message: 'Errore nel recupero del profilo community' });
-  }
+  } catch (_error) { res.status(500).json({ success: false, message: 'Errore nel recupero del profilo community' }); }
 });
 
 router.patch('/profile/me', authenticate, async (req, res) => {
@@ -58,6 +59,14 @@ router.patch('/profile/me', authenticate, async (req, res) => {
 
 router.post('/create', authenticate, async (req, res) => {
   try {
+    const membership = await activeSeller(req.userId);
+    if (!membership) return res.status(402).json({
+      success: false,
+      code: 'SELLER_MEMBERSHIP_REQUIRED',
+      message: 'Per pubblicare annunci devi attivare un account Seller.',
+      sellerPlan: { plan: 'SELLER_MONTHLY', amount: SELLER_MONTHLY_EUR, currency: 'EUR', interval: 'month' }
+    });
+
     const { title, category, price, currency, description, location, features, contact, stock, exchangeMode, species, variety, pet } = req.body || {};
     const normalizedCurrency = String(currency || (exchangeMode === 'gift' ? 'FREE' : exchangeMode === 'barter' ? 'BARTER' : 'MYZ')).toUpperCase();
     if (!title || !category) return res.status(400).json({ error:'Titolo e categoria sono obbligatori' });
@@ -75,10 +84,11 @@ router.patch('/:id/status', authenticate, async (req, res) => {
   try {
     const status = String(req.body?.status || '');
     if (!['active','paused','closed'].includes(status)) return res.status(400).json({ error:'Stato non valido' });
+    if (status === 'active' && !(await activeSeller(req.userId))) return res.status(402).json({ success:false, code:'SELLER_MEMBERSHIP_REQUIRED', message:'Account Seller non attivo.' });
     const listing = await MarketplaceListing.findOneAndUpdate({ _id:req.params.id, ownerId:req.userId }, { $set:{ status } }, { new:true, runValidators:true });
     if (!listing) return res.status(404).json({ error:'Annuncio non trovato' });
     res.json({ success:true, listing:{ ...listing.toObject(), id:String(listing._id) } });
-  } catch (error) { res.status(400).json({ success:false, message:'Impossibile aggiornare annuncio' }); }
+  } catch (_error) { res.status(400).json({ success:false, message:'Impossibile aggiornare annuncio' }); }
 });
 
 router.delete('/:id', authenticate, async (req, res) => {
@@ -86,7 +96,7 @@ router.delete('/:id', authenticate, async (req, res) => {
     const listing = await MarketplaceListing.findOneAndDelete({ _id:req.params.id, ownerId:req.userId });
     if (!listing) return res.status(404).json({ error:'Annuncio non trovato' });
     res.json({ success:true });
-  } catch (error) { res.status(400).json({ success:false, message:'Impossibile eliminare annuncio' }); }
+  } catch (_error) { res.status(400).json({ success:false, message:'Impossibile eliminare annuncio' }); }
 });
 
 router.get('/:id', async (req, res) => {
@@ -94,7 +104,7 @@ router.get('/:id', async (req, res) => {
     const listing = await MarketplaceListing.findOne({ _id:req.params.id, status:'active' }).lean();
     if (!listing) return res.status(404).json({ error:'Annuncio non trovato' });
     res.json({ success:true, listing:{ ...listing, id:String(listing._id) } });
-  } catch (error) { res.status(404).json({ error:'Annuncio non trovato' }); }
+  } catch (_error) { res.status(404).json({ error:'Annuncio non trovato' }); }
 });
 
 module.exports = router;
