@@ -1,0 +1,227 @@
+name: Vircadia Babylon Visual Proof
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/vircadia-babylon-visual-proof.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  visual-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout pre-refactor Vircadia World
+        uses: actions/checkout@v4
+        with:
+          repository: vircadia/vircadia-world
+          ref: 20fc9118831e5144f9640406c4c5c40d1eb0938c
+          path: vircadia-world
+          submodules: false
+          lfs: false
+
+      - name: Initialize public SDK submodule only
+        working-directory: vircadia-world
+        run: |
+          set -euxo pipefail
+          git submodule sync sdk/vircadia-world-sdk-ts
+          git submodule update --init --depth=1 sdk/vircadia-world-sdk-ts
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install Vircadia workspace
+        working-directory: vircadia-world
+        run: bun install
+
+      - name: Bootstrap Vircadia core runtime
+        working-directory: vircadia-world/cli
+        run: bun run server:init
+
+      - name: Insert MyZubster demo entities
+        run: |
+          set -euxo pipefail
+          cat <<'SQL' | docker exec -i vircadia_world_postgres sh -lc 'psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
+          INSERT INTO entity.entities (general__entity_name, group__sync, group__channel)
+          VALUES
+            ('myz-rimini-place-001', 'public.NORMAL', 'myzubster-demo'),
+            ('myz-rimini-plant-001', 'public.NORMAL', 'myzubster-demo'),
+            ('myz-life-env-001', 'public.NORMAL', 'myzubster-demo')
+          ON CONFLICT (general__entity_name) DO UPDATE
+          SET group__sync = EXCLUDED.group__sync,
+              group__channel = EXCLUDED.group__channel;
+
+          INSERT INTO entity.entity_metadata (general__entity_name, metadata__key, ro__group__sync, metadata__jsonb)
+          VALUES
+            ('myz-rimini-place-001', 'myzubster.presentation', 'public.NORMAL', '{"title":"Rimini public place demo","kind":"place","position":{"x":0,"y":1.4,"z":0},"provenance":{"source":"MyZubster","public":true,"verified":false}}'::jsonb),
+            ('myz-rimini-plant-001', 'myzubster.presentation', 'public.NORMAL', '{"title":"Public plant observation demo","kind":"plant","position":{"x":2.6,"y":1.4,"z":0},"provenance":{"source":"MyZubster","public":true,"verified":false}}'::jsonb),
+            ('myz-life-env-001', 'myzubster.presentation', 'public.NORMAL', '{"title":"LIFE environmental marker demo","kind":"environment","position":{"x":-2.6,"y":1.4,"z":0},"provenance":{"source":"MyZubster","public":true,"verified":false},"scientificallyValidated":false}'::jsonb)
+          ON CONFLICT (general__entity_name, metadata__key) DO UPDATE
+          SET metadata__jsonb = EXCLUDED.metadata__jsonb;
+          SQL
+
+      - name: Add MyZubster route component to Babylon client
+        working-directory: vircadia-world
+        run: |
+          set -euxo pipefail
+          mkdir -p client/web_babylon_js/src/user/myzubster
+          cat > client/web_babylon_js/src/user/myzubster/MyZubsterMarkers.vue <<'VUE'
+          <template></template>
+          <script setup lang="ts">
+          import type { Scene } from "@babylonjs/core";
+          import { Color3, MeshBuilder, StandardMaterial, Vector3 } from "@babylonjs/core";
+          import { onMounted, onUnmounted } from "vue";
+          import type { VircadiaWorldInstance } from "@/components/VircadiaWorldProvider.vue";
+
+          const props = defineProps<{ scene: Scene; vircadiaWorld: VircadiaWorldInstance }>();
+          const created: string[] = [];
+
+          function markerColor(kind: string) {
+              if (kind === "plant") return new Color3(0.15, 0.95, 0.35);
+              if (kind === "environment") return new Color3(1.0, 0.55, 0.08);
+              return new Color3(0.1, 0.55, 1.0);
+          }
+
+          async function renderMarkers() {
+              const response = await props.vircadiaWorld.client.connection.query({
+                  query: `SELECT e.general__entity_name, m.metadata__jsonb
+                          FROM entity.entities e
+                          JOIN entity.entity_metadata m USING (general__entity_name)
+                          WHERE e.group__channel = $1 AND m.metadata__key = $2
+                          ORDER BY e.general__entity_name`,
+                  parameters: ["myzubster-demo", "myzubster.presentation"],
+              });
+
+              if (!Array.isArray(response.result)) throw new Error("MyZubster marker query returned no rows");
+
+              for (const row of response.result) {
+                  const entityName = String(row.general__entity_name);
+                  const data = row.metadata__jsonb as any;
+                  const position = data?.position ?? {};
+                  const kind = String(data?.kind ?? "place");
+                  const name = `myz-marker:${entityName}`;
+                  const sphere = MeshBuilder.CreateSphere(name, { diameter: 1.15, segments: 24 }, props.scene);
+                  sphere.position = new Vector3(Number(position.x ?? 0), Number(position.y ?? 1), Number(position.z ?? 0));
+                  sphere.isPickable = true;
+                  sphere.metadata = { myzubster: true, entityName, title: data?.title ?? entityName, kind };
+                  const material = new StandardMaterial(`${name}:material`, props.scene);
+                  const color = markerColor(kind);
+                  material.diffuseColor = color;
+                  material.emissiveColor = color.scale(0.55);
+                  sphere.material = material;
+                  created.push(name);
+              }
+              (window as any).__MYZUBSTER_VIRCADIA_MARKERS__ = [...created];
+              console.log(`[MyZubster] rendered ${created.length} Vircadia Babylon markers`);
+          }
+
+          onMounted(() => { void renderMarkers(); });
+          onUnmounted(() => created.forEach((name) => props.scene.getMeshByName(name)?.dispose(false, true)));
+          </script>
+          VUE
+
+      - name: Install Playwright browser
+        working-directory: vircadia-world/cli
+        run: bun run install:playwright
+
+      - name: Resolve exposed Vircadia API ports
+        run: |
+          set -euxo pipefail
+          ws_port="$(docker port vircadia_world_api_ws_manager 3020/tcp | head -n1 | sed 's/.*://')"
+          auth_port="$(docker port vircadia_world_api_rest_auth_manager 3022/tcp | head -n1 | sed 's/.*://')"
+          asset_port="$(docker port vircadia_world_api_rest_asset_manager 3023/tcp | head -n1 | sed 's/.*://')"
+          inference_port="$(docker port vircadia_world_api_rest_inference_manager 3024/tcp | head -n1 | sed 's/.*://')"
+          test -n "$ws_port"
+          test -n "$auth_port"
+          test -n "$asset_port"
+          test -n "$inference_port"
+          echo "VRCA_WS_URI=127.0.0.1:$ws_port" >> "$GITHUB_ENV"
+          echo "VRCA_AUTH_URI=127.0.0.1:$auth_port" >> "$GITHUB_ENV"
+          echo "VRCA_ASSET_URI=127.0.0.1:$asset_port" >> "$GITHUB_ENV"
+          echo "VRCA_INFERENCE_URI=127.0.0.1:$inference_port" >> "$GITHUB_ENV"
+          curl -fsS "http://127.0.0.1:$ws_port/world/rest/ws/stats" >/dev/null
+          curl -fsS "http://127.0.0.1:$auth_port/world/rest/auth/stats" >/dev/null
+          echo "Vircadia APIs exposed: ws=$ws_port auth=$auth_port asset=$asset_port inference=$inference_port"
+
+      - name: Start local Babylon client
+        working-directory: vircadia-world
+        run: |
+          set -euxo pipefail
+          token="$(cd cli && bun run server:postgres:system-token true | tail -n 1)"
+          test -n "$token"
+          cd client/web_babylon_js
+          VRCA_CLIENT_WEB_BABYLON_JS_DEBUG=1 \
+          VRCA_CLIENT_WEB_BABYLON_JS_DEFAULT_HOST=127.0.0.1 \
+          VRCA_CLIENT_WEB_BABYLON_JS_DEFAULT_WORLD_API_WS_URI="$VRCA_WS_URI" \
+          VRCA_CLIENT_WEB_BABYLON_JS_DEFAULT_WORLD_API_REST_AUTH_URI="$VRCA_AUTH_URI" \
+          VRCA_CLIENT_WEB_BABYLON_JS_DEFAULT_WORLD_API_REST_ASSET_URI="$VRCA_ASSET_URI" \
+          VRCA_CLIENT_WEB_BABYLON_JS_DEFAULT_WORLD_API_REST_INFERENCE_URI="$VRCA_INFERENCE_URI" \
+          VRCA_CLIENT_WEB_BABYLON_JS_DEFAULT_WORLD_API_WS_URI_USING_SSL=false \
+          VRCA_CLIENT_WEB_BABYLON_JS_DEFAULT_WORLD_API_REST_AUTH_URI_USING_SSL=false \
+          VRCA_CLIENT_WEB_BABYLON_JS_DEFAULT_WORLD_API_REST_ASSET_URI_USING_SSL=false \
+          VRCA_CLIENT_WEB_BABYLON_JS_DEFAULT_WORLD_API_REST_INFERENCE_URI_USING_SSL=false \
+          VRCA_CLIENT_WEB_BABYLON_JS_USER_COMPONENTS_PATH_RELATIVE=myzubster \
+          VRCA_CLIENT_WEB_BABYLON_JS_DEBUG_SESSION_TOKEN="$token" \
+          bun run dev -- --host 127.0.0.1 > /tmp/vircadia-babylon-client.log 2>&1 &
+          echo $! > /tmp/vircadia-babylon-client.pid
+          for i in $(seq 1 90); do
+            if curl -fsS http://127.0.0.1:3066/ >/dev/null; then
+              echo 'Babylon client is serving.'
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/vircadia-babylon-client.log
+          exit 1
+
+      - name: Render and verify three markers in Chromium
+        working-directory: vircadia-world/cli
+        run: |
+          set -euxo pipefail
+          cat > verify-myzubster-markers.ts <<'TS'
+          import { chromium } from "playwright";
+
+          const browser = await chromium.launch({
+              executablePath: "/usr/bin/google-chrome",
+              headless: true,
+              args: ["--no-sandbox", "--disable-dev-shm-usage", "--enable-unsafe-swiftshader", "--use-angle=swiftshader"],
+          });
+          const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
+          page.on("console", (msg) => console.log(`[browser:${msg.type()}] ${msg.text()}`));
+          page.on("pageerror", (err) => console.error(`[browser:error] ${err.message}`));
+          await page.goto("http://127.0.0.1:3066/myzubster", { waitUntil: "domcontentloaded", timeout: 60000 });
+          await page.waitForFunction(
+              () => Array.isArray((window as any).__MYZUBSTER_VIRCADIA_MARKERS__) && (window as any).__MYZUBSTER_VIRCADIA_MARKERS__.length === 3,
+              undefined,
+              { timeout: 90000 },
+          );
+          const names = await page.evaluate(() => (window as any).__MYZUBSTER_VIRCADIA_MARKERS__ as string[]);
+          const expected = [
+              "myz-marker:myz-life-env-001",
+              "myz-marker:myz-rimini-place-001",
+              "myz-marker:myz-rimini-plant-001",
+          ];
+          for (const name of expected) {
+              if (!names.includes(name)) throw new Error(`Missing rendered marker: ${name}`);
+          }
+          console.log(`Rendered markers: ${JSON.stringify(names)}`);
+          await page.screenshot({ path: "../myzubster-vircadia-markers.png", fullPage: true });
+          await browser.close();
+          TS
+          bun verify-myzubster-markers.ts
+
+      - name: Upload real Babylon screenshot proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: myzubster-vircadia-babylon-proof
+          path: |
+            vircadia-world/myzubster-vircadia-markers.png
+            /tmp/vircadia-babylon-client.log
+          if-no-files-found: warn

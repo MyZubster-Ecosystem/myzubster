@@ -1,0 +1,198 @@
+name: Vircadia World Runtime Smoke
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/integrations/metaverse/**'
+      - 'fixtures/metaverse/**'
+      - 'tests/vircadia-world.test.js'
+      - '.github/workflows/vircadia-runtime-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  myzubster-adapter:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout MyZubster
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: package.json
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Vircadia adapter tests
+        run: npx jest tests/vircadia-world.test.js --runInBand
+
+  vircadia-upstream-preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout pinned Vircadia World
+        uses: actions/checkout@v4
+        with:
+          repository: vircadia/vircadia-world
+          ref: 9f185373ac89fb5834fda238fa83f51d1d6851a9
+          path: vircadia-world
+          submodules: false
+          lfs: false
+
+      - name: Initialize public SDK submodule only
+        working-directory: vircadia-world
+        run: |
+          set -euxo pipefail
+          git submodule sync sdk/vircadia-world-sdk-ts
+          git submodule update --init --depth=1 sdk/vircadia-world-sdk-ts
+          echo 'The optional/client seed submodule is intentionally not initialized because its configured ED3N-Foundries repository is not publicly fetchable from GitHub Actions at the pinned revision.'
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Verify pinned revision and runtime prerequisites
+        working-directory: vircadia-world
+        run: |
+          set -euxo pipefail
+          test "$(git rev-parse HEAD)" = "9f185373ac89fb5834fda238fa83f51d1d6851a9"
+          bun --version
+          docker --version
+          docker compose version
+          test -f cli/vircadia.cli.ts
+          test -f server/service/api_ws/volume/app/world.api.ws.manager.ts
+          test -f server/service/state/volume/app/world.state.manager.ts
+          test -f sdk/vircadia-world-sdk-ts/README.md
+
+      - name: Install Vircadia workspace dependencies
+        working-directory: vircadia-world
+        run: bun install
+
+      - name: Validate current CLI bootstrap behavior
+        working-directory: vircadia-world/cli
+        run: |
+          set -euxo pipefail
+          output="$(bun run cli init 2>&1)"
+          printf '%s\n' "$output"
+          echo "$output" | grep -F 'Init command dispatched'
+          echo 'Pinned upstream currently dispatches init without performing bootstrap; a pre-refactor runtime probe is used below to verify the real stack while the refactored CLI remains incomplete.'
+
+      - name: Verify world entity plumbing exists
+        working-directory: vircadia-world
+        run: |
+          set -euxo pipefail
+          grep -q 'resource: "entity"' server/service/api_ws/volume/app/world.api.ws.manager.ts
+          grep -q 'resource: "entity_metadata"' server/service/api_ws/volume/app/world.api.ws.manager.ts
+          grep -q 'syncGroup' server/service/api_ws/volume/app/world.api.ws.manager.ts
+          grep -q 'validateJWT' server/service/api_ws/volume/app/world.api.ws.manager.ts
+
+  vircadia-legacy-bootstrap-probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout pre-refactor Vircadia World
+        uses: actions/checkout@v4
+        with:
+          repository: vircadia/vircadia-world
+          ref: 20fc9118831e5144f9640406c4c5c40d1eb0938c
+          path: vircadia-world-legacy
+          submodules: false
+          lfs: false
+
+      - name: Initialize public SDK submodule only
+        working-directory: vircadia-world-legacy
+        run: |
+          set -euxo pipefail
+          git submodule sync sdk/vircadia-world-sdk-ts
+          git submodule update --init --depth=1 sdk/vircadia-world-sdk-ts
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Verify legacy bootstrap scripts exist
+        working-directory: vircadia-world-legacy
+        run: |
+          set -euxo pipefail
+          test "$(git rev-parse HEAD)" = "20fc9118831e5144f9640406c4c5c40d1eb0938c"
+          grep -q '"server:init"' cli/package.json
+          grep -q '"server:init-all"' cli/package.json
+          grep -q 'server:postgres:migrate' cli/package.json
+          grep -q 'server:postgres:seed:sql' cli/package.json
+          docker --version
+          docker compose version
+
+      - name: Install legacy workspace dependencies
+        working-directory: vircadia-world-legacy
+        run: bun install
+
+      - name: Bootstrap legacy core runtime
+        working-directory: vircadia-world-legacy/cli
+        run: |
+          set -euxo pipefail
+          bun run server:init
+
+      - name: Verify core containers are running
+        run: |
+          set -euxo pipefail
+          docker ps --format '{{.Names}} {{.Status}}'
+          for c in \
+            vircadia_world_postgres \
+            vircadia_world_api_ws_manager \
+            vircadia_world_api_rest_auth_manager \
+            vircadia_world_api_rest_asset_manager \
+            vircadia_world_api_rest_inference_manager \
+            vircadia_world_state_manager \
+            vircadia_world_pgweb; do
+            docker inspect "$c" >/dev/null
+            test "$(docker inspect -f '{{.State.Running}}' "$c")" = "true"
+          done
+          test "$(docker inspect -f '{{.State.Health.Status}}' vircadia_world_postgres)" = "healthy"
+
+      - name: Insert three MyZubster demo entities into Vircadia database
+        run: |
+          set -euxo pipefail
+          cat <<'SQL' | docker exec -i vircadia_world_postgres sh -lc 'psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
+          INSERT INTO entity.entities (general__entity_name, group__sync, group__channel)
+          VALUES
+            ('myz-rimini-place-001', 'public.NORMAL', 'myzubster-demo'),
+            ('myz-rimini-plant-001', 'public.NORMAL', 'myzubster-demo'),
+            ('myz-life-env-001', 'public.NORMAL', 'myzubster-demo')
+          ON CONFLICT (general__entity_name) DO UPDATE
+          SET group__sync = EXCLUDED.group__sync,
+              group__channel = EXCLUDED.group__channel;
+
+          INSERT INTO entity.entity_metadata (general__entity_name, metadata__key, ro__group__sync, metadata__jsonb)
+          VALUES
+            ('myz-rimini-place-001', 'myzubster.presentation', 'public.NORMAL', '{"title":"Rimini public place demo","kind":"place","position":{"x":0,"y":1,"z":0},"provenance":{"source":"MyZubster","public":true,"verified":false}}'::jsonb),
+            ('myz-rimini-plant-001', 'myzubster.presentation', 'public.NORMAL', '{"title":"Public plant observation demo","kind":"plant","position":{"x":3,"y":1,"z":1},"provenance":{"source":"MyZubster","public":true,"verified":false}}'::jsonb),
+            ('myz-life-env-001', 'myzubster.presentation', 'public.NORMAL', '{"title":"LIFE environmental marker demo","kind":"environment","position":{"x":-3,"y":1,"z":1},"provenance":{"source":"MyZubster","public":true,"verified":false},"scientificallyValidated":false}'::jsonb)
+          ON CONFLICT (general__entity_name, metadata__key) DO UPDATE
+          SET metadata__jsonb = EXCLUDED.metadata__jsonb;
+          SQL
+
+      - name: Verify MyZubster entities persisted
+        run: |
+          set -euxo pipefail
+          count="$(docker exec vircadia_world_postgres sh -lc 'psql -At -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "SELECT count(*) FROM entity.entities WHERE general__entity_name LIKE '\''myz-%'\'';"')"
+          test "$count" = "3"
+          cat <<'SQL' | docker exec -i vircadia_world_postgres sh -lc 'psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
+          SELECT
+            e.general__entity_name,
+            e.group__sync,
+            e.group__channel,
+            m.metadata__jsonb->>'kind' AS kind
+          FROM entity.entities e
+          JOIN entity.entity_metadata m USING (general__entity_name)
+          WHERE e.general__entity_name LIKE 'myz-%'
+          ORDER BY e.general__entity_name;
+          SQL
