@@ -3,8 +3,12 @@ const jwt = require('jsonwebtoken');
 const { upsertVerifiedAccount } = require('../services/socialIdentityService');
 
 function secret() { if (!process.env.JWT_SECRET) throw new Error('JWT_SECRET non configurato'); return process.env.JWT_SECRET; }
-function frontend() { return (process.env.FRONTEND_URL || process.env.PUBLIC_APP_URL || 'http://localhost:3000').replace(/\/$/, ''); }
-function callback(provider) { return process.env[`${provider.toUpperCase()}_LOGIN_CALLBACK_URL`] || `${process.env.GATEWAY_PUBLIC_URL || ''}/api/auth/social/${provider}/callback`; }
+function frontend() { return (process.env.FRONTEND_URL || process.env.PUBLIC_APP_URL || 'https://myzubster.com').replace(/\/$/, ''); }
+function callback(provider) {
+  if (provider === 'google') return process.env.GOOGLE_LOGIN_CALLBACK_URL || process.env.GOOGLE_OAUTH_CALLBACK_URL || `${process.env.GATEWAY_PUBLIC_URL || 'https://myzubster.com'}/api/auth/social/google/callback`;
+  if (provider === 'github') return process.env.GITHUB_LOGIN_CALLBACK_URL || process.env.GITHUB_OAUTH_CALLBACK_URL || `${process.env.GATEWAY_PUBLIC_URL || 'https://myzubster.com'}/api/auth/social/github/callback`;
+  return process.env[`${provider.toUpperCase()}_LOGIN_CALLBACK_URL`] || `${process.env.GATEWAY_PUBLIC_URL || 'https://myzubster.com'}/api/auth/social/${provider}/callback`;
+}
 function state(provider) { return jwt.sign({ purpose: 'social-login', provider, nonce: crypto.randomBytes(16).toString('hex') }, process.env.OAUTH_STATE_SECRET || secret(), { expiresIn: '10m' }); }
 function verifyState(value, provider) { const data = jwt.verify(value, process.env.OAUTH_STATE_SECRET || secret()); if (data.purpose !== 'social-login' || data.provider !== provider) throw new Error('OAuth state non valido'); }
 function redirectSuccess(res, result, provider) {
@@ -17,8 +21,10 @@ exports.start = (req, res) => {
   try {
     const provider = String(req.params.provider || '').toLowerCase();
     if (provider === 'google') {
-      if (!process.env.GOOGLE_LOGIN_CLIENT_ID || !process.env.GOOGLE_LOGIN_CLIENT_SECRET || !callback('google').startsWith('http')) throw new Error('Google Login non configurato');
-      const params = new URLSearchParams({ client_id: process.env.GOOGLE_LOGIN_CLIENT_ID, redirect_uri: callback('google'), response_type: 'code', scope: 'openid email profile', state: state('google'), prompt: 'select_account' });
+      const clientId = process.env.GOOGLE_LOGIN_CLIENT_ID || process.env.GOOGLE_OAUTH_CLIENT_ID;
+      const clientSecret = process.env.GOOGLE_LOGIN_CLIENT_SECRET || process.env.GOOGLE_OAUTH_CLIENT_SECRET;
+      if (!clientId || !clientSecret || !callback('google').startsWith('http')) throw new Error('Google Login non configurato');
+      const params = new URLSearchParams({ client_id: clientId, redirect_uri: callback('google'), response_type: 'code', scope: 'openid email profile', state: state('google'), prompt: 'select_account' });
       return res.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${params}`);
     }
     if (provider === 'github') {
@@ -41,7 +47,9 @@ exports.callback = async (req, res) => {
     verifyState(req.query.state, provider); if (!req.query.code) throw new Error('OAuth callback incompleto');
     let profile;
     if (provider === 'google') {
-      const tokenRes = await fetch('https://oauth2.googleapis.com/token', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ code: req.query.code, client_id: process.env.GOOGLE_LOGIN_CLIENT_ID, client_secret: process.env.GOOGLE_LOGIN_CLIENT_SECRET, redirect_uri: callback('google'), grant_type: 'authorization_code' }) });
+      const clientId = process.env.GOOGLE_LOGIN_CLIENT_ID || process.env.GOOGLE_OAUTH_CLIENT_ID;
+      const clientSecret = process.env.GOOGLE_LOGIN_CLIENT_SECRET || process.env.GOOGLE_OAUTH_CLIENT_SECRET;
+      const tokenRes = await fetch('https://oauth2.googleapis.com/token', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ code: req.query.code, client_id: clientId, client_secret: clientSecret, redirect_uri: callback('google'), grant_type: 'authorization_code' }) });
       const tokens = await tokenRes.json(); if (!tokenRes.ok || !tokens.access_token) throw new Error('Login Google non riuscito');
       const userRes = await fetch('https://openidconnect.googleapis.com/v1/userinfo', { headers: { Authorization: `Bearer ${tokens.access_token}` } }); const user = await userRes.json();
       if (!userRes.ok || !user.sub || !user.email || user.email_verified !== true) throw new Error('Google non ha restituito una email verificata');
