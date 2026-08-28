@@ -10,7 +10,7 @@ const metaverseCharacterSchema = new mongoose.Schema({
   createdFrom: { type: String, enum: ['public-web', 'account-github', 'account-social'], default: 'public-web' },
   accountUserId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', sparse: true, unique: true, index: true },
   github: { id: { type: String, trim: true, sparse: true }, login: { type: String, trim: true }, profileUrl: { type: String, trim: true }, verifiedAt: { type: Date } },
-  identityProviders: [{ provider: { type: String, enum: ['google', 'github'], required: true }, providerId: { type: String, required: true, trim: true }, verifiedAt: { type: Date, required: true } }],
+  identityProviders: [{ provider: { type: String, enum: ['google', 'github', 'facebook'], required: true }, providerId: { type: String, required: true, trim: true }, verifiedAt: { type: Date, required: true } }],
   lastSeenAt: { type: Date, default: Date.now, index: true }
 }, { timestamps: true, minimize: true });
 metaverseCharacterSchema.index({ worldId: 1, createdAt: -1 });
