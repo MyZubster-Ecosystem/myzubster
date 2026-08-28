@@ -125,6 +125,7 @@ const zorgaxRoutes = require('./src/routes/zorgaxRoutes');
 const zorgaxBuildRoutes = require('./src/routes/zorgaxBuildRoutes');
 const zorgaxAssistantRoutes = require('./src/routes/zorgaxAssistantRoutes');
 const zorgaxLifeRoutes = require('./src/routes/zorgaxLifeRoutes');
+const zorgaxEmailRoutes = require('./src/routes/zorgaxEmailRoutes');
 const githubBountySyncRoutes = require('./src/routes/githubBountySyncRoutes');
 const researchRoutes = require('./src/routes/researchRoutes');
 const municipalityRoutes = require('./src/routes/municipalityRoutes');
@@ -142,10 +143,7 @@ app.post('/api/metaverse/join', async (_req, res, next) => {
     await connectMongo();
     return next();
   } catch (_error) {
-    return res.status(503).json({
-      success: false,
-      error: 'Character storage is temporarily unavailable'
-    });
+    return res.status(503).json({ success: false, error: 'Character storage is temporarily unavailable' });
   }
 });
 
@@ -170,6 +168,7 @@ app.use('/api/grok', grokRoutes);
 app.use('/api/zorgax/assistant', zorgaxAssistantRoutes);
 app.use('/api/zorgax/build', zorgaxBuildRoutes);
 app.use('/api/zorgax/life', zorgaxLifeRoutes);
+app.use('/api/zorgax/email', zorgaxEmailRoutes);
 app.use('/api/zorgax', zorgaxRoutes);
 app.use('/api/github-bounties', githubBountySyncRoutes);
 app.use('/api/research', researchRoutes);
@@ -190,7 +189,8 @@ app.get('/', (_req, res) => {
       zorgax: '/api/zorgax',
       zorgax_assistant: '/api/zorgax/assistant',
       zorgax_build: '/api/zorgax/build',
-      zorgax_life: '/api/zorgax/life/status'
+      zorgax_life: '/api/zorgax/life/status',
+      zorgax_email: '/api/zorgax/email/preferences'
     }
   });
 });
