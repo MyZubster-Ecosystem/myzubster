@@ -22,36 +22,63 @@ function send(res, status, body) {
   res.end(JSON.stringify(body));
 }
 
-async function electrum(args) {
-  const walletArgs = ELECTRUM_WALLET ? ['-w', ELECTRUM_WALLET] : [];
+async function electrumRaw(args, { wallet = true } = {}) {
+  const walletArgs = wallet && ELECTRUM_WALLET ? ['-w', ELECTRUM_WALLET] : [];
   const { stdout } = await execFileAsync(ELECTRUM_BIN, [...walletArgs, ...args], { timeout: 15000, maxBuffer: 1024 * 1024 });
+  return String(stdout).trim();
+}
+
+async function electrumJson(args, options) {
+  const stdout = await electrumRaw(args, options);
   return JSON.parse(stdout);
 }
 
-function btcFromSats(value) { return Number(value) / 100000000; }
+function btcToSats(value) {
+  const text = String(value).trim();
+  if (!/^\d+(?:\.\d{1,8})?$/.test(text)) throw new Error('Importo BTC non valido');
+  const [whole, fraction = ''] = text.split('.');
+  return (BigInt(whole) * 100000000n) + BigInt(fraction.padEnd(8, '0'));
+}
+
+function satsToBtcNumber(value) {
+  return Number(value) / 100000000;
+}
 
 async function verify({ paymentReference, destination, expectedAmount }) {
-  if (!/^[0-9a-fA-F]{64}$/.test(String(paymentReference || ''))) throw new Error('TXID non valido');
-  if (!destination || !Number.isFinite(Number(expectedAmount)) || Number(expectedAmount) <= 0) throw new Error('Richiesta non valida');
+  const txid = String(paymentReference || '');
+  if (!/^[0-9a-fA-F]{64}$/.test(txid)) throw new Error('TXID non valido');
+  if (!destination) throw new Error('Richiesta non valida');
 
-  const tx = await electrum(['gettransaction', String(paymentReference)]);
-  const confirmations = Number(tx.confirmations || 0);
+  const expectedSats = btcToSats(expectedAmount);
+  if (expectedSats <= 0n) throw new Error('Richiesta non valida');
+
+  // Electrum 4.8.1 returns serialized transaction hex from gettransaction.
+  // Decode it explicitly so output amounts are consumed as integer satoshis.
+  const rawTx = await electrumRaw(['gettransaction', txid]);
+  if (!/^[0-9a-fA-F]+$/.test(rawTx)) throw new Error('Transazione Electrum non valida');
+  const tx = await electrumJson(['deserialize', rawTx], { wallet: false });
+
+  // get_tx_status is wallet-related and reports confirmations separately.
+  const status = await electrumJson(['get_tx_status', txid]);
+  const confirmations = Math.max(0, Number(status.confirmations || 0));
+
   const outputs = Array.isArray(tx.outputs) ? tx.outputs : [];
-  let paid = 0;
+  let paidSats = 0n;
   for (const output of outputs) {
-    const address = output.address || output.scriptpubkey_address;
-    if (address !== destination) continue;
-    const value = output.value;
-    paid += typeof value === 'number' && value > 1000 ? btcFromSats(value) : Number(value || 0);
+    if (output.address !== destination) continue;
+    if (!Number.isSafeInteger(output.value_sats) || output.value_sats < 0) {
+      throw new Error('Output Electrum non valido');
+    }
+    paidSats += BigInt(output.value_sats);
   }
 
   return {
-    verified: paid >= Number(expectedAmount),
+    verified: paidSats >= expectedSats,
     asset: 'BTC',
     destination,
-    amount: paid,
+    amount: satsToBtcNumber(paidSats),
     confirmations,
-    paymentReference: String(paymentReference),
+    paymentReference: txid,
     verifier: 'zorgax-btc-electrum-v1'
   };
 }
