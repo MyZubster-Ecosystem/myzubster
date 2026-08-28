@@ -17,7 +17,7 @@ const UserSchema = new mongoose.Schema({
     pgpPublicKey: { type: String, trim: true, maxlength: 20000 }, tariWallet: { type: String, trim: true, maxlength: 300 }, myzWallet: { type: String, trim: true, maxlength: 300 }, displayLocation: { type: String, trim: true, maxlength: 160 }, bio: { type: String, trim: true, maxlength: 1000 }, seedExchangeEnabled: { type: Boolean, default: false }, petCommunityEnabled: { type: Boolean, default: false }, updatedAt: { type: Date }
   },
   github: { id: { type: String, sparse: true }, login: { type: String, trim: true }, avatarUrl: { type: String, trim: true }, profileUrl: { type: String, trim: true }, verifiedAt: { type: Date } },
-  socialIdentities: { google: socialIdentitySchema, github: socialIdentitySchema },
+  socialIdentities: { google: socialIdentitySchema, github: socialIdentitySchema, facebook: socialIdentitySchema },
   zorgaxProfile: {
     archetype: { type: String, enum: ['guardian', 'builder', 'explorer', 'caretaker'], default: 'explorer' }, traits: [{ type: String, trim: true, maxlength: 80 }], summary: { type: String, trim: true, maxlength: 800 }, source: { type: String, enum: ['gmail-derived', 'gmail-auto-sync', 'manual'], default: 'manual' }, approvedAt: { type: Date }, updatedAt: { type: Date }
   },
@@ -30,6 +30,7 @@ const UserSchema = new mongoose.Schema({
 UserSchema.index({ 'github.id': 1 }, { unique: true, sparse: true });
 UserSchema.index({ 'socialIdentities.google.id': 1 }, { unique: true, sparse: true });
 UserSchema.index({ 'socialIdentities.github.id': 1 }, { unique: true, sparse: true });
+UserSchema.index({ 'socialIdentities.facebook.id': 1 }, { unique: true, sparse: true });
 UserSchema.index({ 'gmailProfileSync.enabled': 1, 'gmailProfileSync.lastSyncedAt': 1 });
 
 UserSchema.pre('save', async function(next) {
