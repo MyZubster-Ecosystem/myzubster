@@ -12,6 +12,9 @@
     { "src": "public/zorgax-build.html", "use": "@vercel/static" },
     { "src": "public/world-state/metasploit-sentinel.json", "use": "@vercel/static" }
   ],
+  "crons": [
+    { "path": "/api/zorgax/email/run", "schedule": "0 8 * * *" }
+  ],
   "routes": [
     { "src": "/press\\.html/?", "status": 308, "headers": { "Location": "/press" } },
     { "src": "/media/?", "status": 308, "headers": { "Location": "/press" } },
@@ -22,6 +25,8 @@
     { "src": "/zorgax-build/?", "dest": "/public/zorgax-build.html" },
     { "src": "/api/zorgax/assistant/(.*)", "dest": "/api/index.js" },
     { "src": "/api/zorgax/build/(.*)", "dest": "/api/index.js" },
+    { "src": "/api/zorgax/life/(.*)", "dest": "/api/index.js" },
+    { "src": "/api/zorgax/email/(.*)", "dest": "/api/index.js" },
     { "src": "/zorgax/?", "dest": "/api/index.js" },
     { "src": "/zargox/?", "dest": "https://myzubster-gateway.vercel.app/zargox" },
     { "src": "/api/zorgax/(.*)", "dest": "https://myzubster-gateway.vercel.app/api/zargox/$1" },
