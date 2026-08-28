@@ -11,14 +11,27 @@ const PLANS = Object.freeze({
 
 const SUPPORTED_ASSETS = Object.freeze(['ETH', 'BTC', 'XMR', 'TARI']);
 const INTENT_TTL_MS = 15 * 60 * 1000;
+const DEFAULT_BTC_WALLET = 'bc1ql0d4hxdqt9cvawx635rwfykxap8juaz94nujl2';
 
 function publicWallets() {
   return {
     ETH: process.env.ZORGAX_WALLET_ETH || process.env.WALLET_ETH || '',
-    BTC: process.env.ZORGAX_WALLET_BTC || process.env.WALLET_BTC || '',
+    BTC: process.env.ZORGAX_WALLET_BTC || process.env.WALLET_BTC || DEFAULT_BTC_WALLET,
     XMR: process.env.ZORGAX_WALLET_XMR || process.env.WALLET_XMR || '',
     TARI: process.env.ZORGAX_WALLET_TARI || process.env.WALLET_TARI || ''
   };
+}
+
+function isSettlementRailOperational(asset) {
+  const normalizedAsset = String(asset || '').toUpperCase();
+  if (!SUPPORTED_ASSETS.includes(normalizedAsset)) return false;
+  if (!publicWallets()[normalizedAsset]) return false;
+  if (normalizedAsset === 'BTC') return true;
+  return Boolean(
+    process.env.ZORGAX_QUOTE_API_URL &&
+    process.env[`ZORGAX_${normalizedAsset}_VERIFIER_URL`] &&
+    process.env[`ZORGAX_${normalizedAsset}_VERIFIER_TOKEN`]
+  );
 }
 
 function catalog() {
@@ -26,9 +39,15 @@ function catalog() {
   return {
     plans: Object.values(PLANS),
     settlement: {
-      mode: 'non-custodial', assets: SUPPORTED_ASSETS,
-      wallets: Object.fromEntries(Object.entries(wallets).map(([asset, address]) => [asset, { configured: Boolean(address), address }])),
-      automaticSigning: false, privateKeysAccepted: false,
+      mode: 'non-custodial',
+      assets: SUPPORTED_ASSETS.filter(isSettlementRailOperational),
+      wallets: Object.fromEntries(Object.entries(wallets).map(([asset, address]) => [asset, {
+        configured: Boolean(address),
+        operational: isSettlementRailOperational(asset),
+        address
+      }])),
+      automaticSigning: false,
+      privateKeysAccepted: false,
       note: 'External settlement must be independently verified before paid access is activated.'
     }
   };
@@ -62,8 +81,8 @@ async function createCheckoutIntent({ ownerId, planId, asset }) {
   const normalizedAsset = String(asset || '').toUpperCase();
   if (!plan || plan.id === 'free') throw new Error('Piano a pagamento non valido');
   if (!SUPPORTED_ASSETS.includes(normalizedAsset)) throw new Error('Asset di pagamento non supportato');
+  if (!isSettlementRailOperational(normalizedAsset)) throw new Error(`Rail di pagamento ${normalizedAsset} non operativo`);
   const address = publicWallets()[normalizedAsset];
-  if (!address) throw new Error(`Wallet pubblico ${normalizedAsset} non configurato`);
 
   const { quotePlan } = require('./zorgaxQuoteService');
   const quote = await quotePlan({ asset: normalizedAsset, priceEur: plan.priceEur });
@@ -100,4 +119,14 @@ async function getPaymentIntent({ ownerId, intentId }) {
   return publicIntent(intent, PLANS[intent.plan]);
 }
 
-module.exports = { PLANS, SUPPORTED_ASSETS, INTENT_TTL_MS, publicWallets, catalog, createCheckoutIntent, getPaymentIntent };
+module.exports = {
+  PLANS,
+  SUPPORTED_ASSETS,
+  INTENT_TTL_MS,
+  DEFAULT_BTC_WALLET,
+  publicWallets,
+  isSettlementRailOperational,
+  catalog,
+  createCheckoutIntent,
+  getPaymentIntent
+};
