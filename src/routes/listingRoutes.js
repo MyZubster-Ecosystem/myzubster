@@ -4,7 +4,7 @@ const User = require('../models/User');
 const MarketplaceListing = require('../models/MarketplaceListing');
 const { authenticate } = require('../middleware/auth');
 
-const ALLOWED_CURRENCIES = new Set(['XMR', 'MYZ', 'TARI', 'BARTER', 'FREE']);
+const ALLOWED_CURRENCIES = new Set(['ETH', 'BTC', 'XMR', 'MYZ', 'TARI', 'BARTER', 'FREE']);
 const ALLOWED_CATEGORIES = new Set(['seeds','plants','produce','tools','services','volunteering','pet_adoption','pet_lost_found','pet_services']);
 
 function containsPrivateKeyMaterial(value) {
