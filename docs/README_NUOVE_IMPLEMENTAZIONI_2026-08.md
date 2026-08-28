@@ -106,7 +106,7 @@ Caratteristiche:
 
 Instagram e X non sono ancora provider attivi.
 
-PR di riferimento: **#806 — implementazione social login**.
+PR di riferimento: **#806 — merged**.
 
 ## 6. Login pubblico su MyZubster
 
@@ -340,7 +340,7 @@ CRON_SECRET
 | #802 | Ordini, reputazione, report | merged |
 | #804 | Operations, stock, moderation | merged |
 | #805 | Seller membership + messaging | open |
-| #806 | Social login + identity | implementata / da verificare rispetto a `main` |
+| #806 | Social login + identity | merged |
 | #807 | Metaverse crypto bridge | open |
 | #808 | Login pubblico homepage | merged |
 | #809 | Social login SPA production | merged |
