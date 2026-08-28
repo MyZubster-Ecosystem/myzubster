@@ -27,19 +27,53 @@ function MarketplacePage() {
 
   useEffect(() => { load(); }, [load]);
 
+  async function apiAction(url, body) {
+    const response = await fetch(url, { method:'POST', headers:{ 'Content-Type':'application/json' }, credentials:'include', body:JSON.stringify(body) });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(payload.message || payload.error || 'Operazione non riuscita');
+    return payload;
+  }
+
   async function createListing(event) {
     event.preventDefault(); setMessage('');
     try {
       const body = { ...form, price: ['FREE','BARTER'].includes(form.currency) ? 0 : Number(form.price) };
-      const response = await fetch('/api/listings/create', { method:'POST', headers:{ 'Content-Type':'application/json' }, credentials:'include', body:JSON.stringify(body) });
-      const payload = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(payload.message || payload.error || 'Accedi per pubblicare un annuncio');
+      await apiAction('/api/listings/create', body);
       setMessage('Annuncio pubblicato.'); setShowCreate(false); setForm({ title:'', category:'services', description:'', location:'', price:'', currency:'FREE' }); await load();
     } catch (e) { setMessage(e.message); }
   }
 
+  async function requestListing(listing) {
+    try {
+      const note = window.prompt('Messaggio opzionale per il venditore:', '') || '';
+      await apiAction('/api/marketplace/orders', { listingId: listing.id || listing._id, quantity: 1, note });
+      setMessage('Richiesta inviata. Il pagamento non viene eseguito da questa operazione.');
+    } catch (e) { setMessage(e.message); }
+  }
+
+  async function reportListing(listing) {
+    const reason = window.prompt('Motivo: prohibited_item, fraud, spam, harassment, unsafe, other', 'spam');
+    if (!reason) return;
+    try {
+      await apiAction('/api/marketplace/reports', { listingId: listing.id || listing._id, reason, details: '' });
+      setMessage('Segnalazione registrata per moderazione.');
+    } catch (e) { setMessage(e.message); }
+  }
+
+  async function showReputation(listing) {
+    const ownerId = typeof listing.ownerId === 'object' ? listing.ownerId?._id : listing.ownerId;
+    if (!ownerId) return setMessage('Reputazione non disponibile per questo annuncio.');
+    try {
+      const response = await fetch(`/api/marketplace/reputation/${ownerId}`);
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload.message || 'Reputazione non disponibile');
+      const r = payload.reputation || {};
+      setMessage(`Reputazione venditore: ${r.average == null ? 'nessuna recensione' : `${r.average}/5 (${r.reviews})`} · scambi completati: ${r.completedSales || 0}`);
+    } catch (e) { setMessage(e.message); }
+  }
+
   return <main style={{ padding:24, maxWidth:1100, margin:'0 auto' }}>
-    <header style={{ marginBottom:24 }}><div style={{ fontSize:13, letterSpacing:1.4, opacity:.7 }}>MYZUBSTER MARKETPLACE</div><h2>Scambia con la comunità</h2><p>Annunci persistenti per beni, servizi, volontariato, baratto e comunità pet. I pagamenti restano esterni alla vetrina finché il checkout non supera i gate di sicurezza e compliance.</p><button onClick={() => setShowCreate(v => !v)}>{showCreate ? 'Chiudi' : 'Pubblica annuncio'}</button></header>
+    <header style={{ marginBottom:24 }}><div style={{ fontSize:13, letterSpacing:1.4, opacity:.7 }}>MYZUBSTER MARKETPLACE</div><h2>Scambia con la comunità</h2><p>Annunci persistenti, richieste non-custodial, reputazione da scambi completati e segnalazioni. Nessuna richiesta sposta denaro: checkout e custody restano disattivati finché non superano i gate di sicurezza e compliance.</p><button onClick={() => setShowCreate(v => !v)}>{showCreate ? 'Chiudi' : 'Pubblica annuncio'}</button></header>
 
     {showCreate && <form onSubmit={createListing} style={{ display:'grid', gap:10, padding:16, border:'1px solid rgba(127,127,127,.3)', borderRadius:12, marginBottom:20 }}>
       <input required placeholder="Titolo" value={form.title} onChange={e=>setForm({...form,title:e.target.value})}/>
@@ -54,7 +88,7 @@ function MarketplacePage() {
     <section style={{ display:'flex', gap:10, flexWrap:'wrap', marginBottom:20 }}><select value={category} onChange={e=>setCategory(e.target.value)}><option value="">Tutte le categorie</option>{categories.map(c=><option key={c} value={c}>{c}</option>)}</select><input placeholder="Filtra località" value={location} onChange={e=>setLocation(e.target.value)}/><button onClick={load}>Aggiorna</button></section>
     {loading && <p>Caricamento annunci…</p>}{error && <p role="alert">{error}</p>}
     {!loading && !error && listings.length===0 && <section><h3>Nessun annuncio pubblico per ora</h3><p>Puoi essere il primo a pubblicarne uno.</p></section>}
-    <section style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(240px,1fr))', gap:16 }}>{listings.map(listing=><article key={listing.id || listing._id} style={{ border:'1px solid rgba(127,127,127,.3)', borderRadius:12, padding:16 }}><small>{listing.category}</small><h3>{listing.title}</h3>{listing.description&&<p>{listing.description}</p>}{listing.location&&<p>📍 {listing.location}</p>}<strong>{listing.currency==='FREE'?'Gratis':listing.currency==='BARTER'?'Baratto':`${listing.price} ${listing.currency}`}</strong></article>)}</section>
+    <section style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(240px,1fr))', gap:16 }}>{listings.map(listing=><article key={listing.id || listing._id} style={{ border:'1px solid rgba(127,127,127,.3)', borderRadius:12, padding:16 }}><small>{listing.category}</small><h3>{listing.title}</h3>{listing.ownerUsername&&<p>di @{listing.ownerUsername}</p>}{listing.description&&<p>{listing.description}</p>}{listing.location&&<p>📍 {listing.location}</p>}<strong>{listing.currency==='FREE'?'Gratis':listing.currency==='BARTER'?'Baratto':`${listing.price} ${listing.currency}`}</strong><div style={{ display:'flex', gap:8, flexWrap:'wrap', marginTop:12 }}><button onClick={()=>requestListing(listing)}>Richiedi</button><button onClick={()=>showReputation(listing)}>Reputazione</button><button onClick={()=>reportListing(listing)}>Segnala</button></div></article>)}</section>
   </main>;
 }
 
