@@ -12,10 +12,13 @@ describe('LIFE DAO lane on production server', () => {
     expect(response.body.data.enrollment).toBe('explicit-consent-only');
   });
 
-  test('gateway discovery advertises the LIFE DAO advisory endpoint', async () => {
-    const response = await request(app).get('/');
+  test('GET /api/dao/life/participants exposes the consent-gated public registry', async () => {
+    const response = await request(app).get('/api/dao/life/participants');
 
     expect(response.status).toBe(200);
-    expect(response.body.life.dao_advisory).toBe('/api/dao/life/status');
+    expect(response.body.success).toBe(true);
+    expect(response.body.data).toEqual([]);
+    expect(response.body.roleSlots.length).toBeGreaterThanOrEqual(5);
+    expect(response.body.roleSlots.every((role) => role.bindingVotingPower === 0)).toBe(true);
   });
 });
