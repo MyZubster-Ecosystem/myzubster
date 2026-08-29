@@ -31,6 +31,39 @@ function buildApp({ role = 'admin' } = {}) {
     })
   };
 
+  const learningService = {
+    getLearningSnapshot: jest.fn().mockResolvedValue({
+      completedAllocationCount: 2,
+      categories: [{
+        category: 'SECURITY',
+        completedCount: 2,
+        successfulCount: 2,
+        totalSpentMinor: 20000,
+        totalMeasuredReturnMinor: 26000,
+        totalRealizedReturnBps: 6000,
+        averageRealizedReturnBps: 3000,
+        successRateBps: 10000
+      }],
+      guardrails: {
+        maxFinancialReturnScoreAdjustment: 12,
+        minimumSamplesBeforeAdjustment: 2,
+        modifiesRiskScore: false,
+        modifiesReserve: false,
+        modifiesMaxAllocation: false
+      }
+    }),
+    applyLearningToOpportunities: jest.fn((opportunities) => opportunities.map((item) => ({
+      ...item,
+      learning: {
+        applied: false,
+        financialReturnAdjustment: 0,
+        evidenceLevel: 'limited',
+        completedCount: 2,
+        boundedBy: 12
+      }
+    })))
+  };
+
   const policyService = {
     getCapitalPolicy: jest.fn().mockReturnValue({
       expensesMinor: 20000,
@@ -41,6 +74,7 @@ function buildApp({ role = 'admin' } = {}) {
       scoresSource: 'baseline_policy_estimates',
       opportunities: [{
         id: 'security-hardening',
+        category: 'SECURITY',
         title: 'Security hardening',
         scores: {
           financialReturn: 50,
@@ -62,14 +96,16 @@ function buildApp({ role = 'admin' } = {}) {
     authenticateMiddleware,
     adminMiddleware,
     PaymentIntentModel: {},
+    AllocationModel: {},
     metricsService,
+    learningService,
     policyService,
     allocatorService
   });
 
   const app = express();
   app.use('/api/zorgax/capital', router);
-  return { app, metricsService, policyService };
+  return { app, metricsService, learningService, policyService };
 }
 
 describe('Zorgax Capital API', () => {
@@ -85,8 +121,24 @@ describe('Zorgax Capital API', () => {
     expect(response.body.snapshot.confirmedRevenueMinor).toBe(100000);
     expect(response.body.capital.availableCapitalMinor).toBe(60000);
     expect(response.body.capital.deployableCapitalMinor).toBe(30000);
+    expect(response.body.policy.learningMode).toBe('bounded_evidence_adjustment');
+    expect(response.body.learning.guardrails.modifiesRiskScore).toBe(false);
+    expect(response.body.learning.guardrails.modifiesReserve).toBe(false);
+    expect(response.body.learning.guardrails.modifiesMaxAllocation).toBe(false);
     expect(response.body.recommendations).toHaveLength(1);
     expect(response.body.recommendations[0].amountMinor).toBe(30000);
+  });
+
+  test('exposes learning evidence without enabling execution', async () => {
+    const { app } = buildApp();
+    const response = await request(app)
+      .get('/api/zorgax/capital/learning')
+      .expect(200);
+
+    expect(response.body.advisoryOnly).toBe(true);
+    expect(response.body.learningMode).toBe('bounded_evidence_adjustment');
+    expect(response.body.learning.completedAllocationCount).toBe(2);
+    expect(response.body.learning.guardrails.maxFinancialReturnScoreAdjustment).toBe(12);
   });
 
   test('rejects non-admin callers', async () => {
