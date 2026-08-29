@@ -35,7 +35,8 @@ const capitalAllocationSchema = new mongoose.Schema({
     default: () => `zca_${crypto.randomUUID()}`
   },
   ownerId: { type: String, required: true, index: true },
-  cycleReference: { type: String, required: true },
+  cycleReference: { type: String, required: true, trim: true },
+  opportunityId: { type: String, required: true, trim: true },
   category: {
     type: String,
     required: true,
@@ -44,6 +45,7 @@ const capitalAllocationSchema = new mongoose.Schema({
   title: { type: String, required: true, trim: true },
   rationale: { type: String, required: true, trim: true },
   asset: { type: String, required: true, uppercase: true, trim: true },
+  network: { type: String, default: null, trim: true },
   amountMinor: { type: Number, required: true, min: 1 },
   availableCapitalMinor: { type: Number, required: true, min: 1 },
   expectedFinancialReturnBps: { type: Number, default: 0 },
@@ -66,17 +68,27 @@ const capitalAllocationSchema = new mongoose.Schema({
     index: true
   },
   advisoryOnly: { type: Boolean, default: true, immutable: true },
+  approvedBy: { type: String, default: null },
   approvedAt: { type: Date, default: null },
+  rejectedBy: { type: String, default: null },
   rejectedAt: { type: Date, default: null },
+  spentMinor: { type: Number, default: null, min: 1 },
+  spentAt: { type: Date, default: null },
+  spendReference: { type: String, default: null, trim: true },
   measuredReturnMinor: { type: Number, default: null },
-  outcome: { type: String, default: null },
+  realizedReturnBps: { type: Number, default: null },
+  outcome: { type: String, default: null, trim: true },
+  outcomeMetrics: { type: mongoose.Schema.Types.Mixed, default: {} },
+  completedAt: { type: Date, default: null },
   metadata: { type: mongoose.Schema.Types.Mixed, default: {} }
 }, { timestamps: true });
 
 capitalAllocationSchema.index(
-  { ownerId: 1, cycleReference: 1, category: 1 },
+  { ownerId: 1, cycleReference: 1, opportunityId: 1 },
   { unique: true }
 );
+
+capitalAllocationSchema.index({ ownerId: 1, createdAt: -1 });
 
 const ZorgaxCapitalAllocation = mongoose.models.ZorgaxCapitalAllocation ||
   mongoose.model('ZorgaxCapitalAllocation', capitalAllocationSchema);
