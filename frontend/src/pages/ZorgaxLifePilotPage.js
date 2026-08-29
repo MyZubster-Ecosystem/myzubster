@@ -3,6 +3,14 @@ import './ZorgaxLifePilotPage.css';
 
 const API_BASE = '/api/zorgax/digital-business';
 
+const NICOLA_PILOT_PROFILE = {
+  displayName: 'Nicola',
+  githubLogin: 'nicolaususnicola-lgtm',
+  githubProfileUrl: 'https://github.com/nicolaususnicola-lgtm',
+  githubRepository: 'nicolaususnicola-lgtm/Profilo',
+  githubRepositoryUrl: 'https://github.com/nicolaususnicola-lgtm/Profilo'
+};
+
 const DEFAULT_IDEAS = [
   {
     candidateId: 'kit-primo-prodotto',
@@ -244,6 +252,28 @@ function ZorgaxLifePilotPage() {
       <div className="life-status">{busy ? '⏳ ' : ''}{message}</div>
 
       <section className="life-grid">
+        <article className="life-card life-card-wide">
+          <div className="life-step">00 · PROFILO PILOTA</div>
+          <h2>{NICOLA_PILOT_PROFILE.displayName} · identità GitHub</h2>
+          <p className="life-muted">Questa scheda collega il profilo pubblico GitHub di Nicola al pilot LIFE. La verifica dell’identità MyZubster resta affidata al login e al flusso OAuth GitHub: il repository pubblico non sostituisce la verifica dell’account.</p>
+          <div className="life-two-col">
+            <div className="life-human-box">
+              <strong>GitHub</strong>
+              <span>@{NICOLA_PILOT_PROFILE.githubLogin}</span>
+              <a href={NICOLA_PILOT_PROFILE.githubProfileUrl} target="_blank" rel="noreferrer">Apri profilo GitHub</a>
+            </div>
+            <div className="life-human-box">
+              <strong>Repository profilo</strong>
+              <span>{NICOLA_PILOT_PROFILE.githubRepository}</span>
+              <a href={NICOLA_PILOT_PROFILE.githubRepositoryUrl} target="_blank" rel="noreferrer">Apri repository</a>
+            </div>
+          </div>
+          <div className="life-human-box">
+            <strong>Collegamento MyZubster</strong>
+            <span>Il profilo pubblico è associato al partecipante Nicola nel pilot. Lo stato account-linked viene considerato verificato solo quando MyZubster riceve la stessa identità GitHub tramite OAuth autenticato.</span>
+          </div>
+        </article>
+
         <article className="life-card life-card-wide">
           <div className="life-step">01 · SESSIONE</div>
           <h2>Obiettivo personale</h2>
