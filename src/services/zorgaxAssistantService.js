@@ -108,6 +108,29 @@ async function wikipediaSearch(query, limit) {
   }));
 }
 
+function looksTimeSensitive(text) {
+  return /\b(today|tonight|current|currently|latest|news|recent|now|oggi|stasera|attuale|attualmente|ultim[oaie]|notizie|recente|ora|adesso|president|prime minister|pope|papa|election|elezioni|price|prezzo|market|mercato)\b/i.test(String(text || ''));
+}
+
+async function gdeltSearch(query, limit) {
+  const url = new URL('https://api.gdeltproject.org/api/v2/doc/doc');
+  url.searchParams.set('query', query);
+  url.searchParams.set('mode', 'artlist');
+  url.searchParams.set('maxrecords', String(Math.min(limit, 10)));
+  url.searchParams.set('format', 'json');
+  url.searchParams.set('sort', 'datedesc');
+  const response = await fetch(url, { headers: { 'User-Agent': 'MyZubster-Zorgax/1.0' } });
+  if (!response.ok) throw new Error(`GDELT HTTP ${response.status}`);
+  const json = await response.json();
+  return (json.articles || []).slice(0, limit).map((item, index) => ({
+    label: `G${index + 1}`,
+    provider: 'gdelt',
+    title: item.title,
+    url: item.url,
+    snippet: cleanText([item.domain, item.language, item.sourcecountry, item.seendate].filter(Boolean).join(' · '), 700)
+  }));
+}
+
 async function searchWeb(query, requestedLimit = 5) {
   const cleanQuery = cleanText(query, 500);
   if (!cleanQuery) return { query: '', sources: [], errors: [], live_search_available: false, providers_used: [] };
@@ -116,6 +139,9 @@ async function searchWeb(query, requestedLimit = 5) {
   const groups = await Promise.all([
     braveSearch(cleanQuery, limit).catch(error => { errors.push(error.message); return []; }),
     tavilySearch(cleanQuery, limit).catch(error => { errors.push(error.message); return []; }),
+    ...(looksTimeSensitive(cleanQuery)
+      ? [gdeltSearch(cleanQuery, limit).catch(error => { errors.push(error.message); return []; })]
+      : []),
     wikipediaSearch(cleanQuery, Math.min(limit, 4)).catch(error => { errors.push(error.message); return []; })
   ]);
   const seen = new Set();
@@ -178,4 +204,13 @@ async function answer({ message, useWeb = true, history = [], limit = 5 }) {
   };
 }
 
-module.exports = { answer, searchWeb, previewData, digestPreview, dataIntent, inferCategory };
+module.exports = {
+  answer,
+  searchWeb,
+  previewData,
+  digestPreview,
+  dataIntent,
+  inferCategory,
+  looksTimeSensitive,
+  gdeltSearch
+};
