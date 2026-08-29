@@ -22,6 +22,7 @@ router.post('/login', authController.login);
 router.get('/github/start', authController.githubStart);
 router.get('/github/callback', legacyOrSocialCallback('github', authController.githubCallback));
 router.post('/github/verify-ticket', authController.githubVerifyTicket);
+router.get('/social/providers', socialAuthController.providers);
 router.get('/social/:provider/start', socialAuthController.start);
 router.get('/social/:provider/callback', socialAuthController.callback);
 router.post('/social/exchange-ticket', socialAuthController.exchangeTicket);
