@@ -16,7 +16,7 @@ const ECOSYSTEM_OWNER_ID = 'myzubster-ecosystem';
 function errorStatus(error) {
   const message = String(error?.message || '');
   if (message.includes('not found')) return 404;
-  if (message.includes('cannot') || message.includes('already')) return 409;
+  if (message.includes('cannot') || message.includes('already') || message.includes('different decision provenance')) return 409;
   return 400;
 }
 
@@ -52,12 +52,6 @@ async function buildRecommendationBundle({
     learning.categories
   );
 
-  /*
-   * The allocator still owns ranking and max-allocation math, but accounting
-   * constraints have already been applied by the treasury snapshot. Feeding
-   * investableCapitalMinor as the allocator's available base prevents policy
-   * expenses/obligations/reserve from being subtracted twice.
-   */
   const allocation = allocatorService.recommendAllocations({
     revenueMinor: snapshot.investableCapitalMinor,
     expensesMinor: 0,
@@ -88,6 +82,21 @@ async function buildRecommendationBundle({
       deployableCapitalMinor: allocation.deployableCapitalMinor
     },
     recommendations: allocation.recommendations
+  };
+}
+
+function buildDecisionContext(bundle) {
+  return {
+    generatedAt: bundle.generatedAt,
+    accountingSnapshot: bundle.snapshot,
+    capital: bundle.capital,
+    policy: bundle.policy,
+    learning: bundle.learning,
+    controls: {
+      advisoryOnly: true,
+      requiresHumanApproval: true,
+      executionEnabled: false
+    }
   };
 }
 
@@ -157,6 +166,7 @@ function createZorgaxCapitalRouter({
         policyService,
         treasuryService
       });
+      const decisionContext = buildDecisionContext(bundle);
 
       const allocations = await decisionService.recordRecommendations({
         AllocationModel,
@@ -165,17 +175,11 @@ function createZorgaxCapitalRouter({
         asset: bundle.snapshot.asset,
         network: bundle.snapshot.network,
         recommendations: bundle.recommendations,
+        decisionContext,
         metadata: {
           generatedAt: bundle.generatedAt,
           accountingBasis: bundle.snapshot.accountingBasis,
-          recognizedRevenueMinor: bundle.snapshot.recognizedRevenueMinor,
-          recognizedExpensesMinor: bundle.snapshot.recognizedExpensesMinor,
-          recognizedProfitMinor: bundle.snapshot.recognizedProfitMinor,
-          outstandingLiabilitiesMinor: bundle.snapshot.outstandingLiabilitiesMinor,
-          treasuryBalanceMinor: bundle.snapshot.treasuryBalanceMinor,
-          investableCapitalMinor: bundle.snapshot.investableCapitalMinor,
-          policy: bundle.policy,
-          learning: bundle.learning
+          decisionProvenance: 'embedded_context_sha256_v1'
         }
       });
 
@@ -201,6 +205,23 @@ function createZorgaxCapitalRouter({
         limit: req.query.limit
       });
       return res.status(200).json({ success: true, allocations });
+    } catch (error) {
+      return res.status(errorStatus(error)).json({ success: false, message: error.message });
+    }
+  });
+
+  router.get('/allocations/:allocationId/provenance', ...adminOnly, async (req, res) => {
+    try {
+      const provenance = await decisionService.getAllocationProvenance({
+        AllocationModel,
+        ownerId: ECOSYSTEM_OWNER_ID,
+        allocationId: req.params.allocationId
+      });
+      return res.status(200).json({
+        success: true,
+        advisoryOnly: true,
+        provenance
+      });
     } catch (error) {
       return res.status(errorStatus(error)).json({ success: false, message: error.message });
     }
@@ -274,6 +295,7 @@ function createZorgaxCapitalRouter({
 }
 
 const router = createZorgaxCapitalRouter();
+router.buildDecisionContext = buildDecisionContext;
 router.createZorgaxCapitalRouter = createZorgaxCapitalRouter;
 router.ECOSYSTEM_OWNER_ID = ECOSYSTEM_OWNER_ID;
 
