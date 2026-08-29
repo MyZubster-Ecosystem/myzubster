@@ -38,6 +38,10 @@ const digitalProductProjectSchema = new mongoose.Schema({
     latest: { type: mongoose.Schema.Types.Mixed, default: null },
     latestGeneratedAt: { type: Date, default: null }
   },
+  launchOffer: {
+    latest: { type: mongoose.Schema.Types.Mixed, default: null },
+    latestGeneratedAt: { type: Date, default: null }
+  },
   launchChecklist: { type: [String], default: [] },
   advisoryOnly: { type: Boolean, default: true, immutable: true },
   humanApprovalRequired: { type: Boolean, default: true, immutable: true },
