@@ -77,6 +77,18 @@ function buildApp({ role = 'admin' } = {}) {
   const decisionService = {
     recordRecommendations: jest.fn().mockResolvedValue([{ allocationId: 'zca-1', status: 'PROPOSED' }]),
     listAllocations: jest.fn().mockResolvedValue([{ allocationId: 'zca-1', status: 'PROPOSED' }]),
+    getAllocationProvenance: jest.fn().mockResolvedValue({
+      allocationId: 'zca-1',
+      decisionContextVersion: 'zorgax_capital_decision_context_v1',
+      decisionContextHash: 'a'.repeat(64),
+      provenanceAvailable: true,
+      decisionContext: {
+        accountingSnapshot: {
+          recognizedProfitMinor: 80000,
+          investableCapitalMinor: 60000
+        }
+      }
+    }),
     approveAllocation: jest.fn().mockResolvedValue({ allocationId: 'zca-1', status: 'APPROVED', approvedBy: 'admin-1' }),
     rejectAllocation: jest.fn().mockResolvedValue({ allocationId: 'zca-1', status: 'REJECTED' }),
     recordSpend: jest.fn().mockResolvedValue({ allocationId: 'zca-1', status: 'FUNDED', spentMinor: 25000 }),
@@ -103,7 +115,7 @@ function buildApp({ role = 'admin' } = {}) {
 }
 
 describe('Zorgax Capital Decision API', () => {
-  test('records server-derived recommendations as advisory proposals', async () => {
+  test('records server-derived recommendations with accounting provenance', async () => {
     const { app, decisionService, learningService } = buildApp();
     const response = await request(app)
       .post('/api/zorgax/capital/recommendations/record?asset=BTC&network=mainnet')
@@ -121,9 +133,27 @@ describe('Zorgax Capital Decision API', () => {
       ownerId: 'myzubster-ecosystem',
       cycleReference: '2026-08',
       asset: 'BTC',
+      decisionContext: expect.objectContaining({
+        accountingSnapshot: expect.objectContaining({
+          recognizedRevenueMinor: 100000,
+          recognizedExpensesMinor: 20000,
+          recognizedProfitMinor: 80000,
+          outstandingLiabilitiesMinor: 10000,
+          investableCapitalMinor: 60000
+        }),
+        capital: {
+          availableCapitalMinor: 60000,
+          deployableCapitalMinor: 30000
+        },
+        controls: {
+          advisoryOnly: true,
+          requiresHumanApproval: true,
+          executionEnabled: false
+        }
+      }),
       metadata: expect.objectContaining({
         accountingBasis: 'zorgax_economic_ledger_v1',
-        investableCapitalMinor: 60000
+        decisionProvenance: 'embedded_context_sha256_v1'
       })
     }));
   });
@@ -134,6 +164,21 @@ describe('Zorgax Capital Decision API', () => {
       .get('/api/zorgax/capital/allocations')
       .expect(200);
     expect(response.body.allocations[0].allocationId).toBe('zca-1');
+  });
+
+  test('exposes immutable decision provenance for audit', async () => {
+    const { app, decisionService } = buildApp();
+    const response = await request(app)
+      .get('/api/zorgax/capital/allocations/zca-1/provenance')
+      .expect(200);
+
+    expect(response.body.provenance.provenanceAvailable).toBe(true);
+    expect(response.body.provenance.decisionContextHash).toHaveLength(64);
+    expect(response.body.provenance.decisionContext.accountingSnapshot.investableCapitalMinor).toBe(60000);
+    expect(decisionService.getAllocationProvenance).toHaveBeenCalledWith(expect.objectContaining({
+      ownerId: 'myzubster-ecosystem',
+      allocationId: 'zca-1'
+    }));
   });
 
   test('records explicit human approval without executing funds', async () => {
@@ -182,6 +227,7 @@ describe('Zorgax Capital Decision API', () => {
   test('keeps all decision endpoints admin-only', async () => {
     const { app } = buildApp({ role: 'user' });
     await request(app).get('/api/zorgax/capital/allocations').expect(403);
+    await request(app).get('/api/zorgax/capital/allocations/zca-1/provenance').expect(403);
     await request(app).post('/api/zorgax/capital/allocations/zca-1/approve').send({}).expect(403);
   });
 });
