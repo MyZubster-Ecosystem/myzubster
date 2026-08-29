@@ -1,6 +1,6 @@
 'use strict';
 
-const { PAYMENT_INTENT_STATUSES } = require('../models/PaymentIntent');
+const PaymentIntent = require('../models/PaymentIntent');
 const { requireSafeNonNegativeInteger } = require('./zorgaxCapitalAllocatorService');
 
 function requireNonEmptyString(value, field) {
@@ -35,8 +35,12 @@ async function getConfirmedInflowSnapshot({
   const until = new Date(now);
   const since = new Date(until.getTime() - (days * 24 * 60 * 60 * 1000));
 
+  if (!PaymentIntent.PAYMENT_INTENT_STATES.includes('CONFIRMED')) {
+    throw new Error('CONFIRMED payment intent state is not available');
+  }
+
   const filter = {
-    status: PAYMENT_INTENT_STATUSES.CONFIRMED,
+    status: 'CONFIRMED',
     asset: normalizedAsset,
     confirmedAt: { $gte: since, $lte: until }
   };
