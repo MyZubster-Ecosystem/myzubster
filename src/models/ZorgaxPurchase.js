@@ -74,6 +74,32 @@ const zorgaxPurchaseSchema = new mongoose.Schema(
       }
     },
 
+    entitlement: {
+      key: {
+        type: String,
+        default: null,
+        trim: true
+      },
+
+      tier: {
+        type: String,
+        enum: ['PRO', 'DEVELOPER'],
+        default: null
+      },
+
+      durationDays: {
+        type: Number,
+        default: null,
+        validate: {
+          validator(value) {
+            return value === null ||
+              (Number.isSafeInteger(value) && value > 0 && value <= 3660);
+          },
+          message: 'entitlement.durationDays must be null or a positive safe integer up to 3660'
+        }
+      }
+    },
+
     status: {
       type: String,
       required: true,
