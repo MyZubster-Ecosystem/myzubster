@@ -15,6 +15,7 @@ const {
 const { parseWindowDays } = require('./zorgaxCapitalMetricsService');
 
 const ECOSYSTEM_OWNER_ID = 'myzubster-ecosystem';
+const ZORGAX_REVENUE_PURPOSE_PREFIX = 'zorgax:';
 
 function requireConfirmedIntent(intent) {
   if (!intent) throw new Error('PaymentIntent is required');
@@ -96,6 +97,7 @@ async function syncConfirmedPaymentIntents({
   const filter = {
     status: 'CONFIRMED',
     asset: normalizedAsset,
+    purpose: { $regex: '^zorgax:' },
     confirmedAt: { $gte: since, $lte: until }
   };
   if (normalizedNetwork) filter.network = normalizedNetwork;
@@ -123,13 +125,15 @@ async function syncConfirmedPaymentIntents({
     confirmedIntentCount: intents.length,
     recognizedEntryCount: entries.length,
     entries,
-    recognitionPolicy: 'confirmed_payment_intent_explicit_v1',
-    caveat: 'This sync explicitly recognizes confirmed PaymentIntents as operational revenue. It is not statutory or tax accounting.'
+    purposePrefix: ZORGAX_REVENUE_PURPOSE_PREFIX,
+    recognitionPolicy: 'zorgax_confirmed_payment_intent_revenue_v1',
+    caveat: 'This sync recognizes only confirmed Zorgax monetization PaymentIntents as operational revenue. It is not statutory or tax accounting.'
   };
 }
 
 module.exports = {
   ECOSYSTEM_OWNER_ID,
+  ZORGAX_REVENUE_PURPOSE_PREFIX,
   recognizeConfirmedPaymentIntent,
   recognizeConfirmedPaymentIntentDocument,
   requireConfirmedIntent,
