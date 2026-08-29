@@ -2,6 +2,7 @@
 
 const { PROJECT_STATUSES, ZorgaxDigitalProductProject } = require('../models/ZorgaxDigitalProductProject');
 const ideaValidationServiceDefault = require('./zorgaxDigitalIdeaValidationService');
+const productBlueprintServiceDefault = require('./zorgaxDigitalProductBlueprintService');
 
 const STATUS_ORDER = Object.freeze([
   PROJECT_STATUSES.IDEA,
@@ -32,17 +33,7 @@ function publicProject(item) {
   return rest;
 }
 
-async function createProject({
-  ProjectModel = ZorgaxDigitalProductProject,
-  ownerId,
-  title,
-  description,
-  productType,
-  targetCustomer = '',
-  customerProblem = '',
-  valueProposition = '',
-  metadata = {}
-}) {
+async function createProject({ ProjectModel = ZorgaxDigitalProductProject, ownerId, title, description, productType, targetCustomer = '', customerProblem = '', valueProposition = '', metadata = {} }) {
   const item = await ProjectModel.create({
     ownerId: requireNonEmptyString(ownerId, 'ownerId'),
     title: requireNonEmptyString(title, 'title'),
@@ -60,16 +51,12 @@ async function createProject({
 
 async function listProjects({ ProjectModel = ZorgaxDigitalProductProject, ownerId, limit = 100 }) {
   const boundedLimit = Math.max(1, Math.min(Number(limit) || 100, 250));
-  const rows = await ProjectModel.find({ ownerId: requireNonEmptyString(ownerId, 'ownerId') })
-    .sort({ createdAt: -1 }).limit(boundedLimit).lean();
+  const rows = await ProjectModel.find({ ownerId: requireNonEmptyString(ownerId, 'ownerId') }).sort({ createdAt: -1 }).limit(boundedLimit).lean();
   return rows.map(publicProject);
 }
 
 async function getProject({ ProjectModel = ZorgaxDigitalProductProject, ownerId, projectId }) {
-  const item = await ProjectModel.findOne({
-    ownerId: requireNonEmptyString(ownerId, 'ownerId'),
-    projectId: requireNonEmptyString(projectId, 'projectId')
-  });
+  const item = await ProjectModel.findOne({ ownerId: requireNonEmptyString(ownerId, 'ownerId'), projectId: requireNonEmptyString(projectId, 'projectId') });
   if (!item) throw new Error('digital product project not found');
   return item;
 }
@@ -79,31 +66,14 @@ function buildAdvisoryPlan(project) {
   if (!project.targetCustomer) missing.push('Define the target customer precisely.');
   if (!project.customerProblem) missing.push('Define the customer problem the product solves.');
   if (!project.valueProposition) missing.push('Write a clear value proposition.');
-
-  const nextActions = [
-    ...missing,
-    'Validate demand with real prospective customers before scaling production.',
-    'Define the smallest sellable version of the product.',
-    'Choose a price hypothesis and test willingness to pay.',
-    'Prepare a launch page, FAQ and support plan before publishing.'
-  ];
-
   return {
     projectId: project.projectId,
     status: project.status,
     advisoryOnly: true,
     requiresHumanApproval: true,
     commercializationGuarantee: false,
-    nextActions,
-    launchChecklist: [
-      'Product scope approved by owner',
-      'Target customer and problem validated',
-      'Price approved by owner',
-      'Sales claims reviewed for accuracy',
-      'Landing page reviewed',
-      'Customer support channel prepared',
-      'Publication explicitly approved by owner'
-    ]
+    nextActions: [...missing, 'Validate demand with real prospective customers before scaling production.', 'Define the smallest sellable version of the product.', 'Choose a price hypothesis and test willingness to pay.', 'Prepare a launch page, FAQ and support plan before publishing.'],
+    launchChecklist: ['Product scope approved by owner', 'Target customer and problem validated', 'Price approved by owner', 'Sales claims reviewed for accuracy', 'Landing page reviewed', 'Customer support channel prepared', 'Publication explicitly approved by owner']
   };
 }
 
@@ -112,18 +82,7 @@ async function getAdvisoryPlan(args) {
   return buildAdvisoryPlan(publicProject(item));
 }
 
-async function updateStrategy({
-  ProjectModel = ZorgaxDigitalProductProject,
-  ownerId,
-  projectId,
-  targetCustomer,
-  customerProblem,
-  valueProposition,
-  assumptions,
-  evidence,
-  risks,
-  pricing
-}) {
+async function updateStrategy({ ProjectModel = ZorgaxDigitalProductProject, ownerId, projectId, targetCustomer, customerProblem, valueProposition, assumptions, evidence, risks, pricing }) {
   const item = await getProject({ ProjectModel, ownerId, projectId });
   if (targetCustomer !== undefined) item.targetCustomer = String(targetCustomer || '').trim();
   if (customerProblem !== undefined) item.customerProblem = String(customerProblem || '').trim();
@@ -143,13 +102,7 @@ async function updateStrategy({
   return publicProject(item);
 }
 
-async function validateProjectIdea({
-  ProjectModel = ZorgaxDigitalProductProject,
-  ideaValidationService = ideaValidationServiceDefault,
-  ownerId,
-  projectId,
-  now = new Date()
-}) {
+async function validateProjectIdea({ ProjectModel = ZorgaxDigitalProductProject, ideaValidationService = ideaValidationServiceDefault, ownerId, projectId, now = new Date() }) {
   const item = await getProject({ ProjectModel, ownerId, projectId });
   const report = ideaValidationService.buildValidationReport(publicProject(item));
   item.validation.latestReport = report;
@@ -157,6 +110,16 @@ async function validateProjectIdea({
   if (item.status === PROJECT_STATUSES.IDEA) item.status = PROJECT_STATUSES.VALIDATING;
   await item.save();
   return { project: publicProject(item), report };
+}
+
+async function generateProductBlueprint({ ProjectModel = ZorgaxDigitalProductProject, productBlueprintService = productBlueprintServiceDefault, ownerId, projectId, now = new Date() }) {
+  const item = await getProject({ ProjectModel, ownerId, projectId });
+  const blueprint = productBlueprintService.buildProductBlueprint(publicProject(item));
+  item.blueprint.latest = blueprint;
+  item.blueprint.latestGeneratedAt = now;
+  if (item.status === PROJECT_STATUSES.VALIDATING) item.status = PROJECT_STATUSES.PLANNED;
+  await item.save();
+  return { project: publicProject(item), blueprint };
 }
 
 async function advanceProject({ ProjectModel = ZorgaxDigitalProductProject, ownerId, projectId, nextStatus }) {
@@ -172,15 +135,4 @@ async function advanceProject({ ProjectModel = ZorgaxDigitalProductProject, owne
   return publicProject(item);
 }
 
-module.exports = {
-  STATUS_ORDER,
-  advanceProject,
-  buildAdvisoryPlan,
-  createProject,
-  getAdvisoryPlan,
-  getProject,
-  listProjects,
-  publicProject,
-  updateStrategy,
-  validateProjectIdea
-};
+module.exports = { STATUS_ORDER, advanceProject, buildAdvisoryPlan, createProject, generateProductBlueprint, getAdvisoryPlan, getProject, listProjects, publicProject, updateStrategy, validateProjectIdea };
