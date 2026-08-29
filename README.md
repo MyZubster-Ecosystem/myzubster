@@ -243,6 +243,125 @@ Zorgax must not invent missing measurements, silently approve scientific claims,
 
 Implementation planning is tracked in **#713 — Zorgax LIFE Automation v1** and **#714 — ChatGPT × Zorgax v2 research/automation**.
 
+## 💳 Zorgax credits & payment flow — development branch
+
+The `feat/zorgax-credits-payment-layer` branch adds a server-controlled monetization layer on top of MyZubster Payment Intents. The goal is to make pricing, payment verification, credit allocation and later service usage explicit and auditable rather than trusting values supplied by a client.
+
+```text
+ZORGAX SERVICE
+      ↓
+SERVER-SIDE PRODUCT CATALOG
+      ↓
+SERVER-SIDE PRICE
+      ↓
+PAYMENT INTENT
+      ↓
+PAYMENT VERIFICATION
+      ↓
+PURCHASE SNAPSHOT
+      ↓
+CREDIT LEDGER
+      ↓
+ENTITLEMENT / SERVICE ACCESS
+      ↓
+METERED USAGE
+```
+
+### Server-side authority
+
+The client may choose a product, but it is not authoritative for price or granted credits. The server resolves the active product and persists the agreed payment and credit snapshot before settlement.
+
+A generic Payment Intent alone is not sufficient to mint Zorgax credits. Credit settlement requires the corresponding server-side Zorgax purchase record and a confirmed Payment Intent whose asset, network and amount match that purchase snapshot.
+
+### Credit accounting
+
+The development branch includes:
+
+- server-side Zorgax products and pricing;
+- per-owner credit accounts;
+- an append-only ledger for purchases and usage;
+- one-time credit grants keyed to a Payment Intent;
+- one-time usage debits keyed to an owner-scoped usage reference;
+- replay/idempotency protection for repeated settlement or usage requests;
+- ownership isolation between authenticated users;
+- transaction-backed balance and ledger updates where supported by MongoDB;
+- authenticated API routes for catalog, balance, ledger, checkout, purchase lookup and settlement.
+
+Credit consumption is intentionally not exposed as a general public endpoint. It is intended to be invoked internally by a Zorgax service when a real billable operation is executed.
+
+### API shape
+
+```text
+GET  /api/zorgax/monetization/products
+GET  /api/zorgax/monetization/balance
+GET  /api/zorgax/monetization/ledger
+POST /api/zorgax/monetization/checkout
+GET  /api/zorgax/monetization/purchases/:purchaseId
+POST /api/zorgax/monetization/purchases/:purchaseId/settle
+```
+
+The authenticated user identity is derived by the server. Client-supplied ownership must not override the authenticated owner.
+
+### Payment rail boundary
+
+The same branch builds on MyZubster's Payment Intent primitives and a Bitcoin-compatible payment rail interface. BTC support is **disabled by default** and requires separately configured allocator/verifier infrastructure before it can operate.
+
+The intended BTC lifecycle is:
+
+```text
+SERVER-SIDE CHECKOUT
+        ↓
+PAYMENT INTENT
+        ↓
+PER-INTENT DESTINATION
+        ↓
+TRANSACTION SUBMITTED
+        ↓
+INDEPENDENT VERIFICATION
+        ↓
+CONFIRMED INTENT
+        ↓
+IDEMPOTENT CREDIT GRANT
+```
+
+Amounts are represented as integer minor units (satoshis for BTC), transaction reuse across intents is rejected, and verification checks the persisted intent rather than trusting caller-supplied destination, amount or payment-reference values.
+
+**This is not a claim of live Bitcoin payments.** BTC remains disabled by default; no production/mainnet activation, real BTC transaction or production wallet deployment is claimed by this branch.
+
+### Automated validation
+
+At the current branch checkpoint, the payment and Zorgax monetization implementation has been validated with:
+
+```text
+8 test suites passed
+69 automated tests passed
+```
+
+The tests cover Payment Intents, the BTC rail contract, payment orchestration/routes, Zorgax pricing, credits/ledger behavior, purchase settlement and authenticated monetization routes. Tests demonstrate behavior under the tested conditions; they are not evidence that an external payment occurred.
+
+### Economic-layer direction
+
+This work keeps payment mechanics outside Zorgax itself. Zorgax consumes shared economic primitives provided by MyZubster, allowing additional applications to use the same model later.
+
+```text
+INTELLIGENCE
+Zorgax
+   ↓
+APPLICATIONS
+Research / Agents / Marketplace / Bounties / LIFE / Services
+   ↓
+MYZUBSTER ECONOMIC LAYER
+Payment Intents / Verification / Idempotency / Anti-Replay
+   ↓
+PAYMENT RAILS
+BTC / XMR / future machine-payment rails
+   ↓
+PHYSICAL + DIGITAL WORLD
+Robots / Sensors / Infrastructure / Environmental Systems / APIs
+```
+
+Future rails or applications are architectural direction, not claims of completed deployment.
+
 ## 🏛️ DAO / governance
 
 MyZubster exposes a public DAO/governance area at [myzubster.com/dao](https://www.myzubster.com/dao).
@@ -406,6 +525,8 @@ The March 2027 target is **one verifiable Italian vertical slice + a public Repl
 | **XMR settlement runtime** | **Implemented on stagenet validation branch with automated negative-path verification tests** |
 | **Real XMR stagenet E2E** | **Next validation gate; real tiny-value transaction not yet claimed complete** |
 | **XMR mainnet settlement** | **Not activated / outside current milestone** |
+| **Zorgax credits / monetization** | **Implemented and automated-tested on `feat/zorgax-credits-payment-layer`; not claimed production-deployed** |
+| **BTC Payment Intent rail** | **Implemented behind disabled-by-default feature gate; no live BTC transaction claimed** |
 | IPFS/IPNS public snapshots | Development / integration |
 | Gateway / external settlement | Separate integration boundary |
 | Zorgax AI / automation | Development / experimental |
