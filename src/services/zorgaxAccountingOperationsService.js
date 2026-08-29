@@ -8,6 +8,7 @@ const {
 const {
   normalizeAsset,
   normalizeNetwork,
+  publicEconomicEntry,
   recordEconomicEntry,
   requireNonEmptyString,
   requireSafePositiveInteger
@@ -157,15 +158,45 @@ async function settleLiability({
   recordedBy = null,
   metadata = {}
 }) {
+  if (!LedgerModel || typeof LedgerModel.findOne !== 'function') {
+    throw new Error('LedgerModel is required');
+  }
+
+  const normalizedOwnerId = requireNonEmptyString(ownerId, 'ownerId');
+  const normalizedAsset = normalizeAsset(asset);
+  const normalizedNetwork = normalizeNetwork(network);
   const reference = requireNonEmptyString(liabilityReference, 'liabilityReference');
   const settlement = requireNonEmptyString(settlementReference, 'settlementReference');
   const amount = requireSafePositiveInteger(amountMinor, 'amountMinor');
+  const sourceReference = `liability:settle:${reference}:${settlement}`;
+
+  const existing = await LedgerModel.findOne({
+    ownerId: normalizedOwnerId,
+    asset: normalizedAsset,
+    network: normalizedNetwork,
+    sourceType: ECONOMIC_SOURCE_TYPES.MANUAL,
+    sourceReference
+  });
+
+  if (existing) {
+    if (existing.type !== ECONOMIC_ENTRY_TYPES.LIABILITY_SETTLED || existing.amountMinor !== amount) {
+      throw new Error('economic source reference already exists with different accounting data');
+    }
+    const liability = await getLiabilityPosition({
+      LedgerModel,
+      ownerId: normalizedOwnerId,
+      asset: normalizedAsset,
+      network: normalizedNetwork,
+      liabilityReference: reference
+    });
+    return { entry: publicEconomicEntry(existing), liability, replay: true };
+  }
 
   const position = await getLiabilityPosition({
     LedgerModel,
-    ownerId,
-    asset,
-    network,
+    ownerId: normalizedOwnerId,
+    asset: normalizedAsset,
+    network: normalizedNetwork,
     liabilityReference: reference
   });
 
@@ -174,13 +205,13 @@ async function settleLiability({
 
   const entry = await recordEconomicEntry({
     LedgerModel,
-    ownerId,
+    ownerId: normalizedOwnerId,
     type: ECONOMIC_ENTRY_TYPES.LIABILITY_SETTLED,
-    asset,
-    network,
+    asset: normalizedAsset,
+    network: normalizedNetwork,
     amountMinor: amount,
     sourceType: ECONOMIC_SOURCE_TYPES.MANUAL,
-    sourceReference: `liability:settle:${reference}:${settlement}`,
+    sourceReference,
     description,
     occurredAt: normalizeOccurredAt(occurredAt),
     metadata: {
@@ -194,13 +225,13 @@ async function settleLiability({
 
   const updated = await getLiabilityPosition({
     LedgerModel,
-    ownerId,
-    asset,
-    network,
+    ownerId: normalizedOwnerId,
+    asset: normalizedAsset,
+    network: normalizedNetwork,
     liabilityReference: reference
   });
 
-  return { entry, liability: updated };
+  return { entry, liability: updated, replay: false };
 }
 
 module.exports = {
