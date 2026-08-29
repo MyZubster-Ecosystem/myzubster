@@ -29,6 +29,7 @@ function publicProduct(product) {
     creditsGranted: source.creditsGranted,
     pricing: source.pricing,
     usage: source.usage,
+    entitlement: source.entitlement,
     metadata: source.metadata
   };
 }
@@ -68,6 +69,34 @@ async function listProducts({
   return products.map(publicProduct);
 }
 
+function resolveEntitlement(product) {
+  if (product.kind !== 'SUBSCRIPTION') {
+    return null;
+  }
+
+  const tier = String(product.entitlement?.tier || '').trim().toUpperCase();
+  const durationDays = Number(product.entitlement?.durationDays);
+  const key = String(product.entitlement?.key || 'zorgax.access').trim();
+
+  if (!['PRO', 'DEVELOPER'].includes(tier)) {
+    throw new Error('Subscription product must grant PRO or DEVELOPER access');
+  }
+
+  if (!Number.isSafeInteger(durationDays) || durationDays <= 0 || durationDays > 3660) {
+    throw new Error('Subscription product has invalid entitlement duration');
+  }
+
+  if (!key) {
+    throw new Error('Subscription product has invalid entitlement key');
+  }
+
+  return {
+    key,
+    tier,
+    durationDays
+  };
+}
+
 async function resolvePurchase(productId) {
   const product = await getProduct(productId);
 
@@ -100,6 +129,7 @@ async function resolvePurchase(productId) {
       amountMinor: product.pricing.amountMinor
     },
 
+    entitlement: resolveEntitlement(product),
     product: publicProduct(product)
   };
 }
@@ -142,6 +172,7 @@ module.exports = {
   listProducts,
   publicProduct,
   requireProductId,
+  resolveEntitlement,
   resolvePurchase,
   resolveUsage
 };
