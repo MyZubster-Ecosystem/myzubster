@@ -10,6 +10,7 @@ function errorStatus(error) {
   if (message.includes('not found')) return 404;
   if (message.includes('cannot advance')) return 409;
   if (message.includes('needs more evidence')) return 409;
+  if (message.includes('blueprint is required')) return 409;
   return 400;
 }
 
@@ -55,6 +56,13 @@ function createZorgaxDigitalBusinessRouter({ authenticateMiddleware = authentica
     try {
       const result = await service.generateProductBlueprint({ ProjectModel, ownerId: String(req.userId), projectId: req.params.projectId });
       return res.status(200).json({ success: true, advisoryOnly: true, requiresHumanApproval: true, executionPerformed: false, publicationPerformed: false, predictsProfit: false, project: result.project, blueprint: result.blueprint });
+    } catch (error) { return res.status(errorStatus(error)).json({ success: false, message: error.message }); }
+  });
+
+  router.post('/projects/:projectId/launch-offer', authenticateMiddleware, async (req, res) => {
+    try {
+      const result = await service.generateLaunchOffer({ ProjectModel, ownerId: String(req.userId), projectId: req.params.projectId });
+      return res.status(200).json({ success: true, advisoryOnly: true, requiresHumanApproval: true, executionPerformed: false, publicationPerformed: false, externalMessagesSent: false, predictsProfit: false, project: result.project, launchOffer: result.launchOffer });
     } catch (error) { return res.status(errorStatus(error)).json({ success: false, message: error.message }); }
   });
 
