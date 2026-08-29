@@ -1,6 +1,7 @@
 'use strict';
 
 const { PROJECT_STATUSES, ZorgaxDigitalProductProject } = require('../models/ZorgaxDigitalProductProject');
+const ideaValidationServiceDefault = require('./zorgaxDigitalIdeaValidationService');
 
 const STATUS_ORDER = Object.freeze([
   PROJECT_STATUSES.IDEA,
@@ -142,6 +143,22 @@ async function updateStrategy({
   return publicProject(item);
 }
 
+async function validateProjectIdea({
+  ProjectModel = ZorgaxDigitalProductProject,
+  ideaValidationService = ideaValidationServiceDefault,
+  ownerId,
+  projectId,
+  now = new Date()
+}) {
+  const item = await getProject({ ProjectModel, ownerId, projectId });
+  const report = ideaValidationService.buildValidationReport(publicProject(item));
+  item.validation.latestReport = report;
+  item.validation.latestValidatedAt = now;
+  if (item.status === PROJECT_STATUSES.IDEA) item.status = PROJECT_STATUSES.VALIDATING;
+  await item.save();
+  return { project: publicProject(item), report };
+}
+
 async function advanceProject({ ProjectModel = ZorgaxDigitalProductProject, ownerId, projectId, nextStatus }) {
   const item = await getProject({ ProjectModel, ownerId, projectId });
   const normalized = requireNonEmptyString(nextStatus, 'nextStatus').toUpperCase();
@@ -164,5 +181,6 @@ module.exports = {
   getProject,
   listProjects,
   publicProject,
-  updateStrategy
+  updateStrategy,
+  validateProjectIdea
 };
