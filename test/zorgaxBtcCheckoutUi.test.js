@@ -12,6 +12,10 @@ describe('Zorgax BTC checkout UI', () => {
     expect(source).toContain("'Authorization':'Bearer '+t");
   });
 
+  test('sends unauthenticated customers to login before checkout', () => {
+    expect(source).toContain("if(!t){location.assign('/social-login');return}");
+  });
+
   test('submits only intent id and payment reference for verification', () => {
     expect(source).toContain("'/verify'");
     expect(source).toContain('JSON.stringify({paymentReference:txid})');
