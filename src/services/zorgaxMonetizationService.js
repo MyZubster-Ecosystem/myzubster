@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 
 const PaymentIntent = require('../models/PaymentIntent');
+const legacyMonetization = require('./zorgaxLegacyMonetizationService');
 
 const {
   ZorgaxPurchase,
@@ -317,6 +318,7 @@ function createZorgaxMonetizationService({
 }
 
 module.exports = {
+  ...legacyMonetization,
   createZorgaxMonetizationService,
   publicPurchase,
   requireOwnerId,
