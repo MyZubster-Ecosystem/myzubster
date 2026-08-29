@@ -112,23 +112,45 @@ function looksTimeSensitive(text) {
   return /\b(today|tonight|current|currently|latest|news|recent|now|oggi|stasera|attuale|attualmente|ultim[oaie]|notizie|recente|ora|adesso|president|prime minister|pope|papa|election|elezioni|price|prezzo|market|mercato)\b/i.test(String(text || ''));
 }
 
-async function gdeltSearch(query, limit) {
-  const url = new URL('https://api.gdeltproject.org/api/v2/doc/doc');
-  url.searchParams.set('query', query);
-  url.searchParams.set('mode', 'artlist');
-  url.searchParams.set('maxrecords', String(Math.min(limit, 10)));
-  url.searchParams.set('format', 'json');
-  url.searchParams.set('sort', 'datedesc');
-  const response = await fetch(url, { headers: { 'User-Agent': 'MyZubster-Zorgax/1.0' } });
-  if (!response.ok) throw new Error(`GDELT HTTP ${response.status}`);
-  const json = await response.json();
-  return (json.articles || []).slice(0, limit).map((item, index) => ({
-    label: `G${index + 1}`,
-    provider: 'gdelt',
-    title: item.title,
-    url: item.url,
-    snippet: cleanText([item.domain, item.language, item.sourcecountry, item.seendate].filter(Boolean).join(' · '), 700)
-  }));
+function decodeXmlEntities(value) {
+  return String(value || '')
+    .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;|&apos;/g, "'");
+}
+
+function rssTag(item, tag) {
+  const match = String(item || '').match(new RegExp(`<${tag}(?:\\s[^>]*)?>([\\s\\S]*?)<\\/${tag}>`, 'i'));
+  return match ? decodeXmlEntities(match[1]).trim() : '';
+}
+
+async function googleNewsSearch(query, limit) {
+  const url = new URL('https://news.google.com/rss/search');
+  url.searchParams.set('q', query);
+  url.searchParams.set('hl', 'it');
+  url.searchParams.set('gl', 'IT');
+  url.searchParams.set('ceid', 'IT:it');
+  const response = await fetch(url, { headers: { Accept: 'application/rss+xml, application/xml, text/xml', 'User-Agent': 'MyZubster-Zorgax/1.0' } });
+  if (!response.ok) throw new Error(`Google News RSS HTTP ${response.status}`);
+  const xml = await response.text();
+  const items = String(xml || '').match(/<item(?:\s[^>]*)?>[\s\S]*?<\/item>/gi) || [];
+  return items.slice(0, limit).map((item, index) => {
+    const title = rssTag(item, 'title');
+    const link = rssTag(item, 'link');
+    const pubDate = rssTag(item, 'pubDate');
+    const source = rssTag(item, 'source');
+    const description = cleanText(rssTag(item, 'description').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' '), 500);
+    return {
+      label: `N${index + 1}`,
+      provider: 'google_news',
+      title,
+      url: link,
+      snippet: cleanText([source, pubDate, description].filter(Boolean).join(' · '), 700)
+    };
+  }).filter(item => item.title && item.url);
 }
 
 async function searchWeb(query, requestedLimit = 5) {
@@ -140,7 +162,7 @@ async function searchWeb(query, requestedLimit = 5) {
     braveSearch(cleanQuery, limit).catch(error => { errors.push(error.message); return []; }),
     tavilySearch(cleanQuery, limit).catch(error => { errors.push(error.message); return []; }),
     ...(looksTimeSensitive(cleanQuery)
-      ? [gdeltSearch(cleanQuery, limit).catch(error => { errors.push(error.message); return []; })]
+      ? [googleNewsSearch(cleanQuery, limit).catch(error => { errors.push(error.message); return []; })]
       : []),
     wikipediaSearch(cleanQuery, Math.min(limit, 4)).catch(error => { errors.push(error.message); return []; })
   ]);
@@ -212,5 +234,5 @@ module.exports = {
   dataIntent,
   inferCategory,
   looksTimeSensitive,
-  gdeltSearch
+  googleNewsSearch
 };
