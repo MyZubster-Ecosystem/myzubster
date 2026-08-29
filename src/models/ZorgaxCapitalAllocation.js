@@ -68,6 +68,9 @@ const capitalAllocationSchema = new mongoose.Schema({
     index: true
   },
   advisoryOnly: { type: Boolean, default: true, immutable: true },
+  decisionContextVersion: { type: String, default: null, immutable: true, trim: true },
+  decisionContext: { type: mongoose.Schema.Types.Mixed, default: null, immutable: true },
+  decisionContextHash: { type: String, default: null, immutable: true, trim: true },
   approvedBy: { type: String, default: null },
   approvedAt: { type: Date, default: null },
   rejectedBy: { type: String, default: null },
