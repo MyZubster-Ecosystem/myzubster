@@ -106,6 +106,31 @@ const zorgaxProductSchema = new mongoose.Schema(
       }
     },
 
+    entitlement: {
+      key: {
+        type: String,
+        default: 'zorgax.access',
+        trim: true
+      },
+
+      tier: {
+        type: String,
+        enum: ['FREE', 'PRO', 'DEVELOPER'],
+        default: 'FREE'
+      },
+
+      durationDays: {
+        type: Number,
+        default: 0,
+        validate: {
+          validator(value) {
+            return Number.isSafeInteger(value) && value >= 0 && value <= 3660;
+          },
+          message: 'entitlement.durationDays must be a safe integer from 0 to 3660'
+        }
+      }
+    },
+
     metadata: {
       type: mongoose.Schema.Types.Mixed,
       default: {}
