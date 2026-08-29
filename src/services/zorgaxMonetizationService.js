@@ -15,6 +15,10 @@ const {
   grantPurchaseCredits
 } = require('./zorgaxCreditService');
 
+const {
+  grantPurchaseEntitlement
+} = require('./zorgaxEntitlementService');
+
 function requireOwnerId(ownerId) {
   const normalized = String(ownerId || '').trim();
 
@@ -56,6 +60,7 @@ function publicPurchase(purchase) {
     paymentIntentId: source.paymentIntentId,
     creditsGranted: source.creditsGranted,
     payment: source.payment,
+    entitlement: source.entitlement,
     status: source.status,
     creditedAt: source.creditedAt,
     metadata: source.metadata,
@@ -73,6 +78,9 @@ function createZorgaxMonetizationService({
   },
   creditService = {
     grantPurchaseCredits
+  },
+  entitlementService = {
+    grantPurchaseEntitlement
   }
 }) {
   if (!paymentService) {
@@ -92,7 +100,7 @@ function createZorgaxMonetizationService({
 
     /*
      * Security boundary:
-     * price and credits always come from the persisted
+     * price, credits and entitlement policy always come from the persisted
      * Zorgax product catalog, never from client input.
      */
     const checkout = await paymentService.createCheckout({
@@ -129,8 +137,8 @@ function createZorgaxMonetizationService({
         amountMinor: offer.payment.amountMinor
       },
 
+      entitlement: offer.entitlement || undefined,
       status: PURCHASE_STATUSES.PENDING,
-
       metadata
     });
 
@@ -160,6 +168,24 @@ function createZorgaxMonetizationService({
     return purchase;
   }
 
+  async function grantEntitlementIfConfigured(purchase) {
+    if (!purchase.entitlement?.tier) {
+      return null;
+    }
+
+    return entitlementService.grantPurchaseEntitlement({
+      ownerId: purchase.ownerId,
+      purchaseId: purchase.purchaseId,
+      productId: purchase.productId,
+      entitlementKey: purchase.entitlement.key || 'zorgax.access',
+      tier: purchase.entitlement.tier,
+      durationDays: purchase.entitlement.durationDays,
+      metadata: {
+        paymentIntentId: purchase.paymentIntentId
+      }
+    });
+  }
+
   async function settlePurchase({
     ownerId,
     purchaseId,
@@ -172,10 +198,8 @@ function createZorgaxMonetizationService({
 
     /*
      * If the ledger already granted this purchase,
-     * grantPurchaseCredits will return replay=true.
-     *
-     * This means settlement remains idempotent even if
-     * this endpoint/service is called repeatedly.
+     * grantPurchaseCredits returns replay=true. Entitlements use the purchase
+     * id as their own one-time replay key, so retries are safe at both layers.
      */
     if (purchase.status === PURCHASE_STATUSES.CREDITED) {
       const creditResult =
@@ -190,10 +214,14 @@ function createZorgaxMonetizationService({
           }
         });
 
+      const entitlementResult =
+        await grantEntitlementIfConfigured(purchase);
+
       return {
         purchase: publicPurchase(purchase),
         paymentIntent: null,
-        credit: creditResult
+        credit: creditResult,
+        entitlement: entitlementResult
       };
     }
 
@@ -226,7 +254,8 @@ function createZorgaxMonetizationService({
             ? intent.toObject()
             : intent,
         verification,
-        credit: null
+        credit: null,
+        entitlement: null
       };
     }
 
@@ -257,6 +286,9 @@ function createZorgaxMonetizationService({
         }
       });
 
+    const entitlementResult =
+      await grantEntitlementIfConfigured(purchase);
+
     purchase.status = PURCHASE_STATUSES.CREDITED;
 
     if (!purchase.creditedAt) {
@@ -272,7 +304,8 @@ function createZorgaxMonetizationService({
           ? intent.toObject()
           : intent,
       verification,
-      credit: creditResult
+      credit: creditResult,
+      entitlement: entitlementResult
     };
   }
 
