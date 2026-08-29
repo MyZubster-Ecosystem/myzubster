@@ -1,6 +1,7 @@
 const BountyConfig = require('../models/bountyConfigModel');
 const axios = require('axios');
 const { PAYMENT_STATES, processPayment } = require('../services/paymentLifecycle');
+const { createIndependentVerifierFromEnv } = require('../services/independentPaymentVerifier');
 
 const GATEWAY_URL = process.env.GATEWAY_URL || 'https://myzubsterapp.onrender.com';
 const SUPPORTED_ASSETS = new Set(['MYZ', 'XMR', 'TOKEN']);
@@ -115,7 +116,7 @@ exports.processMerge = async (req, res) => {
       bounty.paymentNetwork = myz?.network || bounty.paymentNetwork || 'Tari';
       try {
         const adapter = { submit: async request => { const response = await axios.post(`${GATEWAY_URL}/api/bounties/mint`, { walletAddress: request.recipient, amount: request.amount, asset: request.asset, network: request.network, issueNumber: request.issueNumber, prNumber: request.prNumber }, { timeout: 10000 }); return { txId: response.data?.txId, simulated: response.data?.simulated === true }; } };
-        const verifier = null;
+        const verifier = createIndependentVerifierFromEnv();
         const result = await processPayment({ bounty, adapter, verifier });
         bounty.paidAt = result.state === PAYMENT_STATES.CONFIRMED ? new Date() : null;
         await bounty.save();
@@ -139,7 +140,7 @@ exports.getStats = async (req, res) => {
     const pendingBounties = await BountyConfig.countDocuments({ status: 'payment_pending' });
     const paidBounties = await BountyConfig.countDocuments({ status: 'paid' });
     const totalMYZPaid = await BountyConfig.aggregate([{ $match: { status: 'paid' } }, { $group: { _id: null, total: { $sum: '$rewardAmount' } } }]);
-    const topContributors = await BountyConfig.aggregate([{ $match: { status: 'paid' } }, { $group: { _id: '$claimedBy', count: { $sum: 1 }, totalMYZ: { $sum: '$rewardAmount' } } }, { $sort: { totalMYZ: -1 } }, { $limit: 10 }]);
+    const topContributors = await BountyConfig.aggregate([{ $match: { status: 'paid' } }, { $group: { _id: '$claimedBy', count: { $sum: 1, }, totalMYZ: { $sum: '$rewardAmount' } } }, { $sort: { totalMYZ: -1 } }, { $limit: 10 }]);
     res.json({ total: totalBounties, open: openBounties, completed: completedBounties, paymentPending: pendingBounties, paid: paidBounties, totalMYZPaid: totalMYZPaid[0]?.total || 0, topContributors });
   } catch (error) { res.status(500).json({ error: error.message }); }
 };
