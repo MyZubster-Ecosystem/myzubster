@@ -45,25 +45,16 @@ describe('Zorgax live research fallbacks', () => {
     expect(looksTimeSensitive('spiegami la fotosintesi')).toBe(false);
   });
 
-  test('uses GDELT before Wikipedia for current queries when paid search keys are absent', async () => {
+  test('uses Google News before Wikipedia for current queries when paid search keys are absent', async () => {
     delete process.env.BRAVE_SEARCH_API_KEY;
     delete process.env.TAVILY_API_KEY;
 
     global.fetch = jest.fn(async input => {
       const url = String(input);
-      if (url.includes('gdeltproject.org')) {
+      if (url.includes('news.google.com')) {
         return {
           ok: true,
-          json: async () => ({
-            articles: [{
-              title: 'Fresh climate report',
-              url: 'https://example.com/fresh-climate-report',
-              domain: 'example.com',
-              language: 'English',
-              sourcecountry: 'Italy',
-              seendate: '20260829T010000Z'
-            }]
-          })
+          text: async () => `<?xml version="1.0"?><rss><channel><item><title>Fresh climate report</title><link>https://news.google.com/rss/articles/example</link><pubDate>Sat, 29 Aug 2026 01:00:00 GMT</pubDate><source>Example News</source><description><![CDATA[<p>Fresh climate update from Italy.</p>]]></description></item></channel></rss>`
         };
       }
       if (url.includes('wikipedia.org')) {
@@ -88,8 +79,8 @@ describe('Zorgax live research fallbacks', () => {
     const result = await searchWeb('ultime notizie sul clima oggi', 3);
 
     expect(result.live_search_available).toBe(true);
-    expect(result.sources[0].provider).toBe('gdelt');
-    expect(result.providers_used).toEqual(expect.arrayContaining(['gdelt', 'wikipedia']));
+    expect(result.sources[0].provider).toBe('google_news');
+    expect(result.providers_used).toEqual(expect.arrayContaining(['google_news', 'wikipedia']));
     expect(global.fetch).toHaveBeenCalledTimes(2);
   });
 });
