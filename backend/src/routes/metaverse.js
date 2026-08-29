@@ -15,6 +15,10 @@ const WORLD = {
   capacity: 250
 };
 
+// Historical floor for characters created before the public counter existed.
+// This keeps the public total from incorrectly reporting zero during rollout.
+const INITIAL_KNOWN_CHARACTER_COUNT = 1;
+
 const ARCHETYPES = new Set(['guardian', 'explorer', 'maker', 'chronicler', 'scientist']);
 const EMOTES = new Set(['wave', 'spark', 'idea', 'leaf']);
 const sessions = new Map();
@@ -60,6 +64,21 @@ function publicPlayer(session) {
 
 function snapshot() {
   return Array.from(sessions.values()).map(publicPlayer);
+}
+
+async function totalCharacterCount() {
+  if (mongoose.connection.readyState !== 1) return INITIAL_KNOWN_CHARACTER_COUNT;
+
+  try {
+    // A returning browser reuses its generated characterName, while each join
+    // currently creates a fresh persistence row. Count unique character names
+    // so reconnects do not inflate the public creation total.
+    const characterNames = await MetaverseCharacter.distinct('characterName', { worldId: WORLD.id });
+    return Math.max(INITIAL_KNOWN_CHARACTER_COUNT, characterNames.length);
+  } catch (error) {
+    console.error('Metaverse character counter error:', error);
+    return INITIAL_KNOWN_CHARACTER_COUNT;
+  }
 }
 
 function sendEvent(response, payload) {
@@ -124,11 +143,14 @@ async function persistCharacter(session) {
   return 'durable';
 }
 
-router.get('/world', (_req, res) => {
+router.get('/world', async (_req, res) => {
+  const totalCharacters = await totalCharacterCount();
+
   res.json({
     success: true,
     world: WORLD,
     online: sessions.size,
+    totalCharacters,
     players: snapshot(),
     identityMode: 'guest-unverified'
   });
@@ -169,6 +191,7 @@ router.post('/join', async (req, res) => {
 
   try {
     const persistence = await persistCharacter(session);
+    const totalCharacters = await totalCharacterCount();
     sessions.set(id, session);
     broadcast({ type: 'join', player: publicPlayer(session), at: new Date().toISOString() });
 
@@ -178,6 +201,7 @@ router.post('/join', async (req, res) => {
       player: publicPlayer(session),
       players: snapshot(),
       world: WORLD,
+      totalCharacters,
       identityMode: 'guest-unverified',
       persistence,
       note: 'MYZ-ID values are display-only in v0.1 and are not treated as verified identity claims.'

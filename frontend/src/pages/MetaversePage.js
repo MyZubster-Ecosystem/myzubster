@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   createMetaverseEventSource,
+  getMetaverseWorld,
   joinMetaverse,
   leaveMetaverse,
   moveMetaversePlayer,
@@ -58,8 +59,14 @@ function guestCharacterName(displayName) {
   return `${base}-${suffix}`;
 }
 
-function AvatarCreator({ initialProfile, busy, error, onEnter }) {
+function formatCharacterCount(totalCharacters) {
+  if (!Number.isInteger(totalCharacters)) return null;
+  return totalCharacters.toLocaleString('it-IT');
+}
+
+function AvatarCreator({ initialProfile, busy, error, totalCharacters, onEnter }) {
   const [displayName, setDisplayName] = useState(initialProfile?.displayName || '');
+  const formattedTotal = formatCharacterCount(totalCharacters);
 
   const submit = (event) => {
     event.preventDefault();
@@ -79,6 +86,11 @@ function AvatarCreator({ initialProfile, busy, error, onEnter }) {
       <section className="metaverse-entry-card">
         <div className="metaverse-kicker">MYZUBSTER WORLD</div>
         <h2>Entra nel mondo</h2>
+        {formattedTotal && (
+          <p className="metaverse-muted">
+            🌍 <strong>{formattedTotal}</strong> {totalCharacters === 1 ? 'personaggio creato' : 'personaggi creati'}
+          </p>
+        )}
         <p>
           Scegli un nome e inizia subito. Il personaggio viene creato automaticamente;
           potrai personalizzarlo più avanti.
@@ -125,7 +137,20 @@ function MetaversePage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [lastLandmark, setLastLandmark] = useState('Neon Plaza');
+  const [totalCharacters, setTotalCharacters] = useState(null);
   const emoteTimers = useRef({});
+
+  useEffect(() => {
+    let active = true;
+    getMetaverseWorld()
+      .then((result) => {
+        if (active && Number.isInteger(result.totalCharacters)) {
+          setTotalCharacters(result.totalCharacters);
+        }
+      })
+      .catch(() => {});
+    return () => { active = false; };
+  }, []);
 
   const enter = async (nextProfile) => {
     setBusy(true);
@@ -136,6 +161,7 @@ function MetaversePage() {
       setProfile(nextProfile);
       setSessionId(result.sessionId);
       setPlayers(Object.fromEntries(result.players.map((player) => [player.id, player])));
+      if (Number.isInteger(result.totalCharacters)) setTotalCharacters(result.totalCharacters);
       setStatus('online');
     } catch (joinError) {
       setError(joinError.message);
@@ -275,8 +301,18 @@ function MetaversePage() {
   };
 
   if (!sessionId) {
-    return <AvatarCreator initialProfile={profile} busy={busy} error={error} onEnter={enter} />;
+    return (
+      <AvatarCreator
+        initialProfile={profile}
+        busy={busy}
+        error={error}
+        totalCharacters={totalCharacters}
+        onEnter={enter}
+      />
+    );
   }
+
+  const formattedTotal = formatCharacterCount(totalCharacters);
 
   return (
     <div className="metaverse-page">
@@ -286,6 +322,9 @@ function MetaversePage() {
           <span className={`metaverse-status status-${status}`}>{status}</span>
         </div>
         <div className="metaverse-topbar-meta">
+          {formattedTotal && (
+            <span>{formattedTotal} {totalCharacters === 1 ? 'personaggio creato' : 'personaggi creati'}</span>
+          )}
           <span>{Object.keys(players).length} online</span>
           <span>{lastLandmark}</span>
           <button onClick={resetProfile}>Cambia personaggio</button>
