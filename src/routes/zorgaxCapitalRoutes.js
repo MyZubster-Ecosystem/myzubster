@@ -3,13 +3,13 @@
 const express = require('express');
 
 const { authenticate, isAdmin } = require('../middleware/auth');
-const PaymentIntent = require('../models/PaymentIntent');
 const { ZorgaxCapitalAllocation } = require('../models/ZorgaxCapitalAllocation');
+const { ZorgaxEconomicLedgerEntry } = require('../models/ZorgaxEconomicLedgerEntry');
 const allocatorServiceDefault = require('../services/zorgaxCapitalAllocatorService');
 const decisionServiceDefault = require('../services/zorgaxCapitalDecisionService');
 const learningServiceDefault = require('../services/zorgaxCapitalLearningService');
-const metricsServiceDefault = require('../services/zorgaxCapitalMetricsService');
 const policyServiceDefault = require('../services/zorgaxCapitalPolicyService');
+const treasuryServiceDefault = require('../services/zorgaxTreasuryService');
 
 const ECOSYSTEM_OWNER_ID = 'myzubster-ecosystem';
 
@@ -22,39 +22,47 @@ function errorStatus(error) {
 
 async function buildRecommendationBundle({
   req,
-  PaymentIntentModel,
   AllocationModel,
+  LedgerModel,
   allocatorService,
   learningService,
-  metricsService,
-  policyService
+  policyService,
+  treasuryService
 }) {
   const asset = String(req.query.asset || 'BTC').trim().toUpperCase();
   const network = req.query.network ? String(req.query.network).trim() : null;
-  const windowDays = req.query.windowDays;
 
-  const snapshot = await metricsService.getConfirmedInflowSnapshot({
-    PaymentIntentModel,
+  const policy = policyService.getCapitalPolicy({ asset });
+  const snapshot = await treasuryService.getTreasurySnapshot({
+    LedgerModel,
+    ownerId: ECOSYSTEM_OWNER_ID,
     asset,
     network,
-    windowDays
+    reserveMinor: policy.reserveMinor
   });
 
-  const policy = policyService.getCapitalPolicy({ asset: snapshot.asset });
   const learning = await learningService.getLearningSnapshot({
     AllocationModel,
-    ownerId: ECOSYSTEM_OWNER_ID
+    ownerId: ECOSYSTEM_OWNER_ID,
+    asset: snapshot.asset,
+    network: snapshot.network
   });
   const learnedOpportunities = learningService.applyLearningToOpportunities(
     policy.opportunities,
     learning.categories
   );
 
+  /*
+   * The allocator still owns ranking and max-allocation math, but accounting
+   * constraints have already been applied by the treasury snapshot. Feeding
+   * investableCapitalMinor as the allocator's available base prevents policy
+   * expenses/obligations/reserve from being subtracted twice.
+   */
   const allocation = allocatorService.recommendAllocations({
-    revenueMinor: snapshot.confirmedRevenueMinor,
-    expensesMinor: policy.expensesMinor,
-    obligationsMinor: policy.obligationsMinor,
-    reserveMinor: policy.reserveMinor,
+    revenueMinor: snapshot.investableCapitalMinor,
+    expensesMinor: 0,
+    obligationsMinor: 0,
+    reserveMinor: 0,
     opportunities: learnedOpportunities,
     maxAllocationBps: policy.maxAllocationBps
   });
@@ -68,13 +76,12 @@ async function buildRecommendationBundle({
     snapshot,
     learning,
     policy: {
-      expensesMinor: policy.expensesMinor,
-      obligationsMinor: policy.obligationsMinor,
       reserveMinor: policy.reserveMinor,
       maxAllocationBps: policy.maxAllocationBps,
       policySource: policy.policySource,
       scoresSource: policy.scoresSource,
-      learningMode: 'bounded_evidence_adjustment'
+      learningMode: 'bounded_evidence_adjustment',
+      accountingMode: 'zorgax_economic_ledger_v1'
     },
     capital: {
       availableCapitalMinor: allocation.availableCapitalMinor,
@@ -87,13 +94,13 @@ async function buildRecommendationBundle({
 function createZorgaxCapitalRouter({
   authenticateMiddleware = authenticate,
   adminMiddleware = isAdmin,
-  PaymentIntentModel = PaymentIntent,
   AllocationModel = ZorgaxCapitalAllocation,
+  LedgerModel = ZorgaxEconomicLedgerEntry,
   allocatorService = allocatorServiceDefault,
   decisionService = decisionServiceDefault,
   learningService = learningServiceDefault,
-  metricsService = metricsServiceDefault,
-  policyService = policyServiceDefault
+  policyService = policyServiceDefault,
+  treasuryService = treasuryServiceDefault
 } = {}) {
   const router = express.Router();
   const adminOnly = [authenticateMiddleware, adminMiddleware];
@@ -102,12 +109,12 @@ function createZorgaxCapitalRouter({
     try {
       const bundle = await buildRecommendationBundle({
         req,
-        PaymentIntentModel,
         AllocationModel,
+        LedgerModel,
         allocatorService,
         learningService,
-        metricsService,
-        policyService
+        policyService,
+        treasuryService
       });
       return res.status(200).json(bundle);
     } catch (error) {
@@ -115,11 +122,15 @@ function createZorgaxCapitalRouter({
     }
   });
 
-  router.get('/learning', ...adminOnly, async (_req, res) => {
+  router.get('/learning', ...adminOnly, async (req, res) => {
     try {
+      const asset = String(req.query.asset || 'BTC').trim().toUpperCase();
+      const network = req.query.network ? String(req.query.network).trim() : null;
       const learning = await learningService.getLearningSnapshot({
         AllocationModel,
-        ownerId: ECOSYSTEM_OWNER_ID
+        ownerId: ECOSYSTEM_OWNER_ID,
+        asset,
+        network
       });
       return res.status(200).json({
         success: true,
@@ -139,12 +150,12 @@ function createZorgaxCapitalRouter({
 
       const bundle = await buildRecommendationBundle({
         req,
-        PaymentIntentModel,
         AllocationModel,
+        LedgerModel,
         allocatorService,
         learningService,
-        metricsService,
-        policyService
+        policyService,
+        treasuryService
       });
 
       const allocations = await decisionService.recordRecommendations({
@@ -157,9 +168,12 @@ function createZorgaxCapitalRouter({
         metadata: {
           generatedAt: bundle.generatedAt,
           accountingBasis: bundle.snapshot.accountingBasis,
-          windowDays: bundle.snapshot.windowDays,
-          confirmedIntentCount: bundle.snapshot.confirmedIntentCount,
-          confirmedRevenueMinor: bundle.snapshot.confirmedRevenueMinor,
+          recognizedRevenueMinor: bundle.snapshot.recognizedRevenueMinor,
+          recognizedExpensesMinor: bundle.snapshot.recognizedExpensesMinor,
+          recognizedProfitMinor: bundle.snapshot.recognizedProfitMinor,
+          outstandingLiabilitiesMinor: bundle.snapshot.outstandingLiabilitiesMinor,
+          treasuryBalanceMinor: bundle.snapshot.treasuryBalanceMinor,
+          investableCapitalMinor: bundle.snapshot.investableCapitalMinor,
           policy: bundle.policy,
           learning: bundle.learning
         }
