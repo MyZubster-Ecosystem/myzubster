@@ -17,14 +17,20 @@ function buildApp({ role = 'admin' } = {}) {
     return next();
   };
 
-  const metricsService = {
-    getConfirmedInflowSnapshot: jest.fn().mockResolvedValue({
+  const treasuryService = {
+    getTreasurySnapshot: jest.fn().mockResolvedValue({
+      ownerId: 'myzubster-ecosystem',
       asset: 'BTC',
       network: 'mainnet',
-      windowDays: 30,
-      confirmedIntentCount: 2,
-      confirmedRevenueMinor: 100000,
-      accountingBasis: 'confirmed_payment_intents'
+      recognizedRevenueMinor: 100000,
+      recognizedExpensesMinor: 20000,
+      recognizedProfitMinor: 80000,
+      outstandingLiabilitiesMinor: 10000,
+      treasuryBalanceMinor: 80000,
+      reserveMinor: 10000,
+      capitalBeforeReserveMinor: 70000,
+      investableCapitalMinor: 60000,
+      accountingBasis: 'zorgax_economic_ledger_v1'
     })
   };
   const policyService = {
@@ -56,10 +62,14 @@ function buildApp({ role = 'admin' } = {}) {
   };
   const learningService = {
     getLearningSnapshot: jest.fn().mockResolvedValue({
-      categories: {},
+      asset: 'BTC',
+      network: 'mainnet',
+      categories: [],
       guardrails: {
-        minimumCompletedOutcomes: 2,
-        maxFinancialReturnAdjustment: 12
+        minimumSamplesBeforeAdjustment: 2,
+        maxFinancialReturnScoreAdjustment: 12,
+        isolatesAsset: true,
+        isolatesNetworkWhenSpecified: true
       }
     }),
     applyLearningToOpportunities: jest.fn((opportunities) => opportunities)
@@ -77,13 +87,13 @@ function buildApp({ role = 'admin' } = {}) {
   const router = capitalRoutes.createZorgaxCapitalRouter({
     authenticateMiddleware,
     adminMiddleware,
-    PaymentIntentModel: {},
     AllocationModel: {},
+    LedgerModel: {},
     allocatorService,
     decisionService,
     learningService,
-    metricsService,
-    policyService
+    policyService,
+    treasuryService
   });
 
   const app = express();
@@ -103,12 +113,18 @@ describe('Zorgax Capital Decision API', () => {
     expect(response.body.executionEnabled).toBe(false);
     expect(response.body.requiresHumanApproval).toBe(true);
     expect(learningService.getLearningSnapshot).toHaveBeenCalledWith(expect.objectContaining({
-      ownerId: 'myzubster-ecosystem'
+      ownerId: 'myzubster-ecosystem',
+      asset: 'BTC',
+      network: 'mainnet'
     }));
     expect(decisionService.recordRecommendations).toHaveBeenCalledWith(expect.objectContaining({
       ownerId: 'myzubster-ecosystem',
       cycleReference: '2026-08',
-      asset: 'BTC'
+      asset: 'BTC',
+      metadata: expect.objectContaining({
+        accountingBasis: 'zorgax_economic_ledger_v1',
+        investableCapitalMinor: 60000
+      })
     }));
   });
 
