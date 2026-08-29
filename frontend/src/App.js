@@ -6,6 +6,7 @@ import MetaversePage from './pages/MetaversePage';
 import MarketplacePage from './pages/MarketplacePage';
 import MarketplaceOpsPage from './pages/MarketplaceOpsPage';
 import SocialLoginPage from './pages/SocialLoginPage';
+import ZorgaxLifePilotPage from './pages/ZorgaxLifePilotPage';
 
 const TABS = {
   WORLD: 'world',
@@ -24,6 +25,10 @@ function App() {
     return <SocialLoginPage />;
   }
 
+  if (path === '/life-pilot' || path === '/zorgax/life-pilot') {
+    return <ZorgaxLifePilotPage />;
+  }
+
   return (
     <div className="App">
       <nav style={{ padding: '12px 20px', display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }} aria-label="MyZubster main navigation">
@@ -36,6 +41,7 @@ function App() {
         <button onClick={() => setActiveTab(TABS.MARKETPLACE)}>Marketplace</button>
         <button onClick={() => setActiveTab(TABS.MARKETPLACE_OPS)}>I miei scambi</button>
         <a href="/zorgax">Zorgax</a>
+        <a href="/life-pilot" style={{ fontWeight: 900 }}>LIFE Pilot</a>
         <a href="/fumetto">Fumetto</a>
       </nav>
 
