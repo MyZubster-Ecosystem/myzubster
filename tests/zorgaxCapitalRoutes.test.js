@@ -17,22 +17,28 @@ function buildApp({ role = 'admin' } = {}) {
     return next();
   };
 
-  const metricsService = {
-    getConfirmedInflowSnapshot: jest.fn().mockResolvedValue({
+  const treasuryService = {
+    getTreasurySnapshot: jest.fn().mockResolvedValue({
+      ownerId: 'myzubster-ecosystem',
       asset: 'BTC',
       network: 'mainnet',
-      windowDays: 30,
-      since: new Date('2026-07-30T12:00:00.000Z'),
-      until: new Date('2026-08-29T12:00:00.000Z'),
-      confirmedIntentCount: 3,
-      confirmedRevenueMinor: 100000,
-      accountingBasis: 'confirmed_payment_intents',
-      caveat: 'not audited profit'
+      recognizedRevenueMinor: 100000,
+      recognizedExpensesMinor: 20000,
+      recognizedProfitMinor: 80000,
+      outstandingLiabilitiesMinor: 10000,
+      treasuryBalanceMinor: 80000,
+      reserveMinor: 10000,
+      capitalBeforeReserveMinor: 70000,
+      investableCapitalMinor: 60000,
+      accountingBasis: 'zorgax_economic_ledger_v1',
+      caveat: 'operational accounting only'
     })
   };
 
   const learningService = {
     getLearningSnapshot: jest.fn().mockResolvedValue({
+      asset: 'BTC',
+      network: 'mainnet',
       completedAllocationCount: 2,
       categories: [{
         category: 'SECURITY',
@@ -49,7 +55,9 @@ function buildApp({ role = 'admin' } = {}) {
         minimumSamplesBeforeAdjustment: 2,
         modifiesRiskScore: false,
         modifiesReserve: false,
-        modifiesMaxAllocation: false
+        modifiesMaxAllocation: false,
+        isolatesAsset: true,
+        isolatesNetworkWhenSpecified: true
       }
     }),
     applyLearningToOpportunities: jest.fn((opportunities) => opportunities.map((item) => ({
@@ -95,50 +103,62 @@ function buildApp({ role = 'admin' } = {}) {
   const router = capitalRoutes.createZorgaxCapitalRouter({
     authenticateMiddleware,
     adminMiddleware,
-    PaymentIntentModel: {},
     AllocationModel: {},
-    metricsService,
+    LedgerModel: {},
     learningService,
     policyService,
+    treasuryService,
     allocatorService
   });
 
   const app = express();
   app.use('/api/zorgax/capital', router);
-  return { app, metricsService, learningService, policyService };
+  return { app, treasuryService, learningService, policyService };
 }
 
 describe('Zorgax Capital API', () => {
-  test('returns admin-only advisory recommendations from confirmed inflow', async () => {
-    const { app } = buildApp();
+  test('returns admin-only advisory recommendations from investable treasury capital', async () => {
+    const { app, treasuryService, learningService } = buildApp();
     const response = await request(app)
-      .get('/api/zorgax/capital/recommendations?asset=BTC&network=mainnet&windowDays=30')
+      .get('/api/zorgax/capital/recommendations?asset=BTC&network=mainnet')
       .expect(200);
 
     expect(response.body.advisoryOnly).toBe(true);
     expect(response.body.requiresHumanApproval).toBe(true);
     expect(response.body.executionEnabled).toBe(false);
-    expect(response.body.snapshot.confirmedRevenueMinor).toBe(100000);
+    expect(response.body.snapshot.accountingBasis).toBe('zorgax_economic_ledger_v1');
+    expect(response.body.snapshot.investableCapitalMinor).toBe(60000);
     expect(response.body.capital.availableCapitalMinor).toBe(60000);
     expect(response.body.capital.deployableCapitalMinor).toBe(30000);
-    expect(response.body.policy.learningMode).toBe('bounded_evidence_adjustment');
-    expect(response.body.learning.guardrails.modifiesRiskScore).toBe(false);
-    expect(response.body.learning.guardrails.modifiesReserve).toBe(false);
-    expect(response.body.learning.guardrails.modifiesMaxAllocation).toBe(false);
+    expect(response.body.policy.accountingMode).toBe('zorgax_economic_ledger_v1');
+    expect(response.body.learning.guardrails.isolatesAsset).toBe(true);
     expect(response.body.recommendations).toHaveLength(1);
     expect(response.body.recommendations[0].amountMinor).toBe(30000);
+    expect(treasuryService.getTreasurySnapshot).toHaveBeenCalledWith(expect.objectContaining({
+      asset: 'BTC',
+      network: 'mainnet',
+      reserveMinor: 10000
+    }));
+    expect(learningService.getLearningSnapshot).toHaveBeenCalledWith(expect.objectContaining({
+      asset: 'BTC',
+      network: 'mainnet'
+    }));
   });
 
-  test('exposes learning evidence without enabling execution', async () => {
-    const { app } = buildApp();
+  test('exposes asset/network-isolated learning evidence without enabling execution', async () => {
+    const { app, learningService } = buildApp();
     const response = await request(app)
-      .get('/api/zorgax/capital/learning')
+      .get('/api/zorgax/capital/learning?asset=BTC&network=mainnet')
       .expect(200);
 
     expect(response.body.advisoryOnly).toBe(true);
     expect(response.body.learningMode).toBe('bounded_evidence_adjustment');
     expect(response.body.learning.completedAllocationCount).toBe(2);
     expect(response.body.learning.guardrails.maxFinancialReturnScoreAdjustment).toBe(12);
+    expect(learningService.getLearningSnapshot).toHaveBeenCalledWith(expect.objectContaining({
+      asset: 'BTC',
+      network: 'mainnet'
+    }));
   });
 
   test('rejects non-admin callers', async () => {
