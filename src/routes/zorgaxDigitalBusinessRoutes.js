@@ -11,6 +11,7 @@ function errorStatus(error) {
   if (message.includes('cannot advance')) return 409;
   if (message.includes('needs more evidence')) return 409;
   if (message.includes('blueprint is required')) return 409;
+  if (message.includes('already exists with different')) return 409;
   return 400;
 }
 
@@ -63,6 +64,27 @@ function createZorgaxDigitalBusinessRouter({ authenticateMiddleware = authentica
     try {
       const result = await service.generateLaunchOffer({ ProjectModel, ownerId: String(req.userId), projectId: req.params.projectId });
       return res.status(200).json({ success: true, advisoryOnly: true, requiresHumanApproval: true, executionPerformed: false, publicationPerformed: false, externalMessagesSent: false, predictsProfit: false, project: result.project, launchOffer: result.launchOffer });
+    } catch (error) { return res.status(errorStatus(error)).json({ success: false, message: error.message }); }
+  });
+
+  router.post('/projects/:projectId/metrics', authenticateMiddleware, async (req, res) => {
+    try {
+      const result = await service.recordProductMetric({ ProjectModel, ownerId: String(req.userId), projectId: req.params.projectId, metricType: req.body?.metricType, quantity: req.body?.quantity === undefined ? 1 : req.body.quantity, amountMinor: req.body?.amountMinor === undefined ? null : req.body.amountMinor, currency: req.body?.currency === undefined ? null : req.body.currency, sourceReference: req.body?.sourceReference, occurredAt: req.body?.occurredAt ? new Date(req.body.occurredAt) : new Date(), metadata: req.body?.metadata || {} });
+      return res.status(result.replay ? 200 : 201).json({ success: true, measurementOnly: true, accountingWritePerformed: false, paymentVerified: false, event: result.event, replay: result.replay });
+    } catch (error) { return res.status(errorStatus(error)).json({ success: false, message: error.message }); }
+  });
+
+  router.get('/projects/:projectId/metrics', authenticateMiddleware, async (req, res) => {
+    try {
+      const snapshot = await service.getProductMetricSnapshot({ ProjectModel, ownerId: String(req.userId), projectId: req.params.projectId, currency: req.query.currency || null });
+      return res.status(200).json({ success: true, measurementOnly: true, accountingIntegrated: false, snapshot });
+    } catch (error) { return res.status(errorStatus(error)).json({ success: false, message: error.message }); }
+  });
+
+  router.get('/projects/:projectId/learning', authenticateMiddleware, async (req, res) => {
+    try {
+      const result = await service.getProductLearningReport({ ProjectModel, ownerId: String(req.userId), projectId: req.params.projectId, currency: req.query.currency || null });
+      return res.status(200).json({ success: true, advisoryOnly: true, executionPerformed: false, predictsFutureSales: false, project: result.project, snapshot: result.snapshot, report: result.report });
     } catch (error) { return res.status(errorStatus(error)).json({ success: false, message: error.message }); }
   });
 
