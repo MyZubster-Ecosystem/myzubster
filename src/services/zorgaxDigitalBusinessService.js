@@ -4,6 +4,7 @@ const { PROJECT_STATUSES, ZorgaxDigitalProductProject } = require('../models/Zor
 const ideaValidationServiceDefault = require('./zorgaxDigitalIdeaValidationService');
 const productBlueprintServiceDefault = require('./zorgaxDigitalProductBlueprintService');
 const launchOfferServiceDefault = require('./zorgaxDigitalLaunchOfferService');
+const metricsServiceDefault = require('./zorgaxDigitalProductMetricsService');
 
 const STATUS_ORDER = Object.freeze([
   PROJECT_STATUSES.IDEA,
@@ -35,18 +36,7 @@ function publicProject(item) {
 }
 
 async function createProject({ ProjectModel = ZorgaxDigitalProductProject, ownerId, title, description, productType, targetCustomer = '', customerProblem = '', valueProposition = '', metadata = {} }) {
-  const item = await ProjectModel.create({
-    ownerId: requireNonEmptyString(ownerId, 'ownerId'),
-    title: requireNonEmptyString(title, 'title'),
-    description: requireNonEmptyString(description, 'description'),
-    productType: requireNonEmptyString(productType, 'productType'),
-    targetCustomer: String(targetCustomer || '').trim(),
-    customerProblem: String(customerProblem || '').trim(),
-    valueProposition: String(valueProposition || '').trim(),
-    advisoryOnly: true,
-    humanApprovalRequired: true,
-    metadata: metadata && typeof metadata === 'object' ? metadata : {}
-  });
+  const item = await ProjectModel.create({ ownerId: requireNonEmptyString(ownerId, 'ownerId'), title: requireNonEmptyString(title, 'title'), description: requireNonEmptyString(description, 'description'), productType: requireNonEmptyString(productType, 'productType'), targetCustomer: String(targetCustomer || '').trim(), customerProblem: String(customerProblem || '').trim(), valueProposition: String(valueProposition || '').trim(), advisoryOnly: true, humanApprovalRequired: true, metadata: metadata && typeof metadata === 'object' ? metadata : {} });
   return publicProject(item);
 }
 
@@ -67,15 +57,7 @@ function buildAdvisoryPlan(project) {
   if (!project.targetCustomer) missing.push('Define the target customer precisely.');
   if (!project.customerProblem) missing.push('Define the customer problem the product solves.');
   if (!project.valueProposition) missing.push('Write a clear value proposition.');
-  return {
-    projectId: project.projectId,
-    status: project.status,
-    advisoryOnly: true,
-    requiresHumanApproval: true,
-    commercializationGuarantee: false,
-    nextActions: [...missing, 'Validate demand with real prospective customers before scaling production.', 'Define the smallest sellable version of the product.', 'Choose a price hypothesis and test willingness to pay.', 'Prepare a launch page, FAQ and support plan before publishing.'],
-    launchChecklist: ['Product scope approved by owner', 'Target customer and problem validated', 'Price approved by owner', 'Sales claims reviewed for accuracy', 'Landing page reviewed', 'Customer support channel prepared', 'Publication explicitly approved by owner']
-  };
+  return { projectId: project.projectId, status: project.status, advisoryOnly: true, requiresHumanApproval: true, commercializationGuarantee: false, nextActions: [...missing, 'Validate demand with real prospective customers before scaling production.', 'Define the smallest sellable version of the product.', 'Choose a price hypothesis and test willingness to pay.', 'Prepare a launch page, FAQ and support plan before publishing.'], launchChecklist: ['Product scope approved by owner', 'Target customer and problem validated', 'Price approved by owner', 'Sales claims reviewed for accuracy', 'Landing page reviewed', 'Customer support channel prepared', 'Publication explicitly approved by owner'] };
 }
 
 async function getAdvisoryPlan(args) {
@@ -133,6 +115,27 @@ async function generateLaunchOffer({ ProjectModel = ZorgaxDigitalProductProject,
   return { project: publicProject(item), launchOffer };
 }
 
+async function recordProductMetric({ ProjectModel = ZorgaxDigitalProductProject, metricsService = metricsServiceDefault, ownerId, projectId, ...event }) {
+  await getProject({ ProjectModel, ownerId, projectId });
+  return metricsService.recordMetricEvent({ ownerId: String(ownerId), projectId, ...event });
+}
+
+async function getProductMetricSnapshot({ ProjectModel = ZorgaxDigitalProductProject, metricsService = metricsServiceDefault, ownerId, projectId, currency = null }) {
+  await getProject({ ProjectModel, ownerId, projectId });
+  return metricsService.getMetricSnapshot({ ownerId: String(ownerId), projectId, currency });
+}
+
+async function getProductLearningReport({ ProjectModel = ZorgaxDigitalProductProject, metricsService = metricsServiceDefault, ownerId, projectId, currency = null }) {
+  const item = await getProject({ ProjectModel, ownerId, projectId });
+  const snapshot = await metricsService.getMetricSnapshot({ ownerId: String(ownerId), projectId, currency });
+  const report = metricsService.buildLearningReport(snapshot);
+  if (item.status === PROJECT_STATUSES.LAUNCHED) {
+    item.status = PROJECT_STATUSES.MEASURING;
+    await item.save();
+  }
+  return { project: publicProject(item), snapshot, report };
+}
+
 async function advanceProject({ ProjectModel = ZorgaxDigitalProductProject, ownerId, projectId, nextStatus }) {
   const item = await getProject({ ProjectModel, ownerId, projectId });
   const normalized = requireNonEmptyString(nextStatus, 'nextStatus').toUpperCase();
@@ -146,4 +149,4 @@ async function advanceProject({ ProjectModel = ZorgaxDigitalProductProject, owne
   return publicProject(item);
 }
 
-module.exports = { STATUS_ORDER, advanceProject, buildAdvisoryPlan, createProject, generateLaunchOffer, generateProductBlueprint, getAdvisoryPlan, getProject, listProjects, publicProject, updateStrategy, validateProjectIdea };
+module.exports = { STATUS_ORDER, advanceProject, buildAdvisoryPlan, createProject, generateLaunchOffer, generateProductBlueprint, getAdvisoryPlan, getProductLearningReport, getProductMetricSnapshot, getProject, listProjects, publicProject, recordProductMetric, updateStrategy, validateProjectIdea };
