@@ -9,7 +9,7 @@ const { verifyAndActivatePaymentIntent } = require('../services/zorgaxPaymentInt
 const router = express.Router();
 
 router.get('/status', (_req, res) => {
-  res.json({ ok: true, entity: 'ZORGAX-001', capability: 'general-assistant-v1', chat: true, web_research: true, data_entry: true, monetization: true, paid_access_lifecycle: true, payment_intents_persisted: true, payment_activation_requires_trusted_verifier: true, crypto_quotes_require_trusted_provider: true, data_write_requires_auth: true, data_write_requires_confirmation: true, autonomous_persistent_writes: false, providers: { brave_search: Boolean(process.env.BRAVE_SEARCH_API_KEY), tavily: Boolean(process.env.TAVILY_API_KEY), wikipedia: true, general_ai_gateway: true } });
+  res.json({ ok: true, entity: 'ZORGAX-001', capability: 'general-assistant-v1', chat: true, web_research: true, data_entry: true, monetization: true, paid_access_lifecycle: true, payment_intents_persisted: true, payment_activation_requires_trusted_verifier: true, crypto_quotes_require_trusted_provider: true, data_write_requires_auth: true, data_write_requires_confirmation: true, autonomous_persistent_writes: false, providers: { brave_search: Boolean(process.env.BRAVE_SEARCH_API_KEY), tavily: Boolean(process.env.TAVILY_API_KEY), google_news: true, wikipedia: true, general_ai_gateway: true } });
 });
 
 router.get('/pricing', (_req, res) => res.json({ ok: true, entity: 'ZORGAX-001', ...catalog() }));
