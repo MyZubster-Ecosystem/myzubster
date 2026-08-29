@@ -30,7 +30,9 @@ const digitalProductProjectSchema = new mongoose.Schema({
   validation: {
     assumptions: { type: [String], default: [] },
     evidence: { type: [String], default: [] },
-    risks: { type: [String], default: [] }
+    risks: { type: [String], default: [] },
+    latestReport: { type: mongoose.Schema.Types.Mixed, default: null },
+    latestValidatedAt: { type: Date, default: null }
   },
   launchChecklist: { type: [String], default: [] },
   advisoryOnly: { type: Boolean, default: true, immutable: true },
