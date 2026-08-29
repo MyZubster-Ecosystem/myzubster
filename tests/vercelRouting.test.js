@@ -4,23 +4,31 @@ const fs = require('fs');
 const path = require('path');
 
 describe('Vercel routing', () => {
-  test('routes the Zorgax capital API locally before the public gateway proxy', () => {
-    const configPath = path.join(__dirname, '..', 'vercel.json');
-    const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-    const routes = config.routes || [];
+  const protectedZorgaxRoutes = [
+    '/api/zorgax/capital/(.*)',
+    '/api/zorgax/digital-business/(.*)',
+  ];
 
-    const capitalRouteIndex = routes.findIndex(
-      (route) => route.src === '/api/zorgax/capital/(.*)'
-    );
-    const publicProxyIndex = routes.findIndex(
-      (route) => route.src === '/api/zorgax/(.*)'
-    );
+  test.each(protectedZorgaxRoutes)(
+    'routes %s locally before the public gateway proxy',
+    (protectedRoute) => {
+      const configPath = path.join(__dirname, '..', 'vercel.json');
+      const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+      const routes = config.routes || [];
 
-    expect(capitalRouteIndex).toBeGreaterThanOrEqual(0);
-    expect(routes[capitalRouteIndex].dest).toBe('/api/index.js');
-    expect(publicProxyIndex).toBeGreaterThan(capitalRouteIndex);
-    expect(routes[publicProxyIndex].dest).toBe(
-      'https://myzubster-gateway.vercel.app/api/zargox/$1'
-    );
-  });
+      const protectedRouteIndex = routes.findIndex(
+        (route) => route.src === protectedRoute
+      );
+      const publicProxyIndex = routes.findIndex(
+        (route) => route.src === '/api/zorgax/(.*)'
+      );
+
+      expect(protectedRouteIndex).toBeGreaterThanOrEqual(0);
+      expect(routes[protectedRouteIndex].dest).toBe('/api/index.js');
+      expect(publicProxyIndex).toBeGreaterThan(protectedRouteIndex);
+      expect(routes[publicProxyIndex].dest).toBe(
+        'https://myzubster-gateway.vercel.app/api/zargox/$1'
+      );
+    }
+  );
 });
