@@ -108,18 +108,9 @@ async function wikipediaSearch(query, limit) {
   }));
 }
 
-function searchLinks(query) {
-  const q = encodeURIComponent(query);
-  return [
-    { label: 'S1', provider: 'google', title: `Google: ${query}`, url: `https://www.google.com/search?q=${q}`, snippet: 'Ricerca web generale.' },
-    { label: 'S2', provider: 'bing', title: `Bing: ${query}`, url: `https://www.bing.com/search?q=${q}`, snippet: 'Ricerca web generale.' },
-    { label: 'S3', provider: 'duckduckgo', title: `DuckDuckGo: ${query}`, url: `https://duckduckgo.com/?q=${q}`, snippet: 'Ricerca web generale.' }
-  ];
-}
-
 async function searchWeb(query, requestedLimit = 5) {
   const cleanQuery = cleanText(query, 500);
-  if (!cleanQuery) return { query: '', sources: [], errors: [] };
+  if (!cleanQuery) return { query: '', sources: [], errors: [], live_search_available: false, providers_used: [] };
   const limit = clampLimit(requestedLimit);
   const errors = [];
   const groups = await Promise.all([
@@ -130,15 +121,26 @@ async function searchWeb(query, requestedLimit = 5) {
   const seen = new Set();
   const sources = groups.flat().filter(source => {
     if (!source.url || seen.has(source.url)) return false;
-    seen.add(source.url); return true;
+    seen.add(source.url);
+    return true;
   }).slice(0, limit);
-  if (!sources.length) sources.push(...searchLinks(cleanQuery));
-  return { query: cleanQuery, sources, errors };
+  const providersUsed = [...new Set(sources.map(source => source.provider).filter(Boolean))];
+  return {
+    query: cleanQuery,
+    sources,
+    errors,
+    live_search_available: sources.length > 0,
+    providers_used: providersUsed
+  };
 }
 
-async function askGeneralAI(message, sources = [], history = []) {
+async function askGeneralAI(message, sources = [], history = [], webRequested = false) {
   const gateway = String(process.env.ZORGAX_PUBLIC_AI_URL || DEFAULT_GATEWAY).replace(/\/$/, '');
-  const sourceContext = sources.length ? `\n\nFONTI WEB (cita le etichette quando le usi):\n${sources.map(s => `[${s.label}] ${s.title}\n${s.url}\n${s.snippet}`).join('\n\n')}` : '';
+  const sourceContext = sources.length
+    ? `\n\nFONTI WEB REALMENTE RECUPERATE (cita le etichette quando le usi):\n${sources.map(s => `[${s.label}] ${s.title}\n${s.url}\n${s.snippet}`).join('\n\n')}`
+    : webRequested
+      ? '\n\nRICERCA WEB LIVE: nessuna fonte reale è stata recuperata. Non affermare di avere consultato il web, non presentare dati come aggiornati a oggi e non inventare fonti o link. Se la richiesta dipende da informazioni attuali, dichiarare chiaramente che la ricerca live non è disponibile in questa risposta.'
+      : '';
   const prompt = `${cleanText(message)}${sourceContext}\n\nRispondi in modo utile e chiaro. Distingui fatti verificati, inferenze e incertezze. Non inventare fonti.`;
   const response = await fetch(`${gateway}/api/zargox/chat`, {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -161,9 +163,19 @@ async function answer({ message, useWeb = true, history = [], limit = 5 }) {
       sources: []
     };
   }
-  const research = useWeb ? await searchWeb(text, limit) : { query: text, sources: [], errors: [] };
-  const response = await askGeneralAI(text, research.sources, history);
-  return { response, sources: research.sources, search_errors: research.errors, action_required: null };
+  const research = useWeb
+    ? await searchWeb(text, limit)
+    : { query: text, sources: [], errors: [], live_search_available: false, providers_used: [] };
+  const response = await askGeneralAI(text, research.sources, history, useWeb);
+  return {
+    response,
+    sources: research.sources,
+    search_errors: research.errors,
+    web_research_requested: Boolean(useWeb),
+    web_research_available: Boolean(research.live_search_available),
+    web_providers_used: research.providers_used,
+    action_required: null
+  };
 }
 
 module.exports = { answer, searchWeb, previewData, digestPreview, dataIntent, inferCategory };
