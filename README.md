@@ -386,6 +386,17 @@ Authorized real-world pilot
 → operational evidence
 ```
 
+### Independent public discovery signals — 29 Aug 2026
+
+A public discovery check identified two external signals that are kept separate from stronger adoption evidence:
+
+- **ShipRadar** independently indexed MyZubster GitHub opportunities, including the External & LIFE Bounty Federation and the visual-comic bounty. This is evidence of third-party discovery/indexing outside MyZubster-owned channels; it is **not** evidence of payout, contributor conversion, partnership, endorsement or adoption.
+- **Web Pulse** republished/syndicated a MyZubster article originally published on DEV. This is treated as a secondary distribution signal rather than independent editorial validation.
+
+At the time of the check, production Web Analytics data were not available in a form sufficient to compare visitors, page views, landing pages, referrers/search, countries and devices against a recent baseline. Therefore no traffic spike or causal relationship is claimed.
+
+**Next verification gate:** look for a material new referrer/search source associated with these external surfaces, or a temporally aligned increase in relevant DAO, bounty, contributor or Chronicle landing-page traffic. Causality should only be stated when supported by referral and timing evidence.
+
 See [`docs/PUBLIC-COMMUNITY-ACTIVITY.md`](docs/PUBLIC-COMMUNITY-ACTIVITY.md) and submit reproducible external evidence through [issue #715](https://github.com/MyZubster-Ecosystem/myzubster/issues/715).
 
 Passive visitors must not be deanonymized or correlated with GitHub identities without an explicit legitimate privacy-respecting basis.
