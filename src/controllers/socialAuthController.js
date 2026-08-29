@@ -2,6 +2,26 @@ const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const { upsertVerifiedAccount } = require('../services/socialIdentityService');
 
+const OAUTH_ENV_KEYS = [
+  'GOOGLE_LOGIN_CLIENT_ID',
+  'GOOGLE_LOGIN_CLIENT_SECRET',
+  'GOOGLE_LOGIN_CALLBACK_URL',
+  'GOOGLE_OAUTH_CLIENT_ID',
+  'GOOGLE_OAUTH_CLIENT_SECRET',
+  'GOOGLE_OAUTH_CALLBACK_URL',
+  'GITHUB_OAUTH_CLIENT_ID',
+  'GITHUB_OAUTH_CLIENT_SECRET',
+  'GITHUB_LOGIN_CALLBACK_URL',
+  'GITHUB_OAUTH_CALLBACK_URL',
+  'FACEBOOK_LOGIN_APP_ID',
+  'FACEBOOK_LOGIN_APP_SECRET',
+  'FACEBOOK_LOGIN_CALLBACK_URL'
+];
+
+for (const key of OAUTH_ENV_KEYS) {
+  if (typeof process.env[key] === 'string') process.env[key] = process.env[key].trim();
+}
+
 function secret() { if (!process.env.JWT_SECRET) throw new Error('JWT_SECRET non configurato'); return process.env.JWT_SECRET; }
 function frontend() { return (process.env.FRONTEND_URL || process.env.PUBLIC_APP_URL || 'https://myzubster.com').replace(/\/$/, ''); }
 function callback(provider) {
