@@ -10,6 +10,34 @@ MyZubster turns authorized real-world observations — photos, places, environme
 
 **Current state:** MVP / active development and validation. Some components are operational, others experimental or in active implementation. A roadmap, issue, PR, merge, discussion or automated test is not by itself proof of deployment, partnership, adoption, funding or external payment.
 
+## 🇮🇹 Public compliance-by-design — Italy / EU
+
+MyZubster is **not** presented as automatically or universally legal merely because it is open source or because this README says so. The project instead adopts a verifiable **compliance-by-design** model: each real deployment must respect the laws, permissions, data rights, security requirements and sector-specific rules applicable to its actual use case.
+
+The operating principle is:
+
+> **Evidence before claims. Human responsibility before automation. Authorization before deployment.**
+
+For MyZubster this means:
+
+- **NO AUTHORIZATION → NO DEPLOYMENT** for third-party sites, infrastructure, systems or protected/non-public data;
+- **NO EVIDENCE → NO CLAIM** for material project, pilot, partnership, validation or adoption statements;
+- **REGULATED FEATURE → SEPARATE REVIEW** before activation;
+- AI/automation may assist workflows but does not automatically replace required human responsibility or oversight;
+- candidate pilots remain `CANDIDATE / PENDING AUTHORIZATION` until the relevant authorization and scope are evidenced;
+- open DAO/community participation does not automatically create employment, payment, partnership, representation or authority to bind third parties;
+- `MYZ`/token concepts remain separate from environmental evidence and operational responsibility, and any future regulated payment/crypto-asset functionality requires a dedicated assessment before activation;
+- privacy, cybersecurity, intellectual property, workplace safety, environmental rules, cultural/archaeological heritage, public procurement, professional requirements and other sector-specific law remain applicable whenever relevant.
+
+The Italian and EU reference framework includes **Italian Law 23 September 2025, no. 132** on artificial intelligence and **Regulation (EU) 2024/1689 (AI Act)**. MyZubster's position is not that technology is outside regulation; it is that authorization, evidence, human responsibility and applicable compliance gates must be satisfied before real-world use.
+
+If a proposed function cannot lawfully be deployed, lacks a required authorization, or needs further regulatory assessment, the project must **block it, keep it in simulation/demo, or redesign it** until the relevant requirements are satisfied.
+
+Public compliance statement: **[#840 — Why MyZubster is designed to operate lawfully in Italy](https://github.com/MyZubster-Ecosystem/myzubster/issues/840)**  
+Public roadmap: **[#839 — MyZubster territorial AI, evidence-first DAO & pilot pathway](https://github.com/MyZubster-Ecosystem/myzubster/issues/839)**
+
+> **Disclaimer:** this is a technical/governance commitment, not legal advice, a conformity assessment, certification, authorization, regulatory approval or institutional endorsement.
+
 ## 👤 Daniel Ioni — Founder & Builder
 
 Daniel Ioni (`DanielIoni-creator`) is the creator and lead builder of **MyZubster**, an open digital ecosystem focused on interoperability, immersive experiences, open-source development and the emerging **MyZubster LIFE 2027** initiative.
@@ -320,242 +348,3 @@ Authorized real-world pilot
 See [`docs/PUBLIC-COMMUNITY-ACTIVITY.md`](docs/PUBLIC-COMMUNITY-ACTIVITY.md) and submit reproducible external evidence through [issue #715](https://github.com/MyZubster-Ecosystem/myzubster/issues/715).
 
 Passive visitors must not be deanonymized or correlated with GitHub identities without an explicit legitimate privacy-respecting basis.
-
-## 📰 Independent external mentions
-
-Public third-party discovery is tracked separately from MyZubster-owned publications and upstream contribution status. These references are public discovery evidence, not proof of partnership or technical validation.
-
-| External source | Independent mention | Evidence |
-|---|---|---|
-| **KMP Weekly** | Listed **“📱 NFC Payments in MyZubster: A Complete Guide”** in its Kotlin Multiplatform news/tutorial feed. | [KMP Weekly](https://kmpweekly.com/) |
-| **Shamyl Bin Mansoor — DEV Community** | Published **“From Robot Photos to 3D Meshes: Building a Photogrammetric Reconstruction Pipeline with MyZubster Robots”**. | [DEV profile](https://dev.to/shamylbm) |
-| **kuroji — Zenn** | An independent OSS-bounty scanner analysis reported strong MyZubster representation in its no-explicit-cash-amount ranking before per-repository capping. | [Zenn article](https://zenn.dev/kuroji/articles/oss-bounty-122-to-8) |
-| **GyaanSetu Javascript — LinkedIn** | Presented MyZubster as a real-world visual map using photo → repository → geographic/GPS data → public gallery flows. | [LinkedIn post](https://www.linkedin.com/posts/gyaansetu-javascript_%F0%9D%97%95%F0%9D%98%82%F0%9D%97%B6%F0%9D%97%B9%F0%9D%97%B1%F0%9D%97%B6%F0%9D%97%BB%F0%9D%97%B4-%F0%9D%97%A0%F0%9D%98%86%F0%9D%97%AD%F0%9D%98%82%F0%9D%97%AF%F0%9D%98%80%F0%9D%98%81%F0%9D%97%B2%F0%9D%97%BF-%F0%9D%97%AE%F0%9D%98%80-activity-7495442870036819968-dVyV) |
-| **ShipRadar** | Indexed MyZubster bounty/program opportunities. Third-party USD/payout labels are not authoritative MyZubster evidence. | [ShipRadar](https://shipradar.com/) |
-
-External mentions are treated as **public discovery evidence**, not as proof of deployment, partnership, endorsement or independent technical reproduction unless stronger reproducible evidence is available.
-
-## 🌱 LIFE 2027 direction
-
-MyZubster is preparing an environmental pilot architecture toward a possible **LIFE 2027** pathway. This is pre-candidature work: it does **not** imply LIFE funding, European Commission/CINEA endorsement, an approved application or a completed consortium.
-
-Completed/documented preparation includes:
-
-- working concept note and consortium-role modelling;
-- technical/data architecture and scientific briefing;
-- KPI/provenance/evidence workflow;
-- LIFE operational character/role archetypes;
-- Zorgax LIFE automation specification;
-- partner-data onboarding specification;
-- IoT, validation, dashboard and replication work packages/issues;
-- planning for one controlled end-to-end reference pilot.
-
-Target vertical slice:
-
-```text
-AUTHORIZED SAMPLE DATA
-        ↓
-ZORGAX INGESTION
-        ↓
-PROVENANCE + VALIDATION
-        ↓
-APPROVED KPI / EVIDENCE
-        ↓
-HUMAN SCIENTIFIC + TECHNICAL REVIEW
-        ↓
-INSTITUTIONAL DASHBOARD / REPORT
-```
-
-Real partner data must remain outside public GitHub unless publication rights and data-governance conditions explicitly permit publication.
-
-## 🌐 Globalization roadmap 2026–2028
-
-The public roadmap is [`docs/GLOBALIZATION_ROADMAP_2026_2028.md`](docs/GLOBALIZATION_ROADMAP_2026_2028.md).
-
-```text
-OPEN SOURCE
-    ↓
-OPEN COMMUNITY
-    ↓
-VERIFIED ITALIAN REFERENCE PILOT
-    ↓
-PUBLIC REPLICATION KIT
-    ↓
-FIRST INDEPENDENT INTERNATIONAL NODE
-    ↓
-MULTI-REGION REPLICATION
-    ↓
-INTERNATIONAL GOVERNANCE
-    ↓
-MYZUBSTER GLOBAL NETWORK
-```
-
-The March 2027 target is **one verifiable Italian vertical slice + a public Replication Kit + at least one external actor beginning an independent international reproduction**. This is a target, not a claim of completion.
-
-## 📌 Project status index
-
-| Area | Status |
-|---|---|
-| Core observations / mapping | Development / validation |
-| Public website | Deployed / evolving |
-| Open Community / contributor paths | Public |
-| Community evidence page | Public |
-| External upstream contributions | Public evidence tracked; open PRs are not treated as accepted upstream |
-| Bounty workflow | Development / validation |
-| MYZ reward accounting | Internal ledger |
-| **XMR settlement runtime** | **Implemented on stagenet validation branch with automated negative-path verification tests** |
-| **Real XMR stagenet E2E** | **Next validation gate; real tiny-value transaction not yet claimed complete** |
-| **XMR mainnet settlement** | **Not activated / outside current milestone** |
-| IPFS/IPNS public snapshots | Development / integration |
-| Gateway / external settlement | Separate integration boundary |
-| Zorgax AI / automation | Development / experimental |
-| DAO public surface | Public; governance implementation evolving |
-| IoT / robotics | Prototype / experimental |
-| LIFE evidence automation | Specified; implementation tracked |
-| LIFE 2027 | Pre-candidature / consortium + pilot development |
-| Environmental reference pilot | Partner/data discovery; site not formally selected |
-| Global Replication Kit | Roadmap target |
-| International independent node | Roadmap target; not yet claimed |
-
-Execution principle:
-
-```text
-BUILD → STABILIZE → VERIFY → DEMONSTRATE → PILOT → REPLICATE → SCALE
-```
-
-## 🧪 Quick start for developers
-
-### Core repository
-
-Requirements:
-
-- Node.js 20+
-- MongoDB local or Atlas
-- Python 3 for components that require it
-
-```bash
-git clone https://github.com/MyZubster-Ecosystem/myzubster.git
-cd myzubster
-npm ci
-npm test
-npm run build --if-present
-```
-
-### Gateway / settlement implementation
-
-```bash
-git clone https://github.com/MyZubster-Ecosystem/MyZubsterGateway.git
-cd MyZubsterGateway
-npm ci
-npm test
-```
-
-The active XMR implementation is tracked on `feat/xmr-stagenet-e2e` and PR #1404 until merged.
-
-Never commit real `.env` secrets, credentials, private keys, wallet seeds, confidential datasets or restricted partner material.
-
-## 🗂️ Repository / documentation map
-
-### Community
-- [`JOIN.md`](JOIN.md) — first contributor entry point
-- [`CONTRIBUTING.md`](CONTRIBUTING.md) — contribution rules
-- [`docs/PUBLIC-COMMUNITY-ACTIVITY.md`](docs/PUBLIC-COMMUNITY-ACTIVITY.md) — evidence-first public participation
-- [Issue #715](https://github.com/MyZubster-Ecosystem/myzubster/issues/715) — submit independent evidence
-
-### Architecture, rewards & settlement
-- [`docs/ECOSYSTEM.md`](docs/ECOSYSTEM.md) — ecosystem architecture
-- [`BOUNTIES.md`](BOUNTIES.md) — bounty rules
-- [`REWARDS_LEDGER.md`](REWARDS_LEDGER.md) — reward-accounting model
-- [`TREASURY.md`](TREASURY.md) — treasury policy/boundaries
-- [`docs/XMR-STAGENET-SETTLEMENT.md`](docs/XMR-STAGENET-SETTLEMENT.md) — XMR stagenet implementation, verification and mainnet gate
-- [`MyZubsterGateway#1403`](https://github.com/MyZubster-Ecosystem/MyZubsterGateway/issues/1403) — real stagenet E2E validation issue
-- [`MyZubsterGateway#1404`](https://github.com/MyZubster-Ecosystem/MyZubsterGateway/pull/1404) — XMR runtime + automated tests
-
-### Internationalization & history
-- [`docs/i18n/README.md`](docs/i18n/README.md) — multilingual documentation
-- [`docs/GLOBALIZATION_ROADMAP_2026_2028.md`](docs/GLOBALIZATION_ROADMAP_2026_2028.md) — globalization roadmap
-- [`docs/PUBLIC-TIMELINE.md`](docs/PUBLIC-TIMELINE.md) — public discovery timeline
-
-### External documentation repositories
-- [MyZubster Documentation Hub](https://github.com/MyZubster-Ecosystem/myzubster-docs)
-- [MyZubster Manuals](https://github.com/MyZubster-Ecosystem/myzubster-manuals)
-
-### LIFE / pilot implementation references
-- #395 — Stabilize → MVP → Pilot → Scale
-- #510 — LIFE vertical slice
-- #533 — baseline, KPI & evidence framework
-- #534 — IoT sensing & auditable environmental data adapter
-- #535 — human-in-the-loop AI recommendation/intervention log
-- #536 — automation safety & manual override
-- #537 — environmental dashboard & KPI evidence
-- #538 — pilot replication package
-- #711 — LIFE stakeholder-character UI integration
-- #713 — Zorgax LIFE Automation v1
-- #714 — ChatGPT × Zorgax v2
-- #715 — public independent evidence entry point
-
-## 🔐 Safety, privacy & evidence rules
-
-MyZubster is designed around public or explicitly authorized observation and verifiable contribution.
-
-Do not publish:
-
-- credentials, tokens or secrets;
-- private keys or wallet seeds;
-- unnecessary personal/confidential information;
-- restricted partner datasets;
-- sensitive locations or restricted-area/security information;
-- material obtained or published without authorization.
-
-Public evidence must be sanitized. Provenance should explain where information came from and under which conditions it may be used.
-
-For external settlement specifically:
-
-- never commit wallet seeds or spend keys;
-- keep wallet/RPC credentials out of repositories;
-- do not expose unrestricted wallet RPC endpoints;
-- keep mainnet disabled unless separately authorized and reviewed;
-- never treat a DB state, issue closure, merge or provider response as payment proof;
-- require independent transaction verification before `PAID`.
-
-## 🧩 What counts as proof?
-
-MyZubster uses an evidence ladder:
-
-```text
-CLAIM
-  < DOCUMENTED IMPLEMENTATION
-  < REPRODUCIBLE TEST
-  < INDEPENDENT REPRODUCTION
-  < AUTHORIZED REAL-WORLD PILOT
-```
-
-For external XMR settlement, use the more specific ladder:
-
-```text
-IMPLEMENTED
-    ↓
-AUTOMATED TESTS PASS
-    ↓
-STAGENET RUNTIME WIRED
-    ↓
-REAL STAGENET TX SUBMITTED
-    ↓
-INDEPENDENTLY VERIFIED
-    ↓
-REPRODUCIBLE E2E EVIDENCE
-```
-
-Repository code and tests take precedence over promotional descriptions. Discussions are not partnerships. Merges are not payments. Internal reward accounting is not external settlement. A roadmap milestone is not a completed milestone until evidence exists.
-
-## License
-
-MIT License. See [`LICENSE`](LICENSE).
-
----
-
-### MyZubster North Star
-
-> **One reproducible public vertical slice, one real measurable authorized pilot, one public replication protocol, then independent international replication.**
-
-**Build in public. Verify independently. Replicate responsibly.**
