@@ -3,6 +3,7 @@
 const { ENROLLMENT_STATUSES, ZorgaxDigitalPilotEnrollment } = require('../models/ZorgaxDigitalPilotEnrollment');
 const { ZorgaxDigitalProductProject } = require('../models/ZorgaxDigitalProductProject');
 const businessServiceDefault = require('./zorgaxDigitalBusinessService');
+const ideaRankingDefault = require('./zorgaxDigitalPilotIdeaRankingService');
 
 const CONSENT_VERSION = 'zorgax_life_pilot_v1';
 
@@ -54,6 +55,13 @@ async function updateOnboarding({ EnrollmentModel = ZorgaxDigitalPilotEnrollment
   item.status = item.objective && item.weeklyCommitment ? ENROLLMENT_STATUSES.ACTIVE : ENROLLMENT_STATUSES.ONBOARDING;
   await item.save();
   return publicEnrollment(item);
+}
+
+async function rankCandidateIdeas({ EnrollmentModel = ZorgaxDigitalPilotEnrollment, ideaRankingService = ideaRankingDefault, ownerId, ideas }) {
+  const item = await getEnrollment({ EnrollmentModel, ownerId });
+  if (!item.consent?.accepted) throw new Error('pilot acceptance is required before idea ranking');
+  if (!item.objective || !item.weeklyCommitment) throw new Error('pilot onboarding must be completed before idea ranking');
+  return ideaRankingService.rankIdeas({ ideas, objective: item.objective, weeklyCommitment: item.weeklyCommitment });
 }
 
 async function startFirstProject({
@@ -120,7 +128,8 @@ function buildFirstSession(enrollment) {
     sessionAgenda: [
       'Define the participant objective and constraints.',
       'Collect three candidate product ideas from interests, skills or authorized learning material.',
-      'Select one idea for evidence-based validation.',
+      'Rank candidate ideas as decision support, without treating the ranking as market proof.',
+      'Select one idea explicitly for evidence-based validation.',
       'Define target customer, customer problem and smallest testable value proposition.',
       'Agree the next human action before the following session.'
     ],
@@ -146,6 +155,7 @@ module.exports = {
   getEnrollment,
   getFirstSession,
   publicEnrollment,
+  rankCandidateIdeas,
   startFirstProject,
   updateOnboarding
 };
