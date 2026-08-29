@@ -54,6 +54,16 @@ function buildApp({ role = 'admin' } = {}) {
       }]
     })
   };
+  const learningService = {
+    getLearningSnapshot: jest.fn().mockResolvedValue({
+      categories: {},
+      guardrails: {
+        minimumCompletedOutcomes: 2,
+        maxFinancialReturnAdjustment: 12
+      }
+    }),
+    applyLearningToOpportunities: jest.fn((opportunities) => opportunities)
+  };
   const decisionService = {
     recordRecommendations: jest.fn().mockResolvedValue([{ allocationId: 'zca-1', status: 'PROPOSED' }]),
     listAllocations: jest.fn().mockResolvedValue([{ allocationId: 'zca-1', status: 'PROPOSED' }]),
@@ -71,6 +81,7 @@ function buildApp({ role = 'admin' } = {}) {
     AllocationModel: {},
     allocatorService,
     decisionService,
+    learningService,
     metricsService,
     policyService
   });
@@ -78,12 +89,12 @@ function buildApp({ role = 'admin' } = {}) {
   const app = express();
   app.use(express.json());
   app.use('/api/zorgax/capital', router);
-  return { app, decisionService };
+  return { app, decisionService, learningService };
 }
 
 describe('Zorgax Capital Decision API', () => {
   test('records server-derived recommendations as advisory proposals', async () => {
-    const { app, decisionService } = buildApp();
+    const { app, decisionService, learningService } = buildApp();
     const response = await request(app)
       .post('/api/zorgax/capital/recommendations/record?asset=BTC&network=mainnet')
       .send({ cycleReference: '2026-08' })
@@ -91,6 +102,9 @@ describe('Zorgax Capital Decision API', () => {
 
     expect(response.body.executionEnabled).toBe(false);
     expect(response.body.requiresHumanApproval).toBe(true);
+    expect(learningService.getLearningSnapshot).toHaveBeenCalledWith(expect.objectContaining({
+      ownerId: 'myzubster-ecosystem'
+    }));
     expect(decisionService.recordRecommendations).toHaveBeenCalledWith(expect.objectContaining({
       ownerId: 'myzubster-ecosystem',
       cycleReference: '2026-08',
