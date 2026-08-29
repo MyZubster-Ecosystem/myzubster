@@ -27,6 +27,12 @@ const {
 } = require('../services/zorgaxCreditService');
 
 const {
+  getAccess,
+  grantPurchaseEntitlement,
+  listEntitlements
+} = require('../services/zorgaxEntitlementService');
+
+const {
   listProducts,
   resolvePurchase
 } = require('../services/zorgaxPricingService');
@@ -54,7 +60,8 @@ function errorStatus(error) {
   if (
     message.includes('already') ||
     message.includes('does not match') ||
-    message.includes('cannot')
+    message.includes('cannot') ||
+    message.includes('belongs to another owner')
   ) {
     return 409;
   }
@@ -80,6 +87,10 @@ function createDefaultMonetizationService() {
 
     creditService: {
       grantPurchaseCredits
+    },
+
+    entitlementService: {
+      grantPurchaseEntitlement
     }
   });
 }
@@ -93,6 +104,10 @@ function createZorgaxMonetizationRouter({
   creditService = {
     getBalance,
     listLedger
+  },
+  entitlementService = {
+    getAccess,
+    listEntitlements
   }
 } = {}) {
   const router = express.Router();
@@ -165,6 +180,54 @@ function createZorgaxMonetizationRouter({
         return res.json({
           success: true,
           entries
+        });
+      } catch (error) {
+        return res.status(errorStatus(error)).json({
+          success: false,
+          message: error.message
+        });
+      }
+    }
+  );
+
+  router.get(
+    '/access',
+    authenticateMiddleware,
+    async (req, res) => {
+      try {
+        const access = await entitlementService.getAccess(
+          String(req.userId)
+        );
+
+        return res.json({
+          success: true,
+          access
+        });
+      } catch (error) {
+        return res.status(errorStatus(error)).json({
+          success: false,
+          message: error.message
+        });
+      }
+    }
+  );
+
+  router.get(
+    '/entitlements',
+    authenticateMiddleware,
+    async (req, res) => {
+      try {
+        const includeInactive =
+          String(req.query.includeInactive || '').toLowerCase() === 'true';
+
+        const entitlements = await entitlementService.listEntitlements({
+          ownerId: String(req.userId),
+          includeInactive
+        });
+
+        return res.json({
+          success: true,
+          entitlements
         });
       } catch (error) {
         return res.status(errorStatus(error)).json({
