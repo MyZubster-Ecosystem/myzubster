@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 function SocialLoginPage() {
   const [status, setStatus] = useState('Accedi con email e password MyZubster.');
@@ -6,6 +6,76 @@ function SocialLoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [providers, setProviders] = useState({ google: false, github: false, facebook: false });
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/auth/social/providers')
+      .then(response => response.json())
+      .then(data => {
+        if (!cancelled && data.success && data.data?.providers) {
+          setProviders(data.data.providers);
+        }
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const socialState = params.get('social_login');
+    const ticket = params.get('social_login_ticket');
+    const provider = params.get('provider');
+
+    if (socialState === 'error') {
+      setTone('#fca5a5');
+      setStatus(params.get('social_login_message') || 'Login social non riuscito.');
+      return undefined;
+    }
+    if (socialState !== 'verified' || !ticket) return undefined;
+
+    let cancelled = false;
+    let redirectTimer;
+    setLoading(true);
+    setTone('#cbd5e1');
+    setStatus('Verifica account social in corso…');
+
+    (async () => {
+      try {
+        const response = await fetch('/api/auth/social/exchange-ticket', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ticket })
+        });
+        const data = await response.json();
+        if (!response.ok || !data.success || !data.data?.token) {
+          throw new Error(data.message || 'Ticket social non valido');
+        }
+        if (cancelled) return;
+
+        localStorage.setItem('myzubster-token', data.data.token);
+        localStorage.setItem('myzubster-identity-provider', data.data.provider || provider || 'social');
+        if (data.data.characterId) {
+          localStorage.setItem('myzubster-metaverse-character-id', data.data.characterId);
+        }
+        window.history.replaceState({}, document.title, '/social-login');
+        setTone('#86efac');
+        setStatus('✓ Login social verificato. Apertura Zorgax…');
+        redirectTimer = setTimeout(() => window.location.assign('/zorgax'), 500);
+      } catch (error) {
+        if (!cancelled) {
+          setTone('#fca5a5');
+          setStatus(error.message || 'Login social non riuscito.');
+          setLoading(false);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      if (redirectTimer) clearTimeout(redirectTimer);
+    };
+  }, []);
 
   async function handlePasswordLogin(event) {
     event.preventDefault();
@@ -92,6 +162,17 @@ function SocialLoginPage() {
             {loading ? 'Accesso…' : 'Accedi con email e password'}
           </button>
         </form>
+
+        {(providers.google || providers.github || providers.facebook) && (
+          <>
+            <div style={{ textAlign: 'center', color: '#7f91a6', margin: '4px 0 14px' }}>oppure</div>
+            <div style={{ display: 'grid', gap: 10, marginBottom: 18 }}>
+              {providers.google && <a href="/api/auth/social/google/start" style={button}>Continua con Google</a>}
+              {providers.github && <a href="/api/auth/social/github/start" style={button}>Continua con GitHub</a>}
+              {providers.facebook && <a href="/api/auth/social/facebook/start" style={button}>Continua con Facebook</a>}
+            </div>
+          </>
+        )}
 
         <div style={{ padding: 12, borderRadius: 10, background: '#0a1220', color: tone }}>{status}</div>
         <p style={{ fontSize: 13, color: '#7f91a6', marginTop: 18 }}>La password viene inviata solo all'endpoint di autenticazione MyZubster e non viene salvata nel browser.</p>

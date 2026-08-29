@@ -17,6 +17,30 @@ function redirectSuccess(res, result, provider) {
 }
 function redirectError(res, message, provider = '') { const url = new URL('/social-login.html', `${frontend()}/`); url.searchParams.set('social_login', 'error'); if (provider) url.searchParams.set('provider', provider); url.searchParams.set('social_login_message', String(message).slice(0, 180)); res.redirect(url.toString()); }
 
+function providerAvailability() {
+  return {
+    google: Boolean(
+      (process.env.GOOGLE_LOGIN_CLIENT_ID || process.env.GOOGLE_OAUTH_CLIENT_ID) &&
+      (process.env.GOOGLE_LOGIN_CLIENT_SECRET || process.env.GOOGLE_OAUTH_CLIENT_SECRET) &&
+      callback('google').startsWith('http')
+    ),
+    github: Boolean(
+      process.env.GITHUB_OAUTH_CLIENT_ID &&
+      process.env.GITHUB_OAUTH_CLIENT_SECRET &&
+      callback('github').startsWith('http')
+    ),
+    facebook: Boolean(
+      process.env.FACEBOOK_LOGIN_APP_ID &&
+      process.env.FACEBOOK_LOGIN_APP_SECRET &&
+      callback('facebook').startsWith('http')
+    )
+  };
+}
+
+exports.providers = (_req, res) => {
+  res.json({ success: true, data: { providers: providerAvailability() } });
+};
+
 exports.start = (req, res) => {
   try {
     const provider = String(req.params.provider || '').toLowerCase();
