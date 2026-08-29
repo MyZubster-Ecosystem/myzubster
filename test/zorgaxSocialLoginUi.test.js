@@ -14,6 +14,12 @@ describe('Zorgax social login UI', () => {
     expect(controller).not.toContain('data: { providers: process.env');
   });
 
+  test('normalizes accidental whitespace in OAuth deployment variables', () => {
+    expect(controller).toContain("'GOOGLE_LOGIN_CLIENT_ID'");
+    expect(controller).toContain("'GOOGLE_LOGIN_CLIENT_SECRET'");
+    expect(controller).toContain("process.env[key] = process.env[key].trim()");
+  });
+
   test('renders configured social providers', () => {
     expect(page).toContain("fetch('/api/auth/social/providers')");
     expect(page).toContain('providers.google && <a href="/api/auth/social/google/start"');
