@@ -5,6 +5,11 @@ const PURCHASE_STATUSES = Object.freeze({
   CREDITED: 'CREDITED'
 });
 
+const ENTITLEMENT_TIERS = Object.freeze([
+  'PRO',
+  'DEVELOPER'
+]);
+
 const zorgaxPurchaseSchema = new mongoose.Schema(
   {
     purchaseId: {
@@ -83,8 +88,14 @@ const zorgaxPurchaseSchema = new mongoose.Schema(
 
       tier: {
         type: String,
-        enum: ['PRO', 'DEVELOPER'],
-        default: null
+        default: null,
+        validate: {
+          validator(value) {
+            return value === null ||
+              ENTITLEMENT_TIERS.includes(value);
+          },
+          message: 'entitlement.tier must be null, PRO, or DEVELOPER'
+        }
       },
 
       durationDays: {
