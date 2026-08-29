@@ -7,6 +7,7 @@ const PaymentIntent = require('../models/PaymentIntent');
 const { ZorgaxCapitalAllocation } = require('../models/ZorgaxCapitalAllocation');
 const allocatorServiceDefault = require('../services/zorgaxCapitalAllocatorService');
 const decisionServiceDefault = require('../services/zorgaxCapitalDecisionService');
+const learningServiceDefault = require('../services/zorgaxCapitalLearningService');
 const metricsServiceDefault = require('../services/zorgaxCapitalMetricsService');
 const policyServiceDefault = require('../services/zorgaxCapitalPolicyService');
 
@@ -22,7 +23,9 @@ function errorStatus(error) {
 async function buildRecommendationBundle({
   req,
   PaymentIntentModel,
+  AllocationModel,
   allocatorService,
+  learningService,
   metricsService,
   policyService
 }) {
@@ -38,12 +41,21 @@ async function buildRecommendationBundle({
   });
 
   const policy = policyService.getCapitalPolicy({ asset: snapshot.asset });
+  const learning = await learningService.getLearningSnapshot({
+    AllocationModel,
+    ownerId: ECOSYSTEM_OWNER_ID
+  });
+  const learnedOpportunities = learningService.applyLearningToOpportunities(
+    policy.opportunities,
+    learning.categories
+  );
+
   const allocation = allocatorService.recommendAllocations({
     revenueMinor: snapshot.confirmedRevenueMinor,
     expensesMinor: policy.expensesMinor,
     obligationsMinor: policy.obligationsMinor,
     reserveMinor: policy.reserveMinor,
-    opportunities: policy.opportunities,
+    opportunities: learnedOpportunities,
     maxAllocationBps: policy.maxAllocationBps
   });
 
@@ -54,13 +66,15 @@ async function buildRecommendationBundle({
     requiresHumanApproval: true,
     executionEnabled: false,
     snapshot,
+    learning,
     policy: {
       expensesMinor: policy.expensesMinor,
       obligationsMinor: policy.obligationsMinor,
       reserveMinor: policy.reserveMinor,
       maxAllocationBps: policy.maxAllocationBps,
       policySource: policy.policySource,
-      scoresSource: policy.scoresSource
+      scoresSource: policy.scoresSource,
+      learningMode: 'bounded_evidence_adjustment'
     },
     capital: {
       availableCapitalMinor: allocation.availableCapitalMinor,
@@ -77,6 +91,7 @@ function createZorgaxCapitalRouter({
   AllocationModel = ZorgaxCapitalAllocation,
   allocatorService = allocatorServiceDefault,
   decisionService = decisionServiceDefault,
+  learningService = learningServiceDefault,
   metricsService = metricsServiceDefault,
   policyService = policyServiceDefault
 } = {}) {
@@ -88,11 +103,30 @@ function createZorgaxCapitalRouter({
       const bundle = await buildRecommendationBundle({
         req,
         PaymentIntentModel,
+        AllocationModel,
         allocatorService,
+        learningService,
         metricsService,
         policyService
       });
       return res.status(200).json(bundle);
+    } catch (error) {
+      return res.status(errorStatus(error)).json({ success: false, message: error.message });
+    }
+  });
+
+  router.get('/learning', ...adminOnly, async (_req, res) => {
+    try {
+      const learning = await learningService.getLearningSnapshot({
+        AllocationModel,
+        ownerId: ECOSYSTEM_OWNER_ID
+      });
+      return res.status(200).json({
+        success: true,
+        advisoryOnly: true,
+        learningMode: 'bounded_evidence_adjustment',
+        learning
+      });
     } catch (error) {
       return res.status(errorStatus(error)).json({ success: false, message: error.message });
     }
@@ -106,7 +140,9 @@ function createZorgaxCapitalRouter({
       const bundle = await buildRecommendationBundle({
         req,
         PaymentIntentModel,
+        AllocationModel,
         allocatorService,
+        learningService,
         metricsService,
         policyService
       });
@@ -124,7 +160,8 @@ function createZorgaxCapitalRouter({
           windowDays: bundle.snapshot.windowDays,
           confirmedIntentCount: bundle.snapshot.confirmedIntentCount,
           confirmedRevenueMinor: bundle.snapshot.confirmedRevenueMinor,
-          policy: bundle.policy
+          policy: bundle.policy,
+          learning: bundle.learning
         }
       });
 
