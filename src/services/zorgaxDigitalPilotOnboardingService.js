@@ -1,6 +1,8 @@
 'use strict';
 
 const { ENROLLMENT_STATUSES, ZorgaxDigitalPilotEnrollment } = require('../models/ZorgaxDigitalPilotEnrollment');
+const { ZorgaxDigitalProductProject } = require('../models/ZorgaxDigitalProductProject');
+const businessServiceDefault = require('./zorgaxDigitalBusinessService');
 
 const CONSENT_VERSION = 'zorgax_life_pilot_v1';
 
@@ -54,6 +56,52 @@ async function updateOnboarding({ EnrollmentModel = ZorgaxDigitalPilotEnrollment
   return publicEnrollment(item);
 }
 
+async function startFirstProject({
+  EnrollmentModel = ZorgaxDigitalPilotEnrollment,
+  ProjectModel = ZorgaxDigitalProductProject,
+  businessService = businessServiceDefault,
+  ownerId,
+  title,
+  description,
+  productType,
+  targetCustomer = '',
+  customerProblem = '',
+  valueProposition = '',
+  metadata = {}
+}) {
+  const item = await getEnrollment({ EnrollmentModel, ownerId });
+  if (!item.consent?.accepted) throw new Error('pilot acceptance is required before first project');
+  if (!item.objective || !item.weeklyCommitment) throw new Error('pilot onboarding must be completed before first project');
+
+  if (item.firstProjectId) {
+    const existing = await businessService.getProject({ ProjectModel, ownerId: String(ownerId), projectId: item.firstProjectId });
+    return { enrollment: publicEnrollment(item), project: businessService.publicProject(existing), replay: true };
+  }
+
+  const project = await businessService.createProject({
+    ProjectModel,
+    ownerId: String(ownerId),
+    title,
+    description,
+    productType: productType || item.preferredProductType,
+    targetCustomer,
+    customerProblem,
+    valueProposition,
+    metadata: {
+      ...(metadata && typeof metadata === 'object' ? metadata : {}),
+      pilotProgram: 'LIFE',
+      pilotEnrollmentId: item.enrollmentId,
+      createdFromPilotOnboarding: true
+    }
+  });
+
+  item.firstProjectId = project.projectId;
+  item.status = ENROLLMENT_STATUSES.ACTIVE;
+  await item.save();
+
+  return { enrollment: publicEnrollment(item), project, replay: false };
+}
+
 function buildFirstSession(enrollment) {
   const row = publicEnrollment(enrollment);
   const missing = [];
@@ -65,7 +113,9 @@ function buildFirstSession(enrollment) {
     version: 'zorgax_life_first_session_v1',
     enrollmentId: row.enrollmentId,
     status: row.status,
+    firstProjectId: row.firstProjectId || null,
     readyForFirstProduct: Boolean(row.consent?.accepted && row.objective && row.weeklyCommitment),
+    firstProductCreated: Boolean(row.firstProjectId),
     missing,
     sessionAgenda: [
       'Define the participant objective and constraints.',
@@ -77,6 +127,8 @@ function buildFirstSession(enrollment) {
     advisoryOnly: true,
     requiresHumanApproval: true,
     externalExecutionPerformed: false,
+    publicationPerformed: false,
+    spendingPerformed: false,
     predictsProfit: false
   };
 }
@@ -86,4 +138,14 @@ async function getFirstSession(args) {
   return buildFirstSession(item);
 }
 
-module.exports = { CONSENT_VERSION, acceptInvitation, buildFirstSession, createInvitation, getEnrollment, getFirstSession, publicEnrollment, updateOnboarding };
+module.exports = {
+  CONSENT_VERSION,
+  acceptInvitation,
+  buildFirstSession,
+  createInvitation,
+  getEnrollment,
+  getFirstSession,
+  publicEnrollment,
+  startFirstProject,
+  updateOnboarding
+};
