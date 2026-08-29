@@ -1,6 +1,6 @@
 'use strict';
 
-const { SUPPORTED_ASSETS } = require('./zorgaxMonetizationService');
+const { SUPPORTED_ASSETS } = require('./zorgaxLegacyMonetizationService');
 
 const DEFAULT_MAX_AGE_MS = 5 * 60 * 1000;
 const DEFAULT_BTC_QUOTE_URL = 'https://api.coingecko.com/api/v3/simple/price';

@@ -1,7 +1,7 @@
 'use strict';
 
 const ZorgaxSubscription = require('../models/ZorgaxSubscription');
-const { PLANS, SUPPORTED_ASSETS } = require('./zorgaxMonetizationService');
+const { PLANS, SUPPORTED_ASSETS } = require('./zorgaxLegacyMonetizationService');
 
 const ACCESS_DAYS = 30;
 

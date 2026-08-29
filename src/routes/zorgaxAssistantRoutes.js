@@ -2,7 +2,7 @@ const express = require('express');
 const { authenticate } = require('../middleware/auth');
 const ZorgaxDataEntry = require('../models/ZorgaxDataEntry');
 const { answer, searchWeb, previewData, digestPreview } = require('../services/zorgaxAssistantService');
-const { catalog, createCheckoutIntent, getPaymentIntent } = require('../services/zorgaxMonetizationService');
+const { catalog, createCheckoutIntent, getPaymentIntent } = require('../services/zorgaxLegacyMonetizationService');
 const { getAccess } = require('../services/zorgaxSubscriptionService');
 const { verifyAndActivatePaymentIntent } = require('../services/zorgaxPaymentIntentService');
 
