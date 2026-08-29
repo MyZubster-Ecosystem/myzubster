@@ -86,6 +86,27 @@ function createZorgaxDigitalBusinessRouter({
     }
   });
 
+  router.post('/projects/:projectId/validate', authenticateMiddleware, async (req, res) => {
+    try {
+      const result = await service.validateProjectIdea({
+        ProjectModel,
+        ownerId: String(req.userId),
+        projectId: req.params.projectId
+      });
+      return res.status(200).json({
+        success: true,
+        advisoryOnly: true,
+        requiresHumanApproval: true,
+        executionPerformed: false,
+        predictsProfit: false,
+        project: result.project,
+        report: result.report
+      });
+    } catch (error) {
+      return res.status(errorStatus(error)).json({ success: false, message: error.message });
+    }
+  });
+
   router.get('/projects/:projectId/advisory-plan', authenticateMiddleware, async (req, res) => {
     try {
       const plan = await service.getAdvisoryPlan({ ProjectModel, ownerId: String(req.userId), projectId: req.params.projectId });
