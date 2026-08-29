@@ -3,6 +3,7 @@
 const { PROJECT_STATUSES, ZorgaxDigitalProductProject } = require('../models/ZorgaxDigitalProductProject');
 const ideaValidationServiceDefault = require('./zorgaxDigitalIdeaValidationService');
 const productBlueprintServiceDefault = require('./zorgaxDigitalProductBlueprintService');
+const launchOfferServiceDefault = require('./zorgaxDigitalLaunchOfferService');
 
 const STATUS_ORDER = Object.freeze([
   PROJECT_STATUSES.IDEA,
@@ -122,6 +123,16 @@ async function generateProductBlueprint({ ProjectModel = ZorgaxDigitalProductPro
   return { project: publicProject(item), blueprint };
 }
 
+async function generateLaunchOffer({ ProjectModel = ZorgaxDigitalProductProject, launchOfferService = launchOfferServiceDefault, ownerId, projectId, now = new Date() }) {
+  const item = await getProject({ ProjectModel, ownerId, projectId });
+  const launchOffer = launchOfferService.buildLaunchOffer(publicProject(item));
+  item.launchOffer.latest = launchOffer;
+  item.launchOffer.latestGeneratedAt = now;
+  item.launchChecklist = launchOffer.launchChecklist;
+  await item.save();
+  return { project: publicProject(item), launchOffer };
+}
+
 async function advanceProject({ ProjectModel = ZorgaxDigitalProductProject, ownerId, projectId, nextStatus }) {
   const item = await getProject({ ProjectModel, ownerId, projectId });
   const normalized = requireNonEmptyString(nextStatus, 'nextStatus').toUpperCase();
@@ -135,4 +146,4 @@ async function advanceProject({ ProjectModel = ZorgaxDigitalProductProject, owne
   return publicProject(item);
 }
 
-module.exports = { STATUS_ORDER, advanceProject, buildAdvisoryPlan, createProject, generateProductBlueprint, getAdvisoryPlan, getProject, listProjects, publicProject, updateStrategy, validateProjectIdea };
+module.exports = { STATUS_ORDER, advanceProject, buildAdvisoryPlan, createProject, generateLaunchOffer, generateProductBlueprint, getAdvisoryPlan, getProject, listProjects, publicProject, updateStrategy, validateProjectIdea };
