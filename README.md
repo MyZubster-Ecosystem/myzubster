@@ -10,6 +10,47 @@ MyZubster turns authorized real-world observations — photos, places, environme
 
 **Current state:** MVP / active development and validation. Some components are operational, others experimental or in active implementation. A roadmap, issue, PR, merge, discussion or automated test is not by itself proof of deployment, partnership, adoption, funding or external payment.
 
+## 🛡️ Automated software security — evidence-first CI
+
+MyZubster uses GitHub-based automation to continuously check software changes and dependency risk. The objective is **not blind self-updating**: automation detects issues, proposes or validates changes, produces evidence and blocks unsafe candidates, while consequential merge/risk decisions remain subject to human review.
+
+```text
+CODE / DEPENDENCY CHANGE
+          ↓
+       PUSH / PR
+          ↓
+     GITHUB ACTIONS
+          ↓
+ REPRODUCIBLE INSTALL
+          ↓
+ TESTS + DEPENDENCY AUDIT
+          ↓
+ EXACT DEPENDENCY TREE
+          ↓
+ BUILD / EXPORT VALIDATION
+          ↓
+ SBOM + SECURITY EVIDENCE
+          ↓
+      SECURITY GATE
+       ↙         ↘
+    FAIL         PASS
+     ↓             ↓
+ BLOCK / FIX   REVIEW / MERGE
+```
+
+Security automation may include CI tests, `npm audit`, exact dependency-tree validation, build/export checks, SBOM generation and retained evidence artifacts. Dependabot/security tooling may detect vulnerable or outdated dependencies and propose pull requests; those proposals must still pass the applicable project gates before integration.
+
+Key principles:
+
+- **AUTOMATED CHECK ≠ SECURITY GUARANTEE** — a green workflow proves only the checks actually executed under the tested conditions;
+- **LOWER SCANNER COUNT ≠ VALID REMEDIATION** — dependency compatibility, exact-tree validity, tests and relevant build/runtime checks still matter;
+- **FAILED GATE → NO MERGE** for a candidate that does not satisfy required checks;
+- major framework/runtime migrations are not auto-merged merely to reduce vulnerability counts;
+- security evidence is versioned and reviewable so remediation decisions can be traced to concrete runs, artifacts and commits;
+- human review remains required for material risk acceptance, production activation and other consequential decisions.
+
+Current public security evidence is tracked in [`docs/PUBLIC-SECURITY-RESULTS-2026-08-29.md`](docs/PUBLIC-SECURITY-RESULTS-2026-08-29.md). Open findings remain findings until they are actually remediated and verified; automation must not represent an unresolved result as proof that the system is vulnerability-free.
+
 ## 🇮🇹 Public compliance-by-design — Italy / EU
 
 MyZubster is **not** presented as automatically or universally legal merely because it is open source or because this README says so. The project instead adopts a verifiable **compliance-by-design** model: each real deployment must respect the laws, permissions, data rights, security requirements and sector-specific rules applicable to its actual use case.
