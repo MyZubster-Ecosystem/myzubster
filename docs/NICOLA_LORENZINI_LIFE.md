@@ -29,6 +29,38 @@ METRICS → LEARNING → ITERATION
 
 The first milestone is deliberately narrow: move from idea to one real digital product prepared for publication, while measuring time, cost, visits, conversions, sales, support load and profit/loss where data is available.
 
+## Product discovery state
+
+Status recorded on **2026-08-30**.
+
+### Active candidates
+
+1. Kit “Primo prodotto digitale in 7 giorni”
+2. Project Planner per lavorare con AI
+
+No final product choice has been recorded. The candidates remain under comparative validation.
+
+### Preliminary interview evidence
+
+The participant relayed four early, anonymized reactions covering the two concepts together:
+
+- **Persona A:** the proposals were considered interesting, unfamiliar and potentially workable.
+- **Persona B:** the proposals were perceived as new, useful and potentially suitable for the market.
+- **Persona C:** the proposals were considered valid and promising, with interest in learning more.
+- **Persona D:** the proposals were considered interesting; existing competitors were interpreted as a possible demand signal.
+
+### Evidence assessment
+
+- Evidence scope: BOTH_CANDIDATES_UNATTRIBUTED
+- Validation verdict: NEEDS_EVIDENCE
+- Positive signal: general interest, perceived usefulness and perceived potential.
+- Missing evidence: direct preference between candidates, present workaround, problem intensity, must-have feature, willingness to test and willingness to pay.
+- Integrity rule: the four reactions must not be duplicated into either candidate's evidence score until a response is attributable to that candidate.
+
+### Next validation gate
+
+Collect at least four complete, anonymized responses that compare both candidates directly. Only after that gate should Zorgax prepare the comparative score, recommend which product to develop first and propose the minimum testable version.
+
 ## Human-control rules
 
 This pilot is advisory-first. Zorgax must not autonomously:
