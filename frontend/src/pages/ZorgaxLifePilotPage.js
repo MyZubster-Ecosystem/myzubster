@@ -11,42 +11,64 @@ const NICOLA_PILOT_PROFILE = {
   githubRepositoryUrl: 'https://github.com/nicolaususnicola-lgtm/Profilo'
 };
 
+const NICOLA_VALIDATION_UPDATE = {
+  recordedAt: '2026-08-30',
+  source: 'participant_relayed_interviews',
+  scope: 'BOTH_CANDIDATES_UNATTRIBUTED',
+  verdict: 'NEEDS_EVIDENCE',
+  summary: 'Quattro riscontri preliminari mostrano interesse generale, utilità percepita e potenziale, ma non distinguono ancora le due idee.',
+  evidence: [
+    {
+      participant: 'Persona A',
+      finding: 'Le proposte sono interessanti, nuove per la persona e potrebbero funzionare.'
+    },
+    {
+      participant: 'Persona B',
+      finding: 'Le proposte sono percepite come nuove, utili e potenzialmente adatte al mercato.'
+    },
+    {
+      participant: 'Persona C',
+      finding: 'Le proposte sono considerate valide e con potenziale; è emerso interesse ad approfondirle.'
+    },
+    {
+      participant: 'Persona D',
+      finding: 'L’interesse è positivo; la presenza di concorrenti è vista come un possibile segnale di domanda.'
+    }
+  ],
+  gaps: [
+    'Nessuna preferenza esplicita tra le due idee.',
+    'Nessuna descrizione completa del problema e della soluzione usata oggi.',
+    'Nessuna conferma ancora raccolta su test, prezzo o disponibilità a pagare.'
+  ],
+  nextGate: 'Raccogliere almeno quattro risposte anonime che confrontino direttamente entrambe le idee.'
+};
+
+// The first responses cover both concepts together, so they are not copied into
+// either candidate's evidence array until Nicola supplies attributable comparisons.
 const DEFAULT_IDEAS = [
   {
-    candidateId: 'kit-primo-prodotto',
-    title: 'Kit pratico “Primo prodotto digitale”',
-    description: 'Workbook + checklist per trasformare una prima idea in un prodotto testabile.',
-    targetCustomer: 'Principiante che vuole pubblicare il primo prodotto digitale',
-    customerProblem: 'Ha molte informazioni ma non un percorso operativo chiaro',
-    valueProposition: 'Un percorso essenziale per scegliere, validare e costruire il primo MVP',
+    candidateId: 'kit-primo-prodotto-7-giorni',
+    title: 'Kit “Primo prodotto digitale in 7 giorni”',
+    description: 'Workbook, checklist ed esercizi per trasformare una prima idea in un prodotto testabile in sette giorni.',
+    targetCustomer: 'Principiante che vuole preparare il primo prodotto digitale',
+    customerProblem: 'Ha molte informazioni ma non un percorso operativo breve e verificabile',
+    valueProposition: 'Un percorso di sette giorni per scegliere, validare e preparare un primo MVP',
     evidence: [],
-    constraints: ['Prima versione piccola, senza automazioni commerciali'],
-    participantInterest: 85,
-    buildEase: 85
+    constraints: ['Non promettere vendite o profitto; mantenere la prima versione piccola'],
+    participantInterest: 50,
+    buildEase: 70
   },
   {
-    candidateId: 'template-idea-offerta',
-    title: 'Template “Idea → Offerta”',
-    description: 'Template guidato per strutturare cliente, problema, valore e prima offerta.',
-    targetCustomer: 'Creator o aspirante imprenditore digitale all’inizio',
-    customerProblem: 'Non sa trasformare un’idea generica in un’offerta comprensibile',
-    valueProposition: 'Una struttura semplice per arrivare a una prima offerta verificabile',
+    candidateId: 'project-planner-ai',
+    title: 'Project Planner per lavorare con AI',
+    description: 'Planner guidato per definire obiettivi, attività, prompt, decisioni ed evidenze di un progetto svolto con AI.',
+    targetCustomer: 'Creator o aspirante imprenditore che vuole organizzare un progetto con strumenti AI',
+    customerProblem: 'Usa l’AI in modo frammentato e perde obiettivi, decisioni, attività ed evidenze',
+    valueProposition: 'Un unico planner per trasformare conversazioni con l’AI in un progetto ordinato e misurabile',
     evidence: [],
-    constraints: ['Richiede test con utenti reali'],
-    participantInterest: 75,
-    buildEase: 90
-  },
-  {
-    candidateId: 'guida-7-giorni',
-    title: 'Mini guida “7 giorni per validare un’idea”',
-    description: 'Guida breve con esercizi quotidiani e scheda raccolta evidenze.',
-    targetCustomer: 'Persona con una prima idea ma senza metodo di validazione',
-    customerProblem: 'Rischia di costruire prima di raccogliere segnali reali',
-    valueProposition: 'Sette passi brevi per raccogliere evidenze prima di investire tempo e denaro',
-    evidence: [],
-    constraints: ['Non deve promettere risultati economici'],
-    participantInterest: 70,
-    buildEase: 80
+    constraints: ['Validare il flusso con utenti reali prima di aggiungere automazioni'],
+    participantInterest: 50,
+    buildEase: 70
   }
 ];
 
@@ -288,7 +310,18 @@ function ZorgaxLifePilotPage() {
         <article className="life-card life-card-wide">
           <div className="life-step">02 · IDEE</div>
           <h2>Tre candidati da discutere</h2>
-          <p className="life-muted">Queste sono proposte iniziali. Nicola può modificarle prima del ranking.</p>
+          <p className="life-muted">Le due proposte attive derivano dalla scelta di Nicola. I primi feedback restano evidenza aggregata finché non saranno attribuibili a una singola idea.</p>
+          <div className="life-result">
+            <strong>Aggiornamento validazione · {NICOLA_VALIDATION_UPDATE.recordedAt}</strong>
+            <span>Verdetto: {NICOLA_VALIDATION_UPDATE.verdict}</span>
+            <p>{NICOLA_VALIDATION_UPDATE.summary}</p>
+            <ul>
+              {NICOLA_VALIDATION_UPDATE.evidence.map(item => <li key={item.participant}><strong>{item.participant}:</strong> {item.finding}</li>)}
+            </ul>
+            <strong>Limiti delle evidenze</strong>
+            <ul>{NICOLA_VALIDATION_UPDATE.gaps.map(item => <li key={item}>{item}</li>)}</ul>
+            <span><strong>Prossimo gate:</strong> {NICOLA_VALIDATION_UPDATE.nextGate}</span>
+          </div>
           <div className="life-ideas">
             {ideas.map((idea, index) => (
               <div className="life-idea" key={idea.candidateId}>
