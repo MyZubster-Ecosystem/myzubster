@@ -309,7 +309,7 @@ function ZorgaxLifePilotPage() {
 
         <article className="life-card life-card-wide">
           <div className="life-step">02 · IDEE</div>
-          <h2>Tre candidati da discutere</h2>
+          <h2>Due idee da confrontare</h2>
           <p className="life-muted">Le due proposte attive derivano dalla scelta di Nicola. I primi feedback restano evidenza aggregata finché non saranno attribuibili a una singola idea.</p>
           <div className="life-result">
             <strong>Aggiornamento validazione · {NICOLA_VALIDATION_UPDATE.recordedAt}</strong>
