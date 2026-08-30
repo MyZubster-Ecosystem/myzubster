@@ -1,0 +1,65 @@
+{
+  "version": "nicola_followup_validation_v1",
+  "recordedAt": "2026-08-30",
+  "source": "participant_relayed_interviews",
+  "privacy": {
+    "sourceContainedPersonalNames": true,
+    "storedPersonalNames": false,
+    "note": "The relayed source included interviewee names. This normalized evidence record intentionally stores anonymous labels only."
+  },
+  "scope": "PARTIAL_COMPARATIVE_MIXED",
+  "verdict": "NEEDS_EVIDENCE",
+  "rankingImpact": "NONE",
+  "rankingImpactReason": "The follow-up contains stronger problem and test-intent signals, but the concept labels do not map cleanly to the two active candidate IDs and not all four interview responses are individually complete.",
+  "evidence": [
+    {
+      "participant": "Persona A",
+      "reportedPreference": "Progetto di revisione e aggiornamento AI",
+      "candidateMapping": null,
+      "problem": "Gestione manuale di scadenze e pagamenti su più piattaforme, con pagamenti o carte che non sempre funzionano come previsto.",
+      "currentWorkaround": "Gestione manuale dei pagamenti e delle scadenze.",
+      "desiredOutcome": "Automatizzare i pagamenti delle piattaforme senza doverli gestire uno per uno.",
+      "mustHave": "Una soluzione che operi come tramite o collegamento di automazione, senza presentarsi come sistema di pagamento autonomo.",
+      "wouldTest": true,
+      "completeness": "SUBSTANTIAL"
+    },
+    {
+      "participant": "Persona B",
+      "reportedPreference": "Entrambe le proposte",
+      "candidateMapping": null,
+      "problem": null,
+      "currentWorkaround": null,
+      "desiredOutcome": null,
+      "mustHave": null,
+      "wouldTest": null,
+      "context": "La persona opera in un contesto di vendita di prodotti digitali online.",
+      "completeness": "PARTIAL"
+    },
+    {
+      "participant": "Persone C-D",
+      "reportedPreference": "Progetto di semplificazione dei prodotti digitali",
+      "candidateMapping": null,
+      "problem": "La produzione e revisione di prodotti digitali richiede passaggi complessi e tempi stretti; gli strumenti AI usati oggi non sempre bastano.",
+      "currentWorkaround": "Uso di strumenti AI insieme a passaggi e controlli manuali.",
+      "desiredOutcome": "Arrivare entro sette giorni a prodotti digitali completati e rifiniti.",
+      "mustHave": "Un motore che individui possibili difetti del prodotto digitale e aiuti a perfezionarlo in modo automatico.",
+      "wouldTest": true,
+      "groupedSource": true,
+      "completeness": "GROUPED"
+    }
+  ],
+  "positiveSignals": [
+    "È emerso almeno un problema operativo concreto e ricorrente.",
+    "È presente disponibilità esplicita a provare una prima versione in più di un riscontro.",
+    "Per la semplificazione dei prodotti digitali è stato indicato un risultato temporale concreto: completamento entro sette giorni.",
+    "È stata indicata almeno una funzione indispensabile concreta: rilevamento dei difetti e supporto al perfezionamento automatico."
+  ],
+  "gaps": [
+    "Le etichette delle idee usate nel follow-up non corrispondono in modo univoco ai due candidateId attivi del pilot.",
+    "Non sono disponibili quattro risposte individuali complete nel formato richiesto.",
+    "Due persone sono state riportate insieme e quindi non possono essere considerate due evidenze indipendenti.",
+    "La disponibilità a pagare non è stata ancora raccolta.",
+    "Il ranking dei due candidati non deve essere modificato finché l'attribuzione non è esplicita."
+  ],
+  "nextGate": "Raccogliere quattro risposte separate e anonime, ciascuna con candidateId esplicito, problema, soluzione attuale, risultato entro sette giorni, funzione indispensabile e disponibilità al test."
+}
