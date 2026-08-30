@@ -12,6 +12,7 @@ describe('Nicola LIFE pilot validation seed', () => {
   test('uses Nicola’s two active product candidates', () => {
     expect(page).toContain("candidateId: 'kit-primo-prodotto-7-giorni'");
     expect(page).toContain("candidateId: 'project-planner-ai'");
+    expect(page).toContain('<h2>Due idee da confrontare</h2>');
   });
 
   test('records preliminary feedback without assigning it to one candidate', () => {
