@@ -53,6 +53,16 @@ describe('Bounty payment integration', () => {
     expect(res.status).toBe(401);
   });
 
+  it('rejects incorrect admin credentials', async () => {
+    const res = await request(app).get('/api/bounty-payments').set('x-admin-api-key', 'wrong-key-123');
+    expect(res.status).toBe(401);
+  });
+
+  it('accepts correct configured credentials', async () => {
+    const res = await admin(request(app).get('/api/bounty-payments'));
+    expect(res.status).toBe(200);
+  });
+
   it('creates a simulated payment in PENDING state', async () => {
     const res = await admin(request(app).post('/api/bounty-payments')).send({
       issueId: '394', contributor: 'laurentketterle-hub', amount: 250, currency: 'MYZ', kind: 'simulated',
