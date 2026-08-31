@@ -1,0 +1,74 @@
+{
+  "version": "nicola_followup_validation_v2",
+  "recordedAt": "2026-08-31",
+  "source": "participant_relayed_interviews",
+  "relationship": "INCREMENTAL_UPDATE",
+  "previousEvidence": "docs/life/nicola-validation-followup-2026-08-30.json",
+  "privacy": {
+    "storedPersonalNames": false,
+    "storedContactDetails": false,
+    "note": "The update stores anonymous labels and only the minimum authorized validation evidence."
+  },
+  "classification": "UPDATE_PREPARED",
+  "scope": "THREE_LABELED_RESPONSES_WITH_DUPLICATE_PATTERN",
+  "verdict": "NEEDS_CLARIFICATION",
+  "rankingImpact": "NONE",
+  "rankingImpactReason": "Persona D is missing, Persona B and Persona C have identical relayed answers, and Persona A does not state a concrete seven-day outcome. The new candidate mappings are recorded without changing scores or ranking.",
+  "evidence": [
+    {
+      "participant": "Persona A",
+      "reportedPreference": "Progetto 1",
+      "candidateMapping": "kit-primo-prodotto-7-giorni",
+      "mappingBasis": "The relayed answer explicitly selects project 1 from the two numbered active candidates.",
+      "problem": "Difficoltà riscontrate nei pagamenti collegati all'uso di strumenti AI.",
+      "currentWorkaround": "Effettua oggi i pagamenti in bitcoin.",
+      "desiredOutcome": null,
+      "withinSevenDaysRequested": true,
+      "mustHave": "Pagamenti più semplici, con scadenze considerate e sincronizzate.",
+      "wouldTest": true,
+      "completeness": "SUBSTANTIAL",
+      "clarificationNeeded": "Specificare il risultato concreto desiderato entro sette giorni e verificare la coerenza tra il problema dei pagamenti e il candidato scelto."
+    },
+    {
+      "participant": "Persona B",
+      "reportedPreference": "Progetto 2",
+      "candidateMapping": "project-planner-ai",
+      "mappingBasis": "The relayed answer explicitly selects project 2 from the two numbered active candidates.",
+      "problem": "Troppi passaggi nella creazione di prodotti digitali e assenza di un tutor che segnali gli errori durante il lavoro.",
+      "currentWorkaround": "Usa ChatGPT e presta maggiore attenzione ai passaggi.",
+      "desiredOutcome": "Migliorare la realizzazione e la vendita di prodotti digitali entro sette giorni.",
+      "mustHave": "Un tutor che segnali gli errori durante lo sviluppo del progetto.",
+      "wouldTest": true,
+      "completeness": "COMPLETE_RELAYED"
+    },
+    {
+      "participant": "Persona C",
+      "reportedPreference": "Progetto 2",
+      "candidateMapping": "project-planner-ai",
+      "mappingBasis": "The relayed answer explicitly selects project 2 from the two numbered active candidates.",
+      "problem": "Troppi passaggi nella creazione di prodotti digitali e assenza di un tutor che segnali gli errori durante il lavoro.",
+      "currentWorkaround": "Usa ChatGPT e presta maggiore attenzione ai passaggi.",
+      "desiredOutcome": "Migliorare la realizzazione e la vendita di prodotti digitali entro sette giorni.",
+      "mustHave": "Un tutor che segnali gli errori durante lo sviluppo del progetto.",
+      "wouldTest": true,
+      "completeness": "DUPLICATE_PATTERN",
+      "possibleDuplicateOf": "Persona B",
+      "independentEvidence": false,
+      "clarificationNeeded": "Confermare che Persona C sia un'intervista distinta e che la risposta identica non sia stata duplicata per errore."
+    }
+  ],
+  "positiveSignals": [
+    "Sono state indicate preferenze esplicite per i candidati numerati.",
+    "Due schede uniche contengono problemi, soluzioni attuali, funzioni indispensabili e disponibilità al test.",
+    "Il tutor che segnala errori emerge come funzione indispensabile per il candidato project-planner-ai.",
+    "La semplificazione e sincronizzazione delle scadenze emerge come esigenza operativa della Persona A."
+  ],
+  "gaps": [
+    "Manca una scheda separata per Persona D.",
+    "Le risposte di Persona B e Persona C sono identiche e non vengono contate come due evidenze indipendenti finché non sono confermate.",
+    "Persona A non descrive il risultato concreto desiderato entro sette giorni.",
+    "La preferenza della Persona A per il progetto 1 non è pienamente coerente con il problema dei pagamenti descritto.",
+    "Il ranking dei candidati non deve essere modificato finché i punti aperti non sono chiariti."
+  ],
+  "nextGate": "Raccogliere la scheda anonima di Persona D, confermare l'indipendenza della risposta di Persona C e completare il risultato entro sette giorni della Persona A."
+}
