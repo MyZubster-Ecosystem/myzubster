@@ -15,6 +15,25 @@
       "formalPartner": false
     },
     {
+      "id": "crpa-scientific-discussion",
+      "label": "CRPA",
+      "category": "agriculture_environment_scientific_interlocutor",
+      "state": "IN_DISCUSSION",
+      "evidence": ["authorised_correspondence_2026-08-31_meeting_confirmed_not_published"],
+      "nextReviewWindow": "2026-09-08",
+      "missing": ["scientific_scope_discussion", "explicit_role_or_participation_confirmation", "formal_agreement_if_any"],
+      "formalPartner": false
+    },
+    {
+      "id": "unicusano-lca-lcsa-discussion",
+      "label": "Universita Niccolo Cusano / LCA-LCSA contact lane",
+      "category": "lca_lcsa_circular_water_scientific_interlocutor",
+      "state": "IN_DISCUSSION",
+      "evidence": ["authorised_correspondence_2026-08-31_call_availability_not_published"],
+      "missing": ["introductory_call", "scope_fit", "explicit_role_or_participation_confirmation", "formal_agreement_if_any"],
+      "formalPartner": false
+    },
+    {
       "id": "capraia-tuscan-archipelago-context",
       "label": "Isola di Capraia / Tuscan Archipelago context",
       "category": "candidate_pilot_context",
