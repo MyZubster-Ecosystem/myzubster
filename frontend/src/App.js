@@ -7,6 +7,7 @@ import MarketplacePage from './pages/MarketplacePage';
 import MarketplaceOpsPage from './pages/MarketplaceOpsPage';
 import SocialLoginPage from './pages/SocialLoginPage';
 import ZorgaxLifePilotPage from './pages/ZorgaxLifePilotPage';
+import AppsDownloadPage from './pages/AppsDownloadPage';
 import RobotPublicWalletPanel from './components/RobotPublicWalletPanel';
 
 const TABS = {
@@ -95,6 +96,10 @@ function App() {
 
   if (path === '/life-pilot' || path === '/zorgax/life-pilot') {
     return <ZorgaxLifePilotPage />;
+  }
+
+  if (path === '/apps') {
+    return <AppsDownloadPage />;
   }
 
   return (
