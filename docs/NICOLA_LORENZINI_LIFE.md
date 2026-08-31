@@ -61,6 +61,41 @@ The participant relayed four early, anonymized reactions covering the two concep
 
 Collect at least four complete, anonymized responses that compare both candidates directly. Only after that gate should Zorgax prepare the comparative score, recommend which product to develop first and propose the minimum testable version.
 
+## Zorgax participant automation status
+
+Status recorded on **2026-08-31**.
+
+- Consent state: `CONFIRMED` by the participant via email.
+- Instruction acknowledgement: `ACCEPTED`.
+- Automation state: `ENABLED`, event-driven by new participant emails.
+- Processing outcomes: `NO_ACTION`, `NEEDS_CLARIFICATION`, or `UPDATE_PREPARED`.
+- Repository action mode: `BRANCH → COMMIT → PULL REQUEST → HUMAN REVIEW`.
+- Automatic merge: `DISABLED`.
+- Automatic outbound email: `DISABLED`.
+- Sensitive public, commercial and financial actions: `HUMAN_APPROVAL_REQUIRED`.
+- Privacy rule: process only participant-authorized information, minimize personal data and keep relayed interview evidence anonymous.
+
+A confirmation-only message does not create repository changes. New authorized evidence may update an existing relevant Nicola pull request or create a focused pull request only when no suitable one exists.
+
+## Technical completion record
+
+Scope status: `TECHNICAL_AUTOMATION_SETUP_COMPLETE`.
+
+The Nicola profile branch was synchronized with `main` on **2026-08-31** without rewriting history. The synchronization commit passed all required technical checks:
+
+- [CI – Test e Lint](https://github.com/MyZubster-Ecosystem/myzubster/actions/runs/33349916628): `SUCCESS`
+- [Security Audit](https://github.com/MyZubster-Ecosystem/myzubster/actions/runs/33349916500): `SUCCESS`
+- [Continuous Evidence Gate](https://github.com/MyZubster-Ecosystem/myzubster/actions/runs/33349916553): `SUCCESS`
+- Vercel preview check: `SUCCESS`
+- [Profile pull request #850](https://github.com/MyZubster-Ecosystem/myzubster/pull/850): `READY_FOR_HUMAN_REVIEW`
+
+This record does **not** classify the full participant pilot as complete. Remaining human or evidence gates are:
+
+1. human review and merge of the relevant Nicola pull requests;
+2. completion of the authenticated MyZubster GitHub OAuth linkage by the participant;
+3. four separate, complete and anonymized comparative-validation responses;
+4. one substantive post-activation participant email to validate the end-to-end automated update path.
+
 ## Human-control rules
 
 This pilot is advisory-first. Zorgax must not autonomously:
