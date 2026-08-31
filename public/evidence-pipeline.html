@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>MyZubster Evidence Pipeline</title>
-  <meta name="description" content="Public truth-labeled MyZubster evidence vertical slice: source, provenance, KPIs, Zorgax classification and human review gate.">
+  <meta name="description" content="Truth-labeled MyZubster evidence pipeline with synthetic EVA IONI telemetry and real ARPAE measured open data.">
   <style>
     :root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
     body { margin: 0; background: #081018; color: #edf6ff; }
@@ -30,12 +30,12 @@
 <body>
 <main>
   <div class="eyebrow">MyZubster · evidence-first vertical slice</div>
-  <h1>From input to reviewable evidence.</h1>
-  <p>This page demonstrates the public, safe-by-default pipeline. The live demo uses synthetic EVA IONI telemetry and must remain labeled <strong>SIMULATED</strong>. Real measurements are accepted by the API only when explicit authorization and provenance are supplied.</p>
+  <h1>From source to reviewable evidence.</h1>
+  <p>The pipeline now exposes two truth-separated sources: a <strong>SIMULATED</strong> EVA IONI runtime and a real <strong>MEASURED</strong> ARPAE Emilia-Romagna open-data source. Measured does not mean independently verified or final.</p>
 
   <div class="flow">
-    <div class="step"><strong>1 · Source</strong><span class="muted">SIMULATED or authorized MEASURED</span></div>
-    <div class="step"><strong>2 · Provenance</strong><span class="muted">source ID + timestamp + digest</span></div>
+    <div class="step"><strong>1 · Source</strong><span class="muted">SIMULATED or licensed MEASURED</span></div>
+    <div class="step"><strong>2 · Provenance</strong><span class="muted">source ID + timestamp + attribution</span></div>
     <div class="step"><strong>3 · KPI</strong><span class="muted">bounded environmental values</span></div>
     <div class="step"><strong>4 · Zorgax</strong><span class="muted">prepare, classify, never self-verify</span></div>
     <div class="step"><strong>5 · Human gate</strong><span class="muted">accept/reject; no automatic publication</span></div>
@@ -43,53 +43,80 @@
 
   <div class="grid">
     <section class="card">
-      <h2>Current demo truth</h2>
-      <div id="badges"><span class="badge warning">Loading…</span></div>
-      <p id="context">Fetching public demo evidence…</p>
-      <div id="kpis"></div>
+      <h2>ARPAE measured source</h2>
+      <div id="arpae-badges"><span class="badge warning">Loading…</span></div>
+      <p id="arpae-context">Fetching licensed ARPAE observation…</p>
+      <div id="arpae-kpis"></div>
+      <p class="muted" id="arpae-source"></p>
     </section>
     <section class="card">
-      <h2>Governance boundary</h2>
-      <span class="badge">automatic verification: false</span>
-      <span class="badge">automatic publication: false</span>
-      <span class="badge">physical actuation: false</span>
-      <span class="badge">financial settlement: false</span>
-      <p>A human review can accept a record for bounded downstream use, but it cannot rewrite its source class. A simulation stays a simulation.</p>
+      <h2>EVA IONI simulation</h2>
+      <div id="demo-badges"><span class="badge warning">Loading…</span></div>
+      <p id="demo-context">Fetching synthetic demo…</p>
+      <div id="demo-kpis"></div>
     </section>
   </div>
 
   <section class="card" style="margin-top:16px">
-    <h2>Evidence record</h2>
-    <pre id="record">Loading…</pre>
+    <h2>Governance boundary</h2>
+    <span class="badge">automatic verification: false</span>
+    <span class="badge">automatic publication: false</span>
+    <span class="badge">physical actuation: false</span>
+    <span class="badge">financial settlement: false</span>
+    <p>ARPAE near-real-time data are genuine observations, but the provider states they may change after later validation. MyZubster therefore keeps them measured/provisional and pending human review.</p>
   </section>
 
-  <p>API: <a href="/api/robots/evidence/health">/api/robots/evidence/health</a> · demo: <a href="/api/robots/evidence/demo">/api/robots/evidence/demo</a> · documentation: <a href="https://github.com/MyZubster-Ecosystem/myzubster/blob/main/docs/EVIDENCE-VERTICAL-SLICE.md">EVIDENCE-VERTICAL-SLICE.md</a></p>
+  <div class="grid" style="margin-top:16px">
+    <section class="card"><h2>ARPAE evidence record</h2><pre id="arpae-record">Loading…</pre></section>
+    <section class="card"><h2>Simulation evidence record</h2><pre id="demo-record">Loading…</pre></section>
+  </div>
+
+  <p>API: <a href="/api/robots/evidence/health">health</a> · <a href="/api/robots/evidence/arpae/latest">ARPAE latest</a> · <a href="/api/robots/evidence/demo">simulation demo</a> · documentation: <a href="https://github.com/MyZubster-Ecosystem/myzubster/blob/main/docs/EVIDENCE-VERTICAL-SLICE.md">EVIDENCE-VERTICAL-SLICE.md</a></p>
 </main>
 <script>
-(async () => {
-  const badges = document.getElementById('badges');
-  const context = document.getElementById('context');
-  const kpis = document.getElementById('kpis');
-  const record = document.getElementById('record');
+function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
+function badge(container, text, className) {
+  const span = document.createElement('span');
+  span.className = `badge${className ? ` ${className}` : ''}`;
+  span.textContent = text;
+  container.appendChild(span);
+}
+function renderEvidence(prefix, payload) {
+  const evidence = payload.evidence;
+  const badges = document.getElementById(`${prefix}-badges`);
+  const context = document.getElementById(`${prefix}-context`);
+  const kpis = document.getElementById(`${prefix}-kpis`);
+  const record = document.getElementById(`${prefix}-record`);
+  clear(badges); clear(kpis);
+  badge(badges, evidence.truth_label, 'truth');
+  badge(badges, evidence.source_class, '');
+  badge(badges, `review: ${evidence.human_review.state}`, '');
+  context.textContent = evidence.context || payload.note || '';
+  evidence.kpis.forEach(kpi => {
+    const row = document.createElement('div'); row.className = 'kpi';
+    const key = document.createElement('span'); key.textContent = kpi.key;
+    const value = document.createElement('strong'); value.textContent = `${kpi.value} ${kpi.unit}`;
+    row.append(key, value); kpis.appendChild(row);
+  });
+  record.textContent = JSON.stringify(evidence, null, 2);
+}
+async function load(prefix, url) {
   try {
-    const response = await fetch('/api/robots/evidence/demo', { headers: { accept: 'application/json' } });
+    const response = await fetch(url, { headers: { accept: 'application/json' } });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const payload = await response.json();
-    const evidence = payload.evidence;
-    badges.innerHTML = [
-      `<span class="badge truth">${evidence.truth_label}</span>`,
-      `<span class="badge">${evidence.source_class}</span>`,
-      `<span class="badge">review: ${evidence.human_review.state}</span>`
-    ].join('');
-    context.textContent = evidence.context || payload.note || '';
-    kpis.innerHTML = evidence.kpis.map(kpi => `<div class="kpi"><span>${kpi.key}</span><strong>${kpi.value} ${kpi.unit}</strong></div>`).join('');
-    record.textContent = JSON.stringify(evidence, null, 2);
+    renderEvidence(prefix, payload);
+    if (prefix === 'arpae' && payload.source) {
+      document.getElementById('arpae-source').textContent = `${payload.source.provider} · ${payload.source.station_name} · ${payload.source.license} · ${payload.source.provider_quality_state}`;
+    }
   } catch (error) {
-    badges.innerHTML = '<span class="badge warning">Demo unavailable</span>';
-    context.textContent = error.message;
-    record.textContent = 'The public demo endpoint could not be loaded.';
+    const badges = document.getElementById(`${prefix}-badges`); clear(badges); badge(badges, 'Source unavailable', 'warning');
+    document.getElementById(`${prefix}-context`).textContent = error.message;
+    document.getElementById(`${prefix}-record`).textContent = 'No evidence claim created from an unavailable source.';
   }
-})();
+}
+load('arpae', '/api/robots/evidence/arpae/latest');
+load('demo', '/api/robots/evidence/demo');
 </script>
 </body>
 </html>
