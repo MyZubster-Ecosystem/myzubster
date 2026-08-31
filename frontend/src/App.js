@@ -17,6 +17,60 @@ const TABS = {
   MARKETPLACE_OPS: 'marketplace-ops'
 };
 
+const lifeSpotlightStyle = {
+  margin: '0 20px 20px',
+  padding: '22px',
+  borderRadius: '18px',
+  border: '1px solid rgba(34, 197, 94, 0.35)',
+  background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.12), rgba(168, 85, 247, 0.12))'
+};
+
+const lifeActionsStyle = {
+  display: 'flex',
+  flexWrap: 'wrap',
+  gap: '10px',
+  marginTop: '14px'
+};
+
+const lifeLinkStyle = {
+  display: 'inline-block',
+  padding: '11px 15px',
+  borderRadius: '10px',
+  textDecoration: 'none',
+  fontWeight: 900,
+  color: 'inherit',
+  border: '1px solid currentColor'
+};
+
+function LifeSpotlight() {
+  return (
+    <section style={lifeSpotlightStyle} aria-labelledby="life-spotlight-title">
+      <div style={{ fontSize: 13, fontWeight: 900, letterSpacing: '.08em', opacity: 0.78 }}>
+        LIFE 2027 · PERCORSO PREPARATORIO
+      </div>
+      <h2 id="life-spotlight-title" style={{ margin: '6px 0 8px' }}>
+        🌍 Dati → evidenze → KPI/MRV → impatto replicabile
+      </h2>
+      <p style={{ margin: 0, lineHeight: 1.55, maxWidth: 900 }}>
+        MyZubster sta validando un percorso evidence-first per pilot ambientali, con focus su acqua,
+        agricoltura, provenance dei dati e MRV digitale. Pilot, ruoli e partnership restano in fase di
+        preparazione finché non vengono confermati esplicitamente.
+      </p>
+      <div style={lifeActionsStyle}>
+        <a href="/life-pilot" style={{ ...lifeLinkStyle, background: 'rgba(34, 197, 94, 0.14)' }}>
+          Esplora LIFE Pilot →
+        </a>
+        <a href="/press" style={lifeLinkStyle}>
+          Press & Media →
+        </a>
+        <a href="/come-funziona" style={lifeLinkStyle}>
+          Come funziona MyZubster →
+        </a>
+      </div>
+    </section>
+  );
+}
+
 function App() {
   const [activeTab, setActiveTab] = useState(TABS.WORLD);
   const path = window.location.pathname.replace(/\/+$/, '') || '/';
@@ -42,8 +96,11 @@ function App() {
         <button onClick={() => setActiveTab(TABS.MARKETPLACE_OPS)}>I miei scambi</button>
         <a href="/zorgax">Zorgax</a>
         <a href="/life-pilot" style={{ fontWeight: 900 }}>LIFE Pilot</a>
+        <a href="/press" style={{ fontWeight: 900 }}>Press</a>
         <a href="/fumetto">Fumetto</a>
       </nav>
+
+      <LifeSpotlight />
 
       {activeTab === TABS.WORLD && <MetaversePage />}
       {activeTab === TABS.EXPLORE && <MapPage />}
