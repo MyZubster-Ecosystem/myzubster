@@ -14,7 +14,8 @@
   ],
   "crons": [
     { "path": "/api/zorgax/email/run", "schedule": "0 8 * * *" },
-    { "path": "/api/robots/simulation/cron", "schedule": "10 8 * * *" }
+    { "path": "/api/robots/simulation/cron", "schedule": "10 8 * * *" },
+    { "path": "/api/robots/evidence/arpae/capture/cron", "schedule": "20 8 * * *" }
   ],
   "routes": [
     { "src": "/press\\.html/?", "status": 308, "headers": { "Location": "/press" } },
@@ -58,4 +59,3 @@
     { "src": "/(.*)", "dest": "/frontend/index.html" }
   ]
 }
-
