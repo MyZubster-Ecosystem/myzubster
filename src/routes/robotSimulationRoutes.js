@@ -4,6 +4,7 @@ const {
   createFleetPulse,
   validateExternalSimulationTelemetry
 } = require('../services/robotSimulationService');
+const evidenceVerticalSliceRoutes = require('./evidenceVerticalSliceRoutes');
 
 const router = express.Router();
 
@@ -34,7 +35,8 @@ router.get('/health', (_req, res) => {
     robots: ROBOTS.map(robot => ({ id: robot.id, name: robot.name })),
     actuators_enabled: false,
     physical_hardware_verified: false,
-    autonomous_settlement_enabled: false
+    autonomous_settlement_enabled: false,
+    evidence_vertical_slice: '/api/robots/evidence/health'
   });
 });
 
@@ -79,5 +81,10 @@ router.post('/simulation/telemetry', (req, res) => {
     autonomous_settlement_performed: false
   });
 });
+
+// First end-to-end evidence slice. It is mounted under the already bounded
+// robot runtime so the public demo can reuse synthetic EVA IONI telemetry
+// without adding a second server-level route or implying physical deployment.
+router.use('/evidence', evidenceVerticalSliceRoutes);
 
 module.exports = router;
