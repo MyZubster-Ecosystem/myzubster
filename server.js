@@ -134,6 +134,7 @@ const githubBountySyncRoutes = require('./src/routes/githubBountySyncRoutes');
 const researchRoutes = require('./src/routes/researchRoutes');
 const municipalityRoutes = require('./src/routes/municipalityRoutes');
 const entityRoutes = require('./src/routes/entityRoutes');
+const robotSimulationRoutes = require('./src/routes/robotSimulationRoutes');
 const metaverseRoutes = require('./backend/src/routes/metaverse');
 const lifeDaoRoutes = require('./backend/src/routes/dao-life');
 const { lifeDaoBindingGuard } = require('./backend/src/services/lifeDaoPolicy');
@@ -180,6 +181,7 @@ app.use('/api/zorgax/build', zorgaxBuildRoutes);
 app.use('/api/zorgax/life', zorgaxLifeRoutes);
 app.use('/api/zorgax/email', zorgaxEmailRoutes);
 app.use('/api/zorgax', zorgaxRoutes);
+app.use('/api/robots', robotSimulationRoutes);
 app.use('/api/github-bounties', githubBountySyncRoutes);
 app.use('/api/research', researchRoutes);
 app.use('/api/entities', entityRoutes);
@@ -203,6 +205,7 @@ app.get('/', (_req, res) => {
       zorgax_build: '/api/zorgax/build',
       zorgax_life: '/api/zorgax/life/status',
       zorgax_email: '/api/zorgax/email/preferences',
+      robot_runtime: '/api/robots/status',
       dao_advisory: '/api/dao/life/status'
     }
   });
