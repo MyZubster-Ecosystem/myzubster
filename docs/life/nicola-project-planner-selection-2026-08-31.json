@@ -1,0 +1,29 @@
+{
+  "version": "nicola_project_selection_v1",
+  "recordedAt": "2026-08-31",
+  "participantPublicId": "nicolaususnicola-lgtm",
+  "source": "participant_direct_email_confirmation",
+  "privacy": {
+    "publicContactStored": false,
+    "rawEmailBodyStored": false,
+    "note": "Only the minimum decision evidence is stored; no private contact details or credentials are included."
+  },
+  "decision": {
+    "humanConfirmed": true,
+    "selectedCandidateId": "project-planner-ai",
+    "selectedCandidateTitle": "Project Planner per lavorare con AI/Zorgax",
+    "participantRequestedProceed": true,
+    "zorgaxAutomationPreferred": true
+  },
+  "effect": {
+    "issue853IdeaGate": "SATISFIED",
+    "issue855ImplementationGate": "UNBLOCKED",
+    "commercialValidation": "NOT_YET_TESTED",
+    "deployment": "NOT_CLAIMED"
+  },
+  "boundaries": [
+    "The selection is evidence of participant choice, not market demand or product-market fit.",
+    "Sensitive external actions remain subject to human approval.",
+    "No automated payments, publishing, pricing changes, or outbound commercial messaging are authorized by this record."
+  ]
+}
