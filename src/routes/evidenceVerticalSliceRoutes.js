@@ -9,6 +9,13 @@ const {
   ARPAE_LICENSE,
   fetchArpaeMeasuredEvidence
 } = require('../services/arpaeMeasuredObservationService');
+const {
+  captureLatestArpaeMeasurement,
+  recordHumanReview,
+  recordOutcome,
+  publicTimeline,
+  currentBaseline
+} = require('../services/evidenceAuditTrailService');
 
 const router = express.Router();
 const ARPAE_CACHE_TTL_MS = 15 * 60 * 1000;
@@ -29,6 +36,10 @@ function ingestAuthorized(req) {
 
 function reviewAuthorized(req) {
   return bearerMatches(req, [process.env.EVIDENCE_REVIEW_TOKEN]);
+}
+
+function cronAuthorized(req) {
+  return bearerMatches(req, [process.env.CRON_SECRET]);
 }
 
 function simulationDemo(now = new Date()) {
@@ -58,7 +69,7 @@ router.get('/health', (_req, res) => {
     ok: true,
     service: 'MyZubster Evidence Vertical Slice',
     schema_version: 'myzubster-evidence-v1',
-    capability: 'authorized-input-to-human-review-v1',
+    capability: 'measured-input-to-auditable-outcome-v1',
     source_classes: ['SIMULATED', 'MEASURED'],
     measured_requires_explicit_authorization: true,
     connected_measured_sources: [
@@ -70,9 +81,19 @@ router.get('/health', (_req, res) => {
         truth_boundary: 'MEASURED but provisional; not independently verified/final'
       }
     ],
+    audit_cycle: {
+      append_only_events: true,
+      measurement_capture: true,
+      persistent_human_review: true,
+      accepted_baseline: true,
+      zorgax_advisory_recommendation: true,
+      persistent_outcome_log: true,
+      minimum_baseline_samples: 3
+    },
     human_review_required: true,
     automatic_verification: false,
-    automatic_publication: false
+    automatic_publication: false,
+    automatic_actuation: false
   });
 });
 
@@ -111,6 +132,136 @@ router.get('/arpae/latest', async (_req, res) => {
       measured_claim_created: false,
       fallback_to_simulation: false
     });
+  }
+});
+
+router.get('/arpae/history', async (req, res) => {
+  res.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
+  try {
+    const records = await publicTimeline(req.query.limit);
+    return res.json({
+      ok: true,
+      append_only: true,
+      public_projection: true,
+      count: records.length,
+      records
+    });
+  } catch (error) {
+    console.error('[evidence-v1] history unavailable', error.message);
+    return res.status(503).json({ ok: false, error: 'Evidence history temporarily unavailable' });
+  }
+});
+
+router.get('/arpae/baseline', async (_req, res) => {
+  res.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
+  try {
+    const baseline = await currentBaseline();
+    return res.json({
+      ok: true,
+      source: 'accepted human-reviewed measured evidence only',
+      baseline
+    });
+  } catch (error) {
+    console.error('[evidence-v1] baseline unavailable', error.message);
+    return res.status(503).json({ ok: false, error: 'Evidence baseline temporarily unavailable' });
+  }
+});
+
+router.post('/arpae/capture', async (req, res) => {
+  if (!ingestAuthorized(req)) {
+    return res.status(401).json({ ok: false, error: 'Evidence capture not authorized' });
+  }
+  try {
+    const result = await captureLatestArpaeMeasurement({
+      actorRef: req.body && req.body.actor_ref ? req.body.actor_ref : 'system:authorized-capture'
+    });
+    if (!result.ok) return res.status(502).json(result);
+    return res.status(result.inserted ? 201 : 200).json({
+      ...result,
+      persisted: true,
+      append_only: true,
+      independently_verified: false
+    });
+  } catch (error) {
+    console.error('[evidence-v1] capture failed', error.message);
+    return res.status(503).json({ ok: false, error: 'Evidence capture temporarily unavailable' });
+  }
+});
+
+router.get('/arpae/capture/cron', async (req, res) => {
+  if (!cronAuthorized(req)) {
+    return res.status(401).json({ ok: false, error: 'Evidence capture cron not authorized' });
+  }
+  try {
+    const result = await captureLatestArpaeMeasurement({ actorRef: 'system:vercel-cron' });
+    if (!result.ok) return res.status(502).json(result);
+    return res.json({
+      ok: true,
+      inserted: result.inserted,
+      evidence_id: result.evidence.evidence_id,
+      observed_at: result.evidence.provenance.observed_at,
+      persisted: true,
+      append_only: true
+    });
+  } catch (error) {
+    console.error('[evidence-v1] capture cron failed', error.message);
+    return res.status(503).json({ ok: false, error: 'Evidence capture cron temporarily unavailable' });
+  }
+});
+
+router.post('/audit/review', async (req, res) => {
+  if (!reviewAuthorized(req)) {
+    return res.status(401).json({ ok: false, error: 'Persistent evidence review not authorized' });
+  }
+  const evidenceId = req.body && req.body.evidence_id;
+  const review = req.body && req.body.review;
+  if (!evidenceId) return res.status(400).json({ ok: false, error: 'evidence_id required' });
+  try {
+    const result = await recordHumanReview(evidenceId, review || {});
+    if (!result.ok) return res.status(result.conflict ? 409 : 400).json(result);
+    return res.status(result.inserted ? 201 : 200).json({
+      ok: true,
+      inserted: result.inserted,
+      append_only: true,
+      independently_verified: false,
+      event_id: result.event.eventId,
+      reviewed_evidence: result.event.payload.reviewed_evidence,
+      recommendation: result.recommendation && result.recommendation.ok
+        ? result.recommendation.event.payload.recommendation
+        : null
+    });
+  } catch (error) {
+    console.error('[evidence-v1] persistent review failed', error.message);
+    return res.status(503).json({ ok: false, error: 'Persistent review temporarily unavailable' });
+  }
+});
+
+router.post('/audit/outcome', async (req, res) => {
+  if (!reviewAuthorized(req)) {
+    return res.status(401).json({ ok: false, error: 'Evidence outcome log not authorized' });
+  }
+  const evidenceId = req.body && req.body.evidence_id;
+  const outcome = req.body && req.body.outcome;
+  if (!evidenceId) return res.status(400).json({ ok: false, error: 'evidence_id required' });
+  try {
+    const result = await recordOutcome(evidenceId, outcome || {}, {
+      actorRef: req.body && req.body.actor_ref
+    });
+    if (!result.ok) return res.status(400).json(result);
+    return res.status(result.inserted ? 201 : 200).json({
+      ok: true,
+      inserted: result.inserted,
+      append_only: true,
+      event_id: result.event.eventId,
+      outcome: {
+        state: result.event.payload.state,
+        linked_evidence_id: result.event.payload.linked_evidence_id || null,
+        consequential_action_performed_by_system: false
+      }
+    });
+  } catch (error) {
+    console.error('[evidence-v1] outcome log failed', error.message);
+    return res.status(503).json({ ok: false, error: 'Outcome log temporarily unavailable' });
   }
 });
 
