@@ -22,7 +22,10 @@ async function recordVerifiedPayment({ ownerId, planId, asset, paymentReference,
 
   const ref = normalizePaymentReference(paymentReference);
   const existing = await ZorgaxSubscription.findOne({ paymentReference: ref }).lean();
-  if (existing) throw new Error('Pagamento già utilizzato');
+  if (existing) {
+    if (String(existing.ownerId) !== String(ownerId)) throw new Error('Pagamento già utilizzato');
+    return existing;
+  }
 
   const now = new Date();
   let startsAt = now;
@@ -34,19 +37,27 @@ async function recordVerifiedPayment({ ownerId, planId, asset, paymentReference,
   }
   const expiresAt = new Date(startsAt.getTime() + ACCESS_DAYS * 24 * 60 * 60 * 1000);
 
-  const subscription = await ZorgaxSubscription.create({
-    ownerId: String(ownerId),
-    plan: plan.id,
-    asset: normalizedAsset,
-    paymentReference: ref,
-    verification: {
-      status: 'VERIFIED',
-      verifier: String(verification.verifier || 'external-chain-verifier').slice(0, 120),
-      verifiedAt: now
-    },
-    access: { status: 'ACTIVE', startsAt, expiresAt },
-    renewalOf: renewalDoc?._id || null
-  });
+  let subscription;
+  try {
+    subscription = await ZorgaxSubscription.create({
+      ownerId: String(ownerId),
+      plan: plan.id,
+      asset: normalizedAsset,
+      paymentReference: ref,
+      verification: {
+        status: 'VERIFIED',
+        verifier: String(verification.verifier || 'external-chain-verifier').slice(0, 120),
+        verifiedAt: now
+      },
+      access: { status: 'ACTIVE', startsAt, expiresAt },
+      renewalOf: renewalDoc?._id || null
+    });
+  } catch (error) {
+    if (error?.code !== 11000) throw error;
+    const replay = await ZorgaxSubscription.findOne({ paymentReference: ref }).lean();
+    if (!replay || String(replay.ownerId) !== String(ownerId)) throw new Error('Pagamento già utilizzato');
+    return replay;
+  }
 
   return subscription;
 }

@@ -2,6 +2,7 @@
 
 const crypto = require('crypto');
 const ZorgaxPaymentIntent = require('../models/ZorgaxPaymentIntent');
+const ZorgaxSubscription = require('../models/ZorgaxSubscription');
 
 const PLANS = Object.freeze({
   free: { id: 'free', name: 'Zorgax Free', priceEur: 0, billing: 'free', features: ['assistant-base', 'limited-research'] },
@@ -54,6 +55,7 @@ function catalog() {
 }
 
 function publicIntent(doc, plan) {
+  const settlement = doc.settlement || {};
   return {
     intentId: doc.intentId,
     plan: { id: plan.id, name: plan.name, priceEur: plan.priceEur, billing: plan.billing },
@@ -68,14 +70,25 @@ function publicIntent(doc, plan) {
       source: doc.quote.source,
       status: doc.quote.status
     },
-    settlementStatus: doc.settlement.status,
-    accessStatus: 'NOT_ACTIVE',
+    settlementStatus: settlement.status,
+    paymentReference: settlement.paymentReference || null,
+    submittedAt: settlement.submittedAt || null,
+    confirmations: settlement.confirmations ?? null,
+    tracking: {
+      automatic: Boolean(settlement.paymentReference && settlement.status === 'PENDING'),
+      lastCheckedAt: settlement.lastCheckedAt || null,
+      nextCheckAt: settlement.nextCheckAt || null,
+      checkAttempts: settlement.checkAttempts || 0,
+      lastError: settlement.lastError || null
+    },
+    accessStatus: settlement.status === 'VERIFIED' ? 'ACTIVE' : 'NOT_ACTIVE',
+    renewal: Boolean(doc.renewalOf),
     requiresIndependentVerification: true,
     expiresAt: doc.expiresAt
   };
 }
 
-async function createCheckoutIntent({ ownerId, planId, asset }) {
+async function createCheckoutIntent({ ownerId, planId, asset, renew = false }) {
   if (!ownerId) throw new Error('Owner checkout non valido');
   const plan = PLANS[String(planId || '').toLowerCase()];
   const normalizedAsset = String(asset || '').toUpperCase();
@@ -83,6 +96,18 @@ async function createCheckoutIntent({ ownerId, planId, asset }) {
   if (!SUPPORTED_ASSETS.includes(normalizedAsset)) throw new Error('Asset di pagamento non supportato');
   if (!isSettlementRailOperational(normalizedAsset)) throw new Error(`Rail di pagamento ${normalizedAsset} non operativo`);
   const address = publicWallets()[normalizedAsset];
+
+  let renewalDoc = null;
+  if (renew === true) {
+    const now = new Date();
+    renewalDoc = await ZorgaxSubscription.findOne({
+      ownerId: String(ownerId),
+      plan: plan.id,
+      'access.status': 'ACTIVE',
+      'access.expiresAt': { $gt: now }
+    }).sort({ 'access.expiresAt': -1 });
+    if (!renewalDoc) throw new Error('Abbonamento attivo da rinnovare non trovato');
+  }
 
   const { quotePlan } = require('./zorgaxQuoteService');
   const quote = await quotePlan({ asset: normalizedAsset, priceEur: plan.priceEur });
@@ -103,6 +128,7 @@ async function createCheckoutIntent({ ownerId, planId, asset }) {
       status: 'QUOTED'
     },
     settlement: { status: 'PENDING' },
+    renewalOf: renewalDoc?._id || null,
     expiresAt
   });
 
@@ -112,11 +138,31 @@ async function createCheckoutIntent({ ownerId, planId, asset }) {
 async function getPaymentIntent({ ownerId, intentId }) {
   const intent = await ZorgaxPaymentIntent.findOne({ intentId: String(intentId || ''), ownerId: String(ownerId) }).lean();
   if (!intent) throw new Error('Payment intent non trovato');
-  if (intent.settlement.status === 'PENDING' && intent.expiresAt <= new Date()) {
+  if (intent.settlement.status === 'PENDING' && !intent.settlement.paymentReference && intent.expiresAt <= new Date()) {
     await ZorgaxPaymentIntent.updateOne({ _id: intent._id, 'settlement.status': 'PENDING' }, { $set: { 'settlement.status': 'EXPIRED' } });
     intent.settlement.status = 'EXPIRED';
   }
   return publicIntent(intent, PLANS[intent.plan]);
+}
+
+async function listPaymentIntents({ ownerId, limit = 20 }) {
+  const parsedLimit = Number(limit);
+  const safeLimit = Number.isFinite(parsedLimit) ? Math.max(1, Math.min(Math.trunc(parsedLimit), 50)) : 20;
+  const now = new Date();
+
+  await ZorgaxPaymentIntent.updateMany({
+    ownerId: String(ownerId),
+    'settlement.status': 'PENDING',
+    'settlement.paymentReference': null,
+    expiresAt: { $lte: now }
+  }, { $set: { 'settlement.status': 'EXPIRED' } });
+
+  const intents = await ZorgaxPaymentIntent.find({ ownerId: String(ownerId) })
+    .sort({ createdAt: -1 })
+    .limit(safeLimit)
+    .lean();
+
+  return intents.map((intent) => publicIntent(intent, PLANS[intent.plan]));
 }
 
 module.exports = {
@@ -128,5 +174,7 @@ module.exports = {
   isSettlementRailOperational,
   catalog,
   createCheckoutIntent,
-  getPaymentIntent
+  getPaymentIntent,
+  listPaymentIntents,
+  publicIntent
 };

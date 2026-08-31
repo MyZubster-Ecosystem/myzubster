@@ -19,16 +19,23 @@ const zorgaxPaymentIntentSchema = new mongoose.Schema({
   },
   settlement: {
     status: { type: String, enum: ['PENDING', 'VERIFIED', 'EXPIRED', 'REJECTED'], default: 'PENDING', index: true },
-    paymentReference: { type: String, default: null },
+    paymentReference: { type: String, default: undefined },
+    submittedAt: { type: Date, default: null },
     verifier: { type: String, default: null },
     confirmations: { type: Number, default: null },
-    verifiedAt: { type: Date, default: null }
+    verifiedAt: { type: Date, default: null },
+    lastCheckedAt: { type: Date, default: null },
+    nextCheckAt: { type: Date, default: null },
+    checkAttempts: { type: Number, default: 0 },
+    lastError: { type: String, default: null }
   },
+  renewalOf: { type: mongoose.Schema.Types.ObjectId, ref: 'ZorgaxSubscription', default: null },
   expiresAt: { type: Date, required: true, index: true },
   consumedAt: { type: Date, default: null }
 }, { timestamps: true });
 
 zorgaxPaymentIntentSchema.index({ ownerId: 1, createdAt: -1 });
+zorgaxPaymentIntentSchema.index({ 'settlement.status': 1, 'settlement.nextCheckAt': 1 });
 zorgaxPaymentIntentSchema.index({ 'settlement.paymentReference': 1 }, { unique: true, sparse: true });
 
 module.exports = mongoose.models.ZorgaxPaymentIntent || mongoose.model('ZorgaxPaymentIntent', zorgaxPaymentIntentSchema);
