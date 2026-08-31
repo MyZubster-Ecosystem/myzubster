@@ -120,11 +120,16 @@ function integrityPayload(record) {
   return {
     schema_version: record.schema_version,
     evidence_id: record.evidence_id,
+    evidence_kind: record.evidence_kind,
     source_class: record.source_class,
     truth_label: record.truth_label,
+    context: record.context,
     provenance: record.provenance,
     kpis: record.kpis,
-    authorization: record.authorization
+    authorization: record.authorization,
+    zorgax: record.zorgax,
+    human_review: record.human_review,
+    claims: record.claims
   };
 }
 
