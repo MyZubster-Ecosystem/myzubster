@@ -2,7 +2,7 @@
 
 ## Status
 
-`IMPLEMENTED_READY_FOR_PILOT_TEST`
+`PILOT_TEST_STARTED_PARTICIPANT_REPORTED`
 
 This document defines the smallest testable version after Nicola directly selected `project-planner-ai` on 2026-08-31. It is an internal MyZubster / Zorgax digital-business pilot artifact. It is not evidence of an EU LIFE grant, partnership, commercial success, customers, revenue, or production deployment.
 
@@ -12,7 +12,9 @@ The first usable implementation is a standalone browser planner at:
 
 The preview route was independently fetched with HTTP `200` after Vercel built the branch. This proves the preview artifact is reachable in the deployment context checked; it does not prove Nicola has started or used the pilot.
 
-The implementation stores data locally in the participant's browser and does not transmit evidence automatically. The pilot becomes `ACTIVE` only when Nicola explicitly presses **Avvia i 7 giorni** after entering a real project objective.
+The implementation stores data locally in the participant's browser and does not transmit evidence automatically. The pilot should be treated as technically `ACTIVE` only when Nicola explicitly presses **Avvia i 7 giorni** after entering a real project objective.
+
+On 2026-08-31, Nicola directly reported that he had started the test. This satisfies the participant-confirmation gate, but it does not independently verify the button press, browser-local state, entered objective, daily use, completion, usefulness, or test result. The minimized record is stored in `docs/life/nicola-project-planner-pilot-start-2026-08-31.json`.
 
 ## Primary validation hypothesis
 
@@ -118,6 +120,7 @@ Stop or replace the concept when **0–2 of 6** GO conditions are met, or Nicola
 - Validation package: #855
 - Pull request: #884
 - Selection evidence: `docs/life/nicola-project-planner-selection-2026-08-31.json`
+- Participant-reported start evidence: `docs/life/nicola-project-planner-pilot-start-2026-08-31.json`
 - Implementation: `public/nicola-project-planner.html`
 - Vercel route: `/nicola-project-planner`
 - Test coverage: `tests/zorgaxLifePilotNicolaPlanner.test.js`
