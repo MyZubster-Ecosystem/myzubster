@@ -81,6 +81,41 @@ async function totalCharacterCount() {
   }
 }
 
+function publicFeaturedCharacter(character) {
+  return {
+    displayName: character.displayName,
+    characterName: character.characterName,
+    archetype: character.archetype,
+    identityStatus: character.identityStatus,
+    worldId: character.worldId,
+    github: character.github?.login ? {
+      login: character.github.login,
+      profileUrl: character.github.profileUrl
+    } : null
+  };
+}
+
+async function featuredCharacters() {
+  if (mongoose.connection.readyState !== 1) return [];
+
+  try {
+    const characters = await MetaverseCharacter.find({
+      worldId: WORLD.id,
+      identityStatus: 'account-linked',
+      'github.id': { $exists: true, $ne: '' }
+    })
+      .select('-_id displayName characterName archetype identityStatus worldId github.login github.profileUrl')
+      .sort({ lastSeenAt: -1 })
+      .limit(12)
+      .lean();
+
+    return characters.map(publicFeaturedCharacter);
+  } catch (error) {
+    console.error('Featured metaverse characters error:', error);
+    return [];
+  }
+}
+
 function sendEvent(response, payload) {
   response.write(`data: ${JSON.stringify(payload)}\n\n`);
 }
@@ -144,7 +179,10 @@ async function persistCharacter(session) {
 }
 
 router.get('/world', async (_req, res) => {
-  const totalCharacters = await totalCharacterCount();
+  const [totalCharacters, verifiedCharacters] = await Promise.all([
+    totalCharacterCount(),
+    featuredCharacters()
+  ]);
 
   res.json({
     success: true,
@@ -152,6 +190,7 @@ router.get('/world', async (_req, res) => {
     online: sessions.size,
     totalCharacters,
     players: snapshot(),
+    featuredCharacters: verifiedCharacters,
     identityMode: 'guest-unverified'
   });
 });

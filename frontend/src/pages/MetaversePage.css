@@ -307,6 +307,46 @@
 .metaverse-nearby small { display: block; color: #8198aa; }
 .metaverse-nearby { padding: 7px 0; border-top: 1px solid rgba(137, 176, 202, 0.1); }
 
+.metaverse-featured-entry {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(98, 246, 232, 0.16);
+}
+
+.metaverse-featured-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.metaverse-featured-character {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid rgba(98, 246, 232, 0.2);
+  border-radius: 12px;
+  background: rgba(10, 29, 40, 0.72);
+}
+
+.metaverse-featured-character strong,
+.metaverse-featured-character small,
+.metaverse-featured-character a { display: block; }
+.metaverse-featured-character small { color: #91a9b9; }
+.metaverse-featured-character a { margin-top: 2px; color: #62e5da; font-size: 11px; text-decoration: none; }
+.metaverse-featured-glyph { font-size: 24px; }
+.metaverse-verified-badge {
+  border-radius: 999px;
+  padding: 4px 7px;
+  color: #79ffd2;
+  background: rgba(21, 179, 126, 0.15);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
+
+
 .metaverse-identity-badge {
   margin-top: 10px;
   display: inline-flex;

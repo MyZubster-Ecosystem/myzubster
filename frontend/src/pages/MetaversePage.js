@@ -64,7 +64,33 @@ function formatCharacterCount(totalCharacters) {
   return totalCharacters.toLocaleString('it-IT');
 }
 
-function AvatarCreator({ initialProfile, busy, error, totalCharacters, onEnter }) {
+function VerifiedCharacterList({ characters }) {
+  return (
+    <div className="metaverse-featured-list">
+      {characters.map((character) => {
+        const githubLogin = character.github?.login;
+        const archetype = ARCHETYPES[character.archetype] || ARCHETYPES.explorer;
+        return (
+          <article className="metaverse-featured-character" key={`${githubLogin || character.characterName}-${character.characterName}`}>
+            <span className="metaverse-featured-glyph">{archetype.glyph}</span>
+            <div>
+              <strong>{character.characterName}</strong>
+              <small>{character.displayName}</small>
+              {githubLogin && (
+                <a href={character.github.profileUrl || `https://github.com/${githubLogin}`} target="_blank" rel="noreferrer">
+                  @{githubLogin} ↗
+                </a>
+              )}
+            </div>
+            <span className="metaverse-verified-badge">VERIFICATO</span>
+          </article>
+        );
+      })}
+    </div>
+  );
+}
+
+function AvatarCreator({ initialProfile, busy, error, totalCharacters, featuredCharacters, onEnter }) {
   const [displayName, setDisplayName] = useState(initialProfile?.displayName || '');
   const formattedTotal = formatCharacterCount(totalCharacters);
 
@@ -121,6 +147,13 @@ function AvatarCreator({ initialProfile, busy, error, totalCharacters, onEnter }
         <small className="metaverse-muted">
           Nessun wallet, documento o account GitHub richiesto per esplorare come ospite.
         </small>
+
+        {featuredCharacters.length > 0 && (
+          <section className="metaverse-featured-entry">
+            <div className="metaverse-kicker">ESPLORATORI VERIFICATI</div>
+            <VerifiedCharacterList characters={featuredCharacters} />
+          </section>
+        )}
       </section>
     </div>
   );
@@ -138,14 +171,19 @@ function MetaversePage() {
   const [error, setError] = useState('');
   const [lastLandmark, setLastLandmark] = useState('Neon Plaza');
   const [totalCharacters, setTotalCharacters] = useState(null);
+  const [featuredCharacters, setFeaturedCharacters] = useState([]);
   const emoteTimers = useRef({});
 
   useEffect(() => {
     let active = true;
     getMetaverseWorld()
       .then((result) => {
-        if (active && Number.isInteger(result.totalCharacters)) {
+        if (!active) return;
+        if (Number.isInteger(result.totalCharacters)) {
           setTotalCharacters(result.totalCharacters);
+        }
+        if (Array.isArray(result.featuredCharacters)) {
+          setFeaturedCharacters(result.featuredCharacters);
         }
       })
       .catch(() => {});
@@ -307,6 +345,7 @@ function MetaversePage() {
         busy={busy}
         error={error}
         totalCharacters={totalCharacters}
+        featuredCharacters={featuredCharacters}
         onEnter={enter}
       />
     );
@@ -383,6 +422,13 @@ function MetaversePage() {
               </div>
             </div>
             <div className="metaverse-identity-badge">Ospite</div>
+          </section>
+
+          <section className="metaverse-panel">
+            <h3>Esploratori verificati</h3>
+            {featuredCharacters.length === 0
+              ? <p className="metaverse-muted">Nessun profilo verificato pubblicato.</p>
+              : <VerifiedCharacterList characters={featuredCharacters} />}
           </section>
 
           <section className="metaverse-panel">
