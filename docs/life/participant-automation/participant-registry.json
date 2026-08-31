@@ -1,0 +1,66 @@
+{
+  "version": "zorgax_life_participant_registry_v1",
+  "updatedAt": "2026-08-31",
+  "scope": "Internal MyZubster / Zorgax LIFE digital pilot. This is not an EU LIFE consortium or partner registry.",
+  "rules": {
+    "activationRequiresExplicitOptIn": true,
+    "participantSpecificConsentRequired": true,
+    "publicContactDetailsAllowed": false,
+    "automaticOutboundEmail": false,
+    "automaticMerge": false,
+    "directMainWritesFromAutomation": false,
+    "humanApprovalForSensitiveActions": true,
+    "anonymousRelayedEvidenceRequired": true
+  },
+  "participants": [
+    {
+      "publicId": "nicolaususnicola-lgtm",
+      "displayLabel": "Nicola",
+      "role": "pilot_participant",
+      "state": "VALIDATION_ACTIVE",
+      "consent": "CONFIRMED",
+      "automation": "ENABLED",
+      "source": "docs/NICOLA_LORENZINI_LIFE.md",
+      "currentEvidenceVerdict": "NEEDS_CLARIFICATION",
+      "publicContactStored": false
+    }
+  ],
+  "candidates": [
+    {
+      "publicId": "Aming9303",
+      "role": "candidate_contributor",
+      "state": "INVITED",
+      "consent": "NOT_CONFIRMED",
+      "automation": "DISABLED",
+      "source": "docs/life-2027/CONTRIBUTOR_POOL.md",
+      "candidateLanes": ["dashboard", "evidence-ux", "visual-communication"]
+    },
+    {
+      "publicId": "wasim-builds",
+      "role": "candidate_contributor",
+      "state": "INVITED",
+      "consent": "NOT_CONFIRMED",
+      "automation": "DISABLED",
+      "source": "docs/life-2027/CONTRIBUTOR_POOL.md",
+      "candidateLanes": ["security", "qa", "verification", "review"]
+    }
+  ],
+  "discoverySources": [
+    "issues/742",
+    "issues/833",
+    "issues/834",
+    "issues/835",
+    "issues/836",
+    "issues/837"
+  ],
+  "activationWorkflow": [
+    "DISCOVER_EXPLICIT_OPT_IN",
+    "VERIFY_SCOPE_AND_IDENTITY",
+    "RECORD_CONSENT_WITHOUT_PRIVATE_CONTACTS",
+    "CREATE_PARTICIPANT_SPECIFIC_FILTER",
+    "ENABLE_READ_AND_CLASSIFY_AUTOMATION",
+    "PREPARE_BRANCH_AND_PULL_REQUEST_ONLY",
+    "RUN_PRIVACY_AND_QUALITY_GATES",
+    "HUMAN_REVIEW"
+  ]
+}
