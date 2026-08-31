@@ -29,7 +29,7 @@ PROPOSED
 
 | GitHub alias | Contribution path | Public evidence | Current evidence status | LIFE-aligned candidate lane |
 |---|---|---|---|---|
-| `@Aming9303` | Frontend / dashboard / visual documentation | PR #531; PR #634 | both `OPEN / SUBMITTED` | #537 dashboard & KPI evidence; evidence UX / visualization |
+| `@Aming9303` | Frontend / dashboard / visual documentation / IoT sensing | PR #531; PR #634; PR #859 | all `OPEN / SUBMITTED`; #859 is a bounded contribution on LIFE-aligned issue #534 | #534 sensing adapter **active public LIFE contribution**; #537 dashboard & KPI evidence; evidence UX / visualization |
 | `@wasim-builds` | Security / QA / review / geolocation | PR #58; PR #636; PR #637 | #58 and #636 `CLOSED_NOT_MERGED`; #637 `OPEN / SUBMITTED` | #534 geospatial context; #536 safety/review; #713 evidence-integrity QA |
 | `@ghzhost` | Backend / telemetry / sensing | PR #396 | `OPEN / SUBMITTED` | #534 sensing adapter; #713 ingest/provenance |
 | `@laurentketterle-hub` | Telemetry / dashboard / Gateway / robotics | PR #397; #398; #399; #400; #404 | #397/#399/#400 `MERGED`; #398 `CLOSED_NOT_MERGED`; #404 `OPEN` | #534 sensing; #536 device safety; #537 dashboard; #713 evidence automation |
@@ -39,7 +39,7 @@ PROPOSED
 
 ### Evidence links
 
-- `@Aming9303`: https://github.com/MyZubster-Ecosystem/myzubster/pull/531, https://github.com/MyZubster-Ecosystem/myzubster/pull/634
+- `@Aming9303`: https://github.com/MyZubster-Ecosystem/myzubster/pull/531, https://github.com/MyZubster-Ecosystem/myzubster/pull/634, https://github.com/MyZubster-Ecosystem/myzubster/pull/859
 - `@wasim-builds`: https://github.com/MyZubster-Ecosystem/myzubster/pull/58, https://github.com/MyZubster-Ecosystem/myzubster/pull/636, https://github.com/MyZubster-Ecosystem/myzubster/pull/637
 - `@ghzhost`: https://github.com/MyZubster-Ecosystem/myzubster/pull/396
 - `@laurentketterle-hub`: https://github.com/MyZubster-Ecosystem/myzubster/pull/397, https://github.com/MyZubster-Ecosystem/myzubster/pull/398, https://github.com/MyZubster-Ecosystem/myzubster/pull/399, https://github.com/MyZubster-Ecosystem/myzubster/pull/400, https://github.com/MyZubster-Ecosystem/myzubster/pull/404
@@ -49,14 +49,14 @@ PROPOSED
 
 Additional contributors should be added only after verifying the **actual public PR/issue author alias**. Do not infer identity from text, payout addresses, commit messages, email notifications or external profiles.
 
-## LIFE-aligned candidate pool
+## LIFE-aligned contributor work
 
 MyZubster contributors may opt into preparatory LIFE-aligned technical work when their existing skills match a bounded issue.
 
 ```text
 PUBLIC CONTRIBUTION EVIDENCE
 → CANDIDATE LIFE LANE
-→ CONTRIBUTOR OPT-IN / CLAIM
+→ CONTRIBUTOR OPT-IN / CLAIM OR CLEAR LIFE CONTRIBUTION ACTION
 → BOUNDED LIFE ISSUE
 → PR + TESTS / EVIDENCE
 → REVIEW
@@ -72,7 +72,7 @@ Current source-of-truth LIFE lanes:
 - #538 — pilot replication package;
 - #713 — Zorgax LIFE evidence automation.
 
-Candidate lane inclusion is **not** a partnership or participant-consent claim. A contributor becomes active on a LIFE-aligned task only through explicit public opt-in/claim or another clear contribution action.
+A clear public contribution on one of these bounded issues may establish contributor-work opt-in for that task. It is **not** participant-profile consent, partnership, employment or external payment authorization. PR #859 currently provides that bounded public contribution evidence for `@Aming9303` on #534.
 
 ## Contributor claim template
 
