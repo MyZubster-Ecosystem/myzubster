@@ -1,5 +1,6 @@
 'use strict';
 
+const crypto = require('crypto');
 const {
   ALLOCATION_STATUSES,
   ZorgaxCapitalAllocation
@@ -7,6 +8,8 @@ const {
 const {
   requireSafeNonNegativeInteger
 } = require('./zorgaxCapitalAllocatorService');
+
+const DECISION_CONTEXT_VERSION = 'zorgax_capital_decision_context_v1';
 
 function requireNonEmptyString(value, field) {
   const normalized = String(value || '').trim();
@@ -23,6 +26,26 @@ function requireSafePositiveInteger(value, field) {
 function requireSafeInteger(value, field) {
   if (!Number.isSafeInteger(value)) throw new Error(`${field} must be a safe integer`);
   return value;
+}
+
+function canonicalize(value) {
+  if (Array.isArray(value)) return value.map(canonicalize);
+  if (value && typeof value === 'object') {
+    if (value instanceof Date) return value.toISOString();
+    return Object.keys(value).sort().reduce((out, key) => {
+      out[key] = canonicalize(value[key]);
+      return out;
+    }, {});
+  }
+  return value;
+}
+
+function hashDecisionContext(context) {
+  if (!context || typeof context !== 'object' || Array.isArray(context)) {
+    throw new Error('decisionContext must be an object');
+  }
+  const canonical = JSON.stringify(canonicalize(context));
+  return crypto.createHash('sha256').update(canonical).digest('hex');
 }
 
 function publicAllocation(item) {
@@ -48,6 +71,7 @@ async function recordRecommendations({
   asset,
   network = null,
   recommendations,
+  decisionContext = null,
   metadata = {}
 }) {
   const normalizedOwner = requireNonEmptyString(ownerId, 'ownerId');
@@ -55,6 +79,7 @@ async function recordRecommendations({
   const normalizedAsset = requireNonEmptyString(asset, 'asset').toUpperCase();
   if (!Array.isArray(recommendations)) throw new Error('recommendations must be an array');
 
+  const decisionContextHash = decisionContext ? hashDecisionContext(decisionContext) : null;
   const saved = [];
   for (const recommendation of recommendations) {
     const opportunityId = requireNonEmptyString(recommendation.id, 'recommendation.id');
@@ -82,6 +107,9 @@ async function recordRecommendations({
             opportunityScore: recommendation.opportunityScore
           },
           advisoryOnly: true,
+          decisionContextVersion: decisionContext ? DECISION_CONTEXT_VERSION : null,
+          decisionContext,
+          decisionContextHash,
           metadata
         });
       } catch (error) {
@@ -93,11 +121,33 @@ async function recordRecommendations({
         });
         if (!item) throw error;
       }
+    } else if (decisionContextHash && item.decisionContextHash && item.decisionContextHash !== decisionContextHash) {
+      throw new Error('capital allocation already exists with different decision provenance');
     }
     saved.push(publicAllocation(item));
   }
 
   return saved;
+}
+
+async function getAllocationProvenance({
+  AllocationModel = ZorgaxCapitalAllocation,
+  ownerId,
+  allocationId
+}) {
+  const item = await findOwnedAllocation({ AllocationModel, ownerId, allocationId });
+  const row = publicAllocation(item);
+  return {
+    allocationId: row.allocationId,
+    cycleReference: row.cycleReference,
+    opportunityId: row.opportunityId,
+    asset: row.asset,
+    network: row.network || null,
+    decisionContextVersion: row.decisionContextVersion || null,
+    decisionContextHash: row.decisionContextHash || null,
+    decisionContext: row.decisionContext || null,
+    provenanceAvailable: Boolean(row.decisionContext && row.decisionContextHash)
+  };
 }
 
 async function listAllocations({
@@ -218,8 +268,12 @@ async function recordOutcome({
 }
 
 module.exports = {
+  DECISION_CONTEXT_VERSION,
   approveAllocation,
+  canonicalize,
   findOwnedAllocation,
+  getAllocationProvenance,
+  hashDecisionContext,
   listAllocations,
   publicAllocation,
   recordOutcome,

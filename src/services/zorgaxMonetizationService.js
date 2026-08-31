@@ -82,7 +82,8 @@ function createZorgaxMonetizationService({
   },
   entitlementService = {
     grantPurchaseEntitlement
-  }
+  },
+  accountingService = null
 }) {
   if (!paymentService) {
     throw new Error('paymentService is required');
@@ -187,6 +188,14 @@ function createZorgaxMonetizationService({
     });
   }
 
+  async function recognizeRevenueIfConfigured(intent) {
+    if (!accountingService) return null;
+    if (typeof accountingService.recognizeConfirmedPaymentIntentDocument !== 'function') {
+      throw new Error('accountingService.recognizeConfirmedPaymentIntentDocument is required');
+    }
+    return accountingService.recognizeConfirmedPaymentIntentDocument({ intent });
+  }
+
   async function settlePurchase({
     ownerId,
     purchaseId,
@@ -201,6 +210,8 @@ function createZorgaxMonetizationService({
      * If the ledger already granted this purchase,
      * grantPurchaseCredits returns replay=true. Entitlements use the purchase
      * id as their own one-time replay key, so retries are safe at both layers.
+     * Existing CREDITED purchases can be backfilled into accounting through the
+     * dedicated admin accounting sync endpoint.
      */
     if (purchase.status === PURCHASE_STATUSES.CREDITED) {
       const creditResult =
@@ -222,7 +233,8 @@ function createZorgaxMonetizationService({
         purchase: publicPurchase(purchase),
         paymentIntent: null,
         credit: creditResult,
-        entitlement: entitlementResult
+        entitlement: entitlementResult,
+        accounting: null
       };
     }
 
@@ -256,7 +268,8 @@ function createZorgaxMonetizationService({
             : intent,
         verification,
         credit: null,
-        entitlement: null
+        entitlement: null,
+        accounting: null
       };
     }
 
@@ -290,6 +303,14 @@ function createZorgaxMonetizationService({
     const entitlementResult =
       await grantEntitlementIfConfigured(purchase);
 
+    /*
+     * Revenue recognition is idempotent on the PaymentIntent source reference.
+     * It happens before the purchase is marked CREDITED, so an accounting error
+     * keeps the purchase retryable. Credit and entitlement grants are already
+     * replay-safe on their own keys.
+     */
+    const accountingResult = await recognizeRevenueIfConfigured(intent);
+
     purchase.status = PURCHASE_STATUSES.CREDITED;
 
     if (!purchase.creditedAt) {
@@ -306,7 +327,8 @@ function createZorgaxMonetizationService({
           : intent,
       verification,
       credit: creditResult,
-      entitlement: entitlementResult
+      entitlement: entitlementResult,
+      accounting: accountingResult
     };
   }
 

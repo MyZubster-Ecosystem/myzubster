@@ -3,47 +3,49 @@
 const express = require('express');
 
 const { authenticate, isAdmin } = require('../middleware/auth');
-const PaymentIntent = require('../models/PaymentIntent');
 const { ZorgaxCapitalAllocation } = require('../models/ZorgaxCapitalAllocation');
+const { ZorgaxEconomicLedgerEntry } = require('../models/ZorgaxEconomicLedgerEntry');
 const allocatorServiceDefault = require('../services/zorgaxCapitalAllocatorService');
 const decisionServiceDefault = require('../services/zorgaxCapitalDecisionService');
 const learningServiceDefault = require('../services/zorgaxCapitalLearningService');
-const metricsServiceDefault = require('../services/zorgaxCapitalMetricsService');
 const policyServiceDefault = require('../services/zorgaxCapitalPolicyService');
+const treasuryServiceDefault = require('../services/zorgaxTreasuryService');
 
 const ECOSYSTEM_OWNER_ID = 'myzubster-ecosystem';
 
 function errorStatus(error) {
   const message = String(error?.message || '');
   if (message.includes('not found')) return 404;
-  if (message.includes('cannot') || message.includes('already')) return 409;
+  if (message.includes('cannot') || message.includes('already') || message.includes('different decision provenance')) return 409;
   return 400;
 }
 
 async function buildRecommendationBundle({
   req,
-  PaymentIntentModel,
   AllocationModel,
+  LedgerModel,
   allocatorService,
   learningService,
-  metricsService,
-  policyService
+  policyService,
+  treasuryService
 }) {
   const asset = String(req.query.asset || 'BTC').trim().toUpperCase();
   const network = req.query.network ? String(req.query.network).trim() : null;
-  const windowDays = req.query.windowDays;
 
-  const snapshot = await metricsService.getConfirmedInflowSnapshot({
-    PaymentIntentModel,
+  const policy = policyService.getCapitalPolicy({ asset });
+  const snapshot = await treasuryService.getTreasurySnapshot({
+    LedgerModel,
+    ownerId: ECOSYSTEM_OWNER_ID,
     asset,
     network,
-    windowDays
+    reserveMinor: policy.reserveMinor
   });
 
-  const policy = policyService.getCapitalPolicy({ asset: snapshot.asset });
   const learning = await learningService.getLearningSnapshot({
     AllocationModel,
-    ownerId: ECOSYSTEM_OWNER_ID
+    ownerId: ECOSYSTEM_OWNER_ID,
+    asset: snapshot.asset,
+    network: snapshot.network
   });
   const learnedOpportunities = learningService.applyLearningToOpportunities(
     policy.opportunities,
@@ -51,10 +53,10 @@ async function buildRecommendationBundle({
   );
 
   const allocation = allocatorService.recommendAllocations({
-    revenueMinor: snapshot.confirmedRevenueMinor,
-    expensesMinor: policy.expensesMinor,
-    obligationsMinor: policy.obligationsMinor,
-    reserveMinor: policy.reserveMinor,
+    revenueMinor: snapshot.investableCapitalMinor,
+    expensesMinor: 0,
+    obligationsMinor: 0,
+    reserveMinor: 0,
     opportunities: learnedOpportunities,
     maxAllocationBps: policy.maxAllocationBps
   });
@@ -68,13 +70,12 @@ async function buildRecommendationBundle({
     snapshot,
     learning,
     policy: {
-      expensesMinor: policy.expensesMinor,
-      obligationsMinor: policy.obligationsMinor,
       reserveMinor: policy.reserveMinor,
       maxAllocationBps: policy.maxAllocationBps,
       policySource: policy.policySource,
       scoresSource: policy.scoresSource,
-      learningMode: 'bounded_evidence_adjustment'
+      learningMode: 'bounded_evidence_adjustment',
+      accountingMode: 'zorgax_economic_ledger_v1'
     },
     capital: {
       availableCapitalMinor: allocation.availableCapitalMinor,
@@ -84,16 +85,31 @@ async function buildRecommendationBundle({
   };
 }
 
+function buildDecisionContext(bundle) {
+  return {
+    generatedAt: bundle.generatedAt,
+    accountingSnapshot: bundle.snapshot,
+    capital: bundle.capital,
+    policy: bundle.policy,
+    learning: bundle.learning,
+    controls: {
+      advisoryOnly: true,
+      requiresHumanApproval: true,
+      executionEnabled: false
+    }
+  };
+}
+
 function createZorgaxCapitalRouter({
   authenticateMiddleware = authenticate,
   adminMiddleware = isAdmin,
-  PaymentIntentModel = PaymentIntent,
   AllocationModel = ZorgaxCapitalAllocation,
+  LedgerModel = ZorgaxEconomicLedgerEntry,
   allocatorService = allocatorServiceDefault,
   decisionService = decisionServiceDefault,
   learningService = learningServiceDefault,
-  metricsService = metricsServiceDefault,
-  policyService = policyServiceDefault
+  policyService = policyServiceDefault,
+  treasuryService = treasuryServiceDefault
 } = {}) {
   const router = express.Router();
   const adminOnly = [authenticateMiddleware, adminMiddleware];
@@ -102,12 +118,12 @@ function createZorgaxCapitalRouter({
     try {
       const bundle = await buildRecommendationBundle({
         req,
-        PaymentIntentModel,
         AllocationModel,
+        LedgerModel,
         allocatorService,
         learningService,
-        metricsService,
-        policyService
+        policyService,
+        treasuryService
       });
       return res.status(200).json(bundle);
     } catch (error) {
@@ -115,11 +131,15 @@ function createZorgaxCapitalRouter({
     }
   });
 
-  router.get('/learning', ...adminOnly, async (_req, res) => {
+  router.get('/learning', ...adminOnly, async (req, res) => {
     try {
+      const asset = String(req.query.asset || 'BTC').trim().toUpperCase();
+      const network = req.query.network ? String(req.query.network).trim() : null;
       const learning = await learningService.getLearningSnapshot({
         AllocationModel,
-        ownerId: ECOSYSTEM_OWNER_ID
+        ownerId: ECOSYSTEM_OWNER_ID,
+        asset,
+        network
       });
       return res.status(200).json({
         success: true,
@@ -139,13 +159,14 @@ function createZorgaxCapitalRouter({
 
       const bundle = await buildRecommendationBundle({
         req,
-        PaymentIntentModel,
         AllocationModel,
+        LedgerModel,
         allocatorService,
         learningService,
-        metricsService,
-        policyService
+        policyService,
+        treasuryService
       });
+      const decisionContext = buildDecisionContext(bundle);
 
       const allocations = await decisionService.recordRecommendations({
         AllocationModel,
@@ -154,14 +175,11 @@ function createZorgaxCapitalRouter({
         asset: bundle.snapshot.asset,
         network: bundle.snapshot.network,
         recommendations: bundle.recommendations,
+        decisionContext,
         metadata: {
           generatedAt: bundle.generatedAt,
           accountingBasis: bundle.snapshot.accountingBasis,
-          windowDays: bundle.snapshot.windowDays,
-          confirmedIntentCount: bundle.snapshot.confirmedIntentCount,
-          confirmedRevenueMinor: bundle.snapshot.confirmedRevenueMinor,
-          policy: bundle.policy,
-          learning: bundle.learning
+          decisionProvenance: 'embedded_context_sha256_v1'
         }
       });
 
@@ -187,6 +205,23 @@ function createZorgaxCapitalRouter({
         limit: req.query.limit
       });
       return res.status(200).json({ success: true, allocations });
+    } catch (error) {
+      return res.status(errorStatus(error)).json({ success: false, message: error.message });
+    }
+  });
+
+  router.get('/allocations/:allocationId/provenance', ...adminOnly, async (req, res) => {
+    try {
+      const provenance = await decisionService.getAllocationProvenance({
+        AllocationModel,
+        ownerId: ECOSYSTEM_OWNER_ID,
+        allocationId: req.params.allocationId
+      });
+      return res.status(200).json({
+        success: true,
+        advisoryOnly: true,
+        provenance
+      });
     } catch (error) {
       return res.status(errorStatus(error)).json({ success: false, message: error.message });
     }
@@ -260,6 +295,7 @@ function createZorgaxCapitalRouter({
 }
 
 const router = createZorgaxCapitalRouter();
+router.buildDecisionContext = buildDecisionContext;
 router.createZorgaxCapitalRouter = createZorgaxCapitalRouter;
 router.ECOSYSTEM_OWNER_ID = ECOSYSTEM_OWNER_ID;
 

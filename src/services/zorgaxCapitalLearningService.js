@@ -101,18 +101,36 @@ function applyLearningToOpportunities(opportunities, summaries) {
   });
 }
 
-async function getLearningSnapshot({ AllocationModel, ownerId, limit = 1000 }) {
+async function getLearningSnapshot({
+  AllocationModel,
+  ownerId,
+  asset = null,
+  network = null,
+  limit = 1000
+}) {
   if (!AllocationModel || typeof AllocationModel.find !== 'function') {
     throw new Error('AllocationModel is required');
   }
 
-  const rows = await AllocationModel.find({
+  const filter = {
     ownerId: String(ownerId),
     status: ALLOCATION_STATUSES.COMPLETED
-  }).sort({ completedAt: -1 }).limit(Math.max(1, Math.min(Number(limit) || 1000, 5000))).lean();
+  };
+
+  const normalizedAsset = asset ? String(asset).trim().toUpperCase() : null;
+  const normalizedNetwork = network ? String(network).trim() : null;
+  if (normalizedAsset) filter.asset = normalizedAsset;
+  if (normalizedNetwork) filter.network = normalizedNetwork;
+
+  const rows = await AllocationModel.find(filter)
+    .sort({ completedAt: -1 })
+    .limit(Math.max(1, Math.min(Number(limit) || 1000, 5000)))
+    .lean();
 
   const categories = summarizeCompletedAllocations(rows);
   return {
+    asset: normalizedAsset,
+    network: normalizedNetwork,
     completedAllocationCount: categories.reduce((sum, item) => sum + item.completedCount, 0),
     categories,
     guardrails: {
@@ -120,7 +138,9 @@ async function getLearningSnapshot({ AllocationModel, ownerId, limit = 1000 }) {
       minimumSamplesBeforeAdjustment: MIN_COMPLETED_SAMPLES,
       modifiesRiskScore: false,
       modifiesReserve: false,
-      modifiesMaxAllocation: false
+      modifiesMaxAllocation: false,
+      isolatesAsset: true,
+      isolatesNetworkWhenSpecified: true
     }
   };
 }

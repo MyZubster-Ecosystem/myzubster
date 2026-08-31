@@ -20,6 +20,8 @@ const {
   publicPurchase
 } = require('../services/zorgaxMonetizationService');
 
+const accountingIngestionService = require('../services/zorgaxAccountingIngestionService');
+
 const {
   getBalance,
   listLedger,
@@ -94,7 +96,9 @@ function createDefaultMonetizationService() {
 
     entitlementService: {
       grantPurchaseEntitlement
-    }
+    },
+
+    accountingService: accountingIngestionService
   });
 }
 
