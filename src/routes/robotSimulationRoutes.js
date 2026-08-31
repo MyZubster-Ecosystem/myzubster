@@ -1,5 +1,4 @@
 const express = require('express');
-const rateLimit = require('express-rate-limit');
 const {
   ROBOTS,
   createFleetPulse,
@@ -7,12 +6,6 @@ const {
 } = require('../services/robotSimulationService');
 
 const router = express.Router();
-const publicPulseLimiter = rateLimit({
-  windowMs: 60 * 1000,
-  max: 30,
-  standardHeaders: true,
-  legacyHeaders: false
-});
 
 function simulationAuthorized(req) {
   const auth = req.headers.authorization;
@@ -45,11 +38,14 @@ router.get('/health', (_req, res) => {
   });
 });
 
-router.get('/status', publicPulseLimiter, (_req, res) => {
+// These reads generate bounded synthetic data only and have no mutation,
+// hardware-control, credential or settlement side effects. Keeping them free of
+// proxy-dependent IP limiting avoids false error logs behind Vercel/Cloudflare.
+router.get('/status', (_req, res) => {
   res.json(emitPulse('public-status'));
 });
 
-router.get('/simulation/pulse', publicPulseLimiter, (_req, res) => {
+router.get('/simulation/pulse', (_req, res) => {
   res.json(emitPulse('public-safe-probe'));
 });
 
