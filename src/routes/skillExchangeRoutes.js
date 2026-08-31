@@ -40,6 +40,20 @@ function actorId(req) {
   return req.userId == null ? null : String(req.userId);
 }
 
+function viewerOffer(offer, id) {
+  const viewerId = String(id);
+  const isOwner = String(offer.ownerId) === viewerId;
+  return {
+    ...offer,
+    applications: isOwner
+      ? (offer.applications || [])
+      : (offer.applications || []).filter(application => String(application.applicantId) === viewerId),
+    startConfirmedBy: (offer.startConfirmedBy || []).map(String).filter(value => value === viewerId),
+    completionConfirmedBy: (offer.completionConfirmedBy || []).map(String).filter(value => value === viewerId),
+    reviews: (offer.reviews || []).filter(review => String(review.reviewerId) === viewerId),
+  };
+}
+
 router.get('/offers', async (req, res, next) => {
   try {
     const filter = { status: req.query.status ? cleanText(req.query.status, 20) : 'open' };
@@ -53,6 +67,21 @@ router.get('/offers', async (req, res, next) => {
       .select('-applications -startConfirmedBy -completionConfirmedBy')
       .sort({ createdAt: -1 }).limit(100).lean();
     return res.json({ success: true, offers });
+  } catch (error) { return next(error); }
+});
+
+router.get('/mine', authenticate, async (req, res, next) => {
+  try {
+    const id = actorId(req);
+    if (!id) return res.status(401).json({ success: false, error: 'Authenticated user id is required' });
+    const offers = await SkillExchange.find({
+      $or: [
+        { ownerId: id },
+        { participantId: id },
+        { 'applications.applicantId': id },
+      ],
+    }).sort({ updatedAt: -1, createdAt: -1 }).limit(100).lean();
+    return res.json({ success: true, offers: offers.map(offer => viewerOffer(offer, id)) });
   } catch (error) { return next(error); }
 });
 
@@ -165,6 +194,12 @@ router.post('/offers/:id/reviews', authenticate, async (req, res, next) => {
     await offer.save();
     return res.status(201).json({ success: true, review: offer.reviews.at(-1) });
   } catch (error) { return next(error); }
+});
+
+router.use((error, _req, res, _next) => {
+  const status = Number(error.status) || 500;
+  const message = status >= 500 ? 'Lavori request failed' : error.message;
+  return res.status(status).json({ success: false, error: message });
 });
 
 module.exports = router;
