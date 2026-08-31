@@ -15,6 +15,17 @@
       "formalPartner": false
     },
     {
+      "id": "unibo-maritime-hydraulics-contact-lane",
+      "label": "UNIBO maritime-hydraulics contact lane",
+      "category": "scientific_contact_lane_outside_current_biodiversity_kpi_scope",
+      "state": "INACTIVE",
+      "evidence": ["authorised_response_2026-08-31_not_published"],
+      "restriction": "no_further_action_on_this_contact_lane",
+      "scopeBoundary": "contact_lane_only_not_unibo_institution_wide",
+      "missing": ["better_matched_agriculture_or_biodiversity_scientific_interlocutor"],
+      "formalPartner": false
+    },
+    {
       "id": "capraia-tuscan-archipelago-context",
       "label": "Isola di Capraia / Tuscan Archipelago context",
       "category": "candidate_pilot_context",
@@ -51,8 +62,8 @@
       "label": "Scientific partner for biodiversity/KPI methodology",
       "category": "project_role",
       "state": "UNFILLED",
-      "evidence": ["issues/509"],
-      "missing": ["qualified_interlocutor", "methodology_discussion", "explicit_role_or_interest"]
+      "evidence": ["issues/509", "unibo_maritime_hydraulics_contact_lane_inactive_2026-08-31"],
+      "missing": ["qualified_agriculture_or_biodiversity_interlocutor", "methodology_discussion", "explicit_role_or_interest"]
     },
     {
       "id": "formal-life-consortium-partner-layer",
