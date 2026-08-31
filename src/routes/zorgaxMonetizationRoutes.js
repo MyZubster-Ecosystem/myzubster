@@ -27,10 +27,13 @@ const {
 } = require('../services/zorgaxCreditService');
 
 const {
-  getAccess,
   grantPurchaseEntitlement,
   listEntitlements
 } = require('../services/zorgaxEntitlementService');
+
+const {
+  getAccess
+} = require('../services/zorgaxAccessService');
 
 const {
   listProducts,
@@ -345,3 +348,4 @@ module.exports = router;
 module.exports.createZorgaxMonetizationRouter =
   createZorgaxMonetizationRouter;
 module.exports.errorStatus = errorStatus;
+

@@ -1,15 +1,17 @@
 const express = require('express');
-const { authenticate } = require('../middleware/auth');
+const { authenticate, optionalAuthenticate } = require('../middleware/auth');
+const { createZorgaxAccessMiddleware, publicAccess } = require('../middleware/zorgaxAccess');
 const ZorgaxDataEntry = require('../models/ZorgaxDataEntry');
 const { answer, searchWeb, previewData, digestPreview } = require('../services/zorgaxAssistantService');
 const { catalog, createCheckoutIntent, getPaymentIntent } = require('../services/zorgaxLegacyMonetizationService');
-const { getAccess } = require('../services/zorgaxSubscriptionService');
+const { getAccess } = require('../services/zorgaxAccessService');
 const { verifyAndActivatePaymentIntent } = require('../services/zorgaxPaymentIntentService');
 
 const router = express.Router();
+const { loadZorgaxAccess, requireZorgaxPlan } = createZorgaxAccessMiddleware();
 
 router.get('/status', (_req, res) => {
-  res.json({ ok: true, entity: 'ZORGAX-001', capability: 'general-assistant-v1', chat: true, web_research: true, data_entry: true, monetization: true, paid_access_lifecycle: true, payment_intents_persisted: true, payment_activation_requires_trusted_verifier: true, crypto_quotes_require_trusted_provider: true, data_write_requires_auth: true, data_write_requires_confirmation: true, autonomous_persistent_writes: false, providers: { brave_search: Boolean(process.env.BRAVE_SEARCH_API_KEY), tavily: Boolean(process.env.TAVILY_API_KEY), google_news: true, wikipedia: true, general_ai_gateway: true } });
+  res.json({ ok: true, entity: 'ZORGAX-001', capability: 'general-assistant-v1', chat: true, web_research: true, data_entry: true, monetization: true, paid_access_lifecycle: true, paid_access_enforced: true, payment_intents_persisted: true, payment_activation_requires_trusted_verifier: true, crypto_quotes_require_trusted_provider: true, guest_chat: true, guest_web_research: false, free_web_research_limit: 2, pro_workspace_required: true, developer_api_required: true, data_write_requires_auth: true, data_write_requires_confirmation: true, autonomous_persistent_writes: false, providers: { brave_search: Boolean(process.env.BRAVE_SEARCH_API_KEY), tavily: Boolean(process.env.TAVILY_API_KEY), google_news: true, wikipedia: true, general_ai_gateway: true } });
 });
 
 router.get('/pricing', (_req, res) => res.json({ ok: true, entity: 'ZORGAX-001', ...catalog() }));
@@ -37,17 +39,36 @@ router.post('/checkout/intent/:intentId/verify', authenticate, async (req, res) 
 });
 
 router.get('/access', authenticate, async (req, res) => {
-  try { res.json({ ok: true, entity: 'ZORGAX-001', access: await getAccess(req.userId) }); }
+  try { res.json({ ok: true, entity: 'ZORGAX-001', access: publicAccess(await getAccess(req.userId)) }); }
   catch (error) { res.status(500).json({ ok: false, error: error.message }); }
 });
 
-router.post('/chat', async (req, res) => {
-  try { const result = await answer({ message: req.body?.message || req.body?.prompt, useWeb: req.body?.useWeb !== false, history: req.body?.history || [], limit: req.body?.limit || 5 }); res.json({ ok: true, entity: 'ZORGAX-001', ...result, external_sources: result.sources }); }
+router.post('/chat', optionalAuthenticate, loadZorgaxAccess, async (req, res) => {
+  try {
+    const requestedWeb = req.body?.useWeb !== false;
+    const policy = req.zorgaxPolicy;
+    const requestedLimit = Number(req.body?.limit);
+    const safeRequestedLimit = Number.isFinite(requestedLimit) && requestedLimit > 0 ? requestedLimit : 5;
+    const limit = policy.maxWebResults > 0 ? Math.min(safeRequestedLimit, policy.maxWebResults) : 1;
+    const useWeb = requestedWeb && policy.webResearch;
+    const result = await answer({ message: req.body?.message || req.body?.prompt, useWeb, history: req.body?.history || [], limit });
+    const accessNotice = requestedWeb && !policy.webResearch
+      ? 'Accedi a MyZubster per abilitare la ricerca web. La risposta corrente usa solo l’assistente base.'
+      : policy.researchMode === 'LIMITED' && requestedWeb
+        ? `Ricerca Free limitata a ${policy.maxWebResults} fonti per richiesta.`
+        : null;
+    res.json({ ok: true, entity: 'ZORGAX-001', ...result, external_sources: result.sources, access: publicAccess(req.zorgaxAccess), featureAccess: policy, accessNotice });
+  }
   catch (error) { res.status(502).json({ ok: false, error: error.message }); }
 });
 
-router.get('/research', async (req, res) => {
-  try { const result = await searchWeb(req.query.q, req.query.limit || 5); res.json({ ok: true, entity: 'ZORGAX-001', ...result, read_only: true }); }
+router.get('/research', authenticate, requireZorgaxPlan('developer'), async (req, res) => {
+  try {
+    const requestedLimit = Number(req.query.limit);
+    const limit = Number.isFinite(requestedLimit) && requestedLimit > 0 ? Math.min(requestedLimit, req.zorgaxPolicy.maxWebResults) : req.zorgaxPolicy.maxWebResults;
+    const result = await searchWeb(req.query.q, limit);
+    res.json({ ok: true, entity: 'ZORGAX-001', ...result, read_only: true, access: publicAccess(req.zorgaxAccess) });
+  }
   catch (error) { res.status(502).json({ ok: false, error: error.message }); }
 });
 
@@ -56,7 +77,7 @@ router.post('/data/preview', (req, res) => {
   catch (error) { res.status(400).json({ ok: false, error: error.message }); }
 });
 
-router.post('/data/commit', authenticate, async (req, res) => {
+router.post('/data/commit', authenticate, requireZorgaxPlan('pro'), async (req, res) => {
   try {
     const { preview, digest, confirmation } = req.body || {};
     if (!preview || !digest || !confirmation) return res.status(400).json({ ok: false, error: 'preview, digest e confirmation sono obbligatori' });
@@ -68,9 +89,10 @@ router.post('/data/commit', authenticate, async (req, res) => {
   } catch (error) { res.status(500).json({ ok: false, error: error.message }); }
 });
 
-router.get('/data', authenticate, async (req, res) => {
+router.get('/data', authenticate, requireZorgaxPlan('pro'), async (req, res) => {
   try { const rows = await ZorgaxDataEntry.find({ ownerId: String(req.userId) }).sort({ createdAt: -1 }).limit(100).lean(); res.json({ ok: true, count: rows.length, entries: rows.map(row => ({ id: String(row._id), category: row.category, title: row.title, data: row.data, source: row.source, createdAt: row.createdAt })) }); }
   catch (error) { res.status(500).json({ ok: false, error: error.message }); }
 });
 
 module.exports = router;
+

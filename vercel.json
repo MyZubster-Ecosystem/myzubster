@@ -25,6 +25,7 @@
     { "src": "/zorgax-email-profile/?", "headers": { "X-Robots-Tag": "noindex, nofollow" }, "dest": "/api/index.js" },
     { "src": "/zorgax-build/?", "dest": "/public/zorgax-build.html" },
     { "src": "/api/zorgax/assistant/(.*)", "dest": "/api/index.js" },
+    { "src": "/api/zorgax/monetization/(.*)", "dest": "/api/index.js" },
     { "src": "/api/zorgax/build/(.*)", "dest": "/api/index.js" },
     { "src": "/api/zorgax/life/(.*)", "dest": "/api/index.js" },
     { "src": "/api/zorgax/email/(.*)", "dest": "/api/index.js" },
@@ -57,3 +58,4 @@
     { "src": "/(.*)", "dest": "/frontend/index.html" }
   ]
 }
+

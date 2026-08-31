@@ -5,6 +5,7 @@ const path = require('path');
 
 describe('Vercel routing', () => {
   const protectedZorgaxRoutes = [
+    '/api/zorgax/monetization/(.*)',
     '/api/zorgax/capital/(.*)',
     '/api/zorgax/digital-business/(.*)',
   ];
@@ -32,3 +33,4 @@ describe('Vercel routing', () => {
     }
   );
 });
+
