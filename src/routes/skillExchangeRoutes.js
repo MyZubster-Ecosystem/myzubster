@@ -56,6 +56,36 @@ router.get('/offers', async (req, res, next) => {
   } catch (error) { return next(error); }
 });
 
+router.get('/mine', authenticate, async (req, res, next) => {
+  try {
+    const id = actorId(req);
+    if (!id) return res.status(401).json({ success: false, error: 'Authenticated user id is required' });
+
+    const offers = await SkillExchange.find({
+      $or: [
+        { ownerId: id },
+        { participantId: id },
+        { 'applications.applicantId': id }
+      ]
+    }).sort({ updatedAt: -1, createdAt: -1 }).limit(100).lean();
+
+    const projected = offers.map(offer => {
+      const isOwner = String(offer.ownerId) === id;
+      const isMatchedParticipant = String(offer.participantId || '') === id;
+      return {
+        ...offer,
+        applications: isOwner
+          ? offer.applications
+          : (offer.applications || []).filter(application => String(application.applicantId) === id),
+        startConfirmedBy: isOwner || isMatchedParticipant ? (offer.startConfirmedBy || []) : [],
+        completionConfirmedBy: isOwner || isMatchedParticipant ? (offer.completionConfirmedBy || []) : []
+      };
+    });
+
+    return res.json({ success: true, offers: projected });
+  } catch (error) { return next(error); }
+});
+
 router.get('/offers/:id', async (req, res, next) => {
   try {
     if (!mongoose.isValidObjectId(req.params.id)) return res.status(400).json({ success: false, error: 'Invalid offer id' });
