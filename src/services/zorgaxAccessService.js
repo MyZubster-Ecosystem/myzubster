@@ -8,6 +8,10 @@ const {
   getAccess: getEntitlementAccess
 } = require('./zorgaxEntitlementService');
 
+const {
+  getSponsoredAccess
+} = require('./zorgaxSponsoredAccessService');
+
 const PLAN_RANK = Object.freeze({
   free: 0,
   pro: 1,
@@ -69,14 +73,16 @@ function bestAccess(candidates) {
 
 async function getAccess(ownerId, {
   subscriptionAccessFn = getSubscriptionAccess,
-  entitlementAccessFn = getEntitlementAccess
+  entitlementAccessFn = getEntitlementAccess,
+  sponsoredAccessFn = getSponsoredAccess
 } = {}) {
   const normalizedOwnerId = String(ownerId || '').trim();
   if (!normalizedOwnerId) throw new Error('ownerId is required');
 
   const results = await Promise.allSettled([
     subscriptionAccessFn(normalizedOwnerId),
-    entitlementAccessFn(normalizedOwnerId)
+    entitlementAccessFn(normalizedOwnerId),
+    sponsoredAccessFn(normalizedOwnerId)
   ]);
 
   const candidates = [];
@@ -86,9 +92,12 @@ async function getAccess(ownerId, {
   if (results[1].status === 'fulfilled') {
     candidates.push(normalizeAccess(results[1].value, 'ENTITLEMENT'));
   }
+  if (results[2].status === 'fulfilled' && results[2].value) {
+    candidates.push(normalizeAccess(results[2].value, 'SPONSORED_PILOT'));
+  }
 
   if (!candidates.length) {
-    throw results[0].reason || results[1].reason || new Error('Zorgax access unavailable');
+    throw results[0].reason || results[1].reason || results[2].reason || new Error('Zorgax access unavailable');
   }
 
   const selected = bestAccess(candidates.filter((entry) => entry.active));
@@ -131,4 +140,3 @@ module.exports = {
   normalizeAccess,
   normalizePlan
 };
-
