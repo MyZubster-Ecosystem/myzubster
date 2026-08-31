@@ -4,8 +4,15 @@ const {
   createEvidenceRecord,
   reviewEvidenceRecord
 } = require('../services/evidenceVerticalSliceService');
+const {
+  ARPAE_DATASET_PAGE,
+  ARPAE_LICENSE,
+  fetchArpaeMeasuredEvidence
+} = require('../services/arpaeMeasuredObservationService');
 
 const router = express.Router();
+const ARPAE_CACHE_TTL_MS = 15 * 60 * 1000;
+let arpaeCache = null;
 
 function bearerMatches(req, secrets) {
   const auth = req.headers.authorization;
@@ -38,6 +45,14 @@ function simulationDemo(now = new Date()) {
   }, { now });
 }
 
+async function arpaeLatest() {
+  const now = Date.now();
+  if (arpaeCache && now - arpaeCache.fetchedAt < ARPAE_CACHE_TTL_MS) return arpaeCache.payload;
+  const payload = await fetchArpaeMeasuredEvidence();
+  arpaeCache = { fetchedAt: now, payload };
+  return payload;
+}
+
 router.get('/health', (_req, res) => {
   res.json({
     ok: true,
@@ -46,6 +61,15 @@ router.get('/health', (_req, res) => {
     capability: 'authorized-input-to-human-review-v1',
     source_classes: ['SIMULATED', 'MEASURED'],
     measured_requires_explicit_authorization: true,
+    connected_measured_sources: [
+      {
+        provider: 'ARPAE Emilia-Romagna',
+        dataset: 'Meteo - dati osservati',
+        license: ARPAE_LICENSE,
+        dataset_url: ARPAE_DATASET_PAGE,
+        truth_boundary: 'MEASURED but provisional; not independently verified/final'
+      }
+    ],
     human_review_required: true,
     automatic_verification: false,
     automatic_publication: false
@@ -61,6 +85,33 @@ router.get('/demo', (_req, res) => {
     note: 'Synthetic telemetry is truth-labeled SIMULATED and cannot become a measured claim.',
     evidence: result.record
   });
+});
+
+router.get('/arpae/latest', async (_req, res) => {
+  res.set('Cache-Control', 'public, s-maxage=900, stale-while-revalidate=3600');
+  try {
+    const result = await arpaeLatest();
+    if (!result.ok) return res.status(502).json(result);
+    return res.json({
+      ok: true,
+      measured_source: true,
+      persisted: false,
+      publication_performed: false,
+      independently_verified: false,
+      note: 'ARPAE near-real-time observations are real measured open data, but remain provisional and may change after later validation.',
+      source: result.source,
+      evidence: result.evidence
+    });
+  } catch (error) {
+    console.error('[evidence-v1] ARPAE source unavailable', error.message);
+    return res.status(503).json({
+      ok: false,
+      source: 'ARPAE Emilia-Romagna / Meteo - dati osservati',
+      error: 'Measured source temporarily unavailable',
+      measured_claim_created: false,
+      fallback_to_simulation: false
+    });
+  }
 });
 
 router.post('/ingest', (req, res) => {
