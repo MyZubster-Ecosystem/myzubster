@@ -10,6 +10,7 @@
     { "src": "public/come-funziona.html", "use": "@vercel/static" },
     { "src": "public/community-marketplace.html", "use": "@vercel/static" },
     { "src": "public/zorgax-build.html", "use": "@vercel/static" },
+    { "src": "public/nicola-project-planner.html", "use": "@vercel/static" },
     { "src": "public/world-state/metasploit-sentinel.json", "use": "@vercel/static" }
   ],
   "crons": [
@@ -25,6 +26,8 @@
     { "src": "/press/?", "dest": "/api/index.js" },
     { "src": "/zorgax-email-profile/?", "headers": { "X-Robots-Tag": "noindex, nofollow" }, "dest": "/api/index.js" },
     { "src": "/zorgax-build/?", "dest": "/public/zorgax-build.html" },
+    { "src": "/nicola-project-planner/?", "headers": { "X-Robots-Tag": "noindex, nofollow" }, "dest": "/public/nicola-project-planner.html" },
+    { "src": "/nicola-project-planner\\.html/?", "headers": { "X-Robots-Tag": "noindex, nofollow" }, "dest": "/public/nicola-project-planner.html" },
     { "src": "/api/zorgax/assistant/(.*)", "dest": "/api/index.js" },
     { "src": "/api/zorgax/monetization/(.*)", "dest": "/api/index.js" },
     { "src": "/api/zorgax/build/(.*)", "dest": "/api/index.js" },
