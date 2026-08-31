@@ -317,6 +317,50 @@ Implementation planning is tracked in **#713 — Zorgax LIFE Automation v1** and
 
 MyZubster publishes a privacy-aware participant workflow derived from the implementation completed with Nicola. The **method is reusable**; Nicola's consent, email address, GitHub identity, private messages, interviewee identities, evidence and decisions are not reusable by other participants.
 
+### What is implemented now — 31 Aug 2026
+
+The shared participant-orchestration layer is now **implemented and merged on `main` through [PR #864](https://github.com/MyZubster-Ecosystem/myzubster/pull/864)**. The merged implementation is a public registry + orchestration policy for connected Gmail/GitHub workflows; it is **not** a blanket enrollment system and it does not automatically turn candidates into participants or LIFE partners.
+
+| Component | Current state |
+|---|---|
+| [Zorgax LIFE participant orchestrator](docs/life/participant-automation/ORCHESTRATOR.md) | **IMPLEMENTED / monitoring enabled, changes human-gated** |
+| [Machine-readable participant registry](docs/life/participant-automation/participant-registry.json) | **IMPLEMENTED** |
+| Nicola participant workflow | **CONSENT_CONFIRMED / AUTOMATION_ENABLED / VALIDATION_ACTIVE** |
+| Nicola current validation evidence | **NEEDS_CLARIFICATION / ranking unchanged** |
+| `@Aming9303` | **INVITED candidate only / automation disabled** |
+| `@wasim-builds` | **INVITED candidate only / automation disabled** |
+| Direct writes to `main` from participant automation | **DISABLED** |
+| Automatic outbound participant email | **DISABLED** |
+| Automatic merge / sensitive actions | **DISABLED / human approval required** |
+
+The orchestrator watches the existing public entry points for explicit opt-in or consent changes — contributor onboarding (`#742`), country/global interest (`#833`), real pilots (`#834`), event interest (`#835`), metaverse interest (`#836`) and LIFE technical missions (`#837`) — while authorized participant updates are handled through participant-specific connected Gmail/GitHub workflows.
+
+A public contribution, invitation, event interest, issue comment or candidate status is **not consent**. Activation requires explicit participant-specific opt-in. For a confirmed participant, the flow is:
+
+```text
+DISCOVER EXPLICIT OPT-IN
+          ↓
+VERIFY IDENTITY + CONSENT SCOPE
+          ↓
+REGISTER PUBLIC/NON-SENSITIVE STATE
+          ↓
+PARTICIPANT-SPECIFIC GMAIL FILTER
+          ↓
+NO_ACTION / NEEDS_CLARIFICATION / UPDATE_PREPARED
+          ↓
+MINIMIZE + ANONYMIZE EVIDENCE
+          ↓
+DEDICATED BRANCH / PULL REQUEST
+          ↓
+PRIVACY + CI + SECURITY / EVIDENCE GATES
+          ↓
+HUMAN REVIEW
+```
+
+Revocation or restriction has priority over every other instruction. The orchestrator may detect, classify and prepare bounded repository changes, but it must not bulk-contact candidates, scrape public email addresses, expose private contact details, merge automatically, change pricing, spend money, create legal commitments, alter access rights or claim that a contributor/candidate is an EU LIFE partner or consortium member.
+
+The reusable participant method remains:
+
 ```text
 PARTICIPANT-SPECIFIC CONSENT
           ↓
@@ -340,6 +384,8 @@ The public package includes:
 | Resource | Purpose |
 |---|---|
 | [Participant automation playbook](docs/life/participant-automation/README.md) | Canonical workflow, status model, safety boundaries and definition of done |
+| [Participant orchestrator](docs/life/participant-automation/ORCHESTRATOR.md) | Shared opt-in discovery, activation rules, classifications and human gate |
+| [Participant registry](docs/life/participant-automation/participant-registry.json) | Public-safe machine-readable participant/candidate state |
 | [Participant project template](docs/life/participant-automation/PARTICIPANT_PROJECT_TEMPLATE.md) | Independent scope and tracking file for each participant |
 | [Consent and onboarding template](docs/life/participant-automation/CONSENT_AND_ONBOARDING_TEMPLATE.md) | Participant-specific consent, revocation and connector setup |
 | [Automation prompt template](docs/life/participant-automation/AUTOMATION_PROMPT_TEMPLATE.md) | Bounded ChatGPT/Gmail/GitHub classification and update preparation |
@@ -350,7 +396,7 @@ The public package includes:
 
 The automation classifies relevant email input as `NO_ACTION`, `NEEDS_CLARIFICATION` or `UPDATE_PREPARED`. It may prepare a focused branch and pull request, but it does **not** send participant email, publish private data, update `main` directly, merge automatically or make product/governance decisions.
 
-**Current evidence status:** the reusable workflow, templates and evidence schema are implemented as public project documentation. Connector authorization, consent, validation responses and operational evidence remain specific to each participant. In this package, **LIFE** identifies an internal MyZubster/Zorgax digital-pilot track; it does not claim EU LIFE funding, approval, partnership or institutional endorsement.
+**Current evidence status:** the reusable workflow, templates, evidence schema, shared orchestrator and public-safe registry are implemented. Participant-specific consent, connector authorization, validation evidence and operational decisions remain separate per person. Nicola is the only currently registered participant with confirmed consent and enabled automation; invited candidates remain disabled until explicit opt-in. In this package, **LIFE** identifies an internal MyZubster/Zorgax digital-pilot track; it does not claim EU LIFE funding, approval, partnership or institutional endorsement.
 
 ## 🏛️ DAO / governance
 
