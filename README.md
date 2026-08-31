@@ -101,6 +101,7 @@ Open pull requests and fork branches are independent open-source contributions; 
 | Join the community | [`JOIN.md`](JOIN.md) |
 | Contribute code/docs/design | [`CONTRIBUTING.md`](CONTRIBUTING.md) |
 | Understand ecosystem architecture | [`docs/ECOSYSTEM.md`](docs/ECOSYSTEM.md) |
+| Replicate LIFE participant automation | [`docs/life/participant-automation/README.md`](docs/life/participant-automation/README.md) |
 | Understand bounties | [`BOUNTIES.md`](BOUNTIES.md) |
 | Understand internal rewards | [`REWARDS_LEDGER.md`](REWARDS_LEDGER.md) |
 | Understand treasury boundaries | [`TREASURY.md`](TREASURY.md) |
@@ -311,6 +312,45 @@ AUTHORIZED DATA / SENSORS
 Zorgax must not invent missing measurements, silently approve scientific claims, publish restricted partner data, authorize consequential governance actions or replace required human review.
 
 Implementation planning is tracked in **#713 — Zorgax LIFE Automation v1** and **#714 — ChatGPT × Zorgax v2 research/automation**.
+
+## 🧑‍🤝‍🧑 LIFE participant automation — reusable public playbook
+
+MyZubster publishes a privacy-aware participant workflow derived from the implementation completed with Nicola. The **method is reusable**; Nicola's consent, email address, GitHub identity, private messages, interviewee identities, evidence and decisions are not reusable by other participants.
+
+```text
+PARTICIPANT-SPECIFIC CONSENT
+          ↓
+MINIMUM VERIFIED PROFILE
+          ↓
+GMAIL + GITHUB CONNECTION CHECK
+          ↓
+PARTICIPANT-SPECIFIC AUTOMATION
+          ↓
+ANONYMOUS VALIDATION EVIDENCE
+          ↓
+FOCUSED BRANCH / PULL REQUEST
+          ↓
+PRIVACY + QUALITY GATES
+          ↓
+HUMAN REVIEW / MERGE
+```
+
+The public package includes:
+
+| Resource | Purpose |
+|---|---|
+| [Participant automation playbook](docs/life/participant-automation/README.md) | Canonical workflow, status model, safety boundaries and definition of done |
+| [Participant project template](docs/life/participant-automation/PARTICIPANT_PROJECT_TEMPLATE.md) | Independent scope and tracking file for each participant |
+| [Consent and onboarding template](docs/life/participant-automation/CONSENT_AND_ONBOARDING_TEMPLATE.md) | Participant-specific consent, revocation and connector setup |
+| [Automation prompt template](docs/life/participant-automation/AUTOMATION_PROMPT_TEMPLATE.md) | Bounded ChatGPT/Gmail/GitHub classification and update preparation |
+| [Anonymous validation template](docs/life/participant-automation/VALIDATION_INTERVIEW_TEMPLATE.md) | Four separate, anonymous responses with candidate attribution |
+| [Evidence record schema](docs/life/participant-automation/evidence-record-template.json) | Normalized evidence fields and completeness state |
+| [Operator checklist](docs/life/participant-automation/OPERATOR_CHECKLIST.md) | Activation, privacy, PR and human-review gates |
+| [Public-safe Nicola case study](docs/life/participant-automation/NICOLA_CASE_STUDY.md) | Completed steps, remaining gates and lessons that can be replicated |
+
+The automation classifies relevant email input as `NO_ACTION`, `NEEDS_CLARIFICATION` or `UPDATE_PREPARED`. It may prepare a focused branch and pull request, but it does **not** send participant email, publish private data, update `main` directly, merge automatically or make product/governance decisions.
+
+**Current evidence status:** the reusable workflow, templates and evidence schema are implemented as public project documentation. Connector authorization, consent, validation responses and operational evidence remain specific to each participant. In this package, **LIFE** identifies an internal MyZubster/Zorgax digital-pilot track; it does not claim EU LIFE funding, approval, partnership or institutional endorsement.
 
 ## 🏛️ DAO / governance
 
