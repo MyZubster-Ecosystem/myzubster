@@ -29,11 +29,13 @@
     {
       "publicId": "Aming9303",
       "role": "candidate_contributor",
-      "state": "INVITED",
+      "state": "CANDIDATE_ONLY",
+      "contributorLifeState": "PUBLIC_LIFE_CONTRIBUTION_ACTIVE",
       "consent": "NOT_CONFIRMED",
       "automation": "DISABLED",
       "source": "docs/life-2027/CONTRIBUTOR_POOL.md",
-      "candidateLanes": ["dashboard", "evidence-ux", "visual-communication"]
+      "publicLifeEvidence": ["pull/859", "issue/534"],
+      "candidateLanes": ["iot", "sensing", "dashboard", "evidence-ux", "visual-communication"]
     },
     {
       "publicId": "wasim-builds",
