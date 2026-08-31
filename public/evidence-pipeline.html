@@ -63,7 +63,7 @@
     <pre id="record">Loading…</pre>
   </section>
 
-  <p>API: <a href="/api/evidence/health">/api/evidence/health</a> · demo: <a href="/api/evidence/demo">/api/evidence/demo</a> · documentation: <a href="https://github.com/MyZubster-Ecosystem/myzubster/blob/main/docs/EVIDENCE-VERTICAL-SLICE.md">EVIDENCE-VERTICAL-SLICE.md</a></p>
+  <p>API: <a href="/api/robots/evidence/health">/api/robots/evidence/health</a> · demo: <a href="/api/robots/evidence/demo">/api/robots/evidence/demo</a> · documentation: <a href="https://github.com/MyZubster-Ecosystem/myzubster/blob/main/docs/EVIDENCE-VERTICAL-SLICE.md">EVIDENCE-VERTICAL-SLICE.md</a></p>
 </main>
 <script>
 (async () => {
@@ -72,7 +72,7 @@
   const kpis = document.getElementById('kpis');
   const record = document.getElementById('record');
   try {
-    const response = await fetch('/api/evidence/demo', { headers: { accept: 'application/json' } });
+    const response = await fetch('/api/robots/evidence/demo', { headers: { accept: 'application/json' } });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const payload = await response.json();
     const evidence = payload.evidence;
