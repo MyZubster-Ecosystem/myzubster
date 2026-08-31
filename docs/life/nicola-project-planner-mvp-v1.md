@@ -8,7 +8,7 @@ This document defines the smallest testable version after Nicola directly select
 
 The first usable implementation is a standalone browser planner at:
 
-`/nicola-project-planner.html`
+`/nicola-project-planner`
 
 The implementation stores data locally in the participant's browser and does not transmit evidence automatically. The pilot becomes `ACTIVE` only when Nicola explicitly presses **Avvia i 7 giorni** after entering a real project objective.
 
@@ -49,7 +49,7 @@ The implemented MVP provides:
 
 ### Day 0 — setup
 
-Nicola opens `/nicola-project-planner.html`, enters one real project objective, and explicitly starts the test. Until he presses **Avvia i 7 giorni**, implementation evidence must not be called pilot-use evidence.
+Nicola opens `/nicola-project-planner`, enters one real project objective, and explicitly starts the test. Until he presses **Avvia i 7 giorni**, implementation evidence must not be called pilot-use evidence.
 
 ### Days 1–7 — use
 
@@ -115,5 +115,6 @@ Stop or replace the concept when **0–2 of 6** GO conditions are met, or Nicola
 - Validation package: #855
 - Pull request: #884
 - Selection evidence: `docs/life/nicola-project-planner-selection-2026-08-31.json`
-- Implementation: `frontend/public/nicola-project-planner.html`
+- Implementation: `public/nicola-project-planner.html`
+- Vercel route: `/nicola-project-planner`
 - Test coverage: `tests/zorgaxLifePilotNicolaPlanner.test.js`
