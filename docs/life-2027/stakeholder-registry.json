@@ -5,6 +5,16 @@
   "formalPartnerCount": 0,
   "stakeholders": [
     {
+      "id": "bioazul",
+      "label": "BIOAZUL",
+      "category": "possible_replication_uptake_european_dimension_interlocutor",
+      "state": "IN_DISCUSSION",
+      "evidence": ["authorised_correspondence_2026-08-31_not_published"],
+      "nextReviewWindow": "late_2026-10",
+      "missing": ["follow_up_discussion", "explicit_participation_or_role_confirmation", "formal_agreement_if_any"],
+      "formalPartner": false
+    },
+    {
       "id": "capraia-tuscan-archipelago-context",
       "label": "Isola di Capraia / Tuscan Archipelago context",
       "category": "candidate_pilot_context",
