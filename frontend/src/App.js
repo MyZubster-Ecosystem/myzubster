@@ -7,6 +7,7 @@ import MarketplacePage from './pages/MarketplacePage';
 import MarketplaceOpsPage from './pages/MarketplaceOpsPage';
 import SocialLoginPage from './pages/SocialLoginPage';
 import ZorgaxLifePilotPage from './pages/ZorgaxLifePilotPage';
+import RobotPublicWalletPanel from './components/RobotPublicWalletPanel';
 
 const TABS = {
   WORLD: 'world',
@@ -109,11 +110,13 @@ function App() {
         <button onClick={() => setActiveTab(TABS.MARKETPLACE_OPS)}>I miei scambi</button>
         <a href="/zorgax">Zorgax</a>
         <a href="/life-pilot" style={{ fontWeight: 900 }}>LIFE Pilot</a>
+        <a href="#robot-wallets" style={{ fontWeight: 900 }}>Robot XMR/BTC</a>
         <a href="/press" style={{ fontWeight: 900 }}>Press</a>
         <a href="/fumetto">Fumetto</a>
       </nav>
 
       <LifeSpotlight />
+      <RobotPublicWalletPanel />
 
       {activeTab === TABS.WORLD && <MetaversePage />}
       {activeTab === TABS.EXPLORE && <MapPage />}
