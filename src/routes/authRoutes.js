@@ -17,7 +17,21 @@ function legacyOrSocialCallback(provider, legacyHandler) {
   };
 }
 
-router.post('/register', authController.register);
+function validateRegistration(req, res, next) {
+  const { username, email, password } = req.body || {};
+
+  if (!String(username || '').trim() || !String(email || '').trim() || typeof password !== 'string' || !password) {
+    return res.status(400).json({ success: false, message: 'Username, email e password sono obbligatori' });
+  }
+
+  if (password.length < 6) {
+    return res.status(400).json({ success: false, message: 'La password deve contenere almeno 6 caratteri' });
+  }
+
+  return next();
+}
+
+router.post('/register', validateRegistration, authController.register);
 router.post('/login', authController.login);
 router.get('/github/start', authController.githubStart);
 router.get('/github/callback', legacyOrSocialCallback('github', authController.githubCallback));
