@@ -4,8 +4,8 @@ const mongoose = require('mongoose');
 const MetaverseCharacter = require('../backend/src/models/MetaverseCharacter');
 
 module.exports = async function handler(req, res) {
-  if (req.method !== 'POST') {
-    res.setHeader('Allow', 'POST');
+  if (req.method !== 'GET') {
+    res.setHeader('Allow', 'GET');
     return res.status(405).json({ success: false, error: 'Method not allowed' });
   }
 
