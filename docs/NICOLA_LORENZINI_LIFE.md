@@ -53,7 +53,13 @@ The first candidate remains a possible future alternative; it is not classified 
 
 ## Project Planner MVP v1
 
-Status: `PROPOSED_FOR_PILOT_TEST`.
+Status: `PILOT_TEST_STARTED_PARTICIPANT_REPORTED`.
+
+On **2026-08-31**, Nicola directly reported that he had started the seven-day test. The minimized start record is stored in:
+
+`docs/life/nicola-project-planner-pilot-start-2026-08-31.json`
+
+This is participant-reported evidence only. It does not independently verify the planner button press, the project objective, browser-local state, daily use, completion, usefulness, or the final pilot result.
 
 The first testable version is defined in:
 
@@ -83,13 +89,14 @@ Those earlier interviews remain contextual evidence. Nicola's later direct selec
 - Human idea selection: `CONFIRMED`.
 - Selected candidate: `project-planner-ai`.
 - MVP scope: `DEFINED`.
-- Pilot test: `NOT_YET_COMPLETED`.
+- Pilot test start: `PARTICIPANT_REPORTED_STARTED` on 2026-08-31; technical verification was not performed.
+- Pilot test result: `NOT_YET_COMPLETED`.
 - Commercial validation: `NOT_CLAIMED`.
 - Deployment: `NOT_CLAIMED` unless independently evidenced.
 
 ### Next validation gate
 
-Run the bounded seven-day Project Planner test and collect only real evidence from actual use. After the test, apply the predefined GO / CHANGE / STOP criteria without changing them to fit the outcome.
+Continue the bounded seven-day Project Planner test and collect only real evidence from actual use. After the test, apply the predefined GO / CHANGE / STOP criteria without changing them to fit the outcome.
 
 ## Zorgax participant automation status
 
