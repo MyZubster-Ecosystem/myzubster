@@ -43,6 +43,7 @@ describe('MyZubster metaverse API', () => {
 
     expect(response.body.players.some((player) => player.id === sessionId)).toBe(true);
     expect(response.body.totalCharacters).toBeGreaterThanOrEqual(1);
+    expect(response.body.featuredCharacters).toEqual([]);
   });
 
   afterAll(async () => {
