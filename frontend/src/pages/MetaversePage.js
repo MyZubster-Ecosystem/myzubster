@@ -64,6 +64,10 @@ function formatCharacterCount(totalCharacters) {
   return totalCharacters.toLocaleString('it-IT');
 }
 
+function isAccountLinked(identityStatus) {
+  return identityStatus === 'account-linked' || identityStatus === 'verified';
+}
+
 function VerifiedCharacterList({ characters }) {
   return (
     <div className="metaverse-featured-list">
@@ -90,7 +94,7 @@ function VerifiedCharacterList({ characters }) {
   );
 }
 
-function AvatarCreator({ initialProfile, busy, error, totalCharacters, featuredCharacters, onEnter }) {
+function AvatarCreator({ initialProfile, authenticated, busy, error, totalCharacters, featuredCharacters, onEnter }) {
   const [displayName, setDisplayName] = useState(initialProfile?.displayName || '');
   const formattedTotal = formatCharacterCount(totalCharacters);
 
@@ -118,8 +122,9 @@ function AvatarCreator({ initialProfile, busy, error, totalCharacters, featuredC
           </p>
         )}
         <p>
-          Scegli un nome e inizia subito. Il personaggio viene creato automaticamente;
-          potrai personalizzarlo più avanti.
+          {authenticated
+            ? 'Il tuo account MyZubster è attivo. Entrando verrà usato automaticamente il personaggio verificato collegato al tuo account.'
+            : 'Scegli un nome e inizia subito. Il personaggio viene creato automaticamente; potrai personalizzarlo più avanti.'}
         </p>
 
         <form onSubmit={submit} className="metaverse-form">
@@ -140,13 +145,18 @@ function AvatarCreator({ initialProfile, busy, error, totalCharacters, featuredC
           {error && <div className="metaverse-error">{error}</div>}
 
           <button className="metaverse-primary" type="submit" disabled={busy}>
-            {busy ? 'Ingresso…' : 'Entra'}
+            {busy ? 'Ingresso…' : authenticated ? 'Entra con il tuo account' : 'Entra come ospite'}
           </button>
         </form>
 
-        <small className="metaverse-muted">
-          Nessun wallet, documento o account GitHub richiesto per esplorare come ospite.
-        </small>
+        {authenticated ? (
+          <small className="metaverse-muted">Il server ignora nomi e MYZ-ID forniti dal browser quando trova un personaggio account-linked.</small>
+        ) : (
+          <small className="metaverse-muted">
+            Nessun wallet, documento o account GitHub richiesto per esplorare come ospite.{' '}
+            <a href="/social-login">Accedi per usare un personaggio verificato.</a>
+          </small>
+        )}
 
         {featuredCharacters.length > 0 && (
           <section className="metaverse-featured-entry">
@@ -161,6 +171,7 @@ function AvatarCreator({ initialProfile, busy, error, totalCharacters, featuredC
 
 function MetaversePage() {
   const initialProfile = useMemo(savedProfile, []);
+  const authenticated = useMemo(() => Boolean(localStorage.getItem('myzubster-token')), []);
   const [profile, setProfile] = useState(initialProfile);
   const [sessionId, setSessionId] = useState(null);
   const [players, setPlayers] = useState({});
@@ -195,8 +206,17 @@ function MetaversePage() {
     setError('');
     try {
       const result = await joinMetaverse(nextProfile);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(nextProfile));
-      setProfile(nextProfile);
+      const joinedProfile = {
+        ...nextProfile,
+        displayName: result.player.displayName,
+        characterName: result.player.characterName,
+        archetype: result.player.archetype,
+        myzId: result.player.myzId || '',
+        identityStatus: result.player.identityStatus,
+        github: result.player.github || null
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(joinedProfile));
+      setProfile(joinedProfile);
       setSessionId(result.sessionId);
       setPlayers(Object.fromEntries(result.players.map((player) => [player.id, player])));
       if (Number.isInteger(result.totalCharacters)) setTotalCharacters(result.totalCharacters);
@@ -342,6 +362,7 @@ function MetaversePage() {
     return (
       <AvatarCreator
         initialProfile={profile}
+        authenticated={authenticated}
         busy={busy}
         error={error}
         totalCharacters={totalCharacters}
@@ -395,7 +416,7 @@ function MetaversePage() {
                 {player.emote && <div className="metaverse-emote">{EMOTES[player.emote] || '✨'}</div>}
                 <div className="metaverse-avatar-body">{archetype.glyph}</div>
                 <strong>{player.characterName}</strong>
-                <small>{isMe ? 'TU · ' : ''}{player.identityStatus === 'verified' ? 'MYZ VERIFIED' : 'OSPITE'}</small>
+                <small>{isMe ? 'TU · ' : ''}{isAccountLinked(player.identityStatus) ? 'MYZ VERIFIED' : 'OSPITE'}</small>
               </div>
             );
           })}
@@ -418,10 +439,17 @@ function MetaversePage() {
               <span className="metaverse-profile-glyph">{ARCHETYPES[me?.archetype]?.glyph || '🧭'}</span>
               <div>
                 <strong>{me?.characterName}</strong>
-                <small>{profile?.displayName}</small>
+                <small>{me?.displayName || profile?.displayName}</small>
+                {me?.github?.login && (
+                  <a href={me.github.profileUrl || `https://github.com/${me.github.login}`} target="_blank" rel="noreferrer">
+                    @{me.github.login} ↗
+                  </a>
+                )}
               </div>
             </div>
-            <div className="metaverse-identity-badge">Ospite</div>
+            <div className="metaverse-identity-badge">
+              {isAccountLinked(me?.identityStatus) ? 'MYZ VERIFIED' : 'Ospite'}
+            </div>
           </section>
 
           <section className="metaverse-panel">
@@ -473,3 +501,4 @@ function MetaversePage() {
 }
 
 export default MetaversePage;
+

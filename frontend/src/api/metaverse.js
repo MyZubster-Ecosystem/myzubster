@@ -3,6 +3,11 @@
 // REACT_APP_API_URL cannot redirect HTTPS visitors to a legacy HTTP backend.
 const API_URL = '';
 
+function authHeaders() {
+  const token = localStorage.getItem('myzubster-token');
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 async function jsonRequest(path, options = {}) {
   const response = await fetch(`${API_URL}${path}`, {
     ...options,
@@ -14,7 +19,7 @@ async function jsonRequest(path, options = {}) {
 
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) {
-    throw new Error(payload.error || `Metaverse request failed (${response.status})`);
+    throw new Error(payload.error || payload.message || `Metaverse request failed (${response.status})`);
   }
   return payload;
 }
@@ -22,6 +27,7 @@ async function jsonRequest(path, options = {}) {
 export function joinMetaverse(profile) {
   return jsonRequest('/api/metaverse/join', {
     method: 'POST',
+    headers: authHeaders(),
     body: JSON.stringify(profile)
   });
 }
@@ -61,3 +67,4 @@ export function leaveMetaverse(sessionId) {
 export function createMetaverseEventSource(sessionId) {
   return new EventSource(`${API_URL}/api/metaverse/events?sessionId=${encodeURIComponent(sessionId)}`);
 }
+

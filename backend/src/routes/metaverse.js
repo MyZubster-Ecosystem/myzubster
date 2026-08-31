@@ -2,6 +2,7 @@ const express = require('express');
 const crypto = require('crypto');
 const mongoose = require('mongoose');
 const MetaverseCharacter = require('../models/MetaverseCharacter');
+const { optionalAuthenticate } = require('../../../src/middleware/auth');
 
 const router = express.Router();
 
@@ -56,6 +57,10 @@ function publicPlayer(session) {
     archetype: session.archetype,
     myzId: session.myzId,
     identityStatus: session.identityStatus,
+    github: session.github?.login ? {
+      login: session.github.login,
+      profileUrl: session.github.profileUrl
+    } : null,
     x: session.x,
     y: session.y,
     joinedAt: session.joinedAt
@@ -178,6 +183,23 @@ async function persistCharacter(session) {
   return 'durable';
 }
 
+async function linkedCharacterForUser(userId) {
+  if (!userId) return null;
+  if (mongoose.connection.readyState !== 1) {
+    throw new Error('Character storage is temporarily unavailable');
+  }
+
+  return MetaverseCharacter.findOneAndUpdate(
+    {
+      accountUserId: userId,
+      worldId: WORLD.id,
+      identityStatus: 'account-linked'
+    },
+    { $set: { lastSeenAt: new Date() } },
+    { new: true }
+  );
+}
+
 router.get('/world', async (_req, res) => {
   const [totalCharacters, verifiedCharacters] = await Promise.all([
     totalCharacterCount(),
@@ -195,18 +217,38 @@ router.get('/world', async (_req, res) => {
   });
 });
 
-router.post('/join', async (req, res) => {
+router.post('/join', optionalAuthenticate, async (req, res) => {
   if (sessions.size >= WORLD.capacity) {
     return res.status(503).json({ success: false, error: 'Neon Plaza is at capacity' });
   }
 
-  const displayName = cleanText(req.body?.displayName, 30);
-  const characterName = cleanText(req.body?.characterName, 30);
-  const requestedArchetype = cleanText(req.body?.archetype, 20).toLowerCase();
-  const archetype = ARCHETYPES.has(requestedArchetype) ? requestedArchetype : 'explorer';
-  const myzId = cleanText(req.body?.myzId, 64) || null;
+  let linkedCharacter = null;
+  if (req.userId) {
+    try {
+      linkedCharacter = await linkedCharacterForUser(req.userId);
+    } catch (error) {
+      console.error('Metaverse linked identity lookup error:', error);
+      return res.status(503).json({
+        success: false,
+        error: 'Verified character storage is temporarily unavailable'
+      });
+    }
 
-  if (displayName.length < 2 || characterName.length < 2) {
+    if (!linkedCharacter) {
+      return res.status(409).json({
+        success: false,
+        error: 'No verified MyZubster character is linked to this account'
+      });
+    }
+  }
+
+  const requestedDisplayName = cleanText(req.body?.displayName, 30);
+  const requestedCharacterName = cleanText(req.body?.characterName, 30);
+  const requestedArchetype = cleanText(req.body?.archetype, 20).toLowerCase();
+  const guestArchetype = ARCHETYPES.has(requestedArchetype) ? requestedArchetype : 'explorer';
+  const requestedMyzId = cleanText(req.body?.myzId, 64) || null;
+
+  if (!linkedCharacter && (requestedDisplayName.length < 2 || requestedCharacterName.length < 2)) {
     return res.status(400).json({
       success: false,
       error: 'displayName and characterName must contain at least 2 characters'
@@ -217,20 +259,27 @@ router.post('/join', async (req, res) => {
   const id = crypto.randomUUID();
   const session = {
     id,
-    displayName,
-    characterName,
-    archetype,
-    myzId,
-    // v0.1 never upgrades a user-supplied MYZ-ID to verified.
-    identityStatus: 'guest',
+    displayName: linkedCharacter ? cleanText(linkedCharacter.displayName, 30) : requestedDisplayName,
+    characterName: linkedCharacter ? cleanText(linkedCharacter.characterName, 30) : requestedCharacterName,
+    archetype: linkedCharacter && ARCHETYPES.has(linkedCharacter.archetype)
+      ? linkedCharacter.archetype
+      : guestArchetype,
+    myzId: linkedCharacter ? cleanText(linkedCharacter.characterId, 64) : requestedMyzId,
+    identityStatus: linkedCharacter ? 'account-linked' : 'guest',
+    accountUserId: linkedCharacter ? String(req.userId) : null,
+    github: linkedCharacter?.github?.login ? {
+      login: cleanText(linkedCharacter.github.login, 40),
+      profileUrl: String(linkedCharacter.github.profileUrl || '').slice(0, 240)
+    } : null,
     x,
     y,
     joinedAt: new Date().toISOString()
   };
 
   try {
-    const persistence = await persistCharacter(session);
+    const persistence = linkedCharacter ? 'linked-existing' : await persistCharacter(session);
     const totalCharacters = await totalCharacterCount();
+    const identityMode = linkedCharacter ? 'account-linked' : 'guest-unverified';
     sessions.set(id, session);
     broadcast({ type: 'join', player: publicPlayer(session), at: new Date().toISOString() });
 
@@ -241,9 +290,11 @@ router.post('/join', async (req, res) => {
       players: snapshot(),
       world: WORLD,
       totalCharacters,
-      identityMode: 'guest-unverified',
+      identityMode,
       persistence,
-      note: 'MYZ-ID values are display-only in v0.1 and are not treated as verified identity claims.'
+      note: linkedCharacter
+        ? 'The authenticated account was linked to its existing verified MyZubster character.'
+        : 'Client-supplied MYZ-ID values are display-only and are not treated as verified identity claims.'
     });
   } catch (error) {
     console.error('Metaverse character persistence error:', error);
@@ -354,3 +405,4 @@ router.post('/leave', (req, res) => {
 });
 
 module.exports = router;
+
