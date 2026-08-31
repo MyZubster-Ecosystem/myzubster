@@ -16,7 +16,7 @@ The goal is to reuse real open-source skills already demonstrated in MyZubster r
 PUBLIC GITHUB EVIDENCE
 → SKILL MATCH
 → CANDIDATE LIFE LANE
-→ EXPLICIT OPT-IN / CLAIM
+→ EXPLICIT OPT-IN / CLAIM OR CLEAR LIFE CONTRIBUTION ACTION
 → BOUNDED TASK
 → PR + TESTS / EVIDENCE
 → REVIEW
@@ -25,21 +25,27 @@ PUBLIC GITHUB EVIDENCE
 
 ## Named candidate contributors — author aliases verified 2026-08-31
 
-All entries below are based only on the public GitHub author shown by the referenced pull requests. **Candidate inclusion is not participant consent and is not a partner/consortium claim.** Automation remains disabled until an explicit contributor-specific opt-in/claim is recorded.
+All entries below are based only on the public GitHub author shown by the referenced pull requests. **Candidate inclusion is not participant consent and is not a partner/consortium claim.** Participant-profile automation remains disabled until separate participant-specific consent is confirmed.
 
 ### @Aming9303
 
 **Public evidence**
 - PR #531 — secure telemetry dashboard — `OPEN`;
-- PR #634 — MyZubster workflow visual guide — `OPEN`.
+- PR #634 — MyZubster workflow visual guide — `OPEN`;
+- PR #859 — environmental sensor adapter contract for LIFE issue #534 — `OPEN / SUBMITTED`.
 
-**Candidate technical lanes**
+PR #859 is a clear public contribution action on the canonical LIFE-aligned issue #534. It is sufficient to move the **contributor LIFE work state** beyond invitation, while remaining insufficient for participant-profile consent or institutional-partner status.
+
+**Current LIFE contributor state:** `PUBLIC_LIFE_CONTRIBUTION_ACTIVE / REVIEW_PENDING`.
+
+**Participant automation:** `DISABLED — PARTICIPANT CONSENT NOT CONFIRMED`.
+
+**Current technical lanes**
+- #534 — IoT sensing & auditable environmental data adapter — active public contribution evidence;
 - #537 — Environmental pilot dashboard & KPI evidence view;
 - evidence drill-down UX;
 - responsive/mobile reporting;
 - visual explanation of baseline → KPI → evidence → result.
-
-**Current LIFE state:** `INVITED / OPT_IN_NOT_CONFIRMED / AUTOMATION_DISABLED`.
 
 ### @wasim-builds
 
@@ -133,9 +139,10 @@ The pool tracks the state of the referenced public work precisely:
 - `OPEN` = public submitted contribution still open;
 - `MERGED` = contribution integrated into the repository;
 - `CLOSED_NOT_MERGED` = contribution was reviewed/closed but is not integrated;
-- none of these states equals LIFE opt-in, employment, payment, institutional affiliation or partnership.
+- `PUBLIC_LIFE_CONTRIBUTION_ACTIVE` = a contributor has taken a clear public contribution action on a canonical LIFE-aligned bounded issue;
+- none of these states equals participant-profile consent, employment, payment, institutional affiliation or partnership.
 
-A merged contribution can support a skill/candidate-lane assessment, but **LIFE participation still requires a separate explicit opt-in or bounded LIFE claim**.
+A public LIFE contribution can establish a contributor-work opt-in for that bounded issue. It does **not** activate Gmail/profile automation and does not create a LIFE partner or consortium role.
 
 ## Opt-in format
 
@@ -150,7 +157,7 @@ What I would like to help with:
 Availability / first proposed task:
 ```
 
-The maintainer should then route the contributor to an existing bounded issue instead of creating duplicate work.
+A clear public contribution on an already canonical LIFE issue may also count as bounded contributor-work opt-in when the issue and author are unambiguous. Participant-profile processing still requires separate consent.
 
 ## Canonical technical lanes
 
