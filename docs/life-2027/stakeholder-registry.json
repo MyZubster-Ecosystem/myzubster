@@ -9,9 +9,30 @@
       "label": "BIOAZUL",
       "category": "possible_replication_uptake_european_dimension_interlocutor",
       "state": "IN_DISCUSSION",
-      "evidence": ["authorised_correspondence_2026-08-31_not_published"],
+      "evidence": [
+        "authorised_correspondence_2026-08-31_not_published"
+      ],
       "nextReviewWindow": "late_2026-10",
-      "missing": ["follow_up_discussion", "explicit_participation_or_role_confirmation", "formal_agreement_if_any"],
+      "missing": [
+        "follow_up_discussion",
+        "explicit_participation_or_role_confirmation",
+        "formal_agreement_if_any"
+      ],
+      "formalPartner": false
+    },
+    {
+      "id": "unibo-maritime-hydraulics-contact-lane",
+      "label": "UNIBO maritime-hydraulics contact lane",
+      "category": "scientific_contact_lane_outside_current_biodiversity_kpi_scope",
+      "state": "INACTIVE",
+      "evidence": [
+        "authorised_response_2026-08-31_not_published"
+      ],
+      "restriction": "no_further_action_on_this_contact_lane",
+      "scopeBoundary": "contact_lane_only_not_unibo_institution_wide",
+      "missing": [
+        "better_matched_agriculture_or_biodiversity_scientific_interlocutor"
+      ],
       "formalPartner": false
     },
     {
@@ -19,9 +40,15 @@
       "label": "CRPA",
       "category": "agriculture_environment_scientific_interlocutor",
       "state": "IN_DISCUSSION",
-      "evidence": ["authorised_correspondence_2026-08-31_meeting_confirmed_not_published"],
+      "evidence": [
+        "authorised_correspondence_2026-08-31_meeting_confirmed_not_published"
+      ],
       "nextReviewWindow": "2026-09-08",
-      "missing": ["scientific_scope_discussion", "explicit_role_or_participation_confirmation", "formal_agreement_if_any"],
+      "missing": [
+        "scientific_scope_discussion",
+        "explicit_role_or_participation_confirmation",
+        "formal_agreement_if_any"
+      ],
       "formalPartner": false
     },
     {
@@ -29,8 +56,15 @@
       "label": "Universita Niccolo Cusano / LCA-LCSA contact lane",
       "category": "lca_lcsa_circular_water_scientific_interlocutor",
       "state": "IN_DISCUSSION",
-      "evidence": ["authorised_correspondence_2026-08-31_call_availability_not_published"],
-      "missing": ["introductory_call", "scope_fit", "explicit_role_or_participation_confirmation", "formal_agreement_if_any"],
+      "evidence": [
+        "authorised_correspondence_2026-08-31_call_availability_not_published"
+      ],
+      "missing": [
+        "introductory_call",
+        "scope_fit",
+        "explicit_role_or_participation_confirmation",
+        "formal_agreement_if_any"
+      ],
       "formalPartner": false
     },
     {
@@ -38,48 +72,89 @@
       "label": "Isola di Capraia / Tuscan Archipelago context",
       "category": "candidate_pilot_context",
       "state": "CANDIDATE",
-      "evidence": ["docs/life/02-pilot-shortlist.md", "issues/508"],
-      "missing": ["competent_authority", "outreach_response", "scope_data_permissions", "explicit_institutional_interest"]
+      "evidence": [
+        "docs/life/02-pilot-shortlist.md",
+        "issues/508"
+      ],
+      "missing": [
+        "competent_authority",
+        "outreach_response",
+        "scope_data_permissions",
+        "explicit_institutional_interest"
+      ]
     },
     {
       "id": "parco-nazionale-cinque-terre",
       "label": "Parco Nazionale delle Cinque Terre",
       "category": "candidate_pilot_organisation",
       "state": "CANDIDATE",
-      "evidence": ["docs/life/02-pilot-shortlist.md", "issues/508"],
-      "missing": ["outreach_evidence", "operational_fit", "explicit_interest_or_authorization"]
+      "evidence": [
+        "docs/life/02-pilot-shortlist.md",
+        "issues/508"
+      ],
+      "missing": [
+        "outreach_evidence",
+        "operational_fit",
+        "explicit_interest_or_authorization"
+      ]
     },
     {
       "id": "parco-nazionale-arcipelago-toscano",
       "label": "Parco Nazionale dell'Arcipelago Toscano",
       "category": "candidate_pilot_organisation",
       "state": "CANDIDATE",
-      "evidence": ["docs/life/02-pilot-shortlist.md", "issues/508"],
-      "missing": ["outreach_evidence", "candidate_site_or_data", "explicit_interest_or_authorization"]
+      "evidence": [
+        "docs/life/02-pilot-shortlist.md",
+        "issues/508"
+      ],
+      "missing": [
+        "outreach_evidence",
+        "candidate_site_or_data",
+        "explicit_interest_or_authorization"
+      ]
     },
     {
       "id": "taz-riccione",
       "label": "TAZ Riccione",
       "category": "proposed_event_venue_context",
       "state": "TENTATIVE",
-      "evidence": ["issues/835"],
-      "missing": ["authorised_venue_host_confirmation", "logistics", "organiser_host_authorization"]
+      "evidence": [
+        "issues/835"
+      ],
+      "missing": [
+        "authorised_venue_host_confirmation",
+        "logistics",
+        "organiser_host_authorization"
+      ]
     },
     {
       "id": "scientific-partner-role",
       "label": "Scientific partner for biodiversity/KPI methodology",
       "category": "project_role",
       "state": "UNFILLED",
-      "evidence": ["issues/509"],
-      "missing": ["qualified_interlocutor", "methodology_discussion", "explicit_role_or_interest"]
+      "evidence": [
+        "issues/509",
+        "unibo_maritime_hydraulics_contact_lane_inactive_2026-08-31"
+      ],
+      "missing": [
+        "qualified_agriculture_or_biodiversity_interlocutor",
+        "methodology_discussion",
+        "explicit_role_or_interest"
+      ]
     },
     {
       "id": "formal-life-consortium-partner-layer",
       "label": "Formal LIFE consortium / institutional partner",
       "category": "formal_partner_layer",
       "state": "UNFILLED",
-      "evidence": ["issues/507", "issues/508", "issues/509"],
-      "missing": ["explicit_independently_verifiable_formal_agreement_or_role"]
+      "evidence": [
+        "issues/507",
+        "issues/508",
+        "issues/509"
+      ],
+      "missing": [
+        "explicit_independently_verifiable_formal_agreement_or_role"
+      ]
     }
   ]
 }
