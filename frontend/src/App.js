@@ -42,6 +42,15 @@ const lifeLinkStyle = {
   border: '1px solid currentColor'
 };
 
+function trackLifeCta(destination) {
+  if (typeof window.va === 'function') {
+    window.va('event', {
+      name: 'Homepage LIFE CTA',
+      data: { destination }
+    });
+  }
+}
+
 function LifeSpotlight() {
   return (
     <section style={lifeSpotlightStyle} aria-labelledby="life-spotlight-title">
@@ -57,13 +66,17 @@ function LifeSpotlight() {
         preparazione finché non vengono confermati esplicitamente.
       </p>
       <div style={lifeActionsStyle}>
-        <a href="/life-pilot" style={{ ...lifeLinkStyle, background: 'rgba(34, 197, 94, 0.14)' }}>
+        <a
+          href="/life-pilot"
+          onClick={() => trackLifeCta('life-pilot')}
+          style={{ ...lifeLinkStyle, background: 'rgba(34, 197, 94, 0.14)' }}
+        >
           Esplora LIFE Pilot →
         </a>
-        <a href="/press" style={lifeLinkStyle}>
+        <a href="/press" onClick={() => trackLifeCta('press')} style={lifeLinkStyle}>
           Press & Media →
         </a>
-        <a href="/come-funziona" style={lifeLinkStyle}>
+        <a href="/come-funziona" onClick={() => trackLifeCta('come-funziona')} style={lifeLinkStyle}>
           Come funziona MyZubster →
         </a>
       </div>
