@@ -7,6 +7,8 @@ This vertical slice is the first concrete implementation of the evidence pipelin
 
 It is deliberately small and truth-labeled. The public demo uses **synthetic EVA IONI simulation telemetry**. The same service can prepare a record from an authorized real measurement, but real measurements are not accepted unless explicit authorization and provenance metadata are present.
 
+The first API is mounted under the existing bounded robot runtime (`/api/robots/evidence`) so the demo can reuse synthetic EVA IONI telemetry without implying that a second physical system exists.
+
 ## Flow
 
 ```text
@@ -35,13 +37,13 @@ AUTHORIZED INPUT OR SAFE SIMULATION
 
 ## Public endpoints
 
-- `GET /api/evidence/health` — capability and governance state;
-- `GET /api/evidence/demo` — live synthetic EVA IONI evidence record;
-- `/evidence-pipeline` — public dashboard for the demo record.
+- `GET /api/robots/evidence/health` — capability and governance state;
+- `GET /api/robots/evidence/demo` — live synthetic EVA IONI evidence record;
+- `/evidence-pipeline.html` — public dashboard for the demo record.
 
 ## Protected endpoints
 
-### `POST /api/evidence/ingest`
+### `POST /api/robots/evidence/ingest`
 
 Requires a bearer token matching one of:
 
@@ -101,7 +103,7 @@ A `MEASURED` request is rejected unless:
 - `provenance.observed_at` is a valid date;
 - at least one supported bounded numeric KPI is present.
 
-### `POST /api/evidence/review`
+### `POST /api/robots/evidence/review`
 
 Requires `EVIDENCE_REVIEW_TOKEN`.
 
@@ -172,6 +174,6 @@ No endpoint in this slice:
 
 ## Next gate
 
-The next meaningful milestone is to connect **one genuinely authorized sensor or dataset source** to `POST /api/evidence/ingest`, preserve a safe authorization reference, run the human review gate, and publish only a sanitized evidence record/dashboard state.
+The next meaningful milestone is to connect **one genuinely authorized sensor or dataset source** to `POST /api/robots/evidence/ingest`, preserve a safe authorization reference, run the human review gate, and publish only a sanitized evidence record/dashboard state.
 
 Until an authorized external source is connected, the public demonstration must remain labeled `SIMULATED`.
