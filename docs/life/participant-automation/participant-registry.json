@@ -42,7 +42,52 @@
       "consent": "NOT_CONFIRMED",
       "automation": "DISABLED",
       "source": "docs/life-2027/CONTRIBUTOR_POOL.md",
-      "candidateLanes": ["security", "qa", "verification", "review"]
+      "candidateLanes": ["geospatial", "security", "qa", "verification", "review"]
+    },
+    {
+      "publicId": "ghzhost",
+      "role": "candidate_contributor",
+      "state": "CANDIDATE_ONLY",
+      "consent": "NOT_CONFIRMED",
+      "automation": "DISABLED",
+      "source": "docs/life-2027/CONTRIBUTOR_POOL.md",
+      "candidateLanes": ["telemetry", "sensing", "ingest", "provenance"]
+    },
+    {
+      "publicId": "laurentketterle-hub",
+      "role": "candidate_contributor",
+      "state": "CANDIDATE_ONLY",
+      "consent": "NOT_CONFIRMED",
+      "automation": "DISABLED",
+      "source": "docs/life-2027/CONTRIBUTOR_POOL.md",
+      "candidateLanes": ["telemetry", "robotics", "gateway", "dashboard", "automation-safety"]
+    },
+    {
+      "publicId": "foxxx009",
+      "role": "candidate_contributor",
+      "state": "CANDIDATE_ONLY",
+      "consent": "NOT_CONFIRMED",
+      "automation": "DISABLED",
+      "source": "docs/life-2027/CONTRIBUTOR_POOL.md",
+      "candidateLanes": ["gis", "geolocation", "replication-mapping"]
+    },
+    {
+      "publicId": "leanworld7-netizen",
+      "role": "candidate_contributor",
+      "state": "CANDIDATE_ONLY",
+      "consent": "NOT_CONFIRMED",
+      "automation": "DISABLED",
+      "source": "docs/life-2027/CONTRIBUTOR_POOL.md",
+      "candidateLanes": ["agriculture-data", "plant-reference-data", "replication"]
+    },
+    {
+      "publicId": "rafaio1",
+      "role": "candidate_contributor",
+      "state": "CANDIDATE_ONLY",
+      "consent": "NOT_CONFIRMED",
+      "automation": "DISABLED",
+      "source": "docs/life-2027/CONTRIBUTOR_POOL.md",
+      "candidateLanes": ["ci", "performance", "observability", "reproducibility"]
     }
   ],
   "discoverySources": [
