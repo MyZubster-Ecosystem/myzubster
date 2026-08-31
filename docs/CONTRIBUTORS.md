@@ -14,7 +14,7 @@ PROPOSED
 → VERIFIED_CONTRIBUTION
 ```
 
-`VERIFIED_CONTRIBUTION` means that the referenced public contribution can be checked against repository evidence. It does not mean identity/KYC verification or external settlement.
+`VERIFIED_CONTRIBUTION` means that the referenced public contribution can be checked against repository evidence and has an integration/review state stated below. It does not mean identity/KYC verification or external settlement.
 
 ## Contributor paths
 
@@ -25,12 +25,27 @@ PROPOSED
 - **Research / LIFE-aligned** — KPI/MRV, evidence methodology, datasets, replication.
 - **QA / reproducibility** — CI, testing, security review, clean-checkout validation.
 
-## Public contributor registry
+## Public contributor registry — verified 2026-08-31
 
 | GitHub alias | Contribution path | Public evidence | Current evidence status | LIFE-aligned candidate lane |
 |---|---|---|---|---|
-| `@Aming9303` | Frontend / dashboard / visual documentation | [PR #531](https://github.com/MyZubster-Ecosystem/myzubster/pull/531); [PR #634](https://github.com/MyZubster-Ecosystem/myzubster/pull/634) | Public PR evidence | #537 dashboard & KPI evidence; evidence UX / visualization |
-| `@wasim-builds` | Security / QA / review | [PR #636](https://github.com/MyZubster-Ecosystem/myzubster/pull/636); [PR #637](https://github.com/MyZubster-Ecosystem/myzubster/pull/637) | Public PR evidence | #536 safety/review support; #713 evidence-integrity QA |
+| `@Aming9303` | Frontend / dashboard / visual documentation | PR #531; PR #634 | both `OPEN / SUBMITTED` | #537 dashboard & KPI evidence; evidence UX / visualization |
+| `@wasim-builds` | Security / QA / review / geolocation | PR #58; PR #636; PR #637 | #58 and #636 `CLOSED_NOT_MERGED`; #637 `OPEN / SUBMITTED` | #534 geospatial context; #536 safety/review; #713 evidence-integrity QA |
+| `@ghzhost` | Backend / telemetry / sensing | PR #396 | `OPEN / SUBMITTED` | #534 sensing adapter; #713 ingest/provenance |
+| `@laurentketterle-hub` | Telemetry / dashboard / Gateway / robotics | PR #397; #398; #399; #400; #404 | #397/#399/#400 `MERGED`; #398 `CLOSED_NOT_MERGED`; #404 `OPEN` | #534 sensing; #536 device safety; #537 dashboard; #713 evidence automation |
+| `@foxxx009` | GIS / geolocation / garden mapping | PR #27 | `CLOSED_NOT_MERGED / REVIEWED` | #534 geospatial environmental data; #538 replication mapping |
+| `@leanworld7-netizen` | Agriculture data / plant API | PR #59 | `CLOSED_NOT_MERGED / REVIEWED` | #534 agriculture data context; #538 site/replication data |
+| `@rafaio1` | CI/CD / load testing / performance / observability | PR #693; #694; #736 | #693/#736 `CLOSED_NOT_MERGED`; #694 `OPEN / SUBMITTED` | #713 reproducibility/CI; #538 deployment/readiness verification |
+
+### Evidence links
+
+- `@Aming9303`: https://github.com/MyZubster-Ecosystem/myzubster/pull/531, https://github.com/MyZubster-Ecosystem/myzubster/pull/634
+- `@wasim-builds`: https://github.com/MyZubster-Ecosystem/myzubster/pull/58, https://github.com/MyZubster-Ecosystem/myzubster/pull/636, https://github.com/MyZubster-Ecosystem/myzubster/pull/637
+- `@ghzhost`: https://github.com/MyZubster-Ecosystem/myzubster/pull/396
+- `@laurentketterle-hub`: https://github.com/MyZubster-Ecosystem/myzubster/pull/397, https://github.com/MyZubster-Ecosystem/myzubster/pull/398, https://github.com/MyZubster-Ecosystem/myzubster/pull/399, https://github.com/MyZubster-Ecosystem/myzubster/pull/400, https://github.com/MyZubster-Ecosystem/myzubster/pull/404
+- `@foxxx009`: https://github.com/MyZubster-Ecosystem/myzubster/pull/27
+- `@leanworld7-netizen`: https://github.com/MyZubster-Ecosystem/myzubster/pull/59
+- `@rafaio1`: https://github.com/MyZubster-Ecosystem/myzubster/pull/693, https://github.com/MyZubster-Ecosystem/myzubster/pull/694, https://github.com/MyZubster-Ecosystem/myzubster/pull/736
 
 Additional contributors should be added only after verifying the **actual public PR/issue author alias**. Do not infer identity from text, payout addresses, commit messages, email notifications or external profiles.
 
@@ -57,7 +72,7 @@ Current source-of-truth LIFE lanes:
 - #538 — pilot replication package;
 - #713 — Zorgax LIFE evidence automation.
 
-Candidate lane inclusion is **not** a partnership claim. A contributor becomes active on a LIFE-aligned task only through explicit public opt-in/claim or another clear contribution action.
+Candidate lane inclusion is **not** a partnership or participant-consent claim. A contributor becomes active on a LIFE-aligned task only through explicit public opt-in/claim or another clear contribution action.
 
 ## Contributor claim template
 
@@ -92,7 +107,7 @@ Valid evidence may include:
 - review records;
 - public documentation contributions.
 
-Do not include private emails, phone numbers, home addresses, identity documents, private institutional discussions, credentials, wallet seeds or other unnecessary personal information.
+Do not include private emails, phone numbers, home addresses, identity documents, private institutional discussions, credentials, payout addresses, wallet seeds or other unnecessary personal information.
 
 ## Reward and settlement boundary
 
@@ -104,6 +119,19 @@ VERIFIED CONTRIBUTION ≠ REWARD RECORDED ≠ EXTERNAL SETTLEMENT ≠ PAID
 
 See `BOUNTIES.md`, `REWARDS_LEDGER.md` and `TREASURY.md` for the canonical boundaries.
 
+## Relationship boundary
+
+Contributor evidence and institutional LIFE relationships are separate registries:
+
+- contributor evidence: this file;
+- LIFE contributor candidates: `docs/life-2027/CONTRIBUTOR_POOL.md`;
+- internal pilot participants: `docs/life/participant-automation/participant-registry.json`;
+- organisations/pilot sites/formal partner states: `docs/life-2027/STAKEHOLDER_REGISTRY.md`.
+
+```text
+PUBLIC CONTRIBUTOR ≠ INTERNAL PARTICIPANT ≠ LIFE PARTNER ≠ CONSORTIUM MEMBER
+```
+
 ## Related
 
 - #742 — Contributor onboarding system
@@ -112,5 +140,6 @@ See `BOUNTIES.md`, `REWARDS_LEDGER.md` and `TREASURY.md` for the canonical bound
 - `CONTRIBUTING.md`
 - `docs/PUBLIC-COMMUNITY-ACTIVITY.md`
 - `docs/life-2027/CONTRIBUTOR_POOL.md`
+- `docs/life-2027/STAKEHOLDER_REGISTRY.md`
 
 **One newcomer → one bounded task → one reproducible PR → one reviewed public contribution.**
