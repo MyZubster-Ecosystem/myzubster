@@ -5,10 +5,10 @@ Nicola is participating in the **MyZubster / Zorgax LIFE digital-business pilot*
 ## GitHub identity
 
 - GitHub: `nicolaususnicola-lgtm`
-- MyZubster GitHub linkage: `VERIFIED` through the existing authenticated GitHub OAuth flow on 2026-08-31.
+- MyZubster GitHub linkage: `PARTICIPANT_REPORTED_COMPLETE`; independent application/runtime verification is still pending.
 - Pilot program: `LIFE`
 - Pilot track: Digital Entrepreneur / Digital Business
-- Metaverse character: `N4K48` · Explorer · Neon Plaza.
+- Metaverse configuration: `N4K48` · Explorer · Neon Plaza; verified live account-linked activation is still pending technical evidence.
 
 No OAuth token, email address, password, OTP, or other credential is stored in this public profile.
 
@@ -109,7 +109,7 @@ Zorgax may coordinate analysis and prepare technical changes. Human control rema
 
 ## Technical completion record
 
-The participant profile, automation documentation and prior validation artifacts are present on `main`. The GitHub OAuth linkage and N4K48 Metaverse configuration were independently verified on 2026-08-31 through the authenticated application/runtime flow.
+The participant profile, automation documentation and prior validation artifacts are present on `main`. Nicola reported via email on 2026-08-31 that he completed the GitHub login step. This is participant confirmation, not independent proof that the OAuth linkage exists in the MyZubster database. PR #882 prepared and merged the N4K48 configurator, but runtime activation of the account-linked character has not been independently verified.
 
 The next technical change for the selected Project Planner pilot is being prepared through a dedicated branch and pull request. A branch or PR is evidence of implementation work only; it is not evidence that the MVP has been pilot-tested or commercially validated.
 
@@ -141,6 +141,6 @@ The public repository profile contains only the public GitHub identity and minim
 ## Verification state
 
 - GitHub public identity: `nicolaususnicola-lgtm`.
-- Authenticated MyZubster GitHub OAuth linkage: `VERIFIED` on 2026-08-31.
+- Authenticated MyZubster GitHub OAuth linkage: `PENDING_TECHNICAL_VERIFICATION`; participant reported the login step completed on 2026-08-31.
 - Human selection of `project-planner-ai`: `CONFIRMED` on 2026-08-31.
 - Project Planner MVP test result: `PENDING`.
