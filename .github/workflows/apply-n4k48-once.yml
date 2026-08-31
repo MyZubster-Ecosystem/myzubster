@@ -1,0 +1,47 @@
+name: Apply N4K48 Once
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/apply-n4k48-once.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  apply-n4k48:
+    name: Apply verified N4K48 character
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate production access
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.PRODUCTION_SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.PRODUCTION_SSH_HOST }}
+          SSH_USER: ${{ secrets.PRODUCTION_SSH_USER }}
+        run: |
+          test -n "$SSH_PRIVATE_KEY" || { echo '::error::PRODUCTION_SSH_PRIVATE_KEY is required'; exit 1; }
+          test -n "$SSH_HOST" || { echo '::error::PRODUCTION_SSH_HOST is required'; exit 1; }
+          test -n "$SSH_USER" || { echo '::error::PRODUCTION_SSH_USER is required'; exit 1; }
+
+      - name: Apply N4K48 configuration
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.PRODUCTION_SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.PRODUCTION_SSH_HOST }}
+          SSH_USER: ${{ secrets.PRODUCTION_SSH_USER }}
+          DEPLOY_PATH: ${{ vars.PRODUCTION_DEPLOY_PATH }}
+        run: |
+          set -euo pipefail
+          DEPLOY_DIR="${DEPLOY_PATH:-/opt/myzubster/production}"
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          scp scripts/metaverse/configure-n4k48.js "$SSH_USER@$SSH_HOST:/tmp/configure-n4k48.js"
+          ssh "$SSH_USER@$SSH_HOST" "set -e; mkdir -p '$DEPLOY_DIR/scripts/metaverse'; cp /tmp/configure-n4k48.js '$DEPLOY_DIR/scripts/metaverse/configure-n4k48.js'; cd '$DEPLOY_DIR'; if [ -f .env ]; then set -a; . ./.env; set +a; fi; node scripts/metaverse/configure-n4k48.js; rm -f /tmp/configure-n4k48.js"
