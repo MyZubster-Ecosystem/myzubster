@@ -19,7 +19,9 @@ async function jsonRequest(path, options = {}) {
 
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) {
-    throw new Error(payload.error || payload.message || `Metaverse request failed (${response.status})`);
+    const error = new Error(payload.error || payload.message || `Metaverse request failed (${response.status})`);
+    error.status = response.status;
+    throw error;
   }
   return payload;
 }
@@ -34,6 +36,13 @@ export function joinMetaverse(profile) {
 
 export function getMetaverseWorld() {
   return jsonRequest('/api/metaverse/world');
+}
+
+export function syncMetaverse(sessionId, cursor = null) {
+  return jsonRequest('/api/metaverse/sync', {
+    method: 'POST',
+    body: JSON.stringify({ sessionId, cursor })
+  });
 }
 
 export function moveMetaversePlayer(sessionId, x, y) {
@@ -63,8 +72,3 @@ export function leaveMetaverse(sessionId) {
     body: JSON.stringify({ sessionId })
   });
 }
-
-export function createMetaverseEventSource(sessionId) {
-  return new EventSource(`${API_URL}/api/metaverse/events?sessionId=${encodeURIComponent(sessionId)}`);
-}
-

@@ -1,6 +1,14 @@
 const mockFindOneAndUpdate = jest.fn();
 const mockDistinct = jest.fn();
 const mockCreate = jest.fn();
+const mockPresenceFindOneAndUpdate = jest.fn();
+const mockPresenceDeleteOne = jest.fn();
+const mockPresenceLean = jest.fn();
+const mockPresenceFind = jest.fn(() => ({
+  sort() { return this; },
+  limit() { return this; },
+  lean: mockPresenceLean
+}));
 
 jest.mock('mongoose', () => ({
   connection: { readyState: 1 }
@@ -10,6 +18,17 @@ jest.mock('../models/MetaverseCharacter', () => ({
   findOneAndUpdate: mockFindOneAndUpdate,
   distinct: mockDistinct,
   create: mockCreate
+}));
+
+jest.mock('../models/MetaversePresence', () => ({
+  find: mockPresenceFind,
+  findOneAndUpdate: mockPresenceFindOneAndUpdate,
+  deleteOne: mockPresenceDeleteOne
+}));
+
+jest.mock('../models/MetaverseChatMessage', () => ({
+  create: jest.fn(),
+  find: jest.fn()
 }));
 
 const express = require('express');
@@ -36,6 +55,9 @@ describe('authenticated MyZubster metaverse identity', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockDistinct.mockResolvedValue(['H4x0r']);
+    mockPresenceLean.mockResolvedValue([]);
+    mockPresenceFindOneAndUpdate.mockResolvedValue({});
+    mockPresenceDeleteOne.mockResolvedValue({ deletedCount: 1 });
   });
 
   test('reuses the account-linked character and ignores guest identity claims', async () => {
@@ -121,4 +143,3 @@ describe('authenticated MyZubster metaverse identity', () => {
     errorLog.mockRestore();
   });
 });
-

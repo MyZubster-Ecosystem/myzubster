@@ -23,5 +23,13 @@ describe('authenticated metaverse UI wiring', () => {
     expect(pageSource).toContain("isAccountLinked(me?.identityStatus) ? 'MYZ VERIFIED' : 'Ospite'");
     expect(pageSource).toContain('@{me.github.login} ↗');
   });
-});
 
+  test('uses resilient shared-state sync instead of a serverless EventSource', () => {
+    expect(apiSource).toContain("jsonRequest('/api/metaverse/sync'");
+    expect(pageSource).toContain('syncMetaverse(sessionId, cursor)');
+    expect(pageSource).toContain("setStatus('online')");
+    expect(pageSource).toContain("setStatus('reconnecting')");
+    expect(pageSource).not.toContain('createMetaverseEventSource');
+    expect(apiSource).not.toContain('new EventSource');
+  });
+});

@@ -2,6 +2,8 @@ const express = require('express');
 const crypto = require('crypto');
 const mongoose = require('mongoose');
 const MetaverseCharacter = require('../models/MetaverseCharacter');
+const MetaversePresence = require('../models/MetaversePresence');
+const MetaverseChatMessage = require('../models/MetaverseChatMessage');
 const { optionalAuthenticate } = require('../../../src/middleware/auth');
 
 const router = express.Router();
@@ -19,6 +21,9 @@ const WORLD = {
 // Historical floor for characters created before the public counter existed.
 // This keeps the public total from incorrectly reporting zero during rollout.
 const INITIAL_KNOWN_CHARACTER_COUNT = 1;
+const PRESENCE_TTL_MS = 90 * 1000;
+const CHAT_TTL_MS = 60 * 60 * 1000;
+const SYNC_MESSAGE_LIMIT = 40;
 
 const ARCHETYPES = new Set(['guardian', 'explorer', 'maker', 'chronicler', 'scientist']);
 const EMOTES = new Set(['wave', 'spark', 'idea', 'leaf']);
@@ -26,6 +31,7 @@ const sessions = new Map();
 const streams = new Map();
 const cleanupTimers = new Map();
 const actionTimes = new Map();
+const recentMessages = [];
 
 function cleanText(value, maxLength = 40) {
   return String(value || '')
@@ -49,7 +55,35 @@ function spawnPoint() {
   return { x, y };
 }
 
-function publicPlayer(session) {
+function databaseAvailable() {
+  return mongoose.connection.readyState === 1;
+}
+
+function presenceExpiry(now = new Date()) {
+  return new Date(now.getTime() + PRESENCE_TTL_MS);
+}
+
+function normalizeSession(value) {
+  if (!value) return null;
+  const session = typeof value.toObject === 'function' ? value.toObject() : value;
+  return {
+    ...session,
+    id: session.id || session.sessionId,
+    joinedAt: session.joinedAt instanceof Date ? session.joinedAt.toISOString() : session.joinedAt,
+    lastSeenAt: session.lastSeenAt instanceof Date ? session.lastSeenAt.toISOString() : session.lastSeenAt,
+    expiresAt: session.expiresAt instanceof Date ? session.expiresAt.toISOString() : session.expiresAt,
+    emoteExpiresAt: session.emoteExpiresAt instanceof Date
+      ? session.emoteExpiresAt.toISOString()
+      : session.emoteExpiresAt
+  };
+}
+
+function publicPlayer(value) {
+  const session = normalizeSession(value);
+  const emoteActive = session.emote
+    && session.emoteExpiresAt
+    && new Date(session.emoteExpiresAt).getTime() > Date.now();
+
   return {
     id: session.id,
     displayName: session.displayName,
@@ -63,16 +97,90 @@ function publicPlayer(session) {
     } : null,
     x: session.x,
     y: session.y,
+    emote: emoteActive ? session.emote : null,
     joinedAt: session.joinedAt
   };
 }
 
-function snapshot() {
+function localSnapshot() {
   return Array.from(sessions.values()).map(publicPlayer);
 }
 
+async function listActiveSessions() {
+  if (!databaseAvailable()) return Array.from(sessions.values()).map(normalizeSession);
+
+  const presences = await MetaversePresence.find({
+    worldId: WORLD.id,
+    expiresAt: { $gt: new Date() }
+  })
+    .sort({ joinedAt: 1 })
+    .limit(WORLD.capacity)
+    .lean();
+
+  return presences.map(normalizeSession);
+}
+
+async function sharedSnapshot() {
+  const activeSessions = await listActiveSessions();
+  return activeSessions.map(publicPlayer);
+}
+
+async function findSession(sessionId) {
+  const localSession = sessions.get(sessionId);
+  if (localSession) return normalizeSession(localSession);
+  if (!databaseAvailable()) return null;
+
+  const presence = await MetaversePresence.findOne({
+    sessionId,
+    worldId: WORLD.id,
+    expiresAt: { $gt: new Date() }
+  }).lean();
+  return normalizeSession(presence);
+}
+
+async function persistPresence(value) {
+  const session = normalizeSession(value);
+  const now = new Date();
+  const lastSeenAt = session.lastSeenAt ? new Date(session.lastSeenAt) : now;
+  const expiresAt = presenceExpiry(now);
+  const storedSession = {
+    ...session,
+    lastSeenAt: lastSeenAt.toISOString(),
+    expiresAt: expiresAt.toISOString()
+  };
+  sessions.set(session.id, storedSession);
+
+  if (databaseAvailable()) {
+    await MetaversePresence.findOneAndUpdate(
+      { sessionId: session.id },
+      {
+        $set: {
+          worldId: WORLD.id,
+          displayName: session.displayName,
+          characterName: session.characterName,
+          archetype: session.archetype,
+          myzId: session.myzId || null,
+          identityStatus: session.identityStatus,
+          accountUserId: session.accountUserId || null,
+          github: session.github || null,
+          x: session.x,
+          y: session.y,
+          emote: session.emote || null,
+          emoteExpiresAt: session.emoteExpiresAt ? new Date(session.emoteExpiresAt) : null,
+          joinedAt: new Date(session.joinedAt),
+          lastSeenAt,
+          expiresAt
+        }
+      },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
+  }
+
+  return storedSession;
+}
+
 async function totalCharacterCount() {
-  if (mongoose.connection.readyState !== 1) return INITIAL_KNOWN_CHARACTER_COUNT;
+  if (!databaseAvailable()) return INITIAL_KNOWN_CHARACTER_COUNT;
 
   try {
     // A returning browser reuses its generated characterName, while each join
@@ -101,7 +209,7 @@ function publicFeaturedCharacter(character) {
 }
 
 async function featuredCharacters() {
-  if (mongoose.connection.readyState !== 1) return [];
+  if (!databaseAvailable()) return [];
 
   try {
     const characters = await MetaverseCharacter.find({
@@ -153,7 +261,7 @@ function cancelCleanup(sessionId) {
   }
 }
 
-function removeSession(sessionId) {
+function removeLocalSession(sessionId) {
   cancelCleanup(sessionId);
   const stream = streams.get(sessionId);
   if (stream) {
@@ -161,13 +269,28 @@ function removeSession(sessionId) {
     streams.delete(sessionId);
   }
 
-  if (sessions.delete(sessionId)) {
-    broadcast({ type: 'leave', sessionId, at: new Date().toISOString() });
+  const removed = sessions.delete(sessionId);
+  for (const key of actionTimes.keys()) {
+    if (key.startsWith(`${sessionId}:`)) actionTimes.delete(key);
   }
+  return removed;
+}
+
+async function removeSession(sessionId) {
+  const removed = removeLocalSession(sessionId);
+  if (databaseAvailable()) {
+    const result = await MetaversePresence.deleteOne({ sessionId, worldId: WORLD.id });
+    if (result.deletedCount > 0 || removed) {
+      broadcast({ type: 'leave', sessionId, at: new Date().toISOString() });
+    }
+    return;
+  }
+
+  if (removed) broadcast({ type: 'leave', sessionId, at: new Date().toISOString() });
 }
 
 async function persistCharacter(session) {
-  if (mongoose.connection.readyState !== 1) return 'ephemeral';
+  if (!databaseAvailable()) return 'ephemeral';
 
   await MetaverseCharacter.create({
     characterId: session.id,
@@ -185,7 +308,7 @@ async function persistCharacter(session) {
 
 async function linkedCharacterForUser(userId) {
   if (!userId) return null;
-  if (mongoose.connection.readyState !== 1) {
+  if (!databaseAvailable()) {
     throw new Error('Character storage is temporarily unavailable');
   }
 
@@ -200,25 +323,97 @@ async function linkedCharacterForUser(userId) {
   );
 }
 
-router.get('/world', async (_req, res) => {
-  const [totalCharacters, verifiedCharacters] = await Promise.all([
-    totalCharacterCount(),
-    featuredCharacters()
-  ]);
+function publicMessage(value) {
+  const message = typeof value?.toObject === 'function' ? value.toObject() : value;
+  return {
+    id: message.messageId || message.id,
+    sessionId: message.sessionId,
+    characterName: message.characterName,
+    text: message.text,
+    at: message.createdAt instanceof Date ? message.createdAt.toISOString() : message.createdAt || message.at
+  };
+}
 
-  res.json({
-    success: true,
-    world: WORLD,
-    online: sessions.size,
-    totalCharacters,
-    players: snapshot(),
-    featuredCharacters: verifiedCharacters,
-    identityMode: 'guest-unverified'
+async function persistMessage(message) {
+  recentMessages.push(message);
+  if (recentMessages.length > SYNC_MESSAGE_LIMIT) recentMessages.splice(0, recentMessages.length - SYNC_MESSAGE_LIMIT);
+  if (!databaseAvailable()) return;
+
+  await MetaverseChatMessage.create({
+    messageId: message.id,
+    worldId: WORLD.id,
+    sessionId: message.sessionId,
+    characterName: message.characterName,
+    text: message.text,
+    createdAt: new Date(message.at),
+    expiresAt: new Date(Date.now() + CHAT_TTL_MS)
   });
+}
+
+function parseCursor(value) {
+  if (!value) return null;
+  const cursor = new Date(value);
+  return Number.isNaN(cursor.getTime()) ? null : cursor;
+}
+
+async function messagesSince(cursorValue, observedAt) {
+  const cursor = parseCursor(cursorValue);
+  if (!databaseAvailable()) {
+    return recentMessages
+      .filter((message) => !cursor || new Date(message.at) > cursor)
+      .slice(-SYNC_MESSAGE_LIMIT)
+      .map(publicMessage);
+  }
+
+  const query = {
+    worldId: WORLD.id,
+    createdAt: cursor
+      ? { $gt: cursor, $lte: observedAt }
+      : { $lte: observedAt }
+  };
+  const sort = cursor ? { createdAt: 1 } : { createdAt: -1 };
+  const messages = await MetaverseChatMessage.find(query)
+    .sort(sort)
+    .limit(SYNC_MESSAGE_LIMIT)
+    .lean();
+
+  if (!cursor) messages.reverse();
+  return messages.map(publicMessage);
+}
+
+router.get('/world', async (_req, res) => {
+  try {
+    const [players, totalCharacters, verifiedCharacters] = await Promise.all([
+      sharedSnapshot(),
+      totalCharacterCount(),
+      featuredCharacters()
+    ]);
+
+    return res.json({
+      success: true,
+      world: WORLD,
+      online: players.length,
+      totalCharacters,
+      players,
+      featuredCharacters: verifiedCharacters,
+      identityMode: 'guest-unverified',
+      transport: databaseAvailable() ? 'shared-polling' : 'ephemeral'
+    });
+  } catch (error) {
+    console.error('Metaverse world snapshot error:', error);
+    return res.status(503).json({ success: false, error: 'Metaverse presence is temporarily unavailable' });
+  }
 });
 
 router.post('/join', optionalAuthenticate, async (req, res) => {
-  if (sessions.size >= WORLD.capacity) {
+  let activeSessions;
+  try {
+    activeSessions = await listActiveSessions();
+  } catch (error) {
+    console.error('Metaverse capacity lookup error:', error);
+    return res.status(503).json({ success: false, error: 'Metaverse presence is temporarily unavailable' });
+  }
+  if (activeSessions.length >= WORLD.capacity) {
     return res.status(503).json({ success: false, error: 'Neon Plaza is at capacity' });
   }
 
@@ -257,6 +452,7 @@ router.post('/join', optionalAuthenticate, async (req, res) => {
 
   const { x, y } = spawnPoint();
   const id = crypto.randomUUID();
+  const now = new Date();
   const session = {
     id,
     displayName: linkedCharacter ? cleanText(linkedCharacter.displayName, 30) : requestedDisplayName,
@@ -273,30 +469,39 @@ router.post('/join', optionalAuthenticate, async (req, res) => {
     } : null,
     x,
     y,
-    joinedAt: new Date().toISOString()
+    emote: null,
+    emoteExpiresAt: null,
+    joinedAt: now.toISOString(),
+    lastSeenAt: now.toISOString(),
+    expiresAt: presenceExpiry(now).toISOString()
   };
 
   try {
     const persistence = linkedCharacter ? 'linked-existing' : await persistCharacter(session);
-    const totalCharacters = await totalCharacterCount();
+    await persistPresence(session);
+    const [players, totalCharacters] = await Promise.all([
+      sharedSnapshot(),
+      totalCharacterCount()
+    ]);
     const identityMode = linkedCharacter ? 'account-linked' : 'guest-unverified';
-    sessions.set(id, session);
     broadcast({ type: 'join', player: publicPlayer(session), at: new Date().toISOString() });
 
     return res.status(201).json({
       success: true,
       sessionId: id,
       player: publicPlayer(session),
-      players: snapshot(),
+      players,
       world: WORLD,
       totalCharacters,
       identityMode,
       persistence,
+      transport: databaseAvailable() ? 'shared-polling' : 'ephemeral',
       note: linkedCharacter
         ? 'The authenticated account was linked to its existing verified MyZubster character.'
         : 'Client-supplied MYZ-ID values are display-only and are not treated as verified identity claims.'
     });
   } catch (error) {
+    removeLocalSession(id);
     console.error('Metaverse character persistence error:', error);
     return res.status(503).json({
       success: false,
@@ -305,14 +510,51 @@ router.post('/join', optionalAuthenticate, async (req, res) => {
   }
 });
 
-router.get('/events', (req, res) => {
-  const sessionId = cleanText(req.query.sessionId, 64);
-  if (!sessions.has(sessionId)) {
-    return res.status(404).json({ success: false, error: 'Unknown metaverse session' });
+router.post('/sync', async (req, res) => {
+  const sessionId = cleanText(req.body?.sessionId, 64);
+  try {
+    const session = await findSession(sessionId);
+    if (!session) return res.status(404).json({ success: false, error: 'Unknown metaverse session' });
+
+    const now = new Date();
+    session.lastSeenAt = now.toISOString();
+    session.expiresAt = presenceExpiry(now).toISOString();
+    await persistPresence(session);
+
+    const observedAt = new Date();
+    const [players, messages] = await Promise.all([
+      sharedSnapshot(),
+      messagesSince(req.body?.cursor, observedAt)
+    ]);
+
+    return res.json({
+      success: true,
+      world: WORLD,
+      players,
+      messages,
+      online: players.length,
+      cursor: observedAt.toISOString(),
+      transport: databaseAvailable() ? 'shared-polling' : 'ephemeral'
+    });
+  } catch (error) {
+    console.error('Metaverse sync error:', error);
+    return res.status(503).json({ success: false, error: 'Metaverse sync is temporarily unavailable' });
   }
+});
+
+// Kept for older clients. Current web clients use /sync because long-lived SSE
+// streams are not reliable across stateless serverless instances.
+router.get('/events', async (req, res) => {
+  const sessionId = cleanText(req.query.sessionId, 64);
+  let session;
+  try {
+    session = await findSession(sessionId);
+  } catch (_error) {
+    return res.status(503).json({ success: false, error: 'Metaverse presence is temporarily unavailable' });
+  }
+  if (!session) return res.status(404).json({ success: false, error: 'Unknown metaverse session' });
 
   cancelCleanup(sessionId);
-
   const previous = streams.get(sessionId);
   if (previous && previous !== res) {
     try { previous.end(); } catch (_error) {}
@@ -325,12 +567,9 @@ router.get('/events', (req, res) => {
   if (typeof res.flushHeaders === 'function') res.flushHeaders();
 
   streams.set(sessionId, res);
-  sendEvent(res, {
-    type: 'snapshot',
-    world: WORLD,
-    players: snapshot(),
-    at: new Date().toISOString()
-  });
+  let players;
+  try { players = await sharedSnapshot(); } catch (_error) { players = localSnapshot(); }
+  sendEvent(res, { type: 'snapshot', world: WORLD, players, at: new Date().toISOString() });
 
   const heartbeat = setInterval(() => {
     try {
@@ -344,65 +583,96 @@ router.get('/events', (req, res) => {
     clearInterval(heartbeat);
     if (streams.get(sessionId) === res) streams.delete(sessionId);
 
-    // Allow a short reconnect window before removing presence.
+    // Allow a short reconnect window before removing presence for legacy clients.
     cancelCleanup(sessionId);
-    cleanupTimers.set(sessionId, setTimeout(() => removeSession(sessionId), 30000));
+    cleanupTimers.set(sessionId, setTimeout(() => {
+      removeSession(sessionId).catch(() => {});
+    }, 30000));
   });
 });
 
-router.post('/move', (req, res) => {
+router.post('/move', async (req, res) => {
   const sessionId = cleanText(req.body?.sessionId, 64);
-  const session = sessions.get(sessionId);
-  if (!session) return res.status(404).json({ success: false, error: 'Unknown metaverse session' });
-  if (!allowAction(sessionId, 'move', 45)) return res.status(429).json({ success: false, error: 'Move rate exceeded' });
+  try {
+    const session = await findSession(sessionId);
+    if (!session) return res.status(404).json({ success: false, error: 'Unknown metaverse session' });
+    if (!allowAction(sessionId, 'move', 45)) return res.status(429).json({ success: false, error: 'Move rate exceeded' });
 
-  session.x = clamp(req.body?.x, WORLD.minX, WORLD.maxX);
-  session.y = clamp(req.body?.y, WORLD.minY, WORLD.maxY);
+    session.x = clamp(req.body?.x, WORLD.minX, WORLD.maxX);
+    session.y = clamp(req.body?.y, WORLD.minY, WORLD.maxY);
+    session.lastSeenAt = new Date().toISOString();
+    await persistPresence(session);
 
-  const player = publicPlayer(session);
-  broadcast({ type: 'move', player, at: new Date().toISOString() }, sessionId);
-  return res.json({ success: true, player });
+    const player = publicPlayer(session);
+    broadcast({ type: 'move', player, at: new Date().toISOString() }, sessionId);
+    return res.json({ success: true, player });
+  } catch (error) {
+    console.error('Metaverse move error:', error);
+    return res.status(503).json({ success: false, error: 'Metaverse presence is temporarily unavailable' });
+  }
 });
 
-router.post('/chat', (req, res) => {
+router.post('/chat', async (req, res) => {
   const sessionId = cleanText(req.body?.sessionId, 64);
-  const session = sessions.get(sessionId);
-  if (!session) return res.status(404).json({ success: false, error: 'Unknown metaverse session' });
-  if (!allowAction(sessionId, 'chat', 700)) return res.status(429).json({ success: false, error: 'Chat rate exceeded' });
+  try {
+    const session = await findSession(sessionId);
+    if (!session) return res.status(404).json({ success: false, error: 'Unknown metaverse session' });
+    if (!allowAction(sessionId, 'chat', 700)) return res.status(429).json({ success: false, error: 'Chat rate exceeded' });
 
-  const text = cleanText(req.body?.text, 280);
-  if (!text) return res.status(400).json({ success: false, error: 'Message is empty' });
+    const text = cleanText(req.body?.text, 280);
+    if (!text) return res.status(400).json({ success: false, error: 'Message is empty' });
 
-  const message = {
-    id: crypto.randomUUID(),
-    sessionId,
-    characterName: session.characterName,
-    text,
-    at: new Date().toISOString()
-  };
+    const message = {
+      id: crypto.randomUUID(),
+      sessionId,
+      characterName: session.characterName,
+      text,
+      at: new Date().toISOString()
+    };
+    session.lastSeenAt = message.at;
+    await Promise.all([persistPresence(session), persistMessage(message)]);
 
-  broadcast({ type: 'chat', message });
-  return res.status(201).json({ success: true, message });
+    broadcast({ type: 'chat', message });
+    return res.status(201).json({ success: true, message });
+  } catch (error) {
+    console.error('Metaverse chat error:', error);
+    return res.status(503).json({ success: false, error: 'Metaverse chat is temporarily unavailable' });
+  }
 });
 
-router.post('/emote', (req, res) => {
+router.post('/emote', async (req, res) => {
   const sessionId = cleanText(req.body?.sessionId, 64);
-  const session = sessions.get(sessionId);
-  if (!session) return res.status(404).json({ success: false, error: 'Unknown metaverse session' });
-  if (!allowAction(sessionId, 'emote', 500)) return res.status(429).json({ success: false, error: 'Emote rate exceeded' });
+  try {
+    const session = await findSession(sessionId);
+    if (!session) return res.status(404).json({ success: false, error: 'Unknown metaverse session' });
+    if (!allowAction(sessionId, 'emote', 500)) return res.status(429).json({ success: false, error: 'Emote rate exceeded' });
 
-  const emote = cleanText(req.body?.emote, 16).toLowerCase();
-  if (!EMOTES.has(emote)) return res.status(400).json({ success: false, error: 'Unsupported emote' });
+    const emote = cleanText(req.body?.emote, 16).toLowerCase();
+    if (!EMOTES.has(emote)) return res.status(400).json({ success: false, error: 'Unsupported emote' });
 
-  broadcast({ type: 'emote', sessionId, emote, at: new Date().toISOString() });
-  return res.json({ success: true, emote });
+    const now = new Date();
+    session.emote = emote;
+    session.emoteExpiresAt = new Date(now.getTime() + 1800).toISOString();
+    session.lastSeenAt = now.toISOString();
+    await persistPresence(session);
+
+    broadcast({ type: 'emote', sessionId, emote, at: now.toISOString() });
+    return res.json({ success: true, emote });
+  } catch (error) {
+    console.error('Metaverse emote error:', error);
+    return res.status(503).json({ success: false, error: 'Metaverse presence is temporarily unavailable' });
+  }
 });
 
-router.post('/leave', (req, res) => {
+router.post('/leave', async (req, res) => {
   const sessionId = cleanText(req.body?.sessionId, 64);
-  removeSession(sessionId);
-  return res.json({ success: true });
+  try {
+    await removeSession(sessionId);
+    return res.json({ success: true });
+  } catch (error) {
+    console.error('Metaverse leave error:', error);
+    return res.status(503).json({ success: false, error: 'Metaverse presence is temporarily unavailable' });
+  }
 });
 
 module.exports = router;
-

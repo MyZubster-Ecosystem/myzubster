@@ -134,8 +134,6 @@ const githubBountySyncRoutes = require('./src/routes/githubBountySyncRoutes');
 const researchRoutes = require('./src/routes/researchRoutes');
 const municipalityRoutes = require('./src/routes/municipalityRoutes');
 const entityRoutes = require('./src/routes/entityRoutes');
-const robotSimulationRoutes = require('./src/routes/robotSimulationRoutes');
-const skillExchangeRoutes = require('./src/routes/skillExchangeRoutes');
 const metaverseRoutes = require('./backend/src/routes/metaverse');
 const lifeDaoRoutes = require('./backend/src/routes/dao-life');
 const { lifeDaoBindingGuard } = require('./backend/src/services/lifeDaoPolicy');
@@ -145,13 +143,13 @@ app.post('/api/auth/register', async (_req, res, next) => {
   catch (_error) { res.status(503).json({ success: false, message: 'Database temporaneamente non disponibile' }); }
 });
 
-app.post('/api/metaverse/join', async (_req, res, next) => {
+app.use('/api/metaverse', async (_req, res, next) => {
   if (process.env.NODE_ENV === 'test') return next();
   try {
     await connectMongo();
     return next();
   } catch (_error) {
-    return res.status(503).json({ success: false, error: 'Character storage is temporarily unavailable' });
+    return res.status(503).json({ success: false, error: 'Metaverse storage is temporarily unavailable' });
   }
 });
 
@@ -182,11 +180,9 @@ app.use('/api/zorgax/build', zorgaxBuildRoutes);
 app.use('/api/zorgax/life', zorgaxLifeRoutes);
 app.use('/api/zorgax/email', zorgaxEmailRoutes);
 app.use('/api/zorgax', zorgaxRoutes);
-app.use('/api/robots', robotSimulationRoutes);
 app.use('/api/github-bounties', githubBountySyncRoutes);
 app.use('/api/research', researchRoutes);
 app.use('/api/entities', entityRoutes);
-app.use('/api/skill-exchange', skillExchangeRoutes);
 app.use('/api/metaverse', metaverseRoutes);
 app.use('/api/dao/life', lifeDaoRoutes);
 app.use('/api/dao', lifeDaoBindingGuard);
@@ -207,7 +203,6 @@ app.get('/', (_req, res) => {
       zorgax_build: '/api/zorgax/build',
       zorgax_life: '/api/zorgax/life/status',
       zorgax_email: '/api/zorgax/email/preferences',
-      robot_runtime: '/api/robots/status',
       dao_advisory: '/api/dao/life/status'
     }
   });

@@ -46,6 +46,29 @@ describe('MyZubster metaverse API', () => {
     expect(response.body.featuredCharacters).toEqual([]);
   });
 
+  test('shares presence and recent chat through the sync endpoint', async () => {
+    const chatResponse = await request(app)
+      .post('/api/metaverse/chat')
+      .send({ sessionId, text: 'Ciao Neon Plaza' })
+      .expect(201);
+
+    const syncResponse = await request(app)
+      .post('/api/metaverse/sync')
+      .send({ sessionId })
+      .expect(200);
+
+    expect(syncResponse.body.transport).toBe('ephemeral');
+    expect(syncResponse.body.players.some((player) => player.id === sessionId)).toBe(true);
+    expect(syncResponse.body.messages).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        id: chatResponse.body.message.id,
+        characterName: 'AERON-17',
+        text: 'Ciao Neon Plaza'
+      })
+    ]));
+    expect(new Date(syncResponse.body.cursor).toString()).not.toBe('Invalid Date');
+  });
+
   afterAll(async () => {
     if (sessionId) {
       await request(app).post('/api/metaverse/leave').send({ sessionId });

@@ -1,12 +1,12 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
-  createMetaverseEventSource,
   getMetaverseWorld,
   joinMetaverse,
   leaveMetaverse,
   moveMetaversePlayer,
   sendMetaverseChat,
-  sendMetaverseEmote
+  sendMetaverseEmote,
+  syncMetaverse
 } from '../api/metaverse';
 import './MetaversePage.css';
 
@@ -183,7 +183,6 @@ function MetaversePage() {
   const [lastLandmark, setLastLandmark] = useState('Neon Plaza');
   const [totalCharacters, setTotalCharacters] = useState(null);
   const [featuredCharacters, setFeaturedCharacters] = useState([]);
-  const emoteTimers = useRef({});
 
   useEffect(() => {
     let active = true;
@@ -232,53 +231,63 @@ function MetaversePage() {
   useEffect(() => {
     if (!sessionId) return undefined;
 
-    const source = createMetaverseEventSource(sessionId);
-    source.onopen = () => setStatus('online');
-    source.onerror = () => setStatus('reconnecting');
-    source.onmessage = (event) => {
-      let payload;
-      try { payload = JSON.parse(event.data); } catch (_error) { return; }
+    let active = true;
+    let cursor = null;
+    let timer = null;
 
-      if (payload.type === 'snapshot') {
-        setPlayers(Object.fromEntries(payload.players.map((player) => [player.id, player])));
-      }
+    const schedule = (delay) => {
+      if (!active) return;
+      timer = window.setTimeout(runSync, delay);
+    };
 
-      if (payload.type === 'join' || payload.type === 'move') {
-        setPlayers((current) => ({ ...current, [payload.player.id]: { ...current[payload.player.id], ...payload.player } }));
-      }
+    const mergeMessages = (incoming) => {
+      if (!Array.isArray(incoming) || incoming.length === 0) return;
+      setMessages((current) => {
+        const merged = new Map(current.map((message) => [message.id, message]));
+        incoming.forEach((message) => merged.set(message.id, message));
+        return Array.from(merged.values())
+          .sort((left, right) => new Date(left.at) - new Date(right.at))
+          .slice(-40);
+      });
+    };
 
-      if (payload.type === 'leave') {
-        setPlayers((current) => {
-          const next = { ...current };
-          delete next[payload.sessionId];
-          return next;
-        });
-      }
+    const runSync = async () => {
+      try {
+        const result = await syncMetaverse(sessionId, cursor);
+        if (!active) return;
+        cursor = result.cursor || cursor;
+        setPlayers(Object.fromEntries(result.players.map((player) => [player.id, player])));
+        mergeMessages(result.messages);
+        setStatus('online');
+        schedule(1800);
+      } catch (syncError) {
+        if (!active) return;
+        setStatus('reconnecting');
 
-      if (payload.type === 'chat') {
-        setMessages((current) => [...current.slice(-39), payload.message]);
-      }
+        // A long offline/background period can let the short-lived presence
+        // expire. Rejoin with the server-owned profile instead of leaving the
+        // interface permanently stuck in RECONNECTING.
+        if (syncError.status === 404 && profile) {
+          try {
+            const result = await joinMetaverse(profile);
+            if (!active) return;
+            setSessionId(result.sessionId);
+            setPlayers(Object.fromEntries(result.players.map((player) => [player.id, player])));
+            setStatus('online');
+            return;
+          } catch (_rejoinError) {}
+        }
 
-      if (payload.type === 'emote') {
-        setPlayers((current) => {
-          const player = current[payload.sessionId];
-          if (!player) return current;
-          return { ...current, [payload.sessionId]: { ...player, emote: payload.emote } };
-        });
-
-        clearTimeout(emoteTimers.current[payload.sessionId]);
-        emoteTimers.current[payload.sessionId] = setTimeout(() => {
-          setPlayers((current) => {
-            const player = current[payload.sessionId];
-            if (!player) return current;
-            return { ...current, [payload.sessionId]: { ...player, emote: null } };
-          });
-        }, 1800);
+        schedule(3000);
       }
     };
 
-    return () => source.close();
-  }, [sessionId]);
+    runSync();
+    return () => {
+      active = false;
+      if (timer) window.clearTimeout(timer);
+    };
+  }, [profile, sessionId]);
 
   const moveBy = (dx, dy) => {
     if (!sessionId) return;
@@ -501,4 +510,3 @@ function MetaversePage() {
 }
 
 export default MetaversePage;
-
