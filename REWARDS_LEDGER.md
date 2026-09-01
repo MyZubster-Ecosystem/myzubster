@@ -70,6 +70,15 @@ On 2026-09-01, seven open MyZubster-Robot listings advertising a combined **0.17
 
 The issues remain open to preserve history and attribution. Reactivation requires a specific, auditable ecosystem funding reservation under `BOUNTIES.md` and `TREASURY.md`.
 
+## Reported aggregate claims awaiting itemization
+
+The following are contributor-reported aggregates. They are recorded to preserve the claim, but are **not yet independently recomputed or accepted as a final project obligation**. Each amount must be decomposed into issue/PR rows and checked against the original reward wording, technical acceptance, duplicate claims, internal-ledger state and settlement evidence.
+
+| Repository / scope | Contributor | Reported amount | Current status | Transaction evidence | Notes |
+|---|---|---:|---|---|---|
+| `MyZubsterGateway` — multiple historical bounty PRs | `laurentketterle-hub` | **90,270 MYZ reported across 49 merged PRs**, plus additional PRs without a stated amount | **PENDING ITEMIZATION / DISPUTED** | None published | Contributor report preserved in [issue #789](https://github.com/MyZubster-Ecosystem/MyZubsterGateway/issues/789#issuecomment-5292756513). The aggregate must not be presented as verified, paid or finally reconciled until each row is checked. |
+| `MyZubsterGateway` — multiple merged PRs | `jihadMo` | Amount not yet itemized | **PENDING ITEMIZATION / PENDING VERIFICATION** | None published | Contributor publicly reported merged work without verifiable spendable settlement in [issue #282](https://github.com/MyZubster-Ecosystem/MyZubsterGateway/issues/282#issuecomment-5302516932). |
+
 ## Legacy wording audit
 
 A repository audit found historical MyZubsterGateway bounty issues that used wording such as **“Pagamento: via gateway dopo il merge”** or **“Pagamento automatico via gateway dopo il merge.”** These phrases are historical and must not be interpreted as current proof of funding or settlement.
