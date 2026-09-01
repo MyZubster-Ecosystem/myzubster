@@ -1,5 +1,6 @@
 const Payment = require('../models/Payment');
 const { verifyXmrPayment } = require('./xmrVerifier');
+const { paymentWebhooks } = require('./paymentWebhooks');
 
 const PAYMENT_STATES = ['PENDING', 'SUBMITTED', 'CONFIRMED', 'FAILED', 'CANCELLED'];
 
@@ -51,7 +52,7 @@ async function submitPayment(id, txid) {
   return payment;
 }
 
-async function confirmPayment(id, txid, verifier = verifyXmrPayment) {
+async function confirmPayment(id, txid, verifier = verifyXmrPayment, webhooks = paymentWebhooks) {
   const payment = await Payment.findById(id);
   if (!payment) throw new Error('Payment not found');
   if (payment.kind === 'simulated') {
@@ -88,6 +89,15 @@ async function confirmPayment(id, txid, verifier = verifyXmrPayment) {
     },
   });
   await payment.save();
+  await webhooks.paymentConfirmed({
+    paymentId: String(payment._id || id),
+    issueId: payment.issueId,
+    contributor: payment.contributor,
+    amount: payment.amount,
+    currency: payment.currency,
+    txid: payment.txid,
+    state: payment.state,
+  });
   return payment;
 }
 
