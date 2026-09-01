@@ -24,6 +24,9 @@ const INITIAL_KNOWN_CHARACTER_COUNT = 1;
 const PRESENCE_TTL_MS = 90 * 1000;
 const CHAT_TTL_MS = 60 * 60 * 1000;
 const SYNC_MESSAGE_LIMIT = 40;
+// Must remain comfortably longer than the browser polling interval so every
+// active client has more than one opportunity to observe the emote.
+const EMOTE_VISIBLE_MS = 5 * 1000;
 
 const ARCHETYPES = new Set(['guardian', 'explorer', 'maker', 'chronicler', 'scientist']);
 const EMOTES = new Set(['wave', 'spark', 'idea', 'leaf']);
@@ -652,7 +655,7 @@ router.post('/emote', async (req, res) => {
 
     const now = new Date();
     session.emote = emote;
-    session.emoteExpiresAt = new Date(now.getTime() + 1800).toISOString();
+    session.emoteExpiresAt = new Date(now.getTime() + EMOTE_VISIBLE_MS).toISOString();
     session.lastSeenAt = now.toISOString();
     await persistPresence(session);
 

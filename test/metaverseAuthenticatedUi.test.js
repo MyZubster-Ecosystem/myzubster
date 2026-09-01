@@ -32,4 +32,9 @@ describe('authenticated metaverse UI wiring', () => {
     expect(pageSource).not.toContain('createMetaverseEventSource');
     expect(apiSource).not.toContain('new EventSource');
   });
+
+  test('uses a named polling interval for predictable realtime timing', () => {
+    expect(pageSource).toContain('const SYNC_INTERVAL_MS = 1800');
+    expect(pageSource).toContain('schedule(SYNC_INTERVAL_MS)');
+  });
 });

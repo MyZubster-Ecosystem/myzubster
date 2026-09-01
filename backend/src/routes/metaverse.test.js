@@ -69,6 +69,22 @@ describe('MyZubster metaverse API', () => {
     expect(new Date(syncResponse.body.cursor).toString()).not.toBe('Invalid Date');
   });
 
+  test('keeps an emote visible across a browser synchronization interval', async () => {
+    await request(app)
+      .post('/api/metaverse/emote')
+      .send({ sessionId, emote: 'wave' })
+      .expect(200);
+
+    await new Promise((resolve) => setTimeout(resolve, 2100));
+
+    const syncResponse = await request(app)
+      .post('/api/metaverse/sync')
+      .send({ sessionId })
+      .expect(200);
+
+    expect(syncResponse.body.players.find((player) => player.id === sessionId)?.emote).toBe('wave');
+  });
+
   afterAll(async () => {
     if (sessionId) {
       await request(app).post('/api/metaverse/leave').send({ sessionId });

@@ -11,6 +11,7 @@ import {
 import './MetaversePage.css';
 
 const STORAGE_KEY = 'myz-metaverse-profile-v1';
+const SYNC_INTERVAL_MS = 1800;
 
 const ARCHETYPES = {
   guardian: { label: 'Guardian', glyph: '🛡️' },
@@ -259,7 +260,7 @@ function MetaversePage() {
         setPlayers(Object.fromEntries(result.players.map((player) => [player.id, player])));
         mergeMessages(result.messages);
         setStatus('online');
-        schedule(1800);
+        schedule(SYNC_INTERVAL_MS);
       } catch (syncError) {
         if (!active) return;
         setStatus('reconnecting');
