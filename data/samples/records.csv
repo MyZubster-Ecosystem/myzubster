@@ -1,0 +1,6 @@
+﻿record_id,site_id,period_start,period_end,area_m2,days,irrigation_L,electricity_kWh,fertilizer_n_kg,yield_kg,labour_h,expected_samples,missing_samples,issued_recommendations,accepted_recommendations,evaluated_recommendations,matching_outcomes,detection_time,response_time,intervention,notes,evidence_ids
+B-2024-S1,plot-A,2024-01-01,2024-03-31,100,90,3222.5,180.4,5.2,9.95,42.0,2160,180,,,,,2024-01-01T08:00:00+00:00,2024-01-01T09:30:00+00:00,,"Baseline season 1 (synthetic). Conventional schedule.",E-001;E-002;E-003
+B-2024-S2,plot-A,2024-04-01,2024-06-30,100,91,3098.7,172.0,4.9,9.51,40.5,2184,210,,,,,2024-04-05T11:00:00+00:00,2024-04-05T13:00:00+00:00,,"Baseline season 2 (synthetic). Conventional schedule.",E-004;E-005
+P-2025-S1,plot-A,2025-01-01,2025-03-31,100,90,2385.0,150.7,4.3,10.05,36.0,2160,90,120,84,60,42,2025-01-12T07:30:00+00:00,2025-01-12T08:05:00+00:00,ai_irrigation_v1,"Pilot season 1 (synthetic). AI irrigation v1 enabled.",E-006;E-007;E-008
+P-2025-S2,plot-A,2025-04-01,2025-06-30,100,91,2255.4,145.2,4.1,10.20,34.5,2184,84,124,90,68,46,2025-04-08T10:15:00+00:00,2025-04-08T10:45:00+00:00,ai_irrigation_v1,"Pilot season 2 (synthetic). AI irrigation v1 enabled.",E-009;E-010
+B-incomplete,plot-A,2024-01-01,2024-01-31,100,30,,,,,,,,,,,,,,,"Synthetic record exercising missing-data handling. All numeric fields blank; framework should flag and skip.",E-999
