@@ -1,0 +1,344 @@
+{
+  "generated_at": "2026-09-01T18:29:35+00:00",
+  "framework_version": "0.1.0",
+  "baseline_count": 3,
+  "pilot_count": 2,
+  "validation_issues": [],
+  "comparisons": [
+    {
+      "kpi_id": "water.use.l_per_kg_yield",
+      "family": "water",
+      "name": "Irrigation water per yield",
+      "unit": "L",
+      "direction": "lower_is_better",
+      "formula": "irrigation_L / yield_kg",
+      "baseline_value": 324.85265443938937,
+      "pilot_value": 229.2155399473222,
+      "delta_absolute": -95.63711449206716,
+      "delta_relative": -0.29440151768841716,
+      "direction_status": "improved",
+      "status": "partial",
+      "notes": "baseline: partial",
+      "baseline_evidence_ids": [
+        "E-001",
+        "E-002",
+        "E-003",
+        "E-004",
+        "E-005",
+        "E-999"
+      ],
+      "pilot_evidence_ids": [
+        "E-006",
+        "E-007",
+        "E-008",
+        "E-009",
+        "E-010"
+      ]
+    },
+    {
+      "kpi_id": "water.use.l_per_m2_per_day",
+      "family": "water",
+      "name": "Irrigation intensity",
+      "unit": "L",
+      "direction": "lower_is_better",
+      "formula": "irrigation_L / (area_m2 * days)",
+      "baseline_value": 0.6985720390720391,
+      "pilot_value": 0.5128461538461538,
+      "delta_absolute": -0.1857258852258853,
+      "delta_relative": -0.2658650430277708,
+      "direction_status": "improved",
+      "status": "partial",
+      "notes": "baseline: partial",
+      "baseline_evidence_ids": [
+        "E-001",
+        "E-002",
+        "E-003",
+        "E-004",
+        "E-005",
+        "E-999"
+      ],
+      "pilot_evidence_ids": [
+        "E-006",
+        "E-007",
+        "E-008",
+        "E-009",
+        "E-010"
+      ]
+    },
+    {
+      "kpi_id": "energy.use.kwh_per_kg_yield",
+      "family": "energy",
+      "name": "Energy per yield",
+      "unit": "kWh",
+      "direction": "lower_is_better",
+      "formula": "electricity_kWh / yield_kg",
+      "baseline_value": 36.21687829261978,
+      "pilot_value": 29.230318993268945,
+      "delta_absolute": -6.986559299350837,
+      "delta_relative": -0.19290893165617057,
+      "direction_status": "improved",
+      "status": "partial",
+      "notes": "baseline: partial",
+      "baseline_evidence_ids": [
+        "E-001",
+        "E-002",
+        "E-003",
+        "E-004",
+        "E-005",
+        "E-999"
+      ],
+      "pilot_evidence_ids": [
+        "E-006",
+        "E-007",
+        "E-008",
+        "E-009",
+        "E-010"
+      ]
+    },
+    {
+      "kpi_id": "yield.kg_per_m2",
+      "family": "yield",
+      "name": "Yield per area",
+      "unit": "kg",
+      "direction": "higher_is_better",
+      "formula": "yield_kg / area_m2",
+      "baseline_value": 0.1946,
+      "pilot_value": 0.2025,
+      "delta_absolute": 0.007900000000000018,
+      "delta_relative": 0.04059609455292918,
+      "direction_status": "improved",
+      "status": "partial",
+      "notes": "baseline: partial",
+      "baseline_evidence_ids": [
+        "E-001",
+        "E-002",
+        "E-003",
+        "E-004",
+        "E-005",
+        "E-999"
+      ],
+      "pilot_evidence_ids": [
+        "E-006",
+        "E-007",
+        "E-008",
+        "E-009",
+        "E-010"
+      ]
+    },
+    {
+      "kpi_id": "nutrient.n_kg_per_kg_yield",
+      "family": "nutrient",
+      "name": "Nitrogen input per yield",
+      "unit": "kg",
+      "direction": "lower_is_better",
+      "formula": "fertilizer_n_kg / yield_kg",
+      "baseline_value": 1.0378601736336783,
+      "pilot_value": 0.8298214808311384,
+      "delta_absolute": -0.20803869280253995,
+      "delta_relative": -0.2004496348233216,
+      "direction_status": "improved",
+      "status": "partial",
+      "notes": "baseline: partial",
+      "baseline_evidence_ids": [
+        "E-001",
+        "E-002",
+        "E-003",
+        "E-004",
+        "E-005",
+        "E-999"
+      ],
+      "pilot_evidence_ids": [
+        "E-006",
+        "E-007",
+        "E-008",
+        "E-009",
+        "E-010"
+      ]
+    },
+    {
+      "kpi_id": "labour.h_per_kg_yield",
+      "family": "labour",
+      "name": "Labour per yield",
+      "unit": "h",
+      "direction": "lower_is_better",
+      "formula": "labour_h / yield_kg",
+      "baseline_value": 8.479780606502544,
+      "pilot_value": 6.964442493415277,
+      "delta_absolute": -1.5153381130872674,
+      "delta_relative": -0.17870015551171947,
+      "direction_status": "improved",
+      "status": "partial",
+      "notes": "baseline: partial",
+      "baseline_evidence_ids": [
+        "E-001",
+        "E-002",
+        "E-003",
+        "E-004",
+        "E-005",
+        "E-999"
+      ],
+      "pilot_evidence_ids": [
+        "E-006",
+        "E-007",
+        "E-008",
+        "E-009",
+        "E-010"
+      ]
+    },
+    {
+      "kpi_id": "labour.h_per_m2",
+      "family": "labour",
+      "name": "Labour intensity per area",
+      "unit": "h",
+      "direction": "lower_is_better",
+      "formula": "labour_h / area_m2",
+      "baseline_value": 0.825,
+      "pilot_value": 0.705,
+      "delta_absolute": -0.12,
+      "delta_relative": -0.14545454545454545,
+      "direction_status": "improved",
+      "status": "partial",
+      "notes": "baseline: partial",
+      "baseline_evidence_ids": [
+        "E-001",
+        "E-002",
+        "E-003",
+        "E-004",
+        "E-005",
+        "E-999"
+      ],
+      "pilot_evidence_ids": [
+        "E-006",
+        "E-007",
+        "E-008",
+        "E-009",
+        "E-010"
+      ]
+    },
+    {
+      "kpi_id": "data_quality.uptime",
+      "family": "data_quality",
+      "name": "Sensor / data uptime",
+      "unit": "ratio",
+      "direction": "higher_is_better",
+      "formula": "1 - (missing_samples / expected_samples)",
+      "baseline_value": 0.9102564102564102,
+      "pilot_value": 0.9599358974358975,
+      "delta_absolute": 0.049679487179487225,
+      "delta_relative": 0.05457746478873245,
+      "direction_status": "improved",
+      "status": "partial",
+      "notes": "baseline: partial",
+      "baseline_evidence_ids": [
+        "E-001",
+        "E-002",
+        "E-003",
+        "E-004",
+        "E-005",
+        "E-999"
+      ],
+      "pilot_evidence_ids": [
+        "E-006",
+        "E-007",
+        "E-008",
+        "E-009",
+        "E-010"
+      ]
+    },
+    {
+      "kpi_id": "ops.anomaly_response.min",
+      "family": "ops",
+      "name": "Anomaly detection-to-response time",
+      "unit": "min",
+      "direction": "lower_is_better",
+      "formula": "anomaly_response_minutes",
+      "baseline_value": 105.0,
+      "pilot_value": 32.5,
+      "delta_absolute": -72.5,
+      "delta_relative": -0.6904761904761905,
+      "direction_status": "improved",
+      "status": "partial",
+      "notes": "baseline: partial",
+      "baseline_evidence_ids": [
+        "E-001",
+        "E-002",
+        "E-003",
+        "E-004",
+        "E-005",
+        "E-999"
+      ],
+      "pilot_evidence_ids": [
+        "E-006",
+        "E-007",
+        "E-008",
+        "E-009",
+        "E-010"
+      ]
+    },
+    {
+      "kpi_id": "ai.acceptance_rate",
+      "family": "ai_validation",
+      "name": "AI recommendation acceptance rate",
+      "unit": "ratio",
+      "direction": "higher_is_better",
+      "formula": "accepted_recommendations / issued_recommendations",
+      "baseline_value": null,
+      "pilot_value": 0.7129032258064516,
+      "delta_absolute": null,
+      "delta_relative": null,
+      "direction_status": "indeterminate",
+      "status": "partial",
+      "notes": "baseline: missing_input",
+      "baseline_evidence_ids": [
+        "E-001",
+        "E-002",
+        "E-003",
+        "E-004",
+        "E-005",
+        "E-999"
+      ],
+      "pilot_evidence_ids": [
+        "E-006",
+        "E-007",
+        "E-008",
+        "E-009",
+        "E-010"
+      ]
+    },
+    {
+      "kpi_id": "ai.precision_proxy",
+      "family": "ai_validation",
+      "name": "AI recommendation outcome match",
+      "unit": "ratio",
+      "direction": "higher_is_better",
+      "formula": "matching_outcomes / evaluated_recommendations",
+      "baseline_value": null,
+      "pilot_value": 0.6882352941176471,
+      "delta_absolute": null,
+      "delta_relative": null,
+      "direction_status": "indeterminate",
+      "status": "partial",
+      "notes": "baseline: missing_input",
+      "baseline_evidence_ids": [
+        "E-001",
+        "E-002",
+        "E-003",
+        "E-004",
+        "E-005",
+        "E-999"
+      ],
+      "pilot_evidence_ids": [
+        "E-006",
+        "E-007",
+        "E-008",
+        "E-009",
+        "E-010"
+      ]
+    }
+  ],
+  "disclaimers": [
+    "This report is generated from synthetic sample data shipped with the framework. Real pilots must replace the sample data with site-specific measurements before drawing conclusions.",
+    "The framework does not assert any relationship with, or endorsement by, the European Commission, EU LIFE programme, or any other public funder.",
+    "Improvement direction is derived mechanically from the KPI policy (lower_is_better / higher_is_better) and the input data only. No external benchmark, claim, or marketing percentage is implied."
+  ]
+}
