@@ -51,6 +51,24 @@ If evidence is unavailable, the status must remain no stronger than the stronges
 | Repository / Issue | Contributor | Historical / proposed reward | Work state visible on GitHub | Reward-record status | External settlement status | Evidence / notes |
 |---|---|---:|---|---|---|---|
 | `MyZubsterGateway#257` — Wallet reale per Tari (MYZ) | `laurentketterle-hub` | 150 MYZ | Issue closed as completed | **NOT ESTABLISHED BY ISSUE** | **NOT VERIFIED** | Historical issue wording said payment after merge; issue was corrected on 2026-08-22 to clarify that closure/merge is not payment proof. |
+| [`MyZubsterGateway#789`](https://github.com/MyZubster-Ecosystem/MyZubsterGateway/issues/789) — Repeater Payment Model | `laurentketterle-hub` | **DISPUTED:** 2,500 MYZ in the issue; 250 MYZ in a later payment statement | [PR #791](https://github.com/MyZubster-Ecosystem/MyZubsterGateway/pull/791) merged on 2026-08-08, commit `7b9c4ef303918bce77d325df78cff983bea1b577` | **NOT ESTABLISHED** | **DISPUTED / NOT VERIFIED** | A historical `PAGATO` statement has no transaction hash or working explorer evidence; recipient reported no balance. [Correction and evidence](https://github.com/MyZubster-Ecosystem/MyZubsterGateway/issues/789#issuecomment-5352254553). |
+| [`MyZubsterGateway#282`](https://github.com/MyZubster-Ecosystem/MyZubsterGateway/issues/282) — Job queue con Bull | `shiyaam-s07` | 150 MYZ | [PR #318](https://github.com/MyZubster-Ecosystem/MyZubsterGateway/pull/318) is closed and **not merged**; acceptance/integration is unresolved | **NOT ESTABLISHED** | **DISPUTED / NOT VERIFIED** | Historical `PAGATO` and merge statements were corrected. No valid transaction hash, working network/token contract or verified spendable balance was supplied. [Correction and evidence](https://github.com/MyZubster-Ecosystem/MyZubsterGateway/issues/282#issuecomment-5350458334). |
+
+Reviewed on 2026-09-01 against current GitHub issue/PR state. These rows record the strongest status supported by public evidence; they do not erase contributor claims or substitute for technical review.
+
+## Paused external-unfunded listings
+
+On 2026-09-01, seven open MyZubster-Robot listings advertising a combined **0.17 XMR** were marked `PAUSED · EXTERNAL_UNFUNDED · NO NEW CLAIMS` because no publicly auditable ecosystem-treasury reservation was identified:
+
+- [#42](https://github.com/MyZubster-Ecosystem/MyZubster-Robot/issues/42) — 0.01 XMR
+- [#43](https://github.com/MyZubster-Ecosystem/MyZubster-Robot/issues/43) — 0.03 XMR
+- [#44](https://github.com/MyZubster-Ecosystem/MyZubster-Robot/issues/44) — 0.02 XMR
+- [#45](https://github.com/MyZubster-Ecosystem/MyZubster-Robot/issues/45) — 0.01 XMR
+- [#46](https://github.com/MyZubster-Ecosystem/MyZubster-Robot/issues/46) — 0.02 XMR
+- [#47](https://github.com/MyZubster-Ecosystem/MyZubster-Robot/issues/47) — 0.05 XMR
+- [#48](https://github.com/MyZubster-Ecosystem/MyZubster-Robot/issues/48) — 0.03 XMR
+
+The issues remain open to preserve history and attribution. Reactivation requires a specific, auditable ecosystem funding reservation under `BOUNTIES.md` and `TREASURY.md`.
 
 ## Legacy wording audit
 
