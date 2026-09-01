@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const { createMongoConnector } = require('./src/services/mongoConnection');
 require('dotenv').config();
 
 const app = express();
@@ -81,25 +82,11 @@ app.use(express.static('public'));
 app.use('/data', express.static('data'));
 
 const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URI;
-let mongoConnectionPromise = null;
+const connectMongoRuntime = createMongoConnector({ mongoose, mongoUri });
 
 function connectMongo() {
   if (process.env.NODE_ENV === 'test') return Promise.resolve();
-  if (mongoose.connection.readyState === 1) return Promise.resolve();
-  if (mongoConnectionPromise) return mongoConnectionPromise;
-  if (!mongoUri) {
-    const error = new Error('MongoDB non configurato: impostare MONGODB_URI (o MONGO_URI)');
-    console.error(`❌ ${error.message}`);
-    return Promise.reject(error);
-  }
-  mongoConnectionPromise = mongoose.connect(mongoUri, { serverSelectionTimeoutMS: 10000 })
-    .then(() => console.log('✅ Connected to MongoDB'))
-    .catch((err) => {
-      mongoConnectionPromise = null;
-      console.error('❌ MongoDB connection error:', err);
-      throw err;
-    });
-  return mongoConnectionPromise;
+  return connectMongoRuntime();
 }
 
 if (process.env.NODE_ENV !== 'test') connectMongo().catch(() => {});
