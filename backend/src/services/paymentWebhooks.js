@@ -7,10 +7,69 @@ const EVENT_TYPES = Object.freeze({
   BOUNTY_COMPLETED: 'bounty.completed',
 });
 
+const DEFAULT_REPLAY_WINDOW_MS = 5 * 60 * 1000;
+
 function parseEndpoints(value) {
   if (Array.isArray(value)) return value.filter(Boolean);
   if (!value) return [];
   return String(value).split(',').map((item) => item.trim()).filter(Boolean);
+}
+
+function isTransientDeliveryError(error) {
+  if (!error || !error.response) return true;
+  const status = Number(error.response.status);
+  return status === 408 || status === 429 || status >= 500;
+}
+
+function signaturesMatch(payload, signature, secret) {
+  if (!signature || !secret) return false;
+  const expected = `sha256=${crypto.createHmac('sha256', secret).update(payload).digest('hex')}`;
+  const expectedBuffer = Buffer.from(expected, 'utf8');
+  const providedBuffer = Buffer.from(String(signature), 'utf8');
+  return expectedBuffer.length === providedBuffer.length &&
+    crypto.timingSafeEqual(expectedBuffer, providedBuffer);
+}
+
+class PaymentWebhookVerifier {
+  constructor(options = {}) {
+    this.secret = options.secret;
+    this.replayStore = options.replayStore;
+    this.maxAgeMs = options.maxAgeMs || DEFAULT_REPLAY_WINDOW_MS;
+    this.now = options.now || (() => Date.now());
+    if (!this.secret) throw new Error('A webhook signing secret is required');
+    if (!this.replayStore || typeof this.replayStore.claim !== 'function') {
+      throw new Error('A replay store with an atomic claim(deliveryId, expiresAt) method is required');
+    }
+  }
+
+  async verify({ rawBody, signature, deliveryId }) {
+    const payload = Buffer.isBuffer(rawBody) ? rawBody : Buffer.from(String(rawBody), 'utf8');
+    if (!signaturesMatch(payload, signature, this.secret)) {
+      throw new Error('Invalid webhook signature');
+    }
+
+    let event;
+    try {
+      event = JSON.parse(payload.toString('utf8'));
+    } catch (_) {
+      throw new Error('Invalid webhook payload');
+    }
+    if (!event.id || event.id !== deliveryId) {
+      throw new Error('Webhook delivery ID does not match the signed event');
+    }
+
+    const createdAt = Date.parse(event.createdAt);
+    const now = Number(this.now());
+    if (!Number.isFinite(createdAt) || !Number.isFinite(now) || Math.abs(now - createdAt) > this.maxAgeMs) {
+      throw new Error('Webhook event is outside the accepted timestamp window');
+    }
+
+    const expiresAt = new Date(createdAt + this.maxAgeMs).toISOString();
+    if (!await this.replayStore.claim(event.id, expiresAt)) {
+      throw new Error('Webhook delivery has already been processed');
+    }
+    return event;
+  }
 }
 
 class PaymentWebhookDispatcher {
@@ -56,12 +115,15 @@ class PaymentWebhookDispatcher {
     if (signature) headers['x-myzubster-signature-256'] = signature;
 
     let lastError;
+    let attempts = 0;
     for (let attempt = 1; attempt <= this.maxAttempts; attempt += 1) {
+      attempts = attempt;
       try {
         await this.request(endpoint, event, { headers, timeout: this.timeoutMs });
         return { endpoint, delivered: true, attempts: attempt };
       } catch (error) {
         lastError = error;
+        if (!isTransientDeliveryError(error)) break;
         if (attempt < this.maxAttempts) await this.sleep(100 * (2 ** (attempt - 1)));
       }
     }
@@ -69,7 +131,7 @@ class PaymentWebhookDispatcher {
     return {
       endpoint,
       delivered: false,
-      attempts: this.maxAttempts,
+      attempts,
       error: lastError && lastError.message ? lastError.message : 'Webhook delivery failed',
     };
   }
@@ -94,7 +156,11 @@ class PaymentWebhookDispatcher {
 }
 
 module.exports = {
+  DEFAULT_REPLAY_WINDOW_MS,
   EVENT_TYPES,
+  PaymentWebhookVerifier,
   PaymentWebhookDispatcher,
+  isTransientDeliveryError,
+  signaturesMatch,
   paymentWebhooks: new PaymentWebhookDispatcher(),
 };

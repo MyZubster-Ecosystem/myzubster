@@ -123,6 +123,24 @@ describe('Bounty payment integration', () => {
     }));
   });
 
+  it('keeps a committed confirmation successful when webhook dispatch rejects', async () => {
+    const { paymentWebhooks } = require('../src/services/paymentWebhooks');
+    paymentWebhooks.paymentConfirmed.mockRejectedValueOnce(new Error('dispatcher unavailable'));
+    const created = await admin(request(app).post('/api/bounty-payments')).send({
+      issueId: '395', contributor: 'Aming9303', amount: 0.01, currency: 'XMR', kind: 'real',
+      address: '48xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+    });
+    const id = created.body.data._id;
+    await admin(request(app).post('/api/bounty-payments/' + id + '/submit')).send({ txid: 'pending-tx' });
+
+    const confirmed = await admin(request(app).post('/api/bounty-payments/' + id + '/confirm'))
+      .send({ txid: 'c'.repeat(64) });
+
+    expect(confirmed.status).toBe(200);
+    expect(confirmed.body.data.state).toBe('CONFIRMED');
+    expect(confirmed.body.data.metadata.webhookDelivery.status).toBe('DISPATCH_FAILED');
+  });
+
   it('keeps a failed independent verification from reaching CONFIRMED', async () => {
     const verifier = require('../src/services/xmrVerifier');
     verifier.verifyXmrPayment.mockResolvedValueOnce({ verified: false, reason: 'recipient mismatch' });
