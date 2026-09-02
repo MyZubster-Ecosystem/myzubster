@@ -1,6 +1,6 @@
-# MyZubster Circular Care — Venture Charter v0.1
+# MyZubster Circular Care — Venture Charter v0.2
 
-Status: **VENTURE_DESIGN / PRE-INCORPORATION**  
+Status: **SUPPLY_VALIDATION / PRE-INCORPORATION**  
 Venture ID: `MZ-VENTURE-AHP-001`  
 Parent ecosystem: **MyZubster / Zorgax**  
 Working name: **MyZubster Circular Care**  
@@ -28,6 +28,8 @@ The default launch strategy is **asset-light first** rather than immediately bui
 - define product specifications, packaging, traceability identifiers and supplier evidence requirements;
 - keep manufacturing claims limited to evidence actually supplied by the producer;
 - complete legal, safety, labeling and market-access review before any commercial launch.
+
+Current execution status: public-capability validation has identified plausible private-label routes for baby, feminine and adult care and an Italian AHP treatment route. Commercial terms and relationships remain unconfirmed. See `myzubster-circular-care-supply-validation.md`.
 
 ### Phase B — Collection pilot
 
