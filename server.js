@@ -12,6 +12,7 @@ app.use(cors());
 app.use('/api/github-bounties/webhook', express.json({
   verify: (req, res, buf) => { req.rawBody = Buffer.from(buf); }
 }));
+app.use('/api/marketplace/seller/webhook', express.raw({ type:'application/json', limit:'256kb' }));
 app.use(express.json());
 
 const publicRoot = path.resolve(__dirname, 'public');
@@ -218,10 +219,3 @@ app.get('/research-search', (req, res) => res.sendFile(path.join(__dirname, 'pub
 app.get(['/fumetto', '/comic'], (req, res) => res.sendFile(path.join(__dirname, 'public', 'fumetto.html')));
 
 module.exports = app;
-
-const PORT = process.env.PORT || 5003;
-if (require.main === module && process.env.NODE_ENV !== 'test') {
-  app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
-}
-
-
