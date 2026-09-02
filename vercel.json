@@ -19,6 +19,10 @@
     { "path": "/api/robots/evidence/arpae/capture/cron", "schedule": "20 8 * * *" }
   ],
   "routes": [
+    { "src": "/(.*)", "has": [{ "type": "host", "value": "myzubster.com" }], "status": 308, "headers": { "Location": "https://www.myzubster.com/$1" } },
+    { "src": "/(.*)", "has": [{ "type": "host", "value": "my-zubster-app.vercel.app" }], "status": 308, "headers": { "Location": "https://www.myzubster.com/$1" } },
+    { "src": "/(.*)", "has": [{ "type": "host", "value": "my-zubster-app-myzubster.vercel.app" }], "status": 308, "headers": { "Location": "https://www.myzubster.com/$1" } },
+    { "src": "/social-login\\.html/?", "status": 308, "headers": { "Location": "/social-login" } },
     { "src": "/press\\.html/?", "status": 308, "headers": { "Location": "/press" } },
     { "src": "/media/?", "status": 308, "headers": { "Location": "/press" } },
     { "src": "/media-kit/?", "status": 308, "headers": { "Location": "/press" } },
