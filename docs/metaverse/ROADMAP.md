@@ -1,6 +1,6 @@
 # MyZubster Metaverse Roadmap
 
-## Phase 0 — Neon Plaza prototype
+## Phase 0 — Neon Plaza prototype ✅
 
 - 2D/2.5D shared plaza
 - guest avatar creator
@@ -9,6 +9,18 @@
 - chat
 - emotes
 - proximity awareness
+- ecosystem portals
+- session dashboard
+- experience badges
+- browser capability diagnostics
+
+## Phase 0.5 — Ecosystem connection ✅
+
+- direct Marketplace and Metaverse routes
+- portals to Marketplace, LIFE projects, identity and Zorgax
+- session progress dashboard
+- published initial system requirements
+- distinction between experience badges and verified contribution claims
 
 ## Phase 1 — MYZ identity integration
 
