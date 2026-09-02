@@ -4,6 +4,7 @@
   "effectiveAt": "2026-09-02",
   "reason": "Multiple plausible AHP manufacturing routes and one Italian circular-treatment route are now supported by public capability evidence and documented for validation. No supplier, recycler or pilot partnership is confirmed; MOQ, pricing, lead times, capacity allocation and contract terms remain pending direct evidence.",
   "evidenceRef": "docs/life/ventures/myzubster-circular-care-supply-validation.md",
+  "rfqTemplateRef": "docs/life/ventures/myzubster-circular-care-rfq-template.md",
   "blockingGates": [
     "supplier-quotation-with-moq-cost-lead-time",
     "first-product-family-and-specification-selection",
