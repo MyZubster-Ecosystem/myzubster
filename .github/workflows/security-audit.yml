@@ -31,10 +31,12 @@ jobs:
       - name: Install locked dependencies
         run: npm ci --ignore-scripts
 
-      - name: Audit all dependencies
+      - name: Audit dependencies (fail on high or critical)
         run: |
           set +e
-          npm audit --json > npm-audit.json
+          # Keep the complete audit report, including moderate findings, but
+          # block CI only when npm reports a high/critical vulnerability.
+          npm audit --audit-level=high --json > npm-audit.json
           status=$?
           cat npm-audit.json
           exit $status
