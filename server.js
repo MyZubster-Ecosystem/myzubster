@@ -130,12 +130,26 @@ app.post('/api/auth/register', async (_req, res, next) => {
   catch (_error) { res.status(503).json({ success: false, message: 'Database temporaneamente non disponibile' }); }
 });
 
-app.use('/api/metaverse', async (_req, res, next) => {
+app.use('/api/metaverse', async (req, res, next) => {
   if (process.env.NODE_ENV === 'test') return next();
+  const storageGateStartedAt = process.hrtime.bigint();
   try {
     await connectMongo();
     return next();
   } catch (_error) {
+    // The health route must remain reachable while MongoDB is unavailable so
+    // monitors receive an explicit degraded response instead of a generic gate.
+    if (req.path === '/health') return next();
+    const storageGateDurationMs = Number(process.hrtime.bigint() - storageGateStartedAt) / 1e6;
+    console.warn(JSON.stringify({
+      event: 'metaverse_request',
+      method: req.method,
+      path: req.path,
+      statusCode: 503,
+      durationMs: Math.round(storageGateDurationMs),
+      slow: storageGateDurationMs >= 1500,
+      failure: 'storage_gate'
+    }));
     return res.status(503).json({ success: false, error: 'Metaverse storage is temporarily unavailable' });
   }
 });

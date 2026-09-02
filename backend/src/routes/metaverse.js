@@ -24,6 +24,8 @@ const INITIAL_KNOWN_CHARACTER_COUNT = 1;
 const PRESENCE_TTL_MS = 90 * 1000;
 const CHAT_TTL_MS = 60 * 60 * 1000;
 const SYNC_MESSAGE_LIMIT = 40;
+const RECENT_CHAT_WINDOW_MS = 5 * 60 * 1000;
+const SLOW_REQUEST_THRESHOLD_MS = 1500;
 // Must remain comfortably longer than the browser polling interval so every
 // active client has more than one opportunity to observe the emote.
 const EMOTE_VISIBLE_MS = 5 * 1000;
@@ -383,6 +385,114 @@ async function messagesSince(cursorValue, observedAt) {
   if (!cursor) messages.reverse();
   return messages.map(publicMessage);
 }
+
+function requestDurationMs(startedAt) {
+  return Number(process.hrtime.bigint() - startedAt) / 1e6;
+}
+
+function logRequestOutcome(req, res, startedAt) {
+  const durationMs = requestDurationMs(startedAt);
+  const slow = durationMs >= SLOW_REQUEST_THRESHOLD_MS;
+  if (res.statusCode < 500 && !slow) return;
+
+  // Intentionally exclude request bodies, query strings, chat content,
+  // authorization headers, tokens and session identifiers from production logs.
+  console.warn(JSON.stringify({
+    event: 'metaverse_request',
+    method: req.method,
+    path: req.path,
+    statusCode: res.statusCode,
+    durationMs: Math.round(durationMs),
+    slow
+  }));
+}
+
+async function healthSnapshot() {
+  const checkedAt = new Date();
+  if (!databaseAvailable() || !mongoose.connection.db) {
+    return {
+      success: false,
+      status: 'degraded',
+      worldId: WORLD.id,
+      transport: 'unavailable',
+      mongodb: 'disconnected',
+      checkedAt: checkedAt.toISOString()
+    };
+  }
+
+  const pingStartedAt = process.hrtime.bigint();
+  await mongoose.connection.db.admin().ping();
+  const mongodbPingMs = Math.round(requestDurationMs(pingStartedAt));
+  const recentChatSince = new Date(checkedAt.getTime() - RECENT_CHAT_WINDOW_MS);
+
+  const [activePlayers, recentChatMessages, latestPresence] = await Promise.all([
+    MetaversePresence.countDocuments({
+      worldId: WORLD.id,
+      expiresAt: { $gt: checkedAt }
+    }),
+    MetaverseChatMessage.countDocuments({
+      worldId: WORLD.id,
+      createdAt: { $gte: recentChatSince, $lte: checkedAt }
+    }),
+    MetaversePresence.findOne({ worldId: WORLD.id })
+      .sort({ lastSeenAt: -1 })
+      .select('lastSeenAt -_id')
+      .lean()
+  ]);
+
+  const latestHeartbeatAt = latestPresence?.lastSeenAt
+    ? new Date(latestPresence.lastSeenAt)
+    : null;
+  const latestHeartbeatAgeMs = latestHeartbeatAt && !Number.isNaN(latestHeartbeatAt.getTime())
+    ? Math.max(0, checkedAt.getTime() - latestHeartbeatAt.getTime())
+    : null;
+
+  return {
+    success: true,
+    status: 'healthy',
+    worldId: WORLD.id,
+    transport: 'shared-polling',
+    mongodb: 'connected',
+    mongodbPingMs,
+    activePlayers,
+    recentChatMessages,
+    latestHeartbeatAgeMs,
+    retention: {
+      presenceSeconds: PRESENCE_TTL_MS / 1000,
+      chatSeconds: CHAT_TTL_MS / 1000
+    },
+    checkedAt: checkedAt.toISOString()
+  };
+}
+
+router.use((req, res, next) => {
+  const startedAt = process.hrtime.bigint();
+  res.setHeader('Cache-Control', 'no-store');
+  res.setHeader('X-Metaverse-Transport', databaseAvailable() ? 'shared-polling' : 'unavailable');
+  res.once('finish', () => logRequestOutcome(req, res, startedAt));
+  next();
+});
+
+router.get('/health', async (_req, res) => {
+  try {
+    const snapshot = await healthSnapshot();
+    return res.status(snapshot.success ? 200 : 503).json(snapshot);
+  } catch (error) {
+    console.error(JSON.stringify({
+      event: 'metaverse_health_error',
+      errorName: String(error?.name || 'Error').slice(0, 60),
+      errorCode: String(error?.code || 'UNKNOWN').slice(0, 60)
+    }));
+    return res.status(503).json({
+      success: false,
+      status: 'degraded',
+      worldId: WORLD.id,
+      transport: databaseAvailable() ? 'shared-polling' : 'unavailable',
+      mongodb: databaseAvailable() ? 'error' : 'disconnected',
+      checkedAt: new Date().toISOString()
+    });
+  }
+});
 
 router.get('/world', async (_req, res) => {
   try {

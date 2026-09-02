@@ -4,14 +4,26 @@ const mockCreate = jest.fn();
 const mockPresenceFindOneAndUpdate = jest.fn();
 const mockPresenceDeleteOne = jest.fn();
 const mockPresenceLean = jest.fn();
+const mockPresenceCountDocuments = jest.fn();
+const mockPresenceHealthLean = jest.fn();
+const mockChatCountDocuments = jest.fn();
+const mockMongoPing = jest.fn();
 const mockPresenceFind = jest.fn(() => ({
   sort() { return this; },
   limit() { return this; },
   lean: mockPresenceLean
 }));
+const mockPresenceFindOne = jest.fn(() => ({
+  sort() { return this; },
+  select() { return this; },
+  lean: mockPresenceHealthLean
+}));
 
 jest.mock('mongoose', () => ({
-  connection: { readyState: 1 }
+  connection: {
+    readyState: 1,
+    db: { admin: () => ({ ping: mockMongoPing }) }
+  }
 }));
 
 jest.mock('../models/MetaverseCharacter', () => ({
@@ -22,13 +34,16 @@ jest.mock('../models/MetaverseCharacter', () => ({
 
 jest.mock('../models/MetaversePresence', () => ({
   find: mockPresenceFind,
+  findOne: mockPresenceFindOne,
   findOneAndUpdate: mockPresenceFindOneAndUpdate,
-  deleteOne: mockPresenceDeleteOne
+  deleteOne: mockPresenceDeleteOne,
+  countDocuments: mockPresenceCountDocuments
 }));
 
 jest.mock('../models/MetaverseChatMessage', () => ({
   create: jest.fn(),
-  find: jest.fn()
+  find: jest.fn(),
+  countDocuments: mockChatCountDocuments
 }));
 
 const express = require('express');
@@ -58,6 +73,33 @@ describe('authenticated MyZubster metaverse identity', () => {
     mockPresenceLean.mockResolvedValue([]);
     mockPresenceFindOneAndUpdate.mockResolvedValue({});
     mockPresenceDeleteOne.mockResolvedValue({ deletedCount: 1 });
+    mockMongoPing.mockResolvedValue({ ok: 1 });
+    mockPresenceCountDocuments.mockResolvedValue(2);
+    mockChatCountDocuments.mockResolvedValue(4);
+    mockPresenceHealthLean.mockResolvedValue({ lastSeenAt: new Date(Date.now() - 5000) });
+  });
+
+  test('reports aggregate shared-world health without exposing player data', async () => {
+    const response = await request(app)
+      .get('/api/metaverse/health')
+      .expect(200);
+
+    expect(response.headers['cache-control']).toBe('no-store');
+    expect(response.headers['x-metaverse-transport']).toBe('shared-polling');
+    expect(response.body).toMatchObject({
+      success: true,
+      status: 'healthy',
+      worldId: 'neon-plaza',
+      transport: 'shared-polling',
+      mongodb: 'connected',
+      activePlayers: 2,
+      recentChatMessages: 4,
+      retention: { presenceSeconds: 90, chatSeconds: 3600 }
+    });
+    expect(response.body.mongodbPingMs).toEqual(expect.any(Number));
+    expect(response.body.latestHeartbeatAgeMs).toEqual(expect.any(Number));
+    expect(response.body).not.toHaveProperty('players');
+    expect(response.body).not.toHaveProperty('messages');
   });
 
   test('reuses the account-linked character and ignores guest identity claims', async () => {

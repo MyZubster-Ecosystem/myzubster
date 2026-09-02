@@ -4,6 +4,23 @@ const app = require('../index');
 describe('MyZubster metaverse API', () => {
   let sessionId;
 
+  test('reports an explicit degraded health status without MongoDB', async () => {
+    const warning = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    const response = await request(app)
+      .get('/api/metaverse/health')
+      .expect(503);
+
+    expect(response.headers['cache-control']).toBe('no-store');
+    expect(response.body).toMatchObject({
+      success: false,
+      status: 'degraded',
+      worldId: 'neon-plaza',
+      transport: 'unavailable',
+      mongodb: 'disconnected'
+    });
+    warning.mockRestore();
+  });
+
   test('joins Neon Plaza as a guest identity', async () => {
     const response = await request(app)
       .post('/api/metaverse/join')
@@ -44,6 +61,8 @@ describe('MyZubster metaverse API', () => {
     expect(response.body.players.some((player) => player.id === sessionId)).toBe(true);
     expect(response.body.totalCharacters).toBeGreaterThanOrEqual(1);
     expect(response.body.featuredCharacters).toEqual([]);
+    expect(response.headers['cache-control']).toBe('no-store');
+    expect(response.headers['x-metaverse-transport']).toBe('unavailable');
   });
 
   test('shares presence and recent chat through the sync endpoint', async () => {
