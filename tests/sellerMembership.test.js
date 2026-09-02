@@ -24,9 +24,9 @@ beforeAll(async () => {
   await mongoose.connect(mongo.getUri());
   seller = await User.create({ username:'paid-seller', email:'seller-paid@example.test', password:'test-password' });
   moderator = await User.create({ username:'seller-mod', email:'seller-mod@example.test', password:'test-password', role:'moderator' });
-});
+}, 30000);
 
-afterAll(async () => { await mongoose.disconnect(); await mongo.stop(); });
+afterAll(async () => { await mongoose.disconnect(); await mongo.stop(); }, 30000);
 
 test('publishing requires active seller membership, then works after verified activation', async () => {
   const sellerToken = tokenFor(seller);
