@@ -1,20 +1,24 @@
-# MyZubster Metaverse — Neon Plaza v0.1
+# MyZubster Metaverse — Neon Plaza v0.2
 
 Neon Plaza is the first multiplayer social-space prototype for the MyZubster ecosystem.
 
 It is designed around a simple idea: every participant can create a public narrative character, enter a shared world and interact with other characters while keeping identity claims separate from unverified profile data.
 
-## What v0.1 includes
+## What v0.2 includes
 
 - public avatar/character creator;
 - five narrative archetypes: Guardian, Explorer, Maker, Chronicler and Scientist;
 - shared 2D/2.5D world called **Neon Plaza**;
 - keyboard and touch movement;
-- real-time presence through HTTP + Server-Sent Events;
+- shared presence through MongoDB-backed HTTP synchronization, with legacy Server-Sent Events compatibility;
 - public plaza chat;
 - proximity awareness (nearby characters);
 - emotes;
-- landmarks for future MyZubster spaces:
+- navigable portals connecting the world to Marketplace, LIFE projects, verified identity and Zorgax;
+- session dashboard with online, nearby, chat and exploration progress;
+- non-financial experience badges, explicitly separated from verified contribution claims;
+- in-browser capability diagnostics and published minimum requirements;
+- landmarks for MyZubster spaces:
   - Identity Hall;
   - Visual Gallery;
   - Zorgax Observatory;
@@ -101,3 +105,44 @@ Then open MyZubster and choose **🪐 Metaverse**.
 The first goal is to validate the social protocol — identity, presence, movement, proximity and interaction — before introducing a heavy 3D rendering layer.
 
 A later version can reuse the same concepts in Three.js/WebGL/VR without changing the core identity model.
+
+
+## Direct routes
+
+- `/metaverse` — Neon Plaza;
+- `/marketplace` — Marketplace;
+- `/life-pilot` — LIFE pilot projects;
+- `/social-login` — account-linked identity;
+- `/zorgax` — Zorgax experience.
+
+## System requirements
+
+The current 2D/2.5D experience is designed to remain lightweight.
+
+Minimum recommended baseline:
+
+- a current Chrome, Firefox, Edge or Safari release;
+- JavaScript, Fetch API, local storage and CSS Grid;
+- 2 GB RAM;
+- viewport width of at least 320 px;
+- stable 2 Mbps connection.
+
+Recommended:
+
+- 4 GB RAM;
+- stable 5 Mbps connection;
+- current desktop or mobile browser.
+
+A dedicated GPU, VR headset, wallet and browser extension are not required. The
+client runs a capability check and reports unavailable browser features. These
+values are an initial compatibility baseline and must be refined with device and
+network testing before a broad public release.
+
+## Status boundary
+
+Operational today: shared presence, movement, public chat, emotes, proximity,
+persistent/account-linked characters, portals, session statistics and browser
+diagnostics.
+
+Still planned: private rooms, moderation controls, durable contribution badges,
+3D rendering, WebXR, spatial audio, live IoT digital twins and portable identity.
