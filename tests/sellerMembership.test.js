@@ -77,7 +77,7 @@ test('publishing requires active seller membership, then works after verified ac
     .expect(201);
 });
 
-test('Stripe checkout fails closed until secret key and price are configured', async () => {
+test('Stripe checkout fails closed until Stripe credentials are configured', async () => {
   const sellerToken = tokenFor(seller);
   const response = await request(app)
     .post('/api/marketplace/seller/checkout')
