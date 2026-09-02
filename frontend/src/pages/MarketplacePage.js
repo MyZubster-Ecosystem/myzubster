@@ -59,8 +59,8 @@ function MarketplacePage() {
     try {
       setMessage('Apertura Stripe Checkout...');
       const payload = await apiAction('/api/marketplace/seller/checkout', {});
-      if (!payload.url) throw new Error('Stripe Checkout non disponibile.');
-      window.location.assign(payload.url);
+      if (!payload.checkoutUrl) throw new Error('Stripe Checkout non disponibile.');
+      window.location.assign(payload.checkoutUrl);
     } catch (e) { setMessage(e.message); }
   }
 
