@@ -1,0 +1,58 @@
+{
+  "ventureId": "MZ-VENTURE-AHP-001",
+  "workingName": "MyZubster Circular Care",
+  "parentEcosystem": "MyZubster/Zorgax",
+  "status": "VENTURE_DESIGN",
+  "legalEntityStatus": "NOT_CONFIRMED",
+  "track": "AHP",
+  "scope": [
+    "baby-diapers",
+    "menstrual-absorbent-products",
+    "adult-incontinence-products"
+  ],
+  "launchModel": "ASSET_LIGHT_FIRST",
+  "operatingModel": {
+    "brand": "MYZUBSTER_CONTROLLED_WORKING_BRAND",
+    "manufacturing": "QUALIFIED_THIRD_PARTY_FIRST",
+    "collection": "PARTNER_OR_SITE_PILOT_REQUIRED",
+    "treatment": "QUALIFIED_EXTERNAL_PARTNER_FIRST",
+    "digitalEvidence": "MYZUBSTER",
+    "automationAndReporting": "ZORGAX"
+  },
+  "candidateRevenueLines": [
+    "product-margin",
+    "b2b-supply-subscription",
+    "collection-service-contracts",
+    "traceability-and-circularity-reporting",
+    "premium-zorgax-operational-services"
+  ],
+  "stateMachine": [
+    "VENTURE_DESIGN",
+    "SUPPLY_VALIDATION",
+    "PILOT_SCOPE_IN_DEFINITION",
+    "PILOT_CONFIRMED",
+    "COMMERCIAL_PILOT",
+    "OPERATING_BUSINESS",
+    "LEGAL_ENTITY_CONFIRMED"
+  ],
+  "nextEvidenceGates": [
+    "jurisdiction-and-legal-structure-review",
+    "brand-name-clearance",
+    "supplier-or-manufacturing-route-validation",
+    "unit-economics-inputs",
+    "confirmed-collection-treatment-pilot",
+    "authorized-data-boundary",
+    "baseline-and-kpi-definition",
+    "product-legal-safety-labeling-review",
+    "verified-commercial-evidence"
+  ],
+  "claimBoundaries": {
+    "incorporatedCompany": false,
+    "registeredTrademark": false,
+    "confirmedManufacturer": false,
+    "confirmedRecycler": false,
+    "confirmedPilot": false,
+    "euLifeFundingOrEndorsement": false,
+    "verifiedEnvironmentalOutcome": false
+  }
+}
