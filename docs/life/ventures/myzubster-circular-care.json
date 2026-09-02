@@ -2,7 +2,7 @@
   "ventureId": "MZ-VENTURE-AHP-001",
   "workingName": "MyZubster Circular Care",
   "parentEcosystem": "MyZubster/Zorgax",
-  "status": "VENTURE_DESIGN",
+  "status": "SUPPLY_VALIDATION",
   "legalEntityStatus": "NOT_CONFIRMED",
   "track": "AHP",
   "scope": [
@@ -18,6 +18,43 @@
     "treatment": "QUALIFIED_EXTERNAL_PARTNER_FIRST",
     "digitalEvidence": "MYZUBSTER",
     "automationAndReporting": "ZORGAX"
+  },
+  "supplyValidation": {
+    "evidenceRef": "docs/life/ventures/myzubster-circular-care-supply-validation.md",
+    "rfqTemplateRef": "docs/life/ventures/myzubster-circular-care-rfq-template.md",
+    "candidateManufacturingRoutes": [
+      {
+        "name": "Fippi S.p.A.",
+        "scope": ["baby-diapers"],
+        "evidenceState": "PUBLIC_CAPABILITY_EVIDENCED",
+        "relationshipState": "PARTNERSHIP_NOT_CONFIRMED",
+        "commercialTermsState": "PENDING"
+      },
+      {
+        "name": "Drylock Technologies",
+        "scope": ["baby-diapers", "menstrual-absorbent-products", "adult-incontinence-products"],
+        "evidenceState": "PUBLIC_CAPABILITY_EVIDENCED",
+        "relationshipState": "PARTNERSHIP_NOT_CONFIRMED",
+        "commercialTermsState": "PENDING"
+      },
+      {
+        "name": "Ontex",
+        "scope": ["baby-diapers", "menstrual-absorbent-products", "adult-incontinence-products"],
+        "evidenceState": "PUBLIC_CAPABILITY_EVIDENCED",
+        "relationshipState": "PARTNERSHIP_NOT_CONFIRMED",
+        "commercialTermsState": "PENDING"
+      }
+    ],
+    "candidateTreatmentRoutes": [
+      {
+        "name": "Contarina/Fater AHP recycling route",
+        "country": "Italy",
+        "evidenceState": "PUBLIC_TECHNICAL_CAPABILITY_EVIDENCED",
+        "relationshipState": "PARTNERSHIP_NOT_CONFIRMED",
+        "commercialAvailabilityState": "PENDING"
+      }
+    ],
+    "commercialDataState": "MOQ_PRICE_LEAD_TIME_CAPACITY_PENDING_DIRECT_EVIDENCE"
   },
   "candidateRevenueLines": [
     "product-margin",
@@ -38,8 +75,8 @@
   "nextEvidenceGates": [
     "jurisdiction-and-legal-structure-review",
     "brand-name-clearance",
-    "supplier-or-manufacturing-route-validation",
-    "unit-economics-inputs",
+    "supplier-quotation-with-moq-cost-lead-time",
+    "first-product-family-and-specification-selection",
     "confirmed-collection-treatment-pilot",
     "authorized-data-boundary",
     "baseline-and-kpi-definition",
