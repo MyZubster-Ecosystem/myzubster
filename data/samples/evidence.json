@@ -1,0 +1,116 @@
+[
+  {
+    "evidence_id": "E-001",
+    "timestamp": "2024-03-31T23:59:00+00:00",
+    "source": "sensor:soil_moisture_01",
+    "method": "Aggregated volumetric water content reading, converted to litres using site calibration curve v1.",
+    "unit": "L",
+    "value": 3222.5,
+    "validation_status": "cross_validated",
+    "notes": "Aggregated across 2160 hourly samples for plot-A season 1.",
+    "references": ["B-2024-S1"]
+  },
+  {
+    "evidence_id": "E-002",
+    "timestamp": "2024-03-31T23:59:00+00:00",
+    "source": "manual:operator_journal",
+    "method": "Operator-logged irrigation events summed and cross-checked against sensor totals.",
+    "unit": "L",
+    "value": 3222.5,
+    "validation_status": "cross_validated",
+    "notes": "Used to cross-validate E-001.",
+    "references": ["B-2024-S1"]
+  },
+  {
+    "evidence_id": "E-003",
+    "timestamp": "2024-03-31T23:59:00+00:00",
+    "source": "manual:harvest_log",
+    "method": "Weighed harvest from plot-A, single batch.",
+    "unit": "kg",
+    "value": 9.95,
+    "validation_status": "checked",
+    "references": ["B-2024-S1"]
+  },
+  {
+    "evidence_id": "E-004",
+    "timestamp": "2024-06-30T23:59:00+00:00",
+    "source": "sensor:soil_moisture_01",
+    "method": "Aggregated volumetric water content reading, converted to litres using site calibration curve v1.",
+    "unit": "L",
+    "value": 3098.7,
+    "validation_status": "checked",
+    "references": ["B-2024-S2"]
+  },
+  {
+    "evidence_id": "E-005",
+    "timestamp": "2024-06-30T23:59:00+00:00",
+    "source": "manual:harvest_log",
+    "method": "Weighed harvest from plot-A, single batch.",
+    "unit": "kg",
+    "value": 9.51,
+    "validation_status": "checked",
+    "references": ["B-2024-S2"]
+  },
+  {
+    "evidence_id": "E-006",
+    "timestamp": "2025-03-31T23:59:00+00:00",
+    "source": "sensor:soil_moisture_01",
+    "method": "Aggregated volumetric water content reading, converted to litres using site calibration curve v1.",
+    "unit": "L",
+    "value": 2385.0,
+    "validation_status": "cross_validated",
+    "notes": "Pilot season 1. AI irrigation v1 throttling visible in pattern.",
+    "references": ["P-2025-S1"]
+  },
+  {
+    "evidence_id": "E-007",
+    "timestamp": "2025-03-31T23:59:00+00:00",
+    "source": "model:ai_irrigation_v1",
+    "method": "Recommendations issued by the AI model and accepted by the operator.",
+    "unit": "count",
+    "value": 84,
+    "validation_status": "checked",
+    "notes": "Out of 120 issued, 84 accepted.",
+    "references": ["P-2025-S1"]
+  },
+  {
+    "evidence_id": "E-008",
+    "timestamp": "2025-03-31T23:59:00+00:00",
+    "source": "manual:harvest_log",
+    "method": "Weighed harvest from plot-A, single batch.",
+    "unit": "kg",
+    "value": 10.05,
+    "validation_status": "checked",
+    "references": ["P-2025-S1"]
+  },
+  {
+    "evidence_id": "E-009",
+    "timestamp": "2025-06-30T23:59:00+00:00",
+    "source": "sensor:soil_moisture_01",
+    "method": "Aggregated volumetric water content reading, converted to litres using site calibration curve v1.",
+    "unit": "L",
+    "value": 2255.4,
+    "validation_status": "checked",
+    "references": ["P-2025-S2"]
+  },
+  {
+    "evidence_id": "E-010",
+    "timestamp": "2025-06-30T23:59:00+00:00",
+    "source": "manual:harvest_log",
+    "method": "Weighed harvest from plot-A, single batch.",
+    "unit": "kg",
+    "value": 10.20,
+    "validation_status": "checked",
+    "references": ["P-2025-S2"]
+  },
+  {
+    "evidence_id": "E-999",
+    "timestamp": "2024-01-15T12:00:00+00:00",
+    "source": "synthetic:missing_data_demo",
+    "method": "Synthetic evidence pointer used by B-incomplete record.",
+    "unit": "n/a",
+    "value": "n/a",
+    "validation_status": "raw",
+    "notes": "Exists only to demonstrate that the report still surfaces missing inputs."
+  }
+]
