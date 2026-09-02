@@ -1,7 +1,7 @@
 # MyZubster Circular Care — Launch Checklist
 
 Venture: `MZ-VENTURE-AHP-001`  
-Current state: `VENTURE_DESIGN`
+Current state: `SUPPLY_VALIDATION`
 
 Use this checklist to move the venture forward without overstating legal, commercial or environmental status.
 
@@ -14,6 +14,9 @@ Use this checklist to move the venture forward without overstating legal, commer
 
 ## Product and supply
 
+- [x] Publicly evidence at least two plausible private-label/manufacturing routes.
+- [x] Document an initial AHP treatment/recovery route without claiming a partnership.
+- [x] Prepare a standardized supplier RFQ template.
 - [ ] Select first product family for launch.
 - [ ] Obtain at least two comparable supplier/manufacturing quotations where practicable.
 - [ ] Record MOQ, lead time, unit cost, packaging and logistics assumptions with evidence refs.
@@ -26,7 +29,7 @@ Use this checklist to move the venture forward without overstating legal, commer
 - [ ] Obtain explicit written pilot confirmation.
 - [ ] Define authorized data boundary.
 - [ ] Define baseline and KPI formulas before outcome measurement.
-- [ ] Identify treatment/recovery route and evidence requirements.
+- [ ] Confirm treatment/recovery commercial availability and evidence requirements.
 - [ ] Define batch/lot traceability from collection through destination/use.
 
 ## Commercial validation
