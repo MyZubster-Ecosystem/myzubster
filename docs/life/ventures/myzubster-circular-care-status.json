@@ -1,7 +1,15 @@
 {
   "ventureId": "MZ-VENTURE-AHP-001",
-  "status": "VENTURE_DESIGN",
+  "status": "SUPPLY_VALIDATION",
   "effectiveAt": "2026-09-02",
-  "reason": "Venture charter, machine-readable venture definition, unit-economics template and launch checklist created inside MyZubster. No legal incorporation, supplier validation, pilot confirmation or commercial revenue has yet been evidenced.",
-  "nextTargetState": "SUPPLY_VALIDATION"
+  "reason": "Multiple plausible AHP manufacturing routes and one Italian circular-treatment route are now supported by public capability evidence and documented for validation. No supplier, recycler or pilot partnership is confirmed; MOQ, pricing, lead times, capacity allocation and contract terms remain pending direct evidence.",
+  "evidenceRef": "docs/life/ventures/myzubster-circular-care-supply-validation.md",
+  "blockingGates": [
+    "supplier-quotation-with-moq-cost-lead-time",
+    "first-product-family-and-specification-selection",
+    "collection-treatment-pilot-candidate-discussion-or-confirmation",
+    "initial-product-compliance-review-boundary",
+    "evidence-backed-unit-economics-scenario"
+  ],
+  "nextTargetState": "PILOT_SCOPE_IN_DEFINITION"
 }
