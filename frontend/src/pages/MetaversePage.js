@@ -31,7 +31,7 @@ const EMOTES = {
 
 const LANDMARKS = [
   { id: 'identity', label: 'Identity Hall', icon: '🪪', x: 10, y: 15, href: '/social-login' },
-  { id: 'marketplace', label: 'Marketplace', icon: '🛒', x: 34, y: 14, href: '/#marketplace' },
+  { id: 'marketplace', label: 'Marketplace', icon: '🛒', x: 34, y: 14, href: '/marketplace' },
   { id: 'projects', label: 'LIFE Projects', icon: '🌱', x: 56, y: 14, href: '/life-pilot' },
   { id: 'visual', label: 'Visual Gallery', icon: '🎨', x: 78, y: 14, href: '/fumetto' },
   { id: 'zorgax', label: 'Zorgax Observatory', icon: '👁️', x: 70, y: 62, href: '/zorgax' },
