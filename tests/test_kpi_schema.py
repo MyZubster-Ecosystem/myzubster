@@ -80,6 +80,51 @@ def test_kpi_from_dict_rejects_bad_direction():
         KPI.from_dict(raw)
 
 
+def test_kpi_from_dict_accepts_ratio_of_totals():
+    raw = {
+        "id": "x", "family": "test", "name": "x", "unit": "L/kg",
+        "formula": "a / b", "description": "x",
+        "inputs": ["a", "b"], "aggregation": "ratio-of-totals",
+    }
+    kpi = KPI.from_dict(raw)
+    assert kpi.aggregation == "ratio-of-totals"
+
+
+def test_default_kpis_use_derived_units_for_ratio_kpis():
+    ratio_kpis = {
+        "water.use.l_per_kg_yield": "L/kg",
+        "water.use.l_per_m2_per_day": "L/m²/day",
+        "energy.use.kwh_per_kg_yield": "kWh/kg",
+        "yield.kg_per_m2": "kg/m²",
+        "nutrient.n_kg_per_kg_yield": "kg/kg",
+        "labour.h_per_kg_yield": "h/kg",
+        "labour.h_per_m2": "h/m²",
+    }
+    kpi_map = {k.id: k for k in default_kpis()}
+    for kpi_id, expected_unit in ratio_kpis.items():
+        assert kpi_map[kpi_id].unit == expected_unit, (
+            f"{kpi_id} unit should be {expected_unit!r}, got {kpi_map[kpi_id].unit!r}"
+        )
+
+
+def test_default_kpis_use_ratio_of_totals_for_ratio_kpis():
+    ratio_kpis = {
+        "water.use.l_per_kg_yield",
+        "water.use.l_per_m2_per_day",
+        "energy.use.kwh_per_kg_yield",
+        "yield.kg_per_m2",
+        "nutrient.n_kg_per_kg_yield",
+        "labour.h_per_kg_yield",
+        "labour.h_per_m2",
+    }
+    kpi_map = {k.id: k for k in default_kpis()}
+    for kpi_id in ratio_kpis:
+        assert kpi_map[kpi_id].aggregation == "ratio-of-totals", (
+            f"{kpi_id} aggregation should be ratio-of-totals, "
+            f"got {kpi_map[kpi_id].aggregation!r}"
+        )
+
+
 def test_load_kpis_from_json(tmp_path: Path):
     catalog = default_kpis()
     target = tmp_path / "catalog.json"

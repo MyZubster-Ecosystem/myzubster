@@ -10,7 +10,7 @@ work packages can extend it. Each KPI carries:
 * formula          — textual expression of the computation
 * description      — what the KPI measures
 * inputs           — list of input field names (from BaselineRecord)
-* aggregation      — how to roll up sub-periods (sum / mean / last)
+* aggregation      — how to roll up sub-periods (sum / mean / last / ratio-of-totals)
 * direction        — 'lower_is_better' or 'higher_is_better'
 * lifecycle        — where the metric is sourced (sensor / manual / model)
 * notes            — free-form assumptions and caveats
@@ -25,7 +25,7 @@ from __future__ import annotations
 import json
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 
 SCHEMA_VERSION = "0.1.0"
@@ -51,6 +51,14 @@ UNITS: dict[str, str] = {
     "mS/cm": "millisiemens per centimetre (electrical conductivity)",
     "ppm": "parts per million (concentration)",
     "pH": "pH unit (acidity, 0-14)",
+    # Derived units for ratio/intensity KPIs.
+    "L/kg": "litre per kilogram (volume per mass)",
+    "L/m²/day": "litre per square metre per day (intensity)",
+    "kWh/kg": "kilowatt-hour per kilogram (energy per mass)",
+    "kg/m²": "kilogram per square metre (yield density)",
+    "kg/kg": "kilogram per kilogram (mass per mass)",
+    "h/kg": "hour per kilogram (time per mass)",
+    "h/m²": "hour per square metre (time per area)",
 }
 
 
@@ -65,7 +73,7 @@ class KPI:
     formula: str
     description: str
     inputs: list[str] = field(default_factory=list)
-    aggregation: str = "sum"  # one of: sum, mean, last
+    aggregation: str = "sum"  # one of: sum, mean, last, ratio-of-totals
     direction: str = "lower_is_better"  # higher_is_better | lower_is_better
     lifecycle: str = "sensor"  # sensor | manual | model | hybrid
     notes: str = ""
@@ -90,9 +98,10 @@ class KPI:
         raw.setdefault("lifecycle", "sensor")
         raw.setdefault("inputs", [])
         raw.setdefault("notes", "")
-        if raw["aggregation"] not in {"sum", "mean", "last"}:
+        if raw["aggregation"] not in {"sum", "mean", "last", "ratio-of-totals"}:
             raise ValueError(
-                f"aggregation must be sum/mean/last, got {raw['aggregation']!r}"
+                f"aggregation must be sum/mean/last/ratio-of-totals, "
+                f"got {raw['aggregation']!r}"
             )
         if raw["direction"] not in {"lower_is_better", "higher_is_better"}:
             raise ValueError(
@@ -189,7 +198,7 @@ def _parse_minimal_yaml(text: str) -> Any:
                 if root is None:
                     root = {}
                 if not isinstance(root, dict):
-                    raise ValueError("Mixed list and mapping at top level")
+                    raise ValueError("Mixed scalar, list, and mapping at top level")
                 root[key] = nested
                 i = k
                 continue
@@ -244,7 +253,7 @@ def default_kpis() -> list[KPI]:
             id="water.use.l_per_kg_yield",
             family="water",
             name="Irrigation water per yield",
-            unit="L",
+            unit="L/kg",
             formula="irrigation_L / yield_kg",
             description=(
                 "Litres of irrigation water applied per kilogram of "
@@ -252,7 +261,7 @@ def default_kpis() -> list[KPI]:
                 "water-efficient production."
             ),
             inputs=["irrigation_L", "yield_kg"],
-            aggregation="mean",
+            aggregation="ratio-of-totals",
             direction="lower_is_better",
             lifecycle="hybrid",
             notes=(
@@ -266,14 +275,14 @@ def default_kpis() -> list[KPI]:
             id="water.use.l_per_m2_per_day",
             family="water",
             name="Irrigation intensity",
-            unit="L",
+            unit="L/m²/day",
             formula="irrigation_L / (area_m2 * days)",
             description=(
                 "Average irrigation applied per square metre per day. "
                 "Useful as a coarse hydrological footprint indicator."
             ),
             inputs=["irrigation_L", "area_m2", "days"],
-            aggregation="sum",
+            aggregation="ratio-of-totals",
             direction="lower_is_better",
             lifecycle="hybrid",
         ),
@@ -281,14 +290,14 @@ def default_kpis() -> list[KPI]:
             id="energy.use.kwh_per_kg_yield",
             family="energy",
             name="Energy per yield",
-            unit="kWh",
+            unit="kWh/kg",
             formula="electricity_kWh / yield_kg",
             description=(
                 "Kilowatt-hours of electricity consumed per kilogram "
                 "of yield."
             ),
             inputs=["electricity_kWh", "yield_kg"],
-            aggregation="sum",
+            aggregation="ratio-of-totals",
             direction="lower_is_better",
             lifecycle="sensor",
         ),
@@ -296,13 +305,13 @@ def default_kpis() -> list[KPI]:
             id="yield.kg_per_m2",
             family="yield",
             name="Yield per area",
-            unit="kg",
+            unit="kg/m²",
             formula="yield_kg / area_m2",
             description=(
                 "Total yield mass per square metre of cultivated area."
             ),
             inputs=["yield_kg", "area_m2"],
-            aggregation="sum",
+            aggregation="ratio-of-totals",
             direction="higher_is_better",
             lifecycle="hybrid",
         ),
@@ -310,7 +319,7 @@ def default_kpis() -> list[KPI]:
             id="nutrient.n_kg_per_kg_yield",
             family="nutrient",
             name="Nitrogen input per yield",
-            unit="kg",
+            unit="kg/kg",
             formula="fertilizer_n_kg / yield_kg",
             description=(
                 "Mass of nitrogen applied (synthetic + organic) per "
@@ -318,7 +327,7 @@ def default_kpis() -> list[KPI]:
                 "efficiency."
             ),
             inputs=["fertilizer_n_kg", "yield_kg"],
-            aggregation="sum",
+            aggregation="ratio-of-totals",
             direction="lower_is_better",
             lifecycle="manual",
             notes=(
@@ -331,14 +340,14 @@ def default_kpis() -> list[KPI]:
             id="labour.h_per_kg_yield",
             family="labour",
             name="Labour per yield",
-            unit="h",
+            unit="h/kg",
             formula="labour_h / yield_kg",
             description=(
                 "Person-hours of labour invested per kilogram of "
                 "yield produced."
             ),
             inputs=["labour_h", "yield_kg"],
-            aggregation="sum",
+            aggregation="ratio-of-totals",
             direction="lower_is_better",
             lifecycle="manual",
         ),
@@ -413,14 +422,14 @@ def default_kpis() -> list[KPI]:
             id="labour.h_per_m2",
             family="labour",
             name="Labour intensity per area",
-            unit="h",
+            unit="h/m²",
             formula="labour_h / area_m2",
             description=(
                 "Person-hours of labour invested per square metre of "
                 "cultivated area."
             ),
             inputs=["labour_h", "area_m2"],
-            aggregation="sum",
+            aggregation="ratio-of-totals",
             direction="lower_is_better",
             lifecycle="manual",
         ),

@@ -32,6 +32,13 @@ prevents accidentally mixing pounds and kilograms in the same report.
 | `mS/cm` | electrical conductivity |
 | `ppm` | parts per million |
 | `pH` | pH unit (0-14) |
+| `L/kg` | litre per kilogram (volume per mass) |
+| `L/m²/day` | litre per square metre per day (intensity) |
+| `kWh/kg` | kilowatt-hour per kilogram (energy per mass) |
+| `kg/m²` | kilogram per square metre (yield density) |
+| `kg/kg` | kilogram per kilogram (mass per mass) |
+| `h/kg` | hour per kilogram (time per mass) |
+| `h/m²` | hour per square metre (time per area) |
 
 If a real pilot needs an additional unit, add it to `UNITS` in
 `myzpkpi/kpi_schema.py` and document it in this table.
@@ -45,11 +52,11 @@ Each KPI carries:
 | `id` | yes | Stable machine identifier (e.g. `water.use.l_per_kg_yield`). |
 | `family` | yes | High-level grouping: `water`, `energy`, `yield`, `nutrient`, `labour`, `data_quality`, `ops`, `ai_validation`. |
 | `name` | yes | Human-readable name. |
-| `unit` | yes | One of the canonical unit codes above. |
+| `unit` | yes | One of the canonical unit codes above. For ratio/intensity KPIs, the unit must represent the computed quantity (e.g. `L/kg`, not `L`). |
 | `formula` | yes | Textual expression of the computation. See [Formula DSL](#formula-dsl). |
 | `description` | yes | Plain-English explanation. |
 | `inputs` | yes (can be empty) | List of input field names (drawn from `BaselineRecord`). |
-| `aggregation` | no, default `sum` | One of `sum`, `mean`, `last`. |
+| `aggregation` | no, default `sum` | One of `sum`, `mean`, `last`, `ratio-of-totals`. |
 | `direction` | no, default `lower_is_better` | `lower_is_better` or `higher_is_better`. |
 | `lifecycle` | no, default `sensor` | Where the data comes from: `sensor`, `manual`, `model`, `hybrid`. |
 | `notes` | no | Free-form assumptions and caveats. |
@@ -87,11 +94,11 @@ an explicit `formula` and a small helper added in
 - id: water.use.l_per_kg_yield
   family: water
   name: Irrigation water per yield
-  unit: L
+  unit: L/kg
   formula: irrigation_L / yield_kg
   description: Litres of irrigation water per kilogram of yield.
   inputs: [irrigation_L, yield_kg]
-  aggregation: mean
+  aggregation: ratio-of-totals
   direction: lower_is_better
 
 - id: data_quality.uptime
@@ -120,9 +127,21 @@ an explicit `formula` and a small helper added in
 `aggregation` defines how the calculator combines per-record KPI
 values across multiple baseline or pilot periods:
 
-* `sum` — sum all per-record values.
-* `mean` — arithmetic mean of per-record values.
-* `last` — last per-record value.
+* `sum` — sum all per-record values. Use for additive quantities
+  such as total yield or total labour hours.
+* `mean` — arithmetic mean of per-record values. Use for rates or
+  ratios that are already computed per record and are comparable
+  across records (e.g. sensor uptime).
+* `last` — last non-None per-record value. Use for time-ordered
+  measurements where the most recent value is the relevant one.
+* `ratio-of-totals` — sum numerators and denominators across
+  records, then compute the overall ratio. **This is the correct
+  policy for intensity/ratio KPIs** where per-record ratios must
+  not be averaged or summed. For example, irrigation water per
+  yield should be computed as `sum(irrigation_L) / sum(yield_kg)`
+  across all records, not as the mean of `irrigation_L / yield_kg`
+  per record. Splitting one observation period into multiple
+  records must not distort the aggregate KPI.
 
 The aggregated result still carries the worst `status` of the
 underlying per-record results: if any input record produced a

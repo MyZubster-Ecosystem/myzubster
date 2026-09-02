@@ -278,24 +278,103 @@ def _compute_anomaly_response(
     )
 
 
+def _extract_numerator_denominator(kpi: KPI) -> tuple[list[str], list[tuple[str, ...]]]:
+    """Return (numerator_inputs, denominator_factors) for ratio-like formulas.
+
+    For simple ``a / b`` formulas, ``denominator_factors`` is a list of
+    single-element tuples ``(b,)``. For ``a / (b * c)``, it is
+    ``[(b, c)]``. The caller is responsible for summing each factor
+    tuple and multiplying them together.
+    """
+    formula = kpi.formula.strip()
+    kind, fields = _classify_formula(formula)
+    if not fields and kpi.inputs:
+        fields = list(kpi.inputs)
+
+    if kind == "a / b":
+        return fields[:1], [fields[1:2]]
+    if kind == "a / (b * c)":
+        return fields[:1], [tuple(fields[1:3])]
+    if kind == "1 - (a / b)":
+        return [], [tuple(fields[:2])]
+    if kind == "a - b":
+        return fields[:1], []
+    if kind == "field":
+        return fields[:1], []
+    return fields[:1], []
+
+
 def aggregate(
-    results: Iterable[ComputationResult], policy: str,
+    results: Iterable[ComputationResult], kpi: KPI,
 ) -> tuple[float | None, str]:
     """Aggregate per-record results into a single value.
 
-    ``policy`` is one of:
+    ``policy`` is derived from ``kpi.aggregation`` and is one of:
     * ``sum``   — sum all non-None numeric values
     * ``mean``  — arithmetic mean of non-None numeric values
     * ``last``  — last non-None numeric value
+    * ``ratio-of-totals`` — sum numerators and denominators across
+      records, then compute the overall ratio. This is the correct
+      policy for intensity/ratio KPIs where per-record ratios must
+      not be averaged.
 
     The status returned reflects the per-record statuses.
     """
+    policy = kpi.aggregation
     values: list[float] = []
     statuses: set[str] = set()
     for r in results:
         statuses.add(r.status)
         if r.value is not None:
             values.append(r.value)
+
+    if policy == "ratio-of-totals":
+        numerator_fields, denominator_factors = _extract_numerator_denominator(kpi)
+        numerator_sum = 0.0
+        denominator_sum = 0.0
+        has_numerator = False
+        has_denominator = False
+        for r in results:
+            if r.status == "invalid":
+                statuses.add("invalid")
+            # Skip records where the per-record computation failed or
+            # returned None; they must not contribute to the totals.
+            if r.value is None:
+                continue
+            if r.inputs_used:
+                num_val = 0.0
+                for f in numerator_fields:
+                    v = _coerce_numeric(r.inputs_used.get(f))
+                    if v is not None:
+                        num_val += v
+                if numerator_fields:
+                    numerator_sum += num_val
+                    has_numerator = True
+                denom_val = 1.0
+                for factor in denominator_factors:
+                    factor_prod = 1.0
+                    for f in factor:
+                        v = _coerce_numeric(r.inputs_used.get(f))
+                        if v is not None:
+                            factor_prod *= v
+                    denom_val *= factor_prod
+                if denominator_factors:
+                    denominator_sum += denom_val
+                    has_denominator = True
+        if not has_numerator or not has_denominator:
+            status = (
+                "invalid" if "invalid" in statuses
+                else "missing_input"
+            )
+            return None, status
+        if denominator_sum == 0:
+            return None, "invalid"
+        agg = numerator_sum / denominator_sum
+        if statuses == {"ok"}:
+            return agg, "ok"
+        if "invalid" in statuses:
+            return agg, "partial"
+        return agg, "partial"
 
     if not values:
         status = (

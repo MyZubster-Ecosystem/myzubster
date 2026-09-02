@@ -123,7 +123,7 @@ def _aggregate_records(
     if not records:
         return None, "missing_input", []
     per_record = [compute(kpi, r) for r in records]
-    value, status = aggregate(per_record, kpi.aggregation)
+    value, status = aggregate(per_record, kpi)
     evidence_ids: list[str] = []
     for r in records:
         evidence_ids.extend(r.evidence_ids)
