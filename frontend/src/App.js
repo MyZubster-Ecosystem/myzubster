@@ -102,6 +102,14 @@ function App() {
     return <AppsDownloadPage />;
   }
 
+  if (path === '/marketplace') {
+    return <MarketplacePage />;
+  }
+
+  if (path === '/metaverse') {
+    return <MetaversePage />;
+  }
+
   return (
     <div className="App">
       <nav style={{ padding: '12px 20px', display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }} aria-label="MyZubster main navigation">
