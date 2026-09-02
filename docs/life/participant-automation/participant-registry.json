@@ -1,6 +1,6 @@
 {
   "version": "zorgax_life_participant_registry_v1",
-  "updatedAt": "2026-08-31",
+  "updatedAt": "2026-09-02",
   "scope": "Internal MyZubster / Zorgax LIFE digital pilot. This is not an EU LIFE consortium or partner registry.",
   "rules": {
     "activationRequiresExplicitOptIn": true,
@@ -22,7 +22,21 @@
       "automation": "ENABLED",
       "source": "docs/NICOLA_LORENZINI_LIFE.md",
       "currentEvidenceVerdict": "NEEDS_CLARIFICATION",
-      "publicContactStored": false
+      "publicContactStored": false,
+      "githubRepositories": {
+        "profile": "https://github.com/nicolaususnicola-lgtm/Profilo",
+        "mvp": "https://github.com/nicolaususnicola-lgtm/myzubster-mvp"
+      },
+      "metaverse": {
+        "characterId": "N4K48",
+        "role": "Explorer",
+        "area": "Neon Plaza",
+        "liveActivation": "PENDING_TECHNICAL_VERIFICATION"
+      },
+      "githubLinkage": {
+        "participantReported": "COMPLETE",
+        "runtimeVerification": "PENDING_TECHNICAL_VERIFICATION"
+      }
     }
   ],
   "candidates": [
@@ -34,8 +48,17 @@
       "consent": "NOT_CONFIRMED",
       "automation": "DISABLED",
       "source": "docs/life-2027/CONTRIBUTOR_POOL.md",
-      "publicLifeEvidence": ["pull/859", "issue/534"],
-      "candidateLanes": ["iot", "sensing", "dashboard", "evidence-ux", "visual-communication"]
+      "publicLifeEvidence": [
+        "pull/859",
+        "issue/534"
+      ],
+      "candidateLanes": [
+        "iot",
+        "sensing",
+        "dashboard",
+        "evidence-ux",
+        "visual-communication"
+      ]
     },
     {
       "publicId": "wasim-builds",
@@ -44,7 +67,13 @@
       "consent": "NOT_CONFIRMED",
       "automation": "DISABLED",
       "source": "docs/life-2027/CONTRIBUTOR_POOL.md",
-      "candidateLanes": ["geospatial", "security", "qa", "verification", "review"]
+      "candidateLanes": [
+        "geospatial",
+        "security",
+        "qa",
+        "verification",
+        "review"
+      ]
     },
     {
       "publicId": "ghzhost",
@@ -53,7 +82,12 @@
       "consent": "NOT_CONFIRMED",
       "automation": "DISABLED",
       "source": "docs/life-2027/CONTRIBUTOR_POOL.md",
-      "candidateLanes": ["telemetry", "sensing", "ingest", "provenance"]
+      "candidateLanes": [
+        "telemetry",
+        "sensing",
+        "ingest",
+        "provenance"
+      ]
     },
     {
       "publicId": "laurentketterle-hub",
@@ -62,7 +96,13 @@
       "consent": "NOT_CONFIRMED",
       "automation": "DISABLED",
       "source": "docs/life-2027/CONTRIBUTOR_POOL.md",
-      "candidateLanes": ["telemetry", "robotics", "gateway", "dashboard", "automation-safety"]
+      "candidateLanes": [
+        "telemetry",
+        "robotics",
+        "gateway",
+        "dashboard",
+        "automation-safety"
+      ]
     },
     {
       "publicId": "foxxx009",
@@ -71,7 +111,11 @@
       "consent": "NOT_CONFIRMED",
       "automation": "DISABLED",
       "source": "docs/life-2027/CONTRIBUTOR_POOL.md",
-      "candidateLanes": ["gis", "geolocation", "replication-mapping"]
+      "candidateLanes": [
+        "gis",
+        "geolocation",
+        "replication-mapping"
+      ]
     },
     {
       "publicId": "leanworld7-netizen",
@@ -80,7 +124,11 @@
       "consent": "NOT_CONFIRMED",
       "automation": "DISABLED",
       "source": "docs/life-2027/CONTRIBUTOR_POOL.md",
-      "candidateLanes": ["agriculture-data", "plant-reference-data", "replication"]
+      "candidateLanes": [
+        "agriculture-data",
+        "plant-reference-data",
+        "replication"
+      ]
     },
     {
       "publicId": "rafaio1",
@@ -89,7 +137,12 @@
       "consent": "NOT_CONFIRMED",
       "automation": "DISABLED",
       "source": "docs/life-2027/CONTRIBUTOR_POOL.md",
-      "candidateLanes": ["ci", "performance", "observability", "reproducibility"]
+      "candidateLanes": [
+        "ci",
+        "performance",
+        "observability",
+        "reproducibility"
+      ]
     }
   ],
   "discoverySources": [
