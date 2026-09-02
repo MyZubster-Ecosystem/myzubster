@@ -57,9 +57,10 @@ function MarketplacePage() {
 
   async function becomeSeller() {
     try {
-      const payload = await apiAction('/api/marketplace/seller/subscribe', {});
-      setSellerState({ active:false, membership:payload.membership, plan:payload.plan });
-      setMessage(`Richiesta Seller creata: ${payload.plan.amount} ${payload.plan.currency}/mese. Riferimento: ${payload.membership.billingReference}. L'account viene attivato solo dopo verifica reale del pagamento.`);
+      setMessage('Apertura Stripe Checkout...');
+      const payload = await apiAction('/api/marketplace/seller/checkout', {});
+      if (!payload.url) throw new Error('Stripe Checkout non disponibile.');
+      window.location.assign(payload.url);
     } catch (e) { setMessage(e.message); }
   }
 
