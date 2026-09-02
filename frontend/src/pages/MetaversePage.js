@@ -8,6 +8,7 @@ import {
   sendMetaverseEmote,
   syncMetaverse
 } from '../api/metaverse';
+import MetaverseExperiencePanel from '../components/MetaverseExperiencePanel';
 import './MetaversePage.css';
 
 const STORAGE_KEY = 'myz-metaverse-profile-v1';
@@ -29,10 +30,12 @@ const EMOTES = {
 };
 
 const LANDMARKS = [
-  { id: 'identity', label: 'Identity Hall', icon: '🪪', x: 12, y: 15 },
-  { id: 'visual', label: 'Visual Gallery', icon: '🎨', x: 72, y: 14 },
-  { id: 'zorgax', label: 'Zorgax Observatory', icon: '👁️', x: 68, y: 62 },
-  { id: 'creator', label: 'Creator Lab', icon: '⚙️', x: 15, y: 62 }
+  { id: 'identity', label: 'Identity Hall', icon: '🪪', x: 10, y: 15, href: '/social-login' },
+  { id: 'marketplace', label: 'Marketplace', icon: '🛒', x: 34, y: 14, href: '/#marketplace' },
+  { id: 'projects', label: 'LIFE Projects', icon: '🌱', x: 56, y: 14, href: '/life-pilot' },
+  { id: 'visual', label: 'Visual Gallery', icon: '🎨', x: 78, y: 14, href: '/fumetto' },
+  { id: 'zorgax', label: 'Zorgax Observatory', icon: '👁️', x: 70, y: 62, href: '/zorgax' },
+  { id: 'creator', label: 'Creator Lab', icon: '⚙️', x: 15, y: 62, href: '/come-funziona' }
 ];
 
 function savedProfile() {
@@ -184,6 +187,7 @@ function MetaversePage() {
   const [lastLandmark, setLastLandmark] = useState('Neon Plaza');
   const [totalCharacters, setTotalCharacters] = useState(null);
   const [featuredCharacters, setFeaturedCharacters] = useState([]);
+  const [visitedLandmarks, setVisitedLandmarks] = useState([]);
 
   useEffect(() => {
     let active = true;
@@ -339,6 +343,9 @@ function MetaversePage() {
     if (!me) return;
     const landmark = LANDMARKS.find((item) => Math.hypot(item.x - me.x, item.y - me.y) < 14);
     setLastLandmark(landmark ? landmark.label : 'Neon Plaza');
+    if (landmark) {
+      setVisitedLandmarks((current) => current.includes(landmark.id) ? current : [...current, landmark.id]);
+    }
   }, [me]);
 
   const submitChat = async (event) => {
@@ -407,10 +414,17 @@ function MetaversePage() {
           <div className="metaverse-core">MYZ<br /><small>NEON PLAZA</small></div>
 
           {LANDMARKS.map((landmark) => (
-            <div key={landmark.id} className="metaverse-landmark" style={{ left: `${landmark.x}%`, top: `${landmark.y}%` }}>
+            <a
+              key={landmark.id}
+              className="metaverse-landmark"
+              style={{ left: `${landmark.x}%`, top: `${landmark.y}%` }}
+              href={landmark.href}
+              title={`Apri ${landmark.label}`}
+            >
               <span>{landmark.icon}</span>
               <strong>{landmark.label}</strong>
-            </div>
+              <small>PORTALE</small>
+            </a>
           ))}
 
           {Object.values(players).map((player) => {
@@ -461,6 +475,15 @@ function MetaversePage() {
               {isAccountLinked(me?.identityStatus) ? 'MYZ VERIFIED' : 'Ospite'}
             </div>
           </section>
+
+          <MetaverseExperiencePanel
+            identityStatus={me?.identityStatus}
+            online={Object.keys(players).length}
+            nearby={nearby.length}
+            messages={messages}
+            sessionId={sessionId}
+            visitedLandmarks={visitedLandmarks}
+          />
 
           <section className="metaverse-panel">
             <h3>Esploratori verificati</h3>
