@@ -98,6 +98,7 @@ const rewardRoutes = require('./src/routes/rewardRoutes');
 const referralRoutes = require('./src/routes/referralRoutes');
 const listingRoutes = require('./src/routes/listingRoutes');
 const marketplaceTrustRoutes = require('./src/routes/marketplaceTrustRoutes');
+const sellerRoutes = require('./src/routes/sellerRoutes');
 const tripRoutes = require('./src/routes/tripRoutes');
 const couponRoutes = require('./src/routes/couponRoutes');
 const plantRoutes = require('./src/routes/plantRoutes');
@@ -160,6 +161,7 @@ app.use('/api/bounties', bountyRoutes);
 app.use('/api/rewards', rewardRoutes);
 app.use('/api/referrals', referralRoutes);
 app.use('/api/listings', listingRoutes);
+app.use('/api/marketplace/seller', sellerRoutes);
 app.use('/api/marketplace', marketplaceTrustRoutes);
 app.use('/api/trips', tripRoutes);
 app.use('/api/coupons', couponRoutes);
@@ -221,3 +223,5 @@ const PORT = process.env.PORT || 5003;
 if (require.main === module && process.env.NODE_ENV !== 'test') {
   app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
 }
+
+
