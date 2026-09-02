@@ -1,0 +1,87 @@
+{
+  "registryId": "MZ-AHP-JP-001",
+  "ventureId": "MZ-VENTURE-AHP-001",
+  "country": "Japan",
+  "status": "CANDIDATE_PILOT_TRACK",
+  "relationshipBoundary": "NO_PARTNERSHIP_OR_CONSENT_INFERRED",
+  "updatedAt": "2026-09-02",
+  "candidateTracks": [
+    {
+      "pilotId": "JAPAN-AHP-01-UNICHARM-REFF",
+      "organisation": "Unicharm Corporation",
+      "program": "RefF",
+      "scope": ["baby-diapers", "adult-incontinence-products"],
+      "candidateRole": "horizontal-recycling-and-material-recovery-reference",
+      "evidenceState": "PUBLIC_PROGRAM_EVIDENCED",
+      "relationshipState": "NOT_CONTACTED_OR_NOT_CONFIRMED",
+      "locations": ["Japan"],
+      "publicEvidence": ["https://www.unicharm.co.jp/en/csr-eco/reff.html"],
+      "myzubsterFit": ["batch-traceability", "mass-balance", "recovered-material-provenance", "destination-evidence", "kpi-reporting", "audit-trail"]
+    },
+    {
+      "pilotId": "JAPAN-AHP-01-KAO-KAMIKATSU",
+      "organisation": "Kao Corporation",
+      "program": "Used Disposable Diaper Carbonization Recycling System",
+      "scope": ["baby-diapers", "adult-incontinence-products"],
+      "candidateRole": "municipal-carbonization-pilot-reference",
+      "evidenceState": "PUBLIC_VERIFICATION_TEST_EVIDENCED",
+      "relationshipState": "NOT_CONTACTED_OR_NOT_CONFIRMED",
+      "locations": ["Kamikatsu, Tokushima", "Saijo, Ehime"],
+      "publicEvidence": ["https://www.kao.com/global/en/newsroom/news/release/2025/20251023-001/"],
+      "myzubsterFit": ["collection-event-traceability", "input-mass", "processing-event", "output-material", "local-use-destination", "baseline-and-co2-method-evidence"]
+    },
+    {
+      "pilotId": "JAPAN-AHP-02-SOFY-OKINAWA",
+      "organisation": "Unicharm Corporation",
+      "program": "School Sofy / Dokodemo Sofy",
+      "scope": ["menstrual-absorbent-products"],
+      "candidateRole": "distribution-and-access-infrastructure-reference",
+      "evidenceState": "PUBLIC_PROGRAM_EVIDENCED",
+      "relationshipState": "NOT_CONTACTED_OR_NOT_CONFIRMED",
+      "locations": ["Okinawa Prefecture"],
+      "publicEvidence": ["https://www.unicharm.co.jp/ja/company/news/2026/0330-01.html"],
+      "myzubsterFit": ["site-registry", "lot-traceability", "distribution-events", "usage-proxy-metrics", "post-consumer-collection-design", "evidence-reporting"]
+    },
+    {
+      "pilotId": "JAPAN-AHP-02-LAURIER",
+      "organisation": "Kao Corporation",
+      "program": "School Laurier / Workplace Laurier",
+      "scope": ["menstrual-absorbent-products"],
+      "candidateRole": "school-and-workplace-access-reference",
+      "evidenceState": "PUBLIC_PROGRAM_EVIDENCED",
+      "relationshipState": "NOT_CONTACTED_OR_NOT_CONFIRMED",
+      "locations": ["Japan"],
+      "publicEvidence": ["https://www.kao.com/jp/newsroom/news/release/2026/20260225-001/"],
+      "myzubsterFit": ["site-registry", "distribution-events", "stock-replenishment-evidence", "usage-proxy-metrics", "post-consumer-collection-design"]
+    },
+    {
+      "pilotId": "JAPAN-AHP-02-ELIS",
+      "organisation": "Daio Paper Corporation",
+      "program": "Elis Scholarship Napkin",
+      "scope": ["menstrual-absorbent-products"],
+      "candidateRole": "student-access-and-distribution-reference",
+      "evidenceState": "PUBLIC_PROGRAM_EVIDENCED",
+      "relationshipState": "NOT_CONTACTED_OR_NOT_CONFIRMED",
+      "locations": ["Japan"],
+      "publicEvidence": ["https://www.elleair.jp/elis/meetmyelis-shogaku/"],
+      "myzubsterFit": ["distribution-evidence", "beneficiary-program-metrics", "lot-and-product-provenance", "future-post-consumer-collection-design"]
+    }
+  ],
+  "pilotActivationGates": [
+    "explicit-organisation-or-site-contact",
+    "written-interest-or-scope-confirmation",
+    "authorized-data-boundary",
+    "baseline-and-kpi-definition",
+    "material-or-product-flow-schema",
+    "evidence-sharing-permission",
+    "local-legal-and-privacy-review",
+    "human-verification-before-outcome-claims"
+  ],
+  "claimBoundaries": {
+    "partnershipConfirmed": false,
+    "pilotConfirmed": false,
+    "dataAccessAuthorized": false,
+    "commercialTermsAgreed": false,
+    "environmentalOutcomeVerified": false
+  }
+}
