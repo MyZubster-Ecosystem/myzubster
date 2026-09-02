@@ -8,7 +8,7 @@ const router = express.Router();
 const monthlyPrice = () => Math.max(0, Number(process.env.MARKETPLACE_SELLER_MONTHLY_EUR || 9.90));
 
 function stripeConfigured() {
-  return Boolean(process.env.STRIPE_SECRET_KEY && process.env.STRIPE_SELLER_PRICE_ID && process.env.STRIPE_WEBHOOK_SECRET);
+  return Boolean(process.env.STRIPE_SECRET_KEY && process.env.STRIPE_WEBHOOK_SECRET);
 }
 
 function requireModerator(req, res, next) {
@@ -162,7 +162,7 @@ router.post('/checkout', authenticate, async (req, res) => {
       { userId:req.userId },
       { $set:{
         plan:'SELLER_MONTHLY', status:'PENDING_PAYMENT', priceAmount:amount, priceCurrency:'EUR', billingReference,
-        paymentReference:'', paymentProvider:'STRIPE', stripePriceId:process.env.STRIPE_SELLER_PRICE_ID,
+        paymentReference:'', paymentProvider:'STRIPE',
         verifiedBy:null, verifiedAt:null
       } },
       { new:true, upsert:true, runValidators:true, setDefaultsOnInsert:true }
@@ -172,7 +172,10 @@ router.post('/checkout', authenticate, async (req, res) => {
       success_url:successUrl,
       cancel_url:cancelUrl,
       client_reference_id:String(req.userId),
-      'line_items[0][price]':process.env.STRIPE_SELLER_PRICE_ID,
+      'line_items[0][price_data][currency]':'eur',
+      'line_items[0][price_data][unit_amount]':String(Math.round(amount * 100)),
+      'line_items[0][price_data][recurring][interval]':'month',
+      'line_items[0][price_data][product_data][name]':'MyZubster Seller',
       'line_items[0][quantity]':'1',
       'metadata[userId]':String(req.userId),
       'metadata[billingReference]':billingReference,
