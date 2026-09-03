@@ -1,12 +1,20 @@
 {
   "modelId": "MZ-AHP-OS-002",
   "name": "Circular Menstrual Pad Reference Model",
-  "version": "0.2-draft",
+  "version": "0.3-draft",
   "status": "DESIGN_REFERENCE",
   "useCase": "regular/day disposable menstrual pad with optional wings",
   "productionValidated": false,
   "certifiedProduct": false,
   "validatedEnvironmentalOutcome": false,
+  "draftMassTarget": {
+    "allocatedMassPerFunctionalUnit_g": 9.7,
+    "includesReleaseLiner_g": 0.6,
+    "includesIndividualWrapper_g": 0.8,
+    "includesOuterPackagingAllocation_g": 0.35,
+    "status": "DESIGN_TARGET_NOT_VALIDATED",
+    "note": "Measured prototype masses remain null until physical specimens are weighed."
+  },
   "nominalGeometry": {
     "status": "DRAFT_ENVELOPE_NOT_VALIDATED",
     "overallLength_mm": 240,
@@ -15,6 +23,17 @@
     "nominalCoreLength_mm": 205,
     "nominalCoreWidth_mm": 65,
     "note": "Prototype envelope only. Comfort, fit, leakage protection, tolerances and manufacturing feasibility require qualified validation."
+  },
+  "prototypePack": {
+    "bomRef": "BOM.csv",
+    "dimensionsRef": "dimensions.svg",
+    "layerStackRef": "layer-stack.svg",
+    "wrapperAndPackagingSpecRef": "wrapper-and-packaging-spec.md",
+    "buildNotesRef": "prototype-build-notes.md",
+    "testProtocolRef": "test-protocol.md",
+    "circularFlowRef": "circular-flow.json",
+    "evidenceIndexRef": "evidence-index.json",
+    "changelogRef": "CHANGELOG.md"
   },
   "designIntent": [
     "open BOM and versioned material declarations",
@@ -25,17 +44,17 @@
     "evaluate design against a confirmed AHP collection and treatment route before any circularity claim"
   ],
   "components": [
-    {"componentId":"MP-TS-001","function":"topsheet","candidateMaterialFamily":"hydrophilic polypropylene nonwoven or validated fibre topsheet","skinContact":true,"massPerUnit_g":null,"supplier":null,"supplierEvidenceRef":null,"recoveryRoute":"NOT_VERIFIED","treatmentEvidenceRef":null,"status":"DESIGN_CANDIDATE"},
-    {"componentId":"MP-ADL-001","function":"acquisition_distribution_layer","candidateMaterialFamily":"cellulose-based or polyolefin acquisition layer","skinContact":false,"massPerUnit_g":null,"supplier":null,"supplierEvidenceRef":null,"recoveryRoute":"NOT_VERIFIED","treatmentEvidenceRef":null,"status":"DESIGN_CANDIDATE"},
-    {"componentId":"MP-CW-001","function":"core_wrap_upper","candidateMaterialFamily":"cellulose tissue or declared nonwoven","skinContact":false,"massPerUnit_g":null,"supplier":null,"supplierEvidenceRef":null,"recoveryRoute":"NOT_VERIFIED","treatmentEvidenceRef":null,"status":"DESIGN_CANDIDATE"},
-    {"componentId":"MP-CORE-001","function":"absorbent_core","candidateMaterialFamily":"cellulose fluff/pulp + optional superabsorbent polymer","skinContact":false,"massPerUnit_g":null,"supplier":null,"supplierEvidenceRef":null,"recoveryRoute":"NOT_VERIFIED","treatmentEvidenceRef":null,"status":"DESIGN_CANDIDATE"},
-    {"componentId":"MP-CW-002","function":"core_wrap_lower","candidateMaterialFamily":"cellulose tissue or declared nonwoven","skinContact":false,"massPerUnit_g":null,"supplier":null,"supplierEvidenceRef":null,"recoveryRoute":"NOT_VERIFIED","treatmentEvidenceRef":null,"status":"DESIGN_CANDIDATE"},
-    {"componentId":"MP-BF-001","function":"barrier_backsheet","candidateMaterialFamily":"polyethylene film or declared polyolefin laminate","skinContact":false,"massPerUnit_g":null,"supplier":null,"supplierEvidenceRef":null,"recoveryRoute":"NOT_VERIFIED","treatmentEvidenceRef":null,"status":"DESIGN_CANDIDATE"},
-    {"componentId":"MP-ADH-001","function":"garment_adhesive","candidateMaterialFamily":"hot-melt pressure-sensitive adhesive","skinContact":false,"massPerUnit_g":null,"supplier":null,"supplierEvidenceRef":null,"recoveryRoute":"NOT_VERIFIED","treatmentEvidenceRef":null,"status":"DESIGN_CANDIDATE"},
-    {"componentId":"MP-WING-001","function":"wings","candidateMaterialFamily":"polyolefin extension with adhesive","skinContact":false,"massPerUnit_g":null,"supplier":null,"supplierEvidenceRef":null,"recoveryRoute":"NOT_VERIFIED","treatmentEvidenceRef":null,"status":"DESIGN_CANDIDATE"},
-    {"componentId":"MP-RL-001","function":"release_liner","candidateMaterialFamily":"siliconized paper or separable polyolefin film","skinContact":false,"massPerUnit_g":null,"supplier":null,"supplierEvidenceRef":null,"recoveryRoute":"NOT_VERIFIED","treatmentEvidenceRef":null,"status":"DESIGN_CANDIDATE"},
-    {"componentId":"MP-WRP-001","function":"individual_wrapper","candidateMaterialFamily":"polyethylene or polypropylene film","skinContact":false,"massPerUnit_g":null,"supplier":null,"supplierEvidenceRef":null,"recoveryRoute":"NOT_VERIFIED","treatmentEvidenceRef":null,"status":"DESIGN_CANDIDATE"},
-    {"componentId":"MP-PKG-001","function":"outer_packaging","candidateMaterialFamily":"polyethylene or polypropylene flexible packaging","skinContact":false,"massPerUnit_g":null,"supplier":null,"supplierEvidenceRef":null,"recoveryRoute":"NOT_VERIFIED","treatmentEvidenceRef":null,"status":"DESIGN_CANDIDATE"}
+    {"componentId":"MP-TS-001","function":"topsheet","candidateMaterialFamily":"hydrophilic polypropylene nonwoven or validated fibre topsheet","skinContact":true,"draftTargetMass_g":0.7,"massPerUnit_g":null,"supplier":null,"supplierEvidenceRef":null,"recoveryRoute":"NOT_VERIFIED","treatmentEvidenceRef":null,"status":"DESIGN_CANDIDATE"},
+    {"componentId":"MP-ADL-001","function":"acquisition_distribution_layer","candidateMaterialFamily":"cellulose-based or polyolefin acquisition layer","skinContact":false,"draftTargetMass_g":0.6,"massPerUnit_g":null,"supplier":null,"supplierEvidenceRef":null,"recoveryRoute":"NOT_VERIFIED","treatmentEvidenceRef":null,"status":"DESIGN_CANDIDATE"},
+    {"componentId":"MP-CW-001","function":"core_wrap_upper","candidateMaterialFamily":"cellulose tissue or declared nonwoven","skinContact":false,"draftTargetMass_g":0.25,"massPerUnit_g":null,"supplier":null,"supplierEvidenceRef":null,"recoveryRoute":"NOT_VERIFIED","treatmentEvidenceRef":null,"status":"DESIGN_CANDIDATE"},
+    {"componentId":"MP-CORE-001","function":"absorbent_core","candidateMaterialFamily":"cellulose fluff/pulp + optional superabsorbent polymer","skinContact":false,"draftTargetMass_g":4.5,"massPerUnit_g":null,"supplier":null,"supplierEvidenceRef":null,"recoveryRoute":"NOT_VERIFIED","treatmentEvidenceRef":null,"status":"DESIGN_CANDIDATE"},
+    {"componentId":"MP-CW-002","function":"core_wrap_lower","candidateMaterialFamily":"cellulose tissue or declared nonwoven","skinContact":false,"draftTargetMass_g":0.25,"massPerUnit_g":null,"supplier":null,"supplierEvidenceRef":null,"recoveryRoute":"NOT_VERIFIED","treatmentEvidenceRef":null,"status":"DESIGN_CANDIDATE"},
+    {"componentId":"MP-BF-001","function":"barrier_backsheet","candidateMaterialFamily":"polyethylene film or declared polyolefin laminate","skinContact":false,"draftTargetMass_g":0.8,"massPerUnit_g":null,"supplier":null,"supplierEvidenceRef":null,"recoveryRoute":"NOT_VERIFIED","treatmentEvidenceRef":null,"status":"DESIGN_CANDIDATE"},
+    {"componentId":"MP-ADH-001","function":"garment_adhesive","candidateMaterialFamily":"hot-melt pressure-sensitive adhesive","skinContact":false,"draftTargetMass_g":0.35,"massPerUnit_g":null,"supplier":null,"supplierEvidenceRef":null,"recoveryRoute":"NOT_VERIFIED","treatmentEvidenceRef":null,"status":"DESIGN_CANDIDATE"},
+    {"componentId":"MP-WING-001","function":"wings","candidateMaterialFamily":"polyolefin extension with adhesive","skinContact":false,"draftTargetMass_g":0.5,"massPerUnit_g":null,"supplier":null,"supplierEvidenceRef":null,"recoveryRoute":"NOT_VERIFIED","treatmentEvidenceRef":null,"status":"DESIGN_CANDIDATE"},
+    {"componentId":"MP-RL-001","function":"release_liner","candidateMaterialFamily":"siliconized paper or separable polyolefin film","skinContact":false,"draftTargetMass_g":0.6,"massPerUnit_g":null,"supplier":null,"supplierEvidenceRef":null,"recoveryRoute":"NOT_VERIFIED","treatmentEvidenceRef":null,"status":"DESIGN_CANDIDATE"},
+    {"componentId":"MP-WRP-001","function":"individual_wrapper","candidateMaterialFamily":"polyethylene or polypropylene film","skinContact":false,"draftTargetMass_g":0.8,"massPerUnit_g":null,"supplier":null,"supplierEvidenceRef":null,"recoveryRoute":"NOT_VERIFIED","treatmentEvidenceRef":null,"status":"DESIGN_CANDIDATE"},
+    {"componentId":"MP-PKG-001","function":"outer_packaging","candidateMaterialFamily":"polyethylene or polypropylene flexible packaging","skinContact":false,"draftTargetMass_g":0.35,"massPerUnit_g":null,"supplier":null,"supplierEvidenceRef":null,"recoveryRoute":"NOT_VERIFIED","treatmentEvidenceRef":null,"status":"DESIGN_CANDIDATE"}
   ],
   "performanceEvidenceGates": [
     "dimensional-and-mass-consistency",
@@ -63,5 +82,5 @@
     "documentationAndDiagrams": "CC-BY-SA-4.0",
     "status": "PROPOSED_NOT_LEGAL_REVIEWED"
   },
-  "claimBoundary": "This passport records design intent and unknowns. Null values must not be interpreted as zero, compliant, safe, recyclable or validated."
+  "claimBoundary": "This passport records design intent, draft targets and unknowns. Draft targets are not measurements or pass criteria; null values must not be interpreted as zero, compliant, safe, recyclable or validated."
 }
