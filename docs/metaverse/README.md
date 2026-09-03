@@ -4,6 +4,35 @@ Neon Plaza is the first multiplayer social-space prototype for the MyZubster eco
 
 It is designed around a simple idea: every participant can create a public narrative character, enter a shared world and interact with other characters while keeping identity claims separate from unverified profile data.
 
+## Featured participant — N4K48 / Explorer
+
+![N4K48 entering Neon Plaza](https://drive.google.com/uc?export=view&id=1zE1MuqFcjU8xUp4NZJfZde9Rdxtu0cwt)
+
+**N4K48** is Nicola's participant-authorized MyZubster narrative identity: an **Explorer** whose starting world is **Neon Plaza**.
+
+This makes the linkage bidirectional:
+
+```text
+MyZubster Metaverse / Neon Plaza
+            ↓
+       N4K48 / Explorer
+            ↓
+Nicola's MyZubster MVP repository
+            ↓
+technical work, tests and evidence
+            ↓
+       MyZubster ecosystem
+```
+
+- [N4K48 character record in MyZubster](characters/N4K48.md)
+- [Nicola's N4K48 visual + technical profile](https://github.com/nicolaususnicola-lgtm/myzubster-mvp)
+- [MyZubster Visual universe](https://github.com/MyZubster-Ecosystem/MyZubster-Visual)
+- [Neon Plaza — H4X0R and N4K48 visual](https://drive.google.com/file/d/1zE1MuqFcjU8xUp4NZJfZde9Rdxtu0cwt/view)
+- [Zorgax cyberpunk visual](https://github.com/MyZubster-Ecosystem/MyZubster-Visual/blob/main/assets/zorgax/zorgax-cyberpunk-brand-ecosystem.jpg)
+- [MyZubster decentralized-network visual](https://github.com/MyZubster-Ecosystem/MyZubster-Visual/blob/main/assets/cyberpunk-series/MyZubster-Cyberpunk-Serie-04-Rete-Decentralizzata.png)
+
+The visual profile is **worldbuilding and navigation**, not proof of runtime activation or completed product functionality. Technical completion remains tied to code, tests, commits and other independently inspectable evidence.
+
 ## What v0.2 includes
 
 - public avatar/character creator;
