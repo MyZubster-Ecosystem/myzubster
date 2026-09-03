@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "0.3-draft",
+  "modelId": "MZ-AHP-OS-001",
+  "designVersion": "0.3-draft",
+  "state": "DESIGN_REFERENCE",
+  "evidenceStates": [
+    "NOT_VERIFIED",
+    "PUBLIC_CAPABILITY_EVIDENCED",
+    "PROTOTYPE_BUILT",
+    "TESTED",
+    "PILOT_EVIDENCED",
+    "VERIFIED_CIRCULAR_OUTCOME"
+  ],
+  "designEvidence": [
+    {"id":"design-bom","type":"BOM","ref":"BOM.csv","state":"DESIGN_REFERENCE"},
+    {"id":"design-passport","type":"MATERIAL_PASSPORT","ref":"material-passport.json","state":"DESIGN_REFERENCE"},
+    {"id":"design-dimensions","type":"DRAWING","ref":"dimensions.svg","state":"DESIGN_REFERENCE"},
+    {"id":"design-layer-stack","type":"DRAWING","ref":"layer-stack.svg","state":"DESIGN_REFERENCE"},
+    {"id":"design-packaging","type":"SPECIFICATION","ref":"packaging-spec.md","state":"DESIGN_REFERENCE"}
+  ],
+  "prototypeEvidence": [],
+  "supplierEvidence": [],
+  "testEvidence": [],
+  "skinContactAndChemicalEvidence": [],
+  "packagingEvidence": [],
+  "collectionEvidence": [],
+  "treatmentEvidence": [],
+  "recoveredFractionEvidence": [],
+  "destinationEvidence": [],
+  "environmentalAssessmentEvidence": [],
+  "openQuestions": [
+    "actual component masses",
+    "qualified material grades and supplier declarations",
+    "skin-contact and restricted-substance review",
+    "validated fit and sizing",
+    "bench performance results",
+    "confirmed collection route",
+    "confirmed AHP treatment acceptance",
+    "recovered-fraction mass and quality",
+    "verified destination or reuse"
+  ],
+  "claimBoundary": "Empty evidence arrays mean evidence has not yet been recorded. They must never be interpreted as zero risk, compliance, recyclability or successful performance."
+}
