@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="700" viewBox="0 0 1000 700" role="img" aria-labelledby="title desc">
+  <title id="title">MZ-AHP-OS-002 Circular Menstrual Pad — Draft Dimension Envelope</title>
+  <desc id="desc">Open-source reference drawing for a regular/day menstrual pad with optional wings. Draft prototype envelope only; not validated for production, comfort, safety or performance.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+    </marker>
+  </defs>
+  <style>
+    .outline{fill:none;stroke:#111;stroke-width:3}.core{fill:none;stroke:#555;stroke-width:2;stroke-dasharray:8 6}.dim{stroke:#333;stroke-width:1.8;marker-start:url(#arrow);marker-end:url(#arrow)}.guide{stroke:#999;stroke-width:1;stroke-dasharray:4 4}.txt{font-family:Arial,sans-serif;font-size:18px;fill:#111}.small{font-family:Arial,sans-serif;font-size:14px;fill:#333}.warn{font-family:Arial,sans-serif;font-size:16px;font-weight:bold;fill:#111}
+  </style>
+  <text x="40" y="42" class="txt" font-weight="bold">MZ-AHP-OS-002 · Circular Menstrual Pad · v0.2-draft</text>
+  <text x="40" y="68" class="warn">DRAFT ENVELOPE — NOT FOR PRODUCTION OR CERTIFICATION</text>
+  <text x="40" y="92" class="small">Nominal geometry is a prototype starting point only. Comfort, fit, adhesive behavior and leakage performance require qualified validation.</text>
+
+  <!-- simplified top-view pad with optional wings -->
+  <path class="outline" d="M500 150 C455 150 430 185 425 235 L425 285 L355 320 L425 350 L425 465 C430 515 455 550 500 550 C545 550 570 515 575 465 L575 350 L645 320 L575 285 L575 235 C570 185 545 150 500 150 Z"/>
+  <rect x="468" y="175" width="64" height="350" rx="28" class="core"/>
+  <text x="480" y="400" class="small" transform="rotate(-90 480 400)">nominal core envelope 205 × 65 mm</text>
+
+  <!-- overall length -->
+  <line x1="730" y1="150" x2="730" y2="550" class="dim"/>
+  <line x1="575" y1="150" x2="750" y2="150" class="guide"/>
+  <line x1="575" y1="550" x2="750" y2="550" class="guide"/>
+  <text x="750" y="355" class="txt">240 mm overall length</text>
+
+  <!-- body width -->
+  <line x1="425" y1="120" x2="575" y2="120" class="dim"/>
+  <line x1="425" y1="120" x2="425" y2="155" class="guide"/>
+  <line x1="575" y1="120" x2="575" y2="155" class="guide"/>
+  <text x="448" y="108" class="txt">80 mm body width</text>
+
+  <!-- wing span -->
+  <line x1="355" y1="320" x2="645" y2="320" class="dim"/>
+  <text x="425" y="305" class="txt">150 mm wing span</text>
+
+  <!-- labels -->
+  <line x1="425" y1="235" x2="260" y2="205" class="guide"/>
+  <text x="55" y="205" class="txt">front / top end</text>
+  <line x1="355" y1="320" x2="240" y2="320" class="guide"/>
+  <text x="55" y="315" class="txt">optional wings</text>
+  <line x1="425" y1="465" x2="250" y2="510" class="guide"/>
+  <text x="55" y="515" class="txt">rear / lower end</text>
+
+  <text x="40" y="650" class="small">Reference: MZ-AHP-OS-002 material-passport.json · Geometry status: DRAFT_ENVELOPE_NOT_VALIDATED</text>
+  <text x="40" y="675" class="small">Wrapper, release liner and outer packaging are part of the system BOM but are not shown in this top-view envelope.</text>
+</svg>
