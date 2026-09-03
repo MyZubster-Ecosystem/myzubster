@@ -6,7 +6,7 @@ It is designed around a simple idea: every participant can create a public narra
 
 ## Featured participant — N4K48 / Explorer
 
-![N4K48 entering Neon Plaza](https://drive.google.com/uc?export=view&id=1zE1MuqFcjU8xUp4NZJfZde9Rdxtu0cwt)
+![N4K48 entering Neon Plaza](../visuals/drive-import-2026-09-03/Neon-Plaza-H4X0R-N4K48-Cyberpunk.jpg)
 
 **N4K48** is Nicola's participant-authorized MyZubster narrative identity: an **Explorer** whose starting world is **Neon Plaza**.
 
@@ -27,7 +27,8 @@ technical work, tests and evidence
 - [N4K48 character record in MyZubster](characters/N4K48.md)
 - [Nicola's N4K48 visual + technical profile](https://github.com/nicolaususnicola-lgtm/myzubster-mvp)
 - [MyZubster Visual universe](https://github.com/MyZubster-Ecosystem/MyZubster-Visual)
-- [Neon Plaza — H4X0R and N4K48 visual](https://drive.google.com/file/d/1zE1MuqFcjU8xUp4NZJfZde9Rdxtu0cwt/view)
+- [Neon Plaza — H4X0R and N4K48 visual](../visuals/drive-import-2026-09-03/Neon-Plaza-H4X0R-N4K48-Cyberpunk.jpg)
+- [Local MyZubster visual set](../visuals/drive-import-2026-09-03/)
 - [Zorgax cyberpunk visual](https://github.com/MyZubster-Ecosystem/MyZubster-Visual/blob/main/assets/zorgax/zorgax-cyberpunk-brand-ecosystem.jpg)
 - [MyZubster decentralized-network visual](https://github.com/MyZubster-Ecosystem/MyZubster-Visual/blob/main/assets/cyberpunk-series/MyZubster-Cyberpunk-Serie-04-Rete-Decentralizzata.png)
 
