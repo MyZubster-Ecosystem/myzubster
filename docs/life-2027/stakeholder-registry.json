@@ -1,6 +1,6 @@
 {
   "version": "myzubster_life_stakeholder_registry_v1",
-  "updatedAt": "2026-08-31",
+  "updatedAt": "2026-09-03",
   "truthRule": "Only FORMAL_CONFIRMED may be described as a confirmed LIFE partner/consortium role, and only with sufficient independently verifiable evidence.",
   "formalPartnerCount": 0,
   "stakeholders": [
@@ -52,6 +52,23 @@
       "formalPartner": false
     },
     {
+      "id": "csmt-project-funding-mrv-discussion",
+      "label": "CSMT Innovation Hub / Project Funding",
+      "category": "project_funding_mrv_life_pathway_interlocutor",
+      "state": "IN_DISCUSSION",
+      "evidence": [
+        "authorised_correspondence_2026-09-02_call_confirmed_not_published"
+      ],
+      "nextReviewWindow": "2026-09-04",
+      "missing": [
+        "project_funding_and_mrv_scope_discussion",
+        "explicit_role_or_participation_confirmation",
+        "coordinator_or_partner_position_if_any",
+        "formal_agreement_if_any"
+      ],
+      "formalPartner": false
+    },
+    {
       "id": "unicusano-lca-lcsa-discussion",
       "label": "Universita Niccolo Cusano / LCA-LCSA contact lane",
       "category": "lca_lcsa_circular_water_scientific_interlocutor",
@@ -60,7 +77,7 @@
         "authorised_correspondence_2026-08-31_call_availability_not_published"
       ],
       "missing": [
-        "introductory_call",
+        "introductory_call_outcome_evidence",
         "scope_fit",
         "explicit_role_or_participation_confirmation",
         "formal_agreement_if_any"
