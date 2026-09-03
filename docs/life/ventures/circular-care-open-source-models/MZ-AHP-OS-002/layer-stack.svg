@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="760" viewBox="0 0 1100 760" role="img" aria-labelledby="title desc">
+  <title id="title">MZ-AHP-OS-002 Circular Menstrual Pad — Layer Stack</title>
+  <desc id="desc">Conceptual layer stack for an open-source menstrual pad reference model. Not to scale and not production validated.</desc>
+  <style>
+    .box{fill:none;stroke:#111;stroke-width:2}.dash{fill:none;stroke:#555;stroke-width:2;stroke-dasharray:8 6}.txt{font-family:Arial,sans-serif;font-size:18px;fill:#111}.small{font-family:Arial,sans-serif;font-size:14px;fill:#333}.head{font-family:Arial,sans-serif;font-size:22px;font-weight:bold;fill:#111}.warn{font-family:Arial,sans-serif;font-size:16px;font-weight:bold;fill:#111}.line{stroke:#555;stroke-width:1.5}
+  </style>
+  <text x="40" y="42" class="head">MZ-AHP-OS-002 · Circular Menstrual Pad · Conceptual Layer Stack</text>
+  <text x="40" y="70" class="warn">NOT TO SCALE · DESIGN REFERENCE · MATERIALS NOT YET QUALIFIED</text>
+
+  <text x="60" y="112" class="txt">skin / body side</text>
+  <line x1="210" y1="108" x2="1020" y2="108" class="line"/>
+
+  <rect x="210" y="125" width="650" height="55" class="box"/>
+  <text x="235" y="158" class="txt">1 · Topsheet — candidate hydrophilic PP or validated fibre topsheet</text>
+  <text x="885" y="157" class="small">skin contact</text>
+
+  <rect x="250" y="195" width="570" height="55" class="box"/>
+  <text x="275" y="228" class="txt">2 · ADL — candidate cellulose-based or polyolefin layer</text>
+
+  <rect x="285" y="265" width="500" height="42" class="dash"/>
+  <text x="310" y="292" class="small">3 · upper core wrap — tissue or declared nonwoven</text>
+
+  <rect x="300" y="320" width="470" height="95" class="box"/>
+  <text x="330" y="356" class="txt">4 · Absorbent core</text>
+  <text x="330" y="385" class="small">cellulose fluff/pulp + optional SAP, recorded separately</text>
+
+  <rect x="285" y="430" width="500" height="42" class="dash"/>
+  <text x="310" y="457" class="small">5 · lower core wrap — tissue or declared nonwoven</text>
+
+  <rect x="240" y="487" width="590" height="55" class="box"/>
+  <text x="265" y="520" class="txt">6 · Barrier backsheet — candidate PE/polyolefin structure</text>
+
+  <rect x="275" y="557" width="520" height="42" class="dash"/>
+  <text x="305" y="584" class="small">7 · garment adhesive — minimized and chemistry declared</text>
+
+  <text x="60" y="642" class="txt">garment side</text>
+  <line x1="185" y1="638" x2="1020" y2="638" class="line"/>
+
+  <text x="875" y="205" class="small">system components, quantified separately:</text>
+  <text x="875" y="235" class="small">• optional wings</text>
+  <text x="875" y="260" class="small">• release liner</text>
+  <text x="875" y="285" class="small">• individual wrapper</text>
+  <text x="875" y="310" class="small">• outer packaging</text>
+
+  <text x="40" y="705" class="small">Circular-design intent: keep wrapper/liner/packaging visible in the BOM, simplify material families where performance allows, and validate treatment compatibility before any recovery claim.</text>
+  <text x="40" y="730" class="small">Evidence boundary: this SVG describes architecture only; it is not proof of safety, comfort, absorbency, leakage protection, recyclability or environmental benefit.</text>
+</svg>
