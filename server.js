@@ -41,6 +41,7 @@ const canonicalHtmlRedirects = new Map([
   ['/press.html', '/press'],
   ['/media', '/press'],
   ['/media-kit', '/press'],
+  ['/social-login.html', '/social-login'],
   ['/zorgax-email-profile.html', '/zorgax-email-profile'],
 ]);
 const bundledHtmlPaths = new Map([
@@ -139,8 +140,6 @@ app.use('/api/metaverse', async (req, res, next) => {
     await connectMongo();
     return next();
   } catch (_error) {
-    // The health route must remain reachable while MongoDB is unavailable so
-    // monitors receive an explicit degraded response instead of a generic gate.
     if (req.path === '/health') return next();
     const storageGateDurationMs = Number(process.hrtime.bigint() - storageGateStartedAt) / 1e6;
     console.warn(JSON.stringify({
