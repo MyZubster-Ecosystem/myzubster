@@ -59,5 +59,8 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/MyZubster-Ecosystem/MyZubsterGateway"
+  },
+  "overrides": {
+    "qs": "6.16.0"
   }
 }
