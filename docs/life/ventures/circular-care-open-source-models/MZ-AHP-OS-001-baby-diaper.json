@@ -1,0 +1,140 @@
+{
+  "modelId": "MZ-AHP-OS-001",
+  "name": "Circular Baby Diaper Reference Model",
+  "productFamily": "baby-diaper",
+  "version": "0.1.0",
+  "state": "DESIGN_REFERENCE",
+  "parentVenture": "MZ-VENTURE-AHP-001",
+  "openSourceIntent": true,
+  "productionValidated": false,
+  "marketComplianceValidated": false,
+  "verifiedCircularOutcome": false,
+  "designIntent": {
+    "singleUseReferenceArchitecture": true,
+    "fragranceFreeBaseline": true,
+    "lotionFreeBaseline": true,
+    "openBillOfMaterials": true,
+    "materialPassportRequired": true,
+    "collectionAwareDesign": true,
+    "treatmentCompatibilityRequiredBeforeRecoveryClaim": true
+  },
+  "components": [
+    {
+      "componentId": "topsheet",
+      "function": "skin-facing liquid transfer",
+      "materialFamily": "TO_BE_VALIDATED",
+      "massPerUnit_g": null,
+      "skinContact": true,
+      "recoveryRoute": "NOT_VERIFIED"
+    },
+    {
+      "componentId": "acquisition-distribution-layer",
+      "function": "fluid distribution",
+      "materialFamily": "TO_BE_VALIDATED",
+      "massPerUnit_g": null,
+      "skinContact": false,
+      "recoveryRoute": "NOT_VERIFIED"
+    },
+    {
+      "componentId": "absorbent-core",
+      "function": "fluid retention",
+      "materialFamily": "PULP_SAP_OR_ALTERNATIVE_TO_BE_VALIDATED",
+      "massPerUnit_g": null,
+      "skinContact": false,
+      "recoveryRoute": "NOT_VERIFIED"
+    },
+    {
+      "componentId": "core-wrap",
+      "function": "core stabilization",
+      "materialFamily": "TO_BE_VALIDATED",
+      "massPerUnit_g": null,
+      "skinContact": false,
+      "recoveryRoute": "NOT_VERIFIED"
+    },
+    {
+      "componentId": "backsheet",
+      "function": "leakage barrier",
+      "materialFamily": "TO_BE_VALIDATED",
+      "massPerUnit_g": null,
+      "skinContact": false,
+      "recoveryRoute": "NOT_VERIFIED"
+    },
+    {
+      "componentId": "fastening-system",
+      "function": "fit and closure",
+      "materialFamily": "TO_BE_VALIDATED",
+      "massPerUnit_g": null,
+      "skinContact": false,
+      "recoveryRoute": "NOT_VERIFIED"
+    },
+    {
+      "componentId": "elastic-system",
+      "function": "fit and leakage control",
+      "materialFamily": "TO_BE_VALIDATED",
+      "massPerUnit_g": null,
+      "skinContact": false,
+      "recoveryRoute": "NOT_VERIFIED"
+    },
+    {
+      "componentId": "adhesives",
+      "function": "layer bonding",
+      "materialFamily": "TO_BE_VALIDATED",
+      "massPerUnit_g": null,
+      "skinContact": false,
+      "recoveryRoute": "NOT_VERIFIED"
+    },
+    {
+      "componentId": "packaging",
+      "function": "transport and hygiene protection",
+      "materialFamily": "TO_BE_VALIDATED",
+      "massPerUnit_g": null,
+      "skinContact": false,
+      "recoveryRoute": "NOT_VERIFIED"
+    }
+  ],
+  "validationGates": [
+    "dimensional-and-mass-consistency",
+    "absorbency-capacity",
+    "acquisition-speed",
+    "rewet-surface-dryness",
+    "leakage-performance",
+    "fit-and-fastening-integrity",
+    "wet-and-dry-structural-integrity",
+    "packaging-integrity",
+    "skin-contact-material-review",
+    "restricted-substance-review",
+    "microbiological-and-hygiene-controls",
+    "traceable-lot-identification",
+    "collection-container-compatibility",
+    "treatment-route-acceptance",
+    "recovered-fraction-and-destination-evidence"
+  ],
+  "circularityEvidence": {
+    "collectionRoute": "NOT_CONFIRMED",
+    "treatmentRoute": "NOT_CONFIRMED",
+    "recoveredFractions": [],
+    "verifiedDestination": null,
+    "environmentalBaseline": null
+  },
+  "plannedOpenFiles": [
+    "BOM.csv",
+    "material-passport.json",
+    "dimensions.svg",
+    "layer-stack.svg",
+    "packaging-spec.md",
+    "prototype-build-notes.md",
+    "test-protocol.md",
+    "circular-flow.json",
+    "evidence-index.json",
+    "CHANGELOG.md"
+  ],
+  "claimBoundaries": {
+    "certifiedProduct": false,
+    "confirmedManufacturer": false,
+    "confirmedRecycler": false,
+    "validatedPerformance": false,
+    "validatedSafety": false,
+    "verifiedRecyclability": false,
+    "verifiedEnvironmentalBenefit": false
+  }
+}
