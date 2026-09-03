@@ -401,3 +401,169 @@
   .metaverse-landmark { width: 105px; }
   .metaverse-avatar { width: 72px; }
 }
+
+
+/* Ecosystem portals, session progression and capability diagnostics */
+a.metaverse-landmark {
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.metaverse-landmark small {
+  color: #7ee7ff;
+  font-size: 0.55rem;
+  letter-spacing: 0.12em;
+}
+
+a.metaverse-landmark:hover,
+a.metaverse-landmark:focus-visible {
+  border-color: #7ee7ff;
+  box-shadow: 0 0 0 3px rgba(126, 231, 255, 0.18), 0 0 24px rgba(126, 231, 255, 0.28);
+  outline: none;
+  transform: translate(-50%, -50%) scale(1.04);
+}
+
+.metaverse-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.metaverse-stat-grid div {
+  display: grid;
+  gap: 2px;
+  padding: 10px;
+  border: 1px solid rgba(126, 231, 255, 0.18);
+  border-radius: 10px;
+  background: rgba(4, 18, 34, 0.72);
+}
+
+.metaverse-stat-grid strong {
+  color: #7ee7ff;
+  font-size: 1.35rem;
+}
+
+.metaverse-stat-grid small {
+  color: #a9bfd0;
+}
+
+.metaverse-progress {
+  height: 7px;
+  margin: 12px 0;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #101d2d;
+}
+
+.metaverse-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #43d9ad, #7ee7ff);
+  transition: width 240ms ease;
+}
+
+.metaverse-achievements {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.metaverse-achievements span {
+  padding: 5px 8px;
+  border: 1px solid rgba(126, 231, 255, 0.3);
+  border-radius: 999px;
+  font-size: 0.72rem;
+}
+
+.metaverse-achievements .is-unlocked {
+  color: #d9fff5;
+  background: rgba(67, 217, 173, 0.15);
+}
+
+.metaverse-achievements .is-locked {
+  color: #6f8291;
+  filter: grayscale(1);
+  opacity: 0.65;
+}
+
+.metaverse-portal-list {
+  display: grid;
+  gap: 8px;
+}
+
+.metaverse-portal-list a {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 9px;
+  color: inherit;
+  text-decoration: none;
+  border: 1px solid rgba(126, 231, 255, 0.18);
+  border-radius: 10px;
+  background: rgba(4, 18, 34, 0.72);
+}
+
+.metaverse-portal-list a:hover,
+.metaverse-portal-list a:focus-visible {
+  border-color: #7ee7ff;
+  outline: none;
+}
+
+.metaverse-portal-list a > span {
+  font-size: 1.25rem;
+}
+
+.metaverse-portal-list div {
+  display: grid;
+  gap: 2px;
+}
+
+.metaverse-portal-list small {
+  color: #a9bfd0;
+  line-height: 1.3;
+}
+
+.metaverse-readiness {
+  margin-bottom: 10px;
+  padding: 9px;
+  border-radius: 9px;
+  font-weight: 800;
+}
+
+.metaverse-readiness.is-ready {
+  color: #cffff1;
+  background: rgba(67, 217, 173, 0.14);
+}
+
+.metaverse-readiness.needs-attention {
+  color: #ffe2a8;
+  background: rgba(255, 184, 76, 0.14);
+}
+
+.metaverse-check-list {
+  display: grid;
+  gap: 5px;
+  padding: 0;
+  list-style: none;
+}
+
+.metaverse-check-list li {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+}
+
+.metaverse-requirements summary {
+  cursor: pointer;
+  color: #7ee7ff;
+  font-weight: 800;
+}
+
+.metaverse-requirements p {
+  color: #a9bfd0;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
