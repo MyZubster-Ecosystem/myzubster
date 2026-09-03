@@ -22,6 +22,7 @@
     { "src": "/press\\.html/?", "status": 308, "headers": { "Location": "/press" } },
     { "src": "/media/?", "status": 308, "headers": { "Location": "/press" } },
     { "src": "/media-kit/?", "status": 308, "headers": { "Location": "/press" } },
+    { "src": "/social-login\\.html/?", "status": 308, "headers": { "Location": "/social-login" } },
     { "src": "/zorgax-email-profile\\.html/?", "status": 308, "headers": { "Location": "/zorgax-email-profile" } },
     { "src": "/press/?", "dest": "/api/index.js" },
     { "src": "/zorgax-email-profile/?", "headers": { "X-Robots-Tag": "noindex, nofollow" }, "dest": "/api/index.js" },
