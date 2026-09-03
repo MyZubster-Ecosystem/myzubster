@@ -172,10 +172,6 @@ router.post('/checkout', authenticate, async (req, res) => {
       success_url:successUrl,
       cancel_url:cancelUrl,
       client_reference_id:String(req.userId),
-      'line_items[0][price_data][currency]':'eur',
-      'line_items[0][price_data][unit_amount]':String(Math.round(amount * 100)),
-      'line_items[0][price_data][recurring][interval]':'month',
-      'line_items[0][price_data][product_data][name]':'MyZubster Seller',
       'line_items[0][quantity]':'1',
       'metadata[userId]':String(req.userId),
       'metadata[billingReference]':billingReference,
@@ -183,6 +179,14 @@ router.post('/checkout', authenticate, async (req, res) => {
       'subscription_data[metadata][billingReference]':billingReference,
       allow_promotion_codes:'false'
     };
+    if (process.env.STRIPE_SELLER_PRICE_ID) {
+      params['line_items[0][price]'] = process.env.STRIPE_SELLER_PRICE_ID;
+    } else {
+      params['line_items[0][price_data][currency]'] = 'eur';
+      params['line_items[0][price_data][unit_amount]'] = String(Math.round(amount * 100));
+      params['line_items[0][price_data][recurring][interval]'] = 'month';
+      params['line_items[0][price_data][product_data][name]'] = 'MyZubster Seller';
+    }
     if (membership.stripeCustomerId) params.customer = membership.stripeCustomerId;
     const session = await stripeRequest('POST', '/v1/checkout/sessions', params);
     membership.stripeCheckoutSessionId = session.id;
