@@ -1,16 +1,18 @@
 const express = require('express');
-const router = express.Router();
+const rateLimit = require('express-rate-limit');
+const OnionTelemetryHeartbeat = require('../models/OnionTelemetryHeartbeat');
 
+const router = express.Router();
 const WINDOW_MS = 24 * 60 * 60 * 1000;
-const MAX_BUCKETS = 100000;
-const buckets = new Map();
 const allowedKeys = new Set(['schema', 'kind', 'release', 'runtime', 'bucket']);
 
-function prune(now = Date.now()) {
-  for (const [bucket, seenAt] of buckets) {
-    if (now - seenAt > WINDOW_MS) buckets.delete(bucket);
-  }
-}
+// Limit abuse at the HTTP edge. No IP or User-Agent is written to the telemetry model.
+const heartbeatLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 120,
+  standardHeaders: true,
+  legacyHeaders: false
+});
 
 function validPayload(body) {
   if (!body || typeof body !== 'object' || Array.isArray(body)) return false;
@@ -22,20 +24,46 @@ function validPayload(body) {
   return true;
 }
 
-router.post('/onion/heartbeat', (req, res) => {
-  if (!validPayload(req.body)) return res.status(400).json({ ok: false, error: 'invalid_payload' });
-  const now = Date.now();
-  prune(now);
-  if (!buckets.has(req.body.bucket) && buckets.size >= MAX_BUCKETS) {
-    return res.status(429).json({ ok: false, error: 'capacity_limited' });
+router.post('/onion/heartbeat', heartbeatLimiter, async (req, res) => {
+  if (!validPayload(req.body)) {
+    return res.status(400).json({ ok: false, error: 'invalid_payload' });
   }
-  buckets.set(req.body.bucket, now);
-  return res.status(202).json({ ok: true });
+
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + WINDOW_MS);
+  try {
+    await OnionTelemetryHeartbeat.updateOne(
+      { bucket: req.body.bucket },
+      {
+        $set: {
+          release: req.body.release || null,
+          runtime: req.body.runtime,
+          lastSeenAt: now,
+          expiresAt
+        }
+      },
+      { upsert: true, runValidators: true }
+    );
+    return res.status(202).json({ ok: true });
+  } catch (error) {
+    return res.status(503).json({ ok: false, error: 'telemetry_unavailable' });
+  }
 });
 
-router.get('/onion/active', (_req, res) => {
-  prune();
-  return res.json({ active_onion_instances_24h: buckets.size, window_hours: 24, approximate: true });
+router.get('/onion/active', async (_req, res) => {
+  const since = new Date(Date.now() - WINDOW_MS);
+  try {
+    const active = await OnionTelemetryHeartbeat.countDocuments({ lastSeenAt: { $gte: since } });
+    return res.json({
+      active_onion_instances_24h: active,
+      window_hours: 24,
+      approximate: true,
+      scope: 'opt_in_instances'
+    });
+  } catch (error) {
+    return res.status(503).json({ ok: false, error: 'telemetry_unavailable' });
+  }
 });
 
 module.exports = router;
+module.exports.validPayload = validPayload;
