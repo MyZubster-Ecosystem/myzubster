@@ -1,0 +1,81 @@
+{
+  "schemaVersion": "0.3-draft",
+  "modelId": "MZ-AHP-OS-002",
+  "designVersion": "0.3-draft",
+  "state": "DESIGN_REFERENCE",
+  "claimBoundary": "A completed schema is not proof of recycling or circularity. Operational evidence is required for every transition.",
+  "design": {
+    "materialPassportRef": "material-passport.json",
+    "bomRef": "BOM.csv",
+    "wrapperAndPackagingSpecRef": "wrapper-and-packaging-spec.md",
+    "testProtocolRef": "test-protocol.md"
+  },
+  "productLot": {
+    "lotId": null,
+    "manufacturerOrBuilder": null,
+    "buildEvidenceRef": null,
+    "unitsProduced": null,
+    "dryProductMass_kg": null,
+    "releaseLinerMass_kg": null,
+    "wrapperMass_kg": null,
+    "outerPackagingMass_kg": null,
+    "status": "NOT_CREATED"
+  },
+  "supply": {
+    "destinationSiteId": null,
+    "unitsSupplied": null,
+    "supplyMass_kg": null,
+    "evidenceRef": null,
+    "status": "NOT_VERIFIED"
+  },
+  "collection": {
+    "authorizedSiteId": null,
+    "operator": null,
+    "collectionWindowStart": null,
+    "collectionWindowEnd": null,
+    "unitsReturned": null,
+    "grossCollectedMass_kg": null,
+    "contaminationOrRejectedMass_kg": null,
+    "netAcceptedMass_kg": null,
+    "evidenceRef": null,
+    "status": "NOT_VERIFIED"
+  },
+  "transportToTreatment": {
+    "carrier": null,
+    "transferId": null,
+    "dispatchMass_kg": null,
+    "receivedMass_kg": null,
+    "evidenceRef": null,
+    "status": "NOT_VERIFIED"
+  },
+  "treatment": {
+    "operator": null,
+    "facility": null,
+    "acceptanceEvidenceRef": null,
+    "treatmentBatchId": null,
+    "inputMass_kg": null,
+    "processDescriptionRef": null,
+    "status": "NOT_VERIFIED"
+  },
+  "outputs": [
+    {"fractionId":"cellulose-fraction","mass_kg":null,"qualityEvidenceRef":null,"destination":null,"destinationEvidenceRef":null,"status":"NOT_VERIFIED"},
+    {"fractionId":"polymer-fraction","mass_kg":null,"qualityEvidenceRef":null,"destination":null,"destinationEvidenceRef":null,"status":"NOT_VERIFIED"},
+    {"fractionId":"other-recovered-fraction","mass_kg":null,"qualityEvidenceRef":null,"destination":null,"destinationEvidenceRef":null,"status":"NOT_VERIFIED"},
+    {"fractionId":"residual-reject","mass_kg":null,"disposalOrTreatmentRoute":null,"evidenceRef":null,"status":"NOT_VERIFIED"}
+  ],
+  "derivedKpis": {
+    "collectionRate": null,
+    "treatmentYield": null,
+    "recoveryYieldByFraction": null,
+    "residualFraction": null,
+    "verifiedDestinationRate": null,
+    "evidenceCompletenessRate": null,
+    "calculationEvidenceRef": null,
+    "status": "NOT_CALCULATED"
+  },
+  "verification": {
+    "humanReviewer": null,
+    "reviewDate": null,
+    "state": "UNVERIFIED"
+  }
+}
