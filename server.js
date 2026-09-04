@@ -126,6 +126,7 @@ const municipalityRoutes = require('./src/routes/municipalityRoutes');
 const entityRoutes = require('./src/routes/entityRoutes');
 const metaverseRoutes = require('./backend/src/routes/metaverse');
 const lifeDaoRoutes = require('./backend/src/routes/dao-life');
+const onionTelemetryRoutes = require('./src/routes/onionTelemetryRoutes');
 const { lifeDaoBindingGuard } = require('./backend/src/services/lifeDaoPolicy');
 
 app.post('/api/auth/register', async (_req, res, next) => {
@@ -189,6 +190,7 @@ app.use('/api/entities', entityRoutes);
 app.use('/api/metaverse', metaverseRoutes);
 app.use('/api/dao/life', lifeDaoRoutes);
 app.use('/api/dao', lifeDaoBindingGuard);
+app.use('/api/telemetry', onionTelemetryRoutes);
 
 app.get('/', (_req, res) => {
   res.status(200).json({
