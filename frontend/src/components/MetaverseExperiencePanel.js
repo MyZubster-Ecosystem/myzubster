@@ -1,8 +1,36 @@
 import React, { useMemo } from 'react';
+import { METAVERSE_EVENTS, trackMetaverseEvent } from '../analytics/metaverseAnalytics';
 
 const PORTALS = [
-  { href: '/', label: 'Marketplace', icon: '🛒', description: 'Annunci, Seller e scambi della community.' },
-  { href: '/life-pilot', label: 'Progetti LIFE', icon: '🌱', description: 'Pilot ambientali, evidenze e KPI/MRV.' },
+  {
+    href: '/space-station',
+    label: 'Space Station',
+    icon: '🛰️',
+    description: 'Ambiente sperimentale, simulazioni e collaborazione evidence-first.',
+    event: METAVERSE_EVENTS.SPACE_STATION_OPEN
+  },
+  {
+    href: '/life-pilot',
+    label: 'Missioni / Progetti LIFE',
+    icon: '🌱',
+    description: 'Missioni, pilot ambientali, evidenze e KPI/MRV.',
+    event: METAVERSE_EVENTS.MISSIONS_OPEN
+  },
+  {
+    href: '/',
+    label: 'Marketplace',
+    icon: '🛒',
+    description: 'Annunci, Seller e scambi della community.',
+    event: METAVERSE_EVENTS.MARKETPLACE_OPEN
+  },
+  {
+    href: 'https://github.com/MyZubster-Ecosystem/myzubster/blob/main/CONTRIBUTING.md',
+    label: 'Contribuisci',
+    icon: '🧑‍💻',
+    description: 'Documentazione GitHub per iniziare a contribuire.',
+    event: METAVERSE_EVENTS.CONTRIBUTION_DOCS_OPEN,
+    external: true
+  },
   { href: '/social-login', label: 'Identità', icon: '🪪', description: 'Collega un account e il personaggio verificato.' },
   { href: '/zorgax', label: 'Zorgax', icon: '👁️', description: 'Guida narrativa e intelligenza del mondo.' }
 ];
@@ -69,6 +97,15 @@ function MetaverseExperiencePanel({
     { id: 'verified', label: 'Identità collegata', icon: '✅', unlocked: identityStatus === 'account-linked' }
   ];
 
+  const trackPortal = (portal) => {
+    if (!portal.event) return;
+    trackMetaverseEvent(portal.event, {
+      source: 'neon-plaza',
+      destination: portal.href,
+      surface: 'metaverse-portal-list'
+    });
+  };
+
   return (
     <>
       <section className="metaverse-panel">
@@ -102,7 +139,13 @@ function MetaverseExperiencePanel({
         <h3>Portali MyZubster</h3>
         <div className="metaverse-portal-list">
           {PORTALS.map((portal) => (
-            <a href={portal.href} key={portal.label}>
+            <a
+              href={portal.href}
+              key={portal.label}
+              onClick={() => trackPortal(portal)}
+              target={portal.external ? '_blank' : undefined}
+              rel={portal.external ? 'noreferrer' : undefined}
+            >
               <span>{portal.icon}</span>
               <div>
                 <strong>{portal.label}</strong>
