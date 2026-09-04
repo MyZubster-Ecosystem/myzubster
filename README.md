@@ -98,6 +98,7 @@ Open pull requests and fork branches are independent open-source contributions; 
 | I want to… | Start here |
 |---|---|
 | Understand MyZubster | This README → **How MyZubster works** |
+| Explore circular economy & Space Station visuals | [Visual gallery](#-circular-economy--space-station-visuals) |
 | Explore the open knowledge framework — chemistry, sexuality, health, cannabis, circular economy, sport, music, AI and more | [`docs/OPEN-KNOWLEDGE-DOMAINS-FRAMEWORK.md`](docs/OPEN-KNOWLEDGE-DOMAINS-FRAMEWORK.md) |
 | Explore religion, spirituality and belief framework | [`docs/OPEN-SOURCE-RELIGION-BELIEF-FRAMEWORK.md`](docs/OPEN-SOURCE-RELIGION-BELIEF-FRAMEWORK.md) |
 | Join the community | [`JOIN.md`](JOIN.md) |
@@ -120,6 +121,22 @@ Open pull requests and fork branches are independent open-source contributions; 
 | Explore the Chronicle | [myzubster.com/fumetto](https://www.myzubster.com/fumetto) |
 
 > 🌍 **Languages:** English · Italiano · Español · Français · Deutsch · Português · 中文 · 日本語 · 한국어 · العربية · हिन्दी · Русский · Türkçe · Bahasa Indonesia · Polski · Українська · বাংলা · اردو · فارسی · Kiswahili — see [`docs/i18n/README.md`](docs/i18n/README.md).
+
+## 🎨 Circular economy & Space Station visuals
+
+These visual assets document the current MyZubster narrative around circular economy, payment flows and the Space Station ecosystem. They are visual communication assets and do not by themselves constitute technical, scientific or financial evidence.
+
+### MyZubster — Economia Circolare Cyberpunk
+
+[![MyZubster Economia Circolare Cyberpunk](docs/visuals/MyZubster-Economia-Circolare-Cyberpunk.jpg)](docs/visuals/MyZubster-Economia-Circolare-Cyberpunk.jpg)
+
+### MyZubster — Pagamenti Economia Circolare
+
+[![MyZubster Pagamenti Economia Circolare](docs/visuals/MyZubster-Pagamenti-Economia-Circolare.jpg)](docs/visuals/MyZubster-Pagamenti-Economia-Circolare.jpg)
+
+### MyZubster — Space Station Cyberpunk
+
+[![MyZubster Space Station Cyberpunk](docs/visuals/MyZubster-Space-Station-Cyberpunk.jpg)](docs/visuals/MyZubster-Space-Station-Cyberpunk.jpg)
 
 ## ⚙️ How MyZubster works
 
