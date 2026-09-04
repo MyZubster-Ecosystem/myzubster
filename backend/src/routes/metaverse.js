@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const MetaverseCharacter = require('../models/MetaverseCharacter');
 const MetaversePresence = require('../models/MetaversePresence');
 const MetaverseChatMessage = require('../models/MetaverseChatMessage');
+const MetaverseRateLimit = require('../models/MetaverseRateLimit');
 const { optionalAuthenticate } = require('../../../src/middleware/auth');
 
 const router = express.Router();
@@ -36,7 +37,19 @@ const sessions = new Map();
 const streams = new Map();
 const cleanupTimers = new Map();
 const actionTimes = new Map();
+const localRateWindows = new Map();
 const recentMessages = [];
+
+const RATE_LIMITS = {
+  join: [{ windowMs: 10 * 60 * 1000, max: 8 }],
+  sync: [{ windowMs: 60 * 1000, max: 45 }],
+  chat: [
+    { windowMs: 10 * 1000, max: 4 },
+    { windowMs: 60 * 1000, max: 20 }
+  ],
+  emote: [{ windowMs: 60 * 1000, max: 20 }]
+};
+const DUPLICATE_CHAT_WINDOW_MS = 15 * 1000;
 
 function cleanText(value, maxLength = 40) {
   return String(value || '')
@@ -256,6 +269,103 @@ function allowAction(sessionId, action, intervalMs) {
   if (now - previous < intervalMs) return false;
   actionTimes.set(key, now);
   return true;
+}
+
+function rateLimitSecret() {
+  return process.env.METAVERSE_RATE_LIMIT_SECRET || process.env.JWT_SECRET || null;
+}
+
+function hashRateLimitSubject(subject) {
+  const secret = rateLimitSecret();
+  if (!secret) return null;
+  return crypto.createHmac('sha256', secret).update(String(subject)).digest('hex');
+}
+
+function clientRateLimitSubject(req) {
+  const forwarded = req.headers['x-vercel-forwarded-for'] || req.headers['x-real-ip'];
+  const address = Array.isArray(forwarded) ? forwarded[0] : String(forwarded || '').split(',')[0].trim();
+  return address || req.ip || req.socket?.remoteAddress || 'unknown-client';
+}
+
+function localWindowIncrement(subject, action, windowMs, max, nowMs) {
+  const bucket = Math.floor(nowMs / windowMs);
+  const key = `${action}:${windowMs}:${subject}:${bucket}`;
+  const count = (localRateWindows.get(key) || 0) + 1;
+  localRateWindows.set(key, count);
+
+  if (localRateWindows.size > 5000) {
+    for (const storedKey of localRateWindows.keys()) {
+      if (!storedKey.endsWith(`:${bucket}`)) localRateWindows.delete(storedKey);
+    }
+  }
+
+  return {
+    allowed: count <= max,
+    remaining: Math.max(0, max - count),
+    retryAfter: Math.max(1, Math.ceil(((bucket + 1) * windowMs - nowMs) / 1000))
+  };
+}
+
+async function incrementRateWindow(subject, action, policy, nowMs = Date.now()) {
+  const { windowMs, max } = policy;
+  const subjectHash = hashRateLimitSubject(subject);
+  if (!databaseAvailable()) {
+    return localWindowIncrement(subject, action, windowMs, max, nowMs);
+  }
+  if (!subjectHash) throw new Error('METAVERSE_RATE_LIMIT_SECRET or JWT_SECRET is required');
+
+  const bucket = Math.floor(nowMs / windowMs);
+  const windowStartedAt = new Date(bucket * windowMs);
+  const expiresAt = new Date((bucket + 1) * windowMs + 60 * 1000);
+  const id = `${WORLD.id}:${action}:${windowMs}:${bucket}:${subjectHash}`;
+  const update = {
+    $inc: { count: 1 },
+    $setOnInsert: {
+      worldId: WORLD.id,
+      action,
+      subjectHash,
+      windowStartedAt,
+      expiresAt
+    }
+  };
+
+  let record;
+  try {
+    record = await MetaverseRateLimit.findOneAndUpdate(
+      { _id: id },
+      update,
+      { upsert: true, new: true, setDefaultsOnInsert: true, lean: true }
+    );
+  } catch (error) {
+    if (error?.code !== 11000) throw error;
+    record = await MetaverseRateLimit.findOneAndUpdate(
+      { _id: id },
+      { $inc: { count: 1 } },
+      { new: true, lean: true }
+    );
+  }
+
+  const count = Number(record?.count || 0);
+  return {
+    allowed: count <= max,
+    remaining: Math.max(0, max - count),
+    retryAfter: Math.max(1, Math.ceil(((bucket + 1) * windowMs - nowMs) / 1000))
+  };
+}
+
+async function enforceRateLimits(res, subject, action, policies = RATE_LIMITS[action]) {
+  for (const policy of policies || []) {
+    const outcome = await incrementRateWindow(subject, action, policy);
+    if (!outcome.allowed) {
+      res.setHeader('Retry-After', String(outcome.retryAfter));
+      return res.status(429).json({
+        success: false,
+        error: `${action[0].toUpperCase()}${action.slice(1)} rate exceeded`,
+        retryAfter: outcome.retryAfter
+      });
+    }
+  }
+  return null;
 }
 
 function cancelCleanup(sessionId) {
@@ -519,6 +629,14 @@ router.get('/world', async (_req, res) => {
 });
 
 router.post('/join', optionalAuthenticate, async (req, res) => {
+  try {
+    const limited = await enforceRateLimits(res, clientRateLimitSubject(req), 'join');
+    if (limited) return limited;
+  } catch (error) {
+    console.error('Metaverse join rate-limit error:', error);
+    return res.status(503).json({ success: false, error: 'Metaverse abuse protection is temporarily unavailable' });
+  }
+
   let activeSessions;
   try {
     activeSessions = await listActiveSessions();
@@ -628,6 +746,8 @@ router.post('/sync', async (req, res) => {
   try {
     const session = await findSession(sessionId);
     if (!session) return res.status(404).json({ success: false, error: 'Unknown metaverse session' });
+    const limited = await enforceRateLimits(res, sessionId, 'sync');
+    if (limited) return limited;
 
     const now = new Date();
     session.lastSeenAt = now.toISOString();
@@ -709,7 +829,10 @@ router.post('/move', async (req, res) => {
   try {
     const session = await findSession(sessionId);
     if (!session) return res.status(404).json({ success: false, error: 'Unknown metaverse session' });
-    if (!allowAction(sessionId, 'move', 45)) return res.status(429).json({ success: false, error: 'Move rate exceeded' });
+    if (!allowAction(sessionId, 'move', 45)) {
+      res.setHeader('Retry-After', '1');
+      return res.status(429).json({ success: false, error: 'Move rate exceeded', retryAfter: 1 });
+    }
 
     session.x = clamp(req.body?.x, WORLD.minX, WORLD.maxX);
     session.y = clamp(req.body?.y, WORLD.minY, WORLD.maxY);
@@ -730,10 +853,21 @@ router.post('/chat', async (req, res) => {
   try {
     const session = await findSession(sessionId);
     if (!session) return res.status(404).json({ success: false, error: 'Unknown metaverse session' });
-    if (!allowAction(sessionId, 'chat', 700)) return res.status(429).json({ success: false, error: 'Chat rate exceeded' });
+    if (!allowAction(sessionId, 'chat', 700)) {
+      res.setHeader('Retry-After', '1');
+      return res.status(429).json({ success: false, error: 'Chat rate exceeded', retryAfter: 1 });
+    }
+
+    const limited = await enforceRateLimits(res, sessionId, 'chat');
+    if (limited) return limited;
 
     const text = cleanText(req.body?.text, 280);
     if (!text) return res.status(400).json({ success: false, error: 'Message is empty' });
+    const duplicateSubject = `${sessionId}:${text.toLowerCase()}`;
+    const duplicate = await enforceRateLimits(res, duplicateSubject, 'duplicate chat', [
+      { windowMs: DUPLICATE_CHAT_WINDOW_MS, max: 1 }
+    ]);
+    if (duplicate) return duplicate;
 
     const message = {
       id: crypto.randomUUID(),
@@ -758,7 +892,12 @@ router.post('/emote', async (req, res) => {
   try {
     const session = await findSession(sessionId);
     if (!session) return res.status(404).json({ success: false, error: 'Unknown metaverse session' });
-    if (!allowAction(sessionId, 'emote', 500)) return res.status(429).json({ success: false, error: 'Emote rate exceeded' });
+    if (!allowAction(sessionId, 'emote', 500)) {
+      res.setHeader('Retry-After', '1');
+      return res.status(429).json({ success: false, error: 'Emote rate exceeded', retryAfter: 1 });
+    }
+    const limited = await enforceRateLimits(res, sessionId, 'emote');
+    if (limited) return limited;
 
     const emote = cleanText(req.body?.emote, 16).toLowerCase();
     if (!EMOTES.has(emote)) return res.status(400).json({ success: false, error: 'Unsupported emote' });

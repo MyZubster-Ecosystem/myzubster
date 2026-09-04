@@ -62,6 +62,12 @@ Logs must not include request bodies, query strings, chat text, authorization he
 
 These controls reduce accidental flooding but are not a complete distributed moderation system.
 
+## Distributed rate-limit configuration
+
+Production rate-limit subjects are pseudonymized with HMAC-SHA256 before they are stored. Configure a dedicated `METAVERSE_RATE_LIMIT_SECRET`; when it is absent, the backend may reuse `JWT_SECRET`. A connected production database without either secret fails the protected request instead of storing a raw client address or session identifier in the rate-limit collection.
+
+MongoDB counters use fixed, expiring windows shared by all serverless instances. The local in-memory fallback exists only for development and isolated tests without MongoDB.
+
 ## Required next controls
 
 Before the Metaverse is promoted beyond the current MVP baseline, implement and test:

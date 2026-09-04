@@ -88,6 +88,21 @@ describe('MyZubster metaverse API', () => {
     expect(new Date(syncResponse.body.cursor).toString()).not.toBe('Invalid Date');
   });
 
+  test('rejects duplicate chat across the abuse-control window', async () => {
+    await new Promise((resolve) => setTimeout(resolve, 750));
+
+    const response = await request(app)
+      .post('/api/metaverse/chat')
+      .send({ sessionId, text: 'Ciao Neon Plaza' })
+      .expect(429);
+
+    expect(response.headers['retry-after']).toMatch(/^\d+$/);
+    expect(response.body).toMatchObject({
+      success: false,
+      error: 'Duplicate chat rate exceeded'
+    });
+  });
+
   test('keeps an emote visible across a browser synchronization interval', async () => {
     await request(app)
       .post('/api/metaverse/emote')
