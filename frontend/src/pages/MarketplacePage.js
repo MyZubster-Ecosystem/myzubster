@@ -51,17 +51,34 @@ function MarketplacePage() {
   async function apiAction(url, body) {
     const response = await fetch(url, { method:'POST', headers:authHeaders({ 'Content-Type':'application/json' }), body:JSON.stringify(body) });
     const payload = await response.json().catch(() => ({}));
-    if (!response.ok) { const error = new Error(payload.message || payload.error || 'Operazione non riuscita'); error.payload = payload; throw error; }
+    if (!response.ok) { const error = new Error(payload.message || payload.error || 'Operazione non riuscita'); error.payload = payload; error.status = response.status; throw error; }
     return payload;
   }
 
   async function becomeSeller() {
+    const token = localStorage.getItem('myzubster-token');
+    if (!token) {
+      setMessage('Per diventare Seller devi prima accedere a MyZubster. Ti porto alla pagina di accesso...');
+      const returnTo = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+      window.location.assign(`/social-login?returnTo=${encodeURIComponent(returnTo)}`);
+      return;
+    }
     try {
       setMessage('Apertura Stripe Checkout...');
       const payload = await apiAction('/api/marketplace/seller/checkout', {});
       if (!payload.checkoutUrl) throw new Error('Stripe Checkout non disponibile.');
       window.location.assign(payload.checkoutUrl);
-    } catch (e) { setMessage(e.message); }
+    } catch (e) {
+      if (e.status === 401) {
+        localStorage.removeItem('myzubster-token');
+        setSellerState(null);
+        setMessage('La sessione MyZubster è scaduta. Accedi di nuovo per aprire Stripe Checkout.');
+        const returnTo = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+        window.location.assign(`/social-login?returnTo=${encodeURIComponent(returnTo)}`);
+        return;
+      }
+      setMessage(e.message);
+    }
   }
 
   async function createListing(event) {
@@ -133,5 +150,3 @@ function MarketplacePage() {
 }
 
 export default MarketplacePage;
-
-
