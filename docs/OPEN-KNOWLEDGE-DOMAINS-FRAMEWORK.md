@@ -48,6 +48,22 @@ Educational software, curricula created by contributors, simulations and learnin
 
 MyZubster may support open creative tools and contributor-created media under explicit licences. Copyright, attribution, personality rights, trademarks and third-party licences remain applicable. AI-generated or transformed material should not be represented as authentic historical evidence or as an official work of a third party when it is not.
 
+## Sport and physical activity
+
+MyZubster may support open-source tools for sport, training, fitness education, competitions, community activities, simulations, performance analysis and eligible public sports data.
+
+Sports themselves, athletes, clubs, federations, competitions and their identities are not owned or made open source by MyZubster. Names, logos, broadcasts, photographs, statistics, biometric information and other third-party material remain subject to their applicable rights and licences.
+
+Open software may help people organize activities, visualize eligible data or build virtual and educational sports experiences. It does not constitute medical clearance, coaching certification, official competition authorization or affiliation with a club, league, athlete or federation. Health, safety, safeguarding, privacy and age-appropriate requirements remain applicable.
+
+## Music and audio culture
+
+MyZubster may support open-source software for music creation, composition, performance tools, audio processing, education, metadata, visualization, virtual experiences and collaborative creation.
+
+Music as a cultural activity is not itself owned by MyZubster. Songs, recordings, lyrics, compositions, samples, performances, artist identities, album artwork and catalogues may be protected by copyright, neighbouring rights, trademarks, contracts or other rights. Open-source software does **not** automatically make copyrighted music freely reusable.
+
+Creators may release their own music, recordings, samples, stems, metadata or other material under compatible open or Creative Commons licences when they hold the necessary rights. MyZubster can provide the infrastructure for such collaboration while preserving attribution, provenance and licensing information.
+
 ## Economics, finance and payments
 
 Open-source software may model economic systems, accounting, marketplaces, payments and digital assets. Public code does not itself constitute financial authorization, a guarantee of value, investment advice or proof that a payment occurred. Regulated financial functionality requires its own legal, security and operational assessment.
@@ -90,6 +106,8 @@ RESPONSIBLE REUSE, FORK AND COLLABORATION
 
 - a person's identity, sexuality, health information or private data;
 - religions, cultures or communities themselves;
+- athletes, artists, clubs, federations or their identities;
+- copyrighted music, recordings, broadcasts, lyrics or other protected works;
 - copyrighted or culturally restricted third-party material;
 - confidential information;
 - regulated permissions, licences or professional authority;
@@ -98,7 +116,7 @@ RESPONSIBLE REUSE, FORK AND COLLABORATION
 
 ## Core principle
 
-**Freedom of code. Freedom of knowledge. Freedom of identity and belief. Responsibility in application.**
+**Freedom of code. Freedom of knowledge. Freedom of identity, creativity and belief. Responsibility in application.**
 
 MyZubster's goal is an open digital infrastructure for exploring and building across disciplines while maintaining a clear boundary between what can be openly licensed and the people, rights, evidence, safety requirements and laws that must remain protected.
 
