@@ -117,6 +117,7 @@ const zorgaxAssistantRoutes = require('./src/routes/zorgaxAssistantRoutes');
 const zorgaxLifeRoutes = require('./src/routes/zorgaxLifeRoutes');
 const zorgaxEmailRoutes = require('./src/routes/zorgaxEmailRoutes');
 const paymentRoutes = require('./src/routes/paymentRoutes');
+const paymentDashboardRoutes = require('./src/routes/paymentDashboardRoutes');
 const zorgaxMonetizationRoutes = require('./src/routes/zorgaxMonetizationRoutes');
 const zorgaxCapitalRoutes = require('./src/routes/zorgaxCapitalRoutes');
 const zorgaxDigitalBusinessRoutes = require('./src/routes/zorgaxDigitalBusinessRoutes');
@@ -176,6 +177,7 @@ app.use('/api/geocode', geocodeRoutes);
 app.use('/api', healthRoutes);
 app.use('/api/grok', grokRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/payment-dashboard', paymentDashboardRoutes);
 app.use('/api/zorgax/monetization', zorgaxMonetizationRoutes);
 app.use('/api/zorgax/capital', zorgaxCapitalRoutes);
 app.use('/api/zorgax/digital-business', zorgaxDigitalBusinessRoutes);
@@ -217,6 +219,7 @@ app.get('/grok', (req, res) => res.sendFile(path.join(__dirname, 'public', 'grok
 app.get('/zorgax', (req, res) => res.sendFile(path.join(__dirname, 'public', 'zorgax.html')));
 app.get('/zorgax-build', (req, res) => res.sendFile(path.join(__dirname, 'public', 'zorgax-build.html')));
 app.get('/research-search', (req, res) => res.sendFile(path.join(__dirname, 'public', 'research-search.html')));
+app.get('/payment-dashboard', (req, res) => res.sendFile(path.join(__dirname, 'public', 'payment-dashboard.html')));
 app.get(['/fumetto', '/comic'], (req, res) => res.sendFile(path.join(__dirname, 'public', 'fumetto.html')));
 
 module.exports = app;
