@@ -1,6 +1,6 @@
 {
   "version": "myzubster_life_stakeholder_registry_v1",
-  "updatedAt": "2026-08-31",
+  "updatedAt": "2026-09-03",
   "truthRule": "Only FORMAL_CONFIRMED may be described as a confirmed LIFE partner/consortium role, and only with sufficient independently verifiable evidence.",
   "formalPartnerCount": 0,
   "stakeholders": [
@@ -23,6 +23,18 @@
       "restriction": "no_further_action_on_this_contact_lane",
       "scopeBoundary": "contact_lane_only_not_unibo_institution_wide",
       "missing": ["better_matched_agriculture_or_biodiversity_scientific_interlocutor"],
+      "formalPartner": false
+    },
+    {
+      "id": "ispra-environmental-certifications-contact-lane",
+      "label": "ISPRA environmental certifications contact lane",
+      "category": "scientific_validation_contact_lane_outside_service_competence",
+      "state": "INACTIVE",
+      "evidence": ["authorised_response_2026-09-03_not_published"],
+      "restriction": "no_direct_participation_via_environmental_certifications_service",
+      "scopeBoundary": "service_contact_lane_only_not_ispra_institution_wide",
+      "redirect": "ispra_general_directorate_route_suggested_not_yet_confirmed",
+      "missing": ["general_directorate_outreach_if_authorised", "explicit_institutional_interest_or_role_confirmation", "formal_agreement_if_any"],
       "formalPartner": false
     },
     {
