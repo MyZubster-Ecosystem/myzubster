@@ -1,0 +1,31 @@
+{
+  "schema": "myzubster-myz-settlement/v1",
+  "reward_asset": "MYZ",
+  "reward_layer": "internal-ledger",
+  "funding_inputs": ["BTC", "STRIPE"],
+  "external_settlement_asset": "XMR",
+  "rules": {
+    "credit_myz_only_after_bounty_approval": true,
+    "incoming_funds_do_not_approve_bounties": true,
+    "require_idempotency_key": true,
+    "require_evidence_reference": true,
+    "require_available_settled_funds_for_external_settlement": true,
+    "automatic_external_settlement_requires_configured_provider": true,
+    "stripe_is_not_xmr_converter": true
+  },
+  "states": [
+    "CONTRIBUTION_SUBMITTED",
+    "BOUNTY_APPROVED",
+    "MYZ_RECORDED",
+    "SETTLEMENT_PENDING",
+    "CONVERSION_PENDING",
+    "XMR_PAYOUT_PENDING",
+    "XMR_PAID",
+    "SETTLEMENT_FAILED"
+  ],
+  "notes": [
+    "Approved bounty rewards are credited in the canonical MYZ internal ledger.",
+    "BTC and Stripe are funding inputs; XMR conversion/payout is a separate settlement integration.",
+    "No external XMR payment is claimed unless a real provider transaction/reference exists."
+  ]
+}
