@@ -73,7 +73,10 @@ function verifyStripeSignature(rawBody, signatureHeader) {
   return signatures.some(signature => /^[a-f0-9]{64}$/i.test(signature) && crypto.timingSafeEqual(Buffer.from(expected, 'hex'), Buffer.from(signature, 'hex')));
 }
 
-function stripePeriodEnd(subscription) { return subscription?.current_period_end ? new Date(subscription.current_period_end * 1000) : null; }
+function stripePeriodEnd(subscription) {
+  const timestamp = subscription?.current_period_end || subscription?.items?.data?.[0]?.current_period_end;
+  return timestamp ? new Date(timestamp * 1000) : null;
+}
 function membershipStatusFromStripe(subscription) {
   const status = subscription?.status;
   if (status === 'active' || status === 'trialing') return 'ACTIVE';
@@ -122,8 +125,6 @@ router.post('/checkout', authenticate, async (req,res) => {
     if(process.env.STRIPE_SELLER_PRICE_ID) params['line_items[0][price]']=process.env.STRIPE_SELLER_PRICE_ID;
     else { params['line_items[0][price_data][currency]']='eur'; params['line_items[0][price_data][unit_amount]']=String(Math.round(amount*100)); params['line_items[0][price_data][recurring][interval]']='month'; params['line_items[0][price_data][product_data][name]']='MyZubster Seller'; }
 
-    // Do not reuse a persisted Customer blindly: it may belong to an old Stripe mode/account.
-    // Checkout subscription mode creates a Customer when none is supplied; the webhook then persists the live Customer ID.
     if (membership.stripeCustomerId) {
       try {
         await stripeRequest('GET', `/v1/customers/${encodeURIComponent(membership.stripeCustomerId)}`);
