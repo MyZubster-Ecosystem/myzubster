@@ -98,6 +98,8 @@ Open pull requests and fork branches are independent open-source contributions; 
 | I want to… | Start here |
 |---|---|
 | Understand MyZubster | This README → **How MyZubster works** |
+| Explore the open knowledge framework — chemistry, sexuality, health, cannabis, circular economy, sport, music, AI and more | [`docs/OPEN-KNOWLEDGE-DOMAINS-FRAMEWORK.md`](docs/OPEN-KNOWLEDGE-DOMAINS-FRAMEWORK.md) |
+| Explore religion, spirituality and belief framework | [`docs/OPEN-SOURCE-RELIGION-BELIEF-FRAMEWORK.md`](docs/OPEN-SOURCE-RELIGION-BELIEF-FRAMEWORK.md) |
 | Join the community | [`JOIN.md`](JOIN.md) |
 | Contribute code/docs/design | [`CONTRIBUTING.md`](CONTRIBUTING.md) |
 | Understand ecosystem architecture | [`docs/ECOSYSTEM.md`](docs/ECOSYSTEM.md) |
