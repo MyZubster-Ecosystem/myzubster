@@ -1,9 +1,20 @@
 {
   "version": "myzubster_life_stakeholder_registry_v1",
-  "updatedAt": "2026-08-31",
+  "updatedAt": "2026-09-03",
   "truthRule": "Only FORMAL_CONFIRMED may be described as a confirmed LIFE partner/consortium role, and only with sufficient independently verifiable evidence.",
   "formalPartnerCount": 0,
   "stakeholders": [
+    {
+      "id": "catalan-water-partnership-current-call-lane",
+      "label": "Catalan Water Partnership — current LIFE call outreach lane",
+      "category": "european_water_circularity_stakeholder_outreach_lane",
+      "state": "INACTIVE",
+      "evidence": ["authorised_response_2026-09-03_not_published"],
+      "restriction": "no_further_outreach_for_current_call",
+      "scopeBoundary": "current_call_outreach_lane_only_not_permanent_institutional_refusal",
+      "missing": ["new_future_opportunity_context_if_reconsidered"],
+      "formalPartner": false
+    },
     {
       "id": "bioazul",
       "label": "BIOAZUL",
