@@ -56,6 +56,22 @@
     ],
     "commercialDataState": "MOQ_PRICE_LEAD_TIME_CAPACITY_PENDING_DIRECT_EVIDENCE"
   },
+  "internationalPilotDiscovery": {
+    "japan": {
+      "registryId": "MZ-AHP-JP-001",
+      "status": "CANDIDATE_PILOT_TRACK",
+      "registryRef": "docs/life/ventures/japan/circular-care-japan-candidates.json",
+      "briefRef": "docs/life/ventures/japan/circular-care-japan-pilot-brief.md",
+      "candidateProgramIds": [
+        "JAPAN-AHP-01-UNICHARM-REFF",
+        "JAPAN-AHP-01-KAO-KAMIKATSU",
+        "JAPAN-AHP-02-SOFY-OKINAWA",
+        "JAPAN-AHP-02-LAURIER",
+        "JAPAN-AHP-02-ELIS"
+      ],
+      "relationshipBoundary": "NO_PARTNERSHIP_OR_CONSENT_INFERRED"
+    }
+  },
   "candidateRevenueLines": [
     "product-margin",
     "b2b-supply-subscription",
