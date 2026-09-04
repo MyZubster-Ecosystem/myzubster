@@ -8,6 +8,7 @@ const mockPresenceCountDocuments = jest.fn();
 const mockPresenceHealthLean = jest.fn();
 const mockChatCountDocuments = jest.fn();
 const mockMongoPing = jest.fn();
+const mockRateLimitFindOneAndUpdate = jest.fn();
 const mockPresenceFind = jest.fn(() => ({
   sort() { return this; },
   limit() { return this; },
@@ -46,6 +47,10 @@ jest.mock('../models/MetaverseChatMessage', () => ({
   countDocuments: mockChatCountDocuments
 }));
 
+jest.mock('../models/MetaverseRateLimit', () => ({
+  findOneAndUpdate: mockRateLimitFindOneAndUpdate
+}));
+
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const request = require('supertest');
@@ -77,6 +82,7 @@ describe('authenticated MyZubster metaverse identity', () => {
     mockPresenceCountDocuments.mockResolvedValue(2);
     mockChatCountDocuments.mockResolvedValue(4);
     mockPresenceHealthLean.mockResolvedValue({ lastSeenAt: new Date(Date.now() - 5000) });
+    mockRateLimitFindOneAndUpdate.mockResolvedValue({ count: 1 });
   });
 
   test('reports aggregate shared-world health without exposing player data', async () => {
@@ -169,6 +175,19 @@ describe('authenticated MyZubster metaverse identity', () => {
 
     expect(response.body.error).toMatch(/No verified MyZubster character/);
     expect(mockCreate).not.toHaveBeenCalled();
+  });
+
+  test('enforces the shared join limit before identity lookup', async () => {
+    mockRateLimitFindOneAndUpdate.mockResolvedValue({ count: 9 });
+
+    const response = await request(app)
+      .post('/api/metaverse/join')
+      .send({ displayName: 'Flood User', characterName: 'FLOOD-01' })
+      .expect(429);
+
+    expect(response.headers['retry-after']).toMatch(/^\d+$/);
+    expect(response.body.error).toBe('Join rate exceeded');
+    expect(mockFindOneAndUpdate).not.toHaveBeenCalled();
   });
 
   test('rejects an invalid token instead of downgrading it to a guest', async () => {
