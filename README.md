@@ -123,6 +123,10 @@ Open pull requests and fork branches are independent open-source contributions; 
 
 ## ⚙️ How MyZubster works
 
+![How MyZubster works](docs/comic/myzubster-how-it-works.png)
+
+An original seven-panel Italian field guide and high-resolution edition are available in [`docs/comic/`](docs/comic/README.md).
+
 ```text
 OBSERVE
    ↓

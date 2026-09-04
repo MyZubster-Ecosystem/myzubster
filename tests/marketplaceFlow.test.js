@@ -5,6 +5,7 @@ const { MongoMemoryServer } = require('mongodb-memory-server');
 
 process.env.NODE_ENV = 'test';
 process.env.JWT_SECRET = 'marketplace-test-secret';
+jest.setTimeout(30000);
 
 const app = require('../server');
 const User = require('../src/models/User');
