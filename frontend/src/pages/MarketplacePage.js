@@ -1,152 +1,23 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import WalletHubPanel from '../components/WalletHubPanel';
+import { trackConversion, trackConversionOnce } from '../analytics/conversionAnalytics';
 
-const categories = ['seeds','plants','produce','tools','services','volunteering','pet_adoption','pet_lost_found','pet_services'];
-const currencies = ['FREE','BARTER','MYZ','ETH','BTC','XMR','TARI'];
-
-function authHeaders(extra = {}) {
-  const token = localStorage.getItem('myzubster-token');
-  return { ...extra, ...(token ? { Authorization: `Bearer ${token}` } : {}) };
+const categories=['seeds','plants','produce','tools','services','volunteering','pet_adoption','pet_lost_found','pet_services'];
+const currencies=['FREE','BARTER','MYZ','ETH','BTC','XMR','TARI'];
+function authHeaders(extra={}){const token=localStorage.getItem('myzubster-token');return{...extra,...(token?{Authorization:`Bearer ${token}`}:{})};}
+function MarketplacePage(){
+ const [listings,setListings]=useState([]),[loading,setLoading]=useState(true),[error,setError]=useState(''),[category,setCategory]=useState(''),[location,setLocation]=useState(''),[showCreate,setShowCreate]=useState(false),[form,setForm]=useState({title:'',category:'services',description:'',location:'',price:'',currency:'FREE'}),[message,setMessage]=useState(''),[sellerPlan,setSellerPlan]=useState(null),[sellerState,setSellerState]=useState(null);
+ const load=useCallback(async()=>{setLoading(true);setError('');try{const params=new URLSearchParams();if(category)params.set('category',category);if(location)params.set('location',location);const response=await fetch(`/api/listings?${params}`);const payload=await response.json().catch(()=>({}));if(!response.ok)throw new Error(payload.message||payload.error||'Marketplace non disponibile');setListings(Array.isArray(payload.listings)?payload.listings:[]);}catch(e){setError(e.message);}finally{setLoading(false);}},[category,location]);
+ const loadSeller=useCallback(async()=>{try{const planResponse=await fetch('/api/marketplace/seller/plan');const planPayload=await planResponse.json().catch(()=>({}));if(planResponse.ok)setSellerPlan(planPayload.plan||null);if(!localStorage.getItem('myzubster-token'))return;const stateResponse=await fetch('/api/marketplace/seller/me',{headers:authHeaders()});const statePayload=await stateResponse.json().catch(()=>({}));if(stateResponse.ok){setSellerState(statePayload);if(statePayload.active)trackConversionOnce('seller_subscription_success',{source:'seller_state'});}}catch(_){}},[]);
+ useEffect(()=>{trackConversionOnce('marketplace_view',{path:'/marketplace'});load();loadSeller();},[load,loadSeller]);
+ async function apiAction(url,body){const response=await fetch(url,{method:'POST',headers:authHeaders({'Content-Type':'application/json'}),body:JSON.stringify(body)});const payload=await response.json().catch(()=>({}));if(!response.ok){const e=new Error(payload.message||payload.error||'Operazione non riuscita');e.payload=payload;e.status=response.status;throw e;}return payload;}
+ async function becomeSeller(){trackConversion('seller_cta_clicked',{authenticated:Boolean(localStorage.getItem('myzubster-token'))});const token=localStorage.getItem('myzubster-token');if(!token){setMessage('Per diventare Seller devi prima accedere a MyZubster. Ti porto alla pagina di accesso...');trackConversion('login_started',{source:'seller_cta'});const returnTo=`${window.location.pathname}${window.location.search}${window.location.hash}`;window.location.assign(`/social-login?returnTo=${encodeURIComponent(returnTo)}`);return;}try{setMessage('Apertura Stripe Checkout...');trackConversion('seller_checkout_started',{source:'marketplace'});const payload=await apiAction('/api/marketplace/seller/checkout',{});if(!payload.checkoutUrl)throw new Error('Stripe Checkout non disponibile.');trackConversion('seller_checkout_redirect',{provider:'stripe'});window.location.assign(payload.checkoutUrl);}catch(e){if(e.status===401){localStorage.removeItem('myzubster-token');setSellerState(null);setMessage('La sessione MyZubster è scaduta. Accedi di nuovo per aprire Stripe Checkout.');trackConversion('login_started',{source:'seller_session_expired'});const returnTo=`${window.location.pathname}${window.location.search}${window.location.hash}`;window.location.assign(`/social-login?returnTo=${encodeURIComponent(returnTo)}`);return;}setMessage(e.message);}}
+ async function createListing(event){event.preventDefault();setMessage('');try{const body={...form,price:['FREE','BARTER'].includes(form.currency)?0:Number(form.price)};await apiAction('/api/listings/create',body);setMessage('Annuncio pubblicato.');setShowCreate(false);setForm({title:'',category:'services',description:'',location:'',price:'',currency:'FREE'});await load();}catch(e){if(e.payload?.code==='SELLER_MEMBERSHIP_REQUIRED')setMessage(`Serve un account Seller attivo (${e.payload.sellerPlan?.amount||sellerPlan?.amount||'?'} EUR/mese).`);else setMessage(e.message);}}
+ async function requestListing(listing){try{const note=window.prompt('Messaggio opzionale per il venditore:','')||'';await apiAction('/api/marketplace/orders',{listingId:listing.id||listing._id,quantity:1,note});setMessage('Richiesta inviata. Il Market non firma né sposta fondi: usa il Wallet Hub per il rail concordato e verifica la transazione separatamente.');}catch(e){setMessage(e.message);}}
+ async function reportListing(listing){const reason=window.prompt('Motivo: prohibited_item, fraud, spam, harassment, unsafe, other','spam');if(!reason)return;try{await apiAction('/api/marketplace/reports',{listingId:listing.id||listing._id,reason,details:''});setMessage('Segnalazione registrata per moderazione.');}catch(e){setMessage(e.message);}}
+ async function showReputation(listing){const ownerId=typeof listing.ownerId==='object'?listing.ownerId?._id:listing.ownerId;if(!ownerId)return setMessage('Reputazione non disponibile per questo annuncio.');try{const response=await fetch(`/api/marketplace/reputation/${ownerId}`);const payload=await response.json().catch(()=>({}));if(!response.ok)throw new Error(payload.message||'Reputazione non disponibile');const r=payload.reputation||{};setMessage(`Reputazione venditore: ${r.average==null?'nessuna recensione':`${r.average}/5 (${r.reviews})`} · scambi completati: ${r.completedSales||0}`);}catch(e){setMessage(e.message);}}
+ const sellerLabel=sellerState?.active?'Seller attivo':sellerState?.membership?.status==='PENDING_PAYMENT'?'Seller: pagamento da verificare':'Diventa Seller';
+ return <main style={{padding:24,maxWidth:1100,margin:'0 auto'}}><header style={{marginBottom:24}}><div style={{fontSize:13,letterSpacing:1.4,opacity:.7}}>MYZUBSTER MARKETPLACE · METAVERSE</div><h2>Scambia con la comunità</h2><p>Gli acquirenti usano il Marketplace gratuitamente. Con Seller puoi pubblicare annunci e offrire prodotti o servizi alla comunità. Richieste, messaggi e Wallet Hub restano non-custodial: MyZubster non custodisce seed o chiavi private e non firma transazioni per conto dell'utente.</p><div style={{display:'flex',gap:8,flexWrap:'wrap'}}><button onClick={()=>setShowCreate(v=>!v)}>{showCreate?'Chiudi':'Pubblica annuncio'}</button>{!sellerState?.active&&<button onClick={becomeSeller}>{sellerLabel}{sellerPlan?` · ${sellerPlan.amount} ${sellerPlan.currency}/mese`:''}</button>}</div></header><WalletHubPanel/>
+ {showCreate&&<form onSubmit={createListing} style={{display:'grid',gap:10,padding:16,border:'1px solid rgba(127,127,127,.3)',borderRadius:12,marginBottom:20}}><input required placeholder="Titolo" value={form.title} onChange={e=>setForm({...form,title:e.target.value})}/><select value={form.category} onChange={e=>setForm({...form,category:e.target.value})}>{categories.map(c=><option key={c} value={c}>{c}</option>)}</select><textarea placeholder="Descrizione" value={form.description} onChange={e=>setForm({...form,description:e.target.value})}/><input placeholder="Località" value={form.location} onChange={e=>setForm({...form,location:e.target.value})}/><select value={form.currency} onChange={e=>setForm({...form,currency:e.target.value})}>{currencies.map(c=><option key={c}>{c}</option>)}</select>{!['FREE','BARTER'].includes(form.currency)&&<input required min="0" step="any" type="number" placeholder="Prezzo" value={form.price} onChange={e=>setForm({...form,price:e.target.value})}/>}<button type="submit">Pubblica</button></form>}{message&&<p role="status">{message}</p>}<section style={{display:'flex',gap:10,flexWrap:'wrap',marginBottom:20}}><select value={category} onChange={e=>setCategory(e.target.value)}><option value="">Tutte le categorie</option>{categories.map(c=><option key={c} value={c}>{c}</option>)}</select><input placeholder="Filtra località" value={location} onChange={e=>setLocation(e.target.value)}/><button onClick={load}>Aggiorna</button></section>{loading&&<p>Caricamento annunci…</p>}{error&&<p role="alert">{error}</p>}{!loading&&!error&&listings.length===0&&<section><h3>Nessun annuncio pubblico per ora</h3><p>Puoi essere il primo a pubblicarne uno.</p></section>}<section style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(240px,1fr))',gap:16}}>{listings.map(listing=><article key={listing.id||listing._id} style={{border:'1px solid rgba(127,127,127,.3)',borderRadius:12,padding:16}}><small>{listing.category}</small><h3>{listing.title}</h3>{listing.ownerUsername&&<p>di @{listing.ownerUsername}</p>}{listing.description&&<p>{listing.description}</p>}{listing.location&&<p>📍 {listing.location}</p>}<p>Disponibilità: {listing.stock}</p><strong>{listing.currency==='FREE'?'Gratis':listing.currency==='BARTER'?'Baratto':`${listing.price} ${listing.currency}`}</strong><div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:12}}><button onClick={()=>requestListing(listing)}>Richiedi</button><button onClick={()=>showReputation(listing)}>Reputazione</button><button onClick={()=>reportListing(listing)}>Segnala</button></div></article>)}</section></main>;
 }
-
-function MarketplacePage() {
-  const [listings, setListings] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [category, setCategory] = useState('');
-  const [location, setLocation] = useState('');
-  const [showCreate, setShowCreate] = useState(false);
-  const [form, setForm] = useState({ title:'', category:'services', description:'', location:'', price:'', currency:'FREE' });
-  const [message, setMessage] = useState('');
-  const [sellerPlan, setSellerPlan] = useState(null);
-  const [sellerState, setSellerState] = useState(null);
-
-  const load = useCallback(async () => {
-    setLoading(true); setError('');
-    try {
-      const params = new URLSearchParams();
-      if (category) params.set('category', category);
-      if (location) params.set('location', location);
-      const response = await fetch(`/api/listings?${params}`);
-      const payload = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(payload.message || payload.error || 'Marketplace non disponibile');
-      setListings(Array.isArray(payload.listings) ? payload.listings : []);
-    } catch (e) { setError(e.message); } finally { setLoading(false); }
-  }, [category, location]);
-
-  const loadSeller = useCallback(async () => {
-    try {
-      const planResponse = await fetch('/api/marketplace/seller/plan');
-      const planPayload = await planResponse.json().catch(() => ({}));
-      if (planResponse.ok) setSellerPlan(planPayload.plan || null);
-      if (!localStorage.getItem('myzubster-token')) return;
-      const stateResponse = await fetch('/api/marketplace/seller/me', { headers:authHeaders() });
-      const statePayload = await stateResponse.json().catch(() => ({}));
-      if (stateResponse.ok) setSellerState(statePayload);
-    } catch (_) {}
-  }, []);
-
-  useEffect(() => { load(); loadSeller(); }, [load, loadSeller]);
-
-  async function apiAction(url, body) {
-    const response = await fetch(url, { method:'POST', headers:authHeaders({ 'Content-Type':'application/json' }), body:JSON.stringify(body) });
-    const payload = await response.json().catch(() => ({}));
-    if (!response.ok) { const error = new Error(payload.message || payload.error || 'Operazione non riuscita'); error.payload = payload; error.status = response.status; throw error; }
-    return payload;
-  }
-
-  async function becomeSeller() {
-    const token = localStorage.getItem('myzubster-token');
-    if (!token) {
-      setMessage('Per diventare Seller devi prima accedere a MyZubster. Ti porto alla pagina di accesso...');
-      const returnTo = `${window.location.pathname}${window.location.search}${window.location.hash}`;
-      window.location.assign(`/social-login?returnTo=${encodeURIComponent(returnTo)}`);
-      return;
-    }
-    try {
-      setMessage('Apertura Stripe Checkout...');
-      const payload = await apiAction('/api/marketplace/seller/checkout', {});
-      if (!payload.checkoutUrl) throw new Error('Stripe Checkout non disponibile.');
-      window.location.assign(payload.checkoutUrl);
-    } catch (e) {
-      if (e.status === 401) {
-        localStorage.removeItem('myzubster-token');
-        setSellerState(null);
-        setMessage('La sessione MyZubster è scaduta. Accedi di nuovo per aprire Stripe Checkout.');
-        const returnTo = `${window.location.pathname}${window.location.search}${window.location.hash}`;
-        window.location.assign(`/social-login?returnTo=${encodeURIComponent(returnTo)}`);
-        return;
-      }
-      setMessage(e.message);
-    }
-  }
-
-  async function createListing(event) {
-    event.preventDefault(); setMessage('');
-    try {
-      const body = { ...form, price: ['FREE','BARTER'].includes(form.currency) ? 0 : Number(form.price) };
-      await apiAction('/api/listings/create', body);
-      setMessage('Annuncio pubblicato.'); setShowCreate(false); setForm({ title:'', category:'services', description:'', location:'', price:'', currency:'FREE' }); await load();
-    } catch (e) {
-      if (e.payload?.code === 'SELLER_MEMBERSHIP_REQUIRED') setMessage(`Serve un account Seller attivo (${e.payload.sellerPlan?.amount || sellerPlan?.amount || '?'} EUR/mese).`);
-      else setMessage(e.message);
-    }
-  }
-
-  async function requestListing(listing) {
-    try {
-      const note = window.prompt('Messaggio opzionale per il venditore:', '') || '';
-      await apiAction('/api/marketplace/orders', { listingId: listing.id || listing._id, quantity: 1, note });
-      setMessage('Richiesta inviata. Il Market non firma né sposta fondi: usa il Wallet Hub per il rail concordato e verifica la transazione separatamente.');
-    } catch (e) { setMessage(e.message); }
-  }
-
-  async function reportListing(listing) {
-    const reason = window.prompt('Motivo: prohibited_item, fraud, spam, harassment, unsafe, other', 'spam');
-    if (!reason) return;
-    try { await apiAction('/api/marketplace/reports', { listingId: listing.id || listing._id, reason, details: '' }); setMessage('Segnalazione registrata per moderazione.'); }
-    catch (e) { setMessage(e.message); }
-  }
-
-  async function showReputation(listing) {
-    const ownerId = typeof listing.ownerId === 'object' ? listing.ownerId?._id : listing.ownerId;
-    if (!ownerId) return setMessage('Reputazione non disponibile per questo annuncio.');
-    try {
-      const response = await fetch(`/api/marketplace/reputation/${ownerId}`); const payload = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(payload.message || 'Reputazione non disponibile'); const r = payload.reputation || {};
-      setMessage(`Reputazione venditore: ${r.average == null ? 'nessuna recensione' : `${r.average}/5 (${r.reviews})`} · scambi completati: ${r.completedSales || 0}`);
-    } catch (e) { setMessage(e.message); }
-  }
-
-  const sellerLabel = sellerState?.active ? 'Seller attivo' : sellerState?.membership?.status === 'PENDING_PAYMENT' ? 'Seller: pagamento da verificare' : 'Diventa Seller';
-
-  return <main style={{ padding:24, maxWidth:1100, margin:'0 auto' }}>
-    <header style={{ marginBottom:24 }}>
-      <div style={{ fontSize:13, letterSpacing:1.4, opacity:.7 }}>MYZUBSTER MARKETPLACE · METAVERSE</div>
-      <h2>Scambia con la comunità</h2>
-      <p>Gli acquirenti usano il Marketplace gratuitamente. Per pubblicare annunci serve un account Seller mensile. Richieste, messaggi e Wallet Hub restano non-custodial: MyZubster non custodisce seed o chiavi private e non firma transazioni per conto dell'utente.</p>
-      <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
-        <button onClick={() => setShowCreate(v => !v)}>{showCreate ? 'Chiudi' : 'Pubblica annuncio'}</button>
-        {!sellerState?.active && <button onClick={becomeSeller}>{sellerLabel}{sellerPlan ? ` · ${sellerPlan.amount} ${sellerPlan.currency}/mese` : ''}</button>}
-      </div>
-    </header>
-
-    <WalletHubPanel />
-
-    {showCreate && <form onSubmit={createListing} style={{ display:'grid', gap:10, padding:16, border:'1px solid rgba(127,127,127,.3)', borderRadius:12, marginBottom:20 }}>
-      <input required placeholder="Titolo" value={form.title} onChange={e=>setForm({...form,title:e.target.value})}/>
-      <select value={form.category} onChange={e=>setForm({...form,category:e.target.value})}>{categories.map(c=><option key={c} value={c}>{c}</option>)}</select>
-      <textarea placeholder="Descrizione" value={form.description} onChange={e=>setForm({...form,description:e.target.value})}/>
-      <input placeholder="Località" value={form.location} onChange={e=>setForm({...form,location:e.target.value})}/>
-      <select value={form.currency} onChange={e=>setForm({...form,currency:e.target.value})}>{currencies.map(c=><option key={c}>{c}</option>)}</select>
-      {!['FREE','BARTER'].includes(form.currency) && <input required min="0" step="any" type="number" placeholder="Prezzo" value={form.price} onChange={e=>setForm({...form,price:e.target.value})}/>}<button type="submit">Pubblica</button>
-    </form>}
-    {message && <p role="status">{message}</p>}
-    <section style={{ display:'flex', gap:10, flexWrap:'wrap', marginBottom:20 }}><select value={category} onChange={e=>setCategory(e.target.value)}><option value="">Tutte le categorie</option>{categories.map(c=><option key={c} value={c}>{c}</option>)}</select><input placeholder="Filtra località" value={location} onChange={e=>setLocation(e.target.value)}/><button onClick={load}>Aggiorna</button></section>
-    {loading && <p>Caricamento annunci…</p>}{error && <p role="alert">{error}</p>}
-    {!loading && !error && listings.length===0 && <section><h3>Nessun annuncio pubblico per ora</h3><p>Puoi essere il primo a pubblicarne uno.</p></section>}
-    <section style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(240px,1fr))', gap:16 }}>{listings.map(listing=><article key={listing.id || listing._id} style={{ border:'1px solid rgba(127,127,127,.3)', borderRadius:12, padding:16 }}><small>{listing.category}</small><h3>{listing.title}</h3>{listing.ownerUsername&&<p>di @{listing.ownerUsername}</p>}{listing.description&&<p>{listing.description}</p>}{listing.location&&<p>📍 {listing.location}</p>}<p>Disponibilità: {listing.stock}</p><strong>{listing.currency==='FREE'?'Gratis':listing.currency==='BARTER'?'Baratto':`${listing.price} ${listing.currency}`}</strong><div style={{ display:'flex', gap:8, flexWrap:'wrap', marginTop:12 }}><button onClick={()=>requestListing(listing)}>Richiedi</button><button onClick={()=>showReputation(listing)}>Reputazione</button><button onClick={()=>reportListing(listing)}>Segnala</button></div></article>)}</section>
-  </main>;
-}
-
 export default MarketplacePage;
