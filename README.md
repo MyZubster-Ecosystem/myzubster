@@ -155,6 +155,13 @@ These visual assets document the current MyZubster narrative around circular eco
 
 ## ⚙️ How MyZubster works
 
+![How MyZubster works](assets/readme/how-it-works.png)
+
+An original seven-panel Italian field guide and high-resolution edition are available in
+[`docs/comic/`](docs/comic/README.md).
+
+The core operating model is:
+
 ```text
 OBSERVE
    ↓
@@ -520,3 +527,5 @@ At the time of the check, production Web Analytics data were not available in a 
 See [`docs/PUBLIC-COMMUNITY-ACTIVITY.md`](docs/PUBLIC-COMMUNITY-ACTIVITY.md) and submit reproducible external evidence through [issue #715](https://github.com/MyZubster-Ecosystem/myzubster/issues/715).
 
 Passive visitors must not be deanonymized or correlated with GitHub identities without an explicit legitimate privacy-respecting basis.
+
+**Transparency note:** Proposed features are not released features; discussions are not partnerships; merges are not payments; and external settlement is not `PAID` until independently verified.
