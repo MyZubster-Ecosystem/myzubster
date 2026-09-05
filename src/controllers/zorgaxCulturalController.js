@@ -1,9 +1,8 @@
 const CulturalEvent = require('../models/CulturalEvent');
 const CulturalArtistProfile = require('../models/CulturalArtistProfile');
+const { sendOrganizerConfirmedEvent } = require('../services/zorgaxEventTelegramService');
 
-function escapeRegex(value) {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
+function escapeRegex(value) { return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 
 exports.createEvent = async (req, res) => {
   try {
@@ -15,7 +14,7 @@ exports.createEvent = async (req, res) => {
 
 exports.getPublicEvent = async (req, res) => {
   try {
-    const event = await CulturalEvent.findById(req.params.eventId).select('-location.restrictedText').lean();
+    const event = await CulturalEvent.findById(req.params.eventId).select('-location.restrictedText -ownerId').lean();
     if (!event || ['DRAFT', 'ORGANIZER_REVIEW'].includes(event.status)) return res.status(404).json({ success: false, message: 'Event not found' });
     if (event.location && (event.location.mode === 'PRIVATE' || (event.location.mode === 'AUTHORIZED_RELEASE' && !event.location.released))) event.location.publicText = '';
     return res.json({ success: true, data: event });
@@ -40,6 +39,16 @@ exports.updateOrganizerEvent = async (req, res) => {
     if (!event) return res.status(404).json({ success: false, message: 'Event not found for this organizer' });
     return res.json({ success: true, data: event });
   } catch (error) { return res.status(400).json({ success: false, message: 'Unable to update cultural event' }); }
+};
+
+exports.publishEventToTelegram = async (req, res) => {
+  try {
+    const event = await CulturalEvent.findOne({ _id: req.params.eventId, ownerId: req.user._id }).select('+location.restrictedText').lean();
+    if (!event) return res.status(404).json({ success: false, message: 'Event not found for this organizer' });
+    if (['DRAFT', 'ORGANIZER_REVIEW'].includes(event.status)) return res.status(409).json({ success: false, message: 'Event must be organizer-confirmed before publication' });
+    const delivery = await sendOrganizerConfirmedEvent(event, req.body?.chatId);
+    return res.json({ success: true, data: { delivered: true, messageId: delivery?.result?.message_id || null } });
+  } catch (error) { return res.status(400).json({ success: false, message: error.message || 'Unable to publish event to Telegram' }); }
 };
 
 exports.upsertMyArtistProfile = async (req, res) => {
