@@ -10,6 +10,20 @@ MyZubster turns authorized real-world observations — photos, places, environme
 
 **Current state:** MVP / active development and validation. Some components are operational, others experimental or in active implementation. A roadmap, issue, PR, merge, discussion or automated test is not by itself proof of deployment, partnership, adoption, funding or external payment.
 
+## 🎵 Music, sound systems & subcultures
+
+MyZubster now includes an evidence-aware cultural layer for **music, sound systems, crews, organizers, artists and subcultures**. Authenticated contributors can be bound to individual cultural attestations, while the merged Zorgax framework defines how profiles, relationships, photos, documents, testimony, events and source links can be connected with provenance, rights declarations and explicit evidence states.
+
+The cultural graph keeps four concepts separate: **account authentication**, **historical claim verification**, **relationship confirmation** and **collective authorization**. A social login therefore never proves movement membership or authority to represent a collective. Zorgax may structure and connect cultural material, but it must not invent history, infer membership from OAuth, identify people from photographs or turn individual testimony into collective endorsement.
+
+MyZubster also documents a consented cultural dialogue with an individual who describes personal experience in the DIY sound-system scene associated with **Spiral Tribe, Mutoid Waste and Bedlam**. This is recorded as **individual testimony and cultural provenance** — not as an official partnership, endorsement, membership claim or representation by Spiral Tribe/SP23 or those collectives. The project explores a conceptual continuity from independent sound systems to independent digital systems: self-organization, experimentation, resilience and community infrastructure.
+
+Organizers, technicians, artists and other participants can contribute first-hand cultural material while preserving attribution and consent boundaries. Confirmed relationships between MyZubster accounts remain separate from verification of individual historical claims.
+
+→ Read the full framework: [`docs/culture/MUSIC-SUBCULTURES-AND-SOUND-SYSTEMS.md`](docs/culture/MUSIC-SUBCULTURES-AND-SOUND-SYSTEMS.md)  
+→ Cultural dialogue: [`docs/culture/DIY-CULTURAL-DIALOGUE.md`](docs/culture/DIY-CULTURAL-DIALOGUE.md)  
+→ Cultural provenance chronicle: [`docs/culture/CULTURAL-ORIGIN-CHRONICLE.md`](docs/culture/CULTURAL-ORIGIN-CHRONICLE.md)
+
 ## 🛡️ Automated software security — evidence-first CI
 
 MyZubster uses GitHub-based automation to continuously check software changes and dependency risk. The objective is **not blind self-updating**: automation detects issues, proposes or validates changes, produces evidence and blocks unsafe candidates, while consequential merge/risk decisions remain subject to human review.
@@ -98,6 +112,7 @@ Open pull requests and fork branches are independent open-source contributions; 
 | I want to… | Start here |
 |---|---|
 | Understand MyZubster | This README → **How MyZubster works** |
+| Explore music, sound systems, organizers & subcultures | [`docs/culture/MUSIC-SUBCULTURES-AND-SOUND-SYSTEMS.md`](docs/culture/MUSIC-SUBCULTURES-AND-SOUND-SYSTEMS.md) |
 | Explore circular economy & Space Station visuals | [Visual gallery](#-circular-economy--space-station-visuals) |
 | Explore the open knowledge framework — chemistry, sexuality, health, cannabis, circular economy, sport, music, AI and more | [`docs/OPEN-KNOWLEDGE-DOMAINS-FRAMEWORK.md`](docs/OPEN-KNOWLEDGE-DOMAINS-FRAMEWORK.md) |
 | Explore religion, spirituality and belief framework | [`docs/OPEN-SOURCE-RELIGION-BELIEF-FRAMEWORK.md`](docs/OPEN-SOURCE-RELIGION-BELIEF-FRAMEWORK.md) |
