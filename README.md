@@ -24,6 +24,38 @@ Organizers, technicians, artists and other participants can contribute first-han
 → Cultural dialogue: [`docs/culture/DIY-CULTURAL-DIALOGUE.md`](docs/culture/DIY-CULTURAL-DIALOGUE.md)  
 → Cultural provenance chronicle: [`docs/culture/CULTURAL-ORIGIN-CHRONICLE.md`](docs/culture/CULTURAL-ORIGIN-CHRONICLE.md)
 
+## 🔊 Free parties, events & community spaces
+
+In MyZubster, **free parties and independent events are treated primarily as cultural and community nodes**, not merely as commercial listings. A crew, sound system, artist collective or local scene can document its identity, history, music, visual language, contributors and public activity while keeping provenance and consent boundaries explicit.
+
+The intended model is:
+
+```text
+COMMUNITY / CREW
+      ↓
+GITHUB-BACKED PUBLIC PROFILE
+      ↓
+MYZUBSTER CULTURAL IDENTITY
+      ↓
+METAVERSE SPACE / CULTURAL NODE
+      ↓
+EVENT / PARTY / ARCHIVE
+      ↓
+MUSIC + VISUALS + CONTRIBUTORS + EVIDENCE
+      ↓
+OPTIONAL LINKS TO MARKETPLACE / LIFE / PROJECTS
+```
+
+GitHub can act as a transparent technical and documentary layer for a participant, crew or project: repositories, issues, documentation, releases and contributions can support a **versioned public profile**. A GitHub identity does not automatically prove membership in a collective, but it can provide attributable technical or documentary provenance when the owner chooses to connect it.
+
+The MyZubster Metaverse can then give that identity a navigable presence — for example a room, archive, cultural node, exhibition space, project area or event-related environment. This makes it possible to move from a static profile to an explorable cultural space while keeping the underlying sources reviewable.
+
+Zorgax can assist people in navigating this layer: discovering public events and cultural projects, explaining available context, connecting artists or crews to their documented material, and guiding users toward related Metaverse spaces, Marketplace listings or LIFE-oriented projects. Zorgax must not invent membership, endorsements, event authorization or historical claims.
+
+For real-world events, MyZubster separates **cultural documentation** from **operational authorization**. The platform may preserve archives, lineups, artwork, public event information, testimonies and community history, but it is not intended to facilitate unlawful access to property, evade authorities or bypass permits and safety requirements. Event organizers remain responsible for the permissions, safety, privacy and legal requirements that apply to the actual event and location.
+
+The goal is therefore not to commercialize or claim ownership of a subculture. It is to give independent scenes an optional **open-source, community-controlled and evidence-aware digital presence** that can connect real people, music, archives, contributors, projects and immersive spaces without turning cultural participation into an unsupported identity claim.
+
 ## 🛡️ Automated software security — evidence-first CI
 
 MyZubster uses GitHub-based automation to continuously check software changes and dependency risk. The objective is **not blind self-updating**: automation detects issues, proposes or validates changes, produces evidence and blocks unsafe candidates, while consequential merge/risk decisions remain subject to human review.
