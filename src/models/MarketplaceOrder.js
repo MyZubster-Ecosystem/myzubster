@@ -22,4 +22,32 @@ const marketplaceOrderSchema = new mongoose.Schema({
 marketplaceOrderSchema.index({ buyerId: 1, createdAt: -1 });
 marketplaceOrderSchema.index({ sellerId: 1, createdAt: -1 });
 
+marketplaceOrderSchema.post('save', async function ensureCircularPassport(order) {
+  if (order.status !== 'COMPLETED') return;
+  try {
+    const MarketplaceListing = mongoose.models.MarketplaceListing || require('./MarketplaceListing');
+    const CircularItemPassport = mongoose.models.CircularItemPassport || require('./CircularItemPassport');
+    const listing = await MarketplaceListing.findById(order.listingId).select('title category').lean();
+    if (!listing) return;
+
+    await CircularItemPassport.updateOne(
+      { orderId: order._id },
+      {
+        $setOnInsert: {
+          ownerId: order.buyerId,
+          listingId: order.listingId,
+          orderId: order._id,
+          title: listing.title || order.snapshot.title,
+          category: listing.category,
+          state: 'IN_USE',
+          events: [{ type: 'ACQUIRED', actorId: order.buyerId, note: 'Marketplace order completed', occurredAt: order.completedAt || new Date() }]
+        }
+      },
+      { upsert: true }
+    );
+  } catch (error) {
+    console.error('[CircularItemPassport] automatic creation failed', { orderId: String(order._id), error: error.message });
+  }
+});
+
 module.exports = mongoose.models.MarketplaceOrder || mongoose.model('MarketplaceOrder', marketplaceOrderSchema);
