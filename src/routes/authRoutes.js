@@ -5,6 +5,7 @@ const authController = require('../controllers/authController');
 const socialAuthController = require('../controllers/socialAuthController');
 const emailProfileController = require('../controllers/emailProfileController');
 const culturalContributorController = require('../controllers/culturalContributorController');
+const zorgaxCulturalController = require('../controllers/zorgaxCulturalController');
 const { authenticate } = require('../middleware/auth');
 
 function legacyOrSocialCallback(provider, legacyHandler) {
@@ -20,15 +21,8 @@ function legacyOrSocialCallback(provider, legacyHandler) {
 
 function validateRegistration(req, res, next) {
   const { username, email, password } = req.body || {};
-
-  if (!String(username || '').trim() || !String(email || '').trim() || typeof password !== 'string' || !password) {
-    return res.status(400).json({ success: false, message: 'Username, email e password sono obbligatori' });
-  }
-
-  if (password.length < 6) {
-    return res.status(400).json({ success: false, message: 'La password deve contenere almeno 6 caratteri' });
-  }
-
+  if (!String(username || '').trim() || !String(email || '').trim() || typeof password !== 'string' || !password) return res.status(400).json({ success: false, message: 'Username, email e password sono obbligatori' });
+  if (password.length < 6) return res.status(400).json({ success: false, message: 'La password deve contenere almeno 6 caratteri' });
   return next();
 }
 
@@ -48,6 +42,16 @@ router.get('/gmail/auto-sync/cron', emailProfileController.runAutoSync);
 router.get('/profile', authenticate, authController.getProfile);
 router.get('/cultural-contributor/attestation', authenticate, culturalContributorController.getAttestation);
 router.post('/cultural-contributor/attestation', authenticate, culturalContributorController.attest);
+
+// Zorgax cultural runtime: public reads never expose private event coordinates or account ownership.
+router.post('/zorgax/events', authenticate, zorgaxCulturalController.createEvent);
+router.get('/zorgax/events/:eventId', zorgaxCulturalController.getPublicEvent);
+router.get('/zorgax/events/:eventId/manage', authenticate, zorgaxCulturalController.getOrganizerEvent);
+router.patch('/zorgax/events/:eventId/manage', authenticate, zorgaxCulturalController.updateOrganizerEvent);
+router.put('/zorgax/artists/me', authenticate, zorgaxCulturalController.upsertMyArtistProfile);
+router.get('/zorgax/artists/search', zorgaxCulturalController.searchArtists);
+router.get('/zorgax/artists/:profileId', zorgaxCulturalController.getArtistProfile);
+
 router.post('/gmail/apply-profile', authenticate, emailProfileController.applyDraft);
 router.post('/gmail/auto-sync/start-url', authenticate, emailProfileController.autoSyncStartUrl);
 router.get('/gmail/auto-sync/status', authenticate, emailProfileController.autoSyncStatus);
