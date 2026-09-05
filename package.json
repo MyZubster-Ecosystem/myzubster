@@ -10,7 +10,8 @@
     "build": "npm install",
     "smoke:zorgax-research": "node scripts/zorgax-research-vps-smoke.js",
     "privacy:migrate-locations": "node scripts/migrate-private-locations.js",
-    "metaverse:configure:n4k48": "node scripts/metaverse/configure-n4k48.js"
+    "metaverse:configure:n4k48": "node scripts/metaverse/configure-n4k48.js",
+    "metaverse:configure:yassen": "node scripts/metaverse/configure-yassen.js"
   },
   "dependencies": {
     "axios": "^1.19.0",
