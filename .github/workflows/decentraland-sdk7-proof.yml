@@ -1,0 +1,134 @@
+name: Decentraland SDK7 Proof
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'integrations/decentraland/**'
+      - '.github/workflows/decentraland-sdk7-proof.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: decentraland-sdk7-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  DCL_DISABLE_ANALYTICS: 'true'
+
+jobs:
+  sdk7-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: integrations/decentraland
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: integrations/decentraland/package-lock.json
+
+      - name: Install locked SDK7 dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Typecheck scene
+        run: npm run lint
+
+      - name: Build Decentraland scene
+        run: npm run build
+
+      - name: Assert MyZubster marker IDs are present
+        run: |
+          set -euxo pipefail
+          grep -q 'myz-rimini-place-001' src/index.ts
+          grep -q 'myz-rimini-plant-001' src/index.ts
+          grep -q 'myz-life-env-001' src/index.ts
+          grep -q 'myz-rimini-place-001' bin/index.js
+          grep -q 'myz-rimini-plant-001' bin/index.js
+          grep -q 'myz-life-env-001' bin/index.js
+          echo 'Decentraland SDK7 build contains all three MyZubster demo markers.'
+
+  local-preview-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: integrations/decentraland
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: integrations/decentraland/package-lock.json
+
+      - name: Install locked SDK7 dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Start Decentraland local preview server
+        run: |
+          set -euxo pipefail
+          npm run start -- --ci --no-client --no-watch --port 8000 > /tmp/decentraland-preview.log 2>&1 &
+          echo $! > /tmp/decentraland-preview.pid
+          for i in $(seq 1 120); do
+            if curl -fsS http://127.0.0.1:8000/about > /tmp/decentraland-about.json; then
+              jq -e '.healthy == true' /tmp/decentraland-about.json
+              jq -e '.configurations.localSceneParcels | index("0,0") != null' /tmp/decentraland-about.json
+              echo 'Local Decentraland preview realm is healthy.'
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/decentraland-preview.log
+          exit 1
+
+      - name: Verify the served scene entity and bundle
+        run: |
+          set -euxo pipefail
+          curl -fsS \
+            -X POST \
+            -H 'content-type: application/json' \
+            --data '{"pointers":["0,0"]}' \
+            http://127.0.0.1:8000/content/entities/active \
+            > /tmp/decentraland-entity.json
+
+          jq -e 'length == 1' /tmp/decentraland-entity.json
+          jq -e '.[0].metadata.scene.base == "0,0"' /tmp/decentraland-entity.json
+
+          bundle_hash=$(jq -r '.[0].content[] | select(.file == "bin/index.js") | .hash' /tmp/decentraland-entity.json)
+          test -n "$bundle_hash"
+          curl -fsS "http://127.0.0.1:8000/content/contents/$bundle_hash" > /tmp/decentraland-index.js
+
+          grep -q 'myz-rimini-place-001' /tmp/decentraland-index.js
+          grep -q 'myz-rimini-plant-001' /tmp/decentraland-index.js
+          grep -q 'myz-life-env-001' /tmp/decentraland-index.js
+          echo 'Local realm serves the built SDK7 scene and all three MyZubster markers.'
+
+      - name: Stop local preview server
+        if: always()
+        run: |
+          if [ -f /tmp/decentraland-preview.pid ]; then
+            kill "$(cat /tmp/decentraland-preview.pid)" 2>/dev/null || true
+          fi
+
+      - name: Upload local preview evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: decentraland-myzubster-preview-evidence
+          path: |
+            /tmp/decentraland-about.json
+            /tmp/decentraland-entity.json
+            /tmp/decentraland-preview.log
+          if-no-files-found: warn

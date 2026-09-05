@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Zorgax · Profilo da email</title>
+  <style>
+    body{margin:0;font-family:Inter,system-ui,sans-serif;background:#060914;color:#f8fafc}.wrap{max-width:820px;margin:auto;padding:32px 18px 72px}.card{background:#0b1220;border:1px solid #24364d;border-radius:20px;padding:22px;margin:16px 0}.btn{display:inline-block;border:0;border-radius:12px;padding:13px 18px;font-weight:800;background:linear-gradient(90deg,#8b5cf6,#ec4899);color:white;cursor:pointer;text-decoration:none}.btn.secondary{background:#172033;border:1px solid #334155}.muted{color:#94a3b8;line-height:1.55}.ok{color:#86efac}.err{color:#fca5a5}.pill{display:inline-block;padding:7px 10px;border:1px solid #334155;border-radius:999px;margin:4px;background:#111827}.chat{width:100%;min-height:100px;background:#08111f;border:1px solid #334155;border-radius:12px;color:#fff;padding:12px;box-sizing:border-box}.out{white-space:pre-wrap;line-height:1.55}.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <h1>Zorgax · configura il tuo profilo con le tue email</h1>
+    <p class="muted">Puoi usare Gmail in sola lettura per creare una bozza una tantum oppure, se lo autorizzi esplicitamente, mantenere il profilo aggiornato automaticamente. Le email originali non vengono salvate nel profilo.</p>
+
+    <section class="card">
+      <h2>1. Analisi una tantum</h2>
+      <p class="muted">Google mostrerà la richiesta di accesso in sola lettura. Il token non viene conservato.</p>
+      <a class="btn" href="/api/auth/gmail/start">Analizza Gmail una volta →</a>
+    </section>
+
+    <section class="card" id="draftCard" hidden>
+      <h2>2. Bozza privata di Zorgax</h2>
+      <div id="draft"></div>
+      <p class="muted">La bozza non viene applicata finché non la approvi.</p>
+      <button class="btn" id="applyBtn">Approva e salva nel mio profilo</button>
+      <div id="applyStatus" class="muted"></div>
+    </section>
+
+    <section class="card">
+      <h2>3. Aggiornamento automatico dallo storico email</h2>
+      <p class="muted">Funzione facoltativa. Con il tuo consenso, MyZubster conserva solo un refresh token Gmail cifrato e aggiorna periodicamente archetipo e interessi usando un campione dello storico autorizzato. Non salva messaggi, oggetti o snippet originali. Puoi disattivarla in qualsiasi momento.</p>
+      <div class="row">
+        <button class="btn" id="enableAutoBtn">Attiva aggiornamento automatico</button>
+        <button class="btn secondary" id="disableAutoBtn" hidden>Disattiva e cancella token</button>
+      </div>
+      <div id="autoStatus" class="muted" style="margin-top:12px"></div>
+    </section>
+
+    <section class="card" id="chatCard" hidden>
+      <h2>4. Parla con Zorgax usando questo profilo</h2>
+      <textarea class="chat" id="message" placeholder="Scrivi a Zorgax…"></textarea>
+      <p><button class="btn" id="sendBtn">Invia a Zorgax</button></p>
+      <div class="out" id="answer"></div>
+    </section>
+
+    <div id="status" class="muted"></div>
+  </main>
+<script>
+(() => {
+  const params = new URLSearchParams(location.search);
+  const ticket = params.get('email_profile_ticket');
+  const state = params.get('email_profile');
+  const message = params.get('email_profile_message');
+  const autoEnabled = params.get('email_auto_sync') === 'enabled';
+  const token = localStorage.getItem('myzubster-token');
+  const status = document.getElementById('status');
+  const draftCard = document.getElementById('draftCard');
+  const chatCard = document.getElementById('chatCard');
+  const draftEl = document.getElementById('draft');
+  const applyStatus = document.getElementById('applyStatus');
+  const autoStatus = document.getElementById('autoStatus');
+  const enableAutoBtn = document.getElementById('enableAutoBtn');
+  const disableAutoBtn = document.getElementById('disableAutoBtn');
+  let profile = null;
+
+  function showStatus(target, text, className) {
+    target.textContent = text;
+    target.className = className || 'muted';
+  }
+
+  function renderDraft(value) {
+    draftEl.replaceChildren();
+    const archetype = document.createElement('p');
+    const strong = document.createElement('strong');
+    strong.textContent = 'Archetipo: ';
+    archetype.append(strong, document.createTextNode(value.archetype));
+    draftEl.appendChild(archetype);
+
+    const traitsLine = document.createElement('p');
+    const traitsStrong = document.createElement('strong');
+    traitsStrong.textContent = 'Interessi: ';
+    traitsLine.appendChild(traitsStrong);
+    value.traits.forEach(trait => {
+      const pill = document.createElement('span');
+      pill.className = 'pill';
+      pill.textContent = trait;
+      traitsLine.appendChild(pill);
+    });
+    draftEl.appendChild(traitsLine);
+
+    const summary = document.createElement('p');
+    summary.className = 'muted';
+    summary.textContent = value.summary;
+    draftEl.appendChild(summary);
+  }
+
+  async function loadAutoStatus() {
+    if (!token) {
+      showStatus(autoStatus, 'Accedi a MyZubster per attivare l’aggiornamento automatico.', 'muted');
+      return;
+    }
+    try {
+      const response = await fetch('/api/auth/gmail/auto-sync/status', { headers: { Authorization: 'Bearer ' + token } });
+      const data = await response.json();
+      if (!response.ok || !data.success) throw new Error(data.message || 'Stato non disponibile');
+      const sync = data.data.sync || {};
+      profile = data.data.profile || profile;
+      if (profile) chatCard.hidden = false;
+      if (sync.enabled) {
+        enableAutoBtn.hidden = true;
+        disableAutoBtn.hidden = false;
+        const last = sync.lastSyncedAt ? new Date(sync.lastSyncedAt).toLocaleString() : 'non ancora eseguito';
+        showStatus(autoStatus, `Aggiornamento automatico attivo. Ultimo aggiornamento: ${last}.`, sync.lastStatus === 'error' ? 'err' : 'ok');
+      } else {
+        enableAutoBtn.hidden = false;
+        disableAutoBtn.hidden = true;
+        showStatus(autoStatus, 'Aggiornamento automatico non attivo.', 'muted');
+      }
+    } catch (err) {
+      showStatus(autoStatus, err.message, 'err');
+    }
+  }
+
+  if (state === 'error') showStatus(status, message || 'Collegamento Gmail non riuscito', 'err');
+  if (autoEnabled) showStatus(status, 'Aggiornamento automatico Gmail attivato con il tuo consenso.', 'ok');
+
+  if (ticket) {
+    fetch('/api/auth/gmail/verify-ticket', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ticket})
+    }).then(r => r.json().then(data => ({ok:r.ok,data}))).then(({ok,data}) => {
+      if (!ok || !data.success) throw new Error(data.message || 'Bozza non valida');
+      profile = data.data.profile;
+      draftCard.hidden = false;
+      chatCard.hidden = false;
+      renderDraft(profile);
+    }).catch(err => showStatus(status, err.message, 'err'));
+  }
+
+  if (ticket || state || autoEnabled) history.replaceState({}, document.title, location.pathname);
+
+  document.getElementById('applyBtn').addEventListener('click', async () => {
+    if (!token) {
+      showStatus(applyStatus, 'Prima accedi o crea il tuo account MyZubster.', 'err');
+      return;
+    }
+    showStatus(applyStatus, 'Salvataggio…', 'muted');
+    try {
+      const response = await fetch('/api/auth/gmail/apply-profile', {
+        method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token}, body:JSON.stringify({ticket})
+      });
+      const data = await response.json();
+      if (!response.ok || !data.success) throw new Error(data.message || 'Salvataggio non riuscito');
+      profile = data.data.profile;
+      localStorage.setItem('myzubster-zorgax-profile', JSON.stringify(profile));
+      chatCard.hidden = false;
+      showStatus(applyStatus, 'Profilo Zorgax approvato e salvato.', 'ok');
+    } catch (err) {
+      showStatus(applyStatus, err.message, 'err');
+    }
+  });
+
+  enableAutoBtn.addEventListener('click', async () => {
+    if (!token) {
+      showStatus(autoStatus, 'Prima accedi a MyZubster.', 'err');
+      return;
+    }
+    showStatus(autoStatus, 'Preparazione autorizzazione Google…', 'muted');
+    try {
+      const response = await fetch('/api/auth/gmail/auto-sync/start-url', {
+        method: 'POST',
+        headers: { Authorization: 'Bearer ' + token }
+      });
+      const data = await response.json();
+      if (!response.ok || !data.success) throw new Error(data.message || 'Impossibile avviare autorizzazione');
+      location.assign(data.data.authorizationUrl);
+    } catch (err) {
+      showStatus(autoStatus, err.message, 'err');
+    }
+  });
+
+  disableAutoBtn.addEventListener('click', async () => {
+    if (!token) return;
+    try {
+      const response = await fetch('/api/auth/gmail/auto-sync', {
+        method: 'DELETE',
+        headers: { Authorization: 'Bearer ' + token }
+      });
+      const data = await response.json();
+      if (!response.ok || !data.success) throw new Error(data.message || 'Disattivazione non riuscita');
+      showStatus(autoStatus, 'Aggiornamento disattivato e refresh token eliminato da MyZubster.', 'ok');
+      enableAutoBtn.hidden = false;
+      disableAutoBtn.hidden = true;
+    } catch (err) {
+      showStatus(autoStatus, err.message, 'err');
+    }
+  });
+
+  document.getElementById('sendBtn').addEventListener('click', async () => {
+    const userMessage = document.getElementById('message').value.trim();
+    if (!userMessage || !profile) return;
+    const answer = document.getElementById('answer');
+    answer.textContent = 'Zorgax sta pensando…';
+    const privateContext = `Profilo privato approvato dall'utente: archetipo=${profile.archetype}; interessi=${(profile.traits || []).join(', ')}. Usa questo solo per personalizzare tono e suggerimenti. Non trattarlo come prova di fatti personali e non ripetere dettagli email.\n\nMessaggio utente: ${userMessage}`;
+    try {
+      const response = await fetch('/api/zorgax/chat', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:privateContext,useMemory:false})});
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Zorgax non disponibile');
+      answer.textContent = data.response || data.answer || data.message || JSON.stringify(data,null,2);
+    } catch (err) { answer.textContent = err.message; }
+  });
+
+  loadAutoStatus();
+})();
+</script>
+</body>
+</html>

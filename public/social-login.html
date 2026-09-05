@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Accedi a MyZubster</title>
+  <style>
+    body{font-family:system-ui,-apple-system,sans-serif;background:#070b16;color:#f8fafc;margin:0;min-height:100vh;display:grid;place-items:center}.card{width:min(92vw,520px);background:#0d1726;border:1px solid #26364b;border-radius:20px;padding:28px;box-shadow:0 24px 80px rgba(0,0,0,.4)}h1{margin:0 0 10px}.sub{color:#aebdca;line-height:1.5}.providers{display:grid;gap:10px;margin:22px 0}.btn{display:block;text-align:center;text-decoration:none;color:#fff;background:#17263b;border:1px solid #34465f;border-radius:12px;padding:13px 16px;font-weight:800}.btn:hover{background:#20334d}.status{margin-top:18px;padding:12px;border-radius:10px;background:#0a1220;color:#cbd5e1}.ok{color:#86efac}.err{color:#fca5a5}.meta{font-size:13px;color:#7f91a6;margin-top:18px}
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div style="font-size:12px;letter-spacing:1.4px;color:#67e8f9;font-weight:900">MYZUBSTER · ZORGAX IDENTITY</div>
+    <h1>Accedi e crea la tua identità verificata</h1>
+    <p class="sub">Usa un provider OAuth verificato. Al primo accesso Zorgax crea o collega il tuo account MyZubster e il personaggio persistente nel Metaverse.</p>
+    <div class="providers">
+      <a class="btn" href="/api/auth/social/google/start">Continua con Google</a>
+      <a class="btn" href="/api/auth/social/github/start">Continua con GitHub</a>
+      <a class="btn" href="/api/auth/social/facebook/start">Continua con Facebook</a>
+    </div>
+    <div id="status" class="status">Scegli un provider per continuare.</div>
+    <div class="meta">Instagram e X non vengono mostrati come login attivi finché il relativo flusso OAuth non è configurato e verificato in produzione.</div>
+  </main>
+<script>
+(async function(){
+  const p=new URLSearchParams(location.search); const state=p.get('social_login'); const ticket=p.get('social_login_ticket'); const provider=p.get('provider'); const status=document.getElementById('status');
+  if(state==='error'){status.className='status err';status.textContent=p.get('social_login_message')||'Login non riuscito.';return;}
+  if(state!=='verified'||!ticket)return;
+  status.textContent='Verifica account e Metaverse in corso…';
+  try{
+    const r=await fetch('/api/auth/social/exchange-ticket',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ticket})});
+    const data=await r.json(); if(!r.ok||!data.success)throw new Error(data.message||'Ticket non valido');
+    localStorage.setItem('myzubster-token',data.data.token);
+    localStorage.setItem('myzubster-metaverse-character-id',data.data.characterId);
+    localStorage.setItem('myzubster-identity-provider',data.data.provider||provider||'social');
+    status.className='status ok';status.textContent='✓ Account verificato. Zorgax ha collegato la tua identità al Metaverse.';
+    history.replaceState({},document.title,'/social-login.html');
+    setTimeout(()=>location.assign('/onboarding'),900);
+  }catch(e){status.className='status err';status.textContent=e.message||'Login non riuscito.';}
+})();
+</script>
+</body>
+</html>

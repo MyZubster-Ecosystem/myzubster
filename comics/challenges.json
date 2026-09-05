@@ -2,7 +2,7 @@
   "program": "MyZubster Comics Bounty Program",
   "reward_asset": "MYZ",
   "currency_model": "internal_reward_accounting_unit",
-  "last_updated": "2026-08-21",
+  "last_updated": "2026-09-01",
   "challenges": [
     {
       "id": "COMIC-BNT-0001",
@@ -23,7 +23,7 @@
       "id": "COMIC-BNT-0002",
       "title": "Character design sheet",
       "category": "visual-design",
-      "status": "OPEN",
+      "status": "REWARD_RECORDED",
       "reward_myz": 500,
       "objective": "Create a production-ready character sheet for an original MyZubster comic character with consistent front/side/three-quarter views and expression references.",
       "acceptance": [
@@ -32,7 +32,13 @@
         "Visual design is original and reproducible across comic panels",
         "Web-ready export and source/editable file are provided when applicable",
         "Rights and AI-assistance disclosures are complete"
-      ]
+      ],
+      "contributor": "Aming9303",
+      "verified_pr": "https://github.com/MyZubster-Ecosystem/myzubster/pull/885",
+      "verified_commit": "738ffb3d2622146d9405dbb7475c58ca7a6283a8",
+      "verified_at": "2026-09-01",
+      "reward_record": "REWARDS_LEDGER.md",
+      "external_settlement": "NOT_APPLICABLE"
     },
     {
       "id": "COMIC-BNT-0003",

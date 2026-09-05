@@ -10,12 +10,12 @@ describe('entity bounty program', () => {
     const all = canonicalEntities.flatMap(getEntityBounties);
     const summary = getProgramSummary(canonicalEntities);
 
-    expect(all).toHaveLength(24);
-    expect(new Set(all.map(bounty => bounty.id)).size).toBe(24);
+    expect(all).toHaveLength(32);
+    expect(new Set(all.map(bounty => bounty.id)).size).toBe(32);
     expect(summary).toEqual({
-      entityCount: 12,
-      bountyCount: 24,
-      proposedMYZ: 4800,
+      entityCount: 16,
+      bountyCount: 32,
+      proposedMYZ: 6400,
       averageCompletion: 42
     });
   });

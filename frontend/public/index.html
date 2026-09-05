@@ -6,7 +6,6 @@
   <meta name="theme-color" content="#071018" />
   <meta name="description" content="MyZubster è un ecosistema open source per territorio, ambiente, robotica, identità digitali e contributi verificabili." />
   <meta name="robots" content="index,follow" />
-  <link rel="canonical" href="https://www.myzubster.com/" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="manifest" href="/manifest.json" />
   <meta property="og:type" content="website" />
@@ -19,6 +18,162 @@
   <meta name="twitter:title" content="MyZubster — Open Source, Territorio e Comunità" />
   <meta name="twitter:description" content="Osserva, crea e contribuisci a un ecosistema open source costruito in pubblico." />
   <title>MyZubster — Open Source, Territorio e Comunità</title>
+  <script>
+    (() => {
+      const rawPath = window.location.pathname.replace(/\/+$/, '') || '/';
+      const canonicalPath = rawPath === '/index.html' ? '/' : rawPath;
+      const canonicalUrl = `https://www.myzubster.com${canonicalPath === '/' ? '/' : canonicalPath}`;
+
+      const defaultMeta = {
+        title: 'MyZubster — Open Source, Territorio e Comunità',
+        description: 'MyZubster è un ecosistema open source per territorio, ambiente, robotica, identità digitali e contributi verificabili.'
+      };
+
+      const pageMeta = {
+        '/onboarding': {
+          title: 'Onboarding MyZubster — Identità digitale e accesso',
+          description: 'Scopri il percorso di onboarding di MyZubster per creare la tua identità digitale, entrare nell’ecosistema e iniziare a contribuire.'
+        },
+        '/repositories': {
+          title: 'Repository MyZubster — Codice e progetti open source',
+          description: 'Esplora repository, codice e progetti open source di MyZubster, con percorsi pubblici per sviluppo, verifica e contributi.'
+        },
+        '/orti': {
+          title: 'Orti urbani MyZubster — Territorio e comunità',
+          description: 'Esplora gli orti e le iniziative territoriali di MyZubster, con dati, mappatura e contributi della comunità.'
+        },
+        '/gardens': {
+          title: 'Gardens MyZubster — Orti, mappa e partecipazione',
+          description: 'Scopri i giardini e gli orti urbani in MyZubster, consulta le risorse del territorio e partecipa alle attività della comunità.'
+        },
+        '/pilot': {
+          title: 'Pilot MyZubster — Sperimentazione e validazione',
+          description: 'Segui i pilot MyZubster: sperimentazioni controllate, raccolta di evidenze, validazione e documentazione pubblica dei risultati.'
+        },
+        '/life': {
+          title: 'MyZubster LIFE — Ambiente, dati e piloti verificabili',
+          description: 'Scopri il percorso ambientale MyZubster LIFE: dati, provenienza, KPI, evidenze e architetture di pilot in preparazione.'
+        },
+        '/entities': {
+          title: 'Entità MyZubster — Registry e identità digitali',
+          description: 'Esplora il registry delle entità MyZubster, le identità digitali e i dati strutturati usati nell’ecosistema.'
+        },
+        '/entity-bounties': {
+          title: 'Entity Bounties — Missioni e contributi MyZubster',
+          description: 'Scopri le missioni collegate alle entità MyZubster e i contributi verificabili che alimentano registry, evidenze e reputazione.'
+        },
+        '/apps': {
+          title: 'App MyZubster — Strumenti e download',
+          description: 'Scopri le applicazioni e gli strumenti MyZubster disponibili per usare, esplorare e contribuire all’ecosistema.'
+        },
+        '/dao': {
+          title: 'DAO MyZubster — Governance e partecipazione',
+          description: 'Scopri la governance MyZubster, le superfici DAO e i confini tra partecipazione comunitaria, automazione e decisioni autorizzate.'
+        }
+      };
+
+      const metadata = pageMeta[canonicalPath] || defaultMeta;
+      document.title = metadata.title;
+
+      const setMeta = (selector, value) => {
+        const node = document.querySelector(selector);
+        if (node) node.setAttribute('content', value);
+      };
+
+      setMeta('meta[name="description"]', metadata.description);
+      setMeta('meta[property="og:title"]', metadata.title);
+      setMeta('meta[property="og:description"]', metadata.description);
+      setMeta('meta[property="og:url"]', canonicalUrl);
+      setMeta('meta[name="twitter:title"]', metadata.title);
+      setMeta('meta[name="twitter:description"]', metadata.description);
+
+      const canonical = document.createElement('link');
+      canonical.rel = 'canonical';
+      canonical.href = canonicalUrl;
+      document.head.appendChild(canonical);
+
+      const site = {
+        '@type': 'WebSite',
+        '@id': 'https://www.myzubster.com/#website',
+        url: 'https://www.myzubster.com/',
+        name: 'MyZubster',
+        inLanguage: 'it'
+      };
+      const publisher = {
+        '@type': 'Organization',
+        '@id': 'https://www.myzubster.com/#organization',
+        name: 'MyZubster',
+        url: 'https://www.myzubster.com/',
+        sameAs: ['https://github.com/MyZubster-Ecosystem/myzubster']
+      };
+      const structuredPages = {
+        '/entities': {
+          '@type': 'CollectionPage',
+          name: pageMeta['/entities'].title,
+          description: pageMeta['/entities'].description,
+          about: {
+            '@type': 'Thing',
+            name: 'MyZubster entity registry',
+            description: 'Registry pubblico di entità e identità digitali strutturate nell’ecosistema MyZubster.'
+          }
+        },
+        '/apps': {
+          '@type': 'CollectionPage',
+          name: pageMeta['/apps'].title,
+          description: pageMeta['/apps'].description,
+          about: {
+            '@type': 'SoftwareApplication',
+            name: 'MyZubster apps',
+            applicationCategory: 'DeveloperApplication',
+            operatingSystem: 'Web'
+          }
+        },
+        '/life': {
+          '@type': 'WebPage',
+          name: pageMeta['/life'].title,
+          description: pageMeta['/life'].description,
+          about: {
+            '@type': 'Thing',
+            name: 'MyZubster LIFE environmental pilot preparation',
+            description: 'Percorso preparatorio MyZubster per dati ambientali, provenienza, KPI, evidenze e architetture di pilot verificabili.'
+          }
+        },
+        '/repositories': {
+          '@type': 'CollectionPage',
+          name: pageMeta['/repositories'].title,
+          description: pageMeta['/repositories'].description,
+          about: {
+            '@type': 'SoftwareSourceCode',
+            name: 'MyZubster open source repositories',
+            codeRepository: 'https://github.com/MyZubster-Ecosystem/myzubster',
+            programmingLanguage: ['JavaScript', 'HTML', 'CSS']
+          }
+        }
+      };
+      const pageStructuredData = structuredPages[canonicalPath];
+      if (pageStructuredData) {
+        const jsonLd = document.createElement('script');
+        jsonLd.type = 'application/ld+json';
+        jsonLd.id = 'myzubster-structured-data';
+        jsonLd.textContent = JSON.stringify({
+          '@context': 'https://schema.org',
+          '@graph': [
+            site,
+            publisher,
+            {
+              ...pageStructuredData,
+              '@id': `${canonicalUrl}#webpage`,
+              url: canonicalUrl,
+              isPartOf: { '@id': site['@id'] },
+              publisher: { '@id': publisher['@id'] },
+              inLanguage: 'it'
+            }
+          ]
+        });
+        document.head.appendChild(jsonLd);
+      }
+    })();
+  </script>
   <script>
     window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
   </script>

@@ -1,7 +1,7 @@
 import React from 'react';
 
 const JOBS_RELEASE = 'https://github.com/MyZubster-Ecosystem/MyZubster-App/releases/tag/lavori-beta-v1';
-const JOBS_APK = 'https://github.com/MyZubster-Ecosystem/MyZubster-App/releases/download/lavori-beta-v1/MyZubster-Lavori-Beta-v1.apk';
+const JOBS_APK = 'https://github.com/MyZubster-Ecosystem/MyZubster-App/releases/download/lavori-beta-v1/app-debug.apk';
 const TV_RELEASE = 'https://github.com/MyZubster-Ecosystem/myzubster/releases/tag/google-tv-debug-001';
 const TV_APK = 'https://github.com/MyZubster-Ecosystem/myzubster/releases/download/google-tv-debug-001/app-debug.apk';
 

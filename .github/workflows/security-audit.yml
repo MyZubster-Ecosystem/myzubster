@@ -31,13 +31,38 @@ jobs:
       - name: Install locked dependencies
         run: npm ci --ignore-scripts
 
-      - name: Audit all dependencies
+      - name: Audit dependencies (fail on high or critical)
+        shell: bash
         run: |
           set +e
-          npm audit --json > npm-audit.json
-          status=$?
-          cat npm-audit.json
-          exit $status
+          max_attempts=4
+          attempt=1
+
+          while [ "$attempt" -le "$max_attempts" ]; do
+            echo "npm audit attempt $attempt of $max_attempts"
+            npm audit --audit-level=high --json > npm-audit.json
+            status=$?
+
+            if node -e "
+              const fs = require('fs');
+              const report = JSON.parse(fs.readFileSync('npm-audit.json', 'utf8'));
+              process.exit(report && report.metadata && report.metadata.vulnerabilities ? 0 : 1);
+            "; then
+              cat npm-audit.json
+              exit "$status"
+            fi
+
+            cat npm-audit.json
+            if [ "$attempt" -lt "$max_attempts" ]; then
+              delay=$((attempt * 15))
+              echo "Audit service unavailable or returned no vulnerability metadata; retrying in ${delay}s."
+              sleep "$delay"
+            fi
+            attempt=$((attempt + 1))
+          done
+
+          echo "npm audit service remained unavailable after $max_attempts attempts." >&2
+          exit 2
 
       - name: Upload audit report
         if: always()

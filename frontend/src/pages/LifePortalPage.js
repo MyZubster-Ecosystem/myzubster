@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { LIFE_COMMUNITY_ACTIVITY_CATEGORIES } from '../data/lifeCommunityActivities';
 
 const ORG = 'MyZubster-Ecosystem';
 const REPO = 'https://github.com/MyZubster-Ecosystem/myzubster';
@@ -101,7 +102,7 @@ function LifePortalPage({ initialView = 'home', onNavigate, openLegacy }) {
     ['municipality', '🏛️', 'Comuni', 'Registra un Comune o un ente territoriale.'],
     ['gardens', '🌱', 'Orti & Pilot', 'Accedi agli orti, al verde urbano e ai siti pilota.'],
     ['repos', '💻', 'Open Source', 'Esplora tutti i repository pubblici MyZubster.'],
-    ['life', '💧', 'LIFE 2026', 'Acqua, circolarità, MRV e replicazione territoriale.'],
+    ['life', '💧', 'Programma LIFE', 'Ambiente, MRV, territori e attività comunitarie con evidenze verificabili.'],
   ];
 
   const contributorPaths = [
@@ -276,10 +277,34 @@ function LifePortalPage({ initialView = 'home', onNavigate, openLegacy }) {
         {view === 'life' && <section>
           <button onClick={() => goToView('home')} style={{ ...secondary, marginBottom: 12 }}>← Home</button>
           <div style={card}>
-            <h1 style={{ marginTop: 0 }}>MyZubster LIFE 2026</h1>
+            <h1 style={{ marginTop: 0 }}>MyZubster · Programma LIFE</h1>
             <p style={{ color: '#a9bac7', lineHeight: 1.7 }}>Struttura digitale per living lab territoriale, efficienza e riuso dell’acqua, circolarità, dati IoT, Monitoring Reporting & Verification e replicazione open-source. Questo percorso resta in esplorazione / pre-candidature finché l’evidenza pubblica non supporta uno stato più avanzato.</p>
+
+            <h2 style={{ marginTop: 24 }}>Nucleo ambientale e tecnico</h2>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: 10 }}>
               {['Circular Water','Digital MRV','Comuni & Territorio','Orti & Verde urbano','Open Source','Zorgax AI'].map(x => <div key={x} style={{ padding: 14, borderRadius: 12, background: '#091621' }}>{x}</div>)}
+            </div>
+
+            <div style={{ marginTop: 30 }}>
+              <div style={{ color: '#67e8f9', fontWeight: 800, fontSize: 13 }}>COMMUNITY ACTIVITY TRACKS</div>
+              <h2 style={{ margin: '8px 0' }}>Musica, sport e altre attività per attivare i territori</h2>
+              <p style={{ color: '#a9bac7', lineHeight: 1.7, maxWidth: 900 }}>
+                Questi percorsi sostengono partecipazione, comunicazione, formazione e inclusione quando sono collegati a un obiettivo ambientale o territoriale verificabile. Non sono categorie ufficiali di finanziamento LIFE e non implicano approvazione, partnership o pagamento.
+              </p>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(245px,1fr))', gap: 10 }}>
+                {LIFE_COMMUNITY_ACTIVITY_CATEGORIES.map(category => (
+                  <article key={category.id} style={{ padding: 15, borderRadius: 12, background: '#091621', border: '1px solid #1f3342' }}>
+                    <div style={{ fontSize: 28 }}>{category.icon}</div>
+                    <h3 style={{ margin: '8px 0 6px' }}>{category.title}</h3>
+                    <p style={{ color: '#a9bac7', lineHeight: 1.55 }}>{category.description}</p>
+                    <small style={{ color: '#7dd3fc', lineHeight: 1.45 }}>Evidenza minima: {category.evidence}.</small>
+                  </article>
+                ))}
+              </div>
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 16 }}>
+                <a href={REPO + '/issues/new'} target="_blank" rel="noreferrer" style={linkButton}>Proponi un’attività su GitHub</a>
+                <a href={REPO + '/blob/main/docs/life/COMMUNITY_ACTIVITY_CATEGORIES.md'} target="_blank" rel="noreferrer" style={outlineLink}>Regole e categorie</a>
+              </div>
             </div>
           </div>
         </section>}

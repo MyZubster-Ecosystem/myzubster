@@ -8,7 +8,9 @@
     "dev": "nodemon server.js",
     "test": "jest",
     "build": "npm install",
-    "smoke:zorgax-research": "node scripts/zorgax-research-vps-smoke.js"
+    "smoke:zorgax-research": "node scripts/zorgax-research-vps-smoke.js",
+    "privacy:migrate-locations": "node scripts/migrate-private-locations.js",
+    "metaverse:configure:n4k48": "node scripts/metaverse/configure-n4k48.js"
   },
   "dependencies": {
     "axios": "^1.19.0",
@@ -31,6 +33,7 @@
     "@babel/preset-env": "^7.29.7",
     "@octokit/rest": "^22.0.1",
     "@types/jest": "^30.0.0",
+    "ajv": "^8.20.0",
     "axios-retry": "^4.5.0",
     "chai": "^6.2.2",
     "eslint": "^8.57.1",
@@ -41,7 +44,7 @@
     "supertest": "^6.3.4"
   },
   "engines": {
-    "node": "24.x"
+    "node": "20.x"
   },
   "keywords": [
     "monero",
@@ -56,5 +59,8 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/MyZubster-Ecosystem/MyZubsterGateway"
+  },
+  "overrides": {
+    "qs": "6.16.0"
   }
 }

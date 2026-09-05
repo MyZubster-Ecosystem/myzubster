@@ -1,185 +1,83 @@
-# MyZubster — Photo & Visual Map Roadmap
+# MyZubster — Privacy-first Visual Map Roadmap
 
 ## Vision
 
-Build a worldwide visual map where every observation can be connected to a geographic point, street, place, plant, building, historic asset, panorama or urban/environmental service.
+Costruire una mappa visuale mondiale utile senza trasformare fotografie di piante, animali, giardini o persone in un indice di posizioni sensibili.
 
-## Geographic hierarchy
+## Location architecture
 
-```text
-World
-└── Country
-    └── Region / State
-        └── Province / Area
-            └── City
-                └── District / Neighborhood
-                    └── Street / Via
-                        ├── Panorama
-                        ├── Plants & Trees
-                        ├── Buildings
-                        ├── Historic Heritage
-                        ├── Squares & Monuments
-                        ├── Parks & Environment
-                        └── Urban Services
+Ogni osservazione supporta due livelli separati:
+
+1. un payload esatto opzionale, cifrato e accessibile solo al proprietario/amministratore autorizzato;
+2. una proiezione pubblica `private`, `approximate` o `public`, derivata dal consenso e dalla sensibilità.
+
+Animali, specie a rischio, abitazioni e proprietà private restano senza punto pubblico. I media pubblici sono privi di GPS/EXIF e i nomi dei file non includono coordinate.
+
+## Public record model
+
+```json
+{
+  "type": "Feature",
+  "geometry": null,
+  "properties": {
+    "id": "observation-001",
+    "country": "Italy",
+    "category": "plant",
+    "location_visibility": "private",
+    "location_precision": "hidden",
+    "consent_status": "recorded"
+  }
+}
 ```
 
-Every record should support GPS coordinates so the physical hierarchy and the interactive map remain connected.
-
-## Visual record model
-
-Each mapped observation should progressively support:
-
-- GPS latitude / longitude
-- Country, region, city, street
-- Category and subcategory
-- Capture date and time when available
-- Original photograph
-- Optimized web photograph / thumbnail
-- Panorama when available
-- Description and historical/environmental notes
-- Source / contributor metadata when appropriate
-- Links between nearby observations
-- GeoJSON feature for map rendering
-
-## Media naming convention
-
-```text
-YYYY-MM-DD_place_lat_lon_category_sequence.ext
-```
-
-Example:
-
-```text
-2026-08-18_via-clodia_44.0637353_12.5678873_panorama_001.jpg
-```
+Per una proiezione `approximate`, il server può produrre un punto arrotondato a due decimali. La posizione esatta non viene derivata dal client, dai nomi file o dai metadati dell'immagine.
 
 ## Storage workflow
 
 ```text
 Phone / Camera
       ↓
-Google Drive staging archive
+Private staging archive
       ↓
-Home / VPS synchronization
+EXIF removal + sensitivity review
       ↓
-Metadata validation + image optimization
+Exact-location encryption (optional)
       ↓
-GitHub repository
+Consent-based public projection
       ↓
-MyZubster visual map
+GitHub public media and metadata
 ```
 
-Google Drive acts as the collection/staging archive. GitHub stores the public structured dataset, documentation and web-ready media. The VPS can automate synchronization, optimization, thumbnails and map-index generation.
+## Roadmap
 
-## Map data
+### Phase 1 — Privacy baseline
 
-Maintain a machine-readable GeoJSON index. Each observation becomes a Feature such as:
+- cifratura AES-256-GCM delle posizioni esatte;
+- consenso esplicito e timestamp server-side;
+- default privato e migrazione dei record legacy;
+- rimozione di coordinate, indirizzi e link diretti dai dataset pubblici;
+- bonifica EXIF/GPS dei media.
 
-```json
-{
-  "type": "Feature",
-  "geometry": {
-    "type": "Point",
-    "coordinates": [12.5678873, 44.0637353]
-  },
-  "properties": {
-    "id": "rimini-via-clodia-20260818-001",
-    "name": "Via Clodia",
-    "city": "Rimini",
-    "country": "Italy",
-    "category": "street",
-    "media_type": "panorama",
-    "image": "world/italy/emilia-romagna/rimini/streets/via-clodia/images/2026-08-18_via-clodia_44.0637353_12.5678873_panorama_001.jpg"
-  }
-}
-```
+### Phase 2 — Safe exploration
 
-## Visual map experience
+- navigazione per paese/regione/città senza punti per record privati;
+- clustering di sole proiezioni approssimate o pubbliche;
+- filtri per specie e categoria che non consentano re-identificazione;
+- moderazione dedicata per fauna e specie vulnerabili.
 
-### Phase 1 — Photo points
+### Phase 3 — Consent lifecycle
 
-- Interactive world map
-- GPS markers
-- Marker popup with thumbnail, name, category and date
-- Filters for plants, buildings, heritage, panoramas and services
-- City and street pages
+- revoca e modifica della visibilità;
+- rotazione chiavi e re-cifratura;
+- audit degli accessi alla posizione privata;
+- scadenza o riesame periodico del consenso.
 
-### Phase 2 — Visual exploration
+### Phase 4 — NFT-safe provenance
 
-- Photo gallery linked to map markers
-- Street-level sequences
-- Panorama viewer
-- Nearby observations
-- Timeline of repeat photographs of the same location
-
-### Phase 3 — Worldwide atlas
-
-- Country → region → city navigation
-- Search by street, place, species and building
-- Marker clustering at global scale
-- Public contribution workflow
-- Validation/moderation states
-- Multilingual place descriptions
-
-### Phase 4 — Temporal visual map
-
-- Compare a location across dates
-- Environmental and urban change history
-- Plant/tree growth observations
-- Building and heritage conservation records
-- Street and panorama evolution
-
-## Initial Rimini seed
-
-Current seed categories include:
-
-- Via Clodia — Street / Panorama — GPS 44.0637353, 12.5678873
-- Piazza Ferrari
-- Piazza Cavour
-- Fontana della Pigna
-- Teatro Amintore Galli
-- Comune / historic palaces
-- Plants and trees
-- Urban/environmental services
-
-Rimini is the first local seed; the data model must remain globally reusable.
-
-## Repository target structure
-
-```text
-world/
-  italy/
-    emilia-romagna/
-      rimini/
-        streets/
-        plants/
-        buildings/
-        heritage/
-        panoramas/
-        services/
-
-data/
-  observations.geojson
-  places.json
-  media-index.json
-
-docs/
-  PHOTO-VISUAL-MAP-ROADMAP.md
-```
-
-## VPS automation roadmap
-
-1. Sync new files from the Drive staging folders.
-2. Preserve originals in the archive.
-3. Generate safe web-sized images and thumbnails.
-4. Read EXIF GPS/date metadata when present.
-5. Match files to existing MyZubster observation records.
-6. Flag records that need street/place confirmation rather than guessing.
-7. Generate/update GeoJSON and media indexes.
-8. Commit web-ready media and metadata to GitHub.
-9. Rebuild/deploy the visual map.
-10. Report unmatched or duplicate observations for review.
+- metadata NFT senza coordinate o indirizzi;
+- commitment SHA-256 al payload off-chain cifrato;
+- nessun mint finché chain, contratto, signer e verifica receipt non sono configurati e revisionati.
 
 ## Principle
 
-Never invent location metadata. Prefer verified GPS, user-confirmed place names and traceable source data. The visual map should remain useful both to humans browsing photographs and to software consuming structured geographic observations.
+Non inventare e non pubblicare per default la posizione. La verificabilità riguarda il record e la sua provenienza; non richiede di rendere pubblica la coordinata esatta.

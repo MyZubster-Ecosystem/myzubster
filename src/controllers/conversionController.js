@@ -3,12 +3,15 @@ const axios = require('axios');
 // Tasso di cambio (da variabile d'ambiente)
 const EXCHANGE_RATE = parseFloat(process.env.MYZ_TO_XMR_RATE) || 0.001; // 1 MYZ = 0.001 XMR
 
-// Se SIMULATE_XMR è true, salta la chiamata RPC
-const SIMULATE_XMR = process.env.SIMULATE_XMR === 'true' || true; // Default true per test
+// Simulation and real-value transfer are both explicit. Real XMR transfer is disabled unless
+// ALLOW_REAL_XMR_CONVERSION=true, preventing an unset SIMULATE_XMR from silently becoming live.
+const SIMULATE_XMR = process.env.SIMULATE_XMR === 'true';
+const ALLOW_REAL_XMR_CONVERSION = process.env.ALLOW_REAL_XMR_CONVERSION === 'true';
+const DEFAULT_WALLET = process.env.DEFAULT_WALLET_ADDRESS || '';
 
 // Database utenti (condiviso con githubWebhookController)
 const users = {
-  'DanielIoni-creator': { walletAddress: '45M4DW1ug8bdQowWpxucTpgsfjLbVxbYaAra79VewmBobuuhgqTjyD4R3DzpqLM2veiphcB16n24qN1QbLg3y2PYGK3Qkoe', myzBalance: 100 }
+  'DanielIoni-creator': { walletAddress: DEFAULT_WALLET, myzBalance: 100 }
 };
 
 // Storico conversioni
@@ -21,11 +24,12 @@ module.exports = {
       success: true,
       rate: EXCHANGE_RATE,
       myzToXmr: `1 MYZ = ${EXCHANGE_RATE} XMR`,
-      simulated: SIMULATE_XMR
+      simulated: SIMULATE_XMR,
+      liveTransfersEnabled: ALLOW_REAL_XMR_CONVERSION
     });
   },
 
-  // Endpoint per convertire MYZ → XMR (con simulazione)
+  // Endpoint per convertire MYZ → XMR
   convertMyzToXmr: async (req, res) => {
     const { githubUsername, amountMYZ } = req.body;
 
@@ -37,6 +41,9 @@ module.exports = {
     if (!user) {
       return res.status(404).json({ error: 'Utente non trovato' });
     }
+    if (!user.walletAddress) {
+      return res.status(503).json({ error: 'Wallet XMR non configurato' });
+    }
 
     if (user.myzBalance < amountMYZ) {
       return res.status(400).json({ error: 'Saldo MYZ insufficiente' });
@@ -47,16 +54,22 @@ module.exports = {
       return res.status(400).json({ error: 'Importo XMR non valido' });
     }
 
-    // 1. Sottrai MYZ dal saldo
+    if (!SIMULATE_XMR && !ALLOW_REAL_XMR_CONVERSION) {
+      return res.status(503).json({ error: 'Conversione XMR reale disabilitata' });
+    }
+
+    // 1. Sottrai MYZ dal saldo solo dopo avere superato tutti i gate di configurazione.
     user.myzBalance -= amountMYZ;
 
-    // 2. Se SIMULATE_XMR è true, salta la chiamata RPC
     let txHash = `sim-tx-${Date.now()}`;
     let simulated = true;
 
     if (!SIMULATE_XMR) {
-      // Modalità reale (richiede wallet RPC attivo)
-      const MONERO_RPC_URL = process.env.MONERO_RPC_URL || 'http://localhost:18081/json_rpc';
+      const MONERO_RPC_URL = process.env.MONERO_RPC_URL;
+      if (!MONERO_RPC_URL) {
+        user.myzBalance += amountMYZ;
+        return res.status(503).json({ error: 'MONERO_RPC_URL non configurato' });
+      }
       try {
         const response = await axios.post(MONERO_RPC_URL, {
           jsonrpc: '2.0',
@@ -82,23 +95,15 @@ module.exports = {
 
         txHash = response.data.result.tx_hash;
         simulated = false;
-        console.log(`✅ Transazione XMR inviata: ${txHash}`);
-
       } catch (error) {
-        // In caso di errore, ripristina il saldo MYZ e restituisci errore
         user.myzBalance += amountMYZ;
-        console.error('❌ Errore RPC Monero:', error.message);
         return res.status(500).json({
           error: 'Errore durante l\'invio XMR',
           details: error.message
         });
       }
-    } else {
-      // Modalità simulata
-      console.log(`🔄 [SIMULAZIONE] ${amountMYZ} MYZ → ${amountXMR} XMR per ${githubUsername}`);
     }
 
-    // 3. Registra la conversione
     conversionHistory.push({
       githubUsername,
       amountMYZ,
@@ -108,8 +113,6 @@ module.exports = {
       convertedAt: new Date().toISOString(),
       simulated
     });
-
-    console.log(`✅ Conversione registrata: ${amountMYZ} MYZ → ${amountXMR} XMR (${simulated ? 'simulata' : 'reale'})`);
 
     res.json({
       success: true,
@@ -122,7 +125,6 @@ module.exports = {
     });
   },
 
-  // Endpoint per vedere lo storico conversioni
   getConversionHistory: (req, res) => {
     res.json({ success: true, count: conversionHistory.length, history: conversionHistory });
   }

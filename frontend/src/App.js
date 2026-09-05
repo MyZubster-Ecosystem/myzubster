@@ -1,110 +1,23 @@
-import React, { useEffect, useState } from 'react';
-import LifePortalPage from './pages/LifePortalPage';
-import IdentityOnboardingPage from './pages/IdentityOnboardingPage';
+import React, { useState } from 'react';
 import MapPage from './pages/MapPage';
 import GardensPage from './pages/GardensPage';
-import PilotDashboardPage from './pages/PilotDashboardPage';
 import ClowbotBountiesPage from './pages/ClowbotBountiesPage';
-import AgentsPage from './pages/AgentsPage';
+import MetaversePage from './pages/MetaversePage';
+import MarketplacePage from './pages/MarketplacePage';
+import MarketplaceOpsPage from './pages/MarketplaceOpsPage';
+import SocialLoginPage from './pages/SocialLoginPage';
+import ZorgaxLifePilotPage from './pages/ZorgaxLifePilotPage';
 import AppsDownloadPage from './pages/AppsDownloadPage';
-import DaoPage from './pages/DaoPage';
-
-const PORTAL_VIEWS = {
-  '/': 'home',
-  '/account': 'register',
-  '/comuni': 'municipality',
-  '/orti': 'gardens',
-  '/repositories': 'repos',
-  '/life': 'life',
-};
-
-const OPERATIONAL_VIEWS = {
-  '/pilot': 'pilot',
-  '/gardens': 'gardens',
-  '/plants': 'plants',
-  '/bounties': 'bounties',
-};
-
-const OPERATIONAL_PATHS = Object.fromEntries(
-  Object.entries(OPERATIONAL_VIEWS).map(([path, view]) => [view, path])
-);
-
-function currentPath() {
-  return window.location.pathname.replace(/\/+$/, '') || '/';
-}
-
-function App() {
-  const [path, setPath] = useState(currentPath);
-
-  useEffect(() => {
-    const handlePopState = () => setPath(currentPath());
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
-
-  useEffect(() => {
-    const canonicalUrl = `${window.location.origin}${path}`;
-    const canonical = document.querySelector('link[rel="canonical"]');
-    const openGraphUrl = document.querySelector('meta[property="og:url"]');
-    if (canonical) canonical.setAttribute('href', canonicalUrl);
-    if (openGraphUrl) openGraphUrl.setAttribute('content', canonicalUrl);
-  }, [path]);
-
-  const navigate = (nextPath, { replace = false } = {}) => {
-    const normalized = nextPath.replace(/\/+$/, '') || '/';
-    if (normalized !== currentPath()) {
-      window.history[replace ? 'replaceState' : 'pushState']({}, '', normalized);
-    }
-    setPath(normalized);
-    window.scrollTo(0, 0);
-  };
-
-  if (path === '/apps' || path === '/download') {
-    return <AppsDownloadPage />;
-  }
-
-  if (path === '/dao') {
-    return <DaoPage />;
-  }
-
-  if (['/entities', '/agents', '/assistants', '/entity-bounties'].includes(path)) {
-    return <AgentsPage initialPanel={path === '/entity-bounties' ? 'bounties' : 'chat'} />;
-  }
-
-  if (path === '/onboarding') {
-    return (
-      <IdentityOnboardingPage
-        onSkip={() => navigate('/')}
-        onContinue={() => navigate('/', { replace: true })}
-      />
-    );
-  }
-
-  const operationalView = OPERATIONAL_VIEWS[path];
-  if (operationalView) {
-    return (
-      <div className="App">
-        <nav style={{ padding: '12px 16px', display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap', background: '#071018', borderBottom: '1px solid #1e293b' }}>
-          <button onClick={() => navigate('/')} style={{ padding: '10px 14px', borderRadius: 10, border: 0, cursor: 'pointer', fontWeight: 800 }}>← MyZubster Home</button>
-          <a href="/apps" style={{ padding: '10px 14px', borderRadius: 10, color: '#fff', textDecoration: 'none', background: '#0e7490', fontWeight: 800 }}>Scarica App</a>
-          <span style={{ color: '#cbd5e1' }}>Area operativa</span>
-        </nav>
-        {operationalView === 'pilot' && <PilotDashboardPage />}
-        {operationalView === 'plants' && <MapPage />}
-        {operationalView === 'gardens' && <GardensPage />}
-        {operationalView === 'bounties' && <ClowbotBountiesPage />}
-      </div>
-    );
-  }
-
-  const portalView = PORTAL_VIEWS[path] || 'home';
-  return (
-    <LifePortalPage
-      initialView={portalView}
-      onNavigate={navigate}
-      openLegacy={(view) => navigate(OPERATIONAL_PATHS[view] || '/')}
-    />
-  );
-}
-
+import RobotPublicWalletPanel from './components/RobotPublicWalletPanel';
+import { trackConversion } from './analytics/conversionAnalytics';
+const TABS={WORLD:'world',EXPLORE:'explore',GARDENS:'gardens',MISSIONS:'missions',MARKETPLACE:'marketplace',MARKETPLACE_OPS:'marketplace-ops'};
+const LANGS={it:{name:'Italiano',what:"COS'È MYZUBSTER?",headline:'Un ecosistema open source dove persone, progetti e idee diventano collaborazione e valore.',intro:'MyZubster riunisce un mondo digitale, missioni, progetti ambientali e un Marketplace. Puoi esplorare gratuitamente, partecipare alla comunità, contribuire a progetti e pubblicare prodotti o servizi come Seller.',minute:'Capisci MyZubster in 1 minuto',exploreMarket:'Esplora il Marketplace',join:'Entra nella comunità',marketTitle:'🛒 Trasforma ciò che sai fare in valore',marketText:'Esplora gratuitamente prodotti, servizi e proposte della comunità. Con MyZubster Seller puoi aprire il tuo spazio e pubblicare annunci.',lifeTitle:'🌍 Dati → evidenze → KPI/MRV → impatto replicabile',lifeText:'MyZubster sta validando un percorso evidence-first per pilot ambientali, con focus su acqua, agricoltura, provenance dei dati e MRV digitale.',life:'Esplora LIFE Pilot',enter:'Entra',explore:'Esplora',garden:'Il mio giardino',missions:'Missioni',trades:'I miei scambi',ask:'Chiedi a Zorgax',close:'Chiudi Zorgax',copilot:'ZORGAX · COPILOTA MYZUBSTER',want:'👽 Cosa vuoi fare?',you:'Tu',thinking:'Zorgax sta pensando…',send:'Invia',placeholder:'Es. Voglio diventare Seller',hello:'Ciao! Sono Zorgax 👽. Dimmi cosa vuoi fare e ti accompagno nel punto giusto di MyZubster.',brain:'In questo momento non riesco a collegarmi al cervello di Zorgax. Posso comunque accompagnarti nelle sezioni di MyZubster.'},en:{name:'English',what:'WHAT IS MYZUBSTER?',headline:'An open-source ecosystem where people, projects and ideas become collaboration and value.',intro:'MyZubster brings together a digital world, missions, environmental projects and a Marketplace. Explore for free, join the community, contribute to projects, and publish products or services as a Seller.',minute:'Understand MyZubster in 1 minute',exploreMarket:'Explore the Marketplace',join:'Join the community',marketTitle:'🛒 Turn what you can do into value',marketText:'Explore community products, services and offers for free. With MyZubster Seller you can open your space and publish listings.',lifeTitle:'🌍 Data → evidence → KPI/MRV → replicable impact',lifeText:'MyZubster is validating an evidence-first path for environmental pilots, focused on water, agriculture, data provenance and digital MRV.',life:'Explore LIFE Pilot',enter:'Enter',explore:'Explore',garden:'My garden',missions:'Missions',trades:'My exchanges',ask:'Ask Zorgax',close:'Close Zorgax',copilot:'ZORGAX · MYZUBSTER COPILOT',want:'👽 What do you want to do?',you:'You',thinking:'Zorgax is thinking…',send:'Send',placeholder:'E.g. I want to become a Seller',hello:'Hi! I’m Zorgax 👽. Tell me what you want to do and I’ll guide you to the right place in MyZubster.',brain:'I cannot reach Zorgax’s brain right now. I can still guide you through MyZubster.'},es:{name:'Español',what:'¿QUÉ ES MYZUBSTER?',headline:'Un ecosistema de código abierto donde personas, proyectos e ideas se convierten en colaboración y valor.',intro:'MyZubster reúne un mundo digital, misiones, proyectos ambientales y un Marketplace. Explora gratis, únete a la comunidad, contribuye a proyectos y publica productos o servicios como Seller.',minute:'Entiende MyZubster en 1 minuto',exploreMarket:'Explora el Marketplace',join:'Únete a la comunidad',marketTitle:'🛒 Convierte lo que sabes hacer en valor',marketText:'Explora gratis productos, servicios y propuestas de la comunidad. Con MyZubster Seller puedes abrir tu espacio y publicar anuncios.',lifeTitle:'🌍 Datos → evidencias → KPI/MRV → impacto replicable',lifeText:'MyZubster está validando un enfoque basado en evidencias para pilotos ambientales, con foco en agua, agricultura, procedencia de datos y MRV digital.',life:'Explora LIFE Pilot',enter:'Entrar',explore:'Explorar',garden:'Mi jardín',missions:'Misiones',trades:'Mis intercambios',ask:'Pregunta a Zorgax',close:'Cerrar Zorgax',copilot:'ZORGAX · COPILOTO MYZUBSTER',want:'👽 ¿Qué quieres hacer?',you:'Tú',thinking:'Zorgax está pensando…',send:'Enviar',placeholder:'Ej. Quiero ser Seller',hello:'¡Hola! Soy Zorgax 👽. Dime qué quieres hacer y te guiaré al lugar adecuado de MyZubster.',brain:'Ahora mismo no puedo conectar con el cerebro de Zorgax. Aun así puedo guiarte por MyZubster.'},fr:{name:'Français',what:"QU'EST-CE QUE MYZUBSTER ?",headline:'Un écosystème open source où personnes, projets et idées deviennent collaboration et valeur.',intro:'MyZubster réunit un monde numérique, des missions, des projets environnementaux et un Marketplace. Explorez gratuitement, rejoignez la communauté, contribuez aux projets et publiez des produits ou services comme Seller.',minute:'Comprendre MyZubster en 1 minute',exploreMarket:'Explorer le Marketplace',join:'Rejoindre la communauté',marketTitle:'🛒 Transformez votre savoir-faire en valeur',marketText:'Explorez gratuitement les produits, services et offres de la communauté. Avec MyZubster Seller, ouvrez votre espace et publiez des annonces.',lifeTitle:'🌍 Données → preuves → KPI/MRV → impact reproductible',lifeText:'MyZubster valide une approche evidence-first pour les pilotes environnementaux, axée sur l’eau, l’agriculture, la provenance des données et le MRV numérique.',life:'Explorer LIFE Pilot',enter:'Entrer',explore:'Explorer',garden:'Mon jardin',missions:'Missions',trades:'Mes échanges',ask:'Demander à Zorgax',close:'Fermer Zorgax',copilot:'ZORGAX · COPILOTE MYZUBSTER',want:'👽 Que voulez-vous faire ?',you:'Vous',thinking:'Zorgax réfléchit…',send:'Envoyer',placeholder:'Ex. Je veux devenir Seller',hello:'Bonjour ! Je suis Zorgax 👽. Dites-moi ce que vous voulez faire et je vous guiderai dans MyZubster.',brain:'Je ne peux pas joindre le cerveau de Zorgax pour le moment. Je peux quand même vous guider dans MyZubster.'},de:{name:'Deutsch',what:'WAS IST MYZUBSTER?',headline:'Ein Open-Source-Ökosystem, in dem Menschen, Projekte und Ideen zu Zusammenarbeit und Wert werden.',intro:'MyZubster verbindet eine digitale Welt, Missionen, Umweltprojekte und einen Marketplace. Kostenlos erkunden, der Community beitreten, Projekte unterstützen und als Seller Produkte oder Dienstleistungen veröffentlichen.',minute:'MyZubster in 1 Minute verstehen',exploreMarket:'Marketplace erkunden',join:'Community beitreten',marketTitle:'🛒 Mach aus deinem Können Wert',marketText:'Entdecke kostenlos Produkte, Dienstleistungen und Angebote der Community. Mit MyZubster Seller kannst du deinen Bereich eröffnen und Angebote veröffentlichen.',lifeTitle:'🌍 Daten → Nachweise → KPI/MRV → replizierbare Wirkung',lifeText:'MyZubster validiert einen evidenzbasierten Ansatz für Umweltpiloten mit Fokus auf Wasser, Landwirtschaft, Datenherkunft und digitales MRV.',life:'LIFE Pilot erkunden',enter:'Eintreten',explore:'Erkunden',garden:'Mein Garten',missions:'Missionen',trades:'Meine Transaktionen',ask:'Zorgax fragen',close:'Zorgax schließen',copilot:'ZORGAX · MYZUBSTER COPILOT',want:'👽 Was möchtest du tun?',you:'Du',thinking:'Zorgax denkt nach…',send:'Senden',placeholder:'Z. B. Ich möchte Seller werden',hello:'Hallo! Ich bin Zorgax 👽. Sag mir, was du tun möchtest, und ich führe dich zum richtigen Bereich in MyZubster.',brain:'Ich kann Zorgax gerade nicht erreichen. Ich kann dich trotzdem durch MyZubster führen.'}};
+const detectLang=()=>{const saved=localStorage.getItem('myzubster-language');if(saved&&LANGS[saved])return saved;const l=(navigator.language||'en').slice(0,2).toLowerCase();return LANGS[l]?l:'en'};
+const lifeSpotlightStyle={margin:'0 20px 20px',padding:'22px',borderRadius:'18px',border:'1px solid rgba(34,197,94,.35)',background:'linear-gradient(135deg,rgba(34,197,94,.12),rgba(168,85,247,.12))'};const lifeActionsStyle={display:'flex',flexWrap:'wrap',gap:'10px',marginTop:'14px'};const lifeLinkStyle={display:'inline-block',padding:'11px 15px',borderRadius:'10px',textDecoration:'none',fontWeight:900,color:'inherit',border:'1px solid currentColor'};const introStyle={margin:'8px 20px 20px',padding:'26px',borderRadius:'20px',border:'1px solid rgba(168,85,247,.38)',background:'linear-gradient(135deg,rgba(168,85,247,.15),rgba(59,130,246,.12))'};const marketplaceSpotlightStyle={margin:'0 20px 20px',padding:'22px',borderRadius:'18px',border:'1px solid rgba(59,130,246,.38)',background:'linear-gradient(135deg,rgba(59,130,246,.14),rgba(168,85,247,.12))'};const zorgaxButtonStyle={position:'fixed',right:18,bottom:18,zIndex:1000,border:'1px solid rgba(168,85,247,.55)',borderRadius:999,padding:'12px 16px',fontWeight:900,cursor:'pointer',boxShadow:'0 8px 28px rgba(0,0,0,.25)'};const zorgaxPanelStyle={position:'fixed',right:18,bottom:76,zIndex:1000,width:'min(390px,calc(100vw - 36px))',padding:18,borderRadius:18,border:'1px solid rgba(168,85,247,.55)',background:'rgba(20,20,30,.97)',color:'#fff',boxShadow:'0 16px 45px rgba(0,0,0,.38)'};
+function FirstVisitIntro({t}){return <section style={introStyle}><div style={{fontSize:13,fontWeight:900}}>{t.what}</div><h2 style={{margin:'6px 0 8px',fontSize:28}}>{t.headline}</h2><p>{t.intro}</p><div style={lifeActionsStyle}><a href="/come-funziona" style={lifeLinkStyle}>{t.minute} →</a><a href="/marketplace" style={lifeLinkStyle}>{t.exploreMarket} →</a><a href="/social-login" style={lifeLinkStyle}>{t.join} →</a></div></section>}
+function LifeSpotlight({t}){return <section style={lifeSpotlightStyle}><h2>{t.lifeTitle}</h2><p>{t.lifeText}</p><div style={lifeActionsStyle}><a href="/life-pilot" style={lifeLinkStyle}>{t.life} →</a></div></section>}
+function MarketplaceSpotlight({t}){return <section style={marketplaceSpotlightStyle}><h2>{t.marketTitle}</h2><p>{t.marketText}</p><div style={lifeActionsStyle}><a href="/marketplace" style={lifeLinkStyle}>{t.exploreMarket} →</a></div></section>}
+const COPILOT_ACTIONS=[{test:/seller|vend|sell|vender|vendre|verkauf/i,label:'💼 Seller · Marketplace',href:'/marketplace',action:'seller'},{test:/market|prodot|product|serviz|compr|buy|acheter|kauf/i,label:'🛒 Marketplace',href:'/marketplace',action:'marketplace'},{test:/metavers|avatar|space/i,label:'🪐 Metaverse',href:'/metaverse',action:'metaverse'},{test:/life|ambiente|environment|environnement|umwelt|acqua|water|agua|eau|mrv|pilot/i,label:'🌱 LIFE Pilot',href:'/life-pilot',action:'life'},{test:/registr|login|account|comunit|community|communaut|gemeinschaft|unirse|join|rejoindre/i,label:'🔐 Community',href:'/social-login',action:'join'}];
+function ZorgaxAssistant({t}){const[open,setOpen]=useState(false),[input,setInput]=useState(''),[busy,setBusy]=useState(false),[messages,setMessages]=useState([{role:'assistant',content:t.hello}]),[suggestion,setSuggestion]=useState(null);const send=async(e)=>{e.preventDefault();const text=input.trim();if(!text||busy)return;const userMessage={role:'user',content:text};const next=[...messages,userMessage];setMessages(next);setInput('');setSuggestion(COPILOT_ACTIONS.find(a=>a.test.test(text))||null);setBusy(true);try{const history=messages.slice(-8).map(m=>({role:m.role,content:m.content}));const response=await fetch('/api/zorgax/assistant/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text,history,useWeb:false})});const data=await response.json();if(!response.ok)throw new Error(data.error||'Unavailable');setMessages([...next,{role:'assistant',content:String(data.answer||data.response||data.message)}]);}catch(error){setMessages([...next,{role:'assistant',content:t.brain}]);}finally{setBusy(false);}};return <><button type="button" onClick={()=>setOpen(!open)} style={zorgaxButtonStyle}>👽 {open?t.close:t.ask}</button>{open&&<aside role="dialog" style={zorgaxPanelStyle}><div style={{fontSize:12,fontWeight:900,opacity:.75}}>{t.copilot}</div><h3>{t.want}</h3><div style={{display:'grid',gap:8,maxHeight:280,overflowY:'auto',marginBottom:12}}>{messages.map((m,i)=><div key={i} style={{padding:'9px 11px',borderRadius:12,background:m.role==='user'?'rgba(59,130,246,.24)':'rgba(168,85,247,.18)'}}><strong>{m.role==='user'?t.you:'Zorgax'}:</strong> {m.content}</div>)}{busy&&<div>{t.thinking}</div>}</div>{suggestion&&<button onClick={()=>window.location.href=suggestion.href} style={{width:'100%',padding:11,marginBottom:10,fontWeight:900}}>✨ {suggestion.label} →</button>}<form onSubmit={send} style={{display:'flex',gap:8}}><input value={input} onChange={e=>setInput(e.target.value)} placeholder={t.placeholder} style={{flex:1,minWidth:0,padding:11}}/><button type="submit" disabled={busy||!input.trim()}>{t.send}</button></form></aside>}</>}
+function App(){const[activeTab,setActiveTab]=useState(TABS.WORLD);const[lang,setLang]=useState(detectLang);const t=LANGS[lang];const changeLang=e=>{const l=e.target.value;setLang(l);localStorage.setItem('myzubster-language',l);document.documentElement.lang=l};const path=window.location.pathname.replace(/\/+$/,'')||'/';if(path==='/social-login'||path==='/social-login.html')return <SocialLoginPage/>;if(path==='/life-pilot'||path==='/zorgax/life-pilot')return <ZorgaxLifePilotPage/>;if(path==='/apps')return <AppsDownloadPage/>;if(path==='/marketplace')return <MarketplacePage/>;if(path==='/metaverse')return <MetaversePage/>;return <div className="App"><nav style={{padding:'12px 20px',display:'flex',gap:12,alignItems:'center',flexWrap:'wrap'}}><h1 style={{margin:0,fontSize:20}}>🌍 MyZubster</h1><select aria-label="Language" value={lang} onChange={changeLang}>{Object.entries(LANGS).map(([k,v])=><option key={k} value={k}>{v.name}</option>)}</select><a href="/social-login">🔐 {t.join}</a><a href="/marketplace">🛒 {t.exploreMarket}</a><button onClick={()=>setActiveTab(TABS.WORLD)}>{t.enter}</button><button onClick={()=>setActiveTab(TABS.EXPLORE)}>{t.explore}</button><button onClick={()=>setActiveTab(TABS.GARDENS)}>{t.garden}</button><button onClick={()=>setActiveTab(TABS.MISSIONS)}>{t.missions}</button><button onClick={()=>setActiveTab(TABS.MARKETPLACE)}>Marketplace</button><button onClick={()=>setActiveTab(TABS.MARKETPLACE_OPS)}>{t.trades}</button><a href="/zorgax">Zorgax</a><a href="/life-pilot">LIFE Pilot</a></nav><FirstVisitIntro t={t}/><MarketplaceSpotlight t={t}/><LifeSpotlight t={t}/><RobotPublicWalletPanel/>{activeTab===TABS.WORLD&&<MetaversePage/>}{activeTab===TABS.EXPLORE&&<MapPage/>}{activeTab===TABS.GARDENS&&<GardensPage/>}{activeTab===TABS.MISSIONS&&<ClowbotBountiesPage/>}{activeTab===TABS.MARKETPLACE&&<MarketplacePage/>}{activeTab===TABS.MARKETPLACE_OPS&&<MarketplaceOpsPage/>}<ZorgaxAssistant key={lang} t={t}/></div>}
 export default App;

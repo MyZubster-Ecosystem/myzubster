@@ -2,44 +2,279 @@
   "version": 2,
   "ignoreCommand": "bash scripts/vercel-ignore-build.sh",
   "builds": [
-    { "src": "api/index.js", "use": "@vercel/node" },
-    { "src": "api/bounties-registry.js", "use": "@vercel/node" },
-    { "src": "frontend/package.json", "use": "@vercel/static-build", "config": { "distDir": "build" } },
-    { "src": "public/fumetto.html", "use": "@vercel/static" },
-    { "src": "public/fumetto-sentinel.html", "use": "@vercel/static" },
-    { "src": "public/come-funziona.html", "use": "@vercel/static" },
-    { "src": "public/community-marketplace.html", "use": "@vercel/static" },
-    { "src": "public/zorgax-build.html", "use": "@vercel/static" },
-    { "src": "public/world-state/metasploit-sentinel.json", "use": "@vercel/static" }
+    {
+      "src": "api/index.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/bounties-registry.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "frontend/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "build"
+      }
+    },
+    {
+      "src": "public/space-station.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "public/fumetto.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "public/fumetto-sentinel.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "public/come-funziona.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "public/community-marketplace.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "public/zorgax-build.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "public/nicola-project-planner.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "public/world-state/metasploit-sentinel.json",
+      "use": "@vercel/static"
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/zorgax/email/run",
+      "schedule": "0 8 * * *"
+    },
+    {
+      "path": "/api/robots/simulation/cron",
+      "schedule": "10 8 * * *"
+    },
+    {
+      "path": "/api/robots/evidence/arpae/capture/cron",
+      "schedule": "20 8 * * *"
+    }
   ],
   "routes": [
-    { "src": "/zorgax-build/?", "dest": "/public/zorgax-build.html" },
-    { "src": "/api/zorgax/assistant/(.*)", "dest": "/api/index.js" },
-    { "src": "/api/zorgax/build/(.*)", "dest": "/api/index.js" },
-    { "src": "/zorgax/?", "dest": "/api/index.js" },
-    { "src": "/zargox/?", "dest": "https://myzubster-gateway.vercel.app/zargox" },
-    { "src": "/api/zorgax/(.*)", "dest": "https://myzubster-gateway.vercel.app/api/zargox/$1" },
-    { "src": "/api/zargox/(.*)", "dest": "https://myzubster-gateway.vercel.app/api/zargox/$1" },
-    { "src": "/api/bounties/?", "dest": "/api/bounties-registry.js" },
-    { "src": "/api/(.*)", "dest": "/api/index.js" },
-    { "src": "/community/?", "dest": "/public/community-marketplace.html" },
-    { "src": "/marketplace/?", "dest": "/public/community-marketplace.html" },
-    { "src": "/gardens-map/?", "dest": "/public/community-marketplace.html" },
-    { "src": "/community-marketplace.html", "dest": "/public/community-marketplace.html" },
-    { "src": "/come-funziona/?", "dest": "/api/index.js" },
-    { "src": "/how-it-works/?", "dest": "/api/index.js" },
-    { "src": "/fumetto/sentinel/?", "dest": "/api/index.js" },
-    { "src": "/comic/sentinel/?", "dest": "/api/index.js" },
-    { "src": "/world-state/metasploit-sentinel.json", "dest": "/public/world-state/metasploit-sentinel.json" },
-    { "src": "/fumetto/?", "dest": "/api/index.js" },
-    { "src": "/fumetto.html", "dest": "/api/index.js" },
-    { "src": "/comic/?", "dest": "/api/index.js" },
-    { "src": "/comic.html", "dest": "/api/index.js" },
-    { "src": "/robots.txt", "dest": "/frontend/robots.txt" },
-    { "src": "/sitemap.xml", "dest": "/frontend/sitemap.xml" },
-    { "src": "/manifest.json", "dest": "/frontend/manifest.json" },
-    { "src": "/favicon.svg", "dest": "/frontend/favicon.svg" },
-    { "src": "/static/(.*)", "dest": "/frontend/static/$1" },
-    { "src": "/(.*)", "dest": "/frontend/index.html" }
+    {
+      "src": "/press\\.html/?",
+      "status": 308,
+      "headers": {
+        "Location": "/press"
+      }
+    },
+    {
+      "src": "/media/?",
+      "status": 308,
+      "headers": {
+        "Location": "/press"
+      }
+    },
+    {
+      "src": "/media-kit/?",
+      "status": 308,
+      "headers": {
+        "Location": "/press"
+      }
+    },
+    {
+      "src": "/social-login\\.html/?",
+      "status": 308,
+      "headers": {
+        "Location": "/social-login"
+      }
+    },
+    {
+      "src": "/zorgax-email-profile\\.html/?",
+      "status": 308,
+      "headers": {
+        "Location": "/zorgax-email-profile"
+      }
+    },
+    {
+      "src": "/press/?",
+      "dest": "/api/index.js"
+    },
+    {
+      "src": "/zorgax-email-profile/?",
+      "headers": {
+        "X-Robots-Tag": "noindex, nofollow"
+      },
+      "dest": "/api/index.js"
+    },
+    {
+      "src": "/zorgax-build/?",
+      "dest": "/public/zorgax-build.html"
+    },
+    {
+      "src": "/nicola-project-planner/?",
+      "headers": {
+        "X-Robots-Tag": "noindex, nofollow"
+      },
+      "dest": "/public/nicola-project-planner.html"
+    },
+    {
+      "src": "/nicola-project-planner\\.html/?",
+      "headers": {
+        "X-Robots-Tag": "noindex, nofollow"
+      },
+      "dest": "/public/nicola-project-planner.html"
+    },
+    {
+      "src": "/api/zorgax/assistant/(.*)",
+      "dest": "/api/index.js"
+    },
+    {
+      "src": "/api/zorgax/monetization/(.*)",
+      "dest": "/api/index.js"
+    },
+    {
+      "src": "/api/zorgax/build/(.*)",
+      "dest": "/api/index.js"
+    },
+    {
+      "src": "/api/zorgax/life/(.*)",
+      "dest": "/api/index.js"
+    },
+    {
+      "src": "/api/zorgax/email/(.*)",
+      "dest": "/api/index.js"
+    },
+    {
+      "src": "/api/zorgax/capital/(.*)",
+      "dest": "/api/index.js"
+    },
+    {
+      "src": "/api/zorgax/digital-business/(.*)",
+      "dest": "/api/index.js"
+    },
+    {
+      "src": "/api/robots/(.*)",
+      "dest": "/api/index.js"
+    },
+    {
+      "src": "/zorgax/?",
+      "dest": "/api/index.js"
+    },
+    {
+      "src": "/zargox/?",
+      "dest": "https://myzubster-gateway.vercel.app/zargox"
+    },
+    {
+      "src": "/api/zorgax/(.*)",
+      "dest": "https://myzubster-gateway.vercel.app/api/zargox/$1"
+    },
+    {
+      "src": "/api/zargox/(.*)",
+      "dest": "https://myzubster-gateway.vercel.app/api/zargox/$1"
+    },
+    {
+      "src": "/api/bounties/?",
+      "dest": "/api/bounties-registry.js"
+    },
+    {
+      "src": "/api/space-station/?",
+      "dest": "https://myzubster-space-station.vercel.app/api/health"
+    },
+    {
+      "src": "/api/space-station/(.*)",
+      "dest": "https://myzubster-space-station.vercel.app/api/$1"
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/index.js"
+    },
+    {
+      "src": "/community/?",
+      "dest": "/public/community-marketplace.html"
+    },
+    {
+      "src": "/gardens-map/?",
+      "dest": "/public/community-marketplace.html"
+    },
+    {
+      "src": "/community-marketplace.html",
+      "dest": "/public/community-marketplace.html"
+    },
+    {
+      "src": "/come-funziona/?",
+      "dest": "/api/index.js"
+    },
+    {
+      "src": "/how-it-works/?",
+      "dest": "/api/index.js"
+    },
+    {
+      "src": "/fumetto/sentinel/?",
+      "dest": "/api/index.js"
+    },
+    {
+      "src": "/comic/sentinel/?",
+      "dest": "/api/index.js"
+    },
+    {
+      "src": "/world-state/metasploit-sentinel.json",
+      "dest": "/public/world-state/metasploit-sentinel.json"
+    },
+    {
+      "src": "/fumetto/?",
+      "dest": "/api/index.js"
+    },
+    {
+      "src": "/fumetto.html",
+      "dest": "/api/index.js"
+    },
+    {
+      "src": "/comic/?",
+      "dest": "/api/index.js"
+    },
+    {
+      "src": "/comic.html",
+      "dest": "/api/index.js"
+    },
+    {
+      "src": "/robots.txt",
+      "dest": "/frontend/robots.txt"
+    },
+    {
+      "src": "/sitemap.xml",
+      "dest": "/frontend/sitemap.xml"
+    },
+    {
+      "src": "/manifest.json",
+      "dest": "/frontend/manifest.json"
+    },
+    {
+      "src": "/favicon.svg",
+      "dest": "/frontend/favicon.svg"
+    },
+    {
+      "src": "/static/(.*)",
+      "dest": "/frontend/static/$1"
+    },
+    {
+      "src": "/space-station/?",
+      "dest": "/public/space-station.html"
+    },
+    {
+      "src": "/space-station\\.html/?",
+      "status": 308,
+      "headers": {
+        "Location": "/space-station"
+      }
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/frontend/index.html"
+    }
   ]
 }

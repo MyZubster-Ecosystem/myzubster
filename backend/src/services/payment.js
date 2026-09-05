@@ -1,5 +1,6 @@
 const Payment = require('../models/Payment');
 const { verifyXmrPayment } = require('./xmrVerifier');
+const { paymentWebhooks } = require('./paymentWebhooks');
 
 const PAYMENT_STATES = ['PENDING', 'SUBMITTED', 'CONFIRMED', 'FAILED', 'CANCELLED'];
 
@@ -51,7 +52,7 @@ async function submitPayment(id, txid) {
   return payment;
 }
 
-async function confirmPayment(id, txid, verifier = verifyXmrPayment) {
+async function confirmPayment(id, txid, verifier = verifyXmrPayment, webhooks = paymentWebhooks) {
   const payment = await Payment.findById(id);
   if (!payment) throw new Error('Payment not found');
   if (payment.kind === 'simulated') {
@@ -88,6 +89,42 @@ async function confirmPayment(id, txid, verifier = verifyXmrPayment) {
     },
   });
   await payment.save();
+  const paymentId = String(payment._id || id);
+  let webhookDelivery;
+  try {
+    const result = await webhooks.paymentConfirmed({
+      paymentId,
+      issueId: payment.issueId,
+      contributor: payment.contributor,
+      amount: payment.amount,
+      currency: payment.currency,
+      txid: payment.txid,
+      state: payment.state,
+    });
+    const deliveries = result && Array.isArray(result.deliveries) ? result.deliveries : [];
+    webhookDelivery = {
+      status: deliveries.some((delivery) => !delivery.delivered) ? 'DELIVERY_FAILED' : 'COMPLETED',
+      attempted: deliveries.length,
+      failed: deliveries.filter((delivery) => !delivery.delivered).length,
+      recordedAt: new Date().toISOString(),
+    };
+  } catch (error) {
+    webhookDelivery = {
+      status: 'DISPATCH_FAILED',
+      error: error && error.message ? error.message : 'Webhook dispatch failed',
+      recordedAt: new Date().toISOString(),
+    };
+  }
+
+  payment.metadata = Object.assign({}, payment.metadata || {}, { webhookDelivery });
+  try {
+    await payment.save();
+  } catch (error) {
+    console.error('Payment confirmed but webhook delivery status could not be recorded', {
+      paymentId,
+      error: error && error.message ? error.message : 'metadata save failed',
+    });
+  }
   return payment;
 }
 

@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MyZubster Evidence Pipeline</title>
+  <meta name="description" content="Truth-labeled MyZubster evidence pipeline: real measurements, append-only history, human review, baseline KPIs and Zorgax advisory recommendations.">
+  <style>
+    :root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    body { margin: 0; background: #081018; color: #edf6ff; }
+    main { max-width: 1120px; margin: 0 auto; padding: 48px 20px 72px; }
+    h1 { font-size: clamp(2rem, 6vw, 4.5rem); margin: 0 0 12px; letter-spacing: -0.04em; }
+    h2 { margin-top: 0; }
+    p { color: #b7c8d8; line-height: 1.65; }
+    a { color: #9ed5ff; }
+    .eyebrow { text-transform: uppercase; letter-spacing: .14em; font-size: .75rem; color: #80ffcf; }
+    .flow { display: grid; grid-template-columns: repeat(7, 1fr); gap: 9px; margin: 30px 0; }
+    .step, .card { border: 1px solid #20384c; background: #0d1822; border-radius: 14px; padding: 16px; }
+    .step { padding: 13px; }
+    .step strong { display: block; margin-bottom: 5px; }
+    .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .badge { display: inline-block; border: 1px solid #31526b; border-radius: 999px; padding: 6px 10px; font-size: .8rem; margin: 3px 5px 3px 0; }
+    .truth { border-color: #80ffcf; color: #80ffcf; }
+    .warning { border-color: #ffd479; color: #ffd479; }
+    .kpi { display: flex; justify-content: space-between; gap: 20px; border-top: 1px solid #20384c; padding: 10px 0; }
+    .history { display: grid; gap: 10px; }
+    .history-item { border-top: 1px solid #20384c; padding-top: 12px; }
+    .history-head { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    pre { white-space: pre-wrap; word-break: break-word; background: #050a0f; border: 1px solid #20384c; padding: 14px; border-radius: 12px; overflow: auto; color: #b9e7ff; }
+    .muted { color: #7f95a8; }
+    @media (max-width: 900px) { .flow { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 760px) { .grid, .flow { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">MyZubster · measured evidence audit cycle</div>
+  <h1>From real measurement to auditable outcome.</h1>
+  <p>ARPAE observations remain explicitly <strong>MEASURED / provisional</strong>. MyZubster can now persist measurements as append-only events, require human review, build a baseline only from accepted evidence, prepare bounded Zorgax recommendations and record outcomes without automatic actuation.</p>
+
+  <div class="flow">
+    <div class="step"><strong>1 · Measure</strong><span class="muted">licensed ARPAE source</span></div>
+    <div class="step"><strong>2 · Capture</strong><span class="muted">append-only + dedupe</span></div>
+    <div class="step"><strong>3 · Review</strong><span class="muted">human ACCEPT / REJECT</span></div>
+    <div class="step"><strong>4 · Baseline</strong><span class="muted">accepted evidence only</span></div>
+    <div class="step"><strong>5 · Zorgax</strong><span class="muted">advisory classification</span></div>
+    <div class="step"><strong>6 · Outcome</strong><span class="muted">human-recorded result</span></div>
+    <div class="step"><strong>7 · Audit</strong><span class="muted">original events preserved</span></div>
+  </div>
+
+  <div class="grid">
+    <section class="card">
+      <h2>Live ARPAE measurement</h2>
+      <div id="arpae-badges"><span class="badge warning">Loading…</span></div>
+      <p id="arpae-context">Fetching licensed ARPAE observation…</p>
+      <div id="arpae-kpis"></div>
+      <p class="muted" id="arpae-source"></p>
+    </section>
+    <section class="card">
+      <h2>Accepted baseline</h2>
+      <div id="baseline-badges"><span class="badge warning">Loading…</span></div>
+      <p id="baseline-context">Reading accepted audit evidence…</p>
+      <div id="baseline-kpis"></div>
+    </section>
+  </div>
+
+  <section class="card" style="margin-top:16px">
+    <h2>Persisted audit timeline</h2>
+    <p class="muted">Only a sanitized public projection is shown here. Reviewer identities and private review/outcome notes are not exposed by this endpoint.</p>
+    <div id="history" class="history"><span class="badge warning">Loading…</span></div>
+  </section>
+
+  <section class="card" style="margin-top:16px">
+    <h2>Governance boundary</h2>
+    <span class="badge">append-only events</span>
+    <span class="badge">automatic verification: false</span>
+    <span class="badge">automatic publication: false</span>
+    <span class="badge">physical actuation: false</span>
+    <span class="badge">financial settlement: false</span>
+    <p>A Zorgax recommendation is advisory. It can classify a deviation or say that more baseline evidence is required, but it cannot operate hardware or convert a provisional measurement into independent scientific validation.</p>
+  </section>
+
+  <div class="grid" style="margin-top:16px">
+    <section class="card"><h2>Live evidence record</h2><pre id="arpae-record">Loading…</pre></section>
+    <section class="card">
+      <h2>EVA IONI simulation boundary</h2>
+      <div id="demo-badges"><span class="badge warning">Loading…</span></div>
+      <p id="demo-context">Fetching synthetic demo…</p>
+      <div id="demo-kpis"></div>
+      <pre id="demo-record">Loading…</pre>
+    </section>
+  </div>
+
+  <p>API: <a href="/api/robots/evidence/health">health</a> · <a href="/api/robots/evidence/arpae/latest">ARPAE latest</a> · <a href="/api/robots/evidence/arpae/history">audit history</a> · <a href="/api/robots/evidence/arpae/baseline">baseline</a> · <a href="/api/robots/evidence/demo">simulation demo</a></p>
+</main>
+<script>
+function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
+function badge(container, text, className) {
+  const span = document.createElement('span');
+  span.className = `badge${className ? ` ${className}` : ''}`;
+  span.textContent = text;
+  container.appendChild(span);
+}
+function kpiRow(container, keyText, valueText) {
+  const row = document.createElement('div'); row.className = 'kpi';
+  const key = document.createElement('span'); key.textContent = keyText;
+  const value = document.createElement('strong'); value.textContent = valueText;
+  row.append(key, value); container.appendChild(row);
+}
+function renderEvidence(prefix, payload) {
+  const evidence = payload.evidence;
+  const badges = document.getElementById(`${prefix}-badges`);
+  const context = document.getElementById(`${prefix}-context`);
+  const kpis = document.getElementById(`${prefix}-kpis`);
+  const record = document.getElementById(`${prefix}-record`);
+  clear(badges); clear(kpis);
+  badge(badges, evidence.truth_label, 'truth');
+  badge(badges, evidence.source_class, '');
+  badge(badges, `review: ${evidence.human_review.state}`, '');
+  context.textContent = evidence.context || payload.note || '';
+  evidence.kpis.forEach(kpi => kpiRow(kpis, kpi.key, `${kpi.value} ${kpi.unit}`));
+  record.textContent = JSON.stringify(evidence, null, 2);
+}
+async function loadEvidence(prefix, url) {
+  try {
+    const response = await fetch(url, { headers: { accept: 'application/json' } });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const payload = await response.json();
+    renderEvidence(prefix, payload);
+    if (prefix === 'arpae' && payload.source) {
+      document.getElementById('arpae-source').textContent = `${payload.source.provider} · ${payload.source.station_name} · ${payload.source.license} · ${payload.source.provider_quality_state}`;
+    }
+  } catch (error) {
+    const badges = document.getElementById(`${prefix}-badges`); clear(badges); badge(badges, 'Source unavailable', 'warning');
+    document.getElementById(`${prefix}-context`).textContent = error.message;
+    document.getElementById(`${prefix}-record`).textContent = 'No evidence claim created from an unavailable source.';
+  }
+}
+async function loadBaseline() {
+  const badges = document.getElementById('baseline-badges');
+  const context = document.getElementById('baseline-context');
+  const kpis = document.getElementById('baseline-kpis');
+  try {
+    const response = await fetch('/api/robots/evidence/arpae/baseline');
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const payload = await response.json();
+    const baseline = payload.baseline;
+    clear(badges); clear(kpis);
+    badge(badges, baseline.status, baseline.status === 'READY' ? 'truth' : 'warning');
+    badge(badges, `${baseline.accepted_sample_count} accepted samples`, '');
+    context.textContent = baseline.status === 'READY'
+      ? 'Baseline metrics are computed only from measurements with persisted human ACCEPT review.'
+      : `At least ${baseline.minimum_samples} accepted samples are needed before Zorgax performs deviation analysis.`;
+    Object.entries(baseline.metrics || {}).forEach(([key, metric]) => {
+      kpiRow(kpis, key, `${metric.average} ${metric.unit} · n=${metric.count}${metric.ready ? '' : ' · not ready'}`);
+    });
+  } catch (error) {
+    clear(badges); badge(badges, 'Baseline unavailable', 'warning');
+    context.textContent = error.message;
+  }
+}
+async function loadHistory() {
+  const container = document.getElementById('history');
+  try {
+    const response = await fetch('/api/robots/evidence/arpae/history?limit=12');
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const payload = await response.json();
+    clear(container);
+    if (!payload.records.length) {
+      const p = document.createElement('p'); p.className = 'muted';
+      p.textContent = 'No persisted measurements yet. The protected capture endpoint and scheduled cron populate this append-only timeline.';
+      container.appendChild(p); return;
+    }
+    payload.records.forEach(item => {
+      const row = document.createElement('div'); row.className = 'history-item';
+      const head = document.createElement('div'); head.className = 'history-head';
+      const title = document.createElement('strong'); title.textContent = `${item.source && item.source.station_name ? item.source.station_name : 'Measured source'} · ${new Date(item.observed_at).toLocaleString()}`;
+      const state = document.createElement('span'); state.className = 'badge'; state.textContent = item.truth_label;
+      head.append(title, state); row.appendChild(head);
+      const values = document.createElement('p'); values.className = 'muted';
+      values.textContent = (item.kpis || []).map(kpi => `${kpi.key}: ${kpi.value} ${kpi.unit}`).join(' · ');
+      row.appendChild(values);
+      const review = document.createElement('p'); review.className = 'muted';
+      const rec = item.zorgax_recommendation ? ` · Zorgax: ${item.zorgax_recommendation.classification}` : '';
+      const outcome = item.outcome ? ` · Outcome: ${item.outcome.state}` : '';
+      review.textContent = `Review: ${item.human_review.state}${rec}${outcome}`;
+      row.appendChild(review); container.appendChild(row);
+    });
+  } catch (error) {
+    clear(container); const span = document.createElement('span'); span.className = 'badge warning'; span.textContent = `History unavailable: ${error.message}`; container.appendChild(span);
+  }
+}
+loadEvidence('arpae', '/api/robots/evidence/arpae/latest');
+loadEvidence('demo', '/api/robots/evidence/demo');
+loadBaseline();
+loadHistory();
+</script>
+</body>
+</html>
