@@ -18,11 +18,12 @@ The following public third-party pages were discovered during web monitoring and
 
 | Date | Source | Public mention | Classification |
 |---|---|---|---|
+| 2026-09-04 | DEV Community / Nicola Lorenzini (`n4k48`) | “Building N4K48: My Journey with MyZubster, AI and Neon Plaza” — contributor-authored public article describing work around persistent identity, authentication, Neon Plaza, testing and roadmap connected to MyZubster | External contributor-authored community article — not independent editorial coverage |
 | 2026-09-05 review | LinkedIn / GyaanSetu AI | “Building MyZubster: A Decentralized Green Ecosystem” — public social post discussing MyZubster as an open-source ecosystem spanning AI, robotics, privacy/crypto and IoT themes | External social mention |
 | 2026-08-29 | BYDFi | “MyZubster Adds Credit Ledger for Zorgax Monetization” — third-party article discussing Zorgax monetization, credit-ledger and payment-layer work | External article / crypto-tech coverage |
 | 2026-08-27 | Web Pulse | “MyZubster Is Entering Its Hardest Phase: Connecting Code to Reality” — third-party article discussing observability, Monero, evidence, IoT and real-world validation | External article / technology coverage |
 
-These entries document **discoverability and public discussion**, not independent technical validation. Where an article is derived from project materials, press releases, syndicated content or public repository activity, that provenance should be considered when assessing independence.
+These entries document **discoverability and public discussion**, not independent technical validation. In particular, contributor-authored content is classified separately from independent editorial coverage. Where an article is derived from project materials, press releases, syndicated content or public repository activity, that provenance should be considered when assessing independence.
 
 ## Currently documented external GitHub activity
 
@@ -79,7 +80,7 @@ The next useful external signals are:
 3. a third-party integration or deployment with public evidence;
 4. continued external PR/review activity;
 5. a real authorized pilot with independently reviewable evidence;
-6. continued genuinely independent web/community discussion beyond syndicated or project-derived coverage.
+6. continued genuinely independent web/community discussion beyond syndicated, contributor-authored or project-derived coverage.
 
 ## Sources of truth
 
