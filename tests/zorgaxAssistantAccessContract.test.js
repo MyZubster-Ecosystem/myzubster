@@ -31,5 +31,14 @@ describe('Zorgax assistant paid access contract', () => {
   test('sends the signed-in token with assistant chat requests', () => {
     expect(uiSource).toContain("fetch('/api/zorgax/assistant/chat',{method:'POST',headers:authHeaders()");
   });
-});
 
+  test('exposes privacy-safe funnel tracking and records successful chat use', () => {
+    expect(routeSource).toContain("router.post('/track', optionalAuthenticate");
+    expect(routeSource).toContain("'zorgax_to_marketplace'");
+    expect(routeSource).toContain("'zorgax_to_seller'");
+    expect(routeSource).toContain("'zorgax_to_metaverse'");
+    expect(routeSource).toContain("'zorgax_to_life'");
+    expect(routeSource).toContain("logFunnelEvent('zorgax_message_sent'");
+    expect(routeSource).not.toContain('req.body?.message || req.body?.prompt, authenticated');
+  });
+});

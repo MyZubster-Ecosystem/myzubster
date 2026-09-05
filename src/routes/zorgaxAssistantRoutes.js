@@ -11,6 +11,38 @@ const { getPaymentReceipt } = require('../services/zorgaxBillingService');
 const router = express.Router();
 const { loadZorgaxAccess, requireZorgaxPlan } = createZorgaxAccessMiddleware();
 
+const ZORGAX_FUNNEL_EVENTS = new Set([
+  'zorgax_open',
+  'zorgax_message_sent',
+  'zorgax_to_marketplace',
+  'zorgax_to_seller',
+  'zorgax_to_metaverse',
+  'zorgax_to_life',
+  'seller_checkout_started',
+  'seller_checkout_succeeded'
+]);
+
+function logFunnelEvent(event, req, metadata = {}) {
+  console.info('[zorgax-funnel]', JSON.stringify({
+    event,
+    authenticated: Boolean(req.userId),
+    plan: req.zorgaxAccess?.plan || req.zorgaxPolicy?.plan || null,
+    path: req.originalUrl,
+    ...metadata
+  }));
+}
+
+router.post('/track', optionalAuthenticate, (req, res) => {
+  const event = String(req.body?.event || '').trim();
+  if (!ZORGAX_FUNNEL_EVENTS.has(event)) {
+    return res.status(400).json({ ok: false, error: 'Evento funnel non valido' });
+  }
+
+  const target = typeof req.body?.target === 'string' ? req.body.target.slice(0, 80) : null;
+  logFunnelEvent(event, req, target ? { target } : {});
+  return res.status(202).json({ ok: true, accepted: true, event });
+});
+
 router.get('/status', (_req, res) => {
   res.json({ ok: true, entity: 'ZORGAX-001', capability: 'general-assistant-v1', chat: true, web_research: true, data_entry: true, monetization: true, paid_access_lifecycle: true, paid_access_enforced: true, payment_intents_persisted: true, automatic_payment_monitoring: true, payment_history: true, payment_receipts: true, renewal_stacking: true, automatic_recurring_charges: false, payment_activation_requires_trusted_verifier: true, crypto_quotes_require_trusted_provider: true, guest_chat: true, guest_web_research: false, free_web_research_limit: 2, pro_workspace_required: true, developer_api_required: true, data_write_requires_auth: true, data_write_requires_confirmation: true, autonomous_persistent_writes: false, providers: { brave_search: Boolean(process.env.BRAVE_SEARCH_API_KEY), tavily: Boolean(process.env.TAVILY_API_KEY), google_news: true, wikipedia: true, general_ai_gateway: true } });
 });
@@ -85,6 +117,10 @@ router.post('/chat', optionalAuthenticate, loadZorgaxAccess, async (req, res) =>
       : policy.researchMode === 'LIMITED' && requestedWeb
         ? `Ricerca Free limitata a ${policy.maxWebResults} fonti per richiesta.`
         : null;
+    logFunnelEvent('zorgax_message_sent', req, {
+      webResearch: useWeb,
+      sourceCount: Array.isArray(result.sources) ? result.sources.length : 0
+    });
     res.json({ ok: true, entity: 'ZORGAX-001', ...result, external_sources: result.sources, access: publicAccess(req.zorgaxAccess), featureAccess: policy, accessNotice });
   }
   catch (error) { res.status(502).json({ ok: false, error: error.message }); }
