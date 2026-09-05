@@ -29,6 +29,14 @@ The relevant principles for MyZubster are community participation, independence,
 
 This is a **cultural and personal connection**, not an organizational one. Nothing in this record establishes that Spiral Tribe/SP23, Mutoid Waste, Bedlam or any related collective endorses, represents, governs or is formally partnered with MyZubster.
 
+### Consent and scope
+
+After being explicitly offered the choice to be credited by name, anonymously, or not at all, and being told that private screenshots would not be published and that the participant would not be presented as representing Spiral Tribe/SP23, the participant gave affirmative permission for the dialogue to be documented.
+
+The participant also emphasized that their own contribution should be understood as only a small part of a much larger collective history. MyZubster therefore records this as **individual testimony and cultural dialogue with consent**, not as authorization to speak for, represent, or imply endorsement by Spiral Tribe/SP23 or any other collective.
+
+This consent does not by itself authorize publication of private screenshots, additional personal information, or broader attributed quotations. Any future expansion of attribution should remain within the participant's explicitly approved scope.
+
 The underlying dialogue is documented separately in [`DIY-CULTURAL-DIALOGUE.md`](./DIY-CULTURAL-DIALOGUE.md).
 
 ## Daniel Ioni and project provenance
