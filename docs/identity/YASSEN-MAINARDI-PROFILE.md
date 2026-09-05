@@ -1,5 +1,7 @@
 # Yassen Mainardi — MyZubster profile draft
 
+![Yassen Mainardi — MyZubster Profile](../../assets/profiles/yassen-mainardi/Yassen-Mainardi-MyZubster-Profile.png)
+
 **Status:** `DRAFT / PUBLIC-SAFE`  
 **MyZubster role:** profile candidate / future tester  
 **GitHub linkage:** `PENDING_VERIFICATION`  
