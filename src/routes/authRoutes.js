@@ -4,6 +4,7 @@ const router = express.Router();
 const authController = require('../controllers/authController');
 const socialAuthController = require('../controllers/socialAuthController');
 const emailProfileController = require('../controllers/emailProfileController');
+const culturalContributorController = require('../controllers/culturalContributorController');
 const { authenticate } = require('../middleware/auth');
 
 function legacyOrSocialCallback(provider, legacyHandler) {
@@ -45,6 +46,8 @@ router.get('/gmail/callback', legacyOrSocialCallback('google', emailProfileContr
 router.post('/gmail/verify-ticket', emailProfileController.verifyDraft);
 router.get('/gmail/auto-sync/cron', emailProfileController.runAutoSync);
 router.get('/profile', authenticate, authController.getProfile);
+router.get('/cultural-contributor/attestation', authenticate, culturalContributorController.getAttestation);
+router.post('/cultural-contributor/attestation', authenticate, culturalContributorController.attest);
 router.post('/gmail/apply-profile', authenticate, emailProfileController.applyDraft);
 router.post('/gmail/auto-sync/start-url', authenticate, emailProfileController.autoSyncStartUrl);
 router.get('/gmail/auto-sync/status', authenticate, emailProfileController.autoSyncStatus);
