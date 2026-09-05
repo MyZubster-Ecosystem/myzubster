@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
+import { startFeaturePageI18n } from './featurePageI18n';
 
 // Guest entry must not depend on browser persistence. Some privacy modes expose
 // localStorage but throw on writes/removals. Ignore storage failures only for
@@ -35,3 +36,4 @@ root.render(
     <App />
   </React.StrictMode>
 );
+startFeaturePageI18n();
