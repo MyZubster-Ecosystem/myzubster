@@ -43,6 +43,52 @@ ZORGAX AI
 MESSENGER RESPONSE
 ```
 
+### Facebook → Messenger → Zorgax → Fumetto / Chronicle
+
+Facebook is one of the public discovery points of MyZubster. A person can discover the project through the MyZubster Community page, continue the conversation in Messenger, reach the MyZubster production backend through the Meta webhook, and be guided by Zorgax toward public areas of the ecosystem such as the website, GitHub, Metaverse, Marketplace, LIFE-oriented documentation and the **Fumetto / Chronicle**.
+
+```text
+FACEBOOK POST / PAGE
+        ↓
+     MESSENGER
+        ↓
+ META WEBHOOK / COMMUNITY BRIDGE
+        ↓
+ MYZUBSTER PRODUCTION
+        ↓
+      ZORGAX
+        ↓
+ EXPLAINS / ROUTES / GUIDES
+   ↙        ↓         ↘
+FUMETTO   WEBSITE    GITHUB
+   │         │          │
+   └──────→ WIDER MYZUBSTER ECOSYSTEM
+```
+
+The **Fumetto / Chronicle** is a public visual and narrative entry point that helps people understand MyZubster through storytelling and then move into the wider ecosystem:
+
+- **Fumetto / Chronicle:** https://www.myzubster.com/fumetto
+- **Messenger bridge status:** https://www.myzubster.com/api/meta/messenger/status
+- **Messenger webhook:** https://www.myzubster.com/api/meta/messenger/webhook
+- **Main website:** https://www.myzubster.com/
+- **Core repository:** https://github.com/MyZubster-Ecosystem/myzubster
+
+The same backend can therefore serve several community entry points:
+
+```text
+FACEBOOK / MESSENGER ─┐
+TELEGRAM BOT          ├──→ MYZUBSTER PRODUCTION ─→ ZORGAX
+WEB / FUMETTO         ┤             │
+GITHUB                ┘             ├──→ METAVERSE
+                                    ├──→ MARKETPLACE
+                                    ├──→ LIFE / PROJECTS
+                                    └──→ PUBLIC DOCUMENTATION
+```
+
+Zorgax is an assistance and routing layer, not an authority. It may explain public information and guide users, but it must not invent identities, partnerships, payments, measurements, historical claims or authorizations. A webhook request or runtime request is evidence of technical activity, **not automatically evidence of a unique visitor, successful conversation, contributor, partner or adoption**.
+
+Full technical and evidence-aware explanation: [`docs/FACEBOOK-MESSENGER-ZORGAX-FUMETTO.md`](docs/FACEBOOK-MESSENGER-ZORGAX-FUMETTO.md).
+
 Current public endpoints:
 
 - **Messenger webhook:** https://www.myzubster.com/api/meta/messenger/webhook
@@ -113,10 +159,6 @@ CODE / DEPENDENCY CHANGE
      GITHUB ACTIONS
           ↓
  REPRODUCIBLE INSTALL
-          ↓
- TESTS + DEPENDENCY AUDIT
-          ↓
- EXACT DEPENDENCY TREE
           ↓
  BUILD / EXPORT VALIDATION
           ↓
@@ -192,6 +234,7 @@ Open pull requests and fork branches are independent open-source contributions; 
 | Open MyZubster Telegram Bot | [@myzubster_bot](https://t.me/myzubster_bot) |
 | Open Flytek Raver Bot | [@FlytekRaverBot](https://t.me/FlytekRaverBot) |
 | Check Facebook Messenger bridge | [Messenger bridge status](https://www.myzubster.com/api/meta/messenger/status) |
+| Understand Facebook → Messenger → Zorgax → Fumetto | [`docs/FACEBOOK-MESSENGER-ZORGAX-FUMETTO.md`](docs/FACEBOOK-MESSENGER-ZORGAX-FUMETTO.md) |
 | Explore music, sound systems, organizers & subcultures | [`docs/culture/MUSIC-SUBCULTURES-AND-SOUND-SYSTEMS.md`](docs/culture/MUSIC-SUBCULTURES-AND-SOUND-SYSTEMS.md) |
 | Explore circular economy & Space Station visuals | [Visual gallery](#-circular-economy--space-station-visuals) |
 | Explore the open knowledge framework — chemistry, sexuality, health, cannabis, circular economy, sport, music, AI and more | [`docs/OPEN-KNOWLEDGE-DOMAINS-FRAMEWORK.md`](docs/OPEN-KNOWLEDGE-DOMAINS-FRAMEWORK.md) |
