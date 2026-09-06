@@ -1,76 +1,30 @@
 const { deliveryDecision } = require('./realtimeModeration');
+const presenceStore = require('./presenceStore');
 
-const STALE_AFTER_MS = 90 * 1000;
-const memberships = new Map();
-
-function key(channel, userId) {
-  return `${channel}:${userId}`;
-}
-
-function nowMs() {
-  return Date.now();
-}
-
-function prune(now = nowMs()) {
-  for (const [membershipKey, row] of memberships.entries()) {
-    for (const [connectionId, seenAt] of row.connections.entries()) {
-      if (now - seenAt > STALE_AFTER_MS) row.connections.delete(connectionId);
-    }
-    if (!row.connections.size) memberships.delete(membershipKey);
-  }
-}
-
-function joinPresence({ channel, userId, connectionId, at = nowMs() }) {
-  prune(at);
-  const membershipKey = key(channel, userId);
-  let row = memberships.get(membershipKey);
-  const firstConnection = !row;
-  if (!row) {
-    row = { channel, userId: String(userId), joinedAt: at, connections: new Map() };
-    memberships.set(membershipKey, row);
-  }
-  row.connections.set(connectionId, at);
-  return { firstConnection, membership: publicMembership(row) };
-}
-
-function touchPresence({ channel, userId, connectionId, at = nowMs() }) {
-  const row = memberships.get(key(channel, userId));
-  if (!row || !row.connections.has(connectionId)) return false;
-  row.connections.set(connectionId, at);
-  return true;
-}
-
-function leavePresence({ channel, userId, connectionId }) {
-  const membershipKey = key(channel, userId);
-  const row = memberships.get(membershipKey);
-  if (!row) return { lastConnection: false, membership: null };
-  row.connections.delete(connectionId);
-  if (row.connections.size) return { lastConnection: false, membership: publicMembership(row) };
-  memberships.delete(membershipKey);
-  return { lastConnection: true, membership: publicMembership(row) };
-}
-
-function leaveConnection(connectionId) {
-  const departed = [];
-  for (const [membershipKey, row] of memberships.entries()) {
-    if (!row.connections.delete(connectionId)) continue;
-    if (!row.connections.size) {
-      memberships.delete(membershipKey);
-      departed.push(publicMembership(row));
-    }
-  }
-  return departed;
-}
+const STALE_AFTER_MS = presenceStore.DEFAULT_TTL_MS;
 
 function publicMembership(row) {
-  return { userId: row.userId, joinedAt: new Date(row.joinedAt).toISOString() };
+  return { userId: String(row.userId), joinedAt: new Date(Number(row.joinedAt)).toISOString() };
+}
+
+async function joinPresence({ channel, userId, connectionId, at = Date.now() }) {
+  const result = await presenceStore.add({ channel, userId, connectionId, joinedAt: at, ttlMs: STALE_AFTER_MS });
+  return { firstConnection: result.firstConnection, mode: result.mode, membership: publicMembership({ userId, joinedAt: at }) };
+}
+
+async function touchPresence({ channel, userId, connectionId }) {
+  return presenceStore.touch({ channel, userId, connectionId, ttlMs: STALE_AFTER_MS });
+}
+
+async function leavePresence({ channel, userId, connectionId, joinedAt = Date.now() }) {
+  const result = await presenceStore.remove({ channel, userId, connectionId });
+  return { lastConnection: result.lastConnection, mode: result.mode, membership: publicMembership({ userId, joinedAt }) };
 }
 
 async function visibleMembers({ channel, viewerUserId }) {
-  prune();
-  const rows = [...memberships.values()].filter((row) => row.channel === channel);
+  const snapshot = await presenceStore.list(channel);
   const visible = [];
-  for (const row of rows) {
+  for (const row of snapshot.members) {
     if (String(row.userId) === String(viewerUserId)) {
       visible.push(publicMembership(row));
       continue;
@@ -78,7 +32,7 @@ async function visibleMembers({ channel, viewerUserId }) {
     const decision = await deliveryDecision({ senderUserId: row.userId, recipientUserId: viewerUserId });
     if (decision.allowed) visible.push(publicMembership(row));
   }
-  return visible;
+  return { mode: snapshot.mode, members: visible };
 }
 
 module.exports = {
@@ -86,7 +40,6 @@ module.exports = {
   joinPresence,
   touchPresence,
   leavePresence,
-  leaveConnection,
   visibleMembers,
-  prune
+  presenceMode: presenceStore.mode
 };
