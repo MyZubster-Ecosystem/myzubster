@@ -29,6 +29,14 @@ function selectComicAsset(message) {
   return best;
 }
 function comicContext(asset) {
-  return `COMIC MEDIA CONTEXT: If relevant, tell the user the attached image is "${asset.label}" (${asset.kind}). Comic/fiction/concept visuals must never be presented as evidence of real events. Canonical Comic Universe: ${COMIC_URL}`;
+  return `COMIC MEDIA CONTEXT: The MyZubster Comic Universe IS publicly available at ${COMIC_URL}. The attached public visual is "${asset.label}" (${asset.kind}). Never say the comic is unavailable or not public. Comic/fiction/concept visuals must never be presented as evidence of real events.`;
 }
-module.exports = { COMIC_URL, wantsComicImage, selectComicAsset, comicContext, assets };
+function comicReply(message, asset) {
+  const text = normalize(message);
+  const italian = /\b(mostrami|fumetto|immagine|tavola|storia|origine|ciao|voglio)\b/.test(text);
+  if (italian) {
+    return `Eccolo 👇\n${asset.label}\n\nIl MyZubster Comic Universe è pubblico e raccoglie tavole e visual provenienti dai repository GitHub del progetto.\n${COMIC_URL}\n\nNota: le visual fiction/concept sono narrative e non costituiscono prova di eventi reali.`;
+  }
+  return `Here it is 👇\n${asset.label}\n\nThe MyZubster Comic Universe is public and collects comic panels and visuals from the project's GitHub repositories.\n${COMIC_URL}\n\nNote: fiction/concept visuals are narrative media, not evidence of real events.`;
+}
+module.exports = { COMIC_URL, wantsComicImage, selectComicAsset, comicContext, comicReply, assets };
