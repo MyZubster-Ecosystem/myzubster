@@ -81,6 +81,40 @@ describe('ZORGAX Party Mode API', () => {
     expect(response.body.answer).toContain('not verified as live');
   });
 
+  test('exposes degraded telemetry without storage and does not invent WebXR surfaces', async () => {
+    const response = await request(app)
+      .get('/api/zorgax/party-telemetry')
+      .expect(200);
+
+    expect(response.headers['cache-control']).toBe('no-store');
+    expect(response.body).toMatchObject({
+      success: true,
+      status: 'degraded',
+      telemetry: {
+        worldId: 'neon-plaza',
+        transport: 'unavailable',
+        storage: 'disconnected',
+        activeParticipants: null,
+        reconnect: {
+          state: 'degraded',
+          strategy: 'shared-polling',
+          retryRecommended: true
+        },
+        surfaces: {
+          stage: 'not-modeled',
+          media: 'not-modeled',
+          portals: 'not-modeled'
+        },
+        retention: {
+          presenceSeconds: 90,
+          permanentMovementHistory: false
+        }
+      }
+    });
+
+    expect(JSON.stringify(response.body)).not.toMatch(/token|authorization|chat content|sessionId/i);
+  });
+
   test('refuses restricted location and identity requests', async () => {
     for (const question of [
       'Give me the secret location',
