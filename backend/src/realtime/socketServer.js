@@ -2,7 +2,7 @@ const { Server } = require('socket.io');
 const { verifySocketToken, authorizeChannel } = require('../services/realtimeGateway');
 const { persistMessage } = require('../services/chatMessaging');
 const { registerRealtimeIO } = require('./realtimeHub');
-const { joinPresence, touchPresence, leavePresence, leaveConnection, visibleMembers } = require('../services/realtimePresence');
+const { joinPresence, touchPresence, leavePresence, visibleMembers, presenceMode } = require('../services/realtimePresence');
 
 function publicMessage(message) {
   return {
@@ -43,7 +43,8 @@ function attachRealtimeServer(httpServer) {
     socket.emit('realtime.ready', {
       connectionId: socket.id,
       correlationId: actor.correlationId,
-      heartbeat: { pingIntervalMs: 25000, pingTimeoutMs: 20000 }
+      heartbeat: { pingIntervalMs: 25000, pingTimeoutMs: 20000 },
+      presence: { mode: presenceMode(), staleAfterMs: 90000 }
     });
 
     socket.on('channel.subscribe', async (payload = {}, ack = () => {}) => {
@@ -61,7 +62,7 @@ function attachRealtimeServer(httpServer) {
     socket.on('channel.unsubscribe', async (payload = {}, ack = () => {}) => {
       const channel = String(payload.channel || '');
       if (socket.data.presenceChannels.has(channel)) {
-        const result = leavePresence({ channel, userId: actor.userId, connectionId: socket.id });
+        const result = await leavePresence({ channel, userId: actor.userId, connectionId: socket.id });
         socket.data.presenceChannels.delete(channel);
         if (result.lastConnection) io.to(channel).emit('presence.leave', result.membership);
       }
@@ -78,27 +79,35 @@ function attachRealtimeServer(httpServer) {
         await socket.join(decision.channel);
         socket.data.subscriptions.add(decision.channel);
         socket.data.presenceChannels.add(decision.channel);
-        const joined = joinPresence({ channel: decision.channel, userId: actor.userId, connectionId: socket.id });
+        const joined = await joinPresence({ channel: decision.channel, userId: actor.userId, connectionId: socket.id });
         if (joined.firstConnection) socket.to(decision.channel).emit('presence.join', joined.membership);
-        const members = await visibleMembers({ channel: decision.channel, viewerUserId: actor.userId });
-        return ack({ ok: true, channel: decision.channel, members });
+        const snapshot = await visibleMembers({ channel: decision.channel, viewerUserId: actor.userId });
+        return ack({ ok: true, channel: decision.channel, mode: snapshot.mode, members: snapshot.members });
       } catch (_error) {
         return ack({ ok: false, error: 'presence_join_failed' });
       }
     });
 
-    socket.on('presence.heartbeat', (payload = {}, ack = () => {}) => {
-      const channel = String(payload.channel || '');
-      const ok = socket.data.presenceChannels.has(channel) && touchPresence({ channel, userId: actor.userId, connectionId: socket.id });
-      return ack({ ok });
+    socket.on('presence.heartbeat', async (payload = {}, ack = () => {}) => {
+      try {
+        const channel = String(payload.channel || '');
+        const ok = socket.data.presenceChannels.has(channel) && await touchPresence({ channel, userId: actor.userId, connectionId: socket.id });
+        return ack({ ok: Boolean(ok) });
+      } catch (_error) {
+        return ack({ ok: false, error: 'presence_heartbeat_failed' });
+      }
     });
 
     socket.on('presence.leave', async (payload = {}, ack = () => {}) => {
-      const channel = String(payload.channel || '');
-      const result = leavePresence({ channel, userId: actor.userId, connectionId: socket.id });
-      socket.data.presenceChannels.delete(channel);
-      if (result.lastConnection) io.to(channel).emit('presence.leave', result.membership);
-      return ack({ ok: true, channel });
+      try {
+        const channel = String(payload.channel || '');
+        const result = await leavePresence({ channel, userId: actor.userId, connectionId: socket.id });
+        socket.data.presenceChannels.delete(channel);
+        if (result.lastConnection) io.to(channel).emit('presence.leave', result.membership);
+        return ack({ ok: true, channel });
+      } catch (_error) {
+        return ack({ ok: false, error: 'presence_leave_failed' });
+      }
     });
 
     socket.on('chat.send', async (payload = {}, ack = () => {}) => {
@@ -139,7 +148,7 @@ function attachRealtimeServer(httpServer) {
           restored.push(decision.channel);
           if (requestedPresence.has(decision.channel)) {
             socket.data.presenceChannels.add(decision.channel);
-            const joined = joinPresence({ channel: decision.channel, userId: actor.userId, connectionId: socket.id });
+            const joined = await joinPresence({ channel: decision.channel, userId: actor.userId, connectionId: socket.id });
             if (joined.firstConnection) socket.to(decision.channel).emit('presence.join', joined.membership);
           }
         } catch (_error) {
@@ -149,11 +158,14 @@ function attachRealtimeServer(httpServer) {
       return ack({ ok: true, restored, rejected });
     });
 
-    socket.on('disconnect', () => {
-      const departed = leaveConnection(socket.id);
-      for (const membership of departed) {
-        const channel = [...socket.data.presenceChannels].find((candidate) => candidate && candidate.length) || null;
-        if (channel) io.to(channel).emit('presence.leave', membership);
+    socket.on('disconnect', async () => {
+      for (const channel of [...socket.data.presenceChannels]) {
+        try {
+          const result = await leavePresence({ channel, userId: actor.userId, connectionId: socket.id });
+          if (result.lastConnection) io.to(channel).emit('presence.leave', result.membership);
+        } catch (_error) {
+          // TTL cleanup will remove stale presence if Redis or the worker is unavailable.
+        }
       }
     });
   });
