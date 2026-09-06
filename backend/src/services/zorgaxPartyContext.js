@@ -45,19 +45,15 @@ function publicActor(user) {
   if (!user?._id) {
     return {
       authenticated: false,
-      identityStatus: 'guest-unverified',
-      userId: null,
-      roles: []
+      identityStatus: 'guest-unverified'
     };
   }
 
+  // Deliberately do not expose the account database id, email, raw roles or
+  // other private profile fields through the public PartyContext surface.
   return {
     authenticated: true,
-    identityStatus: 'account-linked',
-    userId: String(user._id),
-    roles: Array.isArray(user.roles)
-      ? user.roles.map((role) => safeString(role, 40)).filter(Boolean)
-      : []
+    identityStatus: 'account-linked'
   };
 }
 
@@ -160,6 +156,9 @@ function validatePartyContext(context) {
     'authorization',
     'token',
     'email',
+    'userid',
+    'accountuserid',
+    'roles',
     'ipaddress',
     'privatekey',
     'precisecoordinates',
