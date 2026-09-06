@@ -66,8 +66,32 @@ function normalizeCommand(text) {
   return first.replace(/@[^\s]+$/, '');
 }
 
+function canonicalWebhookUrl() {
+  return process.env.FLYTEK_TELEGRAM_WEBHOOK_URL || 'https://www.myzubster.com/api/telegram/flytek/webhook';
+}
+
+let autoSetupStarted = false;
+async function ensureWebhook() {
+  if (autoSetupStarted || !configured() || process.env.VERCEL_ENV !== 'production') return;
+  autoSetupStarted = true;
+  const secretToken = process.env.FLYTEK_TELEGRAM_WEBHOOK_SECRET || undefined;
+  try {
+    const data = await telegramCall('setWebhook', {
+      url: canonicalWebhookUrl(),
+      allowed_updates: ['message', 'edited_message'],
+      drop_pending_updates: false,
+      ...(secretToken ? { secret_token: secretToken } : {})
+    });
+    console.info('[flytek-telegram]', JSON.stringify({ event: 'webhook_auto_registered', ok: data.result === true }));
+  } catch (error) {
+    autoSetupStarted = false;
+    console.error('[flytek-telegram] auto setup failed:', error.message);
+  }
+}
+
 router.get('/status', (_req, res) => {
-  res.json({ ok: true, service: 'flytek-telegram-community-bot', configured: configured(), webhookSecretConfigured: Boolean(process.env.FLYTEK_TELEGRAM_WEBHOOK_SECRET), setupSecretConfigured: Boolean(process.env.FLYTEK_TELEGRAM_SETUP_SECRET) });
+  void ensureWebhook();
+  res.json({ ok: true, service: 'flytek-telegram-community-bot', configured: configured(), webhookSecretConfigured: Boolean(process.env.FLYTEK_TELEGRAM_WEBHOOK_SECRET), setupSecretConfigured: Boolean(process.env.FLYTEK_TELEGRAM_SETUP_SECRET), autoWebhook: true, webhookUrl: canonicalWebhookUrl() });
 });
 
 router.post('/webhook', async (req, res) => {
@@ -96,9 +120,7 @@ router.post('/setup', async (req, res) => {
   const setupSecret = process.env.FLYTEK_TELEGRAM_SETUP_SECRET;
   if (!setupSecret || req.get('x-flytek-setup-secret') !== setupSecret) return res.status(401).json({ ok: false, error: 'Setup non autorizzato' });
   if (!configured()) return res.status(503).json({ ok: false, error: 'Token Telegram non configurato' });
-  const protocol = req.get('x-forwarded-proto') || req.protocol || 'https';
-  const host = req.get('x-forwarded-host') || req.get('host');
-  const webhookUrl = process.env.FLYTEK_TELEGRAM_WEBHOOK_URL || `${protocol}://${host}/api/telegram/flytek/webhook`;
+  const webhookUrl = canonicalWebhookUrl();
   const secretToken = process.env.FLYTEK_TELEGRAM_WEBHOOK_SECRET || undefined;
   try {
     const data = await telegramCall('setWebhook', { url: webhookUrl, allowed_updates: ['message', 'edited_message'], drop_pending_updates: false, ...(secretToken ? { secret_token: secretToken } : {}) });
@@ -110,4 +132,4 @@ router.post('/setup', async (req, res) => {
 });
 
 module.exports = router;
-module.exports._test = { commandText, normalizeCommand, RULES };
+module.exports._test = { commandText, normalizeCommand, RULES, canonicalWebhookUrl };
