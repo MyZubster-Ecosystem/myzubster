@@ -20,6 +20,13 @@ function usernameBase(profile) {
     .toLowerCase().replace(/\s+/g, '-').slice(0, 24) || 'zubster';
 }
 
+function providerAccountEmail(provider, profile) {
+  if (profile?.email) return String(profile.email).toLowerCase();
+  if (provider !== 'facebook' || !profile?.id) return null;
+  const digest = crypto.createHash('sha256').update(String(profile.id)).digest('hex').slice(0, 24);
+  return `facebook-${digest}@identity.myzubster.invalid`;
+}
+
 async function uniqueUsername(base) {
   let candidate = base;
   let n = 1;
@@ -62,16 +69,19 @@ async function upsertVerifiedAccount(provider, profile) {
   let user = await User.findOne({ [providerPath]: String(profile.id) });
   if (!user && profile.email) user = await User.findOne({ email: String(profile.email).toLowerCase() });
   if (!user) {
-    if (!profile.email) throw new Error('Il provider deve restituire una email verificata per creare un nuovo account');
+    const accountEmail = providerAccountEmail(provider, profile);
+    if (!accountEmail) throw new Error('Il provider deve restituire una email verificata per creare un nuovo account');
     user = new User({
       username: await uniqueUsername(usernameBase(profile)),
-      email: String(profile.email).toLowerCase(),
+      email: accountEmail,
       password: crypto.randomBytes(32).toString('hex'),
       isVerified: true
     });
   }
   user.socialIdentities = user.socialIdentities || {};
-  user.socialIdentities[provider] = { id: String(profile.id), email: profile.email || user.email, verifiedAt: new Date() };
+  const providerIdentity = { id: String(profile.id), verifiedAt: new Date() };
+  if (profile.email) providerIdentity.email = String(profile.email).toLowerCase();
+  user.socialIdentities[provider] = providerIdentity;
   if (provider === 'github') user.github = { id: String(profile.id), login: profile.login, avatarUrl: profile.avatarUrl, profileUrl: profile.profileUrl, verifiedAt: new Date() };
   user.isVerified = true;
   user.lastLogin = new Date();
@@ -81,4 +91,4 @@ async function upsertVerifiedAccount(provider, profile) {
   return { user, character, token };
 }
 
-module.exports = { upsertVerifiedAccount };
+module.exports = { upsertVerifiedAccount, _test: { providerAccountEmail } };
