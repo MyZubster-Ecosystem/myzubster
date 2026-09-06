@@ -19,6 +19,11 @@ const {
   reviewPartyReport,
   moderationCapabilities
 } = require('../services/zorgaxPartyModeration');
+const {
+  archiveCapabilities,
+  createArchiveHandoff,
+  getLatestArchive
+} = require('../services/zorgaxPartyArchive');
 
 const router = express.Router();
 
@@ -110,6 +115,7 @@ router.get('/party-capabilities', (_req, res) => {
     success: true,
     commands: publicAllowlist(),
     moderation: moderationCapabilities(),
+    archive: archiveCapabilities(),
     unavailableCategories: [
       'financial-actions',
       'concealed-location-distribution',
@@ -118,6 +124,38 @@ router.get('/party-capabilities', (_req, res) => {
       'unrestricted-tool-execution'
     ]
   });
+});
+
+router.get('/party-archive', async (_req, res) => {
+  try {
+    const result = await getLatestArchive();
+    return res.json({ success: true, ...result });
+  } catch (error) {
+    console.error('ZORGAX Party Archive error:', error?.name || 'Error');
+    return res.status(500).json({ success: false, error: 'Unable to load Party Mode archive context' });
+  }
+});
+
+router.post('/party-archive-handoff', authenticate, async (req, res) => {
+  try {
+    const result = await createArchiveHandoff({
+      actorUserId: req.userId,
+      actorRole: req.userRole || 'user',
+      confirmed: req.body?.confirmed === true,
+      communityId: req.body?.communityId,
+      eventId: req.body?.eventId,
+      roomId: req.body?.roomId,
+      visibility: req.body?.visibility || 'private',
+      assets: req.body?.assets || []
+    });
+    if (!result.valid) {
+      return res.status(result.status || 400).json({ success: false, error: result.error });
+    }
+    return res.status(result.status || 201).json({ success: true, archive: result.archive });
+  } catch (error) {
+    console.error('ZORGAX Party Archive Handoff error:', error?.name || 'Error');
+    return res.status(500).json({ success: false, error: 'Unable to create Party Mode archive handoff' });
+  }
 });
 
 router.post('/party-command', authenticate, async (req, res) => {

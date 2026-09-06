@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const ZorgaxPartyAudit = require('../models/ZorgaxPartyAudit');
 const ZorgaxPartyNotice = require('../models/ZorgaxPartyNotice');
 const { buildPartyTelemetry, summarizePartyTelemetry } = require('./zorgaxPartyTelemetry');
+const { liveCapabilitiesExpired } = require('./zorgaxPartyArchive');
 
 const ALLOWLIST = Object.freeze({
   request_session_status: Object.freeze({
@@ -13,7 +14,8 @@ const ALLOWLIST = Object.freeze({
   publish_notice: Object.freeze({
     minRole: 'admin',
     confirmationRequired: true,
-    mutates: true
+    mutates: true,
+    liveOnly: true
   })
 });
 
@@ -36,7 +38,8 @@ function publicAllowlist() {
     command,
     confirmationRequired: config.confirmationRequired,
     mutates: config.mutates,
-    minimumRole: config.minRole
+    minimumRole: config.minRole,
+    liveOnly: config.liveOnly === true
   }));
 }
 
@@ -87,6 +90,18 @@ async function writeAudit({ actorUserId, actorRole, command, idempotencyKey, out
 async function executePartyCommand({ command, actorUserId, actorRole, confirmed = false, idempotencyKey, payload = {} }) {
   const validation = validateCommandRequest({ command, actorUserId, actorRole, confirmed, idempotencyKey, payload });
   if (!validation.valid) return validation;
+
+  if (validation.config.liveOnly && await liveCapabilitiesExpired()) {
+    await writeAudit({
+      actorUserId,
+      actorRole,
+      command,
+      idempotencyKey: validation.idempotencyKey,
+      outcome: 'rejected',
+      reason: 'archive-handoff-expired-live-capability'
+    });
+    return { valid: false, status: 409, error: 'Live capability unavailable after archive handoff' };
+  }
 
   const previous = await findPrevious(actorUserId, validation.idempotencyKey);
   if (previous) {
