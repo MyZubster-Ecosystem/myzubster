@@ -2,6 +2,7 @@
 
 const express = require('express');
 const crypto = require('crypto');
+const { waitUntil } = require('@vercel/functions');
 const { answer } = require('../services/zorgaxAssistantService');
 const router = express.Router();
 
@@ -44,6 +45,21 @@ async function sendMessage(recipientId, text) {
   if (!response.ok) throw new Error(`Meta Send API ${response.status}`);
 }
 
+async function handleMessageEvent(event) {
+  try {
+    const reply = await askZorgax(event.text);
+    await sendMessage(event.senderId, reply);
+    console.info('[meta-messenger]', JSON.stringify({ event: 'message_handled', mode: 'zorgax' }));
+  } catch (error) {
+    console.error('[meta-messenger]', error.message);
+    try {
+      await sendMessage(event.senderId, 'Zorgax è temporaneamente non disponibile. Riprova tra poco.');
+    } catch (fallbackError) {
+      console.error('[meta-messenger]', `fallback_send_failed: ${fallbackError.message}`);
+    }
+  }
+}
+
 router.get('/status', (_req, res) => res.json({
   ok: true,
   service: 'meta-messenger-community-bridge',
@@ -73,18 +89,14 @@ router.post('/webhook', async (req, res) => {
       if (senderId && text) events.push({ senderId, text });
     }
   }
-  res.sendStatus(200);
-  for (const event of events) {
-    try {
-      const reply = await askZorgax(event.text);
-      await sendMessage(event.senderId, reply);
-      console.info('[meta-messenger]', JSON.stringify({ event: 'message_handled', mode: 'zorgax' }));
-    } catch (error) {
-      console.error('[meta-messenger]', error.message);
-      try { await sendMessage(event.senderId, 'Zorgax è temporaneamente non disponibile. Riprova tra poco.'); } catch (_error) {}
-    }
+
+  // Meta expects a fast acknowledgement. Keep the actual Zorgax + Send API work
+  // alive after the 200 response so Vercel does not freeze the function early.
+  if (events.length) {
+    waitUntil(Promise.allSettled(events.map(handleMessageEvent)));
   }
+  return res.sendStatus(200);
 });
 
 module.exports = router;
-module.exports._test = { safeEqual, validSignature, configured };
+module.exports._test = { safeEqual, validSignature, configured, handleMessageEvent };
