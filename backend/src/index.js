@@ -15,6 +15,7 @@ const { lifeDaoBindingGuard } = require('./services/lifeDaoPolicy');
 const gardenRoutes = require('./routes/gardens');
 const telemetryRoutes = require('./routes/telemetry');
 const metaverseRoutes = require('./routes/metaverse');
+const zorgaxPartyRoutes = require('./routes/zorgax-party');
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3009;
@@ -52,6 +53,7 @@ app.get('/health', (_req, res) => {
 app.use('/api/gardens', gardenRoutes);
 app.use('/api/telemetry', telemetryRoutes);
 app.use('/api/metaverse', metaverseRoutes);
+app.use('/api/zorgax', zorgaxPartyRoutes);
 app.use('/api/gateway', gatewayRoutes);
 app.use('/api/dao/zorgax', zorgaxDaoRoutes);
 app.use('/api/dao/life', lifeDaoRoutes);
@@ -76,7 +78,8 @@ app.get('/api/dashboard', (_req, res) => {
         binding: false,
         consentRequired: true
       },
-      metaverse: { status: 'prototype', endpoint: '/api/metaverse/world', identityMode: 'guest-unverified' }
+      metaverse: { status: 'prototype', endpoint: '/api/metaverse/world', identityMode: 'guest-unverified' },
+      zorgaxPartyMode: { status: 'experimental', endpoint: '/api/zorgax/party-context', binding: false }
     },
     stats: {
       totalIssues: 0,
@@ -156,6 +159,7 @@ app.get('/dashboard', (_req, res) => {
     <strong>Dashboard API:</strong> <a href="/api/dashboard"><code>/api/dashboard</code></a><br>
     <strong>Gardens API:</strong> <a href="/api/gardens"><code>/api/gardens</code></a><br>
     <strong>Metaverse API:</strong> <a href="/api/metaverse/world"><code>/api/metaverse/world</code></a> (prototype)<br>
+    <strong>ZORGAX Party Mode:</strong> <a href="/api/zorgax/party-context"><code>/api/zorgax/party-context</code></a> (experimental, read-only)<br>
     <strong>DAO API:</strong> <a href="/api/dao/proposals"><code>/api/dao/proposals</code></a><br>
     <strong>Zorgax DAO:</strong> <a href="/api/dao/zorgax/status"><code>/api/dao/zorgax/status</code></a> (advisory, non-binding)<br>
     <strong>LIFE DAO lane:</strong> <a href="/api/dao/life/status"><code>/api/dao/life/status</code></a> (consent-gated, advisory, non-binding)
@@ -186,6 +190,7 @@ async function startServer() {
       console.log(`📍 Health check: http://localhost:${PORT}/health`);
       console.log(`📍 Dashboard: http://localhost:${PORT}/dashboard`);
       console.log(`🪐 Metaverse world: http://localhost:${PORT}/api/metaverse/world`);
+      console.log(`🎉 ZORGAX Party Mode: http://localhost:${PORT}/api/zorgax/party-context`);
       resolve(server);
     });
   });
