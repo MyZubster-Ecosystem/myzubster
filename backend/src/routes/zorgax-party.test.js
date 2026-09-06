@@ -19,9 +19,7 @@ describe('ZORGAX Party Mode API', () => {
       scope: 'public-party-context',
       actor: {
         authenticated: false,
-        identityStatus: 'guest-unverified',
-        userId: null,
-        roles: []
+        identityStatus: 'guest-unverified'
       },
       community: {
         id: 'myzubster-metaverse',
@@ -42,6 +40,8 @@ describe('ZORGAX Party Mode API', () => {
       }
     });
 
+    expect(response.body.context.actor).not.toHaveProperty('userId');
+    expect(response.body.context.actor).not.toHaveProperty('roles');
     expect(response.body.context.capabilities).toEqual(expect.arrayContaining([
       'party.read_context',
       'party.read_community',
@@ -64,6 +64,25 @@ describe('ZORGAX Party Mode API', () => {
       source: 'unavailable'
     });
     expect(response.body.context.capabilities).not.toContain('party.read_live_status');
+  });
+
+  test('does not expose internal account ids or raw roles for an authenticated actor', async () => {
+    const context = await buildPartyContext({
+      user: {
+        _id: 'internal-database-id',
+        email: 'private@example.test',
+        roles: ['admin']
+      }
+    });
+
+    expect(context.actor).toEqual({
+      authenticated: true,
+      identityStatus: 'account-linked'
+    });
+    expect(context.actor).not.toHaveProperty('userId');
+    expect(context.actor).not.toHaveProperty('roles');
+    expect(JSON.stringify(context)).not.toContain('internal-database-id');
+    expect(JSON.stringify(context)).not.toContain('private@example.test');
   });
 
   test('validator rejects forbidden private/sensitive fields', async () => {
