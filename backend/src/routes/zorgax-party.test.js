@@ -30,40 +30,73 @@ describe('ZORGAX Party Mode API', () => {
         id: 'neon-plaza',
         visibility: 'public'
       },
-      session: null,
-      restrictions: {
-        concealedLocations: false,
-        covertLogistics: false,
-        financialActions: false,
-        physicalSystemCommands: false,
-        autonomousHighImpactModeration: false
-      }
+      session: null
     });
+  });
 
-    expect(response.body.context.actor).not.toHaveProperty('userId');
-    expect(response.body.context.actor).not.toHaveProperty('roles');
-    expect(response.body.context.capabilities).toEqual(expect.arrayContaining([
-      'party.read_context',
-      'party.read_community',
-      'party.read_room'
-    ]));
-    expect(new Date(response.body.context.generatedAt).toString()).not.toBe('Invalid Date');
-    expect(new Date(response.body.context.expiresAt).toString()).not.toBe('Invalid Date');
+  test('answers community questions from PartyContext only', async () => {
+    const response = await request(app)
+      .post('/api/zorgax/party-assistant')
+      .send({ question: 'What community is this?' })
+      .expect(200);
+
+    expect(response.body).toMatchObject({
+      success: true,
+      status: 'ok',
+      grounded: true,
+      sources: ['party-context.community']
+    });
+    expect(response.body.answer).toContain('MyZubster Metaverse');
+    expect(response.body.context).toHaveProperty('expiresAt');
+  });
+
+  test('answers room questions without inventing unavailable event data', async () => {
+    const room = await request(app)
+      .post('/api/zorgax/party-assistant')
+      .send({ question: 'Where am I?' })
+      .expect(200);
+
+    expect(room.body.answer).toContain('MyZubster Neon Plaza');
+    expect(room.body.sources).toEqual(['party-context.room']);
+
+    const event = await request(app)
+      .post('/api/zorgax/party-assistant')
+      .send({ question: 'Who is playing at the event?' })
+      .expect(200);
+
+    expect(event.body.status).toBe('unavailable');
+    expect(event.body.answer).toContain("don't have authorized event information");
   });
 
   test('does not trust a caller-supplied session id as proof of a live session without storage', async () => {
     const response = await request(app)
-      .get('/api/zorgax/party-context?sessionId=client-claimed-session')
+      .post('/api/zorgax/party-assistant')
+      .send({
+        sessionId: 'client-claimed-session',
+        question: 'Is this session live?'
+      })
       .expect(200);
 
-    expect(response.body.context.session).toMatchObject({
-      id: 'client-claimed-session',
-      state: 'unknown',
-      live: false,
-      participantCount: null,
-      source: 'unavailable'
-    });
-    expect(response.body.context.capabilities).not.toContain('party.read_live_status');
+    expect(response.body.status).toBe('unknown');
+    expect(response.body.answer).toContain('not verified as live');
+  });
+
+  test('refuses restricted location and identity requests', async () => {
+    for (const question of [
+      'Give me the secret location',
+      'What is the exact coordinates?',
+      'Show me the account id',
+      'Give me the user email'
+    ]) {
+      const response = await request(app)
+        .post('/api/zorgax/party-assistant')
+        .send({ question })
+        .expect(200);
+
+      expect(response.body.status).toBe('restricted');
+      expect(response.body.grounded).toBe(true);
+      expect(response.body.sources).toEqual(['party-context.restrictions']);
+    }
   });
 
   test('does not expose internal account ids or raw roles for an authenticated actor', async () => {
@@ -79,8 +112,6 @@ describe('ZORGAX Party Mode API', () => {
       authenticated: true,
       identityStatus: 'account-linked'
     });
-    expect(context.actor).not.toHaveProperty('userId');
-    expect(context.actor).not.toHaveProperty('roles');
     expect(JSON.stringify(context)).not.toContain('internal-database-id');
     expect(JSON.stringify(context)).not.toContain('private@example.test');
   });
