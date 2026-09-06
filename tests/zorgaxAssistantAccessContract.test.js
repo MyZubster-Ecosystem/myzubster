@@ -41,4 +41,16 @@ describe('Zorgax assistant paid access contract', () => {
     expect(routeSource).toContain("logFunnelEvent('zorgax_message_sent'");
     expect(routeSource).not.toContain('req.body?.message || req.body?.prompt, authenticated');
   });
+
+  test('offers four guided intents with dedicated privacy-safe tracking', () => {
+    expect(routeSource).toContain("'zorgax_intent_seller'");
+    expect(routeSource).toContain("'zorgax_intent_marketplace'");
+    expect(routeSource).toContain("'zorgax_intent_metaverse'");
+    expect(routeSource).toContain("'zorgax_intent_life'");
+    expect(uiSource).toContain('data-guided-event="zorgax_intent_seller"');
+    expect(uiSource).toContain('data-guided-event="zorgax_intent_marketplace"');
+    expect(uiSource).toContain('data-guided-event="zorgax_intent_metaverse"');
+    expect(uiSource).toContain('data-guided-event="zorgax_intent_life"');
+    expect(uiSource).toContain('function startGuidedIntent(button)');
+  });
 });
