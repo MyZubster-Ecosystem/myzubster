@@ -27,22 +27,34 @@ function publicEvent(value) {
 async function appendSessionEvent({ session, type }) {
   if (!databaseAvailable()) throw new Error('Session event storage unavailable');
   const snapshot = typeof session?.toObject === 'function' ? session.toObject() : session;
-  if (!snapshot?.sessionId || !Number.isInteger(snapshot.lifecycleVersion)) {
+  const sessionId = snapshot?.sessionId || snapshot?.id;
+  const participantCount = Number.isInteger(snapshot?.participantCount)
+    ? snapshot.participantCount
+    : (snapshot?.participantUserIds || []).length;
+
+  if (!sessionId || !Number.isInteger(snapshot?.lifecycleVersion)) {
     throw new Error('Invalid session event snapshot');
   }
 
-  const event = await VirtualSessionEvent.create({
-    eventId: crypto.randomUUID(),
-    sessionId: snapshot.sessionId,
-    roomId: snapshot.roomId,
-    sequence: snapshot.lifecycleVersion,
-    type,
-    state: snapshot.state,
-    participantCount: (snapshot.participantUserIds || []).length,
-    sceneManifestVersion: snapshot.sceneManifestVersion || '1',
-    createdAt: new Date(),
-    expiresAt: new Date(Date.now() + EVENT_RETENTION_MS)
-  });
+  const now = new Date();
+  const event = await VirtualSessionEvent.findOneAndUpdate(
+    { sessionId, sequence: snapshot.lifecycleVersion },
+    {
+      $setOnInsert: {
+        eventId: crypto.randomUUID(),
+        sessionId,
+        roomId: snapshot.roomId,
+        sequence: snapshot.lifecycleVersion,
+        type,
+        state: snapshot.state,
+        participantCount,
+        sceneManifestVersion: snapshot.sceneManifestVersion || '1',
+        createdAt: now,
+        expiresAt: new Date(now.getTime() + EVENT_RETENTION_MS)
+      }
+    },
+    { upsert: true, new: true, setDefaultsOnInsert: true }
+  );
 
   return publicEvent(event);
 }
