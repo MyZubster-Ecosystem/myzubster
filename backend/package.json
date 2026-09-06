@@ -7,7 +7,8 @@
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --forceExit --detectOpenHandles --timeout=30000",
-    "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch --forceExit --detectOpenHandles --timeout=30000"
+    "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch --forceExit --detectOpenHandles --timeout=30000",
+    "test:realtime-load": "node scripts/realtime-load.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
@@ -21,6 +22,7 @@
     "jest": "^30.4.2",
     "mongodb-memory-server": "^11.2.0",
     "nodemon": "^3.1.0",
+    "socket.io-client": "^4.7.2",
     "supertest": "^7.2.2"
   }
 }
