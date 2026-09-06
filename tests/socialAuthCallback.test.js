@@ -34,7 +34,7 @@ describe('social OAuth callback safety', () => {
     global.fetch = originalFetch;
   });
 
-  test('starts Facebook OAuth with public_profile only', () => {
+  test('starts Facebook OAuth with a supported business permission and without email', () => {
     const req = { params: { provider: 'facebook' } };
     const res = response();
 
@@ -43,8 +43,10 @@ describe('social OAuth callback safety', () => {
     expect(res.redirect).toHaveBeenCalledTimes(1);
     const url = new URL(res.redirect.mock.calls[0][0]);
     expect(url.origin).toBe('https://www.facebook.com');
-    expect(url.searchParams.get('scope')).toBe('public_profile');
-    expect(url.searchParams.get('scope')).not.toMatch(/email/);
+    const scopes = new Set((url.searchParams.get('scope') || '').split(','));
+    expect(scopes.has('public_profile')).toBe(true);
+    expect(scopes.has('pages_show_list')).toBe(true);
+    expect(scopes.has('email')).toBe(false);
   });
 
   test('completes Facebook callback when profile has no email', async () => {
