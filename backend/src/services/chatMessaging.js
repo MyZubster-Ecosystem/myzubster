@@ -5,6 +5,9 @@ const ChatMessage = require('../models/ChatMessage');
 const CommunityMembership = require('../models/CommunityMembership');
 const { deliveryDecision } = require('./realtimeModeration');
 
+const MESSAGE_BURST_WINDOW_MS = 10 * 1000;
+const MESSAGE_BURST_LIMIT = 12;
+
 function databaseAvailable() {
   return mongoose.connection.readyState === 1;
 }
@@ -58,6 +61,14 @@ async function recipientsForChannel(channel, senderUserId) {
   return rows.map((row) => String(row.userId)).filter((id) => id !== String(senderUserId));
 }
 
+async function messagingRateDecision(userId) {
+  const since = new Date(Date.now() - MESSAGE_BURST_WINDOW_MS);
+  const count = await ChatMessage.countDocuments({ senderUserId: String(userId), createdAt: { $gte: since } });
+  return count >= MESSAGE_BURST_LIMIT
+    ? { allowed: false, status: 429, reason: 'message-burst-rate-limit' }
+    : { allowed: true, status: 200, reason: null };
+}
+
 async function persistMessage({ actorUserId, actorRole = 'user', channelId, clientMessageId, body }) {
   if (!databaseAvailable()) return { valid: false, status: 503, error: 'Messaging storage unavailable' };
   const safeBody = cleanBody(body);
@@ -69,6 +80,9 @@ async function persistMessage({ actorUserId, actorRole = 'user', channelId, clie
 
   const existing = await ChatMessage.findOne({ channelId: channel.channelId, clientMessageId: safeClientId }).lean();
   if (existing) return { valid: true, status: 200, duplicate: true, message: existing, deliverTo: [] };
+
+  const rate = await messagingRateDecision(actorUserId);
+  if (!rate.allowed) return { valid: false, status: rate.status, error: 'Message rate limit exceeded', reason: rate.reason };
 
   const recipients = await recipientsForChannel(channel, actorUserId);
   const deliverTo = [];
@@ -100,11 +114,14 @@ async function listMessages({ actorUserId, actorRole = 'user', channelId, after 
 }
 
 module.exports = {
+  MESSAGE_BURST_LIMIT,
+  MESSAGE_BURST_WINDOW_MS,
   cleanBody,
   isCommunityMember,
   canAccessChannel,
   createDirectChannel,
   ensureCommunityChannel,
+  messagingRateDecision,
   persistMessage,
   listMessages
 };
