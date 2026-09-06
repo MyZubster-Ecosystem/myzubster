@@ -27,6 +27,32 @@ TELEGRAM
 
 Operational verification covers webhook registration and Telegram request/response behavior. Bot tokens and webhook secrets remain environment-managed and are never committed to the repository.
 
+## 💬 Facebook Messenger → MyZubster → Zorgax
+
+MyZubster now includes a **Meta Messenger community bridge** designed to route messages from the **MyZubster Community** Facebook page through the production backend to **Zorgax AI**.
+
+```text
+FACEBOOK PAGE / MESSENGER
+          ↓
+MYZUBSTER COMMUNITY BRIDGE
+          ↓
+MYZUBSTER PRODUCTION
+          ↓
+ZORGAX AI
+          ↓
+MESSENGER RESPONSE
+```
+
+Current public endpoints:
+
+- **Messenger webhook:** https://www.myzubster.com/api/meta/messenger/webhook
+- **Bridge status:** https://www.myzubster.com/api/meta/messenger/status
+- **Main website:** https://www.myzubster.com/
+- **Core repository:** https://github.com/MyZubster-Ecosystem/myzubster
+- **Daniel Ioni profile:** https://github.com/DanielIoni-creator
+
+The implementation keeps `META_PAGE_ACCESS_TOKEN`, `META_APP_SECRET` and the webhook verification token in environment-managed secrets; credentials are never committed to GitHub. The bridge backend is deployed and the status endpoint reports the integration as configured. **Meta webhook verification is still being completed**, so this section must not be read as proof that public Messenger conversations are already fully validated end-to-end.
+
 **Current state:** MVP / active development and validation. Some components are operational, others experimental or in active implementation. A roadmap, issue, PR, merge, discussion or automated test is not by itself proof of deployment, partnership, adoption, funding or external payment.
 
 ## 🎵 Music, sound systems & subcultures
@@ -165,6 +191,7 @@ Open pull requests and fork branches are independent open-source contributions; 
 | Understand MyZubster | This README → **How MyZubster works** |
 | Open MyZubster Telegram Bot | [@myzubster_bot](https://t.me/myzubster_bot) |
 | Open Flytek Raver Bot | [@FlytekRaverBot](https://t.me/FlytekRaverBot) |
+| Check Facebook Messenger bridge | [Messenger bridge status](https://www.myzubster.com/api/meta/messenger/status) |
 | Explore music, sound systems, organizers & subcultures | [`docs/culture/MUSIC-SUBCULTURES-AND-SOUND-SYSTEMS.md`](docs/culture/MUSIC-SUBCULTURES-AND-SOUND-SYSTEMS.md) |
 | Explore circular economy & Space Station visuals | [Visual gallery](#-circular-economy--space-station-visuals) |
 | Explore the open knowledge framework — chemistry, sexuality, health, cannabis, circular economy, sport, music, AI and more | [`docs/OPEN-KNOWLEDGE-DOMAINS-FRAMEWORK.md`](docs/OPEN-KNOWLEDGE-DOMAINS-FRAMEWORK.md) |
