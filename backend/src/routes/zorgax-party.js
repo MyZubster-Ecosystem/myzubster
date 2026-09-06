@@ -13,6 +13,12 @@ const {
   publicAllowlist,
   executePartyCommand
 } = require('../services/zorgaxPartyCommands');
+const {
+  createPartyReport,
+  moderationSummary,
+  reviewPartyReport,
+  moderationCapabilities
+} = require('../services/zorgaxPartyModeration');
 
 const router = express.Router();
 
@@ -103,6 +109,7 @@ router.get('/party-capabilities', (_req, res) => {
   return res.json({
     success: true,
     commands: publicAllowlist(),
+    moderation: moderationCapabilities(),
     unavailableCategories: [
       'financial-actions',
       'concealed-location-distribution',
@@ -145,6 +152,61 @@ router.post('/party-command', authenticate, async (req, res) => {
       success: false,
       error: 'Unable to execute Party Mode command'
     });
+  }
+});
+
+router.post('/party-reports', authenticate, async (req, res) => {
+  try {
+    const result = await createPartyReport({
+      reporterUserId: req.userId,
+      targetType: req.body?.targetType,
+      targetId: req.body?.targetId,
+      reason: req.body?.reason,
+      details: req.body?.details
+    });
+
+    if (!result.valid) {
+      return res.status(result.status || 400).json({ success: false, error: result.error });
+    }
+
+    return res.status(result.status).json({ success: true, report: result.report });
+  } catch (error) {
+    console.error('ZORGAX Party Report error:', error?.name || 'Error');
+    return res.status(500).json({ success: false, error: 'Unable to submit Party Mode report' });
+  }
+});
+
+router.get('/party-moderation-summary', authenticate, async (req, res) => {
+  try {
+    const result = await moderationSummary({ actorRole: req.userRole || 'user' });
+    if (!result.valid) {
+      return res.status(result.status || 400).json({ success: false, error: result.error });
+    }
+    return res.json({ success: true, summary: result.summary });
+  } catch (error) {
+    console.error('ZORGAX Party Moderation Summary error:', error?.name || 'Error');
+    return res.status(500).json({ success: false, error: 'Unable to load moderation summary' });
+  }
+});
+
+router.post('/party-moderation-action', authenticate, async (req, res) => {
+  try {
+    const result = await reviewPartyReport({
+      actorUserId: req.userId,
+      actorRole: req.userRole || 'user',
+      reportId: req.body?.reportId,
+      action: req.body?.action,
+      note: req.body?.note
+    });
+
+    if (!result.valid) {
+      return res.status(result.status || 400).json({ success: false, error: result.error });
+    }
+
+    return res.json({ success: true, action: result.action, report: result.report });
+  } catch (error) {
+    console.error('ZORGAX Party Moderation Action error:', error?.name || 'Error');
+    return res.status(500).json({ success: false, error: 'Unable to update moderation report' });
   }
 });
 
