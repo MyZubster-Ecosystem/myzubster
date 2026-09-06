@@ -30,12 +30,28 @@ function callback(provider) {
   return process.env[`${provider.toUpperCase()}_LOGIN_CALLBACK_URL`] || `${process.env.GATEWAY_PUBLIC_URL || 'https://myzubster.com'}/api/auth/social/${provider}/callback`;
 }
 function state(provider) { return jwt.sign({ purpose: 'social-login', provider, nonce: crypto.randomBytes(16).toString('hex') }, process.env.OAUTH_STATE_SECRET || secret(), { expiresIn: '10m' }); }
-function verifyState(value, provider) { const data = jwt.verify(value, process.env.OAUTH_STATE_SECRET || secret()); if (data.purpose !== 'social-login' || data.provider !== provider) throw new Error('OAuth state non valido'); }
+function verifyState(value, provider) {
+  if (!value || typeof value !== 'string') throw new Error('Sessione OAuth mancante. Riavvia il login dal pulsante MyZubster.');
+  try {
+    const data = jwt.verify(value, process.env.OAUTH_STATE_SECRET || secret());
+    if (data.purpose !== 'social-login' || data.provider !== provider) throw new Error('OAuth state non valido');
+    return data;
+  } catch (error) {
+    if (error?.message === 'OAuth state non valido') throw error;
+    if (error?.name === 'TokenExpiredError') throw new Error('Sessione OAuth scaduta. Riavvia il login dal pulsante MyZubster.');
+    throw new Error('Sessione OAuth non valida. Riavvia il login dal pulsante MyZubster.');
+  }
+}
 function redirectSuccess(res, result, provider) {
   const ticket = jwt.sign({ purpose: 'social-login-result', token: result.token, userId: String(result.user._id), characterId: result.character.characterId, provider }, secret(), { expiresIn: '2m' });
   const url = new URL('/social-login.html', `${frontend()}/`); url.searchParams.set('social_login', 'verified'); url.searchParams.set('provider', provider); url.searchParams.set('social_login_ticket', ticket); res.redirect(url.toString());
 }
 function redirectError(res, message, provider = '') { const url = new URL('/social-login.html', `${frontend()}/`); url.searchParams.set('social_login', 'error'); if (provider) url.searchParams.set('provider', provider); url.searchParams.set('social_login_message', String(message).slice(0, 180)); res.redirect(url.toString()); }
+function providerCallbackError(query = {}) {
+  if (!query.error) return null;
+  if (query.error === 'access_denied') return 'Accesso annullato o non autorizzato dal provider.';
+  return 'Il provider OAuth non ha autorizzato il login. Riprova dal pulsante MyZubster.';
+}
 
 function providerAvailability() {
   return {
@@ -88,7 +104,12 @@ exports.start = (req, res) => {
 exports.callback = async (req, res) => {
   const provider = String(req.params.provider || '').toLowerCase();
   try {
-    verifyState(req.query.state, provider); if (!req.query.code) throw new Error('OAuth callback incompleto');
+    if (!['google', 'github', 'facebook'].includes(provider)) throw new Error('Provider non supportato');
+    const providerError = providerCallbackError(req.query);
+    if (providerError) throw new Error(providerError);
+    if (!req.query.state) throw new Error('Sessione OAuth mancante. Riavvia il login dal pulsante MyZubster.');
+    if (!req.query.code) throw new Error('OAuth callback incompleto. Riavvia il login dal pulsante MyZubster.');
+    verifyState(req.query.state, provider);
     let profile;
     if (provider === 'google') {
       const clientId = process.env.GOOGLE_LOGIN_CLIENT_ID || process.env.GOOGLE_OAUTH_CLIENT_ID;
@@ -119,7 +140,7 @@ exports.callback = async (req, res) => {
       if (!userRes.ok || !user.id) throw new Error('Profilo Facebook non disponibile');
       if (!user.email) throw new Error('Facebook non ha condiviso una email: autorizza il permesso email per creare o collegare l account');
       profile = { id: String(user.id), email: user.email, name: user.name, avatarUrl: user.picture?.data?.url || null };
-    } else throw new Error('Provider non supportato');
+    }
     redirectSuccess(res, await upsertVerifiedAccount(provider, profile), provider);
   } catch (error) { redirectError(res, error.message, provider); }
 };
