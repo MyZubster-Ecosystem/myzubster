@@ -11,12 +11,14 @@ const daoRoutes = require('./routes/dao');
 const zorgaxDaoRoutes = require('./routes/zorgax-dao');
 const lifeDaoRoutes = require('./routes/dao-life');
 const { lifeDaoBindingGuard } = require('./services/lifeDaoPolicy');
+const { attachRealtimeServer } = require('./realtime/socketServer');
 
 const gardenRoutes = require('./routes/gardens');
 const telemetryRoutes = require('./routes/telemetry');
 const metaverseRoutes = require('./routes/metaverse');
 const virtualRoomRoutes = require('./routes/virtual-rooms');
 const realtimeModerationRoutes = require('./routes/realtime-moderation');
+const realtimeRoutes = require('./routes/realtime');
 const zorgaxPartyRoutes = require('./routes/zorgax-party');
 
 const app = express();
@@ -57,6 +59,7 @@ app.use('/api/telemetry', telemetryRoutes);
 app.use('/api/metaverse', metaverseRoutes);
 app.use('/api/metaverse', virtualRoomRoutes);
 app.use('/api/moderation', realtimeModerationRoutes);
+app.use('/api/realtime', realtimeRoutes);
 app.use('/api/zorgax', zorgaxPartyRoutes);
 app.use('/api/gateway', gatewayRoutes);
 app.use('/api/dao/zorgax', zorgaxDaoRoutes);
@@ -84,7 +87,8 @@ app.get('/api/dashboard', (_req, res) => {
       },
       metaverse: { status: 'prototype', endpoint: '/api/metaverse/world', identityMode: 'guest-unverified' },
       virtualRoomLifecycle: { status: 'experimental', endpoint: '/api/metaverse/rooms', authority: 'server' },
-      moderation: { status: 'foundation', endpoint: '/api/moderation', realtimeDelivery: 'blocked-by-MYZ-78-MYZ-80' },
+      realtime: { status: 'experimental', endpoint: '/realtime', tokenEndpoint: '/api/realtime/token', authority: 'server' },
+      moderation: { status: 'foundation', endpoint: '/api/moderation', realtimeDelivery: 'blocked-by-MYZ-80' },
       zorgaxPartyMode: { status: 'experimental', endpoint: '/api/zorgax/party-context', binding: false }
     },
     stats: {
@@ -166,7 +170,8 @@ app.get('/dashboard', (_req, res) => {
     <strong>Gardens API:</strong> <a href="/api/gardens"><code>/api/gardens</code></a><br>
     <strong>Metaverse API:</strong> <a href="/api/metaverse/world"><code>/api/metaverse/world</code></a> (prototype)<br>
     <strong>Virtual rooms:</strong> <code>/api/metaverse/rooms</code> (experimental, server-authoritative)<br>
-    <strong>Moderation API:</strong> <code>/api/moderation</code> (foundation; realtime delivery pending MYZ-78/MYZ-80)<br>
+    <strong>Realtime:</strong> <code>/realtime</code> with token <code>/api/realtime/token</code> (experimental)<br>
+    <strong>Moderation API:</strong> <code>/api/moderation</code> (foundation; DM/channel delivery pending MYZ-80)<br>
     <strong>ZORGAX Party Mode:</strong> <a href="/api/zorgax/party-context"><code>/api/zorgax/party-context</code></a> (experimental, read-only)<br>
     <strong>DAO API:</strong> <a href="/api/dao/proposals"><code>/api/dao/proposals</code></a><br>
     <strong>Zorgax DAO:</strong> <a href="/api/dao/zorgax/status"><code>/api/dao/zorgax/status</code></a> (advisory, non-binding)<br>
@@ -198,9 +203,12 @@ async function startServer() {
       console.log(`📍 Health check: http://localhost:${PORT}/health`);
       console.log(`📍 Dashboard: http://localhost:${PORT}/dashboard`);
       console.log(`🪐 Metaverse world: http://localhost:${PORT}/api/metaverse/world`);
+      console.log(`⚡ Realtime gateway: ws://localhost:${PORT}/realtime`);
       console.log(`🎉 ZORGAX Party Mode: http://localhost:${PORT}/api/zorgax/party-context`);
-      resolve(server);
     });
+    const io = attachRealtimeServer(server);
+    server.realtime = io;
+    resolve(server);
   });
 }
 
