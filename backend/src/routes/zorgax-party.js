@@ -5,6 +5,10 @@ const {
   validatePartyContext
 } = require('../services/zorgaxPartyContext');
 const { answerFromPartyContext } = require('../services/zorgaxPartyAssistant');
+const {
+  buildPartyTelemetry,
+  summarizePartyTelemetry
+} = require('../services/zorgaxPartyTelemetry');
 
 const router = express.Router();
 
@@ -68,6 +72,25 @@ router.post('/party-assistant', optionalAuthenticate, async (req, res) => {
     return res.status(500).json({
       success: false,
       error: 'Unable to answer from PartyContext'
+    });
+  }
+});
+
+router.get('/party-telemetry', optionalAuthenticate, async (_req, res) => {
+  try {
+    const telemetry = await buildPartyTelemetry();
+    const result = summarizePartyTelemetry(telemetry);
+    return res.json({
+      success: true,
+      status: result.status,
+      summary: result.summary,
+      telemetry: result.telemetry
+    });
+  } catch (error) {
+    console.error('ZORGAX Party Telemetry error:', error?.name || 'Error');
+    return res.status(500).json({
+      success: false,
+      error: 'Unable to build Party Mode telemetry'
     });
   }
 });
