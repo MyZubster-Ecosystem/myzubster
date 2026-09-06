@@ -15,6 +15,7 @@ const { lifeDaoBindingGuard } = require('./services/lifeDaoPolicy');
 const gardenRoutes = require('./routes/gardens');
 const telemetryRoutes = require('./routes/telemetry');
 const metaverseRoutes = require('./routes/metaverse');
+const virtualRoomRoutes = require('./routes/virtual-rooms');
 const zorgaxPartyRoutes = require('./routes/zorgax-party');
 
 const app = express();
@@ -53,6 +54,7 @@ app.get('/health', (_req, res) => {
 app.use('/api/gardens', gardenRoutes);
 app.use('/api/telemetry', telemetryRoutes);
 app.use('/api/metaverse', metaverseRoutes);
+app.use('/api/metaverse', virtualRoomRoutes);
 app.use('/api/zorgax', zorgaxPartyRoutes);
 app.use('/api/gateway', gatewayRoutes);
 app.use('/api/dao/zorgax', zorgaxDaoRoutes);
@@ -79,6 +81,7 @@ app.get('/api/dashboard', (_req, res) => {
         consentRequired: true
       },
       metaverse: { status: 'prototype', endpoint: '/api/metaverse/world', identityMode: 'guest-unverified' },
+      virtualRoomLifecycle: { status: 'experimental', endpoint: '/api/metaverse/rooms', authority: 'server' },
       zorgaxPartyMode: { status: 'experimental', endpoint: '/api/zorgax/party-context', binding: false }
     },
     stats: {
@@ -159,6 +162,7 @@ app.get('/dashboard', (_req, res) => {
     <strong>Dashboard API:</strong> <a href="/api/dashboard"><code>/api/dashboard</code></a><br>
     <strong>Gardens API:</strong> <a href="/api/gardens"><code>/api/gardens</code></a><br>
     <strong>Metaverse API:</strong> <a href="/api/metaverse/world"><code>/api/metaverse/world</code></a> (prototype)<br>
+    <strong>Virtual rooms:</strong> <code>/api/metaverse/rooms</code> (experimental, server-authoritative)<br>
     <strong>ZORGAX Party Mode:</strong> <a href="/api/zorgax/party-context"><code>/api/zorgax/party-context</code></a> (experimental, read-only)<br>
     <strong>DAO API:</strong> <a href="/api/dao/proposals"><code>/api/dao/proposals</code></a><br>
     <strong>Zorgax DAO:</strong> <a href="/api/dao/zorgax/status"><code>/api/dao/zorgax/status</code></a> (advisory, non-binding)<br>
