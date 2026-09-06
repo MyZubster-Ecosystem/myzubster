@@ -1,6 +1,7 @@
 const { Server } = require('socket.io');
 const { verifySocketToken, authorizeChannel } = require('../services/realtimeGateway');
 const { persistMessage } = require('../services/chatMessaging');
+const { registerRealtimeIO } = require('./realtimeHub');
 
 function publicMessage(message) {
   return {
@@ -21,6 +22,8 @@ function attachRealtimeServer(httpServer) {
     pingInterval: 25000,
     pingTimeout: 20000
   });
+
+  registerRealtimeIO(io);
 
   io.use((socket, next) => {
     try {
