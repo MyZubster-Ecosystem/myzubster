@@ -14,6 +14,10 @@ const { loadZorgaxAccess, requireZorgaxPlan } = createZorgaxAccessMiddleware();
 const ZORGAX_FUNNEL_EVENTS = new Set([
   'zorgax_open',
   'zorgax_message_sent',
+  'zorgax_intent_seller',
+  'zorgax_intent_marketplace',
+  'zorgax_intent_metaverse',
+  'zorgax_intent_life',
   'zorgax_to_marketplace',
   'zorgax_to_seller',
   'zorgax_to_metaverse',
