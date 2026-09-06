@@ -94,7 +94,7 @@ exports.start = (req, res) => {
     }
     if (provider === 'facebook') {
       if (!process.env.FACEBOOK_LOGIN_APP_ID || !process.env.FACEBOOK_LOGIN_APP_SECRET || !callback('facebook').startsWith('http')) throw new Error('Facebook Login non configurato');
-      const params = new URLSearchParams({ client_id: process.env.FACEBOOK_LOGIN_APP_ID, redirect_uri: callback('facebook'), response_type: 'code', scope: 'public_profile', state: state('facebook') });
+      const params = new URLSearchParams({ client_id: process.env.FACEBOOK_LOGIN_APP_ID, redirect_uri: callback('facebook'), response_type: 'code', scope: 'public_profile,pages_show_list', state: state('facebook') });
       return res.redirect(`https://www.facebook.com/dialog/oauth?${params}`);
     }
     res.status(404).json({ success: false, message: 'Provider non supportato' });
