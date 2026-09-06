@@ -52,6 +52,21 @@ function providerCallbackError(query = {}) {
   if (query.error === 'access_denied') return 'Accesso annullato o non autorizzato dal provider.';
   return 'Il provider OAuth non ha autorizzato il login. Riprova dal pulsante MyZubster.';
 }
+function safeMetaText(value) {
+  return String(value || '').replace(/[\r\n\t]+/g, ' ').slice(0, 240);
+}
+function logFacebookOAuthError(stage, response, payload) {
+  const meta = payload?.error && typeof payload.error === 'object' ? payload.error : {};
+  console.error('[facebook-oauth]', JSON.stringify({
+    stage,
+    httpStatus: Number(response?.status) || null,
+    type: safeMetaText(meta.type),
+    code: Number.isFinite(Number(meta.code)) ? Number(meta.code) : null,
+    errorSubcode: Number.isFinite(Number(meta.error_subcode)) ? Number(meta.error_subcode) : null,
+    message: safeMetaText(meta.message),
+    fbtraceId: safeMetaText(meta.fbtrace_id)
+  }));
+}
 
 function providerAvailability() {
   return {
@@ -134,10 +149,16 @@ exports.callback = async (req, res) => {
       tokenUrl.searchParams.set('redirect_uri', callback('facebook'));
       tokenUrl.searchParams.set('code', req.query.code);
       const tokenRes = await fetch(tokenUrl); const tokens = await tokenRes.json();
-      if (!tokenRes.ok || !tokens.access_token) throw new Error('Login Facebook non riuscito');
+      if (!tokenRes.ok || !tokens.access_token) {
+        logFacebookOAuthError('token_exchange', tokenRes, tokens);
+        throw new Error('Login Facebook non riuscito');
+      }
       const meUrl = new URL('https://graph.facebook.com/me'); meUrl.searchParams.set('fields', 'id,name,picture'); meUrl.searchParams.set('access_token', tokens.access_token);
       const userRes = await fetch(meUrl); const user = await userRes.json();
-      if (!userRes.ok || !user.id) throw new Error('Profilo Facebook non disponibile');
+      if (!userRes.ok || !user.id) {
+        logFacebookOAuthError('profile_fetch', userRes, user);
+        throw new Error('Profilo Facebook non disponibile');
+      }
       profile = { id: String(user.id), name: user.name, avatarUrl: user.picture?.data?.url || null };
     }
     redirectSuccess(res, await upsertVerifiedAccount(provider, profile), provider);
@@ -148,3 +169,5 @@ exports.exchangeTicket = async (req, res) => {
   try { const data = jwt.verify(req.body?.ticket, secret()); if (data.purpose !== 'social-login-result') throw new Error(); res.json({ success: true, data: { token: data.token, userId: data.userId, characterId: data.characterId, provider: data.provider, metaverseVerified: true } }); }
   catch (_) { res.status(400).json({ success: false, message: 'Ticket login scaduto o non valido' }); }
 };
+
+exports._test = { safeMetaText, logFacebookOAuthError };
