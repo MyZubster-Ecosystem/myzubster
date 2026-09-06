@@ -4,6 +4,7 @@ const ChatChannel = require('../models/ChatChannel');
 const ChatMessage = require('../models/ChatMessage');
 const CommunityMembership = require('../models/CommunityMembership');
 const { deliveryDecision } = require('./realtimeModeration');
+const { createNotification } = require('./notificationService');
 
 const MESSAGE_BURST_WINDOW_MS = 10 * 1000;
 const MESSAGE_BURST_LIMIT = 12;
@@ -69,6 +70,27 @@ async function messagingRateDecision(userId) {
     : { allowed: true, status: 200, reason: null };
 }
 
+async function createMessageNotifications({ channel, message, recipients }) {
+  for (const recipientUserId of recipients) {
+    const deepLink = channel.type === 'community'
+      ? `/communities/${encodeURIComponent(channel.communityId)}/chat`
+      : `/messages/${encodeURIComponent(channel.channelId)}`;
+    await createNotification({
+      userId: recipientUserId,
+      type: 'message',
+      category: 'message',
+      dedupeKey: `message:${message.messageId}`,
+      payload: {
+        messageId: message.messageId,
+        channelId: channel.channelId,
+        senderUserId: message.senderUserId,
+        communityId: channel.communityId || null
+      },
+      deepLink
+    });
+  }
+}
+
 async function persistMessage({ actorUserId, actorRole = 'user', channelId, clientMessageId, body }) {
   if (!databaseAvailable()) return { valid: false, status: 503, error: 'Messaging storage unavailable' };
   const safeBody = cleanBody(body);
@@ -99,7 +121,9 @@ async function persistMessage({ actorUserId, actorRole = 'user', channelId, clie
     senderUserId: String(actorUserId),
     body: safeBody
   });
-  return { valid: true, status: 201, duplicate: false, message: message.toObject(), deliverTo };
+  const object = message.toObject();
+  await createMessageNotifications({ channel, message: object, recipients: deliverTo });
+  return { valid: true, status: 201, duplicate: false, message: object, deliverTo };
 }
 
 async function listMessages({ actorUserId, actorRole = 'user', channelId, after = null, limit = 50 }) {
