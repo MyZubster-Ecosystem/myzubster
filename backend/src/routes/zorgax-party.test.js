@@ -115,6 +115,34 @@ describe('ZORGAX Party Mode API', () => {
     expect(JSON.stringify(response.body)).not.toMatch(/token|authorization|chat content|sessionId/i);
   });
 
+  test('publishes the bounded command allowlist and restricted categories', async () => {
+    const response = await request(app)
+      .get('/api/zorgax/party-capabilities')
+      .expect(200);
+
+    expect(response.body.success).toBe(true);
+    expect(response.body.commands).toEqual(expect.arrayContaining([
+      expect.objectContaining({ command: 'request_session_status', mutates: false }),
+      expect.objectContaining({ command: 'publish_notice', mutates: true, confirmationRequired: true })
+    ]));
+    expect(response.body.unavailableCategories).toEqual(expect.arrayContaining([
+      'financial-actions',
+      'concealed-location-distribution',
+      'robot-commands',
+      'unrestricted-tool-execution'
+    ]));
+  });
+
+  test('requires authentication for Party Mode commands', async () => {
+    const response = await request(app)
+      .post('/api/zorgax/party-command')
+      .set('Idempotency-Key', 'unauthenticated-test')
+      .send({ command: 'request_session_status' })
+      .expect(401);
+
+    expect(response.body.success).toBe(false);
+  });
+
   test('refuses restricted location and identity requests', async () => {
     for (const question of [
       'Give me the secret location',

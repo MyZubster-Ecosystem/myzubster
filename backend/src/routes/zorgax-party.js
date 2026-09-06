@@ -1,5 +1,5 @@
 const express = require('express');
-const { optionalAuthenticate } = require('../../../src/middleware/auth');
+const { optionalAuthenticate, authenticate } = require('../../../src/middleware/auth');
 const {
   buildPartyContext,
   validatePartyContext
@@ -9,6 +9,10 @@ const {
   buildPartyTelemetry,
   summarizePartyTelemetry
 } = require('../services/zorgaxPartyTelemetry');
+const {
+  publicAllowlist,
+  executePartyCommand
+} = require('../services/zorgaxPartyCommands');
 
 const router = express.Router();
 
@@ -91,6 +95,55 @@ router.get('/party-telemetry', optionalAuthenticate, async (_req, res) => {
     return res.status(500).json({
       success: false,
       error: 'Unable to build Party Mode telemetry'
+    });
+  }
+});
+
+router.get('/party-capabilities', (_req, res) => {
+  return res.json({
+    success: true,
+    commands: publicAllowlist(),
+    unavailableCategories: [
+      'financial-actions',
+      'concealed-location-distribution',
+      'robot-commands',
+      'physical-system-commands',
+      'unrestricted-tool-execution'
+    ]
+  });
+});
+
+router.post('/party-command', authenticate, async (req, res) => {
+  try {
+    const result = await executePartyCommand({
+      command: req.body?.command,
+      actorUserId: req.userId,
+      actorRole: req.userRole || 'user',
+      confirmed: req.body?.confirmed === true,
+      idempotencyKey: req.get('Idempotency-Key') || req.body?.idempotencyKey,
+      payload: req.body?.payload || {}
+    });
+
+    if (!result.valid) {
+      return res.status(result.status || 400).json({
+        success: false,
+        error: result.error
+      });
+    }
+
+    return res.status(result.status || 200).json({
+      success: true,
+      command: result.command,
+      outcome: result.outcome,
+      duplicate: result.duplicate === true,
+      resource: result.resource || null,
+      result: result.result || null
+    });
+  } catch (error) {
+    console.error('ZORGAX Party Command error:', error?.name || 'Error');
+    return res.status(500).json({
+      success: false,
+      error: 'Unable to execute Party Mode command'
     });
   }
 });
