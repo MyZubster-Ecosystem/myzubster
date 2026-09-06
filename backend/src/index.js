@@ -20,6 +20,7 @@ const virtualRoomRoutes = require('./routes/virtual-rooms');
 const realtimeModerationRoutes = require('./routes/realtime-moderation');
 const realtimeRoutes = require('./routes/realtime');
 const chatRoutes = require('./routes/chat');
+const notificationRoutes = require('./routes/notifications');
 const zorgaxPartyRoutes = require('./routes/zorgax-party');
 
 const app = express();
@@ -62,6 +63,7 @@ app.use('/api/metaverse', virtualRoomRoutes);
 app.use('/api/moderation', realtimeModerationRoutes);
 app.use('/api/realtime', realtimeRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/notifications', notificationRoutes);
 app.use('/api/zorgax', zorgaxPartyRoutes);
 app.use('/api/gateway', gatewayRoutes);
 app.use('/api/dao/zorgax', zorgaxDaoRoutes);
@@ -91,6 +93,7 @@ app.get('/api/dashboard', (_req, res) => {
       virtualRoomLifecycle: { status: 'experimental', endpoint: '/api/metaverse/rooms', authority: 'server' },
       realtime: { status: 'experimental', endpoint: '/realtime', tokenEndpoint: '/api/realtime/token', authority: 'server' },
       chat: { status: 'experimental', endpoint: '/api/chat', delivery: 'persisted-before-realtime' },
+      notifications: { status: 'experimental', endpoint: '/api/notifications', delivery: 'persisted-before-realtime' },
       moderation: { status: 'foundation', endpoint: '/api/moderation', realtimeDelivery: 'integrated-with-chat' },
       zorgaxPartyMode: { status: 'experimental', endpoint: '/api/zorgax/party-context', binding: false }
     },
@@ -175,6 +178,7 @@ app.get('/dashboard', (_req, res) => {
     <strong>Virtual rooms:</strong> <code>/api/metaverse/rooms</code> (experimental, server-authoritative)<br>
     <strong>Realtime:</strong> <code>/realtime</code> with token <code>/api/realtime/token</code> (experimental)<br>
     <strong>Chat:</strong> <code>/api/chat</code> (persisted DM/community channels)<br>
+    <strong>Notifications:</strong> <code>/api/notifications</code> (durable + realtime delivery)<br>
     <strong>Moderation API:</strong> <code>/api/moderation</code> (delivery policy integrated with chat)<br>
     <strong>ZORGAX Party Mode:</strong> <a href="/api/zorgax/party-context"><code>/api/zorgax/party-context</code></a> (experimental, read-only)<br>
     <strong>DAO API:</strong> <a href="/api/dao/proposals"><code>/api/dao/proposals</code></a><br>
@@ -209,6 +213,7 @@ async function startServer() {
       console.log(`🪐 Metaverse world: http://localhost:${PORT}/api/metaverse/world`);
       console.log(`⚡ Realtime gateway: ws://localhost:${PORT}/realtime`);
       console.log(`💬 Chat API: http://localhost:${PORT}/api/chat`);
+      console.log(`🔔 Notifications API: http://localhost:${PORT}/api/notifications`);
       console.log(`🎉 ZORGAX Party Mode: http://localhost:${PORT}/api/zorgax/party-context`);
     });
     const io = attachRealtimeServer(server);
