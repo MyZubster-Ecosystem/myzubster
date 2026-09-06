@@ -49,6 +49,43 @@ describe('social OAuth callback safety', () => {
     expect(scopes.has('email')).toBe(false);
   });
 
+  test('logs safe Meta token-exchange diagnostics without OAuth code or access token', async () => {
+    const state = jwt.sign(
+      { purpose: 'social-login', provider: 'facebook', nonce: 'test' },
+      process.env.OAUTH_STATE_SECRET,
+      { expiresIn: '10m' }
+    );
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    global.fetch = jest.fn().mockResolvedValueOnce({
+      ok: false,
+      status: 400,
+      json: async () => ({
+        error: {
+          message: 'Invalid OAuth redirect configuration',
+          type: 'OAuthException',
+          code: 100,
+          error_subcode: 36008,
+          fbtrace_id: 'trace-123'
+        },
+        access_token: 'must-not-be-logged'
+      })
+    });
+    const req = { params: { provider: 'facebook' }, query: { state, code: 'provider-code-secret' } };
+    const res = response();
+
+    await socialAuthController.callback(req, res);
+
+    expect(errorSpy).toHaveBeenCalledTimes(1);
+    const logLine = errorSpy.mock.calls[0].join(' ');
+    expect(logLine).toContain('token_exchange');
+    expect(logLine).toContain('OAuthException');
+    expect(logLine).toContain('36008');
+    expect(logLine).not.toContain('provider-code-secret');
+    expect(logLine).not.toContain('must-not-be-logged');
+    expect(redirectedParams(res).get('social_login_message')).toBe('Login Facebook non riuscito');
+    errorSpy.mockRestore();
+  });
+
   test('completes Facebook callback when profile has no email', async () => {
     const state = jwt.sign(
       { purpose: 'social-login', provider: 'facebook', nonce: 'test' },
@@ -56,8 +93,8 @@ describe('social OAuth callback safety', () => {
       { expiresIn: '10m' }
     );
     global.fetch = jest.fn()
-      .mockResolvedValueOnce({ ok: true, json: async () => ({ access_token: 'facebook-token' }) })
-      .mockResolvedValueOnce({ ok: true, json: async () => ({ id: 'fb-user-1', name: 'Dani El', picture: { data: { url: 'https://example.test/avatar.jpg' } } }) });
+      .mockResolvedValueOnce({ ok: true, status: 200, json: async () => ({ access_token: 'facebook-token' }) })
+      .mockResolvedValueOnce({ ok: true, status: 200, json: async () => ({ id: 'fb-user-1', name: 'Dani El', picture: { data: { url: 'https://example.test/avatar.jpg' } } }) });
     upsertVerifiedAccount.mockResolvedValue({
       token: 'myzubster-token',
       user: { _id: 'user-1' },
