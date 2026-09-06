@@ -7,6 +7,7 @@ const InteractionControl = require('../models/InteractionControl');
 const ModerationReport = require('../models/ModerationReport');
 const ModerationEvent = require('../models/ModerationEvent');
 const {
+  REPORT_LIMIT,
   setInteractionControl,
   deliveryDecision,
   createReport,
@@ -16,6 +17,7 @@ const {
 beforeEach(() => {
   jest.clearAllMocks();
   ModerationEvent.create.mockImplementation(async (value) => ({ ...value, createdAt: new Date() }));
+  ModerationReport.create.mockImplementation(async (value) => ({ ...value, reportId: 'r1', status: 'open' }));
 });
 
 test('persists block control and audit event', async () => {
@@ -34,11 +36,21 @@ test('delivery decision blocks when recipient blocked sender', async () => {
 });
 
 test('report creation sanitizes and persists context', async () => {
-  ModerationReport.create.mockImplementation(async (value) => ({ ...value, reportId: 'r1', status: 'open' }));
   const result = await createReport({ reporterUserId: 'u1', targetUserId: 'u2', contextType: 'message', contextId: 'm1', reason: '<b>spam</b>' });
   expect(result.valid).toBe(true);
   expect(result.report.id).toBe('r1');
   expect(ModerationReport.create.mock.calls[0][0].reason).not.toContain('<');
+});
+
+test('repeated report bursts are rate limited', async () => {
+  const reporter = `rate-user-${Date.now()}`;
+  for (let i = 0; i < REPORT_LIMIT; i += 1) {
+    const result = await createReport({ reporterUserId: reporter, targetUserId: 'u2', contextType: 'user', contextId: 'u2', reason: `reason-${i}` });
+    expect(result.valid).toBe(true);
+  }
+  const rejected = await createReport({ reporterUserId: reporter, targetUserId: 'u2', contextType: 'user', contextId: 'u2', reason: 'one-too-many' });
+  expect(rejected.valid).toBe(false);
+  expect(rejected.status).toBe(429);
 });
 
 test('non moderator cannot execute privileged action', async () => {
