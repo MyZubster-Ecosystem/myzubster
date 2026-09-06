@@ -8,12 +8,13 @@ const ChatChannel = require('../models/ChatChannel');
 const ChatMessage = require('../models/ChatMessage');
 const CommunityMembership = require('../models/CommunityMembership');
 const { deliveryDecision } = require('./realtimeModeration');
-const { isCommunityMember, persistMessage, cleanBody } = require('./chatMessaging');
+const { isCommunityMember, persistMessage, cleanBody, MESSAGE_BURST_LIMIT } = require('./chatMessaging');
 
 describe('chatMessaging', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     Object.defineProperty(mongoose.connection, 'readyState', { configurable: true, value: 1 });
+    ChatMessage.countDocuments.mockResolvedValue(0);
   });
 
   test('sanitizes control characters and bounds message length', () => {
@@ -44,6 +45,18 @@ describe('chatMessaging', () => {
     expect(result.valid).toBe(true);
     expect(result.duplicate).toBe(true);
     expect(result.deliverTo).toEqual([]);
+    expect(ChatMessage.create).not.toHaveBeenCalled();
+    expect(ChatMessage.countDocuments).not.toHaveBeenCalled();
+  });
+
+  test('burst messaging is rate limited using persisted message history', async () => {
+    ChatChannel.findOne.mockReturnValue({ lean: jest.fn().mockResolvedValue({ channelId: 'd1', type: 'direct', participantUserIds: ['u1', 'u2'] }) });
+    ChatMessage.findOne.mockReturnValue({ lean: jest.fn().mockResolvedValue(null) });
+    ChatMessage.countDocuments.mockResolvedValue(MESSAGE_BURST_LIMIT);
+    const result = await persistMessage({ actorUserId: 'u1', channelId: 'd1', clientMessageId: 'client-rate', body: 'too fast' });
+    expect(result.valid).toBe(false);
+    expect(result.status).toBe(429);
+    expect(result.reason).toBe('message-burst-rate-limit');
     expect(ChatMessage.create).not.toHaveBeenCalled();
   });
 });
