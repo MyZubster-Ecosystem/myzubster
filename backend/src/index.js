@@ -16,6 +16,7 @@ const gardenRoutes = require('./routes/gardens');
 const telemetryRoutes = require('./routes/telemetry');
 const metaverseRoutes = require('./routes/metaverse');
 const virtualRoomRoutes = require('./routes/virtual-rooms');
+const realtimeModerationRoutes = require('./routes/realtime-moderation');
 const zorgaxPartyRoutes = require('./routes/zorgax-party');
 
 const app = express();
@@ -55,6 +56,7 @@ app.use('/api/gardens', gardenRoutes);
 app.use('/api/telemetry', telemetryRoutes);
 app.use('/api/metaverse', metaverseRoutes);
 app.use('/api/metaverse', virtualRoomRoutes);
+app.use('/api/moderation', realtimeModerationRoutes);
 app.use('/api/zorgax', zorgaxPartyRoutes);
 app.use('/api/gateway', gatewayRoutes);
 app.use('/api/dao/zorgax', zorgaxDaoRoutes);
@@ -82,6 +84,7 @@ app.get('/api/dashboard', (_req, res) => {
       },
       metaverse: { status: 'prototype', endpoint: '/api/metaverse/world', identityMode: 'guest-unverified' },
       virtualRoomLifecycle: { status: 'experimental', endpoint: '/api/metaverse/rooms', authority: 'server' },
+      moderation: { status: 'foundation', endpoint: '/api/moderation', realtimeDelivery: 'blocked-by-MYZ-78-MYZ-80' },
       zorgaxPartyMode: { status: 'experimental', endpoint: '/api/zorgax/party-context', binding: false }
     },
     stats: {
@@ -163,6 +166,7 @@ app.get('/dashboard', (_req, res) => {
     <strong>Gardens API:</strong> <a href="/api/gardens"><code>/api/gardens</code></a><br>
     <strong>Metaverse API:</strong> <a href="/api/metaverse/world"><code>/api/metaverse/world</code></a> (prototype)<br>
     <strong>Virtual rooms:</strong> <code>/api/metaverse/rooms</code> (experimental, server-authoritative)<br>
+    <strong>Moderation API:</strong> <code>/api/moderation</code> (foundation; realtime delivery pending MYZ-78/MYZ-80)<br>
     <strong>ZORGAX Party Mode:</strong> <a href="/api/zorgax/party-context"><code>/api/zorgax/party-context</code></a> (experimental, read-only)<br>
     <strong>DAO API:</strong> <a href="/api/dao/proposals"><code>/api/dao/proposals</code></a><br>
     <strong>Zorgax DAO:</strong> <a href="/api/dao/zorgax/status"><code>/api/dao/zorgax/status</code></a> (advisory, non-binding)<br>
@@ -207,8 +211,6 @@ if (require.main === module) {
   });
 }
 
-// Export the Express app directly so Supertest/Jest can require() it.
-// Keep lifecycle helpers attached for callers that need explicit DB/server control.
 app.startServer = startServer;
 app.connectDatabase = connectDatabase;
 app.disconnectDatabase = disconnectDatabase;
