@@ -94,7 +94,7 @@ exports.start = (req, res) => {
     }
     if (provider === 'facebook') {
       if (!process.env.FACEBOOK_LOGIN_APP_ID || !process.env.FACEBOOK_LOGIN_APP_SECRET || !callback('facebook').startsWith('http')) throw new Error('Facebook Login non configurato');
-      const params = new URLSearchParams({ client_id: process.env.FACEBOOK_LOGIN_APP_ID, redirect_uri: callback('facebook'), response_type: 'code', scope: 'public_profile,email', state: state('facebook') });
+      const params = new URLSearchParams({ client_id: process.env.FACEBOOK_LOGIN_APP_ID, redirect_uri: callback('facebook'), response_type: 'code', scope: 'public_profile', state: state('facebook') });
       return res.redirect(`https://www.facebook.com/dialog/oauth?${params}`);
     }
     res.status(404).json({ success: false, message: 'Provider non supportato' });
@@ -135,11 +135,10 @@ exports.callback = async (req, res) => {
       tokenUrl.searchParams.set('code', req.query.code);
       const tokenRes = await fetch(tokenUrl); const tokens = await tokenRes.json();
       if (!tokenRes.ok || !tokens.access_token) throw new Error('Login Facebook non riuscito');
-      const meUrl = new URL('https://graph.facebook.com/me'); meUrl.searchParams.set('fields', 'id,name,email,picture'); meUrl.searchParams.set('access_token', tokens.access_token);
+      const meUrl = new URL('https://graph.facebook.com/me'); meUrl.searchParams.set('fields', 'id,name,picture'); meUrl.searchParams.set('access_token', tokens.access_token);
       const userRes = await fetch(meUrl); const user = await userRes.json();
       if (!userRes.ok || !user.id) throw new Error('Profilo Facebook non disponibile');
-      if (!user.email) throw new Error('Facebook non ha condiviso una email: autorizza il permesso email per creare o collegare l account');
-      profile = { id: String(user.id), email: user.email, name: user.name, avatarUrl: user.picture?.data?.url || null };
+      profile = { id: String(user.id), name: user.name, avatarUrl: user.picture?.data?.url || null };
     }
     redirectSuccess(res, await upsertVerifiedAccount(provider, profile), provider);
   } catch (error) { redirectError(res, error.message, provider); }
