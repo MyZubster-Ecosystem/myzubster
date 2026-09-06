@@ -42,15 +42,19 @@ describe('Zorgax assistant paid access contract', () => {
     expect(routeSource).not.toContain('req.body?.message || req.body?.prompt, authenticated');
   });
 
-  test('offers four guided intents with dedicated privacy-safe tracking', () => {
+  test('offers guided intents with dedicated privacy-safe tracking', () => {
     expect(routeSource).toContain("'zorgax_intent_seller'");
     expect(routeSource).toContain("'zorgax_intent_marketplace'");
     expect(routeSource).toContain("'zorgax_intent_metaverse'");
     expect(routeSource).toContain("'zorgax_intent_life'");
+    expect(routeSource).toContain("'zorgax_intent_party'");
     expect(uiSource).toContain('data-guided-event="zorgax_intent_seller"');
     expect(uiSource).toContain('data-guided-event="zorgax_intent_marketplace"');
     expect(uiSource).toContain('data-guided-event="zorgax_intent_metaverse"');
     expect(uiSource).toContain('data-guided-event="zorgax_intent_life"');
+    expect(uiSource).toContain('data-guided-event="zorgax_intent_party"');
+    expect(uiSource).toContain('Organizzare un party');
+    expect(uiSource).toContain('legale e autorizzato');
     expect(uiSource).toContain('function startGuidedIntent(button)');
   });
 });
