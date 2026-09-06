@@ -7,6 +7,7 @@ const {
   moderationAction,
   listModerationEvents
 } = require('../services/realtimeModeration');
+const { emitModerationAction, emitInteractionControl } = require('../realtime/realtimeHub');
 
 const router = express.Router();
 
@@ -24,6 +25,14 @@ router.post('/controls/:kind', authenticate, async (req, res) => {
       kind: req.params.kind,
       active: req.body?.active !== false
     });
+    if (result.valid) {
+      emitInteractionControl({
+        ownerUserId: req.userId,
+        targetUserId: result.control.targetUserId,
+        kind: result.control.kind,
+        active: result.control.active
+      });
+    }
     return res.status(result.status).json(result.valid ? { success: true, control: result.control } : { success: false, error: result.error });
   } catch (error) {
     console.error('Moderation control error:', error?.name || 'Error');
@@ -67,6 +76,16 @@ router.post('/actions', authenticate, async (req, res) => {
       contextType: req.body?.contextType,
       contextId: req.body?.contextId
     });
+    if (result.valid && result.event?.targetUserId) {
+      emitModerationAction({
+        targetUserId: result.event.targetUserId,
+        action: result.event.action,
+        contextType: req.body?.contextType || null,
+        contextId: req.body?.contextId || null,
+        eventId: result.event.id,
+        createdAt: result.event.createdAt
+      });
+    }
     return res.status(result.status).json(result.valid ? { success: true, event: result.event } : { success: false, error: result.error });
   } catch (error) {
     console.error('Moderation action error:', error?.name || 'Error');
