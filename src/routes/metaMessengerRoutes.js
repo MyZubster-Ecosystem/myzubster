@@ -6,6 +6,11 @@ const { waitUntil } = require('@vercel/functions');
 const { answer } = require('../services/zorgaxAssistantService');
 const router = express.Router();
 
+const MAX_HISTORY_MESSAGES = 10;
+const HISTORY_TTL_MS = 30 * 60 * 1000;
+const MAX_CONVERSATIONS = 500;
+const conversationMemory = new Map();
+
 function configured() {
   return Boolean(process.env.META_WEBHOOK_VERIFY_TOKEN && process.env.META_APP_SECRET && process.env.META_PAGE_ACCESS_TOKEN);
 }
@@ -26,11 +31,68 @@ function validSignature(req) {
   return safeEqual(signature, expected);
 }
 
-async function askZorgax(message) {
-  const result = await answer({ message, useWeb: false, history: [], limit: 1 });
-  const text = String(result?.answer || result?.text || result?.response || result?.message || '').trim();
+function cleanupMemory(now = Date.now()) {
+  for (const [key, value] of conversationMemory.entries()) {
+    if (!value?.updatedAt || now - value.updatedAt > HISTORY_TTL_MS) conversationMemory.delete(key);
+  }
+  while (conversationMemory.size > MAX_CONVERSATIONS) {
+    const oldestKey = conversationMemory.keys().next().value;
+    if (!oldestKey) break;
+    conversationMemory.delete(oldestKey);
+  }
+}
+
+function conversationKey(senderId) {
+  return crypto.createHash('sha256').update(String(senderId || '')).digest('hex');
+}
+
+function getHistory(senderId) {
+  cleanupMemory();
+  const item = conversationMemory.get(conversationKey(senderId));
+  if (!item) return [];
+  return item.history.slice(-MAX_HISTORY_MESSAGES);
+}
+
+function rememberTurn(senderId, userText, assistantText) {
+  cleanupMemory();
+  const key = conversationKey(senderId);
+  const current = conversationMemory.get(key)?.history || [];
+  const history = [
+    ...current,
+    { role: 'user', content: String(userText || '').slice(0, 1200) },
+    { role: 'assistant', content: String(assistantText || '').slice(0, 1900) }
+  ].slice(-MAX_HISTORY_MESSAGES);
+  conversationMemory.delete(key);
+  conversationMemory.set(key, { history, updatedAt: Date.now() });
+}
+
+function cleanMessengerText(value) {
+  return String(value || '')
+    .replace(/```[\s\S]*?```/g, block => block.replace(/```(?:\w+)?\n?/g, '').replace(/```/g, ''))
+    .replace(/!\[([^\]]*)\]\([^)]*\)/g, '$1')
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, '$1: $2')
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
+    .replace(/__([^_]+)__/g, '$1')
+    .replace(/(^|\s)[*_]([^*_\n]+)[*_](?=\s|$)/g, '$1$2')
+    .replace(/^#{1,6}\s+/gm, '')
+    .replace(/^\s*[-*+]\s+/gm, '• ')
+    .replace(/`([^`]+)`/g, '$1')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
+function messengerPrompt(message) {
+  return `MESSENGER CHANNEL RULES:\n- Reply in the same language as the user's latest meaningful message.\n- Keep replies concise and conversational: normally 2-6 short lines.\n- Do not use Markdown formatting, Markdown tables, headings, bold, italics, or fenced code blocks. Plain text, short lines and emoji are fine.\n- When the user expresses a concrete goal, give one immediate next step first instead of listing the whole ecosystem.\n- Use these live MyZubster destinations only when relevant: Marketplace/Seller https://www.myzubster.com/marketplace ; Metaverse https://www.myzubster.com/metaverse ; LIFE Pilot https://www.myzubster.com/life-pilot ; Community/login https://www.myzubster.com/social-login .\n- Do not repeat links the user does not need.\n\nUSER MESSAGE:\n${String(message || '').trim()}`;
+}
+
+async function askZorgax(message, senderId) {
+  const history = getHistory(senderId);
+  const result = await answer({ message: messengerPrompt(message), useWeb: false, history, limit: 1 });
+  const raw = String(result?.answer || result?.text || result?.response || result?.message || '').trim();
+  const text = cleanMessengerText(raw).slice(0, 1900);
   if (!text) throw new Error('Zorgax ha restituito una risposta vuota');
-  return text.slice(0, 1900);
+  rememberTurn(senderId, message, text);
+  return text;
 }
 
 async function sendMessage(recipientId, text) {
@@ -47,9 +109,9 @@ async function sendMessage(recipientId, text) {
 
 async function handleMessageEvent(event) {
   try {
-    const reply = await askZorgax(event.text);
+    const reply = await askZorgax(event.text, event.senderId);
     await sendMessage(event.senderId, reply);
-    console.info('[meta-messenger]', JSON.stringify({ event: 'message_handled', mode: 'zorgax' }));
+    console.info('[meta-messenger]', JSON.stringify({ event: 'message_handled', mode: 'zorgax', history: 'warm-instance' }));
   } catch (error) {
     console.error('[meta-messenger]', error.message);
     try {
@@ -65,6 +127,7 @@ router.get('/status', (_req, res) => res.json({
   service: 'meta-messenger-community-bridge',
   configured: configured(),
   zorgaxAI: true,
+  conversationMemory: 'ephemeral-warm-instance',
   webhook: 'https://www.myzubster.com/api/meta/messenger/webhook'
 }));
 
@@ -90,8 +153,6 @@ router.post('/webhook', async (req, res) => {
     }
   }
 
-  // Meta expects a fast acknowledgement. Keep the actual Zorgax + Send API work
-  // alive after the 200 response so Vercel does not freeze the function early.
   if (events.length) {
     waitUntil(Promise.allSettled(events.map(handleMessageEvent)));
   }
@@ -99,4 +160,13 @@ router.post('/webhook', async (req, res) => {
 });
 
 module.exports = router;
-module.exports._test = { safeEqual, validSignature, configured, handleMessageEvent };
+module.exports._test = {
+  safeEqual,
+  validSignature,
+  configured,
+  handleMessageEvent,
+  cleanMessengerText,
+  messengerPrompt,
+  getHistory,
+  rememberTurn
+};
