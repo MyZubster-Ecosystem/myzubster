@@ -6,6 +6,7 @@
 **MyZubster role:** LIFE pilot candidate / future tester  
 **GitHub linkage:** `PENDING_VERIFICATION`  
 **LIFE plan linkage:** `CONNECTED / VOLUNTARY PILOT`  
+**LIFE objective:** `EMPLOYMENT INCLUSION THROUGH MYZUBSTER`  
 **Metaverse activation:** `PENDING_VERIFIED_LINKAGE`
 
 ## Public profile
@@ -20,23 +21,70 @@ The source repository describes Yassen as preparing a persistent digital profile
 
 ## LIFE inclusion pilot linkage
 
-Yassen Mainardi's MyZubster profile is connected to the **LIFE inclusion pilot plan** as a voluntary pilot profile. The purpose of this connection is to test how the MyZubster ecosystem can support participation, digital skills, autonomy, accessibility and access to meaningful project activities for people who may face barriers to employment.
+Yassen Mainardi's MyZubster profile is connected to the **LIFE inclusion pilot plan** as a voluntary pilot profile. The operational objective is to test MyZubster as a service that can help Yassen move toward suitable employment opportunities through a capability-first, accessible and participant-controlled pathway.
 
 This linkage does not establish employment, medical status, benefits eligibility or institutional enrollment. Participation remains voluntary and any formal LIFE activity requiring personal or sensitive information must use a separate consent and data-protection process.
 
+## Employment pathway through MyZubster
+
+The LIFE pilot should support the following participant-controlled flow:
+
+```text
+SKILLS + INTERESTS + GOALS
+        ↓
+MYZUBSTER WORK PROFILE
+        ↓
+ACCESSIBILITY / SUPPORT PREFERENCES
+        ↓
+TRAINING + PROJECT ACTIVITIES
+        ↓
+SUITABLE OPPORTUNITY DISCOVERY
+        ↓
+YASSEN REVIEWS AND CHOOSES
+        ↓
+APPLICATION ONLY WITH CONSENT
+        ↓
+FOLLOW-UP + OUTCOME TRACKING
+        ↓
+EMPLOYMENT / FURTHER SKILL DEVELOPMENT
+```
+
+### Employment-service requirements
+
+MyZubster/Zorgax should, when these functions are implemented and explicitly enabled by Yassen:
+
+- help describe skills, interests, experience and preferred activities;
+- help build and maintain a work-oriented profile or CV from participant-approved information;
+- surface potentially suitable jobs, collaborations, training and project opportunities;
+- allow accessibility and practical support preferences to influence opportunity matching without publishing sensitive health data;
+- explain opportunities in clear language and highlight relevant requirements;
+- help prepare applications, messages and supporting material;
+- require Yassen's approval before an application or personal information is sent to a third party;
+- record applications and outcomes so the pilot can measure whether the service is useful;
+- suggest skills or project activities that could improve future opportunities.
+
+No automated component should make employment decisions on behalf of an employer or automatically disclose health/disability information. Matching should be treated as assistance and recommendation, with Yassen retaining control over applications and disclosures.
+
 ### Pilot objectives
 
-- create a persistent, participant-controlled digital project profile;
+- create a persistent, participant-controlled digital project and work profile;
 - support progressive use of GitHub, Zorgax and MyZubster tools;
 - identify accessibility barriers and test practical mitigations;
 - support documentation and explanation of completed work;
 - encourage continuity, collaboration and increasing autonomy;
 - connect verified project contributions to the MyZubster ecosystem;
+- help identify suitable employment, collaboration and learning opportunities;
+- measure progress from skills/profile creation toward applications and employment outcomes;
 - prepare optional future metaverse participation after account/linkage verification.
 
 ### Pilot indicators
 
+- work profile/CV completeness using participant-approved information;
 - activities or project tasks completed;
+- potentially suitable opportunities identified;
+- opportunities reviewed and selected by Yassen;
+- participant-approved applications submitted;
+- interviews, collaborations, training or work opportunities obtained;
 - increasing autonomy in using GitHub, Zorgax and MyZubster tools;
 - ability to document and explain completed work;
 - continuity of participation over time;
@@ -77,6 +125,8 @@ MYZUBSTER PROFILE READY
         ↓
 LIFE VOLUNTARY PILOT LINKAGE
         ↓
+EMPLOYMENT-INCLUSION PATHWAY
+        ↓
 OPTIONAL METAVERSE ACTIVATION
 ```
 
@@ -90,7 +140,9 @@ OPTIONAL METAVERSE ACTIVATION
 | GitHub collaborator/write access for MyZubster | `NOT_VERIFIED` |
 | MyZubster account ↔ GitHub account binding | `PENDING` |
 | LIFE inclusion pilot linkage | `CONNECTED / VOLUNTARY PILOT` |
+| LIFE employment objective | `DEFINED` |
 | Formal LIFE participation/consent | `PENDING` |
+| MyZubster automated job-matching/application functions | `IMPLEMENTATION / VERIFICATION REQUIRED` |
 | Metaverse character activation | `PENDING` |
 
 ## Privacy and evidence boundary
