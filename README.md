@@ -8,6 +8,25 @@
 
 MyZubster turns authorized real-world observations — photos, places, environmental data, services and technical contributions — into structured information that can be connected, reviewed, validated and reused.
 
+## 🤖 Telegram bots — LIVE
+
+Two Telegram entry points are currently deployed and verified against the MyZubster production backend:
+
+| Bot | Status | Role | Open |
+|---|---|---|---|
+| **MyZubster Bot** `@myzubster_bot` | 🟢 LIVE | Main ecosystem bot, platform commands and Zorgax AI conversational layer | [Open on Telegram](https://t.me/myzubster_bot) |
+| **Flytek Raver Bot** `@FlytekRaverBot` | 🟢 LIVE | Dedicated raver/DIY community bot for events, lineup, crew, welfare, organizing and rules | [Open on Telegram](https://t.me/FlytekRaverBot) |
+
+The MyZubster bot supports `/start`, `/status`, `/github`, `/marketplace`, `/party`, `/life`, `/zorgax` and `/help`. Non-command text can be handled through the Zorgax conversational service. Flytek remains isolated as a dedicated community bot while using the MyZubster backend infrastructure.
+
+```text
+TELEGRAM
+   ├── @myzubster_bot → MYZUBSTER PRODUCTION → ZORGAX AI
+   └── @FlytekRaverBot → MYZUBSTER PRODUCTION → FLYTEK COMMUNITY
+```
+
+Operational verification covers webhook registration and Telegram request/response behavior. Bot tokens and webhook secrets remain environment-managed and are never committed to the repository.
+
 **Current state:** MVP / active development and validation. Some components are operational, others experimental or in active implementation. A roadmap, issue, PR, merge, discussion or automated test is not by itself proof of deployment, partnership, adoption, funding or external payment.
 
 ## 🎵 Music, sound systems & subcultures
@@ -144,6 +163,8 @@ Open pull requests and fork branches are independent open-source contributions; 
 | I want to… | Start here |
 |---|---|
 | Understand MyZubster | This README → **How MyZubster works** |
+| Open MyZubster Telegram Bot | [@myzubster_bot](https://t.me/myzubster_bot) |
+| Open Flytek Raver Bot | [@FlytekRaverBot](https://t.me/FlytekRaverBot) |
 | Explore music, sound systems, organizers & subcultures | [`docs/culture/MUSIC-SUBCULTURES-AND-SOUND-SYSTEMS.md`](docs/culture/MUSIC-SUBCULTURES-AND-SOUND-SYSTEMS.md) |
 | Explore circular economy & Space Station visuals | [Visual gallery](#-circular-economy--space-station-visuals) |
 | Explore the open knowledge framework — chemistry, sexuality, health, cannabis, circular economy, sport, music, AI and more | [`docs/OPEN-KNOWLEDGE-DOMAINS-FRAMEWORK.md`](docs/OPEN-KNOWLEDGE-DOMAINS-FRAMEWORK.md) |
