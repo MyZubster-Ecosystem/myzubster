@@ -1,0 +1,32 @@
+{
+  "name": "MyZubster Comic #001 — La Città Come Organismo",
+  "description": "MyZubster Comic Universe — FICTION / CONCEPT. A visual narrative exploring the city as an interconnected organism linking people, technology, community and digital systems.",
+  "image": "ipfs://Qmb7M27Ufh5jA5soeEwkZs8vWW7FwftuZoAoSmLuNiLBxQ",
+  "external_url": "https://www.myzubster.com/fumetto",
+  "attributes": [
+    {
+      "trait_type": "Universe",
+      "value": "MyZubster Comic Universe"
+    },
+    {
+      "trait_type": "Chapter",
+      "value": "001"
+    },
+    {
+      "trait_type": "Title",
+      "value": "La Città Come Organismo"
+    },
+    {
+      "trait_type": "Classification",
+      "value": "FICTION / CONCEPT"
+    },
+    {
+      "trait_type": "Project",
+      "value": "MyZubster"
+    },
+    {
+      "trait_type": "Year",
+      "value": "2026"
+    }
+  ]
+}
