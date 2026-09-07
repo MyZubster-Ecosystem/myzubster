@@ -15,7 +15,13 @@
     "nft:compile": "hardhat compile",
     "nft:test:local": "hardhat run scripts/nft/test-comic-nft.js",
     "nft:deploy:base-sepolia": "hardhat run scripts/nft/deploy-comic-nft.js --network baseSepolia",
-    "nft:mint:comic-001": "hardhat run scripts/nft/mint-comic-001.js --network baseSepolia"
+    "nft:mint:comic-001": "hardhat run scripts/nft/mint-comic-001.js --network baseSepolia",
+    "nft:comic1155:metadata": "node scripts/nft/generate-comic-1155-metadata.js",
+    "nft:comic1155:test": "hardhat run scripts/nft/test-comic-1155.js",
+    "nft:comic1155:deploy:amoy": "hardhat run scripts/nft/deploy-comic-1155.js --network polygonAmoy",
+    "nft:comic1155:deploy:polygon": "hardhat run scripts/nft/deploy-comic-1155.js --network polygon",
+    "nft:comic1155:mint:amoy": "hardhat run scripts/nft/mint-comic-1155-batch.js --network polygonAmoy",
+    "nft:comic1155:mint:polygon": "hardhat run scripts/nft/mint-comic-1155-batch.js --network polygon"
   },
   "dependencies": {
     "@vercel/functions": "^3.9.5",
