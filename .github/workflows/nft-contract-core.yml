@@ -1,0 +1,35 @@
+name: NFT Contract Core
+
+on:
+  pull_request:
+    paths:
+      - 'nft-contracts/**'
+      - '.github/workflows/nft-contract-core.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: nft-contracts
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install contract dependencies
+        run: npm install --ignore-scripts
+
+      - name: Compile
+        run: npm run compile
+
+      - name: Test
+        run: npm test
