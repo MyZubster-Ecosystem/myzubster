@@ -64,6 +64,7 @@
     { "src": "/manifest.json", "dest": "/frontend/manifest.json" },
     { "src": "/favicon.svg", "dest": "/frontend/favicon.svg" },
     { "src": "/static/(.*)", "dest": "/frontend/static/$1" },
+    { "src": "/comics/(.*)", "dest": "/public/comics/$1" },
     { "src": "/space-station/?", "dest": "/public/space-station.html" },
     { "src": "/space-station\\.html/?", "status": 308, "headers": { "Location": "/space-station" } },
     { "src": "/(.*)", "dest": "/frontend/index.html" }
