@@ -205,7 +205,7 @@ exports.applyDraft = async (req, res) => {
 };
 
 exports.autoSyncStatus = async (req, res) => {
-  const user = await User.findById(req.userId).select('+gmailProfileSync.refreshTokenEncrypted zorgaxProfile gmailProfileSync');
+  const user = await User.findById(req.userId).select('+gmailProfileSync.refreshTokenEncrypted zorgaxProfile');
   if (!user) return res.status(404).json({ success: false, message: 'Utente non trovato' });
 
   const sync = user.gmailProfileSync || {};
