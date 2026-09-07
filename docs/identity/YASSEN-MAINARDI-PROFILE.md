@@ -5,8 +5,8 @@
 **Status:** `DRAFT / PUBLIC-SAFE`  
 **MyZubster role:** LIFE pilot candidate / future tester  
 **GitHub linkage:** `PENDING_VERIFICATION`  
-**LIFE plan linkage:** `CONNECTED / VOLUNTARY PILOT`  
-**LIFE objective:** `EMPLOYMENT INCLUSION THROUGH MYZUBSTER`  
+**LIFE plan linkage:** `PROPOSED / CONSENT PENDING`  
+**LIFE objective:** `PROPOSED — EMPLOYMENT INCLUSION THROUGH MYZUBSTER`  
 **Metaverse activation:** `PENDING_VERIFIED_LINKAGE`
 
 ## Public profile
@@ -19,15 +19,15 @@ Yassen Mainardi has a public GitHub repository dedicated to his MyZubster-relate
 
 The source repository describes Yassen as preparing a persistent digital profile and a possible future testing role connected to the MyZubster/LIFE direction.
 
-## LIFE inclusion pilot linkage
+## LIFE inclusion pilot direction
 
-Yassen Mainardi's MyZubster profile is connected to the **LIFE inclusion pilot plan** as a voluntary pilot profile. The operational objective is to test MyZubster as a service that can help Yassen move toward suitable employment opportunities through a capability-first, accessible and participant-controlled pathway.
+Yassen Mainardi's MyZubster profile may be used as the basis for a **proposed LIFE-oriented inclusion pilot**. This documentation records a candidate pathway only; it does not establish participant enrollment or consent. The operational concept is to test whether MyZubster can support participation, digital skills, autonomy, accessibility and access to suitable employment opportunities through a capability-first, participant-controlled pathway.
 
-This linkage does not establish employment, medical status, benefits eligibility or institutional enrollment. Participation remains voluntary and any formal LIFE activity requiring personal or sensitive information must use a separate consent and data-protection process.
+No LIFE pilot activity should be treated as active until explicit, purpose-specific participant consent is recorded through the appropriate process. This proposal does not establish employment, medical status, benefits eligibility or institutional enrollment. Any formal LIFE activity requiring personal or sensitive information must use a separate consent and data-protection process.
 
-## Employment pathway through MyZubster
+## Proposed employment pathway through MyZubster
 
-The LIFE pilot should support the following participant-controlled flow:
+If explicitly enabled by Yassen through the required consent process, the LIFE pilot could support the following participant-controlled flow:
 
 ```text
 SKILLS + INTERESTS + GOALS
@@ -65,7 +65,7 @@ MyZubster/Zorgax should, when these functions are implemented and explicitly ena
 
 No automated component should make employment decisions on behalf of an employer or automatically disclose health/disability information. Matching should be treated as assistance and recommendation, with Yassen retaining control over applications and disclosures.
 
-### Pilot objectives
+### Proposed pilot objectives
 
 - create a persistent, participant-controlled digital project and work profile;
 - support progressive use of GitHub, Zorgax and MyZubster tools;
@@ -77,7 +77,7 @@ No automated component should make employment decisions on behalf of an employer
 - measure progress from skills/profile creation toward applications and employment outcomes;
 - prepare optional future metaverse participation after account/linkage verification.
 
-### Pilot indicators
+### Proposed pilot indicators
 
 - work profile/CV completeness using participant-approved information;
 - activities or project tasks completed;
@@ -93,7 +93,7 @@ No automated component should make employment decisions on behalf of an employer
 - participant-defined learning or work goals;
 - level of support required for specific activities.
 
-The pilot evaluates the accessibility and adaptability of the MyZubster ecosystem rather than scoring or defining Yassen by a medical condition. Public documentation should focus on capabilities, chosen goals, support needs, completed activities and progress that Yassen agrees to make public.
+The proposed pilot evaluates the accessibility and adaptability of the MyZubster ecosystem rather than scoring or defining Yassen by a medical condition. Public documentation should focus on capabilities, chosen goals, support needs, completed activities and progress that Yassen agrees to make public.
 
 Any medical or disability-specific information is outside the public profile by default and must not be inferred from this file. If such information is ever needed for a formal pilot, it requires a separate, explicit and purpose-specific consent process and appropriate data protection handling.
 
@@ -123,9 +123,9 @@ GITHUB LINKAGE VERIFICATION
         ↓
 MYZUBSTER PROFILE READY
         ↓
-LIFE VOLUNTARY PILOT LINKAGE
+OPTIONAL LIFE PILOT AFTER EXPLICIT CONSENT
         ↓
-EMPLOYMENT-INCLUSION PATHWAY
+OPTIONAL EMPLOYMENT-INCLUSION PATHWAY
         ↓
 OPTIONAL METAVERSE ACTIVATION
 ```
@@ -139,12 +139,12 @@ OPTIONAL METAVERSE ACTIVATION
 | MyZubster relationship record exists | `VERIFIED_PUBLIC` |
 | GitHub collaborator/write access for MyZubster | `NOT_VERIFIED` |
 | MyZubster account ↔ GitHub account binding | `PENDING` |
-| LIFE inclusion pilot linkage | `CONNECTED / VOLUNTARY PILOT` |
-| LIFE employment objective | `DEFINED` |
+| LIFE inclusion pilot linkage | `PROPOSED / CONSENT PENDING` |
+| LIFE employment objective | `PROPOSED` |
 | Formal LIFE participation/consent | `PENDING` |
 | MyZubster automated job-matching/application functions | `IMPLEMENTATION / VERIFICATION REQUIRED` |
 | Metaverse character activation | `PENDING` |
 
 ## Privacy and evidence boundary
 
-This file intentionally avoids duplicating unnecessary personal details from source material. Public profile information should remain minimal, attributable and reviewable. A public GitHub repository, LIFE pilot linkage or profile draft does not by itself prove legal identity, employment, partnership, institutional representation, health status, disability status, benefits eligibility or authority to act for another person or organization.
+This file intentionally avoids duplicating unnecessary personal details from source material. Public profile information should remain minimal, attributable and reviewable. A public GitHub repository, proposed LIFE pilot linkage or profile draft does not by itself prove legal identity, employment, partnership, institutional representation, health status, disability status, benefits eligibility, participant consent or authority to act for another person or organization.
