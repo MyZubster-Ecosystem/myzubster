@@ -16,7 +16,7 @@
 const SOURCES={
  photos:{repo:'MyZubster-Ecosystem/MyZubster-Photos',prefixes:['photos/','04 Comic Visuals & Covers/']},
  visual:{repo:'MyZubster-Ecosystem/MyZubster-Visual',prefixes:['assets/']},
- main:{repo:'MyZubster-Ecosystem/myzubster',prefixes:['docs/visuals/']}
+ main:{repo:'MyZubster-Ecosystem/myzubster',prefixes:['docs/visuals/','public/comics/']}
 };
 const imgExt=/\.(jpe?g|png|webp|gif)$/i;
 const founder='https://github.com/DanielIoni-creator.png';
@@ -26,6 +26,7 @@ const VRAW='https://raw.githubusercontent.com/MyZubster-Ecosystem/MyZubster-Visu
 const SRAW='https://raw.githubusercontent.com/DanielIoni-creator/space-station/main/assets/visuals/';
 const privacyVisual=SRAW+'privacy-first-evidence-system-cyberpunk.png';
 const zorgaxStationVisual=SRAW+'zorgax-space-station-myzubster.png';
+const updatedSpaceStationComic='https://raw.githubusercontent.com/MyZubster-Ecosystem/myzubster/main/public/comics/MyZubster-Space-Station-Comic-Updated.png';
 const sentinel=VRAW+'assets/comic/metasploit-sentinel-scope-first.png';
 const known={
  manifesto:VRAW+'assets/comic/MyZubster-Cyberpunk-Visual-01-Manifesto-Neon.png',
@@ -55,7 +56,7 @@ const slides=[
 ['13 · TRE CHIAVI','Il potere ha controlli',known.roadmap,'FUTURE_CONCEPT','Founder, Technical Council e Community: il futuro narrativo sperimenta controlli di governance distribuita.','“Il potere deve avere controlli.”','FUTURE_CONCEPT'],
 ['14 · RIGENERAZIONE','Ritorno al territorio',known.realLife,'FUTURE_CONCEPT','La storia ritorna alle fotografie, alle osservazioni e ai cicli reali del territorio.','“Il ciclo successivo deve essere più verificabile.”','Comic canon'],
 ['15 · PRIVACY','Archivio privato, storia pubblica',privacyVisual,'DOCUMENTATION_VISUAL','Il materiale probatorio privato resta separato dal racconto pubblico. Nel fumetto entrano soltanto sintesi autorizzate e non sensibili.','“Una prova privata non diventa pubblica automaticamente.”','space-station / assets/visuals/privacy-first-evidence-system-cyberpunk.png'],
-['16 · SPACE STATION','Zorgax collega l’ecosistema',zorgaxStationVisual,'FICTION / CONCEPT','Zorgax osserva la Space Station e collega i moduli narrativi di community, marketplace, gateway, robot e social nell’universo MyZubster.','“La rete cresce quando ogni nodo conserva identità, provenienza e confini.”','space-station / assets/visuals/zorgax-space-station-myzubster.png']
+['16 · SPACE STATION','La nuova tavola Space Station',updatedSpaceStationComic,'FICTION / CONCEPT','La nuova tavola collega Terra, stazione orbitale e archivio vivente in un’unica sequenza narrativa MyZubster.','“Ogni nodo conserva identità, provenienza e confini.”','MyZubster / public/comics/MyZubster-Space-Station-Comic-Updated.png']
 ];
 let i=0,timer=null;const $=id=>document.getElementById(id);
 function render(){const s=slides[i];$('label').textContent=s[0]+' · '+s[3];$('title').textContent=s[1];$('img').src=s[2];$('text').textContent=s[4];$('quote').textContent=s[5];$('source').textContent=s[6];[...$('chapters').children].forEach((x,n)=>x.classList.toggle('active',n===i));}
