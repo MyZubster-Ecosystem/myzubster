@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const zorgaxSubscriptionSchema = new mongoose.Schema({
   ownerId: { type: String, required: true, index: true },
   plan: { type: String, enum: ['pro', 'developer'], required: true },
-  asset: { type: String, enum: ['ETH', 'BTC', 'XMR', 'TARI'], required: true },
+  asset: { type: String, enum: ['ETH', 'BTC', 'XMR', 'TARI', 'STRIPE'], required: true },
   paymentReference: { type: String, required: true, unique: true, index: true },
   verification: {
     status: { type: String, enum: ['PENDING', 'VERIFIED', 'REJECTED'], default: 'PENDING' },
