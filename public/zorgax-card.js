@@ -26,6 +26,9 @@
     const accessState = document.getElementById('accessState');
     if (!plan || !btcButton || !accessState || document.getElementById('startCard')) return;
 
+    const notice = document.querySelector('.notice');
+    if (notice) notice.textContent = 'Zorgax può cercare sul web e preparare dati da inserire. Le scritture persistenti e gli upgrade richiedono login. Gli upgrade possono essere pagati con carta tramite Stripe oppure tramite rail crypto separati; l’accesso si attiva solo dopo verifica del pagamento.';
+
     const cardButton = document.createElement('button');
     cardButton.id = 'startCard';
     cardButton.type = 'button';
