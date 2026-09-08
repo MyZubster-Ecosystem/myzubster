@@ -28,4 +28,11 @@ describe('Zorgax frontend funnel tracking', () => {
     expect(page).toContain('keepalive:true');
     expect(page).toContain("document.querySelectorAll('[data-funnel-event]')");
   });
+
+  test('promotes chat start and tracks the conversion steps', () => {
+    expect(page).toContain('id="startChat"');
+    expect(page).toContain('💬 Inizia una chat gratuita');
+    expect(page).toContain("trackFunnel('zorgax_chat_opened')");
+    expect(page).toContain("trackFunnel('zorgax_first_message')");
+  });
 });
