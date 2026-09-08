@@ -33,7 +33,7 @@ function publicMessage(message) {
   };
 }
 
-function attachRealtimeServer(httpServer) {
+function attachRealtimeServer(httpServer, { ready = null } = {}) {
   const io = new Server(httpServer, {
     path: "/realtime",
     transports: ["websocket", "polling"],
@@ -45,9 +45,10 @@ function attachRealtimeServer(httpServer) {
 
   registerRealtimeIO(io);
 
-  io.use((socket, next) => {
+  io.use(async (socket, next) => {
     incrementCounter("connectionAttempts");
     try {
+      if (typeof ready === "function") await ready();
       const token =
         socket.handshake.auth?.token ||
         socket.handshake.headers?.authorization?.replace(/^Bearer\s+/i, "");
