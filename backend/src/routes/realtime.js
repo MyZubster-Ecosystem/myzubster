@@ -8,8 +8,21 @@ const {
 const {
   realtimeMetricsSnapshot,
 } = require("../services/realtimeObservability");
+const { presenceMode } = require("../services/realtimePresence");
 
 const router = express.Router();
+
+router.get("/health", (_req, res) => {
+  res.set("Cache-Control", "no-store");
+  return res.json({
+    success: true,
+    status: "ok",
+    transport: "socket.io",
+    socketPath: "/realtime",
+    presence: presenceMode(),
+    privacy: "aggregate-only",
+  });
+});
 
 router.post("/token", authenticate, (req, res) => {
   try {
