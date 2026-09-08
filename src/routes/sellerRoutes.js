@@ -3,6 +3,7 @@ const crypto = require('crypto');
 const https = require('https');
 const SellerMembership = require('../models/SellerMembership');
 const { authenticate } = require('../middleware/auth');
+const { activateZorgaxInvoice } = require('../services/zorgaxStripeService');
 
 const router = express.Router();
 const monthlyPrice = () => Math.max(0, Number(process.env.MARKETPLACE_SELLER_MONTHLY_EUR || 9.90));
@@ -43,8 +44,8 @@ function stripeRequest(method, path, params) {
       response.on('data', chunk => { data += chunk; });
       response.on('end', () => {
         let parsed;
-        try { parsed = data ? JSON.parse(data) : {}; }
-        catch (_error) { return reject(new Error('Risposta Stripe non valida')); }
+        try { parsed = data ? JSON.parse(data) : {};
+        } catch (_error) { return reject(new Error('Risposta Stripe non valida')); }
         if (response.statusCode < 200 || response.statusCode >= 300) {
           const error = new Error(parsed?.error?.message || `Stripe HTTP ${response.statusCode}`);
           error.statusCode = response.statusCode;
@@ -87,7 +88,7 @@ function membershipStatusFromStripe(subscription) {
 }
 
 async function syncStripeSubscription(subscription, eventId, fallbackUserId) {
-  if (!subscription?.id) return null;
+  if (!subscription?.id || subscription.metadata?.product === 'zorgax') return null;
   const userId = subscription.metadata?.userId || fallbackUserId;
   const selector = userId ? { userId } : { stripeSubscriptionId:subscription.id };
   const status = membershipStatusFromStripe(subscription);
@@ -121,7 +122,7 @@ router.post('/checkout', authenticate, async (req,res) => {
   try {
     const amount=monthlyPrice(); const billingReference=`SELLER-${crypto.randomUUID()}`;
     const membership=await SellerMembership.findOneAndUpdate({userId:req.userId},{ $set:{plan:'SELLER_MONTHLY',status:'PENDING_PAYMENT',priceAmount:amount,priceCurrency:'EUR',billingReference,paymentReference:'',paymentProvider:'STRIPE',verifiedBy:null,verifiedAt:null}},{new:true,upsert:true,runValidators:true,setDefaultsOnInsert:true});
-    const params={mode:'subscription',success_url:successUrl,cancel_url:cancelUrl,client_reference_id:String(req.userId),'line_items[0][quantity]':'1','metadata[userId]':String(req.userId),'metadata[billingReference]':billingReference,'subscription_data[metadata][userId]':String(req.userId),'subscription_data[metadata][billingReference]':billingReference,allow_promotion_codes:'false'};
+    const params={mode:'subscription',success_url:successUrl,cancel_url:cancelUrl,client_reference_id:String(req.userId),'line_items[0][quantity]':'1','metadata[userId]':String(req.userId),'metadata[billingReference]':billingReference,'metadata[product]':'seller','subscription_data[metadata][userId]':String(req.userId),'subscription_data[metadata][billingReference]':billingReference,'subscription_data[metadata][product]':'seller',allow_promotion_codes:'false'};
     if(process.env.STRIPE_SELLER_PRICE_ID) params['line_items[0][price]']=process.env.STRIPE_SELLER_PRICE_ID;
     else { params['line_items[0][price_data][currency]']='eur'; params['line_items[0][price_data][unit_amount]']=String(Math.round(amount*100)); params['line_items[0][price_data][recurring][interval]']='month'; params['line_items[0][price_data][product_data][name]']='MyZubster Seller'; }
 
@@ -157,14 +158,23 @@ router.post('/webhook', async (req,res) => {
   try {
     const object=event?.data?.object||{};
     if(event.type==='checkout.session.completed' && object.mode==='subscription') {
+      if(object.metadata?.product==='zorgax') return res.json({received:true,product:'zorgax'});
       const userId=object.metadata?.userId||object.client_reference_id;
       if(object.subscription) { const subscription=await stripeRequest('GET',`/v1/subscriptions/${encodeURIComponent(object.subscription)}`); await syncStripeSubscription(subscription,event.id,userId); }
       await SellerMembership.findOneAndUpdate({userId},{ $set:{paymentProvider:'STRIPE',stripeCheckoutSessionId:object.id,stripeCustomerId:typeof object.customer==='string'?object.customer:undefined,stripeLastEventId:event.id}},{new:true});
-    } else if(['customer.subscription.created','customer.subscription.updated','customer.subscription.deleted'].includes(event.type)) await syncStripeSubscription(object,event.id);
-    else if(event.type==='invoice.paid' && object.subscription) { const subscription=await stripeRequest('GET',`/v1/subscriptions/${encodeURIComponent(object.subscription)}`); await syncStripeSubscription(subscription,event.id); }
-    else if(event.type==='invoice.payment_failed' && object.subscription) await SellerMembership.findOneAndUpdate({stripeSubscriptionId:object.subscription},{ $set:{status:'SUSPENDED',stripeSubscriptionStatus:'payment_failed',stripeLastEventId:event.id}},{new:true});
+    } else if(['customer.subscription.created','customer.subscription.updated','customer.subscription.deleted'].includes(event.type)) {
+      if(object.metadata?.product==='zorgax') return res.json({received:true,product:'zorgax'});
+      await syncStripeSubscription(object,event.id);
+    } else if(event.type==='invoice.paid' && object.subscription) {
+      const zorgaxSubscription=await activateZorgaxInvoice(object);
+      if(zorgaxSubscription) {
+        console.info('[zorgax-funnel]', JSON.stringify({event:'zorgax_stripe_payment_succeeded',plan:zorgaxSubscription.plan,path:'/api/marketplace/seller/webhook'}));
+        return res.json({received:true,product:'zorgax',activated:true,plan:zorgaxSubscription.plan});
+      }
+      const subscription=await stripeRequest('GET',`/v1/subscriptions/${encodeURIComponent(object.subscription)}`); await syncStripeSubscription(subscription,event.id);
+    } else if(event.type==='invoice.payment_failed' && object.subscription) await SellerMembership.findOneAndUpdate({stripeSubscriptionId:object.subscription},{ $set:{status:'SUSPENDED',stripeSubscriptionStatus:'payment_failed',stripeLastEventId:event.id}},{new:true});
     res.json({received:true});
-  } catch(error) { console.error('Stripe Seller webhook error:',error.message); res.status(500).json({success:false,message:'Webhook Stripe non elaborato'}); }
+  } catch(error) { console.error('Stripe Seller/Zorgax webhook error:',error.message); res.status(500).json({success:false,message:'Webhook Stripe non elaborato'}); }
 });
 
 router.post('/cancel', authenticate, async (req,res) => {
