@@ -19,6 +19,22 @@ describe("realtime operational routes", () => {
     app.use("/api/realtime", router);
   });
 
+  test("exposes a non-cacheable public readiness endpoint without metrics", async () => {
+    const response = await request(app).get("/api/realtime/health");
+
+    expect(response.status).toBe(200);
+    expect(response.headers["cache-control"]).toBe("no-store");
+    expect(response.body).toMatchObject({
+      success: true,
+      status: "ok",
+      transport: "socket.io",
+      socketPath: "/realtime",
+      privacy: "aggregate-only",
+    });
+    expect(response.body).not.toHaveProperty("counters");
+    expect(response.body).not.toHaveProperty("durations");
+  });
+
   test("exposes non-cacheable aggregate metrics to administrators", async () => {
     incrementCounter("connectionAttempts", 4);
     incrementCounter("connectionSuccesses", 4);
