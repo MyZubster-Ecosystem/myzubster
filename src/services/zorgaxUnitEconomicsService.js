@@ -3,6 +3,7 @@
 const DEFAULT_PROVIDERS = Object.freeze([
   'openai_api',
   'chatgpt',
+  'chatgpt_credits',
   'vercel',
   'aruba',
   'canva',
