@@ -4,6 +4,7 @@ const ZorgaxSubscription = require('../models/ZorgaxSubscription');
 const { PLANS, SUPPORTED_ASSETS } = require('./zorgaxLegacyMonetizationService');
 
 const ACCESS_DAYS = 30;
+const SUPPORTED_PAYMENT_RAILS = new Set([...SUPPORTED_ASSETS, 'STRIPE']);
 
 function normalizePaymentReference(value) {
   const ref = String(value || '').trim();
@@ -15,7 +16,7 @@ async function recordVerifiedPayment({ ownerId, planId, asset, paymentReference,
   const plan = PLANS[String(planId || '').toLowerCase()];
   const normalizedAsset = String(asset || '').toUpperCase();
   if (!plan || plan.id === 'free') throw new Error('Piano a pagamento non valido');
-  if (!SUPPORTED_ASSETS.includes(normalizedAsset)) throw new Error('Asset non supportato');
+  if (!SUPPORTED_PAYMENT_RAILS.has(normalizedAsset)) throw new Error('Asset non supportato');
   if (!verification || verification.verified !== true) {
     throw new Error('Pagamento non verificato: accesso non attivabile');
   }
@@ -46,7 +47,7 @@ async function recordVerifiedPayment({ ownerId, planId, asset, paymentReference,
       paymentReference: ref,
       verification: {
         status: 'VERIFIED',
-        verifier: String(verification.verifier || 'external-chain-verifier').slice(0, 120),
+        verifier: String(verification.verifier || 'external-payment-verifier').slice(0, 120),
         verifiedAt: now
       },
       access: { status: 'ACTIVE', startsAt, expiresAt },
@@ -76,7 +77,7 @@ async function getAccess(ownerId) {
   }).sort({ 'access.expiresAt': -1 }).lean();
 
   if (!active) return { plan: 'free', status: 'ACTIVE', expiresAt: null };
-  return { id: String(active._id), plan: active.plan, status: active.access.status, startsAt: active.access.startsAt, expiresAt: active.access.expiresAt };
+  return { id: String(active._id), plan: active.plan, status: active.access.status, startsAt: active.access.startsAt, expiresAt: active.access.expiresAt, source: active.asset === 'STRIPE' ? 'STRIPE' : 'SUBSCRIPTION' };
 }
 
 module.exports = { ACCESS_DAYS, recordVerifiedPayment, getAccess };
