@@ -222,6 +222,26 @@ Public roadmap: **[#839 — MyZubster territorial AI, evidence-first DAO & pilot
 
 Daniel Ioni (`DanielIoni-creator`) is the creator and lead builder of **MyZubster**, an open digital ecosystem focused on interoperability, immersive experiences, open-source development and the emerging **MyZubster LIFE 2027** initiative.
 
+### Esperienze personali che hanno ispirato la comunità MyZubster
+
+Daniel racconta nel proprio profilo personale di avere svolto **volontariato presso l'Ospedale Papa Giovanni XXIII di Bergamo** e di avere vissuto anche un'esperienza a **Lourdes**. Nel suo percorso queste esperienze hanno rafforzato il valore attribuito all'ascolto, alla presenza, alla solidarietà, alla dignità delle persone e alla capacità delle comunità di sostenersi reciprocamente.
+
+Questa dimensione umana ha contribuito a orientare la visione sociale di MyZubster: non soltanto software e infrastruttura digitale, ma una rete pensata per mettere in relazione **persone, comunità, progetti, opportunità, volontariato, inclusione e impatto reale**. L'obiettivo dichiarato è usare la tecnologia come strumento di collegamento e servizio, mantenendo le persone come punto di partenza del sistema.
+
+```text
+ESPERIENZA PERSONALE
+        ↓
+ASCOLTO + SOLIDARIETÀ + COMUNITÀ
+        ↓
+VISIONE SOCIALE
+        ↓
+MYZUBSTER
+        ↓
+PERSONE ↔ PROGETTI ↔ OPPORTUNITÀ ↔ COMUNITÀ
+```
+
+Questa sezione documenta il racconto personale del fondatore e la sua influenza dichiarata sulla filosofia del progetto; **non implica affiliazione, partnership, endorsement o rappresentanza** da parte dell'Ospedale Papa Giovanni XXIII, di Lourdes o di organizzazioni collegate.
+
 Alongside MyZubster development, public contribution work includes upstream pull requests or contribution branches involving **Vircadia World**, **Decentraland JS SDK Toolchain**, **Monero Docs** and experimental **WebXR Samples** work.
 
 The contribution-first workflow is:
