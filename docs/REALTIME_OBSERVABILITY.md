@@ -26,6 +26,20 @@ The endpoint is non-cacheable and exposes:
 
 The counters are process-local and reset when the worker restarts. A production monitor must scrape and aggregate them outside the worker before using them for longer reporting windows.
 
+## Vercel Fluid Compute runtime
+
+The public deployment routes `/realtime` and `/api/realtime/*` to `api/realtime.js`. That entrypoint exports a Node HTTP server, attaches Socket.IO once per warm Vercel Function instance and waits for MongoDB readiness before accepting HTTP or WebSocket work.
+
+Verify the unauthenticated runtime without exposing operational metrics:
+
+```text
+GET /api/realtime/health
+```
+
+The health response reports the Socket.IO path and configured presence mode. It does not expose counters, identifiers or latency samples. `/api/realtime/metrics` remains restricted to administrators.
+
+Vercel Functions can create multiple instances and future connections are not guaranteed to reach the same instance. Configure `REDIS_URL` before treating presence as distributed, and add the Socket.IO Redis adapter before treating room fan-out as cross-worker. Connections are also bounded by the Vercel Function maximum duration, so clients must reconnect and call `realtime.resume`.
+
 ## Initial SLOs
 
 | Path                      | Default target | Environment override                    |
