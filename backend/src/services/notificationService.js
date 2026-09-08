@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const Notification = require('../models/Notification');
 const NotificationPreference = require('../models/NotificationPreference');
 const { emitToUser } = require('../realtime/realtimeHub');
+const { increment, observe, structuredLog } = require('./realtimeObservability');
 
 function databaseAvailable() {
   return mongoose.connection.readyState === 1;
@@ -32,15 +33,25 @@ async function categoryEnabled({ userId, category }) {
 }
 
 async function createNotification({ userId, type, category, dedupeKey, payload = {}, deepLink }) {
-  if (!databaseAvailable()) return { valid: false, status: 503, error: 'Notification storage unavailable' };
+  const started = Date.now();
+  if (!databaseAvailable()) {
+    increment('realtime_notification_persist_total', { outcome: 'storage_unavailable' });
+    return { valid: false, status: 503, error: 'Notification storage unavailable' };
+  }
   if (!userId || !dedupeKey || !['follow', 'community', 'message', 'session'].includes(type)) return { valid: false, status: 400, error: 'Invalid notification' };
   if (!['social', 'community', 'message', 'session'].includes(category)) return { valid: false, status: 400, error: 'Invalid notification category' };
   const safeDeepLink = cleanDeepLink(deepLink);
   if (!safeDeepLink) return { valid: false, status: 400, error: 'Notification deep link must be an internal path' };
-  if (!(await categoryEnabled({ userId, category }))) return { valid: true, status: 200, skipped: true, reason: 'preference-disabled' };
+  if (!(await categoryEnabled({ userId, category }))) {
+    increment('realtime_notification_persist_total', { outcome: 'preference_skipped', category });
+    return { valid: true, status: 200, skipped: true, reason: 'preference-disabled' };
+  }
 
   const existing = await Notification.findOne({ userId: String(userId), dedupeKey: String(dedupeKey) }).lean();
-  if (existing) return { valid: true, status: 200, duplicate: true, notification: publicNotification(existing) };
+  if (existing) {
+    increment('realtime_notification_persist_total', { outcome: 'duplicate', category });
+    return { valid: true, status: 200, duplicate: true, notification: publicNotification(existing) };
+  }
 
   let row;
   try {
@@ -56,13 +67,19 @@ async function createNotification({ userId, type, category, dedupeKey, payload =
   } catch (error) {
     if (error && error.code === 11000) {
       const duplicate = await Notification.findOne({ userId: String(userId), dedupeKey: String(dedupeKey) }).lean();
+      increment('realtime_notification_persist_total', { outcome: 'duplicate_race', category });
       return { valid: true, status: 200, duplicate: true, notification: publicNotification(duplicate) };
     }
+    increment('realtime_notification_persist_total', { outcome: 'exception', category });
     throw error;
   }
 
   const notification = publicNotification(row.toObject());
-  emitToUser(userId, 'notification.created', notification);
+  const emitted = emitToUser(userId, 'notification.created', notification);
+  increment('realtime_notification_persist_total', { outcome: 'success', category });
+  increment('realtime_notification_delivery_total', { outcome: emitted ? 'emitted' : 'no_gateway', category });
+  observe('realtime_notification_latency_ms', Date.now() - started, { category });
+  structuredLog('realtime.notification_created', { notificationId: notification.id, outcome: emitted ? 'persisted_and_emitted' : 'persisted_no_gateway', latencyMs: Date.now() - started });
   return { valid: true, status: 201, duplicate: false, notification };
 }
 

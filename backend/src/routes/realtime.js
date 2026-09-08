@@ -2,6 +2,7 @@ const express = require('express');
 const crypto = require('crypto');
 const { authenticate } = require('../../../src/middleware/auth');
 const { mintSocketToken, TOKEN_TTL_SECONDS } = require('../services/realtimeGateway');
+const { snapshot } = require('../services/realtimeObservability');
 
 const router = express.Router();
 
@@ -27,6 +28,11 @@ router.post('/token', authenticate, (req, res) => {
     console.error('Realtime token error:', error?.name || 'Error');
     return res.status(503).json({ success: false, error: 'Realtime token unavailable' });
   }
+});
+
+router.get('/metrics', authenticate, (req, res) => {
+  if (req.userRole !== 'admin') return res.status(403).json({ success: false, error: 'Admin role required' });
+  return res.json({ success: true, realtime: snapshot() });
 });
 
 module.exports = router;
