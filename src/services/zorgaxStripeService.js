@@ -84,7 +84,12 @@ async function activateZorgaxInvoice(invoice) {
   const ownerId = subscription.metadata?.userId;
   const planId = subscription.metadata?.plan;
   if (!ownerId || !planId) return null;
-  const current = await ZorgaxSubscription.findOne({ ownerId:String(ownerId), 'access.status':'ACTIVE', 'access.expiresAt':{$gt:new Date()} }).sort({'access.expiresAt':-1});
+  const current = await ZorgaxSubscription.findOne({
+    ownerId:String(ownerId),
+    plan:planId,
+    'access.status':'ACTIVE',
+    'access.expiresAt':{$gt:new Date()}
+  }).sort({'access.expiresAt':-1});
   return recordVerifiedPayment({
     ownerId,
     planId,
