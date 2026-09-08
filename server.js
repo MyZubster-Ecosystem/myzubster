@@ -12,7 +12,6 @@ app.use(cors());
 app.use('/api/github-bounties/webhook', express.json({ verify: (req, res, buf) => { req.rawBody = Buffer.from(buf); } }));
 app.use('/api/meta/messenger/webhook', express.json({ verify: (req, res, buf) => { req.rawBody = Buffer.from(buf); } }));
 app.use('/api/marketplace/seller/webhook', express.raw({ type:'application/json', limit:'256kb' }));
-app.use('/api/zorgax/stripe/webhook', express.raw({ type:'application/json', limit:'256kb' }));
 app.use(express.json());
 
 const publicRoot = path.resolve(__dirname, 'public');
@@ -21,7 +20,7 @@ const canonicalHtmlRedirects = new Map([['/press.html', '/press'],['/media', '/p
 const bundledHtmlPaths = new Map([['press.html', require.resolve('./public/press.html')],['zorgax-email-profile.html', require.resolve('./public/zorgax-email-profile.html')]]);
 const vercelAnalyticsSnippet = `\n<script>\n  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };\n</script>\n<script defer src="/_vercel/insights/script.js"></script>\n`;
 app.use((req,res,next)=>{ if(req.method!=='GET') return next(); const destination=canonicalHtmlRedirects.get(req.path); return destination?res.redirect(308,destination):next(); });
-app.use((req,res,next)=>{ if(req.method!=='GET') return next(); const alias=htmlAliases.get(req.path); const relativePath=alias||(req.path.endsWith('.html')?req.path.replace(/^\/+/, ''):null); if(!relativePath)return next(); const filePath=bundledHtmlPaths.get(relativePath)||path.resolve(publicRoot,relativePath); if(filePath!==publicRoot&&!filePath.startsWith(`${publicRoot}${path.sep}`))return next(); fs.readFile(filePath,'utf8',(error,html)=>{ if(error)return next(); const instrumented=html.includes('/_vercel/insights/script.js')?html:html.includes('</head>')?html.replace('</head>',`${vercelAnalyticsSnippet}</head>`):`${vercelAnalyticsSnippet}${html}`; res.type('html').status(200).send(instrumented); }); });
+app.use((req,res,next)=>{ if(req.method!=='GET') return next(); const alias=htmlAliases.get(req.path); const relativePath=alias||(req.path.endsWith('.html')?req.path.replace(/^\/+/, ''):null); if(!relativePath)return next(); const filePath=bundledHtmlPaths.get(relativePath)||path.resolve(publicRoot,relativePath); if(filePath!==publicRoot&&!filePath.startsWith(`${publicRoot}${path.sep}`))return next(); fs.readFile(filePath,'utf8',(error,html)=>{ if(error)return next(); const zorgaxCardSnippet=relativePath==='zorgax.html'?'<script defer src="/zorgax-card.js"></script>':''; const instrumentation=`${vercelAnalyticsSnippet}${zorgaxCardSnippet}`; const instrumented=html.includes('/_vercel/insights/script.js')?(zorgaxCardSnippet&& !html.includes('/zorgax-card.js')?html.replace('</head>',`${zorgaxCardSnippet}</head>`):html):html.includes('</head>')?html.replace('</head>',`${instrumentation}</head>`):`${instrumentation}${html}`; res.type('html').status(200).send(instrumented); }); });
 app.use(express.static('public')); app.use('/data', express.static('data'));
 const mongoUri=process.env.MONGODB_URI||process.env.MONGO_URI; const connectMongoRuntime=createMongoConnector({mongoose,mongoUri});
 function connectMongo(){ if(process.env.NODE_ENV==='test')return Promise.resolve(); return connectMongoRuntime(); }
