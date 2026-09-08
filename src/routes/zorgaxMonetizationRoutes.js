@@ -40,6 +40,11 @@ const {
   resolvePurchase
 } = require('../services/zorgaxPricingService');
 
+const ZorgaxSubscription = require('../models/ZorgaxSubscription');
+const {
+  createZorgaxUnitEconomicsService
+} = require('../services/zorgaxUnitEconomicsService');
+
 function errorStatus(error) {
   const message = String(error?.message || '');
 
@@ -111,7 +116,10 @@ function createZorgaxMonetizationRouter({
   entitlementService = {
     getAccess,
     listEntitlements
-  }
+  },
+  economicsService = createZorgaxUnitEconomicsService({
+    SubscriptionModel: ZorgaxSubscription
+  })
 } = {}) {
   const router = express.Router();
 
@@ -231,6 +239,36 @@ function createZorgaxMonetizationRouter({
         return res.json({
           success: true,
           entitlements
+        });
+      } catch (error) {
+        return res.status(errorStatus(error)).json({
+          success: false,
+          message: error.message
+        });
+      }
+    }
+  );
+
+  router.get(
+    '/economics',
+    authenticateMiddleware,
+    async (req, res) => {
+      if (req.userRole !== 'admin') {
+        return res.status(403).json({
+          success: false,
+          message: 'Administrator access required'
+        });
+      }
+
+      try {
+        const month = req.query.month ||
+          new Date().toISOString().slice(0, 7);
+        const economics =
+          await economicsService.getMonthlyReport({ month });
+
+        return res.json({
+          success: true,
+          economics
         });
       } catch (error) {
         return res.status(errorStatus(error)).json({
