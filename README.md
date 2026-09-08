@@ -67,6 +67,12 @@ FUMETTO   WEBSITE    GITHUB
 
 The **Fumetto / Chronicle** is a public visual and narrative entry point that helps people understand MyZubster through storytelling and then move into the wider ecosystem:
 
+<p align="center">
+  <img src="public/comics/community/MyZubster-Community-Zorgax-Guide.jpg" alt="MyZubster Community and Zorgax guide — narrative visual" width="92%">
+</p>
+
+> **Narrative guide:** this visual explains the intended community journey. It is not proof of a completed conversation, verified identity, partnership, adoption or operational result.
+
 - **Fumetto / Chronicle:** https://www.myzubster.com/fumetto
 - **Messenger bridge status:** https://www.myzubster.com/api/meta/messenger/status
 - **Messenger webhook:** https://www.myzubster.com/api/meta/messenger/webhook
