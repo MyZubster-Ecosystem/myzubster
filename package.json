@@ -12,6 +12,8 @@
     "privacy:migrate-locations": "node scripts/migrate-private-locations.js",
     "metaverse:configure:n4k48": "node scripts/metaverse/configure-n4k48.js",
     "metaverse:configure:yassen": "node scripts/metaverse/configure-yassen.js",
+    "metaverse:load-baseline": "node scripts/realtime-load-baseline.js",
+    "metaverse:realtime-self-check": "node scripts/realtime-self-check.js",
     "nft:compile": "hardhat compile",
     "nft:test:local": "hardhat run scripts/nft/test-comic-nft.js",
     "nft:deploy:base-sepolia": "hardhat run scripts/nft/deploy-comic-nft.js --network baseSepolia",
@@ -32,6 +34,7 @@
     "mongoose": "^7.8.11",
     "morgan": "^1.11.0",
     "nodemailer": "^9.0.5",
+    "redis": "^4.7.0",
     "socket.io": "^4.7.2",
     "uuid": "^14.0.2"
   },
@@ -51,6 +54,7 @@
     "mongodb-memory-server": "^11.2.0",
     "nodemon": "^3.0.1",
     "prettier": "^3.0.3",
+    "socket.io-client": "^4.8.3",
     "supertest": "^6.3.4"
   },
   "engines": {
