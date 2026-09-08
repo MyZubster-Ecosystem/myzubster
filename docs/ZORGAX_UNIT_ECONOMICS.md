@@ -5,12 +5,12 @@ Zorgax can calculate monthly gross revenue, provider costs, estimated Stripe fee
 Configure monthly provider costs in the deployment environment:
 
 ```text
-ZORGAX_MONTHLY_COSTS_JSON={"openai_api":0,"chatgpt":0,"vercel":0,"aruba":0,"canva":0,"database":0,"storage":0,"monitoring":0,"email":0,"other":0}
+ZORGAX_MONTHLY_COSTS_JSON={"openai_api":0,"chatgpt":0,"chatgpt_credits":0,"vercel":0,"aruba":0,"canva":0,"database":0,"storage":0,"monitoring":0,"email":0,"other":0}
 ZORGAX_STRIPE_FEE_PERCENT=0
 ZORGAX_STRIPE_FEE_FIXED_EUR=0
 ```
 
-Use actual invoice totals. ChatGPT subscriptions and OpenAI API usage are separate cost centres. Never put API keys or invoice documents in these variables.
+Use actual invoice totals. ChatGPT subscriptions, additional ChatGPT workspace credits used by Codex, and OpenAI API usage are three separate cost centres. Record purchased workspace credits under `chatgpt_credits`; this also covers automatic credit reloads. Never put API keys or invoice documents in these variables.
 
 An authenticated administrator can request:
 

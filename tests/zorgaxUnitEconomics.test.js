@@ -34,6 +34,16 @@ describe('Zorgax unit economics', () => {
     expect(report.warning).toMatch(/costs exceed revenue/);
   });
 
+  test('keeps Codex workspace credits separate from ChatGPT seats and API', () => {
+    const costs = readMonthlyCosts({
+      ZORGAX_MONTHLY_COSTS_JSON: '{"chatgpt":152.5,"chatgpt_credits":40,"openai_api":12}'
+    });
+
+    expect(costs.chatgpt).toBe(152.5);
+    expect(costs.chatgpt_credits).toBe(40);
+    expect(costs.openai_api).toBe(12);
+  });
+
   test('rejects malformed provider configuration', () => {
     expect(() => readMonthlyCosts({
       ZORGAX_MONTHLY_COSTS_JSON: '{bad json'
