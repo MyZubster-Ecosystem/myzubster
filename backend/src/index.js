@@ -91,7 +91,7 @@ app.get('/api/dashboard', (_req, res) => {
       },
       metaverse: { status: 'prototype', endpoint: '/api/metaverse/world', identityMode: 'guest-unverified' },
       virtualRoomLifecycle: { status: 'experimental', endpoint: '/api/metaverse/rooms', authority: 'server' },
-      realtime: { status: 'experimental', endpoint: '/realtime', tokenEndpoint: '/api/realtime/token', authority: 'server' },
+      realtime: { status: 'experimental', endpoint: '/realtime', tokenEndpoint: '/api/realtime/token', metricsEndpoint: '/api/realtime/metrics', authority: 'server', metricsAccess: 'admin' },
       chat: { status: 'experimental', endpoint: '/api/chat', delivery: 'persisted-before-realtime' },
       notifications: { status: 'experimental', endpoint: '/api/notifications', delivery: 'persisted-before-realtime' },
       moderation: { status: 'foundation', endpoint: '/api/moderation', realtimeDelivery: 'integrated-with-chat' },
@@ -176,7 +176,7 @@ app.get('/dashboard', (_req, res) => {
     <strong>Gardens API:</strong> <a href="/api/gardens"><code>/api/gardens</code></a><br>
     <strong>Metaverse API:</strong> <a href="/api/metaverse/world"><code>/api/metaverse/world</code></a> (prototype)<br>
     <strong>Virtual rooms:</strong> <code>/api/metaverse/rooms</code> (experimental, server-authoritative)<br>
-    <strong>Realtime:</strong> <code>/realtime</code> with token <code>/api/realtime/token</code> (experimental)<br>
+    <strong>Realtime:</strong> <code>/realtime</code> with token <code>/api/realtime/token</code> and admin metrics <code>/api/realtime/metrics</code> (experimental)<br>
     <strong>Chat:</strong> <code>/api/chat</code> (persisted DM/community channels)<br>
     <strong>Notifications:</strong> <code>/api/notifications</code> (durable + realtime delivery)<br>
     <strong>Moderation API:</strong> <code>/api/moderation</code> (delivery policy integrated with chat)<br>
