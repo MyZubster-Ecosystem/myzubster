@@ -28,7 +28,7 @@ The counters are process-local and reset when the worker restarts. A production 
 
 ## Vercel Fluid Compute runtime
 
-The public deployment routes `/realtime` and `/api/realtime/*` to `api/realtime.js`. That entrypoint exports a Node HTTP server, attaches Socket.IO once per warm Vercel Function instance and waits for MongoDB readiness before accepting HTTP or WebSocket work.
+The public deployment routes `/realtime` and `/api/realtime/*` to `api/realtime.js`. That entrypoint exports a Node HTTP server, attaches Socket.IO once per warm Vercel Function instance and waits for MongoDB readiness through `MONGODB_URI` (or the compatible `MONGO_URI` alias) before accepting HTTP or WebSocket work.
 
 Verify the unauthenticated runtime without exposing operational metrics:
 
