@@ -167,8 +167,40 @@ class MockAnchorAdapter {
   }
 }
 
+class EvmCalldataAnchorAdapter {
+  constructor({ rpcUrl, privateKey, chainId, network = 'evm-testnet', confirmations = 1 } = {}) {
+    if (!rpcUrl || !privateKey || !chainId) throw new Error('rpcUrl, privateKey and chainId are required');
+    this.rpcUrl = rpcUrl;
+    this.privateKey = privateKey;
+    this.chainId = BigInt(chainId);
+    this.network = network;
+    this.confirmations = confirmations;
+  }
+
+  async anchor(manifest) {
+    const { JsonRpcProvider, Wallet, toUtf8Bytes, hexlify } = require('ethers');
+    const provider = new JsonRpcProvider(this.rpcUrl);
+    const actual = await provider.getNetwork();
+    if (actual.chainId !== this.chainId) throw new Error(`unexpected chainId: ${actual.chainId}`);
+    const wallet = new Wallet(this.privateKey, provider);
+    const payload = hexlify(toUtf8Bytes(`MZ-AHP-V1:${manifest.merkleRoot}`));
+    const transaction = await wallet.sendTransaction({ to: wallet.address, value: 0, data: payload });
+    const receipt = await transaction.wait(this.confirmations);
+    return {
+      anchorBatchId: `MZ-AHP-ANCHOR-${manifest.merkleRoot.slice(0, 16)}`,
+      network: this.network,
+      chainId: actual.chainId.toString(),
+      merkleRoot: manifest.merkleRoot,
+      transactionId: transaction.hash,
+      blockReference: String(receipt.blockNumber),
+      confirmationState: receipt.status === 1 ? 'CONFIRMED' : 'FAILED',
+      simulated: false,
+    };
+  }
+}
+
 module.exports = {
-  InMemoryAppendOnlyLedger, MockAnchorAdapter, buildMerkleTree, canonicalize,
+  EvmCalldataAnchorAdapter, InMemoryAppendOnlyLedger, MockAnchorAdapter, buildMerkleTree, canonicalize,
   createMerkleProof, eventHash, findForbiddenKey, generateSigningKeyPair,
   sha256, signEvent, validateEvent, verifyEventSignature, verifyMerkleProof,
 };
