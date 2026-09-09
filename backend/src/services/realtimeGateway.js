@@ -4,7 +4,8 @@ const VirtualSession = require('../models/VirtualSession');
 const CommunityMembership = require('../models/CommunityMembership');
 
 const TOKEN_TTL_SECONDS = 300;
-const CHANNEL_RE = /^(user|community|session):([A-Za-z0-9._:-]{1,160})$/;
+const CHANNEL_RE = /^(user|community|session|world):([A-Za-z0-9._:-]{1,160})$/;
+const PUBLIC_WORLD_CHANNELS = new Set(['world:neon-plaza']);
 
 function tokenSecret() {
   const secret = process.env.REALTIME_TOKEN_SECRET || process.env.JWT_SECRET;
@@ -56,6 +57,12 @@ async function authorizeChannel({ channel, userId, role = 'user' }) {
     return String(id) === String(userId) || role === 'admin'
       ? { allowed: true, channel: normalized }
       : { allowed: false, reason: 'user_channel_forbidden' };
+  }
+
+  if (kind === 'world') {
+    return PUBLIC_WORLD_CHANNELS.has(normalized)
+      ? { allowed: true, channel: normalized }
+      : { allowed: false, reason: 'world_channel_forbidden' };
   }
 
   if (kind === 'community') {

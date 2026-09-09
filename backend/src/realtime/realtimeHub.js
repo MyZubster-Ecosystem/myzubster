@@ -10,6 +10,12 @@ function emitToUser(userId, event, payload) {
   return true;
 }
 
+function emitToChannel(channel, event, payload) {
+  if (!ioInstance || !channel || !event) return false;
+  ioInstance.to(String(channel)).emit(String(event), payload);
+  return true;
+}
+
 function emitModerationAction({ targetUserId, action, contextType = null, contextId = null, eventId = null, createdAt = null }) {
   return emitToUser(targetUserId, 'moderation.action', {
     eventId,
@@ -34,6 +40,7 @@ function emitInteractionControl({ ownerUserId, targetUserId, kind, active }) {
 
 module.exports = {
   registerRealtimeIO,
+  emitToChannel,
   emitToUser,
   emitModerationAction,
   emitInteractionControl

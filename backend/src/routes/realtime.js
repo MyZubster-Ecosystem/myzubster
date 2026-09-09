@@ -41,7 +41,12 @@ router.post("/token", authenticate, (req, res) => {
       expiresInSeconds: TOKEN_TTL_SECONDS,
       socketPath: "/realtime",
       transports: ["websocket", "polling"],
-      namespaces: ["user:{id}", "community:{id}", "session:{id}"],
+      namespaces: [
+        "user:{id}",
+        "community:{id}",
+        "session:{id}",
+        "world:neon-plaza",
+      ],
       correlationId,
     });
   } catch (error) {

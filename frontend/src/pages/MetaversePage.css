@@ -130,6 +130,20 @@
 .status-reconnecting { color: #ffd879; background: rgba(255, 177, 61, 0.12); }
 .status-offline { color: #ff8b9f; background: rgba(255, 83, 111, 0.12); }
 
+.metaverse-transport {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid rgba(112, 211, 255, 0.2);
+  border-radius: 99px;
+  padding: 4px 8px;
+  color: #9bb0c4;
+  background: rgba(13, 37, 58, 0.55);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+.transport-realtime { color: #65f8e4; border-color: rgba(101, 248, 228, 0.36); }
+.transport-connecting { color: #ffd879; }
+
 .metaverse-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(280px, 350px);
