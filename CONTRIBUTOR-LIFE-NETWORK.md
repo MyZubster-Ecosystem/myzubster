@@ -31,6 +31,9 @@ Current open entry points:
 - [#1044 — Quantum module: review dei file quantistici e proposta di miglioramento](https://github.com/MyZubster-Ecosystem/myzubster/issues/1044)
 - [#1045 — Blockchain AHP: definire schema hash per tracciamento e riciclo](https://github.com/MyZubster-Ecosystem/myzubster/issues/1045)
 - [#1046 — LIFE Evidence Layer: review del modello KPI/MRV comune ai pilot](https://github.com/MyZubster-Ecosystem/myzubster/issues/1046)
+- [#1048 — Circular Water: micro-schema IoT + KPI/MRV per un pilot acqua](https://github.com/MyZubster-Ecosystem/myzubster/issues/1048)
+- [#1049 — Canapa industriale: micro-schema di tracciabilità processo + KPI](https://github.com/MyZubster-Ecosystem/myzubster/issues/1049)
+- [#1050 — IoT Evidence Bridge: firmare e verificare eventi fisici](https://github.com/MyZubster-Ecosystem/myzubster/issues/1050)
 
 ## Verified public GitHub contributors — initial map
 
@@ -50,11 +53,11 @@ This first version intentionally keeps the contributor list small. New contribut
 | Quantum / advanced simulation | #1044 | research-oriented review, simulation, cryptography, advanced modelling | code/file review, reproducibility notes, one bounded improvement |
 | Blockchain traceability | #1045 | Circular Care / AHP: collection → treatment → recovered materials | event schema, hash/proof model, privacy rules, validation example |
 | KPI / MRV / Evidence Layer | #1046 | common layer across Circular Water, AHP, hemp and other pilots | common schema, validation rules, audit checklist, examples |
-| Circular Water | to be split into small `help wanted` issues | water treatment / monitoring / circularity pilots | sensors/data schema, MRV mapping, evidence validation, dashboards |
-| Industrial hemp | to be split into small `help wanted` issues | fibre, retting, circular material pilot concepts | traceability model, process data, KPI mapping, pilot documentation |
+| Circular Water | #1048 | water treatment / monitoring / circularity pilots | sensor/data schema, 2–3 KPI/MRV, data quality rules, evidence validation |
+| Industrial hemp | #1049 | fibre, retting, circular material pilot concepts | process traceability model, KPI mapping, validation boundaries |
+| IoT / physical-digital bridge | #1050 | water, care products, hemp, environmental monitoring | signed event model, anti-tampering/replay rules, provenance and confidence |
 | Marketplace / circular commerce | existing marketplace/seller issues + new bounded tasks | circular marketplace and economic sustainability | conversion tests, seller flow, auditability, unit-economics review |
 | Metaverse / realtime | existing realtime PRs/issues | collaboration, pilot visualization, shared environments | realtime tests, Redis/Vercel reliability, visualization of pilot state |
-| IoT / physical-digital bridge | new bounded issues | water, care products, hemp, environmental monitoring | sensor event model, signed data, device provenance, simulation/testing |
 
 ## LIFE-side roles
 
@@ -104,9 +107,9 @@ A maintainer or GitHub contributor can then translate those requirements into sc
 ## Next network tasks
 
 - [ ] Review historic human PRs and add contributors with verified public evidence.
-- [ ] Create one small `help wanted` task for Circular Water.
-- [ ] Create one small `help wanted` task for industrial hemp.
-- [ ] Create one small IoT physical-digital evidence task.
+- [x] Create one small `help wanted` task for Circular Water — #1048.
+- [x] Create one small `help wanted` task for industrial hemp — #1049.
+- [x] Create one small IoT physical-digital evidence task — #1050.
 - [ ] Ask LIFE-side collaborators to review #1046 for KPI/MRV requirements.
 - [ ] Add a Zorgax onboarding path that points contributors to #1047 and the current `help wanted` issues.
 - [ ] Review this map periodically and remove stale or unsupported associations.
