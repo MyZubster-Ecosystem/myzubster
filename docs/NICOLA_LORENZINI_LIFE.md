@@ -78,6 +78,34 @@ MVP v1 explicitly excludes automated payments, purchases, outbound commercial em
 
 The first validation period is seven days of real use. GO / CHANGE / STOP criteria are defined before the test results are collected.
 
+## Nicola Comics × MyZubster
+
+Status recorded on **2026-09-09**: `THREE_VISUALS_VERIFIED_PRESENT; RIGHTS_REVIEW_PENDING`.
+
+Nicola directly reported creating three new narrative visuals with AI assistance, using the N4K48 appearance he selected, to describe the path from a software idea to the MyZubster metaverse. The public files and gallery were independently confirmed to exist in his repository:
+
+1. [Dall’idea software al metaverso](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/blob/main/docs/n4k48-comics/01-dall-idea-al-metaverso.png)
+2. [Il software prende forma](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/blob/main/docs/n4k48-comics/02-il-software-prende-forma.png)
+3. [Verso Neon Plaza](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/blob/main/docs/n4k48-comics/03-verso-neon-plaza.png)
+
+[Gallery](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/tree/main/docs/n4k48-comics) · [Participant roadmap](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/blob/main/docs/n4k48-comics/ROADMAP.md)
+
+Repository presence verifies the public artifacts, not their authorship or the rights to every element. Authorship remains `PARTICIPANT_REPORTED`; source-generation provenance and element-rights review remain pending. The three earlier MyZubster ecosystem comics are references only and are not claimed by Nicola.
+
+Nicola proposed visual 01, **Dall’idea software al metaverso**, as the first NFT candidate. Its status is `CANDIDATE_ONLY`: no mint, token ownership, marketplace listing, sale or revenue is claimed. Human review of provenance, licenses and intended use is required before preparing any mint action.
+
+The scenes are narrative illustrations and may depict functions still to be developed. They are not verified software screenshots or evidence of deployed metaverse functionality.
+
+The minimized participant record is stored in:
+
+`docs/life/nicola-comics-participant-update-2026-09-09.json`
+
+The shared roadmap issue `MyZubster-Ecosystem/myzubster#1052` referenced in the email was not accessible when checked and must not be treated as a verified public roadmap until corrected or recreated.
+
+### Next Nicola Comics gate
+
+Preserve generation provenance, identify any source assets, verify licenses and authorization for visual elements and MyZubster marks, then obtain human approval for the candidate and intended license. Any later NFT mint must use a separate bounded plan and produce independently verifiable on-chain evidence.
+
 ## Preliminary interview evidence
 
 Earlier anonymized feedback produced positive signals around AI-supported work, deadlines, digital-product workflows and guided error detection, but the evidence was incomplete and partly ambiguous between the two candidate concepts.

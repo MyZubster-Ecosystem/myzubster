@@ -1,0 +1,70 @@
+{
+  "version": "nicola_comics_participant_update_v1",
+  "recordedAt": "2026-09-09",
+  "participantPublicId": "nicolaususnicola-lgtm",
+  "source": "participant_direct_email_confirmation",
+  "privacy": {
+    "publicContactStored": false,
+    "rawEmailBodyStored": false,
+    "privatePlannerDataStored": false,
+    "note": "Only public repository references and the minimum participant-confirmed project state are recorded."
+  },
+  "participantStatement": {
+    "createdWithAiAssistance": true,
+    "visualIdentity": "N4K48",
+    "theme": "from a software idea to the MyZubster metaverse",
+    "authorshipStatus": "PARTICIPANT_REPORTED_NOT_INDEPENDENTLY_VERIFIED"
+  },
+  "verifiedPublicArtifacts": {
+    "repository": "nicolaususnicola-lgtm/myzubster-mvp",
+    "gallery": "https://github.com/nicolaususnicola-lgtm/myzubster-mvp/tree/main/docs/n4k48-comics",
+    "roadmap": "https://github.com/nicolaususnicola-lgtm/myzubster-mvp/blob/main/docs/n4k48-comics/ROADMAP.md",
+    "artifacts": [
+      {
+        "id": "n4k48-comic-01",
+        "title": "Dall’idea software al metaverso",
+        "path": "docs/n4k48-comics/01-dall-idea-al-metaverso.png",
+        "gitBlobSha": "bf90e43ba1c1524a5c955e6e0446fe774f83a2e7",
+        "repositoryPresence": "VERIFIED"
+      },
+      {
+        "id": "n4k48-comic-02",
+        "title": "Il software prende forma",
+        "path": "docs/n4k48-comics/02-il-software-prende-forma.png",
+        "gitBlobSha": "d2ca98a461bf924a07219a9168491885f8f53724",
+        "repositoryPresence": "VERIFIED"
+      },
+      {
+        "id": "n4k48-comic-03",
+        "title": "Verso Neon Plaza",
+        "path": "docs/n4k48-comics/03-verso-neon-plaza.png",
+        "gitBlobSha": "33b399d9e2df282a725875a69a60416badc175f9",
+        "repositoryPresence": "VERIFIED"
+      }
+    ]
+  },
+  "rightsAndAttribution": {
+    "threeNewVisuals": "PARTICIPANT_REPORTED_AS_HIS_AI_ASSISTED_PROJECT_OUTPUT",
+    "independentProvenanceReview": "PENDING",
+    "elementRightsReview": "PENDING",
+    "ecosystemComicsReferencedInPriorEmail": "REFERENCE_ONLY_NOT_CLAIMED_BY_PARTICIPANT"
+  },
+  "nftCandidate": {
+    "artifactId": "n4k48-comic-01",
+    "selection": "PROPOSED_BY_PARTICIPANT",
+    "mintStatus": "NOT_PERFORMED",
+    "gate": "HUMAN_REVIEW_AND_PROVENANCE_RIGHTS_VERIFICATION_REQUIRED"
+  },
+  "evidenceBoundaries": [
+    "Repository presence verifies that the three files and gallery exist at the checked public paths; it does not independently prove authorship or rights.",
+    "The visual scenes are narrative illustrations, not verified software screenshots or evidence that depicted metaverse features are implemented.",
+    "No NFT mint, token ownership, marketplace listing, sale, revenue, partnership, funding, or commercial validation is claimed.",
+    "The shared roadmap reference MyZubster-Ecosystem/myzubster issue 1052 was not accessible at the time of this check."
+  ],
+  "nextOperationalGate": [
+    "Preserve source-generation provenance for each visual, including the tool and any source assets used.",
+    "Confirm licenses and authorization for every visual element and MyZubster mark used.",
+    "Complete human review of the selected candidate and intended license.",
+    "Only after approval, prepare a separate bounded mint plan; record on-chain evidence if a mint is actually executed."
+  ]
+}
