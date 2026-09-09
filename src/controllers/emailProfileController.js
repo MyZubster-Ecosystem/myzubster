@@ -205,32 +205,43 @@ exports.applyDraft = async (req, res) => {
 };
 
 exports.autoSyncStatus = async (req, res) => {
-  const user = await User.findById(req.userId).select('+gmailProfileSync.refreshTokenEncrypted zorgaxProfile');
-  if (!user) return res.status(404).json({ success: false, message: 'Utente non trovato' });
+  try {
+    const user = await User.findById(req.userId)
+      .select('+gmailProfileSync.refreshTokenEncrypted zorgaxProfile')
+      .maxTimeMS(8000)
+      .exec();
+    if (!user) return res.status(404).json({ success: false, message: 'Utente non trovato' });
 
-  const sync = user.gmailProfileSync || {};
-  const lastSyncedAt = sync.lastSyncedAt ? new Date(sync.lastSyncedAt).getTime() : 0;
-  const stale = !lastSyncedAt || (Date.now() - lastSyncedAt) >= 60 * 60 * 1000;
+    const sync = user.gmailProfileSync || {};
+    const lastSyncedAt = sync.lastSyncedAt ? new Date(sync.lastSyncedAt).getTime() : 0;
+    const stale = !lastSyncedAt || (Date.now() - lastSyncedAt) >= 60 * 60 * 1000;
 
-  if (sync.enabled && sync.refreshTokenEncrypted && stale) {
-    try {
-      await syncUser(user);
-    } catch (error) {
-      console.error('Lazy Gmail profile sync error:', error);
+    if (sync.enabled && sync.refreshTokenEncrypted && stale) {
+      try {
+        await syncUser(user);
+      } catch (error) {
+        console.error('Lazy Gmail profile sync error:', error);
+      }
     }
+
+    const safeSync = user.gmailProfileSync ? {
+      enabled: Boolean(user.gmailProfileSync.enabled),
+      consentedAt: user.gmailProfileSync.consentedAt,
+      lastSyncedAt: user.gmailProfileSync.lastSyncedAt,
+      lastStatus: user.gmailProfileSync.lastStatus,
+      lastError: user.gmailProfileSync.lastError,
+      historyWindowDays: user.gmailProfileSync.historyWindowDays,
+      sampleSize: user.gmailProfileSync.sampleSize
+    } : { enabled: false };
+
+    return res.json({ success: true, data: { sync: safeSync, profile: user.zorgaxProfile || null } });
+  } catch (error) {
+    console.error('Gmail auto-sync status storage error:', error);
+    return res.status(503).json({
+      success: false,
+      message: 'Database temporaneamente non disponibile'
+    });
   }
-
-  const safeSync = user.gmailProfileSync ? {
-    enabled: Boolean(user.gmailProfileSync.enabled),
-    consentedAt: user.gmailProfileSync.consentedAt,
-    lastSyncedAt: user.gmailProfileSync.lastSyncedAt,
-    lastStatus: user.gmailProfileSync.lastStatus,
-    lastError: user.gmailProfileSync.lastError,
-    historyWindowDays: user.gmailProfileSync.historyWindowDays,
-    sampleSize: user.gmailProfileSync.sampleSize
-  } : { enabled: false };
-
-  res.json({ success: true, data: { sync: safeSync, profile: user.zorgaxProfile || null } });
 };
 
 exports.disableAutoSync = async (req, res) => {
