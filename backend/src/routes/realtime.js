@@ -9,6 +9,7 @@ const {
   realtimeMetricsSnapshot,
 } = require("../services/realtimeObservability");
 const { presenceMode } = require("../services/realtimePresence");
+const { fanoutMode } = require("../realtime/redisAdapter");
 
 const router = express.Router();
 
@@ -20,6 +21,7 @@ router.get("/health", (_req, res) => {
     transport: "socket.io",
     socketPath: "/realtime",
     presence: presenceMode(),
+    fanout: fanoutMode(),
     privacy: "aggregate-only",
   });
 });

@@ -56,7 +56,10 @@ export function openMetaverseRealtime({ onEvent, onTransport } = {}) {
 
       const nextSocket = io(window.location.origin, {
         path: ticket.socketPath || '/realtime',
-        transports: Array.isArray(ticket.transports) ? ticket.transports : ['websocket', 'polling'],
+        // A failed WebSocket cleanly falls back to the existing REST sync.
+        // Avoid Socket.IO long-polling here because multi-instance polling
+        // requires sticky sessions in addition to the Redis adapter.
+        transports: ['websocket'],
         auth: { token: ticket.token },
         autoConnect: false,
         reconnection: false,
