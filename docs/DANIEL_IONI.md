@@ -4,6 +4,12 @@ Daniel Ioni (`DanielIoni-creator`) is the creator and lead builder of **MyZubste
 
 His technical background includes a self-described formative period around the **Darkode-era underground technology community**, where he says he developed his interest and skills in **reverse engineering** and encountered the person/handle he remembers as **“BlackHat CEO.”** This historical reference is presented as Daniel Ioni's personal account; it does not imply endorsement of unlawful activity, affiliation with Darkode, or a claim that MyZubster participated in that community.
 
+For Daniel's own longer-form account of that period and the historical sequence he describes from **IDC to the cashout era and Darkode**, see his DEV Community article:
+
+- **The Cashout Era: From IDC to Darkode** — https://dev.to/danielioni/-the-cashout-era-from-idc-to-darkode-245p
+
+This DEV article is a first-person historical narrative and should be read as Daniel's personal account, not as independent verification of affiliations, identities, transactions, or unlawful activity.
+
 Today, that reverse-engineering mindset is directed toward lawful, defensive and constructive engineering: understanding systems, studying interoperability boundaries, reproducing technical behavior, testing assumptions and contributing improvements to open-source projects.
 
 Alongside MyZubster development, Daniel submits upstream contributions to independent open-source ecosystems. Public GitHub evidence currently includes pull requests to **Vircadia World**, **Decentraland JS SDK Toolchain** and **Monero Docs**, as well as experimental contribution work maintained in a fork of **Immersive Web / WebXR Samples**.
