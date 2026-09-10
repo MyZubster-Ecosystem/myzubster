@@ -8,19 +8,20 @@ const {
 const {
   realtimeMetricsSnapshot,
 } = require("../services/realtimeObservability");
-const { presenceMode } = require("../services/realtimePresence");
+const presenceStore = require("../services/presenceStore");
 const { fanoutMode } = require("../realtime/redisAdapter");
 
 const router = express.Router();
 
-router.get("/health", (_req, res) => {
+router.get("/health", async (_req, res) => {
+  const presence = await presenceStore.list("system:realtime-health");
   res.set("Cache-Control", "no-store");
   return res.json({
     success: true,
     status: "ok",
     transport: "socket.io",
     socketPath: "/realtime",
-    presence: presenceMode(),
+    presence: presence.mode,
     fanout: fanoutMode(),
     privacy: "aggregate-only",
   });
