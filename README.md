@@ -224,9 +224,15 @@ Daniel Ioni (`DanielIoni-creator`) is the creator and lead builder of **MyZubste
 
 ### Esperienze personali che hanno ispirato la comunità MyZubster
 
-Daniel racconta nel proprio profilo personale di avere svolto **volontariato presso l'Ospedale Papa Giovanni XXIII di Bergamo** e di avere vissuto anche un'esperienza a **Lourdes**. Nel suo percorso queste esperienze hanno rafforzato il valore attribuito all'ascolto, alla presenza, alla solidarietà, alla dignità delle persone e alla capacità delle comunità di sostenersi reciprocamente.
+Daniel racconta di avere svolto volontariato in contesti comunitari che, nella sua testimonianza personale, erano collegati alla **Comunità Papa Giovanni**, oltre ad avere vissuto un'esperienza a **Lourdes**. Queste esperienze hanno rafforzato il valore attribuito all'ascolto, alla solidarietà, alla dignità delle persone e alla capacità delle comunità di mantenere e condividere conoscenze pratiche.
 
-Questa dimensione umana ha contribuito a orientare la visione sociale di MyZubster: non soltanto software e infrastruttura digitale, ma una rete pensata per mettere in relazione **persone, comunità, progetti, opportunità, volontariato, inclusione e impatto reale**. L'obiettivo dichiarato è usare la tecnologia come strumento di collegamento e servizio, mantenendo le persone come punto di partenza del sistema.
+Durante quel percorso Daniel afferma di avere imparato a coltivare il kefir attraverso uno scambio diretto dei grani e di averne sperimentato, di propria iniziativa, l'uso in cucine domestiche e comunitarie per preparazioni fermentate, formaggi freschi, ricotta e ricette dolci e salate. Racconta che l'obiettivo era esplorare l'autoproduzione quotidiana e ridurre acquisti ripetuti. Questa è una testimonianza autobiografica: non rappresenta un programma ufficiale, un'attività clinica, una produzione alimentare autorizzata o una prova indipendente di risparmio, sicurezza o beneficio terapeutico.
+
+Daniel dichiara di mantenere ancora oggi culture di kefir a casa propria e presso la casa della nonna. Da questa continuità deriva una parte della filosofia di MyZubster: capacità e conoscenza possono essere custodite, rigenerate e condivise, mentre sicurezza, consenso, misurazione e responsabilità restano affidati a persone e operatori qualificati.
+
+Questa dimensione umana ha contribuito a orientare MyZubster come rete fra **persone, comunità, progetti, opportunità, volontariato, inclusione e impatto reale**. Il racconto ha inoltre ispirato il [pilot circolare sul kefir](docs/life/ventures/KEFIR_CIRCULAR_PILOT.md), inizialmente limitato a una demo sintetica di tracciabilità per culture, lotti e contenitori riutilizzabili.
+
+Approfondimento: [testimonianza di Daniel su kefir e volontariato](docs/life/ventures/DANIEL_IONI_KEFIR_COMMUNITY_TESTIMONY.md).
 
 ```text
 ESPERIENZA PERSONALE
@@ -240,7 +246,7 @@ MYZUBSTER
 PERSONE ↔ PROGETTI ↔ OPPORTUNITÀ ↔ COMUNITÀ
 ```
 
-Questa sezione documenta il racconto personale del fondatore e la sua influenza dichiarata sulla filosofia del progetto; **non implica affiliazione, partnership, endorsement o rappresentanza** da parte dell'Ospedale Papa Giovanni XXIII, di Lourdes o di organizzazioni collegate.
+Questa sezione documenta il racconto personale del fondatore e la sua influenza dichiarata sulla filosofia del progetto; **non implica affiliazione, partnership, endorsement, autorizzazione o rappresentanza** da parte della Comunità Papa Giovanni, di Lourdes, delle comunità o di organizzazioni collegate. Non contiene informazioni su residenti o utenti dei servizi.
 
 Alongside MyZubster development, public contribution work includes upstream pull requests or contribution branches involving **Vircadia World**, **Decentraland JS SDK Toolchain**, **Monero Docs** and experimental **WebXR Samples** work.
 
