@@ -59,6 +59,22 @@ Status: `CANDIDATE_PILOT_TRACK`.
 
 No grower, processor, research body or industrial organisation is represented here as a confirmed MyZubster or LIFE partner.
 
+## Candidate track C — Kefir circular food micro-pilot
+
+This track evaluates a controlled kefir supply loop combining reusable containers, culture-lineage provenance, batch evidence and measurable food-loss prevention.
+
+Candidate circular-economy flow:
+
+`qualified input → registered culture → controlled batch → quality release → reusable container → return → sanitation → reuse`
+
+Potential measurements include container return/reuse cycles, avoided single-use packaging against baseline, wash water, energy per litre, rejected/surplus mass, traceability completeness and verified culture transfers.
+
+Status: `CANDIDATE_PILOT_TRACK`.
+
+No food operator, laboratory, retailer, collection point or public authority is represented as confirmed. No food may be distributed under this pilot concept until the applicable food-safety, HACCP, labeling, allergen, site and operator requirements are explicitly satisfied.
+
+Detailed pilot charter: [`docs/life/ventures/KEFIR_CIRCULAR_PILOT.md`](ventures/KEFIR_CIRCULAR_PILOT.md).
+
 ## Evidence and governance gates
 
 A candidate track can advance only when evidence supports the relevant gate:
