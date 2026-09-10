@@ -15,6 +15,7 @@ const marketplaceListingSchema = new mongoose.Schema({
   features: { type: [String], default: [] },
   contact: { type: mongoose.Schema.Types.Mixed, default: {} },
   pet: { type: mongoose.Schema.Types.Mixed, default: null },
+  kefir: { type: mongoose.Schema.Types.Mixed, default: null },
   stock: { type: Number, default: 1, min: 0 },
   status: { type: String, enum: ['active', 'paused', 'closed'], default: 'active', index: true }
 }, { timestamps: true });
