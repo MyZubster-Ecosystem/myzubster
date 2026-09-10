@@ -4,6 +4,46 @@
 >
 > This document records Daniel Ioni's own recollection of an earlier period of his online life. It is not independent verification of identities, affiliations, transactions, offences, ransom events, financial amounts or participation by third parties. Names and handles are preserved only as Daniel remembers them. No claim here should be read as an accusation against another person.
 
+## Quick timeline
+
+The sequence below is a **reading guide**, not a claim that every stage has been independently verified.
+
+```text
+IDC / EARLY ONLINE COMMUNITIES
+            ↓
+CASHOUT-ERA DISCUSSIONS + CHINA-RELATED FLOWS
+            ↓
+DARKODE-ERA UNDERGROUND TECHNOLOGY
+            ↓
+ONION / DARKNET ENVIRONMENTS + ALPHABAY CONTEXT
+            ↓
+PRIVATE-MESSAGE COMPROMISE / RANSOM STORIES / LARGE-SUM CLAIMS
+            ↓
+REVERSE-ENGINEERING LESSONS ABOUT TRUST + PROVENANCE
+            ↓
+OPEN-SOURCE CONTRIBUTIONS
+            ↓
+MYZUBSTER / EVIDENCE-FIRST DEVELOPMENT
+```
+
+## Claim / source / verification status
+
+| Topic | What is documented | Main source layer | Current status |
+|---|---|---|---|
+| IDC → cashout era → Darkode | Daniel's own historical sequence and recollection | DEV article + first-person testimony | `FIRST_PERSON_ACCOUNT` |
+| Cashout / China | Recollection of China-related goods, marketplaces, payment/cashout discussions and historical context | DEV narrative + MyZubster history/comic layer + Drive evidence register | `SUPPORTING_MATERIAL_AVAILABLE` — item-by-item verification required |
+| Abdilo / Redson | Names/handles Daniel remembers encountering or discussing | First-person testimony + supporting archive where applicable | `NOT_INDEPENDENTLY_ESTABLISHED` |
+| Darkode | Formative underground-technology context described by Daniel; separate public history material exists | First-person testimony + public historical references | `MIXED: PERSONAL_ACCOUNT + PUBLIC_CONTEXT` |
+| Onion / darknet environments | Historical environment Daniel says he encountered or followed | First-person testimony | `FIRST_PERSON_ACCOUNT` |
+| AlphaBay | Referenced as part of the broader darknet history Daniel recalls | First-person testimony | `NOT_YET_INDEPENDENTLY_VERIFIED_AS_PERSONAL_ROLE` |
+| Private-message compromise | Daniel recalls stories/events involving compromised private communications | First-person testimony / archive if corresponding evidence is present | `REQUIRES_ITEM_VERIFICATION` |
+| Ransom / extortion stories | Daniel recalls ransom/extortion-related events from that online period | First-person testimony / archive if corresponding evidence is present | `REQUIRES_ITEM_VERIFICATION` |
+| Claims involving millions / very large sums | Large-sum claims are part of the historical narrative | First-person testimony / archive if corresponding evidence is present | `REQUIRES_ITEM_VERIFICATION` |
+| Modern MyZubster onion infrastructure | Current technical component of MyZubster | Repository code/docs | `CURRENT_TECHNICAL_EVIDENCE` — separate from historical claims |
+| Transition to open source / MyZubster | Current public development and contribution path | GitHub repositories, PRs and documentation | `PUBLICLY_DOCUMENTED` |
+
+The table deliberately separates **a claim being recorded**, **supporting material being available**, and **independent verification**. A file, screenshot, message, spreadsheet entry or narrative can support a claim without automatically proving every interpretation attached to it.
+
 ## Scope of the recollection
 
 Daniel describes an online path that, in his own account, crossed communities and topics around **IDC, cashout culture, China-related payment/cashout discussions, Darkode-era underground technology, onion networks and later darknet-market history**.
