@@ -10,6 +10,10 @@ For Daniel's own longer-form account of that period and the historical sequence 
 
 This DEV article is a first-person historical narrative and should be read as Daniel's personal account, not as independent verification of affiliations, identities, transactions, or unlawful activity.
 
+A broader repository narrative now preserves additional parts of Daniel's recollection, including the names/handles **Abdilo** and **Redson**, China-related cashout context, onion/darknet environments, AlphaBay references, private-message compromise stories, ransom/extortion stories and claims involving very large sums. These points are explicitly labelled as **first-person recollection / historical context** unless independently evidenced; the repository does not attribute criminal conduct or financial activity to named third parties without supporting evidence.
+
+- **Online underground / cashout narrative** — [`docs/history/ONLINE-UNDERGROUND-CASHOUT-NARRATIVE.md`](history/ONLINE-UNDERGROUND-CASHOUT-NARRATIVE.md)
+
 Daniel also documents a separate personal/community thread describing how the experience of **sharing a kefir culture** became part of the thinking that later informed MyZubster's community and circular-economy direction:
 
 - **From a Shared Kefir Culture to MyZubster** — https://dev.to/danielioni/from-a-shared-kefir-culture-to-myzubster-17b1
