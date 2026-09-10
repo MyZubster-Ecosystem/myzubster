@@ -44,9 +44,9 @@ function verifyState(value, provider) {
 }
 function redirectSuccess(res, result, provider) {
   const ticket = jwt.sign({ purpose: 'social-login-result', token: result.token, userId: String(result.user._id), characterId: result.character.characterId, provider }, secret(), { expiresIn: '2m' });
-  const url = new URL('/social-login.html', `${frontend()}/`); url.searchParams.set('social_login', 'verified'); url.searchParams.set('provider', provider); url.searchParams.set('social_login_ticket', ticket); res.redirect(url.toString());
+  const url = new URL('/social-login', `${frontend()}/`); url.searchParams.set('social_login', 'verified'); url.searchParams.set('provider', provider); url.searchParams.set('social_login_ticket', ticket); res.redirect(url.toString());
 }
-function redirectError(res, message, provider = '') { const url = new URL('/social-login.html', `${frontend()}/`); url.searchParams.set('social_login', 'error'); if (provider) url.searchParams.set('provider', provider); url.searchParams.set('social_login_message', String(message).slice(0, 180)); res.redirect(url.toString()); }
+function redirectError(res, message, provider = '') { const url = new URL('/social-login', `${frontend()}/`); url.searchParams.set('social_login', 'error'); if (provider) url.searchParams.set('provider', provider); url.searchParams.set('social_login_message', String(message).slice(0, 180)); res.redirect(url.toString()); }
 function providerCallbackError(query = {}) {
   if (!query.error) return null;
   if (query.error === 'access_denied') return 'Accesso annullato o non autorizzato dal provider.';
