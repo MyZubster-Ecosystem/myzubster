@@ -20,6 +20,7 @@
     "nft:mint:comic-001": "hardhat run scripts/nft/mint-comic-001.js --network baseSepolia"
   },
   "dependencies": {
+    "@socket.io/redis-adapter": "^8.3.0",
     "@vercel/functions": "^3.9.5",
     "axios": "^1.19.0",
     "bcrypt": "^6.0.0",

@@ -1,6 +1,16 @@
-const { registerRealtimeIO, emitModerationAction, emitInteractionControl } = require('./realtimeHub');
+const { registerRealtimeIO, emitToChannel, emitModerationAction, emitInteractionControl } = require('./realtimeHub');
 
 describe('realtimeHub', () => {
+  test('emits a world event to a subscribed realtime channel', () => {
+    const emit = jest.fn();
+    const to = jest.fn(() => ({ emit }));
+    registerRealtimeIO({ to });
+
+    expect(emitToChannel('world:neon-plaza', 'metaverse.event', { type: 'join' })).toBe(true);
+    expect(to).toHaveBeenCalledWith('world:neon-plaza');
+    expect(emit).toHaveBeenCalledWith('metaverse.event', { type: 'join' });
+  });
+
   test('moderation action is emitted to the affected user channel', () => {
     const emit = jest.fn();
     const to = jest.fn(() => ({ emit }));

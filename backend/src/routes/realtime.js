@@ -8,8 +8,24 @@ const {
 const {
   realtimeMetricsSnapshot,
 } = require("../services/realtimeObservability");
+const presenceStore = require("../services/presenceStore");
+const { fanoutMode } = require("../realtime/redisAdapter");
 
 const router = express.Router();
+
+router.get("/health", async (_req, res) => {
+  const presence = await presenceStore.list("system:realtime-health");
+  res.set("Cache-Control", "no-store");
+  return res.json({
+    success: true,
+    status: "ok",
+    transport: "socket.io",
+    socketPath: "/realtime",
+    presence: presence.mode,
+    fanout: fanoutMode(),
+    privacy: "aggregate-only",
+  });
+});
 
 router.post("/token", authenticate, (req, res) => {
   try {
@@ -28,7 +44,12 @@ router.post("/token", authenticate, (req, res) => {
       expiresInSeconds: TOKEN_TTL_SECONDS,
       socketPath: "/realtime",
       transports: ["websocket", "polling"],
-      namespaces: ["user:{id}", "community:{id}", "session:{id}"],
+      namespaces: [
+        "user:{id}",
+        "community:{id}",
+        "session:{id}",
+        "world:neon-plaza",
+      ],
       correlationId,
     });
   } catch (error) {

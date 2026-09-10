@@ -5,6 +5,7 @@ const MetaverseCharacter = require('../models/MetaverseCharacter');
 const MetaversePresence = require('../models/MetaversePresence');
 const MetaverseChatMessage = require('../models/MetaverseChatMessage');
 const { optionalAuthenticate } = require('../../../src/middleware/auth');
+const { emitToChannel } = require('../realtime/realtimeHub');
 
 const router = express.Router();
 
@@ -17,6 +18,7 @@ const WORLD = {
   maxY: 88,
   capacity: 250
 };
+const REALTIME_WORLD_CHANNEL = `world:${WORLD.id}`;
 
 // Historical floor for characters created before the public counter existed.
 // This keeps the public total from incorrectly reporting zero during rollout.
@@ -247,6 +249,7 @@ function broadcast(payload, exceptSessionId = null) {
       streams.delete(sessionId);
     }
   }
+  emitToChannel(REALTIME_WORLD_CHANNEL, 'metaverse.event', payload);
 }
 
 function allowAction(sessionId, action, intervalMs) {
@@ -769,7 +772,13 @@ router.post('/emote', async (req, res) => {
     session.lastSeenAt = now.toISOString();
     await persistPresence(session);
 
-    broadcast({ type: 'emote', sessionId, emote, at: now.toISOString() });
+    broadcast({
+      type: 'emote',
+      sessionId,
+      emote,
+      expiresAt: session.emoteExpiresAt,
+      at: now.toISOString()
+    });
     return res.json({ success: true, emote });
   } catch (error) {
     console.error('Metaverse emote error:', error);

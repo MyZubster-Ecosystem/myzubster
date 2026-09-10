@@ -39,12 +39,24 @@ describe('realtimeGateway', () => {
   test('normalizes only supported namespaces', () => {
     expect(normalizeChannel('user:u1')).toBe('user:u1');
     expect(normalizeChannel('session:s1')).toBe('session:s1');
+    expect(normalizeChannel('world:neon-plaza')).toBe('world:neon-plaza');
     expect(normalizeChannel('admin:u1')).toBeNull();
   });
 
   test('user channels are owner-only unless admin', async () => {
     await expect(authorizeChannel({ channel: 'user:u1', userId: 'u1', role: 'user' })).resolves.toEqual({ allowed: true, channel: 'user:u1' });
     await expect(authorizeChannel({ channel: 'user:u1', userId: 'u2', role: 'user' })).resolves.toEqual({ allowed: false, reason: 'user_channel_forbidden' });
+  });
+
+  test('allows the public metaverse world and rejects unknown worlds', async () => {
+    await expect(authorizeChannel({ channel: 'world:neon-plaza', userId: 'u1' })).resolves.toEqual({
+      allowed: true,
+      channel: 'world:neon-plaza'
+    });
+    await expect(authorizeChannel({ channel: 'world:private-lab', userId: 'u1' })).resolves.toEqual({
+      allowed: false,
+      reason: 'world_channel_forbidden'
+    });
   });
 
   test('community channels fail closed without membership authority', async () => {

@@ -8,11 +8,13 @@ import {
   sendMetaverseEmote,
   syncMetaverse
 } from '../api/metaverse';
+import { openMetaverseRealtime } from '../api/realtime';
 import MetaverseExperiencePanel from '../components/MetaverseExperiencePanel';
 import './MetaversePage.css';
 
 const STORAGE_KEY = 'myz-metaverse-profile-v1';
 const SYNC_INTERVAL_MS = 1800;
+const REALTIME_RECONCILE_INTERVAL_MS = 30000;
 
 const ARCHETYPES = {
   guardian: { label: 'Guardian', glyph: '🛡️' },
@@ -70,6 +72,15 @@ function formatCharacterCount(totalCharacters) {
 
 function isAccountLinked(identityStatus) {
   return identityStatus === 'account-linked' || identityStatus === 'verified';
+}
+
+function mergeMessageRows(current, incoming) {
+  if (!Array.isArray(incoming) || incoming.length === 0) return current;
+  const merged = new Map(current.map((message) => [message.id, message]));
+  incoming.forEach((message) => merged.set(message.id, message));
+  return Array.from(merged.values())
+    .sort((left, right) => new Date(left.at) - new Date(right.at))
+    .slice(-40);
 }
 
 function VerifiedCharacterList({ characters }) {
@@ -182,6 +193,7 @@ function MetaversePage() {
   const [messages, setMessages] = useState([]);
   const [chatText, setChatText] = useState('');
   const [status, setStatus] = useState('offline');
+  const [transport, setTransport] = useState(authenticated ? 'connecting' : 'polling');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [lastLandmark, setLastLandmark] = useState('Neon Plaza');
@@ -245,26 +257,15 @@ function MetaversePage() {
       timer = window.setTimeout(runSync, delay);
     };
 
-    const mergeMessages = (incoming) => {
-      if (!Array.isArray(incoming) || incoming.length === 0) return;
-      setMessages((current) => {
-        const merged = new Map(current.map((message) => [message.id, message]));
-        incoming.forEach((message) => merged.set(message.id, message));
-        return Array.from(merged.values())
-          .sort((left, right) => new Date(left.at) - new Date(right.at))
-          .slice(-40);
-      });
-    };
-
     const runSync = async () => {
       try {
         const result = await syncMetaverse(sessionId, cursor);
         if (!active) return;
         cursor = result.cursor || cursor;
         setPlayers(Object.fromEntries(result.players.map((player) => [player.id, player])));
-        mergeMessages(result.messages);
+        setMessages((current) => mergeMessageRows(current, result.messages));
         setStatus('online');
-        schedule(SYNC_INTERVAL_MS);
+        schedule(transport === 'realtime' ? REALTIME_RECONCILE_INTERVAL_MS : SYNC_INTERVAL_MS);
       } catch (syncError) {
         if (!active) return;
         setStatus('reconnecting');
@@ -292,7 +293,71 @@ function MetaversePage() {
       active = false;
       if (timer) window.clearTimeout(timer);
     };
-  }, [profile, sessionId]);
+  }, [profile, sessionId, transport]);
+
+  useEffect(() => {
+    if (!authenticated || !sessionId) {
+      setTransport('polling');
+      return undefined;
+    }
+
+    let active = true;
+    const emoteTimers = new Set();
+    const closeRealtime = openMetaverseRealtime({
+      onTransport: (nextTransport) => {
+        if (!active) return;
+        setTransport(nextTransport);
+        if (nextTransport === 'realtime') setStatus('online');
+      },
+      onEvent: (event) => {
+        if (!active || !event || typeof event.type !== 'string') return;
+
+        if (event.type === 'chat' && event.message) {
+          setMessages((current) => mergeMessageRows(current, [event.message]));
+          return;
+        }
+
+        setPlayers((current) => {
+          if ((event.type === 'join' || event.type === 'move') && event.player?.id) {
+            return { ...current, [event.player.id]: event.player };
+          }
+          if (event.type === 'leave' && event.sessionId) {
+            const next = { ...current };
+            delete next[event.sessionId];
+            return next;
+          }
+          if (event.type === 'emote' && event.sessionId && current[event.sessionId]) {
+            return {
+              ...current,
+              [event.sessionId]: { ...current[event.sessionId], emote: event.emote }
+            };
+          }
+          return current;
+        });
+
+        if (event.type === 'emote' && event.sessionId) {
+          const expiresAt = new Date(event.expiresAt || Date.now() + 5000).getTime();
+          const timer = window.setTimeout(() => {
+            emoteTimers.delete(timer);
+            if (!active) return;
+            setPlayers((current) => current[event.sessionId]
+              ? {
+                  ...current,
+                  [event.sessionId]: { ...current[event.sessionId], emote: null }
+                }
+              : current);
+          }, Math.max(0, expiresAt - Date.now()));
+          emoteTimers.add(timer);
+        }
+      }
+    });
+
+    return () => {
+      active = false;
+      closeRealtime();
+      emoteTimers.forEach((timer) => window.clearTimeout(timer));
+    };
+  }, [authenticated, sessionId]);
 
   const moveBy = (dx, dy) => {
     if (!sessionId) return;
@@ -373,6 +438,7 @@ function MetaversePage() {
     setMessages([]);
     setProfile(null);
     setStatus('offline');
+    setTransport('polling');
   };
 
   if (!sessionId) {
@@ -397,6 +463,9 @@ function MetaversePage() {
         <div>
           <strong>🪐 MyZubster World</strong>
           <span className={`metaverse-status status-${status}`}>{status}</span>
+          <span className={`metaverse-transport transport-${transport}`}>
+            {transport === 'realtime' ? '⚡ realtime' : transport === 'connecting' ? '↻ connessione' : '↻ polling fallback'}
+          </span>
         </div>
         <div className="metaverse-topbar-meta">
           {formattedTotal && (

@@ -5,6 +5,7 @@ const {
 } = require("../services/realtimeGateway");
 const { persistMessage } = require("../services/chatMessaging");
 const { registerRealtimeIO } = require("./realtimeHub");
+const { initializeRealtimeAdapter } = require("./redisAdapter");
 const {
   joinPresence,
   touchPresence,
@@ -33,7 +34,7 @@ function publicMessage(message) {
   };
 }
 
-function attachRealtimeServer(httpServer) {
+function attachRealtimeServer(httpServer, { ready = null } = {}) {
   const io = new Server(httpServer, {
     path: "/realtime",
     transports: ["websocket", "polling"],
@@ -41,13 +42,16 @@ function attachRealtimeServer(httpServer) {
     pingInterval: 25000,
     pingTimeout: 20000,
   });
+  const adapterReady = initializeRealtimeAdapter(io);
   const operationGate = createBackpressureGate();
 
   registerRealtimeIO(io);
 
-  io.use((socket, next) => {
+  io.use(async (socket, next) => {
     incrementCounter("connectionAttempts");
     try {
+      if (typeof ready === "function") await ready();
+      await adapterReady;
       const token =
         socket.handshake.auth?.token ||
         socket.handshake.headers?.authorization?.replace(/^Bearer\s+/i, "");
@@ -383,6 +387,8 @@ function attachRealtimeServer(httpServer) {
       }
     });
   });
+
+  io.realtimeAdapterReady = adapterReady;
 
   return io;
 }

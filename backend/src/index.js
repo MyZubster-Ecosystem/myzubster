@@ -25,7 +25,7 @@ const zorgaxPartyRoutes = require('./routes/zorgax-party');
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3009;
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/myzubster';
+const MONGODB_URI = process.env.MONGODB_URI || process.env.MONGO_URI || 'mongodb://localhost:27017/myzubster';
 
 app.disable('x-powered-by');
 app.use(helmet());
