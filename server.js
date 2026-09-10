@@ -38,5 +38,7 @@ app.use('/api/auth',authRoutes); app.use('/api/users',userRoutes); app.use('/api
 app.get('/',(_req,res)=>res.status(200).json({ok:true,service:'MyZubster Gateway',status:'online',version:'1.1.0-life',port:process.env.PORT||5003,api:'/api',life:{municipalities:'/api/municipalities',gardens:'/api/gardens',zorgax:'/api/zorgax',zorgax_culture:'/api/zorgax/culture',zorgax_assistant:'/api/zorgax/assistant',zorgax_build:'/api/zorgax/build',zorgax_life:'/api/zorgax/life/status',zorgax_email:'/api/zorgax/email/preferences',dao_advisory:'/api/dao/life/status'}}));
 app.get('/grok',(req,res)=>res.sendFile(path.join(__dirname,'public','grok.html'))); app.get('/zorgax',(req,res)=>res.sendFile(path.join(__dirname,'public','zorgax.html'))); app.get('/zorgax-build',(req,res)=>res.sendFile(path.join(__dirname,'public','zorgax-build.html'))); app.get('/research-search',(req,res)=>res.sendFile(path.join(__dirname,'public','research-search.html'))); app.get(['/fumetto','/comic'],(req,res)=>res.sendFile(path.join(__dirname,'public','fumetto.html')));
 const ahpTraceRoutes=require('./src/routes/ahpTraceRoutes');
+const kefirPilotRoutes=require('./src/routes/kefirPilotRoutes');
 app.use('/api/ahp-trace',ahpTraceRoutes);
+app.use('/api/kefir-pilot',kefirPilotRoutes);
 module.exports=app;
