@@ -232,7 +232,12 @@ Daniel dichiara di mantenere ancora oggi culture di kefir a casa propria e press
 
 Questa dimensione umana ha contribuito a orientare MyZubster come rete fra **persone, comunità, progetti, opportunità, volontariato, inclusione e impatto reale**. Il racconto ha inoltre ispirato il [pilot circolare sul kefir](docs/life/ventures/KEFIR_CIRCULAR_PILOT.md), inizialmente limitato a una demo sintetica di tracciabilità per culture, lotti e contenitori riutilizzabili.
 
-Approfondimento: [testimonianza di Daniel su kefir e volontariato](docs/life/ventures/DANIEL_IONI_KEFIR_COMMUNITY_TESTIMONY.md).
+Approfondimenti:
+- [Testimonianza di Daniel su kefir e volontariato](docs/life/ventures/DANIEL_IONI_KEFIR_COMMUNITY_TESTIMONY.md)
+- [From a Shared Kefir Culture to MyZubster — DEV Community](https://dev.to/danielioni/from-a-shared-kefir-culture-to-myzubster-17b1)
+- [The Cashout Era: From IDC to Darkode — DEV Community](https://dev.to/danielioni/-the-cashout-era-from-idc-to-darkode-245p)
+
+I due articoli DEV sono racconti in prima persona e vanno letti come testimonianze autobiografiche, non come verifica indipendente di affiliazioni, identità, transazioni o attività.
 
 ```text
 ESPERIENZA PERSONALE
