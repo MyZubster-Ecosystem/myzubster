@@ -1,4 +1,11 @@
-function createMongoConnector({ mongoose, mongoUri, serverSelectionTimeoutMS = 10000, logger = console }) {
+function createMongoConnector({
+  mongoose,
+  mongoUri,
+  serverSelectionTimeoutMS = 5000,
+  connectTimeoutMS = 5000,
+  socketTimeoutMS = 15000,
+  logger = console
+}) {
   let mongoConnectionPromise = null;
 
   return function connectMongo() {
@@ -11,7 +18,15 @@ function createMongoConnector({ mongoose, mongoUri, serverSelectionTimeoutMS = 1
       return Promise.reject(error);
     }
 
-    mongoConnectionPromise = mongoose.connect(mongoUri, { serverSelectionTimeoutMS })
+    mongoConnectionPromise = mongoose.connect(mongoUri, {
+      serverSelectionTimeoutMS,
+      connectTimeoutMS,
+      socketTimeoutMS,
+      maxPoolSize: 5,
+      minPoolSize: 0,
+      maxIdleTimeMS: 30000,
+      heartbeatFrequencyMS: 10000
+    })
       .then(() => {
         logger.log('✅ Connected to MongoDB');
       })
