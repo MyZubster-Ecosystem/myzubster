@@ -89,7 +89,11 @@ router.patch('/:id/status', authenticate, async (req, res) => {
   try {
     const status = String(req.body?.status || '');
     if (!['active','paused','closed'].includes(status)) return res.status(400).json({ error:'Stato non valido' });
-    if (status === 'active' && !(await activeSeller(req.userId))) return res.status(402).json({ success:false, code:'SELLER_MEMBERSHIP_REQUIRED', message:'Account Seller non attivo.' });
+    if (status === 'active') {
+      const existing = await MarketplaceListing.findOne({ _id:req.params.id, ownerId:req.userId }).select('category').lean();
+      if (!existing) return res.status(404).json({ error:'Annuncio non trovato' });
+      if (existing.category !== 'kefir_culture_donation' && !(await activeSeller(req.userId))) return res.status(402).json({ success:false, code:'SELLER_MEMBERSHIP_REQUIRED', message:'Account Seller non attivo.' });
+    }
     const listing = await MarketplaceListing.findOneAndUpdate({ _id:req.params.id, ownerId:req.userId }, { $set:{ status } }, { new:true, runValidators:true });
     if (!listing) return res.status(404).json({ error:'Annuncio non trovato' });
     res.json({ success:true, listing:{ ...listing.toObject(), id:String(listing._id) } });
