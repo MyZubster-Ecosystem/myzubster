@@ -24,11 +24,25 @@ The MyZubster comic/history layer separately documents public historical context
 
 The associated comic material includes the historical-narrative visual labelled **"Cashout AliExpress Cina transazioni mining e Darkode"**. It is explicitly narrative material, not evidence that a particular transaction or cashout occurred.
 
+## Evidence archive and verification status
+
+Daniel has also made supporting material about the **cashout period and the relationships/contacts he describes** available in his project Google Drive. A dedicated evidence register, **`REGISTRO_PROBATORIO_DANIEL_IONI.xlsx`**, is used to catalogue those materials and their verification state.
+
+The existence of that archive is itself documented, but individual items must be described according to the status recorded in the register. Some entries are identified as material that still requires verification, so the archive should not be represented as blanket independent proof of every biographical claim.
+
+For this reason MyZubster keeps three layers separate:
+
+1. **first-person testimony** — Daniel's own recollection and DEV articles;
+2. **supporting/evidentiary material** — files and records supplied in the dedicated Drive archive;
+3. **independently verified facts** — only claims whose evidence has actually been checked and corroborated.
+
+This separation allows evidence relating to cashout, historical contacts and online communities to be preserved without overstating what each document proves.
+
 ## Onion networks, AlphaBay and private communications
 
 Daniel also recalls the broader darknet/onion environment and references **AlphaBay**, private-message compromises, ransom/extortion stories and claims involving very large sums of money as part of the online history he encountered or followed.
 
-At present, the repository does **not** contain sufficient independent evidence to establish Daniel's personal role in an AlphaBay operation, a specific onion service, a private-message intrusion, a ransom demand/payment, or any multi-million financial event. These points therefore remain **first-person recollection / historical topics**, not verified biographical facts.
+At present, the repository does **not** contain sufficient independent evidence to establish Daniel's personal role in an AlphaBay operation, a specific onion service, a private-message intrusion, a ransom demand/payment, or any multi-million financial event. These points therefore remain **first-person recollection / historical topics**, not verified biographical facts unless and until the corresponding evidence is reviewed and corroborated.
 
 The repository's current `onion/` infrastructure is a separate, modern MyZubster technical component and must not be treated as evidence of Daniel's historical involvement in earlier darknet networks.
 
