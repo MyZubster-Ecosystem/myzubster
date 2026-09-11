@@ -7,6 +7,16 @@ const socialIdentitySchema = new mongoose.Schema({
   verifiedAt: { type: Date }
 }, { _id: false });
 
+const githubRepoSnapshotSchema = new mongoose.Schema({
+  name: { type: String, trim: true, maxlength: 180 },
+  description: { type: String, trim: true, maxlength: 500 },
+  language: { type: String, trim: true, maxlength: 80 },
+  stars: { type: Number, default: 0 },
+  forks: { type: Number, default: 0 },
+  url: { type: String, trim: true, maxlength: 500 },
+  updatedAt: { type: Date }
+}, { _id: false });
+
 const UserSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true, trim: true, minlength: 3, maxlength: 30 },
   email: { type: String, required: true, unique: true, trim: true, lowercase: true },
@@ -16,7 +26,20 @@ const UserSchema = new mongoose.Schema({
   communityProfile: {
     pgpPublicKey: { type: String, trim: true, maxlength: 20000 }, tariWallet: { type: String, trim: true, maxlength: 300 }, myzWallet: { type: String, trim: true, maxlength: 300 }, displayLocation: { type: String, trim: true, maxlength: 160 }, bio: { type: String, trim: true, maxlength: 1000 }, seedExchangeEnabled: { type: Boolean, default: false }, petCommunityEnabled: { type: Boolean, default: false }, updatedAt: { type: Date }
   },
-  github: { id: { type: String, sparse: true }, login: { type: String, trim: true }, avatarUrl: { type: String, trim: true }, profileUrl: { type: String, trim: true }, verifiedAt: { type: Date } },
+  github: {
+    id: { type: String, sparse: true }, login: { type: String, trim: true }, avatarUrl: { type: String, trim: true }, profileUrl: { type: String, trim: true }, verifiedAt: { type: Date },
+    publicSnapshot: {
+      name: { type: String, trim: true, maxlength: 180 },
+      bio: { type: String, trim: true, maxlength: 1000 },
+      company: { type: String, trim: true, maxlength: 180 },
+      location: { type: String, trim: true, maxlength: 180 },
+      blog: { type: String, trim: true, maxlength: 500 },
+      publicRepos: { type: Number, default: 0 }, followers: { type: Number, default: 0 }, following: { type: Number, default: 0 },
+      repositories: [githubRepoSnapshotSchema],
+      profileReadme: { type: String, maxlength: 12000 },
+      capturedAt: { type: Date }
+    }
+  },
   socialIdentities: { google: socialIdentitySchema, github: socialIdentitySchema, facebook: socialIdentitySchema },
   zorgaxProfile: {
     archetype: { type: String, enum: ['guardian', 'builder', 'explorer', 'caretaker'], default: 'explorer' }, traits: [{ type: String, trim: true, maxlength: 80 }], summary: { type: String, trim: true, maxlength: 800 }, source: { type: String, enum: ['gmail-derived', 'gmail-auto-sync', 'manual'], default: 'manual' }, approvedAt: { type: Date }, updatedAt: { type: Date }
