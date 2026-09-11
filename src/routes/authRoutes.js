@@ -47,6 +47,29 @@ router.get('/github/public-snapshot', authenticate, async (req, res) => {
     const login = String(user?.github?.login || '').trim();
     if (!login) return res.status(404).json({ success: false, message: 'Nessun profilo GitHub verificato collegato' });
 
+    const minimal = () => ({
+      success: true,
+      data: {
+        profile: {
+          login,
+          name: '',
+          bio: '',
+          company: '',
+          location: '',
+          blog: '',
+          publicRepos: 0,
+          followers: 0,
+          following: 0,
+          url: user.github.profileUrl || `https://github.com/${login}`
+        },
+        repositories: [],
+        profileReadme: '',
+        capturedAt: user.github.verifiedAt || null,
+        source: 'github-verified-identity-minimal',
+        partial: true
+      }
+    });
+
     const cached = user.github?.publicSnapshot;
     if (cached?.capturedAt) {
       return res.json({
@@ -67,7 +90,8 @@ router.get('/github/public-snapshot', authenticate, async (req, res) => {
           repositories: Array.isArray(cached.repositories) ? cached.repositories : [],
           profileReadme: cached.profileReadme || '',
           capturedAt: cached.capturedAt,
-          source: 'github-oauth-cache'
+          source: 'github-oauth-cache',
+          partial: false
         }
       });
     }
@@ -78,7 +102,7 @@ router.get('/github/public-snapshot', authenticate, async (req, res) => {
       fetch(`https://api.github.com/users/${encodeURIComponent(login)}/repos?sort=updated&per_page=6&type=owner`, { headers }),
       fetch(`https://api.github.com/repos/${encodeURIComponent(login)}/${encodeURIComponent(login)}/readme`, { headers: { ...headers, Accept: 'application/vnd.github.raw+json' } })
     ]);
-    if (!profileRes.ok) return res.status(502).json({ success: false, message: 'Profilo GitHub pubblico non disponibile. Rieffettua il login GitHub per aggiornare lo snapshot.' });
+    if (!profileRes.ok) return res.json(minimal());
     const profile = await profileRes.json();
     const reposPayload = reposRes.ok ? await reposRes.json() : [];
     const repositories = Array.isArray(reposPayload) ? reposPayload.map(repo => ({
@@ -125,12 +149,30 @@ router.get('/github/public-snapshot', authenticate, async (req, res) => {
         repositories,
         profileReadme,
         capturedAt: user.github.publicSnapshot.capturedAt,
-        source: 'github-public-api'
+        source: 'github-public-api',
+        partial: false
       }
     });
   } catch (error) {
     console.error('GitHub public snapshot error:', error);
-    return res.status(500).json({ success: false, message: 'Impossibile leggere ora il profilo GitHub pubblico. Rieffettua il login GitHub e riprova.' });
+    try {
+      const user = await User.findById(req.userId).select('github');
+      const login = String(user?.github?.login || '').trim();
+      if (login) {
+        return res.json({
+          success: true,
+          data: {
+            profile: { login, name: '', bio: '', company: '', location: '', blog: '', publicRepos: 0, followers: 0, following: 0, url: user.github.profileUrl || `https://github.com/${login}` },
+            repositories: [],
+            profileReadme: '',
+            capturedAt: user.github.verifiedAt || null,
+            source: 'github-verified-identity-minimal',
+            partial: true
+          }
+        });
+      }
+    } catch (_) {}
+    return res.status(500).json({ success: false, message: 'Impossibile leggere ora il profilo GitHub pubblico' });
   }
 });
 router.get('/cultural-contributor/attestation', authenticate, culturalContributorController.getAttestation);
