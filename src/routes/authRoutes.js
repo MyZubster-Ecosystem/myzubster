@@ -46,16 +46,42 @@ router.get('/github/public-snapshot', authenticate, async (req, res) => {
     const user = await User.findById(req.userId).select('github');
     const login = String(user?.github?.login || '').trim();
     if (!login) return res.status(404).json({ success: false, message: 'Nessun profilo GitHub verificato collegato' });
+
+    const cached = user.github?.publicSnapshot;
+    if (cached?.capturedAt) {
+      return res.json({
+        success: true,
+        data: {
+          profile: {
+            login,
+            name: cached.name || '',
+            bio: cached.bio || '',
+            company: cached.company || '',
+            location: cached.location || '',
+            blog: cached.blog || '',
+            publicRepos: Number(cached.publicRepos || 0),
+            followers: Number(cached.followers || 0),
+            following: Number(cached.following || 0),
+            url: user.github.profileUrl || `https://github.com/${login}`
+          },
+          repositories: Array.isArray(cached.repositories) ? cached.repositories : [],
+          profileReadme: cached.profileReadme || '',
+          capturedAt: cached.capturedAt,
+          source: 'github-oauth-cache'
+        }
+      });
+    }
+
     const headers = { Accept: 'application/vnd.github+json', 'User-Agent': 'MyZubster-Zorgax' };
     const [profileRes, reposRes, readmeRes] = await Promise.all([
       fetch(`https://api.github.com/users/${encodeURIComponent(login)}`, { headers }),
       fetch(`https://api.github.com/users/${encodeURIComponent(login)}/repos?sort=updated&per_page=6&type=owner`, { headers }),
       fetch(`https://api.github.com/repos/${encodeURIComponent(login)}/${encodeURIComponent(login)}/readme`, { headers: { ...headers, Accept: 'application/vnd.github.raw+json' } })
     ]);
-    if (!profileRes.ok) return res.status(502).json({ success: false, message: 'Profilo GitHub pubblico non disponibile' });
+    if (!profileRes.ok) return res.status(502).json({ success: false, message: 'Profilo GitHub pubblico non disponibile. Rieffettua il login GitHub per aggiornare lo snapshot.' });
     const profile = await profileRes.json();
     const reposPayload = reposRes.ok ? await reposRes.json() : [];
-    const repos = Array.isArray(reposPayload) ? reposPayload.map(repo => ({
+    const repositories = Array.isArray(reposPayload) ? reposPayload.map(repo => ({
       name: repo.name,
       description: repo.description || '',
       language: repo.language || '',
@@ -64,7 +90,23 @@ router.get('/github/public-snapshot', authenticate, async (req, res) => {
       url: repo.html_url,
       updatedAt: repo.updated_at
     })) : [];
-    const readme = readmeRes.ok ? String(await readmeRes.text()).slice(0, 12000) : '';
+    const profileReadme = readmeRes.ok ? String(await readmeRes.text()).slice(0, 12000) : '';
+
+    user.github.publicSnapshot = {
+      name: profile.name || '',
+      bio: profile.bio || '',
+      company: profile.company || '',
+      location: profile.location || '',
+      blog: profile.blog || '',
+      publicRepos: Number(profile.public_repos || 0),
+      followers: Number(profile.followers || 0),
+      following: Number(profile.following || 0),
+      repositories,
+      profileReadme,
+      capturedAt: new Date()
+    };
+    await user.save();
+
     return res.json({
       success: true,
       data: {
@@ -80,14 +122,15 @@ router.get('/github/public-snapshot', authenticate, async (req, res) => {
           following: Number(profile.following || 0),
           url: profile.html_url
         },
-        repositories: repos,
-        profileReadme: readme,
+        repositories,
+        profileReadme,
+        capturedAt: user.github.publicSnapshot.capturedAt,
         source: 'github-public-api'
       }
     });
   } catch (error) {
     console.error('GitHub public snapshot error:', error);
-    return res.status(500).json({ success: false, message: 'Impossibile leggere ora il profilo GitHub pubblico' });
+    return res.status(500).json({ success: false, message: 'Impossibile leggere ora il profilo GitHub pubblico. Rieffettua il login GitHub e riprova.' });
   }
 });
 router.get('/cultural-contributor/attestation', authenticate, culturalContributorController.getAttestation);
