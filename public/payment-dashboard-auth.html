@@ -30,10 +30,23 @@ function injectCheckout(doc,token){
    var key='myz-dashboard-'+Date.now()+'-'+Math.random().toString(36).slice(2);
    fetch('/api/payment-dashboard/checkout/stripe',{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json','Idempotency-Key':key,'Accept':'application/json'},body:JSON.stringify({amountCents:amount,currency:'eur',description:description||'MyZubster test payment'})})
    .then(function(res){return res.json().catch(function(){return {};}).then(function(body){if(!res.ok)throw new Error(body.error||('HTTP '+res.status));return body;});})
-   .then(function(body){status.textContent='Checkout created. Opening Stripe…';if(body.checkoutUrl)window.open(body.checkoutUrl,'_blank','noopener');else throw new Error('Stripe returned no Checkout URL');})
+   .then(function(body){status.textContent='Checkout created. Opening Stripe…';if(body.checkoutUrl)window.location.assign(body.checkoutUrl);else throw new Error('Stripe returned no Checkout URL');})
    .catch(function(err){status.textContent='Checkout unavailable: '+err.message;})
    .finally(function(){button.disabled=false;});
  });
+ var params=new URLSearchParams(window.location.search),checkout=params.get('checkout'),sessionId=params.get('session_id');
+ if(checkout==='cancelled')status.textContent='Checkout cancelled. No payment was recorded.';
+ if(checkout==='success'&&sessionId){
+   status.textContent='Verifying completed Checkout with Stripe…';
+   fetch('/api/payment-dashboard/checkout/stripe/verify?session_id='+encodeURIComponent(sessionId),{headers:{'Authorization':'Bearer '+token,'Accept':'application/json'}})
+    .then(function(res){return res.json().catch(function(){return {};}).then(function(body){if(!res.ok)throw new Error(body.error||('HTTP '+res.status));return body;});})
+    .then(function(body){
+      var amount=(Number(body.amountTotal||0)/100).toFixed(2),currency=String(body.currency||'eur').toUpperCase();
+      status.textContent=body.paid?'Payment verified: '+amount+' '+currency+' · '+body.paymentStatus+' · session '+body.sessionId:'Checkout returned, but payment is not yet verified as paid ('+(body.paymentStatus||body.status||'unknown')+').';
+      var load=doc.getElementById('load');if(load)load.click();
+    })
+    .catch(function(err){status.textContent='Payment verification unavailable: '+err.message;});
+ }
 }
 frame.addEventListener('load',function(){
  var token=getToken();
