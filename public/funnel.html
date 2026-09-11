@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>MyZubster — Community Funnel</title>
+  <script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</script>
+  <script defer src="/_vercel/insights/script.js"></script>
+  <style>body{font-family:system-ui,sans-serif;background:#080b16;color:#fff;display:grid;place-items:center;min-height:100vh;margin:0}.card{max-width:620px;padding:32px;text-align:center}a{color:#70e7ff}</style>
+</head>
+<body>
+  <main class="card"><h1>MyZubster</h1><p>Ti stiamo portando nell'ecosistema…</p><p><a id="continue" href="/">Continua</a></p></main>
+  <script>
+    (function(){
+      const q=new URLSearchParams(location.search);
+      const source=q.get('source')||q.get('utm_source')||'direct';
+      const medium=q.get('utm_medium')||'community';
+      const campaign=q.get('utm_campaign')||'community-funnel';
+      const destinations={home:'/',zorgax:'/zorgax',marketplace:'/marketplace',myz:'/myz',payments:'/payment-dashboard',life:'/zorgax-life'};
+      const key=(q.get('to')||'home').toLowerCase();
+      const destination=destinations[key]||'/';
+      const target=new URL(destination,location.origin);
+      target.searchParams.set('utm_source',source);
+      target.searchParams.set('utm_medium',medium);
+      target.searchParams.set('utm_campaign',campaign);
+      target.searchParams.set('utm_content',key);
+      document.getElementById('continue').href=target.toString();
+      window.va('event',{name:'funnel_entry',data:{source,medium,campaign,destination:key}});
+      setTimeout(()=>location.replace(target.toString()),650);
+    })();
+  </script>
+</body>
+</html>
