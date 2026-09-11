@@ -30,6 +30,29 @@ function loadConversion(doc,token){
   })
   .catch(function(err){box.textContent='Conversion data unavailable: '+err.message;});
 }
+function loadRedemptions(doc,token){
+ var box=doc.getElementById('myzRedemptionList'),status=doc.getElementById('myzRedemptionStatus');if(!box)return;
+ status.textContent='Loading MYZ redemptions…';
+ jsonFetch('/api/payment-dashboard/myz-redemptions',{headers:{'Authorization':'Bearer '+token,'Accept':'application/json'}})
+  .then(function(body){
+    var items=Array.isArray(body.items)?body.items:[];
+    if(!items.length){box.innerHTML='';status.textContent='No MYZ redemptions yet.';return;}
+    box.innerHTML=items.map(function(r){
+      var action='';
+      if(r.fulfillmentState==='PENDING'&&r.offerId==='zorgax-pro-session')action='<button class="myzFulfill" data-id="'+r._id+'" style="margin-top:10px">Start Zorgax session</button>';
+      return '<div class="card"><div class="label">'+String(r.fulfillmentState||'PENDING')+'</div><div class="value" style="font-size:1.05rem">'+String(r.offerName||r.offerId)+'</div><div class="basis">-'+Number(r.amountMyz||0)+' MYZ · '+String(r.entryType||'ADJUSTMENT_DEBIT')+'</div><div class="src">'+(r.fulfilledAt?'Fulfilled: '+new Date(r.fulfilledAt).toLocaleString():'Awaiting service fulfillment')+'</div>'+action+'</div>';
+    }).join('');
+    status.textContent='Recorded redemptions: '+items.length;
+    Array.prototype.forEach.call(doc.querySelectorAll('.myzFulfill'),function(btn){btn.addEventListener('click',function(){
+      var id=btn.getAttribute('data-id');if(!window.confirm('Start this Zorgax Pro Session and mark the redemption as fulfilled?'))return;
+      btn.disabled=true;status.textContent='Starting Zorgax Pro Session…';
+      jsonFetch('/api/payment-dashboard/myz-redemptions/'+encodeURIComponent(id)+'/fulfill',{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({fulfillmentReference:'zorgax:/zorgax'})})
+       .then(function(){status.textContent='Zorgax Pro Session fulfilled. Opening Zorgax…';loadRedemptions(doc,token);setTimeout(function(){window.location.assign('/zorgax');},450);})
+       .catch(function(err){status.textContent='Fulfillment unavailable: '+err.message;btn.disabled=false;});
+    });});
+  })
+  .catch(function(err){status.textContent='Redemptions unavailable: '+err.message;});
+}
 function loadUtility(doc,token){
  var box=doc.getElementById('myzUtilityList'),status=doc.getElementById('myzUtilityStatus'); if(!box)return;
  Promise.all([
@@ -48,7 +71,7 @@ function loadUtility(doc,token){
      btn.disabled=true;status.textContent='Recording MYZ redemption…';
      var key='myz-spend-'+Date.now()+'-'+Math.random().toString(36).slice(2);
      jsonFetch('/api/payment-dashboard/myz-spend',{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json','Accept':'application/json','Idempotency-Key':key},body:JSON.stringify({offerId:offerId})})
-      .then(function(body){status.textContent='Recorded: '+body.redemption.offerName+' · -'+body.redemption.amountMyz+' MYZ · balance '+body.balanceMyz+' MYZ · fulfillment '+body.redemption.fulfillmentState;var load=doc.getElementById('load');if(load)load.click();loadUtility(doc,token);})
+      .then(function(body){status.textContent='Recorded: '+body.redemption.offerName+' · -'+body.redemption.amountMyz+' MYZ · balance '+body.balanceMyz+' MYZ · fulfillment '+body.redemption.fulfillmentState;var load=doc.getElementById('load');if(load)load.click();loadUtility(doc,token);loadRedemptions(doc,token);})
       .catch(function(err){status.textContent='Spend unavailable: '+err.message+(err.body&&err.body.balanceMyz!=null?' · balance '+err.body.balanceMyz+' MYZ':'');btn.disabled=false;});
    });});
  }).catch(function(err){status.textContent='Utility catalog unavailable: '+err.message;});
@@ -64,6 +87,8 @@ function injectCheckout(doc,token){
  main.insertBefore(conversion,section.nextSibling);
  var utility=doc.createElement('section');utility.id='myzUtilitySection';utility.innerHTML='<h2>Spend MYZ</h2><p class="hint">Pilot utility catalog. Spending MYZ records an auditable ADJUSTMENT_DEBIT; service fulfillment starts as PENDING.</p><div class="cards" id="myzUtilityList"></div><div class="meta" id="myzUtilityStatus">Loading utility catalog…</div>';
  main.insertBefore(utility,conversion.nextSibling);
+ var redemptions=doc.createElement('section');redemptions.id='myzRedemptionSection';redemptions.innerHTML='<h2>MYZ Redemptions</h2><p class="hint">Track purchased utilities from PENDING to FULFILLED.</p><div class="cards" id="myzRedemptionList"></div><div class="meta" id="myzRedemptionStatus">Loading redemptions…</div>';
+ main.insertBefore(redemptions,utility.nextSibling);
  var button=doc.getElementById('stripeCreate'),status=doc.getElementById('stripeStatus');
  button.addEventListener('click',function(){
    var euros=Number(doc.getElementById('stripeAmount').value),amount=Math.round(euros*100),description=doc.getElementById('stripeDescription').value.trim();
@@ -76,7 +101,7 @@ function injectCheckout(doc,token){
    .catch(function(err){status.textContent='Checkout unavailable: '+err.message;})
    .finally(function(){button.disabled=false;});
  });
- loadConversion(doc,token);loadUtility(doc,token);
+ loadConversion(doc,token);loadUtility(doc,token);loadRedemptions(doc,token);
  var params=new URLSearchParams(window.location.search),checkout=params.get('checkout'),sessionId=params.get('session_id');
  if(checkout==='cancelled')status.textContent='Checkout cancelled. No payment was recorded.';
  if(checkout==='success'&&sessionId){
@@ -85,7 +110,7 @@ function injectCheckout(doc,token){
     .then(function(body){
       var amount=(Number(body.amountTotal||0)/100).toFixed(2),currency=String(body.currency||'eur').toUpperCase();
       status.textContent=body.paid?'Payment verified: '+amount+' '+currency+' · '+body.paymentStatus+' · session '+body.sessionId:'Checkout returned, but payment is not yet verified as paid ('+(body.paymentStatus||body.status||'unknown')+').';
-      loadConversion(doc,token);loadUtility(doc,token);var load=doc.getElementById('load');if(load)load.click();
+      loadConversion(doc,token);loadUtility(doc,token);loadRedemptions(doc,token);var load=doc.getElementById('load');if(load)load.click();
     })
     .catch(function(err){status.textContent='Payment verification unavailable: '+err.message;});
  }
