@@ -11,6 +11,8 @@ const MyzUtilityRedemptionSchema = new mongoose.Schema({
   entryType: { type: String, enum: ['ADJUSTMENT_DEBIT'], default: 'ADJUSTMENT_DEBIT' },
   state: { type: String, enum: ['RECORDED'], default: 'RECORDED', index: true },
   fulfillmentState: { type: String, enum: ['PENDING','FULFILLED','CANCELLED'], default: 'PENDING', index: true },
+  fulfillmentReference: { type: String, trim: true, maxlength: 320 },
+  fulfilledAt: { type: Date, index: true },
   sourceReference: { type: String, required: true, trim: true, maxlength: 320 },
   recordedAt: { type: Date, required: true, default: Date.now, index: true }
 }, { timestamps: true, versionKey: false });
