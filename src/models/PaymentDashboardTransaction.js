@@ -23,6 +23,14 @@ const PaymentDashboardTransactionSchema = new mongoose.Schema({
     amountMyz: { type: Number, min: 0 },
     state: { type: String, enum: ['ACCOUNTING_RECORDED'], index: true },
     recordedAt: { type: Date }
+  },
+  myzCredit: {
+    accountId: { type: String, trim: true, maxlength: 180, index: true },
+    amountMyz: { type: Number, min: 0 },
+    entryType: { type: String, enum: ['ADJUSTMENT_CREDIT'] },
+    state: { type: String, enum: ['RECORDED'], index: true },
+    sourceReference: { type: String, trim: true, maxlength: 320, index: true },
+    recordedAt: { type: Date }
   }
 }, { timestamps: true, versionKey: false });
 
