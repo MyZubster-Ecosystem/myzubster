@@ -15,12 +15,30 @@
 'use strict';
 var frame=document.getElementById('dashboard'),note=document.getElementById('authNote');
 function getToken(){return localStorage.getItem('myzubster-token')||localStorage.getItem('token')||localStorage.getItem('accessToken')||sessionStorage.getItem('token')||'';}
+function loadConversion(doc,token){
+ var box=doc.getElementById('myzConversionStatus'); if(!box)return;
+ box.textContent='Loading EUR → MYZ accounting conversion…';
+ fetch('/api/payment-dashboard/conversion',{headers:{'Authorization':'Bearer '+token,'Accept':'application/json'}})
+  .then(function(res){return res.json().catch(function(){return {};}).then(function(body){if(!res.ok)throw new Error(body.error||('HTTP '+res.status));return body;});})
+  .then(function(body){
+    var items=Array.isArray(body.items)?body.items:[];
+    if(!items.length){box.textContent='No EUR → MYZ accounting conversions recorded yet.';return;}
+    var totalEur=items.reduce(function(sum,item){return sum+(Number(item.amountCents||0)/100);},0);
+    var totalMyz=items.reduce(function(sum,item){return sum+Number(item.conversion&&item.conversion.amountMyz||0);},0);
+    var latest=items[0],rate=latest&&latest.conversion?Number(latest.conversion.rateMyzPerEur||0):0,state=latest&&latest.conversion?latest.conversion.state:'unknown';
+    box.innerHTML='<strong>'+totalEur.toFixed(2)+' EUR → '+totalMyz.toFixed(2)+' MYZ</strong><br>Rate: 1 EUR = '+rate+' MYZ · Status: '+state+'<br><span class="hint">Accounting conversion only; this does not automatically change the canonical spendable MYZ ledger balance.</span>';
+  })
+  .catch(function(err){box.textContent='Conversion data unavailable: '+err.message;});
+}
 function injectCheckout(doc,token){
  if(doc.getElementById('stripeCheckoutSection'))return;
  var main=doc.querySelector('main'); if(!main)return;
  var section=doc.createElement('section'); section.id='stripeCheckoutSection';
  section.innerHTML='<h2>Stripe Test Checkout</h2><p class="hint">Controlled admin-only Stripe Checkout. Creating a session does not charge money; payment occurs only if Checkout is completed.</p><div class="bar"><label>Amount (EUR)<input id="stripeAmount" type="number" min="1" max="1000" step="0.01" value="1.00"></label><label>Description<input id="stripeDescription" type="text" maxlength="120" value="MyZubster test payment"></label><button id="stripeCreate">Create Checkout</button></div><div class="meta" id="stripeStatus"></div>';
  main.insertBefore(section,main.children[1]||null);
+ var conversion=doc.createElement('section'); conversion.id='myzConversionSection';
+ conversion.innerHTML='<h2>EUR → MYZ Accounting Conversion</h2><p class="hint">Verified Stripe EUR payments can be represented as internal MYZ accounting value. This is not a fiat redemption promise and does not automatically credit the canonical spendable ledger.</p><div class="meta" id="myzConversionStatus">Loading conversion data…</div>';
+ main.insertBefore(conversion,section.nextSibling);
  var button=doc.getElementById('stripeCreate'),status=doc.getElementById('stripeStatus');
  button.addEventListener('click',function(){
    var euros=Number(doc.getElementById('stripeAmount').value),amount=Math.round(euros*100),description=doc.getElementById('stripeDescription').value.trim();
@@ -34,6 +52,7 @@ function injectCheckout(doc,token){
    .catch(function(err){status.textContent='Checkout unavailable: '+err.message;})
    .finally(function(){button.disabled=false;});
  });
+ loadConversion(doc,token);
  var params=new URLSearchParams(window.location.search),checkout=params.get('checkout'),sessionId=params.get('session_id');
  if(checkout==='cancelled')status.textContent='Checkout cancelled. No payment was recorded.';
  if(checkout==='success'&&sessionId){
@@ -43,6 +62,7 @@ function injectCheckout(doc,token){
     .then(function(body){
       var amount=(Number(body.amountTotal||0)/100).toFixed(2),currency=String(body.currency||'eur').toUpperCase();
       status.textContent=body.paid?'Payment verified: '+amount+' '+currency+' · '+body.paymentStatus+' · session '+body.sessionId:'Checkout returned, but payment is not yet verified as paid ('+(body.paymentStatus||body.status||'unknown')+').';
+      loadConversion(doc,token);
       var load=doc.getElementById('load');if(load)load.click();
     })
     .catch(function(err){status.textContent='Payment verification unavailable: '+err.message;});
