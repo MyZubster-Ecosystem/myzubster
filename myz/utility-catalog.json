@@ -1,0 +1,37 @@
+{
+  "schema": "myzubster-myz-utility-catalog/v1",
+  "asset": "MYZ",
+  "asset_type": "internal-reward-accounting-unit",
+  "redeemable_for_fiat": false,
+  "offers": [
+    {
+      "id": "zorgax-pro-session",
+      "name": "Zorgax Pro Session",
+      "price_myz": 10,
+      "description": "Accesso a una sessione avanzata di Zorgax con supporto guidato su MyZubster, pilot, marketplace e community.",
+      "delivery": "digital",
+      "status": "PILOT"
+    },
+    {
+      "id": "marketplace-boost",
+      "name": "Marketplace Boost",
+      "price_myz": 20,
+      "description": "Promozione temporanea di un annuncio o progetto nel Marketplace MyZubster per aumentarne la visibilita interna.",
+      "delivery": "digital",
+      "status": "PILOT"
+    },
+    {
+      "id": "pilot-project-pass",
+      "name": "Pilot Project Pass",
+      "price_myz": 50,
+      "description": "Accesso al percorso guidato per strutturare una proposta pilota MyZubster/LIFE con scheda, evidenze e preparazione alla presentazione.",
+      "delivery": "digital-service",
+      "status": "PILOT"
+    }
+  ],
+  "notes": [
+    "MYZ is an internal utility/accounting credit, not an investment product.",
+    "These offers define initial utility; fulfillment automation can be added separately.",
+    "Prices may be revised before general availability."
+  ]
+}
