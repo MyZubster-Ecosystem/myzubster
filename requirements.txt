@@ -1,0 +1,3 @@
+﻿# Runtime: zero third-party dependencies (pure stdlib).
+# pytest is only required to run the test suite.
+pytest>=8.0
