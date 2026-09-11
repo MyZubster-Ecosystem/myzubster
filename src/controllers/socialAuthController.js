@@ -50,14 +50,21 @@ exports.start=(req,res)=>{
 };
 
 async function captureGithubSnapshot(user,headers){
-  const reposRes=await fetch('https://api.github.com/user/repos?sort=updated&per_page=6&affiliation=owner',{headers});
-  const reposRaw=reposRes.ok?await reposRes.json():[];
-  let profileReadme='';
-  try{const readmeRes=await fetch(`https://api.github.com/repos/${encodeURIComponent(user.login)}/${encodeURIComponent(user.login)}/readme`,{headers:{...headers,Accept:'application/vnd.github.raw+json'}});if(readmeRes.ok)profileReadme=String(await readmeRes.text()).slice(0,12000);}catch(_){ }
-  return {
-    name:user.name||'',bio:user.bio||'',company:user.company||'',location:user.location||'',blog:user.blog||'',publicRepos:Number(user.public_repos||0),followers:Number(user.followers||0),following:Number(user.following||0),
-    repositories:Array.isArray(reposRaw)?reposRaw.map(repo=>({name:repo.name,description:repo.description||'',language:repo.language||'',stars:Number(repo.stargazers_count||0),forks:Number(repo.forks_count||0),url:repo.html_url,updatedAt:repo.updated_at})):[],profileReadme
+  const snapshot={
+    name:user.name||'',bio:user.bio||'',company:user.company||'',location:user.location||'',blog:user.blog||'',publicRepos:Number(user.public_repos||0),followers:Number(user.followers||0),following:Number(user.following||0),repositories:[],profileReadme:''
   };
+  try{
+    const reposRes=await fetch('https://api.github.com/user/repos?sort=updated&per_page=6&affiliation=owner',{headers});
+    if(reposRes.ok){
+      const reposRaw=await reposRes.json();
+      if(Array.isArray(reposRaw))snapshot.repositories=reposRaw.map(repo=>({name:repo.name,description:repo.description||'',language:repo.language||'',stars:Number(repo.stargazers_count||0),forks:Number(repo.forks_count||0),url:repo.html_url,updatedAt:repo.updated_at}));
+    }else console.warn('[github-oauth] repos snapshot unavailable:',reposRes.status);
+  }catch(error){console.warn('[github-oauth] repos snapshot failed:',safeMetaText(error?.message));}
+  try{
+    const readmeRes=await fetch(`https://api.github.com/repos/${encodeURIComponent(user.login)}/${encodeURIComponent(user.login)}/readme`,{headers:{...headers,Accept:'application/vnd.github.raw+json'}});
+    if(readmeRes.ok)snapshot.profileReadme=String(await readmeRes.text()).slice(0,12000);
+  }catch(error){console.warn('[github-oauth] README snapshot failed:',safeMetaText(error?.message));}
+  return snapshot;
 }
 
 exports.callback=async(req,res)=>{
@@ -76,7 +83,7 @@ exports.callback=async(req,res)=>{
       const userRes=await fetch('https://api.github.com/user',{headers});const user=await userRes.json();if(!userRes.ok||!user.id)throw new Error('Profilo GitHub non disponibile');
       let email=user.email;if(!email){const e=await fetch('https://api.github.com/user/emails',{headers});if(e.ok){const list=await e.json();email=list.find(x=>x.primary&&x.verified)?.email||list.find(x=>x.verified)?.email;}}
       if(!email)throw new Error('Serve una email GitHub verificata per creare un nuovo account');
-      let publicSnapshot;try{publicSnapshot=await captureGithubSnapshot(user,headers);}catch(error){console.warn('[github-oauth] snapshot capture failed:',safeMetaText(error?.message));}
+      const publicSnapshot=await captureGithubSnapshot(user,headers);
       profile={id:String(user.id),email,name:user.name,login:user.login,avatarUrl:user.avatar_url,profileUrl:user.html_url,publicSnapshot};
     }else{
       const tokenUrl=new URL('https://graph.facebook.com/oauth/access_token');tokenUrl.searchParams.set('client_id',process.env.FACEBOOK_LOGIN_APP_ID);tokenUrl.searchParams.set('client_secret',process.env.FACEBOOK_LOGIN_APP_SECRET);tokenUrl.searchParams.set('redirect_uri',callback('facebook'));tokenUrl.searchParams.set('code',req.query.code);
