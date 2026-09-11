@@ -19,6 +19,19 @@ function validate(input = {}) {
   return { amountCents: amount, currency, description };
 }
 
+function parseStripeResponse(res, resolve, reject) {
+  let data = '';
+  res.setEncoding('utf8');
+  res.on('data', c => { data += c; });
+  res.on('end', () => {
+    let parsed;
+    try { parsed = data ? JSON.parse(data) : {}; }
+    catch (_) { return reject(new Error('Invalid Stripe response')); }
+    if (res.statusCode < 200 || res.statusCode >= 300) return reject(new Error(parsed?.error?.message || `Stripe HTTP ${res.statusCode}`));
+    resolve(parsed);
+  });
+}
+
 function stripePost(path, params, idempotencyKey) {
   return new Promise((resolve, reject) => {
     const body = new URLSearchParams(params).toString();
@@ -27,15 +40,18 @@ function stripePost(path, params, idempotencyKey) {
       'Content-Type':'application/x-www-form-urlencoded',
       'Content-Length':Buffer.byteLength(body),
       'Idempotency-Key':idempotencyKey
-    }}, res => {
-      let data=''; res.setEncoding('utf8'); res.on('data', c => { data += c; });
-      res.on('end', () => {
-        let parsed; try { parsed = data ? JSON.parse(data) : {}; } catch (_) { return reject(new Error('Invalid Stripe response')); }
-        if (res.statusCode < 200 || res.statusCode >= 300) return reject(new Error(parsed?.error?.message || `Stripe HTTP ${res.statusCode}`));
-        resolve(parsed);
-      });
-    });
+    }}, res => parseStripeResponse(res, resolve, reject));
     req.on('error', reject); req.write(body); req.end();
+  });
+}
+
+function stripeGet(path) {
+  return new Promise((resolve, reject) => {
+    const req = https.request({ hostname:'api.stripe.com', port:443, path, method:'GET', headers:{
+      Authorization:`Bearer ${process.env.STRIPE_SECRET_KEY}`,
+      Accept:'application/json'
+    }}, res => parseStripeResponse(res, resolve, reject));
+    req.on('error', reject); req.end();
   });
 }
 
@@ -57,8 +73,31 @@ async function createControlledCheckout({ input, actor, idempotencyKey }) {
     'metadata[source]':'payment-dashboard', 'metadata[actor]':actorId, 'metadata[request_hash]':requestHash
   };
   const session = await stripePost('/v1/checkout/sessions', params, key);
-  // Audit evidence is stored in Stripe metadata; no card data or secret is logged locally.
   return { sessionId:session.id, checkoutUrl:session.url, amountCents:safe.amountCents, currency:safe.currency, requestHash, actor:actorId };
 }
 
-module.exports = { configured, validate, createControlledCheckout, MIN_AMOUNT_CENTS, MAX_AMOUNT_CENTS };
+async function verifyControlledCheckout(sessionId) {
+  if (!configured()) throw new Error('STRIPE_SECRET_KEY is not configured');
+  const id = String(sessionId || '').trim();
+  if (!/^cs_(test|live)_[A-Za-z0-9]+$/.test(id)) throw new Error('Invalid Checkout Session ID');
+  const session = await stripeGet(`/v1/checkout/sessions/${encodeURIComponent(id)}?expand[]=payment_intent`);
+  if (session?.metadata?.source !== 'payment-dashboard') throw new Error('Checkout Session does not belong to Payment Dashboard');
+  const paymentIntent = session?.payment_intent && typeof session.payment_intent === 'object' ? session.payment_intent : null;
+  return {
+    sessionId: session.id,
+    status: session.status || null,
+    paymentStatus: session.payment_status || null,
+    paid: session.payment_status === 'paid',
+    amountTotal: Number(session.amount_total || 0),
+    currency: String(session.currency || '').toLowerCase() || null,
+    customerEmail: session.customer_details?.email || session.customer_email || null,
+    paymentIntentId: paymentIntent?.id || (typeof session.payment_intent === 'string' ? session.payment_intent : null),
+    paymentIntentStatus: paymentIntent?.status || null,
+    actor: session.metadata?.actor || null,
+    requestHash: session.metadata?.request_hash || null,
+    livemode: session.livemode === true,
+    createdAt: session.created ? new Date(session.created * 1000).toISOString() : null
+  };
+}
+
+module.exports = { configured, validate, createControlledCheckout, verifyControlledCheckout, MIN_AMOUNT_CENTS, MAX_AMOUNT_CENTS };
