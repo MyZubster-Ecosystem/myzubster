@@ -5,41 +5,42 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Payment Dashboard — MyZubster</title>
 <meta name="robots" content="noindex,nofollow">
-<style>html,body{margin:0;width:100%;height:100%;background:#f6f7f9}iframe{display:block;width:100%;height:100%;border:0}.auth-note{position:fixed;z-index:10;left:12px;right:12px;bottom:12px;padding:10px 12px;border-radius:9px;background:#fff4df;border:1px solid #e6c980;font:14px/1.4 system-ui,sans-serif;color:#624300;box-shadow:0 2px 12px #0002}.auth-note a{color:#185fa5}.auth-note[hidden]{display:none}</style>
+<style>html,body{margin:0;width:100%;height:100%;background:#f6f7f9}iframe{display:block;width:100%;height:100%;border:0}.auth-note{position:fixed;z-index:20;left:12px;right:12px;bottom:12px;padding:10px 12px;border-radius:9px;background:#fff4df;border:1px solid #e6c980;font:14px/1.4 system-ui,sans-serif;color:#624300;box-shadow:0 2px 12px #0002}.auth-note a{color:#185fa5}.auth-note[hidden]{display:none}</style>
 </head>
 <body>
 <div id="authNote" class="auth-note" hidden></div>
 <iframe id="dashboard" src="/payment-dashboard-raw" title="MyZubster Payment Dashboard"></iframe>
 <script>
 (function(){
-  'use strict';
-  var frame=document.getElementById('dashboard');
-  var note=document.getElementById('authNote');
-  function getToken(){
-    return localStorage.getItem('myzubster-token')||localStorage.getItem('token')||localStorage.getItem('accessToken')||sessionStorage.getItem('token')||'';
-  }
-  frame.addEventListener('load',function(){
-    var token=getToken();
-    if(!token){
-      note.innerHTML='No active MyZubster session found. <a href="/social-login">Sign in to MyZubster</a>, then return to the Payment Dashboard.';
-      note.hidden=false;
-      return;
-    }
-    try{
-      var doc=frame.contentDocument||frame.contentWindow.document;
-      var input=doc.getElementById('token');
-      var load=doc.getElementById('load');
-      if(!input||!load) throw new Error('dashboard controls unavailable');
-      input.value=token;
-      input.type='password';
-      input.setAttribute('autocomplete','off');
-      note.hidden=true;
-      load.click();
-    }catch(err){
-      note.textContent='MyZubster session detected, but automatic dashboard authentication could not be initialized.';
-      note.hidden=false;
-    }
-  });
+'use strict';
+var frame=document.getElementById('dashboard'),note=document.getElementById('authNote');
+function getToken(){return localStorage.getItem('myzubster-token')||localStorage.getItem('token')||localStorage.getItem('accessToken')||sessionStorage.getItem('token')||'';}
+function injectCheckout(doc,token){
+ if(doc.getElementById('stripeCheckoutSection'))return;
+ var main=doc.querySelector('main'); if(!main)return;
+ var section=doc.createElement('section'); section.id='stripeCheckoutSection';
+ section.innerHTML='<h2>Stripe Test Checkout</h2><p class="hint">Controlled admin-only Stripe Checkout. Creating a session does not charge money; payment occurs only if Checkout is completed.</p><div class="bar"><label>Amount (EUR)<input id="stripeAmount" type="number" min="1" max="1000" step="0.01" value="1.00"></label><label>Description<input id="stripeDescription" type="text" maxlength="120" value="MyZubster test payment"></label><button id="stripeCreate">Create Checkout</button></div><div class="meta" id="stripeStatus"></div>';
+ main.insertBefore(section,main.children[1]||null);
+ var button=doc.getElementById('stripeCreate'),status=doc.getElementById('stripeStatus');
+ button.addEventListener('click',function(){
+   var euros=Number(doc.getElementById('stripeAmount').value),amount=Math.round(euros*100),description=doc.getElementById('stripeDescription').value.trim();
+   if(!Number.isFinite(euros)||amount<100||amount>100000){status.textContent='Amount must be between EUR 1 and EUR 1000.';return;}
+   if(!window.confirm('Create a Stripe Checkout session for EUR '+euros.toFixed(2)+'? This creates a payment page but does not itself charge money.'))return;
+   button.disabled=true;status.textContent='Creating Stripe Checkout…';
+   var key='myz-dashboard-'+Date.now()+'-'+Math.random().toString(36).slice(2);
+   fetch('/api/payment-dashboard/checkout/stripe',{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json','Idempotency-Key':key,'Accept':'application/json'},body:JSON.stringify({amountCents:amount,currency:'eur',description:description||'MyZubster test payment'})})
+   .then(function(res){return res.json().catch(function(){return {};}).then(function(body){if(!res.ok)throw new Error(body.error||('HTTP '+res.status));return body;});})
+   .then(function(body){status.textContent='Checkout created. Opening Stripe…';if(body.checkoutUrl)window.open(body.checkoutUrl,'_blank','noopener');else throw new Error('Stripe returned no Checkout URL');})
+   .catch(function(err){status.textContent='Checkout unavailable: '+err.message;})
+   .finally(function(){button.disabled=false;});
+ });
+}
+frame.addEventListener('load',function(){
+ var token=getToken();
+ if(!token){note.innerHTML='No active MyZubster session found. <a href="/social-login">Sign in to MyZubster</a>, then return to the Payment Dashboard.';note.hidden=false;return;}
+ try{var doc=frame.contentDocument||frame.contentWindow.document,input=doc.getElementById('token'),load=doc.getElementById('load');if(!input||!load)throw new Error('dashboard controls unavailable');input.value=token;input.type='password';input.setAttribute('autocomplete','off');injectCheckout(doc,token);note.hidden=true;load.click();}
+ catch(err){note.textContent='MyZubster session detected, but automatic dashboard authentication could not be initialized.';note.hidden=false;}
+});
 })();
 </script>
 </body>
