@@ -44,6 +44,52 @@ A GitHub ⭐ is a simple way to follow the project and help other developers, re
 
 > **Current state:** MVP / active development and validation. Some components are operational, others experimental or in active implementation. A roadmap, issue, PR, merge, discussion or automated test is not by itself proof of deployment, partnership, adoption, funding or external payment.
 
+## 💳 MYZ payments, Google authentication & Zorgax onboarding — 11 Sep 2026
+
+MyZubster now has a verified internal utility-credit flow that connects a real Stripe payment to MYZ accounting and then to a concrete ecosystem redemption. `MYZ` is an **internal utility/accounting credit**, not a blockchain token, investment product or fiat-redeemable asset.
+
+```text
+EUR PAYMENT (STRIPE)
+        ↓
+PAYMENT VERIFICATION
+        ↓
+EUR → MYZ INTERNAL CREDIT
+        ↓
+MYZ BALANCE
+        ↓
+UTILITY PURCHASE
+        ↓
+RECORDED MYZ DEBIT
+        ↓
+FULFILLMENT WORKFLOW
+        ↓
+ZORGAX / OTHER MYZUBSTER UTILITY
+```
+
+The currently implemented pilot utility catalog includes **Zorgax Pro Session**, **Marketplace Boost** and **Pilot Project Pass**. A successful MYZ spend is persisted as a durable redemption/debit with an idempotency key and a separate fulfillment state. The current Zorgax fulfillment path can mark a purchased session as fulfilled and open Zorgax; it should not yet be interpreted as a separate subscription or permanent Pro entitlement unless that entitlement is explicitly implemented and verified.
+
+The onboarding layer has also been extended around **Google/Gmail, GitHub identity and Zorgax**. Users can enter through social authentication, keep Gmail access voluntary and read-only when enabled, and use Zorgax to complete a profile step by step. When a verified GitHub identity is available, Zorgax can use only the verified/public information that is actually accessible and ask the user for missing profile details such as bio, skills, README and project description.
+
+```text
+GOOGLE / GITHUB LOGIN
+        ↓
+MYZUBSTER ACCOUNT
+        ↓
+OPTIONAL GMAIL READ-ONLY PROFILE INPUT
+        ↓
+VERIFIED GITHUB IDENTITY WHEN AVAILABLE
+        ↓
+ZORGAX GUIDED PROFILE COMPLETION
+        ↓
+USER REVIEW / APPROVAL
+        ↓
+PUBLIC PROFILE / README / PROJECT MATERIAL
+```
+
+The onboarding is deliberately **non-blocking**: if GitHub profile enrichment is temporarily unavailable, the verified identity can still be used and Zorgax continues with natural questions instead of exposing technical fallback values or debug details. Nothing is published automatically; profile changes remain proposals until the user approves them.
+
+**Current GitHub OAuth note:** the MyZubster-side authorization redirect and callback configuration have been checked, while GitHub has intermittently returned an error before the callback during re-authorization. The onboarding therefore includes a fallback so this external OAuth issue does not block use of Zorgax. This is an implementation-status note, not a claim that the GitHub re-authorization issue is resolved.
+
 ## 🤖 Telegram bots — LIVE
 
 Two Telegram entry points are currently deployed and verified against the MyZubster production backend:
