@@ -15,20 +15,43 @@
 'use strict';
 var frame=document.getElementById('dashboard'),note=document.getElementById('authNote');
 function getToken(){return localStorage.getItem('myzubster-token')||localStorage.getItem('token')||localStorage.getItem('accessToken')||sessionStorage.getItem('token')||'';}
+function jsonFetch(url,opts){return fetch(url,opts).then(function(res){return res.json().catch(function(){return {};}).then(function(body){if(!res.ok){var e=new Error(body.error||('HTTP '+res.status));e.body=body;throw e;}return body;});});}
 function loadConversion(doc,token){
  var box=doc.getElementById('myzConversionStatus'); if(!box)return;
  box.textContent='Loading EUR → MYZ accounting conversion…';
- fetch('/api/payment-dashboard/conversion',{headers:{'Authorization':'Bearer '+token,'Accept':'application/json'}})
-  .then(function(res){return res.json().catch(function(){return {};}).then(function(body){if(!res.ok)throw new Error(body.error||('HTTP '+res.status));return body;});})
+ jsonFetch('/api/payment-dashboard/conversion',{headers:{'Authorization':'Bearer '+token,'Accept':'application/json'}})
   .then(function(body){
     var items=Array.isArray(body.items)?body.items:[];
     if(!items.length){box.textContent='No EUR → MYZ accounting conversions recorded yet.';return;}
     var totalEur=items.reduce(function(sum,item){return sum+Number(item.amountEur||0);},0);
     var totalMyz=items.reduce(function(sum,item){return sum+Number(item.amountMyz||0);},0);
     var latest=items[0]||{},rate=Number(latest.rateMyzPerEur||body.rateMyzPerEur||0),state=latest.state||'ACCOUNTING_RECORDED';
-    box.innerHTML='<strong>'+totalEur.toFixed(2)+' EUR → '+totalMyz.toFixed(2)+' MYZ</strong><br>Rate: 1 EUR = '+rate+' MYZ · Status: '+state+'<br><span class="hint">Accounting conversion only; this does not automatically change the canonical spendable MYZ ledger balance.</span>';
+    box.innerHTML='<strong>'+totalEur.toFixed(2)+' EUR → '+totalMyz.toFixed(2)+' MYZ</strong><br>Rate: 1 EUR = '+rate+' MYZ · Status: '+state+'<br><span class="hint">MYZ is an internal utility/accounting credit and is not redeemable for fiat.</span>';
   })
   .catch(function(err){box.textContent='Conversion data unavailable: '+err.message;});
+}
+function loadUtility(doc,token){
+ var box=doc.getElementById('myzUtilityList'),status=doc.getElementById('myzUtilityStatus'); if(!box)return;
+ Promise.all([
+   jsonFetch('/api/payment-dashboard/utility-catalog',{headers:{'Authorization':'Bearer '+token,'Accept':'application/json'}}),
+   jsonFetch('/api/payment-dashboard/balances',{headers:{'Authorization':'Bearer '+token,'Accept':'application/json'}})
+ ]).then(function(results){
+   var catalog=results[0],balances=results[1],balance=Number(balances&&balances.myz&&balances.myz.amount||0);
+   box.innerHTML=(catalog.offers||[]).map(function(o){
+     var disabled=balance<Number(o.price_myz||0)?' disabled':'';
+     return '<div class="card"><div class="label">'+String(o.status||'')+'</div><div class="value" style="font-size:1.05rem">'+o.name+'</div><div class="basis">'+o.description+'</div><div class="src">Price: <strong>'+Number(o.price_myz||0)+' MYZ</strong></div><button class="myzSpend" data-offer="'+o.id+'" data-name="'+o.name.replace(/"/g,'&quot;')+'" data-price="'+Number(o.price_myz||0)+'"'+disabled+' style="margin-top:10px">Spend MYZ</button></div>';
+   }).join('');
+   status.textContent='Your current MYZ balance: '+balance+' MYZ';
+   Array.prototype.forEach.call(doc.querySelectorAll('.myzSpend'),function(btn){btn.addEventListener('click',function(){
+     var offerId=btn.getAttribute('data-offer'),name=btn.getAttribute('data-name'),price=Number(btn.getAttribute('data-price'));
+     if(!window.confirm('Spend '+price+' MYZ for '+name+'?'))return;
+     btn.disabled=true;status.textContent='Recording MYZ redemption…';
+     var key='myz-spend-'+Date.now()+'-'+Math.random().toString(36).slice(2);
+     jsonFetch('/api/payment-dashboard/myz-spend',{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json','Accept':'application/json','Idempotency-Key':key},body:JSON.stringify({offerId:offerId})})
+      .then(function(body){status.textContent='Recorded: '+body.redemption.offerName+' · -'+body.redemption.amountMyz+' MYZ · balance '+body.balanceMyz+' MYZ · fulfillment '+body.redemption.fulfillmentState;var load=doc.getElementById('load');if(load)load.click();loadUtility(doc,token);})
+      .catch(function(err){status.textContent='Spend unavailable: '+err.message+(err.body&&err.body.balanceMyz!=null?' · balance '+err.body.balanceMyz+' MYZ':'');btn.disabled=false;});
+   });});
+ }).catch(function(err){status.textContent='Utility catalog unavailable: '+err.message;});
 }
 function injectCheckout(doc,token){
  if(doc.getElementById('stripeCheckoutSection'))return;
@@ -37,8 +60,10 @@ function injectCheckout(doc,token){
  section.innerHTML='<h2>Stripe Test Checkout</h2><p class="hint">Controlled admin-only Stripe Checkout. Creating a session does not charge money; payment occurs only if Checkout is completed.</p><div class="bar"><label>Amount (EUR)<input id="stripeAmount" type="number" min="1" max="1000" step="0.01" value="1.00"></label><label>Description<input id="stripeDescription" type="text" maxlength="120" value="MyZubster test payment"></label><button id="stripeCreate">Create Checkout</button></div><div class="meta" id="stripeStatus"></div>';
  main.insertBefore(section,main.children[1]||null);
  var conversion=doc.createElement('section'); conversion.id='myzConversionSection';
- conversion.innerHTML='<h2>EUR → MYZ Accounting Conversion</h2><p class="hint">Verified Stripe EUR payments can be represented as internal MYZ accounting value. This is not a fiat redemption promise and does not automatically credit the canonical spendable ledger.</p><div class="meta" id="myzConversionStatus">Loading conversion data…</div>';
+ conversion.innerHTML='<h2>EUR → MYZ Accounting Conversion</h2><p class="hint">Verified Stripe EUR payments can be represented as internal MYZ accounting value and credited to the internal MYZ balance.</p><div class="meta" id="myzConversionStatus">Loading conversion data…</div>';
  main.insertBefore(conversion,section.nextSibling);
+ var utility=doc.createElement('section');utility.id='myzUtilitySection';utility.innerHTML='<h2>Spend MYZ</h2><p class="hint">Pilot utility catalog. Spending MYZ records an auditable ADJUSTMENT_DEBIT; service fulfillment starts as PENDING.</p><div class="cards" id="myzUtilityList"></div><div class="meta" id="myzUtilityStatus">Loading utility catalog…</div>';
+ main.insertBefore(utility,conversion.nextSibling);
  var button=doc.getElementById('stripeCreate'),status=doc.getElementById('stripeStatus');
  button.addEventListener('click',function(){
    var euros=Number(doc.getElementById('stripeAmount').value),amount=Math.round(euros*100),description=doc.getElementById('stripeDescription').value.trim();
@@ -46,24 +71,21 @@ function injectCheckout(doc,token){
    if(!window.confirm('Create a Stripe Checkout session for EUR '+euros.toFixed(2)+'? This creates a payment page but does not itself charge money.'))return;
    button.disabled=true;status.textContent='Creating Stripe Checkout…';
    var key='myz-dashboard-'+Date.now()+'-'+Math.random().toString(36).slice(2);
-   fetch('/api/payment-dashboard/checkout/stripe',{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json','Idempotency-Key':key,'Accept':'application/json'},body:JSON.stringify({amountCents:amount,currency:'eur',description:description||'MyZubster test payment'})})
-   .then(function(res){return res.json().catch(function(){return {};}).then(function(body){if(!res.ok)throw new Error(body.error||('HTTP '+res.status));return body;});})
+   jsonFetch('/api/payment-dashboard/checkout/stripe',{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json','Idempotency-Key':key,'Accept':'application/json'},body:JSON.stringify({amountCents:amount,currency:'eur',description:description||'MyZubster test payment'})})
    .then(function(body){status.textContent='Checkout created. Opening Stripe…';if(body.checkoutUrl)window.location.assign(body.checkoutUrl);else throw new Error('Stripe returned no Checkout URL');})
    .catch(function(err){status.textContent='Checkout unavailable: '+err.message;})
    .finally(function(){button.disabled=false;});
  });
- loadConversion(doc,token);
+ loadConversion(doc,token);loadUtility(doc,token);
  var params=new URLSearchParams(window.location.search),checkout=params.get('checkout'),sessionId=params.get('session_id');
  if(checkout==='cancelled')status.textContent='Checkout cancelled. No payment was recorded.';
  if(checkout==='success'&&sessionId){
    status.textContent='Verifying completed Checkout with Stripe…';
-   fetch('/api/payment-dashboard/checkout/stripe/verify?session_id='+encodeURIComponent(sessionId),{headers:{'Authorization':'Bearer '+token,'Accept':'application/json'}})
-    .then(function(res){return res.json().catch(function(){return {};}).then(function(body){if(!res.ok)throw new Error(body.error||('HTTP '+res.status));return body;});})
+   jsonFetch('/api/payment-dashboard/checkout/stripe/verify?session_id='+encodeURIComponent(sessionId),{headers:{'Authorization':'Bearer '+token,'Accept':'application/json'}})
     .then(function(body){
       var amount=(Number(body.amountTotal||0)/100).toFixed(2),currency=String(body.currency||'eur').toUpperCase();
       status.textContent=body.paid?'Payment verified: '+amount+' '+currency+' · '+body.paymentStatus+' · session '+body.sessionId:'Checkout returned, but payment is not yet verified as paid ('+(body.paymentStatus||body.status||'unknown')+').';
-      loadConversion(doc,token);
-      var load=doc.getElementById('load');if(load)load.click();
+      loadConversion(doc,token);loadUtility(doc,token);var load=doc.getElementById('load');if(load)load.click();
     })
     .catch(function(err){status.textContent='Payment verification unavailable: '+err.message;});
  }
