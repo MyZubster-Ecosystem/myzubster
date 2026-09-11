@@ -5,6 +5,8 @@
     { "src": "api/index.js", "use": "@vercel/node", "config": { "includeFiles": ["myz/ledger.json", "myz/settlement-queue.json", "myz/settlement-policy.json"] } },
     { "src": "api/bounties-registry.js", "use": "@vercel/node" },
     { "src": "frontend/package.json", "use": "@vercel/static-build", "config": { "distDir": "build" } },
+    { "src": "public/funnel.html", "use": "@vercel/static" },
+    { "src": "public/funnel.js", "use": "@vercel/static" },
     { "src": "public/space-station.html", "use": "@vercel/static" },
     { "src": "public/fumetto.html", "use": "@vercel/static" },
     { "src": "public/fumetto-sentinel.html", "use": "@vercel/static" },
@@ -28,6 +30,9 @@
     { "path": "/api/robots/evidence/arpae/capture/cron", "schedule": "20 8 * * *" }
   ],
   "routes": [
+    { "src": "/funnel/?", "dest": "/public/funnel.html" },
+    { "src": "/funnel\\.html/?", "dest": "/public/funnel.html" },
+    { "src": "/funnel\\.js/?", "dest": "/public/funnel.js" },
     { "src": "/payment-dashboard\\.html/?", "status": 308, "headers": { "Location": "/payment-dashboard" } },
     { "src": "/payment-dashboard/?", "headers": { "X-Robots-Tag": "noindex, nofollow" }, "dest": "/public/payment-dashboard-auth.html" },
     { "src": "/payment-dashboard-raw/?", "headers": { "X-Robots-Tag": "noindex, nofollow" }, "dest": "/public/payment-dashboard.html" },
