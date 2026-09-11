@@ -23,9 +23,9 @@ function loadConversion(doc,token){
   .then(function(body){
     var items=Array.isArray(body.items)?body.items:[];
     if(!items.length){box.textContent='No EUR → MYZ accounting conversions recorded yet.';return;}
-    var totalEur=items.reduce(function(sum,item){return sum+(Number(item.amountCents||0)/100);},0);
-    var totalMyz=items.reduce(function(sum,item){return sum+Number(item.conversion&&item.conversion.amountMyz||0);},0);
-    var latest=items[0],rate=latest&&latest.conversion?Number(latest.conversion.rateMyzPerEur||0):0,state=latest&&latest.conversion?latest.conversion.state:'unknown';
+    var totalEur=items.reduce(function(sum,item){return sum+Number(item.amountEur||0);},0);
+    var totalMyz=items.reduce(function(sum,item){return sum+Number(item.amountMyz||0);},0);
+    var latest=items[0]||{},rate=Number(latest.rateMyzPerEur||body.rateMyzPerEur||0),state=latest.state||'ACCOUNTING_RECORDED';
     box.innerHTML='<strong>'+totalEur.toFixed(2)+' EUR → '+totalMyz.toFixed(2)+' MYZ</strong><br>Rate: 1 EUR = '+rate+' MYZ · Status: '+state+'<br><span class="hint">Accounting conversion only; this does not automatically change the canonical spendable MYZ ledger balance.</span>';
   })
   .catch(function(err){box.textContent='Conversion data unavailable: '+err.message;});
