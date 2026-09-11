@@ -62,6 +62,32 @@ async function ensureCharacter(user, provider, profile) {
   return character;
 }
 
+function normalizeGithubSnapshot(snapshot) {
+  if (!snapshot || typeof snapshot !== 'object') return undefined;
+  const repos = Array.isArray(snapshot.repositories) ? snapshot.repositories.slice(0, 6).map(repo => ({
+    name: String(repo.name || '').slice(0, 180),
+    description: String(repo.description || '').slice(0, 500),
+    language: String(repo.language || '').slice(0, 80),
+    stars: Number(repo.stars || 0),
+    forks: Number(repo.forks || 0),
+    url: String(repo.url || '').slice(0, 500),
+    updatedAt: repo.updatedAt || undefined
+  })) : [];
+  return {
+    name: String(snapshot.name || '').slice(0, 180),
+    bio: String(snapshot.bio || '').slice(0, 1000),
+    company: String(snapshot.company || '').slice(0, 180),
+    location: String(snapshot.location || '').slice(0, 180),
+    blog: String(snapshot.blog || '').slice(0, 500),
+    publicRepos: Number(snapshot.publicRepos || 0),
+    followers: Number(snapshot.followers || 0),
+    following: Number(snapshot.following || 0),
+    repositories: repos,
+    profileReadme: String(snapshot.profileReadme || '').slice(0, 12000),
+    capturedAt: new Date()
+  };
+}
+
 async function upsertVerifiedAccount(provider, profile) {
   if (!PROVIDERS.has(provider)) throw new Error('Provider social non supportato');
   if (!profile?.id) throw new Error('Identità provider non verificata');
@@ -82,7 +108,17 @@ async function upsertVerifiedAccount(provider, profile) {
   const providerIdentity = { id: String(profile.id), verifiedAt: new Date() };
   if (profile.email) providerIdentity.email = String(profile.email).toLowerCase();
   user.socialIdentities[provider] = providerIdentity;
-  if (provider === 'github') user.github = { id: String(profile.id), login: profile.login, avatarUrl: profile.avatarUrl, profileUrl: profile.profileUrl, verifiedAt: new Date() };
+  if (provider === 'github') {
+    const previousSnapshot = user.github?.publicSnapshot;
+    user.github = {
+      id: String(profile.id),
+      login: profile.login,
+      avatarUrl: profile.avatarUrl,
+      profileUrl: profile.profileUrl,
+      verifiedAt: new Date(),
+      publicSnapshot: normalizeGithubSnapshot(profile.publicSnapshot) || previousSnapshot
+    };
+  }
   user.isVerified = true;
   user.lastLogin = new Date();
   await user.save();
@@ -91,4 +127,4 @@ async function upsertVerifiedAccount(provider, profile) {
   return { user, character, token };
 }
 
-module.exports = { upsertVerifiedAccount, _test: { providerAccountEmail } };
+module.exports = { upsertVerifiedAccount, _test: { providerAccountEmail, normalizeGithubSnapshot } };
