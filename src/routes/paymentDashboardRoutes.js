@@ -4,7 +4,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const dashboard = require('../services/settlementDashboardService');
 const { stripeFundingInputsProvider } = require('../services/paymentDashboardStripeProvider');
-const { createControlledCheckout } = require('../services/paymentDashboardCheckoutService');
+const { createControlledCheckout, verifyControlledCheckout } = require('../services/paymentDashboardCheckoutService');
 const router = express.Router();
 const FILTER_KEYS = ['q','status','program','account','from','to'];
 const DEFAULT_PAYMENT_ADMIN_GITHUB_LOGINS = ['danielioni-creator'];
@@ -21,6 +21,7 @@ router.get('/summary',auth,(req,res)=>{try{const p=buildFor(req);if(!isAdminUser
 router.get('/meta',auth,(req,res)=>{try{const p=buildFor(req);return res.json({generatedAt:p.generatedAt,live:p.live,policy:p.policy,sources:p.sources,warnings:p.warnings,integrity:p.integrity,configured:{fundingInputs:p.layers.funding_inputs.configured,conversion:p.layers.conversion.configured,escrow:p.layers.escrow.configured}});}catch(e){return res.status(500).json({error:e.message});}});
 router.get('/balances',auth,(req,res)=>{try{return res.json(buildFor(req).balances);}catch(e){return res.status(500).json({error:e.message});}});
 router.get('/funding-inputs/stripe',auth,admin,async(_req,res)=>{try{return res.json(await stripeFundingInputsProvider());}catch(e){return res.status(502).json({configured:true,provider:'stripe-readonly',items:[],error:e.message});}});
+router.get('/checkout/stripe/verify',auth,admin,async(req,res)=>{try{return res.json(await verifyControlledCheckout(req.query.session_id));}catch(e){return res.status(400).json({error:e.message});}});
 /* Controlled write: creates a hosted Checkout Session only. No refunds, transfers or payouts. */
 router.post('/checkout/stripe',auth,admin,express.json({limit:'8kb'}),async(req,res)=>{try{const result=await createControlledCheckout({input:req.body,actor:req.user,idempotencyKey:req.header('Idempotency-Key')});return res.status(201).json(result);}catch(e){return res.status(400).json({error:e.message});}});
 router.get('/funding-inputs',auth,admin,(req,res)=>{try{return res.json(buildFor(req).layers.funding_inputs);}catch(e){return res.status(500).json({error:e.message});}});
