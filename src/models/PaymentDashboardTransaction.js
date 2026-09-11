@@ -15,7 +15,15 @@ const PaymentDashboardTransactionSchema = new mongoose.Schema({
   livemode: { type: Boolean, default: false, index: true },
   customerEmail: { type: String, trim: true, lowercase: true, maxlength: 320 },
   stripeCreatedAt: { type: Date },
-  verifiedAt: { type: Date, required: true, default: Date.now, index: true }
+  verifiedAt: { type: Date, required: true, default: Date.now, index: true },
+  conversion: {
+    sourceAsset: { type: String, enum: ['EUR'] },
+    targetAsset: { type: String, enum: ['MYZ'] },
+    rateMyzPerEur: { type: Number, min: 0 },
+    amountMyz: { type: Number, min: 0 },
+    state: { type: String, enum: ['ACCOUNTING_RECORDED'], index: true },
+    recordedAt: { type: Date }
+  }
 }, { timestamps: true, versionKey: false });
 
 module.exports = mongoose.models.PaymentDashboardTransaction || mongoose.model('PaymentDashboardTransaction', PaymentDashboardTransactionSchema);
