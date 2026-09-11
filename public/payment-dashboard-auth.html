@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Payment Dashboard — MyZubster</title>
+<meta name="robots" content="noindex,nofollow">
+<style>html,body{margin:0;width:100%;height:100%;background:#f6f7f9}iframe{display:block;width:100%;height:100%;border:0}.auth-note{position:fixed;z-index:10;left:12px;right:12px;bottom:12px;padding:10px 12px;border-radius:9px;background:#fff4df;border:1px solid #e6c980;font:14px/1.4 system-ui,sans-serif;color:#624300;box-shadow:0 2px 12px #0002}.auth-note a{color:#185fa5}.auth-note[hidden]{display:none}</style>
+</head>
+<body>
+<div id="authNote" class="auth-note" hidden></div>
+<iframe id="dashboard" src="/payment-dashboard-raw" title="MyZubster Payment Dashboard"></iframe>
+<script>
+(function(){
+  'use strict';
+  var frame=document.getElementById('dashboard');
+  var note=document.getElementById('authNote');
+  function getToken(){
+    return localStorage.getItem('myzubster-token')||localStorage.getItem('token')||localStorage.getItem('accessToken')||sessionStorage.getItem('token')||'';
+  }
+  frame.addEventListener('load',function(){
+    var token=getToken();
+    if(!token){
+      note.innerHTML='No active MyZubster session found. <a href="/social-login">Sign in to MyZubster</a>, then return to the Payment Dashboard.';
+      note.hidden=false;
+      return;
+    }
+    try{
+      var doc=frame.contentDocument||frame.contentWindow.document;
+      var input=doc.getElementById('token');
+      var load=doc.getElementById('load');
+      if(!input||!load) throw new Error('dashboard controls unavailable');
+      input.value=token;
+      input.type='password';
+      input.setAttribute('autocomplete','off');
+      note.hidden=true;
+      load.click();
+    }catch(err){
+      note.textContent='MyZubster session detected, but automatic dashboard authentication could not be initialized.';
+      note.hidden=false;
+    }
+  });
+})();
+</script>
+</body>
+</html>
