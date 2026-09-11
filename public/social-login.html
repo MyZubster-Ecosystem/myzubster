@@ -19,7 +19,7 @@
       <a class="btn" href="/api/auth/social/facebook/start">Continua con Facebook</a>
     </div>
     <div id="status" class="status">Scegli un provider per continuare.</div>
-    <div class="meta">Instagram e X non vengono mostrati come login attivi finché il relativo flusso OAuth non è configurato e verificato in produzione.</div>
+    <div class="meta">Dopo il login Google o GitHub, Zorgax può guidarti nel completamento del profilo. Sei tu a decidere cosa rendere pubblico.</div>
   </main>
 <script>
 (async function(){
@@ -30,12 +30,14 @@
   try{
     const r=await fetch('/api/auth/social/exchange-ticket',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ticket})});
     const data=await r.json(); if(!r.ok||!data.success)throw new Error(data.message||'Ticket non valido');
+    const verifiedProvider=(data.data.provider||provider||'social').toLowerCase();
     localStorage.setItem('myzubster-token',data.data.token);
     localStorage.setItem('myzubster-metaverse-character-id',data.data.characterId);
-    localStorage.setItem('myzubster-identity-provider',data.data.provider||provider||'social');
+    localStorage.setItem('myzubster-identity-provider',verifiedProvider);
     status.className='status ok';status.textContent='✓ Account verificato. Zorgax ha collegato la tua identità al Metaverse.';
     history.replaceState({},document.title,'/social-login.html');
-    setTimeout(()=>location.assign('/onboarding'),900);
+    const next=(verifiedProvider==='google'||verifiedProvider==='github')?'/zorgax-profile-onboarding.html?provider='+encodeURIComponent(verifiedProvider):'/onboarding';
+    setTimeout(()=>location.assign(next),900);
   }catch(e){status.className='status err';status.textContent=e.message||'Login non riuscito.';}
 })();
 </script>
