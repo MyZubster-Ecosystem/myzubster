@@ -17,6 +17,7 @@
       <h2>1. Analisi una tantum</h2>
       <p class="muted">Google mostrerà la richiesta di accesso in sola lettura. Il token non viene conservato.</p>
       <a class="btn" href="/api/auth/gmail/start">Analizza Gmail una volta →</a>
+      <a class="btn secondary" href="/zorgax">Torna a Zorgax</a>
     </section>
 
     <section class="card" id="draftCard" hidden>
@@ -33,6 +34,7 @@
       <div class="row">
         <button class="btn" id="enableAutoBtn">Attiva aggiornamento automatico</button>
         <button class="btn secondary" id="disableAutoBtn" hidden>Disattiva e cancella token</button>
+        <a class="btn secondary" href="/zorgax">Torna alla chat Zorgax</a>
       </div>
       <div id="autoStatus" class="muted" style="margin-top:12px"></div>
     </section>
@@ -40,7 +42,7 @@
     <section class="card" id="chatCard" hidden>
       <h2>4. Parla con Zorgax usando questo profilo</h2>
       <textarea class="chat" id="message" placeholder="Scrivi a Zorgax…"></textarea>
-      <p><button class="btn" id="sendBtn">Invia a Zorgax</button></p>
+      <p><button class="btn" id="sendBtn">Invia a Zorgax</button> <a class="btn secondary" href="/zorgax">Apri chat completa Zorgax</a></p>
       <div class="out" id="answer"></div>
     </section>
 
@@ -67,6 +69,12 @@
   function showStatus(target, text, className) {
     target.textContent = text;
     target.className = className || 'muted';
+  }
+
+  function returnToZorgax(reason) {
+    const url = new URL('/zorgax', location.origin);
+    if (reason) url.searchParams.set('gmail', reason);
+    location.replace(url.toString());
   }
 
   function renderDraft(value) {
@@ -123,7 +131,10 @@
   }
 
   if (state === 'error') showStatus(status, message || 'Collegamento Gmail non riuscito', 'err');
-  if (autoEnabled) showStatus(status, 'Aggiornamento automatico Gmail attivato con il tuo consenso.', 'ok');
+  if (autoEnabled) {
+    showStatus(status, 'Aggiornamento automatico Gmail attivato. Ritorno a Zorgax…', 'ok');
+    setTimeout(() => returnToZorgax('connected'), 900);
+  }
 
   if (ticket) {
     fetch('/api/auth/gmail/verify-ticket', {
@@ -154,7 +165,8 @@
       profile = data.data.profile;
       localStorage.setItem('myzubster-zorgax-profile', JSON.stringify(profile));
       chatCard.hidden = false;
-      showStatus(applyStatus, 'Profilo Zorgax approvato e salvato.', 'ok');
+      showStatus(applyStatus, 'Profilo Zorgax approvato e salvato. Ritorno alla chat…', 'ok');
+      setTimeout(() => returnToZorgax('profile-saved'), 900);
     } catch (err) {
       showStatus(applyStatus, err.message, 'err');
     }
