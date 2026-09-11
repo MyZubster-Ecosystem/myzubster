@@ -4,9 +4,45 @@
   <img src="assets/readme/myzubster-core.png" alt="MyZubster ecosystem overview" width="100%">
 </p>
 
-> **Open-source infrastructure for real-world observations, verifiable evidence, collaborative workflows, privacy-aware automation and reproducible pilots.**
+> **Open-source platform connecting people, communities, AI and real-world projects through verifiable digital evidence.**
 
 MyZubster turns authorized real-world observations — photos, places, environmental data, services and technical contributions — into structured information that can be connected, reviewed, validated and reused.
+
+<p align="center">
+  <a href="https://www.myzubster.com/"><strong>🚀 Try MyZubster</strong></a>
+  ·
+  <a href="https://www.myzubster.com/zorgax"><strong>🤖 Talk to Zorgax</strong></a>
+  ·
+  <a href="https://github.com/MyZubster-Ecosystem/myzubster"><strong>⭐ Star on GitHub</strong></a>
+</p>
+
+## What can you do with MyZubster?
+
+| Goal | Start here |
+|---|---|
+| **Build a real-world pilot** | Turn an authorized observation, dataset, workflow or community need into a reproducible evidence-aware project. |
+| **Join a community or project** | Enter through the website, Zorgax, Telegram, GitHub or public project documentation. |
+| **Contribute code, data or evidence** | Pick a scoped issue, submit a reproducible test, improve docs/design, or contribute authorized observations. |
+
+```text
+REAL WORLD
+    ↓
+OBSERVATION / COMMUNITY / PROJECT
+    ↓
+EVIDENCE + PROVENANCE
+    ↓
+ZORGAX + HUMAN REVIEW
+    ↓
+PROJECT / MARKETPLACE / COMMUNITY / PUBLIC OUTPUT
+```
+
+### Why star MyZubster?
+
+A GitHub ⭐ is a simple way to follow the project and help other developers, researchers and communities discover it. Star the repository if you want to track MyZubster's open-source development, evidence-first pilots, Zorgax automation and community infrastructure.
+
+**Quick paths:** [Join](JOIN.md) · [Contribute](CONTRIBUTING.md) · [How it works](#️-how-myzubster-works) · [Public evidence](SHOWCASE.md) · [Website](https://www.myzubster.com/)
+
+> **Current state:** MVP / active development and validation. Some components are operational, others experimental or in active implementation. A roadmap, issue, PR, merge, discussion or automated test is not by itself proof of deployment, partnership, adoption, funding or external payment.
 
 ## 🤖 Telegram bots — LIVE
 
