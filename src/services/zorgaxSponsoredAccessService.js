@@ -2,12 +2,25 @@
 
 const User = require('../models/User');
 
-// Sponsored pilot access is deliberately bound to a verified, account-linked
+// Sponsored access is deliberately bound to a verified, account-linked
 // public GitHub identity. It does not create a payment, subscription, credit,
-// or settlement record and can be revoked by removing the login from this list.
+// or settlement record and can be revoked by removing the login from an allowlist.
 const SPONSORED_GITHUB_LOGINS = Object.freeze(new Set([
   'nicolaususnicola-lgtm'
 ]));
+
+function envLoginSet(name) {
+  return new Set(
+    String(process.env[name] || '')
+      .split(',')
+      .map((value) => value.trim().toLowerCase())
+      .filter(Boolean)
+  );
+}
+
+function institutionalGithubLogins() {
+  return envLoginSet('ZORGAX_INSTITUTIONAL_GITHUB_LOGINS');
+}
 
 async function getSponsoredAccess(ownerId, { UserModel = User } = {}) {
   const normalizedOwnerId = String(ownerId || '').trim();
@@ -18,7 +31,25 @@ async function getSponsoredAccess(ownerId, { UserModel = User } = {}) {
     .lean();
 
   const githubLogin = String(user?.github?.login || '').trim().toLowerCase();
-  if (!githubLogin || !user?.github?.id || !SPONSORED_GITHUB_LOGINS.has(githubLogin)) {
+  const githubVerified = Boolean(githubLogin && user?.github?.id);
+  if (!githubVerified) return null;
+
+  if (institutionalGithubLogins().has(githubLogin)) {
+    return {
+      plan: 'institutional',
+      tier: 'INSTITUTIONAL',
+      status: 'ACTIVE',
+      active: true,
+      source: 'INSTITUTIONAL_GITHUB',
+      startsAt: user.github.verifiedAt || null,
+      expiresAt: null,
+      sponsored: true,
+      billingRequired: false,
+      verification: 'github-allowlist'
+    };
+  }
+
+  if (!SPONSORED_GITHUB_LOGINS.has(githubLogin)) {
     return null;
   }
 
@@ -31,11 +62,13 @@ async function getSponsoredAccess(ownerId, { UserModel = User } = {}) {
     startsAt: user.github.verifiedAt || null,
     expiresAt: null,
     sponsored: true,
-    billingRequired: false
+    billingRequired: false,
+    verification: 'github-allowlist'
   };
 }
 
 module.exports = {
   SPONSORED_GITHUB_LOGINS,
+  institutionalGithubLogins,
   getSponsoredAccess
 };
