@@ -1,6 +1,6 @@
 {
   "version": "myzubster_life_stakeholder_registry_v1",
-  "updatedAt": "2026-08-31",
+  "updatedAt": "2026-09-11",
   "truthRule": "Only FORMAL_CONFIRMED may be described as a confirmed LIFE partner/consortium role, and only with sufficient independently verifiable evidence.",
   "formalPartnerCount": 0,
   "stakeholders": [
@@ -23,6 +23,17 @@
       "restriction": "no_further_action_on_this_contact_lane",
       "scopeBoundary": "contact_lane_only_not_unibo_institution_wide",
       "missing": ["better_matched_agriculture_or_biodiversity_scientific_interlocutor"],
+      "formalPartner": false
+    },
+    {
+      "id": "unisi-circular-care-water-contact-lane",
+      "label": "University of Siena scientific outreach contact lane",
+      "category": "scientific_contact_lane_circular_care_water_exploration",
+      "state": "INACTIVE",
+      "evidence": ["authorised_direct_response_2026-09-11_declining_life_invitation_not_published"],
+      "restriction": "no_further_outreach_unless_contact_independently_reopens_discussion",
+      "scopeBoundary": "contact_lane_only_not_university_department_or_researchers_institution_wide",
+      "missing": ["continue_scientific_partner_search_elsewhere"],
       "formalPartner": false
     },
     {
@@ -62,7 +73,7 @@
       "label": "Scientific partner for biodiversity/KPI methodology",
       "category": "project_role",
       "state": "UNFILLED",
-      "evidence": ["issues/509", "unibo_maritime_hydraulics_contact_lane_inactive_2026-08-31"],
+      "evidence": ["issues/509", "unibo_maritime_hydraulics_contact_lane_inactive_2026-08-31", "unisi_circular_care_water_contact_lane_inactive_2026-09-11"],
       "missing": ["qualified_agriculture_or_biodiversity_interlocutor", "methodology_discussion", "explicit_role_or_interest"]
     },
     {
