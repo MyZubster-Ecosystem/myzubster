@@ -9,15 +9,19 @@ const {
 } = require('../services/zorgaxAccessService');
 
 function publicAccess(access) {
+  const plan = normalizePlan(access?.plan || access?.tier);
   return {
-    plan: normalizePlan(access?.plan || access?.tier),
-    tier: normalizePlan(access?.plan || access?.tier).toUpperCase(),
+    plan,
+    tier: plan.toUpperCase(),
     status: access?.status || 'ACTIVE',
     active: access?.active !== false,
     source: access?.source || 'DEFAULT_FREE',
     startsAt: access?.startsAt || null,
     expiresAt: access?.expiresAt || null,
-    features: Array.isArray(access?.features) ? access.features : []
+    features: Array.isArray(access?.features) ? access.features : [],
+    sponsored: access?.sponsored === true,
+    billingRequired: access?.billingRequired !== false,
+    verification: access?.verification || null
   };
 }
 
@@ -68,4 +72,3 @@ module.exports = {
   createZorgaxAccessMiddleware,
   publicAccess
 };
-
