@@ -20,6 +20,20 @@ Interactive public story: https://www.myzubster.com/fumetto
 
 Character Registry: https://github.com/MyZubster-Ecosystem/myzubster/issues/617
 
+## Start here — newcomer-friendly issues
+
+If this is your first MyZubster contribution, start with one of these deliberately small, stable tasks. They are labelled `good first issue` and `help wanted` so they remain easy to discover:
+
+- [#1080 — Verify public links and report broken routes](https://github.com/MyZubster-Ecosystem/myzubster/issues/1080)
+- [#1081 — Improve the contributor quickstart](https://github.com/MyZubster-Ecosystem/myzubster/issues/1081)
+- [#1082 — Add a smoke-test checklist for the public Zorgax flow](https://github.com/MyZubster-Ecosystem/myzubster/issues/1082)
+- [#1083 — Document a minimal metaverse health-check flow](https://github.com/MyZubster-Ecosystem/myzubster/issues/1083)
+- [#1084 — Create a contributor-friendly architecture map](https://github.com/MyZubster-Ecosystem/myzubster/issues/1084)
+
+Before starting, comment on the issue you want to take. This helps maintainers avoid editing the same files and gives you a clear place to ask questions or confirm scope.
+
+You can also browse all current newcomer tasks here: https://github.com/MyZubster-Ecosystem/myzubster/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22
+
 ## Who can participate?
 
 Everyone who follows the project rules and contributes lawfully and respectfully can participate, including:
