@@ -1,4 +1,5 @@
 const express = require('express');
+const crypto = require('crypto');
 const { authenticate, optionalAuthenticate } = require('../middleware/auth');
 const { createZorgaxAccessMiddleware, publicAccess } = require('../middleware/zorgaxAccess');
 const ZorgaxDataEntry = require('../models/ZorgaxDataEntry');
@@ -10,9 +11,13 @@ const { getPaymentReceipt } = require('../services/zorgaxBillingService');
 
 const router = express.Router();
 const { loadZorgaxAccess, requireZorgaxPlan } = createZorgaxAccessMiddleware();
+const FUNNEL_COOKIE = 'myz_funnel_session';
+const FUNNEL_MAX_AGE_MS = 30 * 60 * 1000;
 
 const ZORGAX_FUNNEL_EVENTS = new Set([
   'zorgax_open',
+  'zorgax_chat_opened',
+  'zorgax_first_message',
   'zorgax_message_sent',
   'zorgax_intent_seller',
   'zorgax_intent_marketplace',
@@ -23,16 +28,65 @@ const ZORGAX_FUNNEL_EVENTS = new Set([
   'zorgax_to_seller',
   'zorgax_to_metaverse',
   'zorgax_to_life',
+  'zorgax_to_profile_builder',
+  'profile_builder_open',
+  'profile_builder_profile_loaded',
+  'profile_builder_draft_generated',
   'seller_checkout_started',
   'seller_checkout_succeeded'
 ]);
 
+function readCookie(req, name) {
+  const raw = String(req.headers.cookie || '');
+  for (const part of raw.split(';')) {
+    const index = part.indexOf('=');
+    if (index === -1) continue;
+    if (part.slice(0, index).trim() === name) return decodeURIComponent(part.slice(index + 1).trim());
+  }
+  return null;
+}
+
+function funnelSession(req, res) {
+  const existing = readCookie(req, FUNNEL_COOKIE);
+  const safeExisting = existing && /^[a-f0-9-]{16,64}$/i.test(existing) ? existing : null;
+  const id = safeExisting || crypto.randomUUID();
+  res.cookie(FUNNEL_COOKIE, id, {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: FUNNEL_MAX_AGE_MS,
+    path: '/'
+  });
+  return id;
+}
+
+function acquisitionContext(req) {
+  const referer = String(req.get('referer') || '').slice(0, 500);
+  if (!referer) return {};
+  try {
+    const url = new URL(referer);
+    const context = {
+      referrerHost: url.hostname.slice(0, 120),
+      referrerPath: url.pathname.slice(0, 160)
+    };
+    for (const key of ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content']) {
+      const value = url.searchParams.get(key);
+      if (value) context[key] = value.slice(0, 120);
+    }
+    return context;
+  } catch (_error) {
+    return {};
+  }
+}
+
 function logFunnelEvent(event, req, metadata = {}) {
   console.info('[zorgax-funnel]', JSON.stringify({
     event,
+    sessionId: req.zorgaxFunnelSession || null,
     authenticated: Boolean(req.userId),
     plan: req.zorgaxAccess?.plan || req.zorgaxPolicy?.plan || null,
     path: req.originalUrl,
+    ...acquisitionContext(req),
     ...metadata
   }));
 }
@@ -43,6 +97,7 @@ router.post('/track', optionalAuthenticate, (req, res) => {
     return res.status(400).json({ ok: false, error: 'Evento funnel non valido' });
   }
 
+  req.zorgaxFunnelSession = funnelSession(req, res);
   const target = typeof req.body?.target === 'string' ? req.body.target.slice(0, 80) : null;
   logFunnelEvent(event, req, target ? { target } : {});
   return res.status(202).json({ ok: true, accepted: true, event });
@@ -110,6 +165,7 @@ router.get('/access', authenticate, async (req, res) => {
 
 router.post('/chat', optionalAuthenticate, loadZorgaxAccess, async (req, res) => {
   try {
+    req.zorgaxFunnelSession = funnelSession(req, res);
     const requestedWeb = req.body?.useWeb !== false;
     const policy = req.zorgaxPolicy;
     const requestedLimit = Number(req.body?.limit);
