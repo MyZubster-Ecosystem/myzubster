@@ -22,6 +22,30 @@ function institutionalGithubLogins() {
   return envLoginSet('ZORGAX_INSTITUTIONAL_GITHUB_LOGINS');
 }
 
+function kefirDonorGithubLogins() {
+  return envLoginSet('ZORGAX_KEFIR_DONOR_GITHUB_LOGINS');
+}
+
+function soundsystemOwnerGithubLogins() {
+  return envLoginSet('ZORGAX_SOUNDSYSTEM_OWNER_GITHUB_LOGINS');
+}
+
+function sponsoredAccess({ plan, tier, source, startsAt, verification, communityRole = null }) {
+  return {
+    plan,
+    tier,
+    status: 'ACTIVE',
+    active: true,
+    source,
+    startsAt: startsAt || null,
+    expiresAt: null,
+    sponsored: true,
+    billingRequired: false,
+    verification,
+    communityRole
+  };
+}
+
 async function getSponsoredAccess(ownerId, { UserModel = User } = {}) {
   const normalizedOwnerId = String(ownerId || '').trim();
   if (!normalizedOwnerId) throw new Error('ownerId is required');
@@ -35,40 +59,54 @@ async function getSponsoredAccess(ownerId, { UserModel = User } = {}) {
   if (!githubVerified) return null;
 
   if (institutionalGithubLogins().has(githubLogin)) {
-    return {
+    return sponsoredAccess({
       plan: 'institutional',
       tier: 'INSTITUTIONAL',
-      status: 'ACTIVE',
-      active: true,
       source: 'INSTITUTIONAL_GITHUB',
-      startsAt: user.github.verifiedAt || null,
-      expiresAt: null,
-      sponsored: true,
-      billingRequired: false,
+      startsAt: user.github.verifiedAt,
       verification: 'github-allowlist'
-    };
+    });
+  }
+
+  if (kefirDonorGithubLogins().has(githubLogin)) {
+    return sponsoredAccess({
+      plan: 'pro',
+      tier: 'PRO',
+      source: 'COMMUNITY_KEFIR_DONOR',
+      startsAt: user.github.verifiedAt,
+      verification: 'github-allowlist',
+      communityRole: 'kefir-donor'
+    });
+  }
+
+  if (soundsystemOwnerGithubLogins().has(githubLogin)) {
+    return sponsoredAccess({
+      plan: 'pro',
+      tier: 'PRO',
+      source: 'COMMUNITY_SOUNDSYSTEM_OWNER',
+      startsAt: user.github.verifiedAt,
+      verification: 'github-allowlist',
+      communityRole: 'soundsystem-owner'
+    });
   }
 
   if (!SPONSORED_GITHUB_LOGINS.has(githubLogin)) {
     return null;
   }
 
-  return {
+  return sponsoredAccess({
     plan: 'developer',
     tier: 'DEVELOPER',
-    status: 'ACTIVE',
-    active: true,
     source: 'SPONSORED_PILOT',
-    startsAt: user.github.verifiedAt || null,
-    expiresAt: null,
-    sponsored: true,
-    billingRequired: false,
+    startsAt: user.github.verifiedAt,
     verification: 'github-allowlist'
-  };
+  });
 }
 
 module.exports = {
   SPONSORED_GITHUB_LOGINS,
   institutionalGithubLogins,
+  kefirDonorGithubLogins,
+  soundsystemOwnerGithubLogins,
   getSponsoredAccess
 };
