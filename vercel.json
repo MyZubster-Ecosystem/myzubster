@@ -22,6 +22,8 @@
     { "src": "public/payment-dashboard-auth.html", "use": "@vercel/static" },
     { "src": "public/zorgax-card.js", "use": "@vercel/static" },
     { "src": "public/nicola-project-planner.html", "use": "@vercel/static" },
+    { "src": "public/darkode.html", "use": "@vercel/static" },
+    { "src": "public/darkode-tracking.js", "use": "@vercel/static" },
     { "src": "public/world-state/metasploit-sentinel.json", "use": "@vercel/static" }
   ],
   "crons": [
@@ -53,6 +55,9 @@
     { "src": "/zorgax-card\\.js/?", "dest": "/public/zorgax-card.js" },
     { "src": "/nicola-project-planner/?", "headers": { "X-Robots-Tag": "noindex, nofollow" }, "dest": "/public/nicola-project-planner.html" },
     { "src": "/nicola-project-planner\\.html/?", "headers": { "X-Robots-Tag": "noindex, nofollow" }, "dest": "/public/nicola-project-planner.html" },
+    { "src": "/darkode/?", "dest": "/public/darkode.html" },
+    { "src": "/darkode\\.html/?", "status": 308, "headers": { "Location": "/darkode" } },
+    { "src": "/darkode-tracking\\.js/?", "dest": "/public/darkode-tracking.js" },
     { "src": "/api/auth/social/(google|github|facebook)/(start|callback)/?", "dest": "/api/index.js" },
     { "src": "/api/zorgax/assistant/(.*)", "dest": "/api/index.js" },
     { "src": "/api/zorgax/stripe/(.*)", "dest": "/api/index.js" },
