@@ -180,9 +180,19 @@
   </script>
   <script defer src="/_vercel/insights/script.js"></script>
   <script defer src="/conversion-tracking.js"></script>
+  <style>
+    #darkode-home-link{display:block;margin:0;padding:10px 16px;text-align:center;background:#080d16;color:#bfefff;border-bottom:1px solid #24364f;font:700 14px/1.4 system-ui,sans-serif;text-decoration:none;letter-spacing:.02em}
+    #darkode-home-link:hover{background:#101a2b;color:#fff}
+  </style>
 </head>
 <body>
   <noscript>Abilita JavaScript per usare MyZubster.</noscript>
+  <a id="darkode-home-link" href="/darkode">🕸 Darkode — contesto storico e bio →</a>
+  <script>
+    if (!['/', '/index.html'].includes(window.location.pathname)) {
+      document.getElementById('darkode-home-link').style.display = 'none';
+    }
+  </script>
   <div id="root"></div>
 </body>
 </html>
