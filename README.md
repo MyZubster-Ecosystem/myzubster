@@ -40,7 +40,7 @@ PROJECT / MARKETPLACE / COMMUNITY / PUBLIC OUTPUT
 
 A GitHub ⭐ is a simple way to follow the project and help other developers, researchers and communities discover it. Star the repository if you want to track MyZubster's open-source development, evidence-first pilots, Zorgax automation and community infrastructure.
 
-**Quick paths:** [Join](JOIN.md) · [Contribute](CONTRIBUTING.md) · [How it works](#️-how-myzubster-works) · [Public evidence](SHOWCASE.md) · [Website](https://www.myzubster.com/)
+**Quick paths:** [5-minute demo: Zorgax → Marketplace](docs/DEMO-ZORGAX-MARKETPLACE.md) · [Join](JOIN.md) · [Contribute](CONTRIBUTING.md) · [How it works](#️-how-myzubster-works) · [Public evidence](SHOWCASE.md) · [Website](https://www.myzubster.com/)
 
 > **Current state:** MVP / active development and validation. Some components are operational, others experimental or in active implementation. A roadmap, issue, PR, merge, discussion or automated test is not by itself proof of deployment, partnership, adoption, funding or external payment.
 
