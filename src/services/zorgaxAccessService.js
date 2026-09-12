@@ -15,12 +15,14 @@ const {
 const PLAN_RANK = Object.freeze({
   free: 0,
   pro: 1,
-  developer: 2
+  institutional: 2,
+  developer: 3
 });
 
 const PLAN_FEATURES = Object.freeze({
   free: ['assistant-base', 'limited-research'],
   pro: ['assistant-advanced', 'web-research', 'workspace', 'priority-usage'],
+  institutional: ['assistant-advanced', 'web-research', 'workspace', 'priority-usage', 'life-partner-tools', 'institutional-copilot', 'higher-limits'],
   developer: ['assistant-advanced', 'web-research', 'workspace', 'priority-usage', 'api-access', 'automation', 'higher-limits']
 });
 
@@ -42,7 +44,10 @@ function normalizeAccess(access, source) {
     source,
     startsAt,
     expiresAt,
-    features: PLAN_FEATURES[plan]
+    features: PLAN_FEATURES[plan],
+    sponsored: access?.sponsored === true,
+    billingRequired: access?.billingRequired !== false,
+    verification: access?.verification || null
   };
 }
 
@@ -55,7 +60,10 @@ function guestAccess() {
     source: 'GUEST',
     startsAt: null,
     expiresAt: null,
-    features: PLAN_FEATURES.free
+    features: PLAN_FEATURES.free,
+    sponsored: false,
+    billingRequired: false,
+    verification: null
   };
 }
 
@@ -86,14 +94,10 @@ async function getAccess(ownerId, {
   ]);
 
   const candidates = [];
-  if (results[0].status === 'fulfilled') {
-    candidates.push(normalizeAccess(results[0].value, 'SUBSCRIPTION'));
-  }
-  if (results[1].status === 'fulfilled') {
-    candidates.push(normalizeAccess(results[1].value, 'ENTITLEMENT'));
-  }
+  if (results[0].status === 'fulfilled') candidates.push(normalizeAccess(results[0].value, 'SUBSCRIPTION'));
+  if (results[1].status === 'fulfilled') candidates.push(normalizeAccess(results[1].value, 'ENTITLEMENT'));
   if (results[2].status === 'fulfilled' && results[2].value) {
-    candidates.push(normalizeAccess(results[2].value, 'SPONSORED_PILOT'));
+    candidates.push(normalizeAccess(results[2].value, results[2].value.source || 'SPONSORED_PILOT'));
   }
 
   if (!candidates.length) {
@@ -125,7 +129,10 @@ function getAccessPolicy(access, { authenticated = true } = {}) {
     researchMode: !authenticated ? 'DISABLED' : plan === 'free' ? 'LIMITED' : 'FULL',
     maxWebResults: !authenticated ? 0 : plan === 'free' ? 2 : plan === 'pro' ? 5 : 8,
     workspace: rank >= PLAN_RANK.pro,
-    directApi: rank >= PLAN_RANK.developer
+    institutionalCopilot: plan === 'institutional' || plan === 'developer',
+    directApi: plan === 'developer',
+    automation: plan === 'developer',
+    billingRequired: access?.billingRequired !== false
   };
 }
 
