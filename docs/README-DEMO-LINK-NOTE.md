@@ -1,0 +1,1 @@
+Temporary implementation note for MYZ-158: the canonical five-minute demo is documented in `docs/DEMO-ZORGAX-MARKETPLACE.md`. The README entry-point update is tracked in the same task and should link directly to that document without changing product behavior.
