@@ -81,6 +81,38 @@ describe('MyzLedgerApiService', () => {
     } finally { fs.rmSync(dir, { recursive: true, force: true }); }
   });
 
+  test('looks up canonical debit evidence by redemption and reports reversal state', () => {
+    const { dir, file } = tempLedger([
+      entry({ entry_id: 'OPEN', amount_myz: '100' }),
+      entry({
+        entry_id: 'DEBIT-1',
+        amount_myz: '-25',
+        entry_type: 'ADJUSTMENT_DEBIT',
+        reference: { idempotency_key: 'redeem-lookup', redemption_id: 'RED-LOOKUP', provider_transaction_id: 'P-TX-1' }
+      }),
+      entry({ entry_id: 'REV-1', amount_myz: '25', entry_type: 'REVERSAL', reverses_entry_id: 'DEBIT-1' })
+    ]);
+    try {
+      const service = new MyzLedgerApiService({ ledgerPath: file });
+      const result = service.lookupEntries({ accountId: 'marketplace:user:alice', redemptionId: 'RED-LOOKUP' });
+      expect(result.schema).toBe('myzubster-myz-ledger-lookup/v1');
+      expect(result.matched).toBe(1);
+      expect(result.entries[0].entry_id).toBe('DEBIT-1');
+      expect(result.entries[0].reversed).toBe(true);
+      expect(result.entries[0].reversalEntryId).toBe('REV-1');
+      expect(result.revision).toMatch(/^[a-f0-9]{64}$/);
+    } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+  });
+
+  test('rejects canonical lookup without a selector', () => {
+    const { dir, file } = tempLedger([entry({ entry_id: 'A', amount_myz: '10' })]);
+    try {
+      const service = new MyzLedgerApiService({ ledgerPath: file });
+      expect(() => service.lookupEntries({ accountId: 'marketplace:user:alice' }))
+        .toThrow('At least one canonical ledger lookup selector is required');
+    } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+  });
+
   test('rejects idempotency replay with a different payload', () => {
     const { dir, file } = tempLedger([entry({ entry_id: 'A', amount_myz: '100' })]);
     try {
