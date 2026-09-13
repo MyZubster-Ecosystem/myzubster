@@ -9,6 +9,7 @@
   <meta name="facebook-domain-verification" content="0b2r9b73gz16hlfgus55z80itj0aaj" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="manifest" href="/manifest.json" />
+  <link rel="canonical" href="https://www.myzubster.com/" />
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="it_IT" />
   <meta property="og:site_name" content="MyZubster" />
@@ -19,6 +20,39 @@
   <meta name="twitter:title" content="MyZubster — Open Source, Territorio e Comunità" />
   <meta name="twitter:description" content="Osserva, crea e contribuisci a un ecosistema open source costruito in pubblico." />
   <title>MyZubster — Open Source, Territorio e Comunità</title>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://www.myzubster.com/#organization",
+        "name": "MyZubster",
+        "url": "https://www.myzubster.com/",
+        "description": "Ecosistema open source in sviluppo per osservazioni autorizzate, evidenze strutturate, contributi verificabili e progetti comunitari.",
+        "sameAs": ["https://github.com/MyZubster-Ecosystem/myzubster"]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://www.myzubster.com/#website",
+        "url": "https://www.myzubster.com/",
+        "name": "MyZubster",
+        "description": "Ecosistema open source per territorio, ambiente e collaborazione basata su evidenze verificabili.",
+        "publisher": {"@id": "https://www.myzubster.com/#organization"},
+        "inLanguage": "it"
+      },
+      {
+        "@type": "WebPage",
+        "@id": "https://www.myzubster.com/#webpage",
+        "url": "https://www.myzubster.com/",
+        "name": "MyZubster — Open Source, Territorio e Comunità",
+        "isPartOf": {"@id": "https://www.myzubster.com/#website"},
+        "about": {"@id": "https://www.myzubster.com/#organization"},
+        "inLanguage": "it"
+      }
+    ]
+  }
+  </script>
   <script>
     (() => {
       const rawPath = window.location.pathname.replace(/\/+$/, '') || '/';
@@ -185,7 +219,20 @@
   </style>
 </head>
 <body>
-  <noscript>Abilita JavaScript per usare MyZubster.</noscript>
+  <noscript>
+    <main style="max-width:760px;margin:40px auto;padding:0 20px;font-family:Arial,Helvetica,sans-serif;line-height:1.6">
+      <h1>MyZubster</h1>
+      <p>MyZubster è un ecosistema open source in sviluppo per collegare osservazioni autorizzate del mondo reale, evidenze strutturate e contributi della comunità.</p>
+      <p>Il progetto esplora percorsi dedicati ad ambiente, territorio, identità digitali, missioni e automazione tramite Zorgax. Funzionalità sperimentali, proposte e obiettivi futuri sono distinti dalle implementazioni verificate.</p>
+      <nav aria-label="Percorsi principali">
+        <a href="/come-funziona">Come funziona</a> ·
+        <a href="/press">Press e descrizione ufficiale</a> ·
+        <a href="/fumetto">Fumetto e contenuti visuali</a> ·
+        <a href="https://github.com/MyZubster-Ecosystem/myzubster">Codice sorgente su GitHub</a>
+      </nav>
+      <p>Per utilizzare le esperienze interattive è necessario abilitare JavaScript.</p>
+    </main>
+  </noscript>
   <a id="darkode-home-link" href="/darkode">🕸 Darkode — contesto storico e bio →</a>
   <script>
     if (!['/', '/index.html'].includes(window.location.pathname)) {
