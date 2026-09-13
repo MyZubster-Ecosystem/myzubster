@@ -102,6 +102,47 @@ class MyzLedgerApiService {
     };
   }
 
+  lookupEntries(input = {}) {
+    const accountId = this.assertAuthorizedAccount(input.accountId || input.account_id);
+    const entryId = String(input.entryId || input.entry_id || '').trim();
+    const idempotencyKey = String(input.idempotencyKey || input.idempotency_key || '').trim();
+    const redemptionId = String(input.redemptionId || input.redemption_id || '').trim();
+    const providerTransactionId = String(input.providerTransactionId || input.provider_transaction_id || '').trim();
+    if (!entryId && !idempotencyKey && !redemptionId && !providerTransactionId) {
+      throw Object.assign(new Error('At least one canonical ledger lookup selector is required'), { code: 'INVALID_MYZ_LEDGER_LOOKUP' });
+    }
+
+    const ledger = this.readLedger();
+    const reversedBy = new Map();
+    for (const candidate of ledger.entries) {
+      if (candidate?.entry_type === 'REVERSAL' && candidate?.status === 'RECORDED' && candidate?.reverses_entry_id) {
+        reversedBy.set(candidate.reverses_entry_id, candidate);
+      }
+    }
+
+    const matches = ledger.entries.filter(candidate => {
+      if (candidate?.account_id !== accountId) return false;
+      if (entryId && candidate?.entry_id !== entryId) return false;
+      if (idempotencyKey && candidate?.reference?.idempotency_key !== idempotencyKey) return false;
+      if (redemptionId && candidate?.reference?.redemption_id !== redemptionId) return false;
+      if (providerTransactionId && candidate?.reference?.provider_transaction_id !== providerTransactionId) return false;
+      return true;
+    }).map(candidate => ({
+      ...candidate,
+      reversed: reversedBy.has(candidate.entry_id),
+      reversalEntryId: reversedBy.get(candidate.entry_id)?.entry_id || null
+    }));
+
+    return {
+      schema: 'myzubster-myz-ledger-lookup/v1',
+      asset: 'MYZ',
+      accountId,
+      revision: revisionFor(ledger),
+      matched: matches.length,
+      entries: matches
+    };
+  }
+
   withWriteLock(fn) {
     const lockPath = `${this.ledgerPath}.lock`;
     let fd;
