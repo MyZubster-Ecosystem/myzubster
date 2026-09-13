@@ -1,10 +1,12 @@
 'use strict';
 
-const ZorgaxSubscription = require('../models/ZorgaxSubscription');
-const { PLANS, SUPPORTED_ASSETS } = require('./zorgaxLegacyMonetizationService');
+const crypto = require('crypto');
+const { ZorgaxPurchase, PURCHASE_STATUSES } = require('../models/ZorgaxPurchase');
+const { getAccess: getEntitlementAccess, grantPurchaseEntitlement } = require('./zorgaxEntitlementService');
+const { entitlementForPlan, productIdForPlan, requirePaidPlan } = require('./zorgaxPlanCatalog');
 
 const ACCESS_DAYS = 30;
-const SUPPORTED_PAYMENT_RAILS = new Set([...SUPPORTED_ASSETS, 'STRIPE']);
+const SUPPORTED_PAYMENT_RAILS = new Set(['BTC', 'STRIPE']);
 
 function normalizePaymentReference(value) {
   const ref = String(value || '').trim();
@@ -12,72 +14,85 @@ function normalizePaymentReference(value) {
   return ref;
 }
 
-async function recordVerifiedPayment({ ownerId, planId, asset, paymentReference, verification, renewalOf }) {
-  const plan = PLANS[String(planId || '').toLowerCase()];
+function externalIntentId(reference) {
+  return `zorgaxext_${crypto.createHash('sha256').update(reference).digest('hex').slice(0, 32)}`;
+}
+
+async function recordVerifiedPayment({ ownerId, planId, asset, paymentReference, verification }) {
+  const plan = requirePaidPlan(planId);
   const normalizedAsset = String(asset || '').toUpperCase();
-  if (!plan || plan.id === 'free') throw new Error('Piano a pagamento non valido');
   if (!SUPPORTED_PAYMENT_RAILS.has(normalizedAsset)) throw new Error('Asset non supportato');
-  if (!verification || verification.verified !== true) {
-    throw new Error('Pagamento non verificato: accesso non attivabile');
-  }
+  if (!verification || verification.verified !== true) throw new Error('Pagamento non verificato: accesso non attivabile');
 
   const ref = normalizePaymentReference(paymentReference);
-  const existing = await ZorgaxSubscription.findOne({ paymentReference: ref }).lean();
-  if (existing) {
-    if (String(existing.ownerId) !== String(ownerId)) throw new Error('Pagamento già utilizzato');
-    return existing;
+  const paymentIntentId = externalIntentId(ref);
+  const productId = productIdForPlan(plan.id);
+  const entitlement = entitlementForPlan(plan.id);
+  let purchase = await ZorgaxPurchase.findOne({ paymentIntentId });
+
+  if (!purchase) {
+    try {
+      purchase = await ZorgaxPurchase.create({
+        purchaseId:`zpur_ext_${crypto.randomUUID()}`,
+        ownerId:String(ownerId),
+        productId,
+        paymentIntentId,
+        creditsGranted:0,
+        payment:{
+          asset:normalizedAsset,
+          network:normalizedAsset === 'STRIPE' ? 'stripe' : 'bitcoin',
+          amountMinor: normalizedAsset === 'STRIPE'
+            ? Math.round(plan.priceEur * 100)
+            : (Number.isSafeInteger(verification.amountMinor) && verification.amountMinor > 0 ? verification.amountMinor : 1)
+        },
+        entitlement,
+        status:PURCHASE_STATUSES.CREDITED,
+        creditedAt:new Date(),
+        metadata:{ source: normalizedAsset === 'STRIPE' ? 'stripe' : 'external-payment', paymentReference:ref, verifier:verification.verifier || null, plan:plan.id, priceEur:plan.priceEur }
+      });
+    } catch (error) {
+      if (error?.code !== 11000) throw error;
+      purchase = await ZorgaxPurchase.findOne({ paymentIntentId });
+      if (!purchase) throw error;
+    }
   }
 
-  const now = new Date();
-  let startsAt = now;
-  let renewalDoc = null;
-  if (renewalOf) {
-    renewalDoc = await ZorgaxSubscription.findOne({ _id: renewalOf, ownerId: String(ownerId) });
-    if (!renewalDoc) throw new Error('Abbonamento da rinnovare non trovato');
-    if (renewalDoc.access?.expiresAt && renewalDoc.access.expiresAt > now) startsAt = renewalDoc.access.expiresAt;
-  }
-  const expiresAt = new Date(startsAt.getTime() + ACCESS_DAYS * 24 * 60 * 60 * 1000);
+  if (String(purchase.ownerId) !== String(ownerId)) throw new Error('Pagamento già utilizzato');
 
-  let subscription;
-  try {
-    subscription = await ZorgaxSubscription.create({
-      ownerId: String(ownerId),
-      plan: plan.id,
-      asset: normalizedAsset,
-      paymentReference: ref,
-      verification: {
-        status: 'VERIFIED',
-        verifier: String(verification.verifier || 'external-payment-verifier').slice(0, 120),
-        verifiedAt: now
-      },
-      access: { status: 'ACTIVE', startsAt, expiresAt },
-      renewalOf: renewalDoc?._id || null
-    });
-  } catch (error) {
-    if (error?.code !== 11000) throw error;
-    const replay = await ZorgaxSubscription.findOne({ paymentReference: ref }).lean();
-    if (!replay || String(replay.ownerId) !== String(ownerId)) throw new Error('Pagamento già utilizzato');
-    return replay;
-  }
+  const granted = await grantPurchaseEntitlement({
+    ownerId:String(ownerId),
+    purchaseId:purchase.purchaseId,
+    productId,
+    entitlementKey:entitlement.key,
+    tier:entitlement.tier,
+    durationDays:entitlement.durationDays,
+    metadata:{ paymentReference:ref, paymentAsset:normalizedAsset }
+  });
 
-  return subscription;
+  const e = granted.entitlement;
+  return {
+    _id: purchase._id,
+    ownerId:String(ownerId),
+    plan:plan.id,
+    asset:normalizedAsset,
+    paymentReference:ref,
+    verification:{ status:'VERIFIED', verifier:verification.verifier || 'external-payment-verifier', verifiedAt:purchase.creditedAt },
+    access:{ status:'ACTIVE', startsAt:e.startsAt, expiresAt:e.endsAt },
+    renewalOf:null
+  };
 }
 
 async function getAccess(ownerId) {
-  const now = new Date();
-  await ZorgaxSubscription.updateMany(
-    { ownerId: String(ownerId), 'access.status': 'ACTIVE', 'access.expiresAt': { $lte: now } },
-    { $set: { 'access.status': 'EXPIRED' } }
-  );
-  const active = await ZorgaxSubscription.findOne({
-    ownerId: String(ownerId),
-    'access.status': 'ACTIVE',
-    'access.startsAt': { $lte: now },
-    'access.expiresAt': { $gt: now }
-  }).sort({ 'access.expiresAt': -1 }).lean();
-
-  if (!active) return { plan: 'free', status: 'ACTIVE', expiresAt: null };
-  return { id: String(active._id), plan: active.plan, status: active.access.status, startsAt: active.access.startsAt, expiresAt: active.access.expiresAt, source: active.asset === 'STRIPE' ? 'STRIPE' : 'SUBSCRIPTION' };
+  const access = await getEntitlementAccess(String(ownerId));
+  const plan = String(access.tier || 'FREE').toLowerCase();
+  return {
+    id:access.entitlementId || null,
+    plan,
+    status:access.active === false ? 'INACTIVE' : 'ACTIVE',
+    startsAt:null,
+    expiresAt:access.endsAt || null,
+    source:access.source === 'PURCHASE' ? 'ENTITLEMENT' : access.source
+  };
 }
 
-module.exports = { ACCESS_DAYS, recordVerifiedPayment, getAccess };
+module.exports = { ACCESS_DAYS, SUPPORTED_PAYMENT_RAILS, externalIntentId, getAccess, normalizePaymentReference, recordVerifiedPayment };
