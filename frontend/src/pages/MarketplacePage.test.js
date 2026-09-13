@@ -1,4 +1,4 @@
-import{DEMO_SELLERS,MARKETPLACE_CATEGORIES,demoPaymentMode,filterDemoSellers,isDemoDeepLink}from'./MarketplacePage';
+import{DEMO_SELLERS,MARKETPLACE_CATEGORIES,MARKETPLACE_COPY,demoPaymentMode,filterDemoSellers,isDemoDeepLink}from'./MarketplacePage';
 
 describe('Marketplace Demo v2',()=>{
   test('provides at least one demo seller for every category',()=>{const covered=new Set(DEMO_SELLERS.map(s=>s.category));expect(MARKETPLACE_CATEGORIES.filter(c=>!covered.has(c))).toEqual([])});
@@ -7,4 +7,6 @@ describe('Marketplace Demo v2',()=>{
   test('filters demos by category, location, text and payment mode',()=>{expect(filterDemoSellers(DEMO_SELLERS,{category:'pet_adoption'}).map(s=>s.id)).toContain('demo-pet-adoption');expect(filterDemoSellers(DEMO_SELLERS,{location:'Cesena'}).every(s=>s.location.includes('Cesena'))).toBe(true);expect(filterDemoSellers(DEMO_SELLERS,{query:'volontario'}).map(s=>s.id)).toContain('demo-volunteering');expect(filterDemoSellers(DEMO_SELLERS,{payment:'BARTER'}).every(s=>demoPaymentMode(s.price)==='BARTER')).toBe(true)});
   test('specialized community categories expose purpose-specific fields',()=>{for(const category of['volunteering','pet_adoption','pet_lost_found','pet_services']){const demo=DEMO_SELLERS.find(s=>s.category===category);expect(demo.details.length).toBeGreaterThanOrEqual(3)}});
   test('recognizes only the explicit demo deep link',()=>{expect(isDemoDeepLink('?demo=1&utm_source=facebook')).toBe(true);expect(isDemoDeepLink('?demo=0')).toBe(false);expect(isDemoDeepLink('?utm_source=facebook')).toBe(false)});
+  test('keeps Spanish, French and German UI copy localized instead of falling back to English',()=>{const keys=['title','intro','seller','activate','active','publish','close','desc','place','price','send','all','filter','refresh','loading','empty','first','request','free','barter','login','checkout','published','why','buyer','cancel','success','wallet','formTitle','demoNote','demoOffer','demoRequests','demoSearch','demoPayment','demoAllPayments','demoDetails','demoAvailability','demoRequest','demoWarning','demoReview','demoConfirm','demoConfirmed','demoBack','demoLocalReview','noDemoMatches','closeDemo'];for(const lang of['es','fr','de'])for(const key of keys)expect(MARKETPLACE_COPY[lang][key]).not.toBe(MARKETPLACE_COPY.en[key])});
+  test('keeps localized benefit lists complete',()=>{for(const lang of['it','es','fr','de'])expect(MARKETPLACE_COPY[lang].benefits).toHaveLength(MARKETPLACE_COPY.en.benefits.length)});
 });
