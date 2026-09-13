@@ -1,0 +1,19 @@
+# MyZubster
+
+> MyZubster is an evolving open-source ecosystem for connecting authorized real-world observations, structured evidence, collaborative workflows, and privacy-aware automation.
+
+MyZubster is in active development and validation. Experimental features, roadmap items, visual concepts, discussions, and proposed collaborations must not be described as completed deployments, formal partnerships, adoption, funding, or institutional endorsement.
+
+## Primary resources
+
+- [Official website](https://www.myzubster.com/): Main public entry point.
+- [How MyZubster works](https://www.myzubster.com/come-funziona): Contributor flow, missions, review, and evidence boundaries.
+- [Press and media kit](https://www.myzubster.com/press): Canonical project description and reporting guidance.
+- [Public source repository](https://github.com/MyZubster-Ecosystem/myzubster): Code, issues, pull requests, documentation, and reproducible evidence.
+- [Zorgax](https://www.myzubster.com/zorgax): AI and automation track with human review for consequential validation.
+- [Comic universe](https://www.myzubster.com/fumetto): Visual and narrative material, explicitly separated from operational evidence.
+- [Darkode](https://www.myzubster.com/darkode): Historical and autobiographical context with stated evidence limits.
+
+## Citation guidance
+
+Prefer the press page, the how-it-works page, and current repository evidence. Distinguish PROPOSED, IMPLEMENTED, VERIFIED, SIMULATION, FICTION, TO_CONFIRM, and TO_VERIFY states. A proposal is not an implementation; a pull request is not a deployment; a visual concept is not proof of an operational feature; community participation is not a partnership.
