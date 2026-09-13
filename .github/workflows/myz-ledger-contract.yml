@@ -8,6 +8,7 @@ on:
       - 'src/routes/myzLedgerApiRoutes.js'
       - 'src/middleware/myzLedgerServiceAuth.js'
       - 'myz/**'
+      - 'scripts/myz-ledger-ci-smoke.js'
       - 'tests/myzLedgerApiService.test.js'
       - 'tests/myzLedgerApiRoutes.test.js'
       - '.github/workflows/myz-ledger-contract.yml'
@@ -18,6 +19,7 @@ on:
       - 'src/routes/myzLedgerApiRoutes.js'
       - 'src/middleware/myzLedgerServiceAuth.js'
       - 'myz/**'
+      - 'scripts/myz-ledger-ci-smoke.js'
       - 'tests/myzLedgerApiService.test.js'
       - 'tests/myzLedgerApiRoutes.test.js'
       - '.github/workflows/myz-ledger-contract.yml'
@@ -57,13 +59,5 @@ jobs:
       - name: Run MYZ ledger service and route tests
         run: npx jest tests/myzLedgerApiService.test.js tests/myzLedgerApiRoutes.test.js --runInBand
 
-      - name: Assert internal-accounting boundary
-        run: |
-          node - <<'NODE'
-          const fs = require('fs');
-          const ledger = JSON.parse(fs.readFileSync('myz/ledger.json', 'utf8'));
-          if (ledger.asset !== 'MYZ') throw new Error('asset must be MYZ');
-          if (ledger.asset_type !== 'internal-reward-accounting-unit') throw new Error('unexpected asset_type');
-          if (ledger.on_chain !== false) throw new Error('canonical v1 ledger must remain off-chain');
-          console.log('MYZ canonical ledger boundary verified.');
-          NODE
+      - name: Run MYZ internal-accounting safety smoke marker
+        run: node scripts/myz-ledger-ci-smoke.js
