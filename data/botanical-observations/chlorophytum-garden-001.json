@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "0.1",
+  "recordType": "botanical_observation",
+  "recordId": "MYZ-PLANT-CHLOROPHYTUM-001",
+  "status": "OBSERVED_PENDING_VERIFICATION",
+  "taxon": {
+    "commonName": "Falangio / pianta ragno",
+    "genus": "Chlorophytum",
+    "scientificName": "Chlorophytum comosum",
+    "cultivar": "variegated form; exact cultivar unconfirmed",
+    "identificationConfidence": "provisional",
+    "notes": "Identificazione visiva da una singola fotografia. Foglie lunghe, arcuate e variegate compatibili con Chlorophytum comosum."
+  },
+  "location": {
+    "name": "garden observation",
+    "coordinates": null,
+    "privacy": "location_withheld"
+  },
+  "observation": {
+    "observedAt": "2026-09-13",
+    "source": "user_submitted_photo",
+    "imageRepositoryPath": null,
+    "visualNotes": "Cespo fitto e generalmente vigoroso. Vegetazione prevalentemente verde e turgida; alcune foglie inferiori o punte appaiono secche. Nessun segno evidente di infestazione estesa o malattia grave e visibile nella fotografia.",
+    "verificationRequired": [
+      "close-up leaf photograph",
+      "photo of flowers or runners if present",
+      "underside leaf check for pests",
+      "species-level botanical verification"
+    ]
+  },
+  "provenance": {
+    "project": "MyZubster",
+    "createdFrom": "field observation",
+    "mediaPendingRepositoryUpload": true
+  }
+}
