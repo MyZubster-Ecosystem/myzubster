@@ -47,9 +47,9 @@ const zorgaxPurchaseSchema = new mongoose.Schema(
       required: true,
       validate: {
         validator(value) {
-          return Number.isSafeInteger(value) && value > 0;
+          return Number.isSafeInteger(value) && value >= 0;
         },
-        message: 'creditsGranted must be a positive safe integer'
+        message: 'creditsGranted must be a non-negative safe integer'
       }
     },
 
