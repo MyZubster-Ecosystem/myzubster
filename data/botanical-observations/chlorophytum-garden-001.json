@@ -7,9 +7,9 @@
     "commonName": "Falangio / pianta ragno",
     "genus": "Chlorophytum",
     "scientificName": "Chlorophytum comosum",
-    "cultivar": "variegated form; exact cultivar unconfirmed",
-    "identificationConfidence": "provisional",
-    "notes": "Identificazione visiva da una singola fotografia. Foglie lunghe, arcuate e variegate compatibili con Chlorophytum comosum."
+    "cultivar": "variegated form; likely Vittatum-type, exact cultivar unconfirmed",
+    "identificationConfidence": "high",
+    "notes": "Le foto di follow-up mostrano foglie nastriformi arcuate con banda chiara centrale e margini verdi, caratteristiche fortemente compatibili con Chlorophytum comosum variegato. Sono visibili anche stoloni/fusti fiorali compatibili con il taxon. Il cultivar esatto resta non confermato."
   },
   "location": {
     "name": "garden observation",
@@ -18,19 +18,25 @@
   },
   "observation": {
     "observedAt": "2026-09-13",
-    "source": "user_submitted_photo",
+    "source": "user_submitted_photo_followup_set",
     "imageRepositoryPath": null,
-    "visualNotes": "Cespo fitto e generalmente vigoroso. Vegetazione prevalentemente verde e turgida; alcune foglie inferiori o punte appaiono secche. Nessun segno evidente di infestazione estesa o malattia grave e visibile nella fotografia.",
+    "visualNotes": "Cespo maturo, fitto e generalmente vigoroso. Le foglie appaiono per lo piu turgide e sane; sono presenti alcune punte o foglie basali secche e vegetazione estranea che attraversa il cespo. Non sono visibili segni evidenti di infestazione grave o malattia severa nelle immagini disponibili.",
+    "visibleCondition": "vigorous_mature_clump_with_minor_tip_burn_and_competing_vegetation",
+    "followUpEvidence": {
+      "leafVariegationCloseup": "observed",
+      "runnersOrFlowerStems": "observed",
+      "undersidePestInspection": "not_yet_documented"
+    },
     "verificationRequired": [
-      "close-up leaf photograph",
-      "photo of flowers or runners if present",
-      "underside leaf check for pests",
+      "underside leaf close-up for small-pest inspection",
+      "optional close-up of flowers or plantlets if present",
       "species-level botanical verification"
     ]
   },
   "provenance": {
     "project": "MyZubster",
-    "createdFrom": "field observation",
-    "mediaPendingRepositoryUpload": true
+    "createdFrom": "field observation with follow-up photographs",
+    "mediaPendingRepositoryUpload": true,
+    "followUpReviewedAt": "2026-09-13"
   }
 }
