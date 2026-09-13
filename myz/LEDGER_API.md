@@ -56,6 +56,52 @@ Balance follows the canonical rule: sum `RECORDED` entries for the account, excl
 
 MYZ arithmetic uses fixed 18-decimal integer units internally; no JavaScript floating-point arithmetic is used for canonical balance or debit checks.
 
+## Read-only evidence lookup
+
+```text
+GET /api/v1/myz/entries/lookup
+```
+
+The endpoint is read-only and exists so the Marketplace operator reconciliation preview can verify canonical accounting evidence without writing to the ledger.
+
+`accountId` is required and must be in an authorized namespace. At least one immutable selector is also required:
+
+```text
+entryId
+idempotencyKey
+redemptionId
+providerTransactionId
+```
+
+Example:
+
+```text
+GET /api/v1/myz/entries/lookup?accountId=marketplace:user:alice&redemptionId=RED-123
+```
+
+Response:
+
+```json
+{
+  "schema": "myzubster-myz-ledger-lookup/v1",
+  "asset": "MYZ",
+  "accountId": "marketplace:user:alice",
+  "revision": "<sha256>",
+  "matched": 1,
+  "entries": [
+    {
+      "entry_id": "MYZ-LEDGER-...",
+      "entry_type": "ADJUSTMENT_DEBIT",
+      "status": "RECORDED",
+      "reversed": false,
+      "reversalEntryId": null
+    }
+  ]
+}
+```
+
+When a recorded `REVERSAL` targets a matched entry, the lookup marks `reversed=true` and returns the real reversal entry ID. It never invents an entry or treats a missing match as a successful debit.
+
 ## Append redemption debit
 
 ```text
@@ -87,7 +133,8 @@ The API refuses debits that would make the canonical balance negative.
 ## Fail-closed rules
 
 - no bearer service token configuration -> no service access;
-- unauthorized account namespace -> no balance read or debit;
+- unauthorized account namespace -> no balance read, evidence lookup or debit;
+- evidence lookup without a selector -> rejected;
 - malformed decimal -> no write;
 - insufficient canonical balance -> no write;
 - concurrent writer lock -> retryable failure, no guessed outcome;
@@ -110,5 +157,7 @@ canonical balance read
 -> re-read/verify RECORDED entry
 -> Marketplace marks redemption reconciled
 ```
+
+Operator reconciliation can independently use the read-only lookup path to establish whether a debit exists and whether it was reversed. This evidence path does not grant repair authority.
 
 Configuration is technical enablement only and does not imply legal authorization, CASP status, listing, provider support or regulatory approval.
