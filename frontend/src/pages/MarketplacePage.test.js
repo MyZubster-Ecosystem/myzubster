@@ -1,18 +1,9 @@
-import {DEMO_SELLERS,MARKETPLACE_CATEGORIES} from './MarketplacePage';
+import{DEMO_SELLERS,MARKETPLACE_CATEGORIES,demoPaymentMode,filterDemoSellers}from'./MarketplacePage';
 
-describe('Marketplace demo category coverage',()=>{
-  test('provides at least one demo seller for every category',()=>{
-    const covered=new Set(DEMO_SELLERS.map(seller=>seller.category));
-    const missing=MARKETPLACE_CATEGORIES.filter(category=>!covered.has(category));
-
-    expect(missing).toEqual([]);
-  });
-
-  test('uses valid categories and unique demo ids',()=>{
-    const allowed=new Set(MARKETPLACE_CATEGORIES);
-    const ids=DEMO_SELLERS.map(seller=>seller.id);
-
-    expect(DEMO_SELLERS.every(seller=>allowed.has(seller.category))).toBe(true);
-    expect(new Set(ids).size).toBe(ids.length);
-  });
+describe('Marketplace Demo v2',()=>{
+  test('provides at least one demo seller for every category',()=>{const covered=new Set(DEMO_SELLERS.map(s=>s.category));expect(MARKETPLACE_CATEGORIES.filter(c=>!covered.has(c))).toEqual([])});
+  test('uses valid categories and unique demo ids',()=>{const allowed=new Set(MARKETPLACE_CATEGORIES),ids=DEMO_SELLERS.map(s=>s.id);expect(DEMO_SELLERS.every(s=>allowed.has(s.category))).toBe(true);expect(new Set(ids).size).toBe(ids.length)});
+  test('every demo has a visual, detail content and availability',()=>{expect(DEMO_SELLERS.every(s=>s.icon&&s.description&&s.availability&&Array.isArray(s.details)&&s.details.length)).toBe(true)});
+  test('filters demos by category, location, text and payment mode',()=>{expect(filterDemoSellers(DEMO_SELLERS,{category:'pet_adoption'}).map(s=>s.id)).toContain('demo-pet-adoption');expect(filterDemoSellers(DEMO_SELLERS,{location:'Cesena'}).every(s=>s.location.includes('Cesena'))).toBe(true);expect(filterDemoSellers(DEMO_SELLERS,{query:'volontario'}).map(s=>s.id)).toContain('demo-volunteering');expect(filterDemoSellers(DEMO_SELLERS,{payment:'BARTER'}).every(s=>demoPaymentMode(s.price)==='BARTER')).toBe(true)});
+  test('specialized community categories expose purpose-specific fields',()=>{for(const category of['volunteering','pet_adoption','pet_lost_found','pet_services']){const demo=DEMO_SELLERS.find(s=>s.category===category);expect(demo.details.length).toBeGreaterThanOrEqual(3)}});
 });
