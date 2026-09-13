@@ -32,6 +32,7 @@ if (typeof Storage !== 'undefined') {
 
 // Marketplace Demo v2 visuals. Keep this styling scoped to the integrated demo
 // so real Marketplace listing cards and transaction flows are unaffected.
+const MARKETPLACE_DEMO_IMAGE_BASE = 'https://raw.githubusercontent.com/MyZubster-Ecosystem/myzubster/main/frontend/public/images/marketplace';
 const marketplaceDemoVisualStyle = document.createElement('style');
 marketplaceDemoVisualStyle.textContent = `
   section:has(> #demo-sellers-title)::before {
@@ -42,7 +43,7 @@ marketplaceDemoVisualStyle.textContent = `
     margin: 0 0 18px;
     border-radius: 16px;
     border: 1px solid rgba(47, 158, 102, .35);
-    background: #f6f9f6 url('/images/marketplace/marketplace-demo-v2.png') center / contain no-repeat;
+    background: #f6f9f6 url('${MARKETPLACE_DEMO_IMAGE_BASE}/marketplace-demo-v2.png') center / contain no-repeat;
     box-shadow: 0 12px 34px rgba(0, 0, 0, .12);
   }
   .myz-marketplace-demo-category-overview {
@@ -158,7 +159,7 @@ function mountMarketplaceDemoCategoryOverview() {
 
   const image = document.createElement('img');
   image.className = 'myz-marketplace-demo-category-visual';
-  image.src = '/images/marketplace/marketplace-demo-categories.png';
+  image.src = `${MARKETPLACE_DEMO_IMAGE_BASE}/marketplace-demo-categories.png`;
   image.alt = 'MyZubster Marketplace Demo category overview';
   image.loading = 'lazy';
   image.decoding = 'async';
