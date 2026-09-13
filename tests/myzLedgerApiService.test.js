@@ -81,6 +81,16 @@ describe('MyzLedgerApiService', () => {
     } finally { fs.rmSync(dir, { recursive: true, force: true }); }
   });
 
+  test('rejects idempotency replay with a different payload', () => {
+    const { dir, file } = tempLedger([entry({ entry_id: 'A', amount_myz: '100' })]);
+    try {
+      const service = new MyzLedgerApiService({ ledgerPath: file });
+      service.appendDebit({ account_id: 'marketplace:user:alice', amount_myz: '-10', idempotency_key: 'same-key' });
+      expect(() => service.appendDebit({ account_id: 'marketplace:user:alice', amount_myz: '-11', idempotency_key: 'same-key' }))
+        .toThrow('Idempotency key already exists with a different ledger payload');
+    } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+  });
+
   test('fails closed on insufficient balance', () => {
     const { dir, file } = tempLedger([entry({ entry_id: 'A', amount_myz: '10' })]);
     try {
@@ -91,6 +101,14 @@ describe('MyzLedgerApiService', () => {
         idempotency_key: 'redeem-too-much'
       })).toThrow('Insufficient canonical MYZ balance');
       expect(service.getBalance('marketplace:user:alice').balanceMyz).toBe('10');
+    } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+  });
+
+  test('enforces authorized account namespaces', () => {
+    const { dir, file } = tempLedger([entry({ entry_id: 'A', amount_myz: '10' })]);
+    try {
+      const service = new MyzLedgerApiService({ ledgerPath: file, allowedAccountPrefixes: 'marketplace:user:' });
+      expect(() => service.getBalance('admin:treasury')).toThrow('outside the authorized MYZ ledger namespace');
     } finally { fs.rmSync(dir, { recursive: true, force: true }); }
   });
 });
