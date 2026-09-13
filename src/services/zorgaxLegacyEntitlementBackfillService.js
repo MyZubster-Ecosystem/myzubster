@@ -6,6 +6,9 @@ const {
   ZorgaxEntitlement,
   ENTITLEMENT_STATUSES
 } = require('../models/ZorgaxEntitlement');
+const {
+  findActiveZorgaxStripeSubscription
+} = require('./zorgaxStripeRecoveryService');
 
 const LEGACY_COLLECTION = 'zorgaxsubscriptions';
 
@@ -38,39 +41,29 @@ async function findLegacyPaidAccess(ownerId, now = new Date()) {
   );
 }
 
-async function backfillLegacyEntitlement(ownerId, { now = new Date() } = {}) {
-  const normalizedOwnerId = String(ownerId || '').trim();
-  if (!normalizedOwnerId) throw new Error('ownerId is required');
-
-  const legacy = await findLegacyPaidAccess(normalizedOwnerId, now);
-  if (!legacy) return null;
-
-  const startsAt = validDate(legacy.access?.startsAt) || validDate(legacy.verification?.verifiedAt) || now;
-  const endsAt = validDate(legacy.access?.expiresAt);
-  if (!endsAt || endsAt <= now) return null;
-
-  const sourcePurchaseId = `legacy-subscription-${String(legacy._id)}`;
+async function createRecoveredEntitlement({
+  ownerId,
+  plan,
+  startsAt,
+  endsAt,
+  sourcePurchaseId,
+  metadata
+}) {
   const existing = await ZorgaxEntitlement.findOne({ sourcePurchaseId });
   if (existing) return existing;
 
   try {
     return await ZorgaxEntitlement.create({
       entitlementId: `zent_${crypto.randomUUID()}`,
-      ownerId: normalizedOwnerId,
+      ownerId,
       entitlementKey: 'zorgax.access',
-      tier: legacyTier(legacy.plan),
+      tier: legacyTier(plan),
       sourcePurchaseId,
-      productId: legacyProductId(legacy.plan),
+      productId: legacyProductId(plan),
       status: ENTITLEMENT_STATUSES.ACTIVE,
       startsAt,
       endsAt,
-      metadata: {
-        source: 'legacy-zorgax-subscription-backfill',
-        legacySubscriptionId: String(legacy._id),
-        paymentReference: legacy.paymentReference || null,
-        asset: legacy.asset || null,
-        migratedAt: now.toISOString()
-      }
+      metadata
     });
   } catch (error) {
     if (error?.code === 11000) {
@@ -80,9 +73,66 @@ async function backfillLegacyEntitlement(ownerId, { now = new Date() } = {}) {
   }
 }
 
+async function backfillFromLegacyCollection(ownerId, now) {
+  const legacy = await findLegacyPaidAccess(ownerId, now);
+  if (!legacy) return null;
+
+  const startsAt = validDate(legacy.access?.startsAt) || validDate(legacy.verification?.verifiedAt) || now;
+  const endsAt = validDate(legacy.access?.expiresAt);
+  if (!endsAt || endsAt <= now) return null;
+
+  return createRecoveredEntitlement({
+    ownerId,
+    plan: legacy.plan,
+    startsAt,
+    endsAt,
+    sourcePurchaseId: `legacy-subscription-${String(legacy._id)}`,
+    metadata: {
+      source: 'legacy-zorgax-subscription-backfill',
+      legacySubscriptionId: String(legacy._id),
+      paymentReference: legacy.paymentReference || null,
+      asset: legacy.asset || null,
+      migratedAt: now.toISOString()
+    }
+  });
+}
+
+async function backfillFromStripe(ownerId, now) {
+  const stripe = await findActiveZorgaxStripeSubscription(ownerId, { now });
+  if (!stripe) return null;
+
+  return createRecoveredEntitlement({
+    ownerId,
+    plan: stripe.plan,
+    startsAt: stripe.startsAt,
+    endsAt: stripe.endsAt,
+    sourcePurchaseId: `stripe-subscription-${stripe.subscriptionId}`,
+    metadata: {
+      source: 'stripe-subscription-backfill',
+      stripeSubscriptionId: stripe.subscriptionId,
+      stripeStatus: stripe.status,
+      cancelAtPeriodEnd: stripe.cancelAtPeriodEnd,
+      migratedAt: now.toISOString()
+    }
+  });
+}
+
+async function backfillLegacyEntitlement(ownerId, { now = new Date() } = {}) {
+  const normalizedOwnerId = String(ownerId || '').trim();
+  if (!normalizedOwnerId) throw new Error('ownerId is required');
+
+  const legacy = await backfillFromLegacyCollection(normalizedOwnerId, now);
+  if (legacy) return legacy;
+
+  return backfillFromStripe(normalizedOwnerId, now);
+}
+
 module.exports = {
   LEGACY_COLLECTION,
+  backfillFromLegacyCollection,
+  backfillFromStripe,
   backfillLegacyEntitlement,
+  createRecoveredEntitlement,
   findLegacyPaidAccess,
   legacyProductId,
   legacyTier
