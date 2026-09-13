@@ -38,6 +38,12 @@ describe('Marketplace seller checkout UI', () => {
     expect(page).toContain("Vendita o noleggio di un sound system artigianale completo");
     expect(page).toContain("id:'demo-audio-gear'");
     expect(page).toContain("id:'demo-event-tech'");
+    expect(page).toContain("id:'demo-subculture-wear'");
+    expect(page).toContain("Indumenti, patch, borse e accessori legati alle culture underground");
+    expect(page).toContain("id:'demo-event-sound-rental'");
+    expect(page).toContain("id:'demo-dj-package'");
+    expect(page).toContain("id:'demo-event-machines'");
+    expect(page).toContain("'clothing','accessories','event_equipment'");
     expect(page.indexOf('DEMO_SELLERS.map')).toBeLessThan(page.indexOf('listings.map'));
   });
 
