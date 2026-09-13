@@ -7,7 +7,7 @@ const { MongoMemoryServer } = require('mongodb-memory-server');
 process.env.NODE_ENV = 'test';
 process.env.JWT_SECRET = 'seller-test-secret';
 process.env.MARKETPLACE_SELLER_MONTHLY_EUR = '9.90';
-process.env.MARKETPLACE_SELLER_TRIAL_DAYS = '30';
+process.env.MARKETPLACE_SELLER_TRIAL_DAYS = '0';
 process.env.STRIPE_WEBHOOK_SECRET = 'whsec_seller_test_secret';
 
 delete process.env.STRIPE_SECRET_KEY;
@@ -60,7 +60,7 @@ test('publishing requires active seller membership, then works after verified ac
     .expect(201);
   expect(subscribe.body.membership.status).toBe('PENDING_PAYMENT');
   expect(subscribe.body.plan.amount).toBe(9.9);
-  expect(subscribe.body.plan.trialDays).toBe(30);
+  expect(subscribe.body.plan.trialDays).toBe(0);
 
   await request(app)
     .patch(`/api/marketplace/seller/moderation/${seller._id}/activate`)
