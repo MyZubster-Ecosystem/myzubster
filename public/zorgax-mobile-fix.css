@@ -1,0 +1,26 @@
+/* Zorgax mobile viewport fix — issue #1098 */
+@media (max-width: 640px) {
+  html, body { height: 100%; }
+  body { min-height: 100dvh; overflow: hidden; }
+  .shell { height: 100dvh !important; max-height: 100dvh !important; min-height: 0; }
+  .messages {
+    flex: 1 1 auto;
+    min-height: 120px !important;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scroll-padding-bottom: 16px;
+    -webkit-overflow-scrolling: touch;
+  }
+  footer {
+    position: relative !important;
+    flex: 0 0 auto;
+    bottom: auto !important;
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
+  }
+  footer textarea {
+    min-height: 58px !important;
+    height: 58px;
+    max-height: 22dvh !important;
+    resize: none !important;
+  }
+}
