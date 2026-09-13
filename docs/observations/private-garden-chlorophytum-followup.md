@@ -1,6 +1,6 @@
 # Follow-up verification — Chlorophytum garden observation
 
-Related record: `data/botanical-observations/private-garden-chlorophytum-001.json`
+Related record: `data/botanical-observations/chlorophytum-garden-001.json`
 
 The first image supports a provisional identification as *Chlorophytum comosum*, but a single wide photograph is not sufficient to confirm cultivar or complete a higher-confidence botanical verification.
 
