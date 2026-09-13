@@ -23,8 +23,8 @@ function stripeRequest(method, path, params) {
       response.on('data', chunk => { data += chunk; });
       response.on('end', () => {
         let parsed;
-        try { parsed=data ? JSON.parse(data) : {}; }
-        catch (_error) { return reject(new Error('Risposta Stripe non valida')); }
+        try { parsed=data ? JSON.parse(data) : {};
+        } catch (_error) { return reject(new Error('Risposta Stripe non valida')); }
         if (response.statusCode < 200 || response.statusCode >= 300) {
           const error=new Error(parsed?.error?.message || `Stripe HTTP ${response.statusCode}`);
           error.statusCode=response.statusCode;
@@ -37,58 +37,6 @@ function stripeRequest(method, path, params) {
     if (body) request.write(body);
     request.end();
   });
-}
-
-function subscriptionPeriod(subscription) {
-  const items = Array.isArray(subscription?.items?.data) ? subscription.items.data : [];
-  const starts = [
-    subscription?.current_period_start,
-    ...items.map(item => item?.current_period_start)
-  ].filter(Number.isFinite);
-  const ends = [
-    subscription?.current_period_end,
-    ...items.map(item => item?.current_period_end)
-  ].filter(Number.isFinite);
-
-  return {
-    startsAt: starts.length ? new Date(Math.min(...starts) * 1000) : null,
-    endsAt: ends.length ? new Date(Math.max(...ends) * 1000) : null
-  };
-}
-
-async function findActiveZorgaxSubscriptionForOwner(ownerId, { now = new Date() } = {}) {
-  if (!stripeConfigured()) return null;
-  const normalizedOwnerId = String(ownerId || '').trim();
-  if (!/^[A-Za-z0-9:_-]{1,200}$/.test(normalizedOwnerId)) return null;
-
-  const query = `metadata['userId']:'${normalizedOwnerId}' AND metadata['product']:'zorgax'`;
-  const response = await stripeRequest(
-    'GET',
-    `/v1/subscriptions/search?limit=20&query=${encodeURIComponent(query)}`
-  );
-
-  const candidates = (Array.isArray(response?.data) ? response.data : [])
-    .filter(subscription => ['active', 'trialing'].includes(subscription?.status))
-    .map(subscription => {
-      const planId = String(subscription?.metadata?.plan || '').toLowerCase();
-      const period = subscriptionPeriod(subscription);
-      return { subscription, planId, ...period };
-    })
-    .filter(entry => ['pro', 'developer'].includes(entry.planId))
-    .filter(entry => entry.endsAt && entry.endsAt > now)
-    .sort((left, right) => right.endsAt - left.endsAt);
-
-  if (!candidates.length) return null;
-  const match = candidates[0];
-  return {
-    subscriptionId: match.subscription.id,
-    ownerId: normalizedOwnerId,
-    planId: match.planId,
-    status: match.subscription.status,
-    startsAt: match.startsAt || now,
-    endsAt: match.endsAt,
-    cancelAtPeriodEnd: match.subscription.cancel_at_period_end === true
-  };
 }
 
 async function createStripeCheckout({ ownerId, planId }) {
@@ -138,11 +86,4 @@ async function activateZorgaxInvoice(invoice) {
   });
 }
 
-module.exports = {
-  stripeConfigured,
-  stripeRequest,
-  subscriptionPeriod,
-  findActiveZorgaxSubscriptionForOwner,
-  createStripeCheckout,
-  activateZorgaxInvoice
-};
+module.exports = { stripeConfigured, createStripeCheckout, activateZorgaxInvoice };
