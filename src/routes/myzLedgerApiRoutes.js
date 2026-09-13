@@ -7,12 +7,18 @@ const { requireMyzLedgerService } = require('../middleware/myzLedgerServiceAuth'
 
 router.use(requireMyzLedgerService);
 
+function statusFor(error) {
+  if (error.code === 'MYZ_LEDGER_ACCOUNT_FORBIDDEN') return 403;
+  if (error.code === 'MYZ_LEDGER_IDEMPOTENCY_CONFLICT') return 409;
+  if (['INVALID_MYZ_ACCOUNT', 'INVALID_MYZ_AMOUNT', 'INVALID_MYZ_LEDGER_ENTRY', 'INSUFFICIENT_MYZ_BALANCE'].includes(error.code)) return 400;
+  return 503;
+}
+
 router.get('/accounts/:accountId/balance', (req, res) => {
   try {
     return res.json(myzLedgerApiService.getBalance(req.params.accountId));
   } catch (error) {
-    const status = error.code === 'INVALID_MYZ_ACCOUNT' ? 400 : 503;
-    return res.status(status).json({ success: false, code: error.code || 'MYZ_LEDGER_READ_FAILED', error: error.message });
+    return res.status(statusFor(error)).json({ success: false, code: error.code || 'MYZ_LEDGER_READ_FAILED', error: error.message });
   }
 });
 
@@ -27,8 +33,7 @@ router.post('/entries', (req, res) => {
       revision: result.revision
     });
   } catch (error) {
-    const clientCodes = ['INVALID_MYZ_AMOUNT', 'INVALID_MYZ_LEDGER_ENTRY', 'INSUFFICIENT_MYZ_BALANCE'];
-    return res.status(clientCodes.includes(error.code) ? 400 : 503).json({
+    return res.status(statusFor(error)).json({
       success: false,
       code: error.code || 'MYZ_LEDGER_APPEND_FAILED',
       error: error.message
