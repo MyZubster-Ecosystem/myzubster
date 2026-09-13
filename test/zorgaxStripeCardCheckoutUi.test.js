@@ -27,4 +27,12 @@ describe('Zorgax Stripe card checkout wiring', () => {
     expect(seller).toContain('activateZorgaxInvoice(object)');
     expect(subscription).toContain("'STRIPE'");
   });
+
+  test('shows Seller membership separately from the Zorgax plan', () => {
+    expect(ui).toContain("/api/marketplace/seller/me");
+    expect(ui).toContain("sellerState.id = 'sellerAccountState'");
+    expect(ui).toContain('Marketplace: Seller attivo');
+    expect(ui).toContain('Zorgax e Marketplace Seller sono abbonamenti separati');
+    expect(ui).toContain("link.textContent = active ? '💼 Seller attivo' : '💼 Diventa Seller'");
+  });
 });
