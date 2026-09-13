@@ -21,4 +21,14 @@ describe('Marketplace seller checkout UI', () => {
   test('opens Stripe Checkout when the backend returns a checkout URL', () => {
     expect(page).toContain('window.location.assign(payload.checkoutUrl)');
   });
+
+  test('presents the founding Seller trial with transparent renewal terms', () => {
+    expect(page).toContain("activateTrial:'Inizia {days} giorni gratis'");
+    expect(page).toContain("trialTerms:'Nessun addebito per {days} giorni, poi 9,90 €/mese.");
+    expect(page).toContain("cohort:'Cohort Founding Seller'");
+  });
+
+  test('keeps wallet details outside the primary conversion path', () => {
+    expect(page.indexOf('<WalletHubPanel compact/>')).toBeGreaterThan(page.indexOf('listings.map'));
+  });
 });
