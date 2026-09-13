@@ -3,8 +3,10 @@
 const ZorgaxPaymentIntent = require('../models/ZorgaxPaymentIntent');
 const { verifySettlement } = require('./zorgaxChainVerifierService');
 const { recordVerifiedPayment } = require('./zorgaxSubscriptionService');
+const { createLegacyPurchaseBridge } = require('./zorgaxLegacyPurchaseBridge');
 
 const RETRY_DELAY_MS = 15 * 1000;
+const legacyPurchaseBridge = createLegacyPurchaseBridge();
 
 function normalizePaymentReference(asset, value) {
   const reference = String(value || '').trim().toLowerCase();
@@ -112,6 +114,12 @@ async function activateBoundPaymentIntent(intent) {
     paymentReference: verification.paymentReference,
     verification,
     renewalOf: intent.renewalOf || null
+  });
+
+  await legacyPurchaseBridge.recordVerifiedLegacyPurchase({
+    intent,
+    verification,
+    subscription
   });
 
   intent.settlement.status = 'VERIFIED';
