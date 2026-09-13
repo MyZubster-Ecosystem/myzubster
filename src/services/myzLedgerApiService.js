@@ -58,6 +58,17 @@ class MyzLedgerApiService {
   constructor(options = {}) {
     this.ledgerPath = options.ledgerPath || process.env.MYZ_LEDGER_PATH || DEFAULT_LEDGER_PATH;
     this.fs = options.fs || fs;
+    const configuredPrefixes = options.allowedAccountPrefixes || process.env.MYZ_LEDGER_ALLOWED_ACCOUNT_PREFIXES || 'marketplace:user:';
+    this.allowedAccountPrefixes = String(configuredPrefixes).split(',').map(value => value.trim()).filter(Boolean);
+  }
+
+  assertAuthorizedAccount(accountId) {
+    const normalized = String(accountId || '').trim();
+    if (!normalized) throw Object.assign(new Error('accountId is required'), { code: 'INVALID_MYZ_ACCOUNT' });
+    if (!this.allowedAccountPrefixes.some(prefix => normalized.startsWith(prefix))) {
+      throw Object.assign(new Error('Account is outside the authorized MYZ ledger namespace'), { code: 'MYZ_LEDGER_ACCOUNT_FORBIDDEN' });
+    }
+    return normalized;
   }
 
   readLedger() {
@@ -80,8 +91,7 @@ class MyzLedgerApiService {
   }
 
   getBalance(accountId) {
-    const normalized = String(accountId || '').trim();
-    if (!normalized) throw Object.assign(new Error('accountId is required'), { code: 'INVALID_MYZ_ACCOUNT' });
+    const normalized = this.assertAuthorizedAccount(accountId);
     const ledger = this.readLedger();
     return {
       schema: 'myzubster-myz-ledger-balance/v1',
@@ -92,49 +102,72 @@ class MyzLedgerApiService {
     };
   }
 
+  withWriteLock(fn) {
+    const lockPath = `${this.ledgerPath}.lock`;
+    let fd;
+    try {
+      fd = this.fs.openSync(lockPath, 'wx');
+    } catch (error) {
+      if (error && error.code === 'EEXIST') throw Object.assign(new Error('Canonical MYZ ledger is busy; retry safely with the same idempotency key'), { code: 'MYZ_LEDGER_BUSY' });
+      throw error;
+    }
+    try {
+      return fn();
+    } finally {
+      try { if (fd !== undefined) this.fs.closeSync(fd); } catch (_) {}
+      try { this.fs.unlinkSync(lockPath); } catch (_) {}
+    }
+  }
+
   appendDebit(input = {}) {
-    const accountId = String(input.account_id || '').trim();
+    const accountId = this.assertAuthorizedAccount(input.account_id);
     const amountText = String(input.amount_myz || '').trim();
     const idempotencyKey = String(input.idempotency_key || '').trim();
-    if (!accountId || !idempotencyKey) throw Object.assign(new Error('account_id and idempotency_key are required'), { code: 'INVALID_MYZ_LEDGER_ENTRY' });
+    if (!idempotencyKey) throw Object.assign(new Error('idempotency_key is required'), { code: 'INVALID_MYZ_LEDGER_ENTRY' });
 
     const amount = parseUnits(amountText);
     if (amount >= 0n) throw Object.assign(new Error('ADJUSTMENT_DEBIT amount_myz must be negative'), { code: 'INVALID_MYZ_LEDGER_ENTRY' });
 
-    const ledger = this.readLedger();
-    const duplicate = ledger.entries.find(entry => entry?.reference?.idempotency_key === idempotencyKey);
-    if (duplicate) return { entry: duplicate, duplicate: true, revision: revisionFor(ledger) };
+    return this.withWriteLock(() => {
+      const ledger = this.readLedger();
+      const duplicate = ledger.entries.find(entry => entry?.reference?.idempotency_key === idempotencyKey);
+      if (duplicate) {
+        const samePayload = duplicate.account_id === accountId && parseUnits(duplicate.amount_myz) === amount && duplicate.entry_type === 'ADJUSTMENT_DEBIT';
+        if (!samePayload) throw Object.assign(new Error('Idempotency key already exists with a different ledger payload'), { code: 'MYZ_LEDGER_IDEMPOTENCY_CONFLICT' });
+        return { entry: duplicate, duplicate: true, revision: revisionFor(ledger) };
+      }
 
-    const balance = this.balanceFor(ledger, accountId);
-    if (balance + amount < 0n) throw Object.assign(new Error('Insufficient canonical MYZ balance'), { code: 'INSUFFICIENT_MYZ_BALANCE' });
+      const balance = this.balanceFor(ledger, accountId);
+      if (balance + amount < 0n) throw Object.assign(new Error('Insufficient canonical MYZ balance'), { code: 'INSUFFICIENT_MYZ_BALANCE' });
 
-    const entry = {
-      entry_id: `MYZ-LEDGER-${crypto.randomUUID()}`,
-      timestamp: new Date().toISOString(),
-      account_id: accountId,
-      amount_myz: formatUnits(amount),
-      entry_type: 'ADJUSTMENT_DEBIT',
-      reference: {
-        ...(input.reference && typeof input.reference === 'object' ? input.reference : {}),
-        idempotency_key: idempotencyKey
-      },
-      status: 'RECORDED',
-      evidence: Array.isArray(input.evidence) ? input.evidence.map(String) : [],
-      reverses_entry_id: null,
-      note: String(input.note || 'Marketplace redemption debit after independently reconciled external settlement')
-    };
+      const entry = {
+        entry_id: `MYZ-LEDGER-${crypto.randomUUID()}`,
+        timestamp: new Date().toISOString(),
+        account_id: accountId,
+        amount_myz: formatUnits(amount),
+        entry_type: 'ADJUSTMENT_DEBIT',
+        reference: {
+          ...(input.reference && typeof input.reference === 'object' ? input.reference : {}),
+          idempotency_key: idempotencyKey
+        },
+        status: 'RECORDED',
+        evidence: Array.isArray(input.evidence) ? input.evidence.map(String) : [],
+        reverses_entry_id: null,
+        note: String(input.note || 'Marketplace redemption debit after independently reconciled external settlement')
+      };
 
-    ledger.entries.push(entry);
-    const directory = path.dirname(this.ledgerPath);
-    const temp = path.join(directory, `.${path.basename(this.ledgerPath)}.${process.pid}.${crypto.randomUUID()}.tmp`);
-    const serialized = `${JSON.stringify(ledger, null, 2)}\n`;
-    this.fs.writeFileSync(temp, serialized, { encoding: 'utf8', flag: 'wx' });
-    this.fs.renameSync(temp, this.ledgerPath);
+      ledger.entries.push(entry);
+      const directory = path.dirname(this.ledgerPath);
+      const temp = path.join(directory, `.${path.basename(this.ledgerPath)}.${process.pid}.${crypto.randomUUID()}.tmp`);
+      const serialized = `${JSON.stringify(ledger, null, 2)}\n`;
+      this.fs.writeFileSync(temp, serialized, { encoding: 'utf8', flag: 'wx' });
+      this.fs.renameSync(temp, this.ledgerPath);
 
-    const persisted = this.readLedger();
-    const confirmed = persisted.entries.find(candidate => candidate.entry_id === entry.entry_id);
-    if (!confirmed || confirmed.status !== 'RECORDED') throw Object.assign(new Error('Canonical debit persistence could not be verified'), { code: 'MYZ_LEDGER_PERSISTENCE_UNVERIFIED' });
-    return { entry: confirmed, duplicate: false, revision: revisionFor(persisted) };
+      const persisted = this.readLedger();
+      const confirmed = persisted.entries.find(candidate => candidate.entry_id === entry.entry_id);
+      if (!confirmed || confirmed.status !== 'RECORDED') throw Object.assign(new Error('Canonical debit persistence could not be verified'), { code: 'MYZ_LEDGER_PERSISTENCE_UNVERIFIED' });
+      return { entry: confirmed, duplicate: false, revision: revisionFor(persisted) };
+    });
   }
 }
 
