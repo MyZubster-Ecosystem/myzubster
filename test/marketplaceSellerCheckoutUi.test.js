@@ -22,10 +22,15 @@ describe('Marketplace seller checkout UI', () => {
     expect(page).toContain('window.location.assign(payload.checkoutUrl)');
   });
 
-  test('presents the founding Seller trial with transparent renewal terms', () => {
+  test('supports an explicitly configured Seller trial with transparent renewal terms', () => {
     expect(page).toContain("activateTrial:'Inizia {days} giorni gratis'");
     expect(page).toContain("trialTerms:'Per i nuovi Seller idonei: nessun addebito per {days} giorni, poi 9,90 €/mese.");
     expect(page).toContain("cohort:'Cohort Founding Seller'");
+  });
+
+  test('tracks a cancelled Stripe Checkout return', () => {
+    expect(page).toContain("params.get('seller')==='cancelled'");
+    expect(page).toContain("trackConversionOnce('seller_checkout_return_cancelled'");
   });
 
   test('shows clearly labelled demo sellers without creating fake accounts or payments', () => {
