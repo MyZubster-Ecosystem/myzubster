@@ -7,10 +7,13 @@ const { activateZorgaxInvoice } = require('../services/zorgaxStripeService');
 const { logConversionEvent } = require('../services/conversionFunnel');
 
 const router = express.Router();
-const monthlyPrice = () => Math.max(0, Number(process.env.MARKETPLACE_SELLER_MONTHLY_EUR || 9.90));
+const monthlyPrice = () => {
+  const raw = process.env.MARKETPLACE_SELLER_MONTHLY_EUR;
+  return raw == null || raw === '' ? 9.90 : Number(raw);
+};
 const trialDays = () => {
-  const configured = Number(process.env.MARKETPLACE_SELLER_TRIAL_DAYS ?? 30);
-  return Number.isFinite(configured) ? Math.max(0, Math.min(90, Math.floor(configured))) : 30;
+  const configured = Number(process.env.MARKETPLACE_SELLER_TRIAL_DAYS ?? 0);
+  return Number.isFinite(configured) ? Math.max(0, Math.min(90, Math.floor(configured))) : 0;
 };
 
 function stripeConfigured() {
@@ -114,6 +117,7 @@ router.get('/me', authenticate, async (req, res) => {
 router.post('/subscribe', authenticate, async (req,res) => {
   try {
     const amount=monthlyPrice(); const billingReference=`SELLER-${crypto.randomUUID()}`;
+    if(!Number.isFinite(amount)||amount<=0) return res.status(503).json({success:false,message:'Prezzo Seller non configurato correttamente'});
     const membership=await SellerMembership.findOneAndUpdate({userId:req.userId},{ $set:{plan:'SELLER_MONTHLY',status:'PENDING_PAYMENT',priceAmount:amount,priceCurrency:'EUR',billingReference,paymentReference:'',paymentProvider:'MANUAL',verifiedBy:null,verifiedAt:null}},{new:true,upsert:true,runValidators:true,setDefaultsOnInsert:true});
     logConversionEvent('seller_signup_started', { userId:req.userId, path:req.originalUrl, provider:'MANUAL', plan:'SELLER_MONTHLY', amount, currency:'EUR' });
     res.status(201).json({success:true,membership,plan:plan(),paymentRequired:true,stripeCheckoutAvailable:stripeConfigured(),message:'Richiesta Seller creata. L’account si attiva solo dopo verifica reale del pagamento; questa API non simula né conferma pagamenti.'});
@@ -128,6 +132,7 @@ router.post('/checkout', authenticate, async (req,res) => {
   if (!successUrl||!cancelUrl) return res.status(503).json({success:false,message:'URL checkout Seller non configurate'});
   try {
     const amount=monthlyPrice(); const billingReference=`SELLER-${crypto.randomUUID()}`;
+    if(!Number.isFinite(amount)||amount<=0) return res.status(503).json({success:false,message:'Prezzo Seller non configurato correttamente'});
     const existingMembership=await SellerMembership.findOne({userId:req.userId});
     if(existingMembership?.status==='ACTIVE' && existingMembership.expiresAt>new Date()) return res.status(409).json({success:false,message:'Account Seller già attivo'});
     const trialEligible=!existingMembership?.stripeSubscriptionId&&!existingMembership?.verifiedAt&&!existingMembership?.startsAt;
@@ -170,7 +175,10 @@ router.post('/webhook', async (req,res) => {
   let event; try { event=JSON.parse(req.body.toString('utf8')); } catch(_error) { return res.status(400).json({success:false,message:'Payload webhook non valido'}); }
   try {
     const object=event?.data?.object||{};
-    if(event.type==='checkout.session.completed' && object.mode==='subscription') {
+    if(event.type==='checkout.session.expired' && object.mode==='subscription' && object.metadata?.product==='seller') {
+      const userId=object.metadata?.userId||object.client_reference_id;
+      logConversionEvent('seller_checkout_expired', { userId, path:'/api/marketplace/seller/webhook', provider:'STRIPE', plan:'SELLER_MONTHLY', amount:object.amount_total == null ? null : object.amount_total / 100, currency:String(object.currency || 'EUR').toUpperCase(), metadata:{ sessionId:object.id } });
+    } else if(event.type==='checkout.session.completed' && object.mode==='subscription') {
       if(object.metadata?.product==='zorgax') return res.json({received:true,product:'zorgax'});
       const userId=object.metadata?.userId||object.client_reference_id;
       if(object.subscription) { const subscription=await stripeRequest('GET',`/v1/subscriptions/${encodeURIComponent(object.subscription)}`); await syncStripeSubscription(subscription,event.id,userId); }
