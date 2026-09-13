@@ -34,6 +34,10 @@ describe('Marketplace seller checkout UI', () => {
     expect(page).toContain("id:'demo-kefir'");
     expect(page).toContain("id:'demo-repair'");
     expect(page).toContain("id:'demo-seeds'");
+    expect(page).toContain("id:'demo-sound-system'");
+    expect(page).toContain("Vendita o noleggio di un sound system artigianale completo");
+    expect(page).toContain("id:'demo-audio-gear'");
+    expect(page).toContain("id:'demo-event-tech'");
     expect(page.indexOf('DEMO_SELLERS.map')).toBeLessThan(page.indexOf('listings.map'));
   });
 
