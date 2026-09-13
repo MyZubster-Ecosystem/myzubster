@@ -3,6 +3,20 @@
     return localStorage.getItem('myzubster-token') || localStorage.getItem('token') || localStorage.getItem('accessToken') || sessionStorage.getItem('token') || '';
   }
 
+  function normalizeZorgaxLabel(accessState) {
+    const value = accessState.textContent || '';
+    let next = value;
+    if (value === 'Piano: Free') next = 'Zorgax: Free';
+    else if (value.startsWith('Piano attivo: ')) next = `Zorgax: ${value.slice('Piano attivo: '.length)}`;
+    if (next !== value) accessState.textContent = next;
+  }
+
+  function observeZorgaxLabel(accessState) {
+    normalizeZorgaxLabel(accessState);
+    const observer = new MutationObserver(() => normalizeZorgaxLabel(accessState));
+    observer.observe(accessState, { childList:true, characterData:true, subtree:true });
+  }
+
   async function refreshPaidState(accessState) {
     const t = token();
     if (!t) return;
@@ -79,6 +93,8 @@
 
     const notice = document.querySelector('.notice');
     if (notice) notice.textContent = 'Zorgax e Marketplace Seller sono abbonamenti separati. Zorgax può cercare sul web e preparare dati da inserire; gli upgrade Zorgax possono essere pagati con carta tramite Stripe oppure tramite rail crypto separati, mentre lo stato Seller viene mostrato separatamente.';
+
+    observeZorgaxLabel(accessState);
 
     const cardButton = document.createElement('button');
     cardButton.id = 'startCard';
