@@ -24,7 +24,7 @@ describe('Marketplace seller checkout UI', () => {
 
   test('presents the founding Seller trial with transparent renewal terms', () => {
     expect(page).toContain("activateTrial:'Inizia {days} giorni gratis'");
-    expect(page).toContain("trialTerms:'Nessun addebito per {days} giorni, poi 9,90 €/mese.");
+    expect(page).toContain("trialTerms:'Per i nuovi Seller idonei: nessun addebito per {days} giorni, poi 9,90 €/mese.");
     expect(page).toContain("cohort:'Cohort Founding Seller'");
   });
 
