@@ -7,6 +7,7 @@ const { activateZorgaxInvoice } = require('../services/zorgaxStripeService');
 
 const router = express.Router();
 const monthlyPrice = () => Math.max(0, Number(process.env.MARKETPLACE_SELLER_MONTHLY_EUR || 9.90));
+const trialDays = () => Math.max(0, Math.min(90, Math.floor(Number(process.env.MARKETPLACE_SELLER_TRIAL_DAYS || 30))));
 
 function stripeConfigured() {
   return Boolean(process.env.STRIPE_SECRET_KEY && process.env.STRIPE_WEBHOOK_SECRET);
@@ -24,6 +25,7 @@ function plan() {
     amount: monthlyPrice(),
     currency: 'EUR',
     interval: 'month',
+    trialDays: trialDays(),
     benefits: ['pubblicazione annunci', 'gestione stock', 'richieste e messaggistica privata', 'reputazione da scambi completati'],
     paymentStatus: stripeConfigured() ? 'stripe_checkout_available' : 'external_verification_required'
   };
@@ -123,6 +125,8 @@ router.post('/checkout', authenticate, async (req,res) => {
     const amount=monthlyPrice(); const billingReference=`SELLER-${crypto.randomUUID()}`;
     const membership=await SellerMembership.findOneAndUpdate({userId:req.userId},{ $set:{plan:'SELLER_MONTHLY',status:'PENDING_PAYMENT',priceAmount:amount,priceCurrency:'EUR',billingReference,paymentReference:'',paymentProvider:'STRIPE',verifiedBy:null,verifiedAt:null}},{new:true,upsert:true,runValidators:true,setDefaultsOnInsert:true});
     const params={mode:'subscription',success_url:successUrl,cancel_url:cancelUrl,client_reference_id:String(req.userId),'line_items[0][quantity]':'1','metadata[userId]':String(req.userId),'metadata[billingReference]':billingReference,'metadata[product]':'seller','subscription_data[metadata][userId]':String(req.userId),'subscription_data[metadata][billingReference]':billingReference,'subscription_data[metadata][product]':'seller',allow_promotion_codes:'false'};
+    const sellerTrialDays=trialDays();
+    if(sellerTrialDays>0){params['subscription_data[trial_period_days]']=String(sellerTrialDays);params.payment_method_collection='always';}
     if(process.env.STRIPE_SELLER_PRICE_ID) params['line_items[0][price]']=process.env.STRIPE_SELLER_PRICE_ID;
     else { params['line_items[0][price_data][currency]']='eur'; params['line_items[0][price_data][unit_amount]']=String(Math.round(amount*100)); params['line_items[0][price_data][recurring][interval]']='month'; params['line_items[0][price_data][product_data][name]']='MyZubster Seller'; }
 
