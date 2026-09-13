@@ -1,10 +1,6 @@
 'use strict';
 
 const {
-  getAccess: getSubscriptionAccess
-} = require('./zorgaxSubscriptionService');
-
-const {
   getAccess: getEntitlementAccess
 } = require('./zorgaxEntitlementService');
 
@@ -80,7 +76,6 @@ function bestAccess(candidates) {
 }
 
 async function getAccess(ownerId, {
-  subscriptionAccessFn = getSubscriptionAccess,
   entitlementAccessFn = getEntitlementAccess,
   sponsoredAccessFn = getSponsoredAccess
 } = {}) {
@@ -88,20 +83,18 @@ async function getAccess(ownerId, {
   if (!normalizedOwnerId) throw new Error('ownerId is required');
 
   const results = await Promise.allSettled([
-    subscriptionAccessFn(normalizedOwnerId),
     entitlementAccessFn(normalizedOwnerId),
     sponsoredAccessFn(normalizedOwnerId)
   ]);
 
   const candidates = [];
-  if (results[0].status === 'fulfilled') candidates.push(normalizeAccess(results[0].value, 'SUBSCRIPTION'));
-  if (results[1].status === 'fulfilled') candidates.push(normalizeAccess(results[1].value, 'ENTITLEMENT'));
-  if (results[2].status === 'fulfilled' && results[2].value) {
-    candidates.push(normalizeAccess(results[2].value, results[2].value.source || 'SPONSORED_PILOT'));
+  if (results[0].status === 'fulfilled') candidates.push(normalizeAccess(results[0].value, 'ENTITLEMENT'));
+  if (results[1].status === 'fulfilled' && results[1].value) {
+    candidates.push(normalizeAccess(results[1].value, results[1].value.source || 'SPONSORED_PILOT'));
   }
 
   if (!candidates.length) {
-    throw results[0].reason || results[1].reason || results[2].reason || new Error('Zorgax access unavailable');
+    throw results[0].reason || results[1].reason || new Error('Zorgax access unavailable');
   }
 
   const selected = bestAccess(candidates.filter((entry) => entry.active));
