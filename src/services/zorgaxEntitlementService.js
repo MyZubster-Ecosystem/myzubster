@@ -189,7 +189,21 @@ async function listEntitlements({ ownerId, includeInactive = false } = {}) {
 
 async function getAccess(ownerId) {
   const normalizedOwnerId = requireOwnerId(ownerId);
-  const active = await listEntitlements({ ownerId: normalizedOwnerId });
+  let active = await listEntitlements({ ownerId: normalizedOwnerId });
+
+  if (!active.some((entry) => entry.entitlementKey === 'zorgax.access')) {
+    try {
+      // Lazy, idempotent migration: only restore a still-active, previously
+      // VERIFIED legacy subscription and preserve its original expiry.
+      const { backfillLegacyEntitlement } = require('./zorgaxLegacyEntitlementBackfillService');
+      const migrated = await backfillLegacyEntitlement(normalizedOwnerId);
+      if (migrated) active = await listEntitlements({ ownerId: normalizedOwnerId });
+    } catch (error) {
+      // A migration lookup must never make Free access unavailable. Operational
+      // failures remain observable through normal application error logging.
+      console.error('[zorgax] legacy entitlement backfill failed', error?.message || error);
+    }
+  }
 
   const paid = active
     .filter((entry) => entry.entitlementKey === 'zorgax.access')
