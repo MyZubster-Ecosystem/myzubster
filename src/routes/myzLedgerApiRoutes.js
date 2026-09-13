@@ -24,7 +24,10 @@ router.get('/accounts/:accountId/balance', (req, res) => {
 
 router.post('/entries', (req, res) => {
   try {
-    const result = myzLedgerApiService.appendDebit(req.body || {});
+    const headerKey = String(req.headers['idempotency-key'] || '').trim();
+    const body = { ...(req.body || {}) };
+    if (headerKey) body.idempotency_key = headerKey;
+    const result = myzLedgerApiService.appendDebit(body);
     return res.status(result.duplicate ? 200 : 201).json({
       schema: 'myzubster-myz-ledger-entry/v1',
       asset: 'MYZ',
