@@ -83,6 +83,23 @@ async function createRoom({ actorUserId, name, slug, accessPolicy = 'authenticat
   return { valid: true, status: 201, room: publicRoom(room) };
 }
 
+function roomDiscoveryQuery(authenticated = false) {
+  return {
+    state: { $in: ['published', 'scheduled', 'live'] },
+    accessPolicy: authenticated ? { $in: ['public', 'authenticated'] } : 'public'
+  };
+}
+
+async function listDiscoverableRooms({ authenticated = false, limit = 12 } = {}) {
+  if (!databaseAvailable()) return [];
+  const safeLimit = Math.min(24, Math.max(1, Number(limit) || 12));
+  const rooms = await VirtualRoom.find(roomDiscoveryQuery(authenticated))
+    .sort({ state: -1, scheduledFor: 1, updatedAt: -1 })
+    .limit(safeLimit)
+    .lean();
+  return rooms.map(publicRoom);
+}
+
 async function findRoom(idOrSlug) {
   if (!databaseAvailable()) return null;
   const key = cleanText(idOrSlug, 160);
@@ -239,6 +256,8 @@ module.exports = {
   publicRoom,
   publicSession,
   createRoom,
+  roomDiscoveryQuery,
+  listDiscoverableRooms,
   findRoom,
   updateRoom,
   createSession,
