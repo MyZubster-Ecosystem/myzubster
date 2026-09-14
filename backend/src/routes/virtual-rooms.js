@@ -57,6 +57,9 @@ router.get('/rooms/:idOrSlug', optionalAuthenticate, async (req, res) => {
   try {
     const room = await findRoom(req.params.idOrSlug);
     if (!room) return res.status(404).json({ success: false, error: 'Room not found' });
+    if (room.accessPolicy === 'authenticated' && !req.userId) {
+      return res.status(404).json({ success: false, error: 'Room not found' });
+    }
     if (room.accessPolicy === 'private' && String(req.userId || '') !== String(room.hostUserId) && req.userRole !== 'admin') {
       return res.status(404).json({ success: false, error: 'Room not found' });
     }
