@@ -12,6 +12,8 @@ const monthlyPrice = () => {
   return raw == null || raw === '' ? 9.90 : Number(raw);
 };
 const trialDays = () => {
+  const enabled = String(process.env.MARKETPLACE_SELLER_TRIAL_ENABLED || '').trim().toLowerCase() === 'true';
+  if (!enabled) return 0;
   const configured = Number(process.env.MARKETPLACE_SELLER_TRIAL_DAYS ?? 0);
   return Number.isFinite(configured) ? Math.max(0, Math.min(90, Math.floor(configured))) : 0;
 };
@@ -139,9 +141,12 @@ router.post('/checkout', authenticate, async (req,res) => {
     const membership=await SellerMembership.findOneAndUpdate({userId:req.userId},{ $set:{plan:'SELLER_MONTHLY',status:'PENDING_PAYMENT',priceAmount:amount,priceCurrency:'EUR',billingReference,paymentReference:'',paymentProvider:'STRIPE',verifiedBy:null,verifiedAt:null}},{new:true,upsert:true,runValidators:true,setDefaultsOnInsert:true});
     const params={mode:'subscription',success_url:successUrl,cancel_url:cancelUrl,client_reference_id:String(req.userId),'line_items[0][quantity]':'1','metadata[userId]':String(req.userId),'metadata[billingReference]':billingReference,'metadata[product]':'seller','subscription_data[metadata][userId]':String(req.userId),'subscription_data[metadata][billingReference]':billingReference,'subscription_data[metadata][product]':'seller',allow_promotion_codes:'false'};
     const sellerTrialDays=trialDays();
-    if(sellerTrialDays>0&&trialEligible){params['subscription_data[trial_period_days]']=String(sellerTrialDays);params.payment_method_collection='always';}
-    if(process.env.STRIPE_SELLER_PRICE_ID) params['line_items[0][price]']=process.env.STRIPE_SELLER_PRICE_ID;
-    else { params['line_items[0][price_data][currency]']='eur'; params['line_items[0][price_data][unit_amount]']=String(Math.round(amount*100)); params['line_items[0][price_data][recurring][interval]']='month'; params['line_items[0][price_data][product_data][name]']='MyZubster Seller'; }
+    const trialApplied=sellerTrialDays>0&&trialEligible;
+    if(trialApplied){params['subscription_data[trial_period_days]']=String(sellerTrialDays);params.payment_method_collection='always';}
+    params['line_items[0][price_data][currency]']='eur';
+    params['line_items[0][price_data][unit_amount]']=String(Math.round(amount*100));
+    params['line_items[0][price_data][recurring][interval]']='month';
+    params['line_items[0][price_data][product_data][name]']='MyZubster Seller';
 
     if (membership.stripeCustomerId) {
       try {
@@ -157,10 +162,14 @@ router.post('/checkout', authenticate, async (req,res) => {
     }
 
     const session=await stripeRequest('POST','/v1/checkout/sessions',params);
+    if (!trialApplied && Number(session.amount_total) === 0) {
+      console.error('Stripe Seller checkout rejected zero-value session without explicit trial', { sessionId:session.id, amount });
+      return res.status(502).json({success:false,message:'Checkout Seller non valido: importo zero non previsto'});
+    }
     membership.stripeCheckoutSessionId=session.id;
     if(typeof session.customer==='string') membership.stripeCustomerId=session.customer;
     await membership.save();
-    logConversionEvent('seller_checkout_started', { userId:req.userId, path:req.originalUrl, provider:'STRIPE', plan:'SELLER_MONTHLY', amount, currency:'EUR', metadata:{ trialEligible } });
+    logConversionEvent('seller_checkout_started', { userId:req.userId, path:req.originalUrl, provider:'STRIPE', plan:'SELLER_MONTHLY', amount, currency:'EUR', metadata:{ trialEligible:trialApplied, trialDays:sellerTrialDays } });
     res.status(201).json({success:true,checkoutUrl:session.url,sessionId:session.id,membership,plan:plan()});
   } catch(error) {
     console.error('Stripe Seller checkout error:', { message:error.message, statusCode:error.statusCode, code:error.stripeCode, param:error.stripeParam });
