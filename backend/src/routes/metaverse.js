@@ -519,6 +519,42 @@ router.get('/world', async (_req, res) => {
   }
 });
 
+router.get('/profile', authenticate, async (req, res) => {
+  try {
+    const character = await linkedCharacterForUser(req.userId);
+    if (!character) {
+      return res.status(404).json({
+        success: false,
+        error: 'No verified MyZubster character is linked to this account'
+      });
+    }
+
+    return res.json({
+      success: true,
+      character: {
+        displayName: character.displayName,
+        characterName: character.characterName,
+        archetype: character.archetype,
+        identityStatus: character.identityStatus,
+        myzId: character.characterId,
+        github: character.github?.login ? {
+          login: character.github.login,
+          profileUrl: character.github.profileUrl
+        } : null
+      },
+      missionProgress: {
+        visitedLandmarks: character.missionProgress?.visitedLandmarks || []
+      }
+    });
+  } catch (error) {
+    console.error('Metaverse profile lookup error:', error);
+    return res.status(503).json({
+      success: false,
+      error: 'Verified character storage is temporarily unavailable'
+    });
+  }
+});
+
 router.post('/progress/landmarks', authenticate, async (req, res) => {
   const landmarkId = cleanText(req.body?.landmarkId, 30);
   if (!LANDMARK_IDS.has(landmarkId)) {
