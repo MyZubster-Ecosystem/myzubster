@@ -18,6 +18,13 @@ describe('authenticated metaverse UI wiring', () => {
     expect(pageSource).toContain("localStorage.setItem(STORAGE_KEY, JSON.stringify(joinedProfile))");
   });
 
+  test('clears an expired authenticated session and presents a fresh login path', () => {
+    expect(pageSource).toContain('if (profileError.status === 401)');
+    expect(pageSource).toContain("localStorage.removeItem('myzubster-token')");
+    expect(pageSource).toContain('setAuthenticated(false)');
+    expect(pageSource).toContain('Sessione scaduta. Accedi di nuovo');
+  });
+
   test('renders account-linked characters as verified instead of guests', () => {
     expect(pageSource).toContain("identityStatus === 'account-linked'");
     expect(pageSource).toContain("isAccountLinked(me?.identityStatus) ? 'MYZ VERIFIED' : 'Ospite'");
