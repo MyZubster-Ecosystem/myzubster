@@ -537,8 +537,7 @@ router.post('/progress/landmarks', authenticate, async (req, res) => {
       },
       {
         $addToSet: { 'missionProgress.visitedLandmarks': landmarkId },
-        $set: { lastSeenAt: new Date() },
-        $setOnInsert: { 'missionProgress.firstMissionCompletedAt': new Date() }
+        $set: { lastSeenAt: new Date() }
       },
       { new: true }
     );
