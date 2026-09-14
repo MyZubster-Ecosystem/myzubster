@@ -4,6 +4,7 @@ const path = require('path');
 describe('authenticated metaverse UI wiring', () => {
   const apiSource = fs.readFileSync(path.join(__dirname, '../frontend/src/api/metaverse.js'), 'utf8');
   const pageSource = fs.readFileSync(path.join(__dirname, '../frontend/src/pages/MetaversePage.js'), 'utf8');
+  const roomPageSource = fs.readFileSync(path.join(__dirname, '../frontend/src/pages/MetaverseRoomPage.js'), 'utf8');
 
   test('sends the MyZubster bearer token only when it exists', () => {
     expect(apiSource).toContain("localStorage.getItem('myzubster-token')");
@@ -29,6 +30,13 @@ describe('authenticated metaverse UI wiring', () => {
     expect(pageSource).toContain("identityStatus === 'account-linked'");
     expect(pageSource).toContain("isAccountLinked(me?.identityStatus) ? 'MYZ VERIFIED' : 'Ospite'");
     expect(pageSource).toContain('@{me.github.login} ↗');
+  });
+
+  test('keeps the room view honest about authorization and realtime readiness', () => {
+    expect(roomPageSource).toContain("session.state !== 'live'");
+    expect(roomPageSource).toContain('Richiedi accesso alla sessione');
+    expect(roomPageSource).toContain('Il client realtime della stanza è ancora sperimentale');
+    expect(roomPageSource).not.toContain('realtimeToken');
   });
 
   test('uses resilient shared-state sync instead of a serverless EventSource', () => {
