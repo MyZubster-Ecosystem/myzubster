@@ -70,6 +70,20 @@ export function getMetaverseRoom(idOrSlug) {
   });
 }
 
+export function leaveMetaverseRoomSession(sessionId) {
+  return jsonRequest(`/api/metaverse/sessions/${encodeURIComponent(sessionId)}/leave`, {
+    method: 'POST',
+    headers: authHeaders()
+  });
+}
+
+export function endMetaverseRoomSession(sessionId) {
+  return jsonRequest(`/api/metaverse/sessions/${encodeURIComponent(sessionId)}/end`, {
+    method: 'POST',
+    headers: authHeaders()
+  });
+}
+
 export function joinMetaverseRoomSession(sessionId) {
   return jsonRequest(`/api/metaverse/sessions/${encodeURIComponent(sessionId)}/join`, {
     method: 'POST',
