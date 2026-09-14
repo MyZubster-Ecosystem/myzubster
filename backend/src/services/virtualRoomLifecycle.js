@@ -158,10 +158,12 @@ async function createSession({ roomId, actorUserId, actorRole }) {
 
 async function findCurrentSessionForRoom(roomId) {
   if (!databaseAvailable()) return null;
-  return VirtualSession.findOne({
-    roomId: cleanText(roomId, 160),
-    state: { $in: ['scheduled', 'live'] }
-  }).sort({ state: -1, createdAt: -1 });
+  const safeRoomId = cleanText(roomId, 160);
+  const live = await VirtualSession.findOne({ roomId: safeRoomId, state: 'live' })
+    .sort({ createdAt: -1 });
+  if (live) return live;
+  return VirtualSession.findOne({ roomId: safeRoomId, state: 'scheduled' })
+    .sort({ createdAt: -1 });
 }
 
 async function findSession(sessionId) {
