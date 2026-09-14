@@ -43,6 +43,7 @@ describe('authenticated metaverse UI wiring', () => {
     expect(roomPageSource).toContain('endMetaverseRoomSession');
     expect(roomPageSource).toContain('Lascia sessione');
     expect(roomPageSource).toContain('Concludi sessione');
+    expect(roomPageSource).toContain('setJoined(Boolean(result.joined))');
   });
 
   test('keeps the room view honest about authorization and realtime readiness', () => {
