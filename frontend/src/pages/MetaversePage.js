@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
+  getMetaverseProfile,
   getMetaverseWorld,
   joinMetaverse,
   leaveMetaverse,
@@ -125,6 +126,10 @@ function AvatarCreator({ initialProfile, authenticated, busy, error, totalCharac
   const [displayName, setDisplayName] = useState(initialProfile?.displayName || '');
   const formattedTotal = formatCharacterCount(totalCharacters);
 
+  useEffect(() => {
+    setDisplayName(initialProfile?.displayName || '');
+  }, [initialProfile?.displayName]);
+
   const submit = (event) => {
     event.preventDefault();
     const cleanName = displayName.trim();
@@ -215,6 +220,32 @@ function MetaversePage() {
   useEffect(() => {
     trackConversionOnce('metaverse_loaded', conversionContext({ surface: 'neon_plaza' }));
   }, []);
+
+  useEffect(() => {
+    if (!authenticated) return undefined;
+    let active = true;
+
+    getMetaverseProfile()
+      .then((result) => {
+        if (!active || !result.character) return;
+        const canonicalProfile = {
+          displayName: result.character.displayName,
+          characterName: result.character.characterName,
+          archetype: result.character.archetype,
+          myzId: result.character.myzId || '',
+          identityStatus: result.character.identityStatus,
+          github: result.character.github || null
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(canonicalProfile));
+        setProfile(canonicalProfile);
+        setVisitedLandmarks(sanitizeVisitedLandmarks(result.missionProgress?.visitedLandmarks));
+      })
+      .catch((profileError) => {
+        if (active && profileError.status === 404) setError(profileError.message);
+      });
+
+    return () => { active = false; };
+  }, [authenticated]);
 
   useEffect(() => {
     let active = true;
