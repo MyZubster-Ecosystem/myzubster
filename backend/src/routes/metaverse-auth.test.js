@@ -159,6 +159,37 @@ describe('authenticated MyZubster metaverse identity', () => {
       .expect(200);
   });
 
+  test('returns the canonical account-linked character before world entry', async () => {
+    mockFindOneAndUpdate.mockResolvedValue({
+      characterId: `account-${userId}`,
+      displayName: 'H4x0r',
+      characterName: 'H4x0r',
+      archetype: 'explorer',
+      identityStatus: 'account-linked',
+      missionProgress: { visitedLandmarks: ['identity'] },
+      github: {
+        login: 'DanielIoni-creator',
+        profileUrl: 'https://github.com/DanielIoni-creator'
+      }
+    });
+    const token = jwt.sign({ userId, username: 'daniel', role: 'user' }, process.env.JWT_SECRET);
+
+    const response = await request(app)
+      .get('/api/metaverse/profile')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+
+    expect(response.body.character).toMatchObject({
+      displayName: 'H4x0r',
+      characterName: 'H4x0r',
+      identityStatus: 'account-linked',
+      myzId: `account-${userId}`,
+      github: { login: 'DanielIoni-creator' }
+    });
+    expect(response.body.character).not.toHaveProperty('accountUserId');
+    expect(response.body.missionProgress).toEqual({ visitedLandmarks: ['identity'] });
+  });
+
   test('records only an authenticated account landmark and returns canonical server progress', async () => {
     mockFindOneAndUpdate.mockResolvedValue({
       missionProgress: { visitedLandmarks: ['identity', 'marketplace'] }
