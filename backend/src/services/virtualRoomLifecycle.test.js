@@ -1,5 +1,6 @@
 const {
   ROOM_TRANSITIONS,
+  roomDiscoveryQuery,
   validateJoin,
   publicRoom,
   publicSession
@@ -14,6 +15,17 @@ describe('virtual room lifecycle policy', () => {
     expect(ROOM_TRANSITIONS.ended.has('archive')).toBe(true);
     expect(ROOM_TRANSITIONS.ended.has('live')).toBe(false);
     expect(ROOM_TRANSITIONS.archive.size).toBe(0);
+  });
+
+  test('discovers only active lifecycle states and never exposes private rooms', () => {
+    expect(roomDiscoveryQuery(false)).toEqual({
+      state: { $in: ['published', 'scheduled', 'live'] },
+      accessPolicy: 'public'
+    });
+    expect(roomDiscoveryQuery(true)).toEqual({
+      state: { $in: ['published', 'scheduled', 'live'] },
+      accessPolicy: { $in: ['public', 'authenticated'] }
+    });
   });
 
   test('blocks joins when session is not live', async () => {
