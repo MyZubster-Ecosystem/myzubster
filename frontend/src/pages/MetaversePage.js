@@ -14,6 +14,7 @@ import './MetaversePage.css';
 
 const STORAGE_KEY = 'myz-metaverse-profile-v1';
 const SYNC_INTERVAL_MS = 1800;
+const MISSION_PROGRESS_PREFIX = 'myz-metaverse-mission-v1:';
 
 const ARCHETYPES = {
   guardian: { label: 'Guardian', glyph: '🛡️' },
@@ -38,6 +39,26 @@ const LANDMARKS = [
   { id: 'zorgax', label: 'Zorgax Observatory', icon: '👁️', x: 70, y: 62, href: '/zorgax' },
   { id: 'creator', label: 'Creator Lab', icon: '⚙️', x: 15, y: 62, href: '/come-funziona' }
 ];
+
+const LANDMARK_IDS = new Set(LANDMARKS.map((landmark) => landmark.id));
+
+function sanitizeVisitedLandmarks(value) {
+  if (!Array.isArray(value)) return [];
+  return [...new Set(value.filter((id) => typeof id === 'string' && LANDMARK_IDS.has(id)))];
+}
+
+function missionProgressKey(characterName) {
+  return `${MISSION_PROGRESS_PREFIX}${encodeURIComponent(characterName)}`;
+}
+
+function savedMissionProgress(characterName) {
+  if (!characterName) return [];
+  try {
+    return sanitizeVisitedLandmarks(JSON.parse(localStorage.getItem(missionProgressKey(characterName))));
+  } catch (_error) {
+    return [];
+  }
+}
 
 function savedProfile() {
   try {
@@ -230,6 +251,7 @@ function MetaversePage() {
         trackConversionOnce('character_verification_completed', conversionContext({ surface: 'neon_plaza', method: 'account_linked' }));
       }
       setProfile(joinedProfile);
+      setVisitedLandmarks(savedMissionProgress(joinedProfile.characterName));
       setSessionId(result.sessionId);
       setPlayers(Object.fromEntries(result.players.map((player) => [player.id, player])));
       if (Number.isInteger(result.totalCharacters)) setTotalCharacters(result.totalCharacters);
@@ -242,6 +264,16 @@ function MetaversePage() {
       setBusy(false);
     }
   };
+
+  useEffect(() => {
+    if (!profile?.characterName) return;
+    try {
+      localStorage.setItem(
+        missionProgressKey(profile.characterName),
+        JSON.stringify(sanitizeVisitedLandmarks(visitedLandmarks))
+      );
+    } catch (_error) {}
+  }, [profile?.characterName, visitedLandmarks]);
 
   useEffect(() => {
     if (!sessionId) return undefined;
@@ -387,6 +419,7 @@ function MetaversePage() {
     setSessionId(null);
     setPlayers({});
     setMessages([]);
+    setVisitedLandmarks([]);
     setProfile(null);
     setStatus('offline');
   };
@@ -549,4 +582,5 @@ function MetaversePage() {
   );
 }
 
+export { LANDMARKS, sanitizeVisitedLandmarks };
 export default MetaversePage;
