@@ -34,6 +34,19 @@ export function joinMetaverse(profile) {
   });
 }
 
+export function getMetaverseRoom(idOrSlug) {
+  return jsonRequest(`/api/metaverse/rooms/${encodeURIComponent(idOrSlug)}`, {
+    headers: authHeaders()
+  });
+}
+
+export function joinMetaverseRoomSession(sessionId) {
+  return jsonRequest(`/api/metaverse/sessions/${encodeURIComponent(sessionId)}/join`, {
+    method: 'POST',
+    headers: authHeaders()
+  });
+}
+
 export function getMetaverseRooms() {
   return jsonRequest('/api/metaverse/rooms', {
     headers: authHeaders()
