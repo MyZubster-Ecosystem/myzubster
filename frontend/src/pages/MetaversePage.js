@@ -203,7 +203,7 @@ function AvatarCreator({ initialProfile, authenticated, busy, error, totalCharac
 
 function MetaversePage() {
   const initialProfile = useMemo(savedProfile, []);
-  const authenticated = useMemo(() => Boolean(localStorage.getItem('myzubster-token')), []);
+  const [authenticated, setAuthenticated] = useState(() => Boolean(localStorage.getItem('myzubster-token')));
   const [profile, setProfile] = useState(initialProfile);
   const [sessionId, setSessionId] = useState(null);
   const [players, setPlayers] = useState({});
@@ -241,7 +241,16 @@ function MetaversePage() {
         setVisitedLandmarks(sanitizeVisitedLandmarks(result.missionProgress?.visitedLandmarks));
       })
       .catch((profileError) => {
-        if (active && profileError.status === 404) setError(profileError.message);
+        if (!active) return;
+        if (profileError.status === 401) {
+          localStorage.removeItem('myzubster-token');
+          localStorage.removeItem(STORAGE_KEY);
+          setProfile(null);
+          setAuthenticated(false);
+          setError('Sessione scaduta. Accedi di nuovo per usare il tuo personaggio verificato.');
+          return;
+        }
+        if (profileError.status === 404) setError(profileError.message);
       });
 
     return () => { active = false; };
