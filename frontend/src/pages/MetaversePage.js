@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   getMetaverseProfile,
+  getMetaverseRooms,
   getMetaverseWorld,
   joinMetaverse,
   leaveMetaverse,
@@ -215,6 +216,7 @@ function MetaversePage() {
   const [lastLandmark, setLastLandmark] = useState('Neon Plaza');
   const [totalCharacters, setTotalCharacters] = useState(null);
   const [featuredCharacters, setFeaturedCharacters] = useState([]);
+  const [discoverableRooms, setDiscoverableRooms] = useState([]);
   const [visitedLandmarks, setVisitedLandmarks] = useState([]);
 
   useEffect(() => {
@@ -253,6 +255,16 @@ function MetaversePage() {
         if (profileError.status === 404) setError(profileError.message);
       });
 
+    return () => { active = false; };
+  }, [authenticated]);
+
+  useEffect(() => {
+    let active = true;
+    getMetaverseRooms()
+      .then((result) => {
+        if (active && Array.isArray(result.rooms)) setDiscoverableRooms(result.rooms);
+      })
+      .catch(() => {});
     return () => { active = false; };
   }, [authenticated]);
 
@@ -585,6 +597,7 @@ function MetaversePage() {
             messages={messages}
             sessionId={sessionId}
             visitedLandmarks={visitedLandmarks}
+            rooms={discoverableRooms}
           />
 
           <section className="metaverse-panel">
