@@ -156,6 +156,14 @@ async function createSession({ roomId, actorUserId, actorRole }) {
   return { valid: true, status: 201, session: publicSession(session) };
 }
 
+async function findCurrentSessionForRoom(roomId) {
+  if (!databaseAvailable()) return null;
+  return VirtualSession.findOne({
+    roomId: cleanText(roomId, 160),
+    state: { $in: ['scheduled', 'live'] }
+  }).sort({ state: -1, createdAt: -1 });
+}
+
 async function findSession(sessionId) {
   if (!databaseAvailable()) return null;
   return VirtualSession.findOne({ sessionId: cleanText(sessionId, 160) });
@@ -261,6 +269,7 @@ module.exports = {
   findRoom,
   updateRoom,
   createSession,
+  findCurrentSessionForRoom,
   findSession,
   startSession,
   joinSession,
