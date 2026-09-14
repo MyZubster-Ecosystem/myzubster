@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import {
   createMetaverseRoomSession,
+  endMetaverseRoomSession,
   getMetaverseRoom,
   joinMetaverseRoomSession,
+  leaveMetaverseRoomSession,
   startMetaverseRoomSession,
   updateMetaverseRoom
 } from '../api/metaverse';
@@ -24,6 +26,7 @@ function MetaverseRoomPage({ roomKey }) {
   const [message, setMessage] = useState('');
   const [joining, setJoining] = useState(false);
   const [canManage, setCanManage] = useState(false);
+  const [joined, setJoined] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -50,9 +53,43 @@ function MetaverseRoomPage({ roomKey }) {
     try {
       const result = await joinMetaverseRoomSession(session.id);
       setSession(result.session);
+      setJoined(true);
       setMessage('Accesso autorizzato. Il client realtime della stanza è ancora sperimentale e non viene avviato da questa pagina.');
     } catch (error) {
       setMessage(error.status === 401 ? 'Accedi nuovamente per entrare nella stanza.' : error.message);
+    } finally {
+      setJoining(false);
+    }
+  };
+
+  const leave = async () => {
+    if (!session?.id || !joined) return;
+    setJoining(true);
+    setMessage('');
+    try {
+      const result = await leaveMetaverseRoomSession(session.id);
+      setSession(result.session);
+      setJoined(false);
+      setMessage('Hai lasciato la sessione.');
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setJoining(false);
+    }
+  };
+
+  const end = async () => {
+    if (!session?.id || !canManage || session.state !== 'live') return;
+    setJoining(true);
+    setMessage('');
+    try {
+      const result = await endMetaverseRoomSession(session.id);
+      setSession(result.session);
+      setRoom((current) => ({ ...current, state: 'ended' }));
+      setJoined(false);
+      setMessage('Sessione conclusa dall’host.');
+    } catch (error) {
+      setMessage(error.message);
     } finally {
       setJoining(false);
     }
@@ -116,11 +153,13 @@ function MetaverseRoomPage({ roomKey }) {
           <div className="metaverse-panel">
             <h3>Sessione {stateLabel(session.state)}</h3>
             <p>{session.participantCount} partecipanti su {session.capacity}</p>
-            {live && authenticated && (
+            {live && authenticated && !joined && (
               <button className="metaverse-primary" onClick={join} disabled={joining}>
                 {joining ? 'Accesso…' : 'Richiedi accesso alla sessione'}
               </button>
             )}
+            {live && joined && <button onClick={leave} disabled={joining}>Lascia sessione</button>}
+            {live && canManage && <button onClick={end} disabled={joining}>Concludi sessione</button>}
             {live && !authenticated && <p><a href="/social-login?returnTo=%2Fmetaverse">Accedi per entrare nella sessione.</a></p>}
             {!live && <p className="metaverse-muted">La sessione non è ancora live.</p>}
           </div>
