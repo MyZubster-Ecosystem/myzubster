@@ -32,6 +32,8 @@ const ZORGAX_FUNNEL_EVENTS = new Set([
   'profile_builder_open',
   'profile_builder_profile_loaded',
   'profile_builder_draft_generated',
+  'marketplace_demo_open',
+  'marketplace_demo_category_selected',
   'seller_checkout_started',
   'seller_checkout_succeeded'
 ]);
