@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { getMetaverseRoom, joinMetaverseRoomSession } from '../api/metaverse';
+import {
+  createMetaverseRoomSession,
+  getMetaverseRoom,
+  joinMetaverseRoomSession,
+  startMetaverseRoomSession,
+  updateMetaverseRoom
+} from '../api/metaverse';
 import './MetaversePage.css';
 
 function stateLabel(state) {
@@ -17,6 +23,7 @@ function MetaverseRoomPage({ roomKey }) {
   const [status, setStatus] = useState('loading');
   const [message, setMessage] = useState('');
   const [joining, setJoining] = useState(false);
+  const [canManage, setCanManage] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -25,6 +32,7 @@ function MetaverseRoomPage({ roomKey }) {
         if (!active) return;
         setRoom(result.room);
         setSession(result.session);
+        setCanManage(Boolean(result.canManage));
         setStatus('ready');
       })
       .catch((error) => {
@@ -50,6 +58,32 @@ function MetaverseRoomPage({ roomKey }) {
     }
   };
 
+  const manageLifecycle = async () => {
+    setJoining(true);
+    setMessage('');
+    try {
+      if (room.state === 'draft') {
+        const result = await updateMetaverseRoom(room.slug || room.id, { state: 'published' });
+        setRoom(result.room);
+        setMessage('Stanza pubblicata. Ora puoi creare una sessione.');
+      } else if (room.state === 'published' && !session) {
+        const result = await createMetaverseRoomSession(room.id);
+        setSession(result.session);
+        setRoom((current) => ({ ...current, state: 'scheduled' }));
+        setMessage('Sessione creata e programmata.');
+      } else if (session?.state === 'scheduled') {
+        const result = await startMetaverseRoomSession(session.id);
+        setSession(result.session);
+        setRoom((current) => ({ ...current, state: 'live' }));
+        setMessage('Sessione avviata.');
+      }
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setJoining(false);
+    }
+  };
+
   if (status === 'loading') {
     return <main className="metaverse-entry-shell"><section className="metaverse-entry-card"><p>Caricamento stanza…</p></section></main>;
   }
@@ -69,6 +103,15 @@ function MetaverseRoomPage({ roomKey }) {
         <p><strong>Accesso:</strong> {room.accessPolicy}</p>
         <p><strong>Capacità:</strong> {room.capacity}</p>
         <p><strong>Versione scena:</strong> {room.sceneManifestVersion}</p>
+        {canManage && (
+          <div className="metaverse-panel">
+            <h3>Controlli host</h3>
+            <p className="metaverse-muted">Le transizioni sono validate dal server e non possono tornare indietro.</p>
+            {room.state === 'draft' && <button className="metaverse-primary" onClick={manageLifecycle} disabled={joining}>Pubblica stanza</button>}
+            {room.state === 'published' && !session && <button className="metaverse-primary" onClick={manageLifecycle} disabled={joining}>Crea sessione</button>}
+            {session?.state === 'scheduled' && <button className="metaverse-primary" onClick={manageLifecycle} disabled={joining}>Avvia sessione</button>}
+          </div>
+        )}
         {session ? (
           <div className="metaverse-panel">
             <h3>Sessione {stateLabel(session.state)}</h3>
