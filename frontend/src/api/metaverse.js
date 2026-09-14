@@ -34,6 +34,12 @@ export function joinMetaverse(profile) {
   });
 }
 
+export function getMetaverseRooms() {
+  return jsonRequest('/api/metaverse/rooms', {
+    headers: authHeaders()
+  });
+}
+
 export function getMetaverseProfile() {
   return jsonRequest('/api/metaverse/profile', {
     headers: authHeaders()
