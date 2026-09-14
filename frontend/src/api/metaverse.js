@@ -34,6 +34,14 @@ export function joinMetaverse(profile) {
   });
 }
 
+export function recordMetaverseLandmark(landmarkId) {
+  return jsonRequest('/api/metaverse/progress/landmarks', {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify({ landmarkId })
+  });
+}
+
 export function getMetaverseWorld() {
   return jsonRequest('/api/metaverse/world');
 }
