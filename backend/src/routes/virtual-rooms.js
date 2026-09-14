@@ -20,6 +20,27 @@ const { appendSessionEvent, listSessionEvents } = require('../services/virtualSe
 
 const router = express.Router();
 
+function roomAccess(room, req) {
+  const actorUserId = String(req.userId || '');
+  const canManage = Boolean(actorUserId && (
+    actorUserId === String(room.hostUserId) || req.userRole === 'admin'
+  ));
+  if (['draft', 'archive'].includes(room.state) && !canManage) {
+    return { allowed: false, canManage };
+  }
+  if (room.accessPolicy === 'authenticated' && !actorUserId) {
+    return { allowed: false, canManage };
+  }
+  if (
+    room.accessPolicy === 'private'
+    && !canManage
+    && !(room.allowedUserIds || []).includes(actorUserId)
+  ) {
+    return { allowed: false, canManage };
+  }
+  return { allowed: true, canManage };
+}
+
 router.use((_req, res, next) => {
   res.setHeader('Cache-Control', 'no-store');
   res.setHeader('X-Metaverse-Lifecycle', 'server-authoritative');
@@ -57,20 +78,22 @@ router.get('/rooms/:idOrSlug', optionalAuthenticate, async (req, res) => {
   try {
     const room = await findRoom(req.params.idOrSlug);
     if (!room) return res.status(404).json({ success: false, error: 'Room not found' });
-    const canManage = Boolean(req.userId && (
-      String(req.userId) === String(room.hostUserId) || req.userRole === 'admin'
-    ));
-    if (['draft', 'archive'].includes(room.state) && !canManage) {
-      return res.status(404).json({ success: false, error: 'Room not found' });
-    }
-    if (room.accessPolicy === 'authenticated' && !req.userId) {
-      return res.status(404).json({ success: false, error: 'Room not found' });
-    }
-    if (room.accessPolicy === 'private' && !canManage && !(room.allowedUserIds || []).includes(String(req.userId || ''))) {
+    const access = roomAccess(room, req);
+    if (!access.allowed) {
       return res.status(404).json({ success: false, error: 'Room not found' });
     }
     const session = await findCurrentSessionForRoom(room.roomId);
-    return res.json({ success: true, room: publicRoom(room), session: publicSession(session), canManage });
+    const joined = Boolean(
+      req.userId
+      && (session?.participantUserIds || []).includes(String(req.userId))
+    );
+    return res.json({
+      success: true,
+      room: publicRoom(room),
+      session: publicSession(session),
+      canManage: access.canManage,
+      joined
+    });
   } catch (error) {
     console.error('Virtual room read error:', error?.name || 'Error');
     return res.status(500).json({ success: false, error: 'Unable to read room' });
@@ -102,7 +125,14 @@ router.get('/sessions/:id', optionalAuthenticate, async (req, res) => {
   try {
     const session = await findSession(req.params.id);
     if (!session) return res.status(404).json({ success: false, error: 'Session not found' });
-    return res.json({ success: true, session: publicSession(session) });
+    const room = await findRoom(session.roomId);
+    const access = room ? roomAccess(room, req) : { allowed: false };
+    if (!access.allowed) return res.status(404).json({ success: false, error: 'Session not found' });
+    const joined = Boolean(
+      req.userId
+      && (session.participantUserIds || []).includes(String(req.userId))
+    );
+    return res.json({ success: true, session: publicSession(session), joined });
   } catch (error) {
     console.error('Virtual session read error:', error?.name || 'Error');
     return res.status(500).json({ success: false, error: 'Unable to read session' });
@@ -114,7 +144,8 @@ router.get('/sessions/:id/events', optionalAuthenticate, async (req, res) => {
     const session = await findSession(req.params.id);
     if (!session) return res.status(404).json({ success: false, error: 'Session not found' });
     const room = await findRoom(session.roomId);
-    if (room?.accessPolicy === 'private' && String(req.userId || '') !== String(room.hostUserId) && req.userRole !== 'admin' && !(room.allowedUserIds || []).includes(String(req.userId || ''))) {
+    const access = room ? roomAccess(room, req) : { allowed: false };
+    if (!access.allowed) {
       return res.status(404).json({ success: false, error: 'Session not found' });
     }
     const stream = await listSessionEvents({ sessionId: req.params.id, after: req.query.after, limit: req.query.limit });
