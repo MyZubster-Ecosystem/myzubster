@@ -109,6 +109,7 @@ describe('authenticated MyZubster metaverse identity', () => {
       characterName: 'H4x0r',
       archetype: 'guardian',
       identityStatus: 'account-linked',
+      missionProgress: { visitedLandmarks: ['identity'] },
       github: {
         login: 'DanielIoni-creator',
         profileUrl: 'https://github.com/DanielIoni-creator'
@@ -139,6 +140,7 @@ describe('authenticated MyZubster metaverse identity', () => {
     expect(mockCreate).not.toHaveBeenCalled();
     expect(response.body.identityMode).toBe('account-linked');
     expect(response.body.persistence).toBe('linked-existing');
+    expect(response.body.missionProgress).toEqual({ visitedLandmarks: ['identity'] });
     expect(response.body.player).toMatchObject({
       displayName: 'H4x0r',
       characterName: 'H4x0r',
@@ -155,6 +157,56 @@ describe('authenticated MyZubster metaverse identity', () => {
       .post('/api/metaverse/leave')
       .send({ sessionId: response.body.sessionId })
       .expect(200);
+  });
+
+  test('records only an authenticated account landmark and returns canonical server progress', async () => {
+    mockFindOneAndUpdate.mockResolvedValue({
+      missionProgress: { visitedLandmarks: ['identity', 'marketplace'] }
+    });
+    const token = jwt.sign({ userId, username: 'daniel', role: 'user' }, process.env.JWT_SECRET);
+
+    const response = await request(app)
+      .post('/api/metaverse/progress/landmarks')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ landmarkId: 'marketplace', characterName: 'spoofed-client-name' })
+      .expect(200);
+
+    expect(mockFindOneAndUpdate).toHaveBeenCalledWith(
+      {
+        accountUserId: userId,
+        worldId: 'neon-plaza',
+        identityStatus: 'account-linked'
+      },
+      {
+        $addToSet: { 'missionProgress.visitedLandmarks': 'marketplace' },
+        $set: { lastSeenAt: expect.any(Date) }
+      },
+      { new: true }
+    );
+    expect(response.body.missionProgress).toEqual({
+      visitedLandmarks: ['identity', 'marketplace']
+    });
+  });
+
+  test('rejects unknown landmarks before writing progress', async () => {
+    const token = jwt.sign({ userId, username: 'daniel', role: 'user' }, process.env.JWT_SECRET);
+
+    await request(app)
+      .post('/api/metaverse/progress/landmarks')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ landmarkId: 'admin-zone' })
+      .expect(400);
+
+    expect(mockFindOneAndUpdate).not.toHaveBeenCalled();
+  });
+
+  test('requires authentication for server-side mission progress', async () => {
+    await request(app)
+      .post('/api/metaverse/progress/landmarks')
+      .send({ landmarkId: 'identity' })
+      .expect(401);
+
+    expect(mockFindOneAndUpdate).not.toHaveBeenCalled();
   });
 
   test('does not silently create a guest when an authenticated account has no linked character', async () => {
