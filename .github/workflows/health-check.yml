@@ -2,8 +2,12 @@ name: Production Health Check
 
 on:
   schedule:
-    - cron: '*/5 * * * *'
+    - cron: '*/15 * * * *'
   workflow_dispatch:
+
+concurrency:
+  group: production-health-check
+  cancel-in-progress: true
 
 jobs:
   health-check:
