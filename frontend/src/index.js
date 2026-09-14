@@ -3,9 +3,6 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import { startFeaturePageI18n } from './featurePageI18n';
 
-// Guest entry must not depend on browser persistence. Some privacy modes expose
-// localStorage but throw on writes/removals. Ignore storage failures only for
-// the optional metaverse guest profile; preserve normal storage errors elsewhere.
 const METAVERSE_PROFILE_KEY = 'myz-metaverse-profile-v1';
 
 if (typeof Storage !== 'undefined') {
@@ -31,14 +28,22 @@ if (typeof Storage !== 'undefined') {
   };
 }
 
-// Marketplace Demo v2 visuals.
-// Keep this styling scoped to the integrated demo so real Marketplace listing
-// cards and transaction flows are unaffected.
 const MARKETPLACE_DEMO_IMAGE_BASE =
   'https://raw.githubusercontent.com/MyZubster-Ecosystem/myzubster/main/frontend/public/images/marketplace';
 
 const MARKETPLACE_CATEGORY_CARD_VISUAL =
   `${MARKETPLACE_DEMO_IMAGE_BASE}/marketplace-category-card-visuals.png`;
+
+function trackMarketplaceDemo(event, target) {
+  try {
+    fetch('/api/zorgax/assistant/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(target ? { event, target } : { event }),
+      keepalive: true
+    }).catch(() => {});
+  } catch (_error) {}
+}
 
 const marketplaceDemoVisualStyle = document.createElement('style');
 
@@ -189,6 +194,11 @@ function setMarketplaceDemoCategory(value) {
     })
   );
 
+  trackMarketplaceDemo(
+    'marketplace_demo_category_selected',
+    value || 'all'
+  );
+
   document
     .querySelector('#demo-sellers-title')
     ?.closest('section')
@@ -213,6 +223,8 @@ function mountMarketplaceDemoCategoryOverview() {
     return;
   }
 
+  trackMarketplaceDemo('marketplace_demo_open');
+
   const overview = document.createElement('div');
 
   overview.className =
@@ -231,7 +243,6 @@ function mountMarketplaceDemoCategoryOverview() {
   copy.textContent =
     'Choose a category to filter the live demo cards below. No real order or payment is created.';
 
-  // Existing Marketplace category overview.
   const image = document.createElement('img');
 
   image.className =
@@ -246,7 +257,6 @@ function mountMarketplaceDemoCategoryOverview() {
   image.loading = 'lazy';
   image.decoding = 'async';
 
-  // New Marketplace category-card visual.
   const cardVisual = document.createElement('img');
 
   cardVisual.className =
