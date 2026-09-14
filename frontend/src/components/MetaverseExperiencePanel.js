@@ -87,13 +87,13 @@ function DiscoverableRooms({ rooms }) {
       ) : (
         <div className="metaverse-portal-list">
           {rooms.map((room) => (
-            <article className="metaverse-nearby" key={room.id}>
+            <a href={`/metaverse/rooms/${encodeURIComponent(room.slug || room.id)}`} key={room.id}>
               <span>{room.state === 'live' ? '🔴' : '🏛️'}</span>
               <div>
                 <strong>{room.name}</strong>
                 <small>{room.state === 'live' ? 'Live' : room.state} · capacità {room.capacity}</small>
               </div>
-            </article>
+            </a>
           ))}
         </div>
       )}
