@@ -37,7 +37,7 @@ function FirstMission({ identityStatus, visitedLandmarks }) {
       <h3>{complete ? 'Missione completata ✨' : 'Raggiungi il primo portale'}</h3>
       <p className="metaverse-muted">
         {complete
-          ? 'Hai esplorato Neon Plaza. Ora puoi continuare oppure creare un profilo per ritrovare il tuo percorso.'
+          ? 'Hai esplorato Neon Plaza. Le zone visitate restano disponibili in questo browser; puoi anche collegare il personaggio a un account.'
           : 'Muovi il personaggio con le frecce o WASD e raggiungi uno dei portali luminosi.'}
       </p>
       <div className="metaverse-progress" aria-label={complete ? 'Missione completata' : 'Missione in corso'}>
@@ -46,7 +46,7 @@ function FirstMission({ identityStatus, visitedLandmarks }) {
       {complete && !linked && (
         <div>
           <ul className="metaverse-check-list">
-            <li><span>💾</span>Salva progressi e missioni</li>
+            <li><span>💾</span>Conserva il personaggio oltre la sessione ospite</li>
             <li><span>🪪</span>Pubblica il nome del personaggio scelto</li>
             <li><span>🌱</span>Collega contributi e pilot autorizzati</li>
           </ul>
@@ -70,7 +70,7 @@ function FirstMission({ identityStatus, visitedLandmarks }) {
       {complete && linked && (
         <div>
           <strong>✅ Personaggio collegato al tuo account</strong>
-          <small className="metaverse-muted">Puoi salvare il percorso e partecipare con il nome pubblico scelto. Questo stato non certifica identità legale o competenze.</small>
+          <small className="metaverse-muted">Le zone visitate vengono conservate localmente in questo browser. Il collegamento all’account conserva l’identità pubblica del personaggio, ma non certifica identità legale o competenze.</small>
         </div>
       )}
     </section>
