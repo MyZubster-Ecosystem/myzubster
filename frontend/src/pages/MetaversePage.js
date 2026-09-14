@@ -252,11 +252,10 @@ function MetaversePage() {
         trackConversionOnce('character_verification_completed', conversionContext({ surface: 'neon_plaza', method: 'account_linked' }));
       }
       setProfile(joinedProfile);
-      const localProgress = savedMissionProgress(joinedProfile.characterName);
-      const serverProgress = isAccountLinked(joinedProfile.identityStatus)
+      const restoredProgress = isAccountLinked(joinedProfile.identityStatus)
         ? result.missionProgress?.visitedLandmarks
-        : [];
-      setVisitedLandmarks(sanitizeVisitedLandmarks([...localProgress, ...(serverProgress || [])]));
+        : savedMissionProgress(joinedProfile.characterName);
+      setVisitedLandmarks(sanitizeVisitedLandmarks(restoredProgress));
       setSessionId(result.sessionId);
       setPlayers(Object.fromEntries(result.players.map((player) => [player.id, player])));
       if (Number.isInteger(result.totalCharacters)) setTotalCharacters(result.totalCharacters);
