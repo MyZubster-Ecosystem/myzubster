@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const MetaverseCharacter = require('../models/MetaverseCharacter');
 const MetaversePresence = require('../models/MetaversePresence');
 const MetaverseChatMessage = require('../models/MetaverseChatMessage');
-const { optionalAuthenticate } = require('../../../src/middleware/auth');
+const { authenticate, optionalAuthenticate } = require('../../../src/middleware/auth');
 
 const router = express.Router();
 
@@ -32,6 +32,7 @@ const EMOTE_VISIBLE_MS = 5 * 1000;
 
 const ARCHETYPES = new Set(['guardian', 'explorer', 'maker', 'chronicler', 'scientist']);
 const EMOTES = new Set(['wave', 'spark', 'idea', 'leaf']);
+const LANDMARK_IDS = new Set(['identity', 'marketplace', 'projects', 'visual', 'zorgax', 'creator']);
 const sessions = new Map();
 const streams = new Map();
 const cleanupTimers = new Map();
@@ -518,6 +519,46 @@ router.get('/world', async (_req, res) => {
   }
 });
 
+router.post('/progress/landmarks', authenticate, async (req, res) => {
+  const landmarkId = cleanText(req.body?.landmarkId, 30);
+  if (!LANDMARK_IDS.has(landmarkId)) {
+    return res.status(400).json({ success: false, error: 'Unknown metaverse landmark' });
+  }
+  if (!databaseAvailable()) {
+    return res.status(503).json({ success: false, error: 'Character storage is temporarily unavailable' });
+  }
+
+  try {
+    const character = await MetaverseCharacter.findOneAndUpdate(
+      {
+        accountUserId: req.userId,
+        worldId: WORLD.id,
+        identityStatus: 'account-linked'
+      },
+      {
+        $addToSet: { 'missionProgress.visitedLandmarks': landmarkId },
+        $set: { lastSeenAt: new Date() },
+        $setOnInsert: { 'missionProgress.firstMissionCompletedAt': new Date() }
+      },
+      { new: true }
+    );
+
+    if (!character) {
+      return res.status(404).json({ success: false, error: 'No verified MyZubster character is linked to this account' });
+    }
+
+    return res.json({
+      success: true,
+      missionProgress: {
+        visitedLandmarks: character.missionProgress?.visitedLandmarks || [landmarkId]
+      }
+    });
+  } catch (error) {
+    console.error('Metaverse mission progress error:', error);
+    return res.status(503).json({ success: false, error: 'Mission progress is temporarily unavailable' });
+  }
+});
+
 router.post('/join', optionalAuthenticate, async (req, res) => {
   let activeSessions;
   try {
@@ -609,6 +650,9 @@ router.post('/join', optionalAuthenticate, async (req, res) => {
       identityMode,
       persistence,
       transport: databaseAvailable() ? 'shared-polling' : 'ephemeral',
+      missionProgress: linkedCharacter
+        ? { visitedLandmarks: linkedCharacter.missionProgress?.visitedLandmarks || [] }
+        : { visitedLandmarks: [] },
       note: linkedCharacter
         ? 'The authenticated account was linked to its existing verified MyZubster character.'
         : 'Client-supplied MYZ-ID values are display-only and are not treated as verified identity claims.'
