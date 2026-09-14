@@ -36,6 +36,7 @@ function MetaverseRoomPage({ roomKey }) {
         setRoom(result.room);
         setSession(result.session);
         setCanManage(Boolean(result.canManage));
+        setJoined(Boolean(result.joined));
         setStatus('ready');
       })
       .catch((error) => {
