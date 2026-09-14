@@ -2,6 +2,7 @@ const express = require('express');
 const { authenticate, optionalAuthenticate } = require('../../../src/middleware/auth');
 const {
   createRoom,
+  listDiscoverableRooms,
   findRoom,
   updateRoom,
   createSession,
@@ -22,6 +23,16 @@ router.use((_req, res, next) => {
   res.setHeader('Cache-Control', 'no-store');
   res.setHeader('X-Metaverse-Lifecycle', 'server-authoritative');
   next();
+});
+
+router.get('/rooms', optionalAuthenticate, async (req, res) => {
+  try {
+    const rooms = await listDiscoverableRooms({ authenticated: Boolean(req.userId) });
+    return res.json({ success: true, rooms, experimental: true });
+  } catch (error) {
+    console.error('Virtual room discovery error:', error?.name || 'Error');
+    return res.status(500).json({ success: false, error: 'Unable to list rooms' });
+  }
 });
 
 router.post('/rooms', authenticate, async (req, res) => {
