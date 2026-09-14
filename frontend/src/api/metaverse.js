@@ -34,6 +34,36 @@ export function joinMetaverse(profile) {
   });
 }
 
+export function createMetaverseRoom(input) {
+  return jsonRequest('/api/metaverse/rooms', {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify(input)
+  });
+}
+
+export function updateMetaverseRoom(idOrSlug, patch) {
+  return jsonRequest(`/api/metaverse/rooms/${encodeURIComponent(idOrSlug)}`, {
+    method: 'PATCH',
+    headers: authHeaders(),
+    body: JSON.stringify(patch)
+  });
+}
+
+export function createMetaverseRoomSession(roomId) {
+  return jsonRequest(`/api/metaverse/rooms/${encodeURIComponent(roomId)}/sessions`, {
+    method: 'POST',
+    headers: authHeaders()
+  });
+}
+
+export function startMetaverseRoomSession(sessionId) {
+  return jsonRequest(`/api/metaverse/sessions/${encodeURIComponent(sessionId)}/start`, {
+    method: 'POST',
+    headers: authHeaders()
+  });
+}
+
 export function getMetaverseRoom(idOrSlug) {
   return jsonRequest(`/api/metaverse/rooms/${encodeURIComponent(idOrSlug)}`, {
     headers: authHeaders()
