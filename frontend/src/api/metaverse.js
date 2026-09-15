@@ -120,6 +120,18 @@ export function requestMetaverseStageAccess(sessionId) {
   return jsonRequest(`/api/metaverse/sessions/${encodeURIComponent(sessionId)}/stage/requests`, { method: 'POST', headers: authHeaders() });
 }
 
+export function leaveMetaverseStage(sessionId) {
+  return jsonRequest(`/api/metaverse/sessions/${encodeURIComponent(sessionId)}/stage`, { method: 'DELETE', headers: authHeaders() });
+}
+
+export function getMetaverseStageSpeakers(sessionId) {
+  return jsonRequest(`/api/metaverse/sessions/${encodeURIComponent(sessionId)}/stage/speakers`, { headers: authHeaders() });
+}
+
+export function revokeMetaverseStageSpeaker(sessionId, participantRef) {
+  return jsonRequest(`/api/metaverse/sessions/${encodeURIComponent(sessionId)}/stage/speakers/${encodeURIComponent(participantRef)}`, { method: 'DELETE', headers: authHeaders() });
+}
+
 export function getMetaverseStageRequests(sessionId) {
   return jsonRequest(`/api/metaverse/sessions/${encodeURIComponent(sessionId)}/stage/requests`, { headers: authHeaders() });
 }
