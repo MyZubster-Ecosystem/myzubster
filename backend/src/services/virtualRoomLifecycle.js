@@ -512,7 +512,7 @@ async function leaveStage({ sessionId, actorUserId }) {
     session.lifecycleVersion += 1;
     await session.save();
   }
-  return { valid: true, status: 200, session: publicSession(session), stage: { requested: false, speaker: false }, action: speaker ? 'stage_left' : 'stage_request_cancelled' };
+  return { valid: true, status: 200, session: publicSession(session), stage: { requested: false, speaker: false }, changed: requested || speaker, action: speaker ? 'stage_left' : 'stage_request_cancelled' };
 }
 
 async function listStageSpeakers({ sessionId, actorUserId, actorRole }) {
