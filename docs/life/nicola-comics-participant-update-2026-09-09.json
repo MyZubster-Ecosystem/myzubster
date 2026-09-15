@@ -1,5 +1,5 @@
 {
-  "version": "nicola_comics_participant_update_v1",
+  "version": "nicola_comics_participant_update_v2",
   "recordedAt": "2026-09-09",
   "participantPublicId": "nicolaususnicola-lgtm",
   "source": "participant_direct_email_confirmation",
@@ -21,21 +21,21 @@
     "roadmap": "https://github.com/nicolaususnicola-lgtm/myzubster-mvp/blob/main/docs/n4k48-comics/ROADMAP.md",
     "artifacts": [
       {
-        "id": "n4k48-comic-01",
+        "id": "n4k48-comic-001",
         "title": "Dall’idea software al metaverso",
         "path": "docs/n4k48-comics/01-dall-idea-al-metaverso.png",
         "gitBlobSha": "bf90e43ba1c1524a5c955e6e0446fe774f83a2e7",
         "repositoryPresence": "VERIFIED"
       },
       {
-        "id": "n4k48-comic-02",
+        "id": "n4k48-comic-002",
         "title": "Il software prende forma",
         "path": "docs/n4k48-comics/02-il-software-prende-forma.png",
         "gitBlobSha": "d2ca98a461bf924a07219a9168491885f8f53724",
         "repositoryPresence": "VERIFIED"
       },
       {
-        "id": "n4k48-comic-03",
+        "id": "n4k48-comic-003",
         "title": "Verso Neon Plaza",
         "path": "docs/n4k48-comics/03-verso-neon-plaza.png",
         "gitBlobSha": "33b399d9e2df282a725875a69a60416badc175f9",
@@ -50,7 +50,7 @@
     "ecosystemComicsReferencedInPriorEmail": "REFERENCE_ONLY_NOT_CLAIMED_BY_PARTICIPANT"
   },
   "nftCandidate": {
-    "artifactId": "n4k48-comic-01",
+    "artifactId": "n4k48-comic-001",
     "selection": "PROPOSED_BY_PARTICIPANT",
     "mintStatus": "NOT_PERFORMED",
     "gate": "HUMAN_REVIEW_AND_PROVENANCE_RIGHTS_VERIFICATION_REQUIRED"
@@ -58,13 +58,53 @@
   "evidenceBoundaries": [
     "Repository presence verifies that the three files and gallery exist at the checked public paths; it does not independently prove authorship or rights.",
     "The visual scenes are narrative illustrations, not verified software screenshots or evidence that depicted metaverse features are implemented.",
+    "The local Docker and HTTP results were reported by Nicola and documented in a public commit; this automation verified the repository evidence but did not independently reproduce the runtime.",
+    "Automated pytest tests were not run in the documented session because pytest was unavailable.",
     "No NFT mint, token ownership, marketplace listing, sale, revenue, partnership, funding, or commercial validation is claimed.",
-    "The shared roadmap reference MyZubster-Ecosystem/myzubster issue 1052 was not accessible at the time of this check."
+    "The earlier shared-roadmap reference issue 1052 was inaccessible on 2026-09-09; issue 1176 is the current verified public-integration coordination issue."
   ],
   "nextOperationalGate": [
-    "Preserve source-generation provenance for each visual, including the tool and any source assets used.",
-    "Confirm licenses and authorization for every visual element and MyZubster mark used.",
-    "Complete human review of the selected candidate and intended license.",
-    "Only after approval, prepare a separate bounded mint plan; record on-chain evidence if a mint is actually executed."
-  ]
+    "Assign a real HTTPS endpoint in a hosting environment separated from Nicola's PC.",
+    "Configure NICOLA_COMICS_BASE_URL in that environment without committing secrets.",
+    "Decide and configure least-privilege authentication and authorization.",
+    "Map Zorgax public intents to the read-only actions gallery, detail, candidate, and next_steps.",
+    "Run and document the public end-to-end test.",
+    "Keep rights TO_VERIFY and all on-chain fields empty until provenance, authorization, and any mint are independently verified."
+  ],
+  "updatedAt": "2026-09-15",
+  "localAdapterValidation": {
+    "participantReportedAt": "2026-09-15",
+    "environment": "PARTICIPANT_LOCAL_DOCKER",
+    "serviceHealth": "PASS_PARTICIPANT_REPORTED",
+    "validationMode": "HTTP_MANUAL",
+    "actions": {
+      "gallery": "PASS_PARTICIPANT_REPORTED",
+      "detail": "PASS_PARTICIPANT_REPORTED",
+      "candidate": "PASS_PARTICIPANT_REPORTED",
+      "next_steps": "PASS_PARTICIPANT_REPORTED"
+    },
+    "catalogCount": 3,
+    "selectedCandidateOnly": "n4k48-comic-001",
+    "otherArtifactsSelection": "NOT_SELECTED",
+    "automatedTests": "NOT_RUN_PYTEST_UNAVAILABLE",
+    "independentRuntimeReproduction": "NOT_PERFORMED",
+    "verifiedRepositoryEvidence": {
+      "testReportCommit": "8944fcbe31354cd513380dc3f5be7853380ef5c2",
+      "testReportUrl": "https://github.com/nicolaususnicola-lgtm/myzubster-mvp/blob/8944fcbe31354cd513380dc3f5be7853380ef5c2/docs/nicola-comics/TEST-REPORT-2026-09-15.md",
+      "configurableAdapterCommit": "27a628c9836ee4ce5eb15f405c8555f992172bdb",
+      "integrationDocumentationCommit": "d777958dc2744d64ed4cbc0327a82c52fe7e655e",
+      "dockerEnvironmentCommit": "24361946c9bc4807e19a8c5235c3a8839ae39af6"
+    }
+  },
+  "publicIntegration": {
+    "state": "PENDING",
+    "adapterMode": "READ_ONLY",
+    "localPcExposure": "PROHIBITED",
+    "coordinationIssue": "https://github.com/MyZubster-Ecosystem/myzubster/issues/1176",
+    "baseUrlConfiguration": "NICOLA_COMICS_BASE_URL",
+    "realHttpsEndpoint": "NOT_ASSIGNED",
+    "authentication": "NOT_DECIDED",
+    "zorgaxPublicMapping": "NOT_CONFIGURED",
+    "publicEndToEndTest": "NOT_RUN"
+  }
 }
