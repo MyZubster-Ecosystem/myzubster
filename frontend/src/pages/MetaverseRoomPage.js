@@ -8,10 +8,14 @@ import {
   getMetaverseRoomInviteStatus,
   getMetaverseRoomParticipants,
   getMetaverseRoomSessionEvents,
+  getMetaverseStageRequests,
+  getMetaverseStageStatus,
   joinMetaverseRoomSession,
   leaveMetaverseRoomSession,
   moderateMetaverseRoomParticipant,
   redeemMetaverseRoomInvite,
+  requestMetaverseStageAccess,
+  resolveMetaverseStageRequest,
   revokeMetaverseRoomInvite,
   startMetaverseRoomSession,
   unblockMetaverseRoomParticipant,
@@ -43,6 +47,8 @@ function MetaverseRoomPage({ roomKey }) {
   const [inviteStatus, setInviteStatus] = useState({ active: false, expiresAt: null });
   const [participants, setParticipants] = useState([]);
   const [blockedParticipants, setBlockedParticipants] = useState([]);
+  const [stage, setStage] = useState({ policy: 'host-only', requested: false, speaker: false });
+  const [stageRequests, setStageRequests] = useState([]);
 
   useEffect(() => {
     let active = true;
@@ -142,6 +148,40 @@ function MetaverseRoomPage({ roomKey }) {
     const timer = window.setInterval(refresh, 5000);
     return () => { active = false; window.clearInterval(timer); };
   }, [canManage, session?.id, session?.state]);
+
+  useEffect(() => {
+    if (!joined || session?.state !== 'live') return undefined;
+    getMetaverseStageStatus(session.id).then((result) => setStage(result.stage)).catch(() => {});
+    return undefined;
+  }, [joined, session?.id, session?.state]);
+
+  useEffect(() => {
+    if (!canManage || session?.state !== 'live') {
+      setStageRequests([]);
+      return undefined;
+    }
+    let active = true;
+    const refresh = () => getMetaverseStageRequests(session.id).then((result) => { if (active) setStageRequests(result.requests || []); }).catch(() => {});
+    refresh();
+    const timer = window.setInterval(refresh, 5000);
+    return () => { active = false; window.clearInterval(timer); };
+  }, [canManage, session?.id, session?.state]);
+
+  const requestStage = async () => {
+    try {
+      const result = await requestMetaverseStageAccess(session.id);
+      setStage(result.stage);
+      setMessage('Richiesta di parola inviata all’host.');
+    } catch (error) { setMessage(error.message); }
+  };
+
+  const resolveStage = async (participantRef, approve) => {
+    try {
+      await resolveMetaverseStageRequest(session.id, participantRef, approve);
+      setStageRequests((current) => current.filter((request) => request.ref !== participantRef));
+      setMessage(approve ? 'Accesso al palco approvato.' : 'Richiesta di parola rifiutata.');
+    } catch (error) { setMessage(error.message); }
+  };
 
   const moderateParticipant = async (participantRef, block) => {
     setJoining(true);
@@ -372,7 +412,15 @@ function MetaverseRoomPage({ roomKey }) {
               </button>
             )}
             {live && joined && <button onClick={leave} disabled={joining}>Lascia sessione</button>}
+            {live && joined && stage.policy === 'host-approved' && !stage.requested && !stage.speaker && <button onClick={requestStage}>Richiedi di parlare</button>}
+            {stage.requested && <p className="metaverse-muted">Richiesta di parola in attesa.</p>}
+            {stage.speaker && <p className="metaverse-muted">Hai accesso al palco.</p>}
             {live && canManage && <button onClick={end} disabled={joining}>Concludi sessione</button>}
+            {live && canManage && stageRequests.length > 0 && (
+              <div className="metaverse-panel"><h4>Richieste di parola</h4>{stageRequests.map((request) => (
+                <div key={request.ref}><span>{request.characterName} · {request.archetype}</span> <button onClick={() => resolveStage(request.ref, true)}>Approva</button> <button onClick={() => resolveStage(request.ref, false)}>Rifiuta</button></div>
+              ))}</div>
+            )}
             {live && canManage && participants.length > 0 && (
               <div className="metaverse-panel"><h4>Moderazione partecipanti</h4>{participants.map((participant) => (
                 <div key={participant.ref}><span>{participant.characterName} · {participant.archetype}</span> <button onClick={() => moderateParticipant(participant.ref, false)} disabled={joining}>Rimuovi</button> <button onClick={() => moderateParticipant(participant.ref, true)} disabled={joining}>Rimuovi e blocca</button></div>
