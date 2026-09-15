@@ -5,6 +5,8 @@ const {
   listDiscoverableRooms,
   findRoom,
   updateRoom,
+  createRoomInvite,
+  redeemRoomInvite,
   createSession,
   startSession,
   joinSession,
@@ -107,6 +109,38 @@ router.patch('/rooms/:idOrSlug', authenticate, async (req, res) => {
   } catch (error) {
     console.error('Virtual room update error:', error?.name || 'Error');
     return res.status(500).json({ success: false, error: 'Unable to update room' });
+  }
+});
+
+router.post('/rooms/:idOrSlug/invitations', authenticate, async (req, res) => {
+  try {
+    const result = await createRoomInvite({
+      idOrSlug: req.params.idOrSlug,
+      actorUserId: req.userId,
+      actorRole: req.userRole || 'user'
+    });
+    return res.status(result.status).json(result.valid
+      ? { success: true, inviteCode: result.code, expiresAt: result.expiresAt }
+      : { success: false, error: result.error });
+  } catch (error) {
+    console.error('Virtual room invitation create error:', error?.name || 'Error');
+    return res.status(500).json({ success: false, error: 'Unable to create invitation' });
+  }
+});
+
+router.post('/rooms/:idOrSlug/invitations/redeem', authenticate, async (req, res) => {
+  try {
+    const result = await redeemRoomInvite({
+      idOrSlug: req.params.idOrSlug,
+      actorUserId: req.userId,
+      code: req.body?.code
+    });
+    return res.status(result.status).json(result.valid
+      ? { success: true, room: result.room }
+      : { success: false, error: result.error });
+  } catch (error) {
+    console.error('Virtual room invitation redeem error:', error?.name || 'Error');
+    return res.status(500).json({ success: false, error: 'Unable to redeem invitation' });
   }
 });
 
