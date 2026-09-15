@@ -318,6 +318,8 @@ async function leaveSession({ sessionId, actorUserId }) {
   if (!session) return { valid: false, status: 404, error: 'Session not found' };
   const actor = String(actorUserId);
   session.participantUserIds = (session.participantUserIds || []).filter((id) => id !== actor);
+  session.stageRequestUserIds = (session.stageRequestUserIds || []).filter((id) => id !== actor);
+  session.stageSpeakerUserIds = (session.stageSpeakerUserIds || []).filter((id) => id !== actor);
   session.lifecycleVersion += 1;
   await session.save();
   return { valid: true, status: 200, session: publicSession(session) };
@@ -432,6 +434,8 @@ async function moderateSessionParticipant({ sessionId, participantRef, actorUser
     );
   }
   session.participantUserIds = session.participantUserIds.filter((id) => String(id) !== String(target));
+  session.stageRequestUserIds = (session.stageRequestUserIds || []).filter((id) => String(id) !== String(target));
+  session.stageSpeakerUserIds = (session.stageSpeakerUserIds || []).filter((id) => String(id) !== String(target));
   session.lifecycleVersion += 1;
   await session.save();
   return { valid: true, status: 200, session: publicSession(session), action: block ? 'participant_blocked' : 'participant_removed' };
@@ -467,10 +471,11 @@ async function requestStageAccess({ sessionId, actorUserId }) {
   if (!room || room.stagePolicy !== 'host-approved') return { valid: false, status: 409, error: 'This room does not accept stage requests' };
   const actor = String(actorUserId);
   if (!(session.participantUserIds || []).includes(actor)) return { valid: false, status: 403, error: 'Join session before requesting stage access' };
-  if (!(session.stageSpeakerUserIds || []).includes(actor)) {
-    session.stageRequestUserIds = Array.from(new Set([...(session.stageRequestUserIds || []), actor]));
-    await session.save();
+  if ((session.stageSpeakerUserIds || []).includes(actor)) {
+    return { valid: true, status: 200, stage: { policy: room.stagePolicy, requested: false, speaker: true } };
   }
+  session.stageRequestUserIds = Array.from(new Set([...(session.stageRequestUserIds || []), actor]));
+  await session.save();
   return { valid: true, status: 200, stage: { policy: room.stagePolicy, requested: true, speaker: false } };
 }
 
