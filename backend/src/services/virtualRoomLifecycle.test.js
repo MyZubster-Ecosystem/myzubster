@@ -72,6 +72,12 @@ describe('virtual room lifecycle policy', () => {
     expect(ref).not.toBe(blockedParticipantRef('room-2', 'account-secret'));
   });
 
+  test('public session views do not expose stage request or speaker account ids', () => {
+    const view = publicSession({ sessionId: 's', roomId: 'r', state: 'live', capacity: 5, participantUserIds: [], stageRequestUserIds: ['secret'], stageSpeakerUserIds: ['secret'], lifecycleVersion: 1 });
+    expect(view).not.toHaveProperty('stageRequestUserIds');
+    expect(view).not.toHaveProperty('stageSpeakerUserIds');
+  });
+
   test('discovers only active lifecycle states and never exposes private rooms', () => {
     expect(roomDiscoveryQuery(false)).toEqual({
       state: { $in: ['published', 'scheduled', 'live'] },
