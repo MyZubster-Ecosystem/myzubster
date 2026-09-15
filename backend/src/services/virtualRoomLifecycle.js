@@ -349,6 +349,45 @@ function mintRealtimeToken(session, actorUserId) {
   }, secret, { expiresIn: '5m' });
 }
 
+function blockedParticipantRef(roomId, actorUserId) {
+  return hashRoomInviteCode(`blocklist:${roomId}:${actorUserId}`).slice(0, 24);
+}
+
+async function listRoomBlockedParticipants({ idOrSlug, actorUserId, actorRole }) {
+  if (!databaseAvailable()) return { valid: false, status: 503, error: 'Room storage unavailable' };
+  const room = await findRoom(idOrSlug);
+  if (!room) return { valid: false, status: 404, error: 'Room not found' };
+  if (!canManage(actorUserId, actorRole, room.hostUserId)) return { valid: false, status: 403, error: 'Host capability required' };
+  const ids = room.blockedUserIds || [];
+  const characters = await MetaverseCharacter.find({ accountUserId: { $in: ids } })
+    .select('accountUserId characterName archetype -_id')
+    .lean();
+  const byId = new Map(characters.map((character) => [String(character.accountUserId), character]));
+  return {
+    valid: true,
+    status: 200,
+    participants: ids.map((id) => ({
+      ref: blockedParticipantRef(room.roomId, id),
+      characterName: byId.get(String(id))?.characterName || 'Verified participant',
+      archetype: byId.get(String(id))?.archetype || 'explorer'
+    }))
+  };
+}
+
+async function unblockRoomParticipant({ idOrSlug, participantRef, actorUserId, actorRole }) {
+  if (!databaseAvailable()) return { valid: false, status: 503, error: 'Room storage unavailable' };
+  const room = await findRoom(idOrSlug);
+  if (!room) return { valid: false, status: 404, error: 'Room not found' };
+  if (!canManage(actorUserId, actorRole, room.hostUserId)) return { valid: false, status: 403, error: 'Host capability required' };
+  const target = (room.blockedUserIds || []).find(
+    (id) => blockedParticipantRef(room.roomId, id) === String(participantRef)
+  );
+  if (!target) return { valid: false, status: 404, error: 'Blocked participant not found' };
+  room.blockedUserIds = room.blockedUserIds.filter((id) => String(id) !== String(target));
+  await room.save();
+  return { valid: true, status: 200 };
+}
+
 function moderationParticipantRef(sessionId, actorUserId) {
   return hashRoomInviteCode(`${sessionId}:${actorUserId}`).slice(0, 24);
 }
@@ -431,6 +470,9 @@ module.exports = {
   joinSession,
   leaveSession,
   endSession,
+  blockedParticipantRef,
+  listRoomBlockedParticipants,
+  unblockRoomParticipant,
   moderationParticipantRef,
   listSessionParticipants,
   moderateSessionParticipant,
