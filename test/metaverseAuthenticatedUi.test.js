@@ -84,6 +84,10 @@ describe('authenticated metaverse UI wiring', () => {
     expect(roomPageSource).toContain('window.setInterval(refresh, ROOM_SYNC_INTERVAL_MS)');
     expect(roomPageSource).toContain("ended: 'Conclusa'");
     expect(roomPageSource).toContain('Cronologia della sessione');
+    expect(roomPageSource).toContain('Chat della stanza');
+    expect(roomPageSource).toContain('getMetaverseRoomMessages');
+    expect(roomPageSource).toContain('sendMetaverseRoomMessage');
+    expect(roomPageSource).toContain('I messaggi scadono automaticamente dopo 24 ore.');
     expect(roomPageSource).toContain('nessun ID partecipante viene mostrato');
   });
 
