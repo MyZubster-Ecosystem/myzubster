@@ -1,4 +1,4 @@
-const { cleanRoomMessage, publicRoomMessage, canModerateRoomChat, ROOM_CHAT_RETENTION_MS } = require('./virtualRoomChat');
+const { cleanRoomMessage, publicRoomMessage, canModerateRoomChat, roomChatThrottleKey, ROOM_CHAT_RETENTION_MS } = require('./virtualRoomChat');
 
 describe('virtual room chat policy', () => {
   test('sanitizes and limits room messages', () => {
@@ -32,6 +32,14 @@ describe('virtual room chat policy', () => {
     expect(canModerateRoomChat('admin-user', 'host', 'admin')).toBe(true);
     expect(canModerateRoomChat('participant', 'host')).toBe(false);
     expect(canModerateRoomChat('', 'host')).toBe(false);
+  });
+
+  test('scopes chat throttle keys to room, session and account without exposing them', () => {
+    const key = roomChatThrottleKey('room-1', 'session-1', 'account-secret');
+    expect(key).toHaveLength(64);
+    expect(key).not.toContain('account-secret');
+    expect(key).not.toBe(roomChatThrottleKey('room-1', 'session-2', 'account-secret'));
+    expect(key).not.toBe(roomChatThrottleKey('room-2', 'session-1', 'account-secret'));
   });
 
   test('retains room chat for exactly 24 hours', () => {
