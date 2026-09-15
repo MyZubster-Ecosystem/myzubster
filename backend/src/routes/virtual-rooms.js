@@ -403,7 +403,7 @@ router.post('/sessions/:id/messages/:messageId/reports', authenticate, async (re
 router.get('/sessions/:id/message-reports', authenticate, async (req, res) => {
   try {
     const result = await listRoomMessageReports({ sessionId: req.params.id, actorUserId: req.userId, actorRole: req.userRole || 'user' });
-    return res.status(result.status).json(result.valid ? { success: true, reports: result.reports } : { success: false, error: result.error });
+    return res.status(result.status).json(result.valid ? { success: true, reports: result.reports, history: result.history } : { success: false, error: result.error });
   } catch (error) { return res.status(500).json({ success: false, error: 'Unable to list message reports' }); }
 });
 
