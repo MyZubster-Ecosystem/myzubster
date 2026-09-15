@@ -9,13 +9,16 @@ import {
   getMetaverseRoomParticipants,
   getMetaverseRoomSessionEvents,
   getMetaverseStageRequests,
+  getMetaverseStageSpeakers,
   getMetaverseStageStatus,
   joinMetaverseRoomSession,
   leaveMetaverseRoomSession,
+  leaveMetaverseStage,
   moderateMetaverseRoomParticipant,
   redeemMetaverseRoomInvite,
   requestMetaverseStageAccess,
   resolveMetaverseStageRequest,
+  revokeMetaverseStageSpeaker,
   revokeMetaverseRoomInvite,
   startMetaverseRoomSession,
   unblockMetaverseRoomParticipant,
@@ -50,6 +53,7 @@ function MetaverseRoomPage({ roomKey }) {
   const [blockedParticipants, setBlockedParticipants] = useState([]);
   const [stage, setStage] = useState({ policy: 'host-only', requested: false, speaker: false });
   const [stageRequests, setStageRequests] = useState([]);
+  const [stageSpeakers, setStageSpeakers] = useState([]);
 
   useEffect(() => {
     let active = true;
@@ -174,6 +178,14 @@ function MetaverseRoomPage({ roomKey }) {
     return () => { active = false; window.clearInterval(timer); };
   }, [canManage, session?.id, session?.state]);
 
+  const leaveStage = async () => {
+    try {
+      const result = await leaveMetaverseStage(session.id);
+      setStage((current) => ({ ...current, ...result.stage }));
+      setMessage(stage.speaker ? 'Hai lasciato il palco.' : 'Richiesta di parola annullata.');
+    } catch (error) { setMessage(error.message); }
+  };
+
   const requestStage = async () => {
     try {
       const result = await requestMetaverseStageAccess(session.id);
@@ -187,6 +199,26 @@ function MetaverseRoomPage({ roomKey }) {
       await resolveMetaverseStageRequest(session.id, participantRef, approve);
       setStageRequests((current) => current.filter((request) => request.ref !== participantRef));
       setMessage(approve ? 'Accesso al palco approvato.' : 'Richiesta di parola rifiutata.');
+    } catch (error) { setMessage(error.message); }
+  };
+
+  useEffect(() => {
+    if (!canManage || session?.state !== 'live') {
+      setStageSpeakers([]);
+      return undefined;
+    }
+    let active = true;
+    const refresh = () => getMetaverseStageSpeakers(session.id).then((result) => { if (active) setStageSpeakers(result.speakers || []); }).catch(() => {});
+    refresh();
+    const timer = window.setInterval(refresh, 5000);
+    return () => { active = false; window.clearInterval(timer); };
+  }, [canManage, session?.id, session?.state]);
+
+  const revokeSpeaker = async (participantRef) => {
+    try {
+      await revokeMetaverseStageSpeaker(session.id, participantRef);
+      setStageSpeakers((current) => current.filter((speaker) => speaker.ref !== participantRef));
+      setMessage('Accesso al palco revocato.');
     } catch (error) { setMessage(error.message); }
   };
 
@@ -422,9 +454,14 @@ function MetaverseRoomPage({ roomKey }) {
             )}
             {live && joined && <button onClick={leave} disabled={joining}>Lascia sessione</button>}
             {live && joined && stage.policy === 'host-approved' && !stage.requested && !stage.speaker && <button onClick={requestStage}>Richiedi di parlare</button>}
-            {stage.requested && <p className="metaverse-muted">Richiesta di parola in attesa.</p>}
-            {stage.speaker && <p className="metaverse-muted">Hai accesso al palco.</p>}
+            {stage.requested && <p className="metaverse-muted">Richiesta di parola in attesa. <button onClick={leaveStage}>Annulla richiesta</button></p>}
+            {stage.speaker && <p className="metaverse-muted">Hai accesso al palco. <button onClick={leaveStage}>Lascia palco</button></p>}
             {live && canManage && <button onClick={end} disabled={joining}>Concludi sessione</button>}
+            {live && canManage && stageSpeakers.length > 0 && (
+              <div className="metaverse-panel"><h4>Partecipanti sul palco</h4>{stageSpeakers.map((speaker) => (
+                <div key={speaker.ref}><span>{speaker.characterName} · {speaker.archetype}</span> <button onClick={() => revokeSpeaker(speaker.ref)}>Revoca palco</button></div>
+              ))}</div>
+            )}
             {live && canManage && stageRequests.length > 0 && (
               <div className="metaverse-panel"><h4>Richieste di parola</h4>{stageRequests.map((request) => (
                 <div key={request.ref}><span>{request.characterName} · {request.archetype}</span> <button onClick={() => resolveStage(request.ref, true)}>Approva</button> <button onClick={() => resolveStage(request.ref, false)}>Rifiuta</button></div>
