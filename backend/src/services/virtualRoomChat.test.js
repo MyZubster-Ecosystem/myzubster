@@ -1,4 +1,4 @@
-const { cleanRoomMessage, publicRoomMessage, ROOM_CHAT_RETENTION_MS } = require('./virtualRoomChat');
+const { cleanRoomMessage, publicRoomMessage, canModerateRoomChat, ROOM_CHAT_RETENTION_MS } = require('./virtualRoomChat');
 
 describe('virtual room chat policy', () => {
   test('sanitizes and limits room messages', () => {
@@ -25,6 +25,13 @@ describe('virtual room chat policy', () => {
     });
     expect(message).not.toHaveProperty('senderUserId');
     expect(message).not.toHaveProperty('sessionId');
+  });
+
+  test('grants message moderation only to the host or an admin', () => {
+    expect(canModerateRoomChat('host', 'host')).toBe(true);
+    expect(canModerateRoomChat('admin-user', 'host', 'admin')).toBe(true);
+    expect(canModerateRoomChat('participant', 'host')).toBe(false);
+    expect(canModerateRoomChat('', 'host')).toBe(false);
   });
 
   test('retains room chat for exactly 24 hours', () => {
