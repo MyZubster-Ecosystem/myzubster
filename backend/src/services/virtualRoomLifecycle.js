@@ -190,11 +190,20 @@ async function revokeRoomInvite({ idOrSlug, actorUserId, actorRole }) {
   return { valid: true, status: 200, invitation: publicInviteStatus(room) };
 }
 
+function roomInviteRedemptionQuery({ roomId, suppliedHash, actorUserId, now = new Date() }) {
+  return {
+    roomId: String(roomId),
+    accessPolicy: 'private',
+    inviteTokenHash: suppliedHash,
+    inviteExpiresAt: { $gt: now },
+    blockedUserIds: { $ne: String(actorUserId) }
+  };
+}
+
 async function redeemRoomInvite({ idOrSlug, actorUserId, code }) {
   if (!databaseAvailable()) return { valid: false, status: 503, error: 'Room storage unavailable' };
   const key = cleanText(idOrSlug, 160);
-  const room = await VirtualRoom.findOne({ $or: [{ roomId: key }, { slug: key }] })
-    .select('+inviteTokenHash +inviteExpiresAt');
+  const room = await VirtualRoom.findOne({ $or: [{ roomId: key }, { slug: key }] });
   if (!room) return { valid: false, status: 404, error: 'Room not found' };
   if (!actorUserId) return { valid: false, status: 401, error: 'Authentication required' };
   if (room.accessPolicy !== 'private') return { valid: false, status: 409, error: 'Room does not require an invitation' };
@@ -203,21 +212,23 @@ async function redeemRoomInvite({ idOrSlug, actorUserId, code }) {
   if ((room.allowedUserIds || []).includes(actor) || actor === String(room.hostUserId)) {
     return { valid: true, status: 200, room: publicRoom(room) };
   }
-  if (!room.inviteTokenHash || !room.inviteExpiresAt || room.inviteExpiresAt.getTime() <= Date.now()) {
-    return { valid: false, status: 410, error: 'Invitation expired or already used' };
-  }
-  const suppliedHash = hashRoomInviteCode(code);
-  const expected = Buffer.from(room.inviteTokenHash, 'hex');
-  const supplied = Buffer.from(suppliedHash, 'hex');
-  if (expected.length !== supplied.length || !crypto.timingSafeEqual(expected, supplied)) {
-    return { valid: false, status: 403, error: 'Invalid invitation' };
-  }
 
-  room.allowedUserIds = Array.from(new Set([...(room.allowedUserIds || []), actor]));
-  room.inviteTokenHash = null;
-  room.inviteExpiresAt = null;
-  await room.save();
-  return { valid: true, status: 200, room: publicRoom(room) };
+  const claimedRoom = await VirtualRoom.findOneAndUpdate(
+    roomInviteRedemptionQuery({
+      roomId: room.roomId,
+      suppliedHash: hashRoomInviteCode(code),
+      actorUserId: actor
+    }),
+    {
+      $addToSet: { allowedUserIds: actor },
+      $set: { inviteTokenHash: null, inviteExpiresAt: null }
+    },
+    { new: true }
+  );
+  if (!claimedRoom) {
+    return { valid: false, status: 410, error: 'Invitation invalid, expired, or already used' };
+  }
+  return { valid: true, status: 200, room: publicRoom(claimedRoom) };
 }
 
 async function createSession({ roomId, actorUserId, actorRole }) {
@@ -351,6 +362,7 @@ module.exports = {
   ROOM_TRANSITIONS,
   hashRoomInviteCode,
   publicInviteStatus,
+  roomInviteRedemptionQuery,
   publicRoom,
   publicSession,
   createRoom,
