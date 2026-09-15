@@ -4,10 +4,12 @@ import {
   createMetaverseRoomSession,
   endMetaverseRoomSession,
   getMetaverseRoom,
+  getMetaverseRoomInviteStatus,
   getMetaverseRoomSessionEvents,
   joinMetaverseRoomSession,
   leaveMetaverseRoomSession,
   redeemMetaverseRoomInvite,
+  revokeMetaverseRoomInvite,
   startMetaverseRoomSession,
   updateMetaverseRoom
 } from '../api/metaverse';
@@ -34,6 +36,7 @@ function MetaverseRoomPage({ roomKey }) {
   const [editAccess, setEditAccess] = useState('authenticated');
   const [editCapacity, setEditCapacity] = useState(25);
   const [inviteUrl, setInviteUrl] = useState('');
+  const [inviteStatus, setInviteStatus] = useState({ active: false, expiresAt: null });
 
   useEffect(() => {
     let active = true;
@@ -55,6 +58,13 @@ function MetaverseRoomPage({ roomKey }) {
         setEditAccess(result.room.accessPolicy);
         setEditCapacity(result.room.capacity);
         setStatus('ready');
+        if (result.canManage && result.room.accessPolicy === 'private') {
+          getMetaverseRoomInviteStatus(result.room.slug || result.room.id)
+            .then((statusResult) => {
+              if (active) setInviteStatus(statusResult.invitation);
+            })
+            .catch(() => {});
+        }
       })
       .catch((error) => {
         if (!active) return;
@@ -176,7 +186,24 @@ function MetaverseRoomPage({ roomKey }) {
       url.search = '';
       url.searchParams.set('invite', result.inviteCode);
       setInviteUrl(url.toString());
+      setInviteStatus({ active: true, expiresAt: result.expiresAt });
       setMessage('Invito creato. Scade tra 24 ore e può essere usato una sola volta.');
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setJoining(false);
+    }
+  };
+
+  const revokeInvite = async () => {
+    if (!canManage) return;
+    setJoining(true);
+    setMessage('');
+    try {
+      const result = await revokeMetaverseRoomInvite(room.slug || room.id);
+      setInviteStatus(result.invitation);
+      setInviteUrl('');
+      setMessage('Invito privato revocato.');
     } catch (error) {
       setMessage(error.message);
     } finally {
@@ -255,6 +282,10 @@ function MetaverseRoomPage({ roomKey }) {
               <div className="metaverse-panel">
                 <button type="button" onClick={createInvite} disabled={joining}>Crea invito privato</button>
                 {inviteUrl && <label>Link monouso<input value={inviteUrl} readOnly onFocus={(event) => event.target.select()} /></label>}
+                {inviteStatus.active && (
+                  <p className="metaverse-muted">Invito attivo fino al {new Date(inviteStatus.expiresAt).toLocaleString('it-IT')}.</p>
+                )}
+                {inviteStatus.active && <button type="button" onClick={revokeInvite} disabled={joining}>Revoca invito</button>}
                 <small className="metaverse-muted">La creazione di un nuovo invito disattiva quello precedente.</small>
               </div>
             )}
