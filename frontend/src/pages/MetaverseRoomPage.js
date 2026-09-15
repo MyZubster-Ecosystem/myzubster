@@ -3,6 +3,7 @@ import {
   cancelMetaverseRoomSession,
   createMetaverseRoomInvite,
   createMetaverseRoomSession,
+  deleteMetaverseRoomMessage,
   endMetaverseRoomSession,
   getMetaverseRoom,
   getMetaverseRoomBlocklist,
@@ -312,6 +313,14 @@ function MetaverseRoomPage({ roomKey }) {
     return () => { active = false; window.clearInterval(timer); };
   }, [session?.id, joined, canManage]);
 
+  const deleteRoomMessage = async (messageId) => {
+    try {
+      await deleteMetaverseRoomMessage(session.id, messageId);
+      setRoomMessages((current) => current.filter((chatMessage) => chatMessage.id !== messageId));
+      setMessage('Messaggio rimosso dalla chat.');
+    } catch (error) { setMessage(error.message); }
+  };
+
   const sendRoomMessage = async (event) => {
     event.preventDefault();
     const text = roomMessageText.trim();
@@ -572,7 +581,7 @@ function MetaverseRoomPage({ roomKey }) {
         {session && (joined || canManage) && (
           <section className="metaverse-panel">
             <h3>Chat della stanza</h3>
-            <div aria-live="polite">{roomMessages.length === 0 ? <p className="metaverse-muted">Nessun messaggio.</p> : roomMessages.map((chatMessage) => <p key={chatMessage.id}><strong>{chatMessage.characterName}:</strong> {chatMessage.text}</p>)}</div>
+            <div aria-live="polite">{roomMessages.length === 0 ? <p className="metaverse-muted">Nessun messaggio.</p> : roomMessages.map((chatMessage) => <p key={chatMessage.id}><strong>{chatMessage.characterName}:</strong> {chatMessage.text} {canManage && <button type="button" onClick={() => deleteRoomMessage(chatMessage.id)}>Elimina</button>}</p>)}</div>
             {session.state === 'live' && <form onSubmit={sendRoomMessage}><label>Messaggio<input maxLength="280" value={roomMessageText} onChange={(event) => setRoomMessageText(event.target.value)} /></label><button type="submit">Invia</button></form>}
             <small className="metaverse-muted">I messaggi scadono automaticamente dopo 24 ore.</small>
           </section>
