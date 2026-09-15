@@ -15,6 +15,8 @@ const {
   leaveSession,
   endSession,
   getSessionToken,
+  listSessionParticipants,
+  moderateSessionParticipant,
   publicRoom,
   publicSession,
   findCurrentSessionForRoom,
@@ -221,6 +223,33 @@ router.get('/sessions/:id/events', optionalAuthenticate, async (req, res) => {
   } catch (error) {
     console.error('Virtual session event stream error:', error?.name || 'Error');
     return res.status(500).json({ success: false, error: 'Unable to read session events' });
+  }
+});
+
+router.get('/sessions/:id/participants', authenticate, async (req, res) => {
+  try {
+    const result = await listSessionParticipants({ sessionId: req.params.id, actorUserId: req.userId, actorRole: req.userRole || 'user' });
+    return res.status(result.status).json(result.valid ? { success: true, participants: result.participants } : { success: false, error: result.error });
+  } catch (error) {
+    console.error('Virtual session participant list error:', error?.name || 'Error');
+    return res.status(500).json({ success: false, error: 'Unable to list participants' });
+  }
+});
+
+router.delete('/sessions/:id/participants/:participantRef', authenticate, async (req, res) => {
+  try {
+    const result = await moderateSessionParticipant({
+      sessionId: req.params.id,
+      participantRef: req.params.participantRef,
+      actorUserId: req.userId,
+      actorRole: req.userRole || 'user',
+      block: req.body?.block === true
+    });
+    if (result.valid) await appendSessionEvent({ session: result.session, type: result.action });
+    return res.status(result.status).json(result.valid ? { success: true, session: result.session, action: result.action } : { success: false, error: result.error });
+  } catch (error) {
+    console.error('Virtual session moderation error:', error?.name || 'Error');
+    return res.status(500).json({ success: false, error: 'Unable to moderate participant' });
   }
 });
 
