@@ -8,6 +8,7 @@ import {
   getMetaverseRoomBlocklist,
   getMetaverseRoomInviteStatus,
   getMetaverseRoomParticipants,
+  getMetaverseRoomMessages,
   getMetaverseRoomSessionEvents,
   getMetaverseStageRequests,
   getMetaverseStageSpeakers,
@@ -19,6 +20,7 @@ import {
   redeemMetaverseRoomInvite,
   requestMetaverseStageAccess,
   resolveMetaverseStageRequest,
+  sendMetaverseRoomMessage,
   revokeMetaverseStageSpeaker,
   revokeMetaverseRoomInvite,
   startMetaverseRoomSession,
@@ -67,6 +69,8 @@ function MetaverseRoomPage({ roomKey }) {
   const [stage, setStage] = useState({ policy: 'host-only', requested: false, speaker: false });
   const [stageRequests, setStageRequests] = useState([]);
   const [stageSpeakers, setStageSpeakers] = useState([]);
+  const [roomMessages, setRoomMessages] = useState([]);
+  const [roomMessageText, setRoomMessageText] = useState('');
 
   useEffect(() => {
     let active = true;
@@ -281,6 +285,42 @@ function MetaverseRoomPage({ roomKey }) {
     } finally {
       setJoining(false);
     }
+  };
+
+  useEffect(() => {
+    if (!session?.id || (!joined && !canManage)) {
+      setRoomMessages([]);
+      return undefined;
+    }
+    let active = true;
+    let cursor = '';
+    const refresh = () => getMetaverseRoomMessages(session.id, cursor)
+      .then((result) => {
+        if (!active) return;
+        cursor = result.cursor || cursor;
+        if (result.messages?.length) {
+          setRoomMessages((current) => {
+            const merged = new Map(current.map((message) => [message.id, message]));
+            result.messages.forEach((message) => merged.set(message.id, message));
+            return Array.from(merged.values()).sort((left, right) => new Date(left.createdAt) - new Date(right.createdAt)).slice(-100);
+          });
+        }
+      })
+      .catch(() => {});
+    refresh();
+    const timer = window.setInterval(refresh, 3000);
+    return () => { active = false; window.clearInterval(timer); };
+  }, [session?.id, joined, canManage]);
+
+  const sendRoomMessage = async (event) => {
+    event.preventDefault();
+    const text = roomMessageText.trim();
+    if (!text || session?.state !== 'live') return;
+    try {
+      const result = await sendMetaverseRoomMessage(session.id, text);
+      setRoomMessages((current) => [...current, result.message].slice(-100));
+      setRoomMessageText('');
+    } catch (error) { setMessage(error.message); }
   };
 
   const join = async () => {
@@ -528,6 +568,14 @@ function MetaverseRoomPage({ roomKey }) {
           </div>
         ) : (
           <p className="metaverse-muted">Nessuna sessione programmata o live.</p>
+        )}
+        {session && (joined || canManage) && (
+          <section className="metaverse-panel">
+            <h3>Chat della stanza</h3>
+            <div aria-live="polite">{roomMessages.length === 0 ? <p className="metaverse-muted">Nessun messaggio.</p> : roomMessages.map((chatMessage) => <p key={chatMessage.id}><strong>{chatMessage.characterName}:</strong> {chatMessage.text}</p>)}</div>
+            {session.state === 'live' && <form onSubmit={sendRoomMessage}><label>Messaggio<input maxLength="280" value={roomMessageText} onChange={(event) => setRoomMessageText(event.target.value)} /></label><button type="submit">Invia</button></form>}
+            <small className="metaverse-muted">I messaggi scadono automaticamente dopo 24 ore.</small>
+          </section>
         )}
         {session && (
           <section className="metaverse-panel">
