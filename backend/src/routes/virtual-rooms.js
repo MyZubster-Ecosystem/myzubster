@@ -33,6 +33,7 @@ const {
   findSession
 } = require('../services/virtualRoomLifecycle');
 const { appendSessionEvent, listSessionEvents } = require('../services/virtualSessionEvents');
+const { listRoomMessages, createRoomMessage } = require('../services/virtualRoomChat');
 
 const router = express.Router();
 
@@ -362,6 +363,28 @@ router.post('/sessions/:id/cancel', authenticate, async (req, res) => {
   } catch (error) {
     console.error('Virtual session cancel error:', error?.name || 'Error');
     return res.status(500).json({ success: false, error: 'Unable to cancel session' });
+  }
+});
+
+router.get('/sessions/:id/messages', authenticate, async (req, res) => {
+  try {
+    const result = await listRoomMessages({ sessionId: req.params.id, actorUserId: req.userId, after: req.query.after });
+    return res.status(result.status).json(result.valid ? {
+      success: true, messages: result.messages, cursor: result.cursor, retentionSeconds: result.retentionSeconds
+    } : { success: false, error: result.error });
+  } catch (error) {
+    console.error('Virtual room chat read error:', error?.name || 'Error');
+    return res.status(500).json({ success: false, error: 'Unable to read room chat' });
+  }
+});
+
+router.post('/sessions/:id/messages', authenticate, async (req, res) => {
+  try {
+    const result = await createRoomMessage({ sessionId: req.params.id, actorUserId: req.userId, text: req.body?.text });
+    return res.status(result.status).json(result.valid ? { success: true, message: result.message } : { success: false, error: result.error });
+  } catch (error) {
+    console.error('Virtual room chat write error:', error?.name || 'Error');
+    return res.status(500).json({ success: false, error: 'Unable to send room message' });
   }
 });
 
