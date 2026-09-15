@@ -17,6 +17,8 @@ const {
   getSessionToken,
   listSessionParticipants,
   moderateSessionParticipant,
+  listRoomBlockedParticipants,
+  unblockRoomParticipant,
   publicRoom,
   publicSession,
   findCurrentSessionForRoom,
@@ -223,6 +225,31 @@ router.get('/sessions/:id/events', optionalAuthenticate, async (req, res) => {
   } catch (error) {
     console.error('Virtual session event stream error:', error?.name || 'Error');
     return res.status(500).json({ success: false, error: 'Unable to read session events' });
+  }
+});
+
+router.get('/rooms/:idOrSlug/blocklist', authenticate, async (req, res) => {
+  try {
+    const result = await listRoomBlockedParticipants({ idOrSlug: req.params.idOrSlug, actorUserId: req.userId, actorRole: req.userRole || 'user' });
+    return res.status(result.status).json(result.valid ? { success: true, participants: result.participants } : { success: false, error: result.error });
+  } catch (error) {
+    console.error('Virtual room blocklist error:', error?.name || 'Error');
+    return res.status(500).json({ success: false, error: 'Unable to read blocklist' });
+  }
+});
+
+router.delete('/rooms/:idOrSlug/blocklist/:participantRef', authenticate, async (req, res) => {
+  try {
+    const result = await unblockRoomParticipant({
+      idOrSlug: req.params.idOrSlug,
+      participantRef: req.params.participantRef,
+      actorUserId: req.userId,
+      actorRole: req.userRole || 'user'
+    });
+    return res.status(result.status).json(result.valid ? { success: true } : { success: false, error: result.error });
+  } catch (error) {
+    console.error('Virtual room unblock error:', error?.name || 'Error');
+    return res.status(500).json({ success: false, error: 'Unable to restore participant access' });
   }
 });
 
