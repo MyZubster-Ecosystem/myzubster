@@ -149,6 +149,18 @@ export function cancelMetaverseRoomSession(sessionId) {
   });
 }
 
+export function getMetaverseRoomMessages(sessionId, after = '') {
+  const query = new URLSearchParams();
+  if (after) query.set('after', after);
+  return jsonRequest(`/api/metaverse/sessions/${encodeURIComponent(sessionId)}/messages?${query.toString()}`, { headers: authHeaders() });
+}
+
+export function sendMetaverseRoomMessage(sessionId, text) {
+  return jsonRequest(`/api/metaverse/sessions/${encodeURIComponent(sessionId)}/messages`, {
+    method: 'POST', headers: authHeaders(), body: JSON.stringify({ text })
+  });
+}
+
 export function startMetaverseRoomSession(sessionId) {
   return jsonRequest(`/api/metaverse/sessions/${encodeURIComponent(sessionId)}/start`, {
     method: 'POST',
