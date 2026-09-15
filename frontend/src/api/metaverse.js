@@ -85,6 +85,19 @@ export function createMetaverseRoomSession(roomId) {
   });
 }
 
+export function getMetaverseRoomBlocklist(idOrSlug) {
+  return jsonRequest(`/api/metaverse/rooms/${encodeURIComponent(idOrSlug)}/blocklist`, {
+    headers: authHeaders()
+  });
+}
+
+export function unblockMetaverseRoomParticipant(idOrSlug, participantRef) {
+  return jsonRequest(`/api/metaverse/rooms/${encodeURIComponent(idOrSlug)}/blocklist/${encodeURIComponent(participantRef)}`, {
+    method: 'DELETE',
+    headers: authHeaders()
+  });
+}
+
 export function getMetaverseRoomParticipants(sessionId) {
   return jsonRequest(`/api/metaverse/sessions/${encodeURIComponent(sessionId)}/participants`, {
     headers: authHeaders()
