@@ -26,6 +26,15 @@ function hashRoomInviteCode(value) {
   return crypto.createHash('sha256').update(String(value || '')).digest('hex');
 }
 
+function validateScheduledFor(value, now = new Date()) {
+  if (value === undefined) return { valid: true, unchanged: true };
+  if (value === null || value === '') return { valid: true, date: null };
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return { valid: false, error: 'Invalid session date' };
+  if (date.getTime() <= now.getTime()) return { valid: false, error: 'Session date must be in the future' };
+  return { valid: true, date };
+}
+
 function slugify(value) {
   return cleanText(value, 120).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 80);
 }
@@ -122,7 +131,7 @@ async function updateRoom({ idOrSlug, actorUserId, actorRole, patch = {} }) {
     room.state = patch.state;
   }
   const settingsLocked = !['draft', 'published'].includes(room.state);
-  if (settingsLocked && (patch.accessPolicy !== undefined || patch.capacity !== undefined || patch.stagePolicy !== undefined)) {
+  if (settingsLocked && (patch.accessPolicy !== undefined || patch.capacity !== undefined || patch.stagePolicy !== undefined || patch.scheduledFor !== undefined)) {
     return { valid: false, status: 409, error: 'Room access, capacity and stage policy are locked after session scheduling' };
   }
 
@@ -140,7 +149,9 @@ async function updateRoom({ idOrSlug, actorUserId, actorRole, patch = {} }) {
     room.stagePolicy = patch.stagePolicy;
   }
   if (patch.sceneManifestVersion) room.sceneManifestVersion = cleanText(patch.sceneManifestVersion, 40);
-  if (patch.scheduledFor !== undefined) room.scheduledFor = patch.scheduledFor ? new Date(patch.scheduledFor) : null;
+  const schedule = validateScheduledFor(patch.scheduledFor);
+  if (!schedule.valid) return { valid: false, status: 400, error: schedule.error };
+  if (!schedule.unchanged) room.scheduledFor = schedule.date;
   if (Array.isArray(patch.allowedUserIds)) room.allowedUserIds = patch.allowedUserIds.map((id) => cleanText(id, 120)).filter(Boolean);
   if (Array.isArray(patch.blockedUserIds)) room.blockedUserIds = patch.blockedUserIds.map((id) => cleanText(id, 120)).filter(Boolean);
 
@@ -279,6 +290,11 @@ async function startSession({ sessionId, actorUserId, actorRole }) {
   if (!session) return { valid: false, status: 404, error: 'Session not found' };
   if (!canManage(actorUserId, actorRole, session.hostUserId)) return { valid: false, status: 403, error: 'Host capability required' };
   if (session.state !== 'scheduled') return { valid: false, status: 409, error: 'Only scheduled sessions can start' };
+  const room = await findRoom(session.roomId);
+  if (!room) return { valid: false, status: 404, error: 'Room not found' };
+  if (room.scheduledFor && room.scheduledFor.getTime() > Date.now()) {
+    return { valid: false, status: 409, error: `Session is scheduled for ${room.scheduledFor.toISOString()}` };
+  }
   session.state = 'live';
   session.startedAt = new Date();
   session.lifecycleVersion += 1;
@@ -571,6 +587,7 @@ async function getSessionToken({ sessionId, actorUserId }) {
 module.exports = {
   ROOM_TRANSITIONS,
   hashRoomInviteCode,
+  validateScheduledFor,
   publicInviteStatus,
   roomInviteRedemptionQuery,
   publicRoom,
