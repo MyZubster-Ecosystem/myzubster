@@ -151,8 +151,13 @@ function MetaverseRoomPage({ roomKey }) {
 
   useEffect(() => {
     if (!joined || session?.state !== 'live') return undefined;
-    getMetaverseStageStatus(session.id).then((result) => setStage(result.stage)).catch(() => {});
-    return undefined;
+    let active = true;
+    const refresh = () => getMetaverseStageStatus(session.id)
+      .then((result) => { if (active) setStage(result.stage); })
+      .catch(() => {});
+    refresh();
+    const timer = window.setInterval(refresh, 5000);
+    return () => { active = false; window.clearInterval(timer); };
   }, [joined, session?.id, session?.state]);
 
   useEffect(() => {
