@@ -1,6 +1,7 @@
 const {
   ROOM_TRANSITIONS,
   hashRoomInviteCode,
+  publicInviteStatus,
   roomDiscoveryQuery,
   validateJoin,
   publicRoom,
@@ -24,6 +25,17 @@ describe('virtual room lifecycle policy', () => {
     expect(first).toBe(hashRoomInviteCode('one-time-code'));
     expect(first).toHaveLength(64);
     expect(first).not.toContain('one-time-code');
+  });
+
+  test('reports only safe invitation status and expires stale invitations', () => {
+    const future = new Date(Date.now() + 60_000);
+    const active = publicInviteStatus({ inviteTokenHash: 'hash', inviteExpiresAt: future });
+    expect(active).toEqual({ active: true, expiresAt: future.toISOString() });
+    expect(active).not.toHaveProperty('inviteTokenHash');
+    expect(publicInviteStatus({ inviteTokenHash: 'hash', inviteExpiresAt: new Date(0) })).toEqual({
+      active: false,
+      expiresAt: null
+    });
   });
 
   test('discovers only active lifecycle states and never exposes private rooms', () => {
