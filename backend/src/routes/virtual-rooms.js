@@ -19,7 +19,10 @@ const {
   moderateSessionParticipant,
   getStageStatus,
   requestStageAccess,
+  leaveStage,
   listStageRequests,
+  listStageSpeakers,
+  revokeStageSpeaker,
   resolveStageRequest,
   listRoomBlockedParticipants,
   unblockRoomParticipant,
@@ -299,6 +302,35 @@ router.post('/sessions/:id/stage/requests', authenticate, async (req, res) => {
     return res.status(result.status).json(result.valid ? { success: true, stage: result.stage } : { success: false, error: result.error });
   } catch (error) {
     return res.status(500).json({ success: false, error: 'Unable to request stage access' });
+  }
+});
+
+router.delete('/sessions/:id/stage', authenticate, async (req, res) => {
+  try {
+    const result = await leaveStage({ sessionId: req.params.id, actorUserId: req.userId });
+    if (result.valid) await appendSessionEvent({ session: result.session, type: result.action });
+    return res.status(result.status).json(result.valid ? { success: true, stage: result.stage } : { success: false, error: result.error });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: 'Unable to leave stage' });
+  }
+});
+
+router.get('/sessions/:id/stage/speakers', authenticate, async (req, res) => {
+  try {
+    const result = await listStageSpeakers({ sessionId: req.params.id, actorUserId: req.userId, actorRole: req.userRole || 'user' });
+    return res.status(result.status).json(result.valid ? { success: true, speakers: result.speakers } : { success: false, error: result.error });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: 'Unable to list stage speakers' });
+  }
+});
+
+router.delete('/sessions/:id/stage/speakers/:participantRef', authenticate, async (req, res) => {
+  try {
+    const result = await revokeStageSpeaker({ sessionId: req.params.id, participantRef: req.params.participantRef, actorUserId: req.userId, actorRole: req.userRole || 'user' });
+    if (result.valid) await appendSessionEvent({ session: result.session, type: result.action });
+    return res.status(result.status).json(result.valid ? { success: true, session: result.session } : { success: false, error: result.error });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: 'Unable to revoke stage access' });
   }
 });
 
