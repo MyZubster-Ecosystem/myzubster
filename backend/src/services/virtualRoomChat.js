@@ -169,13 +169,23 @@ async function resolveRoomMessageReport({ sessionId, reportId, actorUserId, acto
   const context = await authorizedContext(sessionId, actorUserId);
   if (!context.valid) return context;
   if (!canModerateRoomChat(actorUserId, context.session.hostUserId, actorRole)) return { valid: false, status: 403, error: 'Host capability required' };
-  const report = await VirtualRoomMessageReport.findOneAndUpdate(
-    { reportId: String(reportId), roomId: context.room.roomId, sessionId: context.session.sessionId, status: 'open' },
-    { $set: { status: 'resolved', resolution: 'dismissed', resolvedAt: new Date() } },
-    { new: true }
-  );
+  const report = await VirtualRoomMessageReport.findOne({
+    reportId: String(reportId),
+    roomId: context.room.roomId,
+    sessionId: context.session.sessionId,
+    status: 'open'
+  }).select('messageId');
   if (!report) return { valid: false, status: 404, error: 'Report not found' };
-  return { valid: true, status: 200 };
+  const result = await VirtualRoomMessageReport.updateMany(
+    {
+      roomId: context.room.roomId,
+      sessionId: context.session.sessionId,
+      messageId: report.messageId,
+      status: 'open'
+    },
+    { $set: { status: 'resolved', resolution: 'dismissed', resolvedAt: new Date() } }
+  );
+  return { valid: true, status: 200, resolvedCount: result.modifiedCount };
 }
 
 async function moderateReportedRoomMessage({ sessionId, reportId, actorUserId, actorRole }) {
