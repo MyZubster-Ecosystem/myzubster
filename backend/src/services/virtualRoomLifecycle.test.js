@@ -1,5 +1,6 @@
 const {
   ROOM_TRANSITIONS,
+  CURRENT_SESSION_STATES,
   canCancelSessionState,
   hashRoomInviteCode,
   validateScheduledFor,
@@ -14,6 +15,11 @@ const {
 } = require('./virtualRoomLifecycle');
 
 describe('virtual room lifecycle policy', () => {
+  test('resolves current sessions in lifecycle priority order', () => {
+    expect(CURRENT_SESSION_STATES).toEqual(['live', 'scheduled', 'ended']);
+    expect(CURRENT_SESSION_STATES).not.toContain('archive');
+  });
+
   test('allows only forward authoritative room transitions', () => {
     expect(ROOM_TRANSITIONS.draft.has('published')).toBe(true);
     expect(ROOM_TRANSITIONS.published.has('scheduled')).toBe(true);
