@@ -4,12 +4,45 @@ const MetaverseChatMessage = require('../models/MetaverseChatMessage');
 const MetaverseCharacter = require('../models/MetaverseCharacter');
 const VirtualRoom = require('../models/VirtualRoom');
 const VirtualSession = require('../models/VirtualSession');
+const VirtualRoomChatThrottle = require('../models/VirtualRoomChatThrottle');
 
 const ROOM_CHAT_RETENTION_MS = 24 * 60 * 60 * 1000;
 const ROOM_CHAT_PAGE_SIZE = 50;
 
 function databaseAvailable() {
   return mongoose.connection.readyState === 1;
+}
+
+function roomChatThrottleKey(roomId, sessionId, actorUserId) {
+  return crypto.createHash('sha256')
+    .update(`${roomId}:${sessionId}:${actorUserId}`)
+    .digest('hex');
+}
+
+async function claimRoomChatWindow({ roomId, sessionId, actorUserId, now = new Date() }) {
+  const key = roomChatThrottleKey(roomId, sessionId, actorUserId);
+  try {
+    await VirtualRoomChatThrottle.findOneAndUpdate(
+      {
+        key,
+        $or: [
+          { nextAllowedAt: { $lte: now } },
+          { nextAllowedAt: { $exists: false } }
+        ]
+      },
+      {
+        $set: {
+          nextAllowedAt: new Date(now.getTime() + 750),
+          expiresAt: new Date(now.getTime() + 60 * 60 * 1000)
+        }
+      },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
+    return true;
+  } catch (error) {
+    if (error?.code === 11000) return false;
+    throw error;
+  }
 }
 
 function cleanRoomMessage(value) {
@@ -83,13 +116,12 @@ async function createRoomMessage({ sessionId, actorUserId, text }) {
   if (!context.valid) return context;
   const safeText = cleanRoomMessage(text);
   if (!safeText) return { valid: false, status: 400, error: 'Message is empty' };
-  const recent = await MetaverseChatMessage.exists({
-    worldId: `virtual-room:${context.room.roomId}`,
+  const rateAllowed = await claimRoomChatWindow({
+    roomId: context.room.roomId,
     sessionId: context.session.sessionId,
-    senderUserId: context.actor,
-    createdAt: { $gt: new Date(Date.now() - 750) }
+    actorUserId: context.actor
   });
-  if (recent) return { valid: false, status: 429, error: 'Message rate exceeded' };
+  if (!rateAllowed) return { valid: false, status: 429, error: 'Message rate exceeded' };
   const character = await MetaverseCharacter.findOne({ accountUserId: context.actor }).select('characterName -_id').lean();
   const now = new Date();
   const message = await MetaverseChatMessage.create({
@@ -107,6 +139,8 @@ async function createRoomMessage({ sessionId, actorUserId, text }) {
 
 module.exports = {
   ROOM_CHAT_RETENTION_MS,
+  roomChatThrottleKey,
+  claimRoomChatWindow,
   cleanRoomMessage,
   publicRoomMessage,
   canModerateRoomChat,
