@@ -15,6 +15,7 @@ describe('virtual room lifecycle policy', () => {
     expect(ROOM_TRANSITIONS.ended.has('archive')).toBe(true);
     expect(ROOM_TRANSITIONS.ended.has('live')).toBe(false);
     expect(ROOM_TRANSITIONS.archive.size).toBe(0);
+    expect(ROOM_TRANSITIONS.live.has('published')).toBe(false);
   });
 
   test('discovers only active lifecycle states and never exposes private rooms', () => {
