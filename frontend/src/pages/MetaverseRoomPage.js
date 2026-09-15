@@ -3,6 +3,7 @@ import {
   createMetaverseRoomSession,
   endMetaverseRoomSession,
   getMetaverseRoom,
+  getMetaverseRoomSessionEvents,
   joinMetaverseRoomSession,
   leaveMetaverseRoomSession,
   startMetaverseRoomSession,
@@ -27,6 +28,7 @@ function MetaverseRoomPage({ roomKey }) {
   const [joining, setJoining] = useState(false);
   const [canManage, setCanManage] = useState(false);
   const [joined, setJoined] = useState(false);
+  const [events, setEvents] = useState([]);
 
   useEffect(() => {
     let active = true;
@@ -46,6 +48,41 @@ function MetaverseRoomPage({ roomKey }) {
       });
     return () => { active = false; };
   }, [roomKey]);
+
+  useEffect(() => {
+    if (!session?.id) {
+      setEvents([]);
+      return undefined;
+    }
+
+    let active = true;
+    let cursor = 0;
+    let timer = null;
+
+    const loadEvents = async () => {
+      try {
+        const result = await getMetaverseRoomSessionEvents(session.id, cursor);
+        if (!active) return;
+        cursor = result.cursor || cursor;
+        if (Array.isArray(result.events) && result.events.length > 0) {
+          setEvents((current) => {
+            const merged = new Map(current.map((event) => [event.id, event]));
+            result.events.forEach((event) => merged.set(event.id, event));
+            return Array.from(merged.values()).sort((left, right) => left.sequence - right.sequence);
+          });
+        }
+      } catch (_error) {
+        if (!active) return;
+      }
+      if (active) timer = window.setTimeout(loadEvents, 5000);
+    };
+
+    loadEvents();
+    return () => {
+      active = false;
+      if (timer) window.clearTimeout(timer);
+    };
+  }, [session?.id]);
 
   const join = async () => {
     if (!session?.id || session.state !== 'live') return;
@@ -166,6 +203,24 @@ function MetaverseRoomPage({ roomKey }) {
           </div>
         ) : (
           <p className="metaverse-muted">Nessuna sessione programmata o live.</p>
+        )}
+        {session && (
+          <section className="metaverse-panel">
+            <h3>Cronologia della sessione</h3>
+            {events.length === 0 ? (
+              <p className="metaverse-muted">Nessun evento disponibile.</p>
+            ) : (
+              <ol className="metaverse-check-list">
+                {events.map((event) => (
+                  <li key={event.id}>
+                    <span>{event.type === 'session_started' ? '▶️' : event.type === 'session_ended' ? '⏹️' : event.type === 'participant_joined' ? '➕' : event.type === 'participant_left' ? '➖' : '🗂️'}</span>
+                    <span>{event.type.replaceAll('_', ' ')} · {event.participantCount} partecipanti</span>
+                  </li>
+                ))}
+              </ol>
+            )}
+            <small className="metaverse-muted">Eventi tecnici conservati per sette giorni; nessun ID partecipante viene mostrato.</small>
+          </section>
         )}
         {message && <div className="metaverse-error" aria-live="polite">{message}</div>}
         <p><a href="/metaverse">← Torna a Neon Plaza</a></p>
