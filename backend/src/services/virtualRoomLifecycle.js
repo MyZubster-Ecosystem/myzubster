@@ -161,6 +161,35 @@ async function createRoomInvite({ idOrSlug, actorUserId, actorRole }) {
   return { valid: true, status: 201, code, expiresAt: expiresAt.toISOString() };
 }
 
+function publicInviteStatus(room) {
+  const expiresAt = room?.inviteExpiresAt ? new Date(room.inviteExpiresAt) : null;
+  const active = Boolean(room?.inviteTokenHash && expiresAt && expiresAt.getTime() > Date.now());
+  return { active, expiresAt: active ? expiresAt.toISOString() : null };
+}
+
+async function getRoomInviteStatus({ idOrSlug, actorUserId, actorRole }) {
+  if (!databaseAvailable()) return { valid: false, status: 503, error: 'Room storage unavailable' };
+  const key = cleanText(idOrSlug, 160);
+  const room = await VirtualRoom.findOne({ $or: [{ roomId: key }, { slug: key }] })
+    .select('+inviteTokenHash +inviteExpiresAt');
+  if (!room) return { valid: false, status: 404, error: 'Room not found' };
+  if (!canManage(actorUserId, actorRole, room.hostUserId)) return { valid: false, status: 403, error: 'Host capability required' };
+  return { valid: true, status: 200, invitation: publicInviteStatus(room) };
+}
+
+async function revokeRoomInvite({ idOrSlug, actorUserId, actorRole }) {
+  if (!databaseAvailable()) return { valid: false, status: 503, error: 'Room storage unavailable' };
+  const key = cleanText(idOrSlug, 160);
+  const room = await VirtualRoom.findOne({ $or: [{ roomId: key }, { slug: key }] })
+    .select('+inviteTokenHash +inviteExpiresAt');
+  if (!room) return { valid: false, status: 404, error: 'Room not found' };
+  if (!canManage(actorUserId, actorRole, room.hostUserId)) return { valid: false, status: 403, error: 'Host capability required' };
+  room.inviteTokenHash = null;
+  room.inviteExpiresAt = null;
+  await room.save();
+  return { valid: true, status: 200, invitation: publicInviteStatus(room) };
+}
+
 async function redeemRoomInvite({ idOrSlug, actorUserId, code }) {
   if (!databaseAvailable()) return { valid: false, status: 503, error: 'Room storage unavailable' };
   const key = cleanText(idOrSlug, 160);
@@ -321,6 +350,7 @@ async function getSessionToken({ sessionId, actorUserId }) {
 module.exports = {
   ROOM_TRANSITIONS,
   hashRoomInviteCode,
+  publicInviteStatus,
   publicRoom,
   publicSession,
   createRoom,
@@ -329,6 +359,8 @@ module.exports = {
   findRoom,
   updateRoom,
   createRoomInvite,
+  getRoomInviteStatus,
+  revokeRoomInvite,
   redeemRoomInvite,
   createSession,
   findCurrentSessionForRoom,
