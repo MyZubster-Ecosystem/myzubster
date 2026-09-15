@@ -43,6 +43,7 @@ function MetaverseRoomPage({ roomKey }) {
   const [events, setEvents] = useState([]);
   const [editAccess, setEditAccess] = useState('authenticated');
   const [editCapacity, setEditCapacity] = useState(25);
+  const [editStagePolicy, setEditStagePolicy] = useState('host-only');
   const [inviteUrl, setInviteUrl] = useState('');
   const [inviteStatus, setInviteStatus] = useState({ active: false, expiresAt: null });
   const [participants, setParticipants] = useState([]);
@@ -69,6 +70,7 @@ function MetaverseRoomPage({ roomKey }) {
         setJoined(Boolean(result.joined));
         setEditAccess(result.room.accessPolicy);
         setEditCapacity(result.room.capacity);
+        setEditStagePolicy(result.room.stagePolicy);
         setStatus('ready');
         if (result.canManage && result.room.accessPolicy === 'private') {
           getMetaverseRoomInviteStatus(result.room.slug || result.room.id)
@@ -273,7 +275,8 @@ function MetaverseRoomPage({ roomKey }) {
     try {
       const result = await updateMetaverseRoom(room.slug || room.id, {
         accessPolicy: editAccess,
-        capacity: Number(editCapacity)
+        capacity: Number(editCapacity),
+        stagePolicy: editStagePolicy
       });
       setRoom(result.room);
       setMessage('Impostazioni della stanza salvate.');
@@ -383,6 +386,7 @@ function MetaverseRoomPage({ roomKey }) {
               <form className="metaverse-form" onSubmit={saveSettings}>
                 <label>Accesso<select value={editAccess} onChange={(event) => setEditAccess(event.target.value)}><option value="public">Pubblico</option><option value="authenticated">Solo account</option><option value="private">Privato</option></select></label>
                 <label>Capacità<input type="number" min="1" max="500" value={editCapacity} onChange={(event) => setEditCapacity(event.target.value)} /></label>
+                <label>Palco<select value={editStagePolicy} onChange={(event) => setEditStagePolicy(event.target.value)}><option value="host-only">Solo host</option><option value="host-approved">Richieste approvate dall’host</option></select></label>
                 <button type="submit" disabled={joining}>Salva impostazioni</button>
               </form>
             )}
