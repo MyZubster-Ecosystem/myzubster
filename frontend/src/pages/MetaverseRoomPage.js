@@ -215,7 +215,18 @@ function MetaverseRoomPage({ roomKey }) {
   }
 
   if (status === 'error' || !room) {
-    return <main className="metaverse-entry-shell"><section className="metaverse-entry-card"><h2>Stanza non disponibile</h2><p>{message}</p><a href="/metaverse">← Torna a Neon Plaza</a></section></main>;
+    const pendingInvite = new URLSearchParams(window.location.search).has('invite');
+    const returnTo = encodeURIComponent(`${window.location.pathname}${window.location.search}`);
+    return (
+      <main className="metaverse-entry-shell">
+        <section className="metaverse-entry-card">
+          <h2>Stanza non disponibile</h2>
+          <p>{message}</p>
+          {pendingInvite && !authenticated && <p><a href={`/social-login?returnTo=${returnTo}`}>Accedi per riscattare l’invito privato</a></p>}
+          <a href="/metaverse">← Torna a Neon Plaza</a>
+        </section>
+      </main>
+    );
   }
 
   const live = session?.state === 'live';
