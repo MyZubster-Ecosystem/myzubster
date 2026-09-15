@@ -4,6 +4,7 @@ import {
   createMetaverseRoomSession,
   endMetaverseRoomSession,
   getMetaverseRoom,
+  getMetaverseRoomBlocklist,
   getMetaverseRoomInviteStatus,
   getMetaverseRoomParticipants,
   getMetaverseRoomSessionEvents,
@@ -13,6 +14,7 @@ import {
   redeemMetaverseRoomInvite,
   revokeMetaverseRoomInvite,
   startMetaverseRoomSession,
+  unblockMetaverseRoomParticipant,
   updateMetaverseRoom
 } from '../api/metaverse';
 import './MetaversePage.css';
@@ -40,6 +42,7 @@ function MetaverseRoomPage({ roomKey }) {
   const [inviteUrl, setInviteUrl] = useState('');
   const [inviteStatus, setInviteStatus] = useState({ active: false, expiresAt: null });
   const [participants, setParticipants] = useState([]);
+  const [blockedParticipants, setBlockedParticipants] = useState([]);
 
   useEffect(() => {
     let active = true;
@@ -113,6 +116,20 @@ function MetaverseRoomPage({ roomKey }) {
   }, [session?.id]);
 
   useEffect(() => {
+    if (!canManage || !room?.id) {
+      setBlockedParticipants([]);
+      return undefined;
+    }
+    let active = true;
+    const refresh = () => getMetaverseRoomBlocklist(room.slug || room.id)
+      .then((result) => { if (active) setBlockedParticipants(result.participants || []); })
+      .catch(() => {});
+    refresh();
+    const timer = window.setInterval(refresh, 5000);
+    return () => { active = false; window.clearInterval(timer); };
+  }, [canManage, room?.id, room?.slug]);
+
+  useEffect(() => {
     if (!canManage || session?.state !== 'live') {
       setParticipants([]);
       return undefined;
@@ -134,6 +151,20 @@ function MetaverseRoomPage({ roomKey }) {
       setSession(result.session);
       setParticipants((current) => current.filter((participant) => participant.ref !== participantRef));
       setMessage(block ? 'Partecipante rimosso e bloccato.' : 'Partecipante rimosso dalla sessione.');
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setJoining(false);
+    }
+  };
+
+  const unblockParticipant = async (participantRef) => {
+    setJoining(true);
+    setMessage('');
+    try {
+      await unblockMetaverseRoomParticipant(room.slug || room.id, participantRef);
+      setBlockedParticipants((current) => current.filter((participant) => participant.ref !== participantRef));
+      setMessage('Accesso del partecipante ripristinato.');
     } catch (error) {
       setMessage(error.message);
     } finally {
@@ -320,6 +351,11 @@ function MetaverseRoomPage({ roomKey }) {
                 {inviteStatus.active && <button type="button" onClick={revokeInvite} disabled={joining}>Revoca invito</button>}
                 <small className="metaverse-muted">La creazione di un nuovo invito disattiva quello precedente.</small>
               </div>
+            )}
+            {blockedParticipants.length > 0 && (
+              <div className="metaverse-panel"><h4>Account bloccati</h4>{blockedParticipants.map((participant) => (
+                <div key={participant.ref}><span>{participant.characterName} · {participant.archetype}</span> <button type="button" onClick={() => unblockParticipant(participant.ref)} disabled={joining}>Ripristina accesso</button></div>
+              ))}</div>
             )}
             {room.state === 'draft' && <button className="metaverse-primary" onClick={manageLifecycle} disabled={joining}>Pubblica stanza</button>}
             {room.state === 'published' && !session && <button className="metaverse-primary" onClick={manageLifecycle} disabled={joining}>Crea sessione</button>}
