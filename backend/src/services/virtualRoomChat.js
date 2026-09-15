@@ -149,20 +149,25 @@ async function moderateReportedRoomMessage({ sessionId, reportId, actorUserId, a
   const context = await authorizedContext(sessionId, actorUserId);
   if (!context.valid) return context;
   if (!canModerateRoomChat(actorUserId, context.session.hostUserId, actorRole)) return { valid: false, status: 403, error: 'Host capability required' };
-  const report = await VirtualRoomMessageReport.findOne({
-    reportId: String(reportId),
-    roomId: context.room.roomId,
-    sessionId: context.session.sessionId,
-    status: 'open'
-  }).select('messageId');
-  if (!report) return { valid: false, status: 404, error: 'Report not found' };
 
   const databaseSession = await mongoose.startSession();
+  let messageId = null;
   let removed = false;
   try {
     await databaseSession.withTransaction(async () => {
+      messageId = null;
+      removed = false;
+      const report = await VirtualRoomMessageReport.findOne({
+        reportId: String(reportId),
+        roomId: context.room.roomId,
+        sessionId: context.session.sessionId,
+        status: 'open'
+      }).select('messageId').session(databaseSession);
+      if (!report) return;
+
+      messageId = report.messageId;
       const deletion = await MetaverseChatMessage.deleteOne({
-        messageId: report.messageId,
+        messageId,
         sessionId: context.session.sessionId,
         worldId: `virtual-room:${context.room.roomId}`
       }).session(databaseSession);
@@ -171,7 +176,7 @@ async function moderateReportedRoomMessage({ sessionId, reportId, actorUserId, a
         {
           roomId: context.room.roomId,
           sessionId: context.session.sessionId,
-          messageId: report.messageId,
+          messageId,
           status: 'open'
         },
         { $set: { status: 'resolved', resolvedAt: new Date() } },
@@ -181,7 +186,8 @@ async function moderateReportedRoomMessage({ sessionId, reportId, actorUserId, a
   } finally {
     await databaseSession.endSession();
   }
-  return { valid: true, status: 200, removed, messageId: report.messageId };
+  if (!messageId) return { valid: false, status: 404, error: 'Report not found' };
+  return { valid: true, status: 200, removed, messageId };
 }
 
 async function listRoomMessages({ sessionId, actorUserId, after }) {
