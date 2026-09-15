@@ -10,6 +10,7 @@ import {
   getMetaverseRoomInviteStatus,
   getMetaverseRoomParticipants,
   getMetaverseRoomMessages,
+  getMetaverseRoomMessageReports,
   getMetaverseRoomSessionEvents,
   getMetaverseStageRequests,
   getMetaverseStageSpeakers,
@@ -19,8 +20,10 @@ import {
   leaveMetaverseStage,
   moderateMetaverseRoomParticipant,
   redeemMetaverseRoomInvite,
+  reportMetaverseRoomMessage,
   requestMetaverseStageAccess,
   resolveMetaverseStageRequest,
+  resolveMetaverseRoomMessageReport,
   sendMetaverseRoomMessage,
   revokeMetaverseStageSpeaker,
   revokeMetaverseRoomInvite,
@@ -72,6 +75,8 @@ function MetaverseRoomPage({ roomKey }) {
   const [stageSpeakers, setStageSpeakers] = useState([]);
   const [roomMessages, setRoomMessages] = useState([]);
   const [roomMessageText, setRoomMessageText] = useState('');
+  const [reportReason, setReportReason] = useState('spam');
+  const [messageReports, setMessageReports] = useState([]);
 
   useEffect(() => {
     let active = true;
@@ -312,6 +317,33 @@ function MetaverseRoomPage({ roomKey }) {
     const timer = window.setInterval(refresh, 3000);
     return () => { active = false; window.clearInterval(timer); };
   }, [session?.id, joined, canManage]);
+
+  useEffect(() => {
+    if (!canManage || !session?.id) {
+      setMessageReports([]);
+      return undefined;
+    }
+    let active = true;
+    const refresh = () => getMetaverseRoomMessageReports(session.id).then((result) => { if (active) setMessageReports(result.reports || []); }).catch(() => {});
+    refresh();
+    const timer = window.setInterval(refresh, 5000);
+    return () => { active = false; window.clearInterval(timer); };
+  }, [canManage, session?.id]);
+
+  const reportRoomMessage = async (messageId) => {
+    try {
+      await reportMetaverseRoomMessage(session.id, messageId, reportReason);
+      setMessage('Segnalazione inviata all’host.');
+    } catch (error) { setMessage(error.message); }
+  };
+
+  const resolveMessageReport = async (reportId) => {
+    try {
+      await resolveMetaverseRoomMessageReport(session.id, reportId);
+      setMessageReports((current) => current.filter((report) => report.id !== reportId));
+      setMessage('Segnalazione risolta.');
+    } catch (error) { setMessage(error.message); }
+  };
 
   const deleteRoomMessage = async (messageId) => {
     try {
@@ -581,10 +613,14 @@ function MetaverseRoomPage({ roomKey }) {
         {session && (joined || canManage) && (
           <section className="metaverse-panel">
             <h3>Chat della stanza</h3>
-            <div aria-live="polite">{roomMessages.length === 0 ? <p className="metaverse-muted">Nessun messaggio.</p> : roomMessages.map((chatMessage) => <p key={chatMessage.id}><strong>{chatMessage.characterName}:</strong> {chatMessage.text} {canManage && <button type="button" onClick={() => deleteRoomMessage(chatMessage.id)}>Elimina</button>}</p>)}</div>
+            {!canManage && <label>Motivo segnalazione<select value={reportReason} onChange={(event) => setReportReason(event.target.value)}><option value="spam">Spam</option><option value="harassment">Molestie</option><option value="unsafe">Pericoloso</option><option value="other">Altro</option></select></label>}
+            <div aria-live="polite">{roomMessages.length === 0 ? <p className="metaverse-muted">Nessun messaggio.</p> : roomMessages.map((chatMessage) => <p key={chatMessage.id}><strong>{chatMessage.characterName}:</strong> {chatMessage.text} {canManage ? <button type="button" onClick={() => deleteRoomMessage(chatMessage.id)}>Elimina</button> : <button type="button" onClick={() => reportRoomMessage(chatMessage.id)}>Segnala</button>}</p>)}</div>
             {session.state === 'live' && <form onSubmit={sendRoomMessage}><label>Messaggio<input maxLength="280" value={roomMessageText} onChange={(event) => setRoomMessageText(event.target.value)} /></label><button type="submit">Invia</button></form>}
             <small className="metaverse-muted">I messaggi scadono automaticamente dopo 24 ore.</small>
           </section>
+        )}
+        {session && canManage && messageReports.length > 0 && (
+          <section className="metaverse-panel"><h3>Segnalazioni chat</h3>{messageReports.map((report) => <div key={report.id}><p><strong>{report.reason}</strong> · {report.message ? `${report.message.characterName}: ${report.message.text}` : 'Messaggio non più disponibile'}</p><button type="button" onClick={() => resolveMessageReport(report.id)}>Segna come risolta</button></div>)}</section>
         )}
         {session && (
           <section className="metaverse-panel">
