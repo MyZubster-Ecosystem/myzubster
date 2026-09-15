@@ -8,6 +8,7 @@ const virtualRoomMessageReportSchema = new mongoose.Schema({
   reporterUserId: { type: String, required: true, select: false },
   reason: { type: String, enum: ['spam', 'harassment', 'unsafe', 'other'], required: true },
   status: { type: String, enum: ['open', 'resolved'], default: 'open', index: true },
+  resolution: { type: String, enum: ['dismissed', 'message_removed'], default: null },
   resolvedAt: { type: Date, default: null },
   expiresAt: { type: Date, required: true }
 }, { timestamps: true });
