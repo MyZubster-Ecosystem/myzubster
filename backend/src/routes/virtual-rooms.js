@@ -33,7 +33,7 @@ const {
   findSession
 } = require('../services/virtualRoomLifecycle');
 const { appendSessionEvent, listSessionEvents } = require('../services/virtualSessionEvents');
-const { listRoomMessages, createRoomMessage, deleteRoomMessage } = require('../services/virtualRoomChat');
+const { listRoomMessages, createRoomMessage, deleteRoomMessage, reportRoomMessage, listRoomMessageReports, resolveRoomMessageReport } = require('../services/virtualRoomChat');
 
 const router = express.Router();
 
@@ -391,6 +391,27 @@ router.delete('/sessions/:id/messages/:messageId', authenticate, async (req, res
     console.error('Virtual room chat moderation error:', error?.name || 'Error');
     return res.status(500).json({ success: false, error: 'Unable to remove room message' });
   }
+});
+
+router.post('/sessions/:id/messages/:messageId/reports', authenticate, async (req, res) => {
+  try {
+    const result = await reportRoomMessage({ sessionId: req.params.id, messageId: req.params.messageId, actorUserId: req.userId, reason: req.body?.reason });
+    return res.status(result.status).json(result.valid ? { success: true, report: result.report } : { success: false, error: result.error });
+  } catch (error) { return res.status(500).json({ success: false, error: 'Unable to report room message' }); }
+});
+
+router.get('/sessions/:id/message-reports', authenticate, async (req, res) => {
+  try {
+    const result = await listRoomMessageReports({ sessionId: req.params.id, actorUserId: req.userId, actorRole: req.userRole || 'user' });
+    return res.status(result.status).json(result.valid ? { success: true, reports: result.reports } : { success: false, error: result.error });
+  } catch (error) { return res.status(500).json({ success: false, error: 'Unable to list message reports' }); }
+});
+
+router.patch('/sessions/:id/message-reports/:reportId', authenticate, async (req, res) => {
+  try {
+    const result = await resolveRoomMessageReport({ sessionId: req.params.id, reportId: req.params.reportId, actorUserId: req.userId, actorRole: req.userRole || 'user' });
+    return res.status(result.status).json(result.valid ? { success: true } : { success: false, error: result.error });
+  } catch (error) { return res.status(500).json({ success: false, error: 'Unable to resolve message report' }); }
 });
 
 router.post('/sessions/:id/messages', authenticate, async (req, res) => {
