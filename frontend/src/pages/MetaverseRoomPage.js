@@ -27,11 +27,15 @@ import {
 } from '../api/metaverse';
 import './MetaversePage.css';
 
+const ROOM_SYNC_INTERVAL_MS = 5000;
+
 function stateLabel(state) {
   return {
     published: 'Pubblicata',
     scheduled: 'Programmato',
-    live: 'Live'
+    live: 'Live',
+    ended: 'Conclusa',
+    archive: 'Archiviata'
   }[state] || state;
 }
 
@@ -101,6 +105,24 @@ function MetaverseRoomPage({ roomKey }) {
       });
     return () => { active = false; };
   }, [roomKey]);
+
+  useEffect(() => {
+    if (status !== 'ready') return undefined;
+    let active = true;
+    const refresh = () => getMetaverseRoom(roomKey)
+      .then((result) => {
+        if (!active) return;
+        setRoom(result.room);
+        setSession(result.session);
+        setCanManage(Boolean(result.canManage));
+        setJoined(Boolean(result.joined));
+      })
+      .catch((error) => {
+        if (active && error.status === 401) setMessage('Sessione scaduta. Accedi nuovamente.');
+      });
+    const timer = window.setInterval(refresh, ROOM_SYNC_INTERVAL_MS);
+    return () => { active = false; window.clearInterval(timer); };
+  }, [roomKey, status]);
 
   useEffect(() => {
     if (!session?.id) {
@@ -533,5 +555,5 @@ function MetaverseRoomPage({ roomKey }) {
   );
 }
 
-export { stateLabel, toLocalDateTimeInput };
+export { ROOM_SYNC_INTERVAL_MS, stateLabel, toLocalDateTimeInput };
 export default MetaverseRoomPage;
