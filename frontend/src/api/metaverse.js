@@ -50,6 +50,19 @@ export function updateMetaverseRoom(idOrSlug, patch) {
   });
 }
 
+export function getMetaverseRoomInviteStatus(idOrSlug) {
+  return jsonRequest(`/api/metaverse/rooms/${encodeURIComponent(idOrSlug)}/invitations/status`, {
+    headers: authHeaders()
+  });
+}
+
+export function revokeMetaverseRoomInvite(idOrSlug) {
+  return jsonRequest(`/api/metaverse/rooms/${encodeURIComponent(idOrSlug)}/invitations`, {
+    method: 'DELETE',
+    headers: authHeaders()
+  });
+}
+
 export function createMetaverseRoomInvite(idOrSlug) {
   return jsonRequest(`/api/metaverse/rooms/${encodeURIComponent(idOrSlug)}/invitations`, {
     method: 'POST',
