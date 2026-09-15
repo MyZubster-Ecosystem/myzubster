@@ -43,6 +43,10 @@ describe('authenticated metaverse UI wiring', () => {
     expect(roomPageSource).toContain('endMetaverseRoomSession');
     expect(roomPageSource).toContain('Lascia sessione');
     expect(roomPageSource).toContain('Concludi sessione');
+    expect(roomPageSource).toContain('Moderazione partecipanti');
+    expect(roomPageSource).toContain('Rimuovi e blocca');
+    expect(roomPageSource).toContain('getMetaverseRoomParticipants');
+    expect(roomPageSource).toContain('moderateMetaverseRoomParticipant');
     expect(roomPageSource).toContain('Salva impostazioni');
     expect(roomPageSource).toContain('Crea invito privato');
     expect(roomPageSource).toContain('Revoca invito');
