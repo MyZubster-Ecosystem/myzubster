@@ -80,31 +80,51 @@ The first validation period is seven days of real use. GO / CHANGE / STOP criter
 
 ## Nicola Comics × MyZubster
 
-Status recorded on **2026-09-09**: `THREE_VISUALS_VERIFIED_PRESENT; RIGHTS_REVIEW_PENDING`.
+Status updated on **2026-09-15**: `LOCAL_HTTP_MANUAL_PASS_PARTICIPANT_REPORTED; PUBLIC_INTEGRATION_PENDING`.
 
-Nicola directly reported creating three new narrative visuals with AI assistance, using the N4K48 appearance he selected, to describe the path from a software idea to the MyZubster metaverse. The public files and gallery were independently confirmed to exist in his repository:
+Nicola directly reported creating three narrative visuals with AI assistance, using the N4K48 appearance he selected, to describe the path from a software idea to the MyZubster metaverse. The public gallery and files are present in his repository:
 
-1. [Dall’idea software al metaverso](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/blob/main/docs/n4k48-comics/01-dall-idea-al-metaverso.png)
-2. [Il software prende forma](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/blob/main/docs/n4k48-comics/02-il-software-prende-forma.png)
-3. [Verso Neon Plaza](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/blob/main/docs/n4k48-comics/03-verso-neon-plaza.png)
+1. [Dall’idea software al metaverso](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/blob/main/docs/n4k48-comics/01-dall-idea-al-metaverso.png) — `n4k48-comic-001`
+2. [Il software prende forma](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/blob/main/docs/n4k48-comics/02-il-software-prende-forma.png) — `n4k48-comic-002`
+3. [Verso Neon Plaza](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/blob/main/docs/n4k48-comics/03-verso-neon-plaza.png) — `n4k48-comic-003`
 
-[Gallery](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/tree/main/docs/n4k48-comics) · [Participant roadmap](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/blob/main/docs/n4k48-comics/ROADMAP.md)
+[Gallery](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/blob/main/docs/nicola-comics/GALLERY.md) · [Zorgax adapter contract](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/blob/main/docs/nicola-comics/ZORGAX.md) · [Local test report](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/blob/8944fcbe31354cd513380dc3f5be7853380ef5c2/docs/nicola-comics/TEST-REPORT-2026-09-15.md)
 
-Repository presence verifies the public artifacts, not their authorship or the rights to every element. Authorship remains `PARTICIPANT_REPORTED`; source-generation provenance and element-rights review remain pending. The three earlier MyZubster ecosystem comics are references only and are not claimed by Nicola.
+Repository evidence confirms the files, documentation and adapter code exist. Authorship and visual-element rights remain `PARTICIPANT_REPORTED / TO_VERIFY`. The three earlier MyZubster ecosystem comics remain references and are not claimed by Nicola.
 
-Nicola proposed visual 01, **Dall’idea software al metaverso**, as the first NFT candidate. Its status is `CANDIDATE_ONLY`: no mint, token ownership, marketplace listing, sale or revenue is claimed. Human review of provenance, licenses and intended use is required before preparing any mint action.
+### Local adapter validation
+
+Nicola reported a healthy local Docker service and manual HTTP `PASS` results for:
+
+- `gallery` — returns the three N4K48 visuals;
+- `detail` — returns the card for `n4k48-comic-001`;
+- `candidate` — returns only `n4k48-comic-001`;
+- `next_steps` — returns the remaining validation steps.
+
+The published report correctly records that automated `pytest` tests were **not run** because pytest was unavailable. This automation verified the public commits and report, not Nicola's local runtime independently.
+
+The adapter remains read-only and now supports an environment-provided `NICOLA_COMICS_BASE_URL`, without requiring a localhost URL in public integration. The supporting public commits are:
+
+- [local manual validation](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/commit/8944fcbe31354cd513380dc3f5be7853380ef5c2);
+- [configurable adapter base URL](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/commit/27a628c9836ee4ce5eb15f405c8555f992172bdb);
+- [integration contract](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/commit/d777958dc2744d64ed4cbc0327a82c52fe7e655e);
+- [Docker environment pass-through](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/commit/24361946c9bc4807e19a8c5235c3a8839ae39af6).
+
+### NFT and rights boundary
+
+Nicola selected `n4k48-comic-001`, **Dall’idea software al metaverso**, as `NFT_CANDIDATE / PROPOSED_FOR_REVIEW`. Rights remain `TO_VERIFY`; transaction hash, contract, token ID, network and metadata URI remain empty. No mint, ownership, listing, sale or revenue is claimed.
 
 The scenes are narrative illustrations and may depict functions still to be developed. They are not verified software screenshots or evidence of deployed metaverse functionality.
 
-The minimized participant record is stored in:
+The minimized evidence record is stored in:
 
 `docs/life/nicola-comics-participant-update-2026-09-09.json`
 
-The shared roadmap issue `MyZubster-Ecosystem/myzubster#1052` referenced in the email was not accessible when checked and must not be treated as a verified public roadmap until corrected or recreated.
+### Public-integration gate
 
-### Next Nicola Comics gate
+Coordination now continues in [issue #1176](https://github.com/MyZubster-Ecosystem/myzubster/issues/1176). The next gate is to assign a real HTTPS endpoint separated from Nicola's PC, configure least-privilege authentication and `NICOLA_COMICS_BASE_URL` through the hosting environment, map Zorgax public intents to the four read-only actions, and document a public end-to-end test.
 
-Preserve generation provenance, identify any source assets, verify licenses and authorization for visual elements and MyZubster marks, then obtain human approval for the candidate and intended license. Any later NFT mint must use a separate bounded plan and produce independently verifiable on-chain evidence.
+No public deployment or Zorgax-public connection is claimed until that test is independently evidenced.
 
 ## Preliminary interview evidence
 
