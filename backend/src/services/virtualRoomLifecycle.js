@@ -122,8 +122,8 @@ async function updateRoom({ idOrSlug, actorUserId, actorRole, patch = {} }) {
     room.state = patch.state;
   }
   const settingsLocked = !['draft', 'published'].includes(room.state);
-  if (settingsLocked && (patch.accessPolicy !== undefined || patch.capacity !== undefined)) {
-    return { valid: false, status: 409, error: 'Room access and capacity are locked after session scheduling' };
+  if (settingsLocked && (patch.accessPolicy !== undefined || patch.capacity !== undefined || patch.stagePolicy !== undefined)) {
+    return { valid: false, status: 409, error: 'Room access, capacity and stage policy are locked after session scheduling' };
   }
 
   if (patch.accessPolicy) {
@@ -134,6 +134,10 @@ async function updateRoom({ idOrSlug, actorUserId, actorRole, patch = {} }) {
     const numericCapacity = Number(patch.capacity);
     if (!Number.isInteger(numericCapacity) || numericCapacity < 1 || numericCapacity > 500) return { valid: false, status: 400, error: 'Capacity must be between 1 and 500' };
     room.capacity = numericCapacity;
+  }
+  if (patch.stagePolicy !== undefined) {
+    if (!['host-only', 'host-approved'].includes(patch.stagePolicy)) return { valid: false, status: 400, error: 'Invalid stage policy' };
+    room.stagePolicy = patch.stagePolicy;
   }
   if (patch.sceneManifestVersion) room.sceneManifestVersion = cleanText(patch.sceneManifestVersion, 40);
   if (patch.scheduledFor !== undefined) room.scheduledFor = patch.scheduledFor ? new Date(patch.scheduledFor) : null;
