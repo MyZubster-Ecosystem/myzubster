@@ -1,6 +1,7 @@
 const {
   ROOM_TRANSITIONS,
   hashRoomInviteCode,
+  validateScheduledFor,
   publicInviteStatus,
   roomInviteRedemptionQuery,
   moderationParticipantRef,
@@ -82,6 +83,15 @@ describe('virtual room lifecycle policy', () => {
     const session = publicSession({ sessionId: 's', roomId: 'r', state: 'live', capacity: 5, participantUserIds: ['u'], stageSpeakerUserIds: ['u'], lifecycleVersion: 2 });
     expect(session.participantCount).toBe(1);
     expect(session).not.toHaveProperty('stageSpeakerUserIds');
+  });
+
+  test('accepts optional future schedules and rejects invalid or past dates', () => {
+    const now = new Date('2026-09-15T12:00:00.000Z');
+    expect(validateScheduledFor(undefined, now)).toEqual({ valid: true, unchanged: true });
+    expect(validateScheduledFor(null, now)).toEqual({ valid: true, date: null });
+    expect(validateScheduledFor('invalid', now).valid).toBe(false);
+    expect(validateScheduledFor('2026-09-15T11:59:00.000Z', now).valid).toBe(false);
+    expect(validateScheduledFor('2026-09-15T13:00:00.000Z', now).date.toISOString()).toBe('2026-09-15T13:00:00.000Z');
   });
 
   test('discovers only active lifecycle states and never exposes private rooms', () => {
