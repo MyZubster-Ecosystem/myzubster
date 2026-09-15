@@ -34,6 +34,13 @@ function stateLabel(state) {
   }[state] || state;
 }
 
+function toLocalDateTimeInput(value) {
+  if (!value) return '';
+  const date = new Date(value);
+  const local = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
+  return local.toISOString().slice(0, 16);
+}
+
 function MetaverseRoomPage({ roomKey }) {
   const authenticated = Boolean(localStorage.getItem('myzubster-token'));
   const [room, setRoom] = useState(null);
@@ -47,6 +54,7 @@ function MetaverseRoomPage({ roomKey }) {
   const [editAccess, setEditAccess] = useState('authenticated');
   const [editCapacity, setEditCapacity] = useState(25);
   const [editStagePolicy, setEditStagePolicy] = useState('host-only');
+  const [editScheduledFor, setEditScheduledFor] = useState('');
   const [inviteUrl, setInviteUrl] = useState('');
   const [inviteStatus, setInviteStatus] = useState({ active: false, expiresAt: null });
   const [participants, setParticipants] = useState([]);
@@ -75,6 +83,7 @@ function MetaverseRoomPage({ roomKey }) {
         setEditAccess(result.room.accessPolicy);
         setEditCapacity(result.room.capacity);
         setEditStagePolicy(result.room.stagePolicy);
+        setEditScheduledFor(toLocalDateTimeInput(result.room.scheduledFor));
         setStatus('ready');
         if (result.canManage && result.room.accessPolicy === 'private') {
           getMetaverseRoomInviteStatus(result.room.slug || result.room.id)
@@ -308,7 +317,8 @@ function MetaverseRoomPage({ roomKey }) {
       const result = await updateMetaverseRoom(room.slug || room.id, {
         accessPolicy: editAccess,
         capacity: Number(editCapacity),
-        stagePolicy: editStagePolicy
+        stagePolicy: editStagePolicy,
+        scheduledFor: editScheduledFor ? new Date(editScheduledFor).toISOString() : null
       });
       setRoom(result.room);
       setMessage('Impostazioni della stanza salvate.');
@@ -410,6 +420,7 @@ function MetaverseRoomPage({ roomKey }) {
         <p><strong>Accesso:</strong> {room.accessPolicy}</p>
         <p><strong>Capacità:</strong> {room.capacity}</p>
         <p><strong>Versione scena:</strong> {room.sceneManifestVersion}</p>
+        <p><strong>Programmazione:</strong> {room.scheduledFor ? new Date(room.scheduledFor).toLocaleString('it-IT') : 'Avvio immediato'}</p>
         {canManage && (
           <div className="metaverse-panel">
             <h3>Controlli host</h3>
@@ -419,6 +430,7 @@ function MetaverseRoomPage({ roomKey }) {
                 <label>Accesso<select value={editAccess} onChange={(event) => setEditAccess(event.target.value)}><option value="public">Pubblico</option><option value="authenticated">Solo account</option><option value="private">Privato</option></select></label>
                 <label>Capacità<input type="number" min="1" max="500" value={editCapacity} onChange={(event) => setEditCapacity(event.target.value)} /></label>
                 <label>Palco<select value={editStagePolicy} onChange={(event) => setEditStagePolicy(event.target.value)}><option value="host-only">Solo host</option><option value="host-approved">Richieste approvate dall’host</option></select></label>
+                <label>Data e ora della sessione<input type="datetime-local" value={editScheduledFor} onChange={(event) => setEditScheduledFor(event.target.value)} /></label>
                 <button type="submit" disabled={joining}>Salva impostazioni</button>
               </form>
             )}
@@ -504,5 +516,5 @@ function MetaverseRoomPage({ roomKey }) {
   );
 }
 
-export { stateLabel };
+export { stateLabel, toLocalDateTimeInput };
 export default MetaverseRoomPage;
