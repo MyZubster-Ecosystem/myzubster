@@ -5,9 +5,12 @@ const MetaverseCharacter = require('../models/MetaverseCharacter');
 const VirtualRoom = require('../models/VirtualRoom');
 const VirtualSession = require('../models/VirtualSession');
 const VirtualRoomChatThrottle = require('../models/VirtualRoomChatThrottle');
+const VirtualRoomMessageReport = require('../models/VirtualRoomMessageReport');
 
 const ROOM_CHAT_RETENTION_MS = 24 * 60 * 60 * 1000;
 const ROOM_CHAT_PAGE_SIZE = 50;
+const ROOM_REPORT_RETENTION_MS = 7 * 24 * 60 * 60 * 1000;
+const ROOM_REPORT_REASONS = new Set(['spam', 'harassment', 'unsafe', 'other']);
 
 function databaseAvailable() {
   return mongoose.connection.readyState === 1;
@@ -92,6 +95,56 @@ async function deleteRoomMessage({ sessionId, messageId, actorUserId, actorRole 
   return { valid: true, status: 200 };
 }
 
+async function reportRoomMessage({ sessionId, messageId, actorUserId, reason }) {
+  const context = await authorizedContext(sessionId, actorUserId);
+  if (!context.valid) return context;
+  if (!ROOM_REPORT_REASONS.has(reason)) return { valid: false, status: 400, error: 'Invalid report reason' };
+  const message = await MetaverseChatMessage.findOne({
+    messageId: String(messageId),
+    sessionId: context.session.sessionId,
+    worldId: `virtual-room:${context.room.roomId}`
+  }).select('messageId');
+  if (!message) return { valid: false, status: 404, error: 'Message not found' };
+  const now = new Date();
+  const report = await VirtualRoomMessageReport.findOneAndUpdate(
+    { sessionId: context.session.sessionId, messageId: message.messageId, reporterUserId: context.actor },
+    {
+      $set: { reason, status: 'open', resolvedAt: null, expiresAt: new Date(now.getTime() + ROOM_REPORT_RETENTION_MS) },
+      $setOnInsert: { reportId: crypto.randomUUID(), roomId: context.room.roomId }
+    },
+    { upsert: true, new: true, setDefaultsOnInsert: true }
+  );
+  return { valid: true, status: 201, report: { id: report.reportId, reason: report.reason, status: report.status } };
+}
+
+async function listRoomMessageReports({ sessionId, actorUserId, actorRole }) {
+  const context = await authorizedContext(sessionId, actorUserId);
+  if (!context.valid) return context;
+  if (!canModerateRoomChat(actorUserId, context.session.hostUserId, actorRole)) return { valid: false, status: 403, error: 'Host capability required' };
+  const reports = await VirtualRoomMessageReport.find({ roomId: context.room.roomId, sessionId: context.session.sessionId, status: 'open' }).sort({ createdAt: 1 }).lean();
+  const messages = await MetaverseChatMessage.find({ messageId: { $in: reports.map((report) => report.messageId) }, worldId: `virtual-room:${context.room.roomId}` }).lean();
+  const byId = new Map(messages.map((message) => [message.messageId, publicRoomMessage(message)]));
+  return { valid: true, status: 200, reports: reports.map((report) => ({
+    id: report.reportId,
+    reason: report.reason,
+    createdAt: report.createdAt,
+    message: byId.get(report.messageId) || null
+  })) };
+}
+
+async function resolveRoomMessageReport({ sessionId, reportId, actorUserId, actorRole }) {
+  const context = await authorizedContext(sessionId, actorUserId);
+  if (!context.valid) return context;
+  if (!canModerateRoomChat(actorUserId, context.session.hostUserId, actorRole)) return { valid: false, status: 403, error: 'Host capability required' };
+  const report = await VirtualRoomMessageReport.findOneAndUpdate(
+    { reportId: String(reportId), roomId: context.room.roomId, sessionId: context.session.sessionId, status: 'open' },
+    { $set: { status: 'resolved', resolvedAt: new Date() } },
+    { new: true }
+  );
+  if (!report) return { valid: false, status: 404, error: 'Report not found' };
+  return { valid: true, status: 200 };
+}
+
 async function listRoomMessages({ sessionId, actorUserId, after }) {
   const context = await authorizedContext(sessionId, actorUserId);
   if (!context.valid) return context;
@@ -139,12 +192,17 @@ async function createRoomMessage({ sessionId, actorUserId, text }) {
 
 module.exports = {
   ROOM_CHAT_RETENTION_MS,
+  ROOM_REPORT_RETENTION_MS,
+  ROOM_REPORT_REASONS,
   roomChatThrottleKey,
   claimRoomChatWindow,
   cleanRoomMessage,
   publicRoomMessage,
   canModerateRoomChat,
   deleteRoomMessage,
+  reportRoomMessage,
+  listRoomMessageReports,
+  resolveRoomMessageReport,
   listRoomMessages,
   createRoomMessage
 };
