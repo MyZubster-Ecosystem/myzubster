@@ -142,6 +142,13 @@ export function resolveMetaverseStageRequest(sessionId, participantRef, approve)
   });
 }
 
+export function cancelMetaverseRoomSession(sessionId) {
+  return jsonRequest(`/api/metaverse/sessions/${encodeURIComponent(sessionId)}/cancel`, {
+    method: 'POST',
+    headers: authHeaders()
+  });
+}
+
 export function startMetaverseRoomSession(sessionId) {
   return jsonRequest(`/api/metaverse/sessions/${encodeURIComponent(sessionId)}/start`, {
     method: 'POST',
