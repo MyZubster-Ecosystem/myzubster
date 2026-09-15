@@ -1,5 +1,6 @@
 const {
   ROOM_TRANSITIONS,
+  canCancelSessionState,
   hashRoomInviteCode,
   validateScheduledFor,
   publicInviteStatus,
@@ -92,6 +93,13 @@ describe('virtual room lifecycle policy', () => {
     expect(validateScheduledFor('invalid', now).valid).toBe(false);
     expect(validateScheduledFor('2026-09-15T11:59:00.000Z', now).valid).toBe(false);
     expect(validateScheduledFor('2026-09-15T13:00:00.000Z', now).date.toISOString()).toBe('2026-09-15T13:00:00.000Z');
+  });
+
+  test('allows cancellation only before a scheduled session starts', () => {
+    expect(canCancelSessionState('scheduled')).toBe(true);
+    expect(canCancelSessionState('live')).toBe(false);
+    expect(canCancelSessionState('ended')).toBe(false);
+    expect(canCancelSessionState('archive')).toBe(false);
   });
 
   test('discovers only active lifecycle states and never exposes private rooms', () => {
