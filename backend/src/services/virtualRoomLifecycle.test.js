@@ -1,5 +1,6 @@
 const {
   ROOM_TRANSITIONS,
+  hashRoomInviteCode,
   roomDiscoveryQuery,
   validateJoin,
   publicRoom,
@@ -16,6 +17,13 @@ describe('virtual room lifecycle policy', () => {
     expect(ROOM_TRANSITIONS.ended.has('live')).toBe(false);
     expect(ROOM_TRANSITIONS.archive.size).toBe(0);
     expect(ROOM_TRANSITIONS.live.has('published')).toBe(false);
+  });
+
+  test('hashes private invitation codes deterministically without storing the code', () => {
+    const first = hashRoomInviteCode('one-time-code');
+    expect(first).toBe(hashRoomInviteCode('one-time-code'));
+    expect(first).toHaveLength(64);
+    expect(first).not.toContain('one-time-code');
   });
 
   test('discovers only active lifecycle states and never exposes private rooms', () => {
