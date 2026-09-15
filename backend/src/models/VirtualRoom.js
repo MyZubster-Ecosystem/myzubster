@@ -19,6 +19,8 @@ const virtualRoomSchema = new mongoose.Schema({
   capacity: { type: Number, min: 1, max: 500, default: 100 },
   allowedUserIds: { type: [String], default: [] },
   blockedUserIds: { type: [String], default: [] },
+  inviteTokenHash: { type: String, default: null, select: false },
+  inviteExpiresAt: { type: Date, default: null, select: false },
   stagePolicy: {
     type: String,
     enum: ['host-only', 'host-approved'],
