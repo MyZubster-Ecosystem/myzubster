@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import {
+  createMetaverseRoomInvite,
   createMetaverseRoomSession,
   endMetaverseRoomSession,
   getMetaverseRoom,
   getMetaverseRoomSessionEvents,
   joinMetaverseRoomSession,
   leaveMetaverseRoomSession,
+  redeemMetaverseRoomInvite,
   startMetaverseRoomSession,
   updateMetaverseRoom
 } from '../api/metaverse';
@@ -31,10 +33,19 @@ function MetaverseRoomPage({ roomKey }) {
   const [events, setEvents] = useState([]);
   const [editAccess, setEditAccess] = useState('authenticated');
   const [editCapacity, setEditCapacity] = useState(25);
+  const [inviteUrl, setInviteUrl] = useState('');
 
   useEffect(() => {
     let active = true;
-    getMetaverseRoom(roomKey)
+    const loadRoom = async () => {
+      const inviteCode = new URLSearchParams(window.location.search).get('invite');
+      if (inviteCode && authenticated) {
+        await redeemMetaverseRoomInvite(roomKey, inviteCode);
+        window.history.replaceState({}, '', window.location.pathname);
+      }
+      return getMetaverseRoom(roomKey);
+    };
+    loadRoom()
       .then((result) => {
         if (!active) return;
         setRoom(result.room);
@@ -155,6 +166,24 @@ function MetaverseRoomPage({ roomKey }) {
     }
   };
 
+  const createInvite = async () => {
+    if (!canManage || room.accessPolicy !== 'private') return;
+    setJoining(true);
+    setMessage('');
+    try {
+      const result = await createMetaverseRoomInvite(room.slug || room.id);
+      const url = new URL(window.location.href);
+      url.search = '';
+      url.searchParams.set('invite', result.inviteCode);
+      setInviteUrl(url.toString());
+      setMessage('Invito creato. Scade tra 24 ore e può essere usato una sola volta.');
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setJoining(false);
+    }
+  };
+
   const manageLifecycle = async () => {
     setJoining(true);
     setMessage('');
@@ -210,6 +239,13 @@ function MetaverseRoomPage({ roomKey }) {
                 <label>Capacità<input type="number" min="1" max="500" value={editCapacity} onChange={(event) => setEditCapacity(event.target.value)} /></label>
                 <button type="submit" disabled={joining}>Salva impostazioni</button>
               </form>
+            )}
+            {room.accessPolicy === 'private' && !['ended', 'archive'].includes(room.state) && (
+              <div className="metaverse-panel">
+                <button type="button" onClick={createInvite} disabled={joining}>Crea invito privato</button>
+                {inviteUrl && <label>Link monouso<input value={inviteUrl} readOnly onFocus={(event) => event.target.select()} /></label>}
+                <small className="metaverse-muted">La creazione di un nuovo invito disattiva quello precedente.</small>
+              </div>
             )}
             {room.state === 'draft' && <button className="metaverse-primary" onClick={manageLifecycle} disabled={joining}>Pubblica stanza</button>}
             {room.state === 'published' && !session && <button className="metaverse-primary" onClick={manageLifecycle} disabled={joining}>Crea sessione</button>}
