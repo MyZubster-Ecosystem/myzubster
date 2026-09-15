@@ -80,6 +80,9 @@ describe('authenticated metaverse UI wiring', () => {
     expect(roomPageSource).toContain("['draft', 'published'].includes(room.state)");
     expect(roomPageSource).toContain('setJoined(Boolean(result.joined))');
     expect(roomPageSource).toContain('getMetaverseRoomSessionEvents');
+    expect(roomPageSource).toContain('const ROOM_SYNC_INTERVAL_MS = 5000');
+    expect(roomPageSource).toContain('window.setInterval(refresh, ROOM_SYNC_INTERVAL_MS)');
+    expect(roomPageSource).toContain("ended: 'Conclusa'");
     expect(roomPageSource).toContain('Cronologia della sessione');
     expect(roomPageSource).toContain('nessun ID partecipante viene mostrato');
   });
