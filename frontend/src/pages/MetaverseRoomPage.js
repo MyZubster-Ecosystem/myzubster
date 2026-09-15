@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
+  cancelMetaverseRoomSession,
   createMetaverseRoomInvite,
   createMetaverseRoomSession,
   endMetaverseRoomSession,
@@ -364,6 +365,21 @@ function MetaverseRoomPage({ roomKey }) {
     }
   };
 
+  const cancelScheduledSession = async () => {
+    setJoining(true);
+    setMessage('');
+    try {
+      await cancelMetaverseRoomSession(session.id);
+      setSession(null);
+      setRoom((current) => ({ ...current, state: 'published' }));
+      setMessage('Sessione annullata. Puoi modificare le impostazioni e riprogrammarla.');
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setJoining(false);
+    }
+  };
+
   const manageLifecycle = async () => {
     setJoining(true);
     setMessage('');
@@ -453,6 +469,7 @@ function MetaverseRoomPage({ roomKey }) {
             {room.state === 'draft' && <button className="metaverse-primary" onClick={manageLifecycle} disabled={joining}>Pubblica stanza</button>}
             {room.state === 'published' && !session && <button className="metaverse-primary" onClick={manageLifecycle} disabled={joining}>Crea sessione</button>}
             {session?.state === 'scheduled' && <button className="metaverse-primary" onClick={manageLifecycle} disabled={joining}>Avvia sessione</button>}
+            {session?.state === 'scheduled' && <button type="button" onClick={cancelScheduledSession} disabled={joining}>Annulla sessione programmata</button>}
           </div>
         )}
         {session ? (
