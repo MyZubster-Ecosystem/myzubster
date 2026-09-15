@@ -89,6 +89,9 @@ describe('authenticated metaverse UI wiring', () => {
     expect(roomPageSource).toContain('sendMetaverseRoomMessage');
     expect(roomPageSource).toContain('deleteMetaverseRoomMessage');
     expect(roomPageSource).toContain('Messaggio rimosso dalla chat.');
+    expect(roomPageSource).toContain('Segnalazioni chat');
+    expect(roomPageSource).toContain('reportMetaverseRoomMessage');
+    expect(roomPageSource).toContain('resolveMetaverseRoomMessageReport');
     expect(roomPageSource).toContain('I messaggi scadono automaticamente dopo 24 ore.');
     expect(roomPageSource).toContain('nessun ID partecipante viene mostrato');
   });
