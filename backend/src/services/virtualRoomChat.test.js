@@ -1,3 +1,4 @@
+const VirtualRoomMessageReport = require('../models/VirtualRoomMessageReport');
 const { cleanRoomMessage, publicRoomMessage, canModerateRoomChat, roomChatThrottleKey, moderateReportedRoomMessage, ROOM_CHAT_RETENTION_MS, ROOM_REPORT_RETENTION_MS, ROOM_REPORT_REASONS } = require('./virtualRoomChat');
 
 describe('virtual room chat policy', () => {
@@ -49,6 +50,10 @@ describe('virtual room chat policy', () => {
 
   test('exports the coordinated reported-message moderation action', () => {
     expect(typeof moderateReportedRoomMessage).toBe('function');
+  });
+
+  test('records only privacy-safe moderation outcomes', () => {
+    expect(VirtualRoomMessageReport.schema.path('resolution').enumValues).toEqual(['dismissed', 'message_removed']);
   });
 
   test('retains room chat for exactly 24 hours', () => {
