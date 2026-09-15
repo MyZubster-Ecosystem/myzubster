@@ -85,6 +85,20 @@ export function createMetaverseRoomSession(roomId) {
   });
 }
 
+export function getMetaverseRoomParticipants(sessionId) {
+  return jsonRequest(`/api/metaverse/sessions/${encodeURIComponent(sessionId)}/participants`, {
+    headers: authHeaders()
+  });
+}
+
+export function moderateMetaverseRoomParticipant(sessionId, participantRef, block = false) {
+  return jsonRequest(`/api/metaverse/sessions/${encodeURIComponent(sessionId)}/participants/${encodeURIComponent(participantRef)}`, {
+    method: 'DELETE',
+    headers: authHeaders(),
+    body: JSON.stringify({ block })
+  });
+}
+
 export function startMetaverseRoomSession(sessionId) {
   return jsonRequest(`/api/metaverse/sessions/${encodeURIComponent(sessionId)}/start`, {
     method: 'POST',
