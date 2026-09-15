@@ -12,6 +12,8 @@ const virtualSessionSchema = new mongoose.Schema({
   },
   capacity: { type: Number, min: 1, max: 500, required: true },
   participantUserIds: { type: [String], default: [] },
+  stageRequestUserIds: { type: [String], default: [] },
+  stageSpeakerUserIds: { type: [String], default: [] },
   sceneManifestVersion: { type: String, default: '1' },
   lifecycleVersion: { type: Number, default: 1 },
   startedAt: { type: Date, default: null },
