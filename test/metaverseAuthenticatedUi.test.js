@@ -95,6 +95,8 @@ describe('authenticated metaverse UI wiring', () => {
     expect(roomPageSource).toContain('moderateMetaverseReportedMessage');
     expect(roomPageSource).toContain('Rimuovi messaggio e chiudi');
     expect(roomPageSource).toContain('Messaggio rimosso e segnalazioni chiuse.');
+    expect(roomPageSource).toContain('Registro moderazione');
+    expect(roomPageSource).toContain('Registro anonimo conservato per un massimo di sette giorni.');
     expect(roomPageSource).toContain('I messaggi scadono automaticamente dopo 24 ore.');
     expect(roomPageSource).toContain('nessun ID partecipante viene mostrato');
   });
