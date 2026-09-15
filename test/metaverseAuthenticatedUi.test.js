@@ -45,6 +45,10 @@ describe('authenticated metaverse UI wiring', () => {
     expect(roomPageSource).toContain('Concludi sessione');
     expect(roomPageSource).toContain('Moderazione partecipanti');
     expect(roomPageSource).toContain('Rimuovi e blocca');
+    expect(roomPageSource).toContain('Account bloccati');
+    expect(roomPageSource).toContain('Ripristina accesso');
+    expect(roomPageSource).toContain('getMetaverseRoomBlocklist');
+    expect(roomPageSource).toContain('unblockMetaverseRoomParticipant');
     expect(roomPageSource).toContain('getMetaverseRoomParticipants');
     expect(roomPageSource).toContain('moderateMetaverseRoomParticipant');
     expect(roomPageSource).toContain('Salva impostazioni');
