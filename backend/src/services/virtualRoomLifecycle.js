@@ -498,6 +498,51 @@ async function listStageRequests({ sessionId, actorUserId, actorRole }) {
   })) };
 }
 
+async function leaveStage({ sessionId, actorUserId }) {
+  if (!databaseAvailable()) return { valid: false, status: 503, error: 'Session storage unavailable' };
+  const session = await findSession(sessionId);
+  if (!session) return { valid: false, status: 404, error: 'Session not found' };
+  const actor = String(actorUserId);
+  if (!(session.participantUserIds || []).includes(actor)) return { valid: false, status: 403, error: 'Join session before changing stage status' };
+  const requested = (session.stageRequestUserIds || []).includes(actor);
+  const speaker = (session.stageSpeakerUserIds || []).includes(actor);
+  session.stageRequestUserIds = (session.stageRequestUserIds || []).filter((id) => id !== actor);
+  session.stageSpeakerUserIds = (session.stageSpeakerUserIds || []).filter((id) => id !== actor);
+  if (requested || speaker) {
+    session.lifecycleVersion += 1;
+    await session.save();
+  }
+  return { valid: true, status: 200, session: publicSession(session), stage: { requested: false, speaker: false }, action: speaker ? 'stage_left' : 'stage_request_cancelled' };
+}
+
+async function listStageSpeakers({ sessionId, actorUserId, actorRole }) {
+  if (!databaseAvailable()) return { valid: false, status: 503, error: 'Session storage unavailable' };
+  const session = await findSession(sessionId);
+  if (!session) return { valid: false, status: 404, error: 'Session not found' };
+  if (!canManage(actorUserId, actorRole, session.hostUserId)) return { valid: false, status: 403, error: 'Host capability required' };
+  const ids = session.stageSpeakerUserIds || [];
+  const characters = await MetaverseCharacter.find({ accountUserId: { $in: ids } }).select('accountUserId characterName archetype -_id').lean();
+  const byId = new Map(characters.map((character) => [String(character.accountUserId), character]));
+  return { valid: true, status: 200, speakers: ids.map((id) => ({
+    ref: moderationParticipantRef(session.sessionId, id),
+    characterName: byId.get(String(id))?.characterName || 'Verified participant',
+    archetype: byId.get(String(id))?.archetype || 'explorer'
+  })) };
+}
+
+async function revokeStageSpeaker({ sessionId, participantRef, actorUserId, actorRole }) {
+  if (!databaseAvailable()) return { valid: false, status: 503, error: 'Session storage unavailable' };
+  const session = await findSession(sessionId);
+  if (!session) return { valid: false, status: 404, error: 'Session not found' };
+  if (!canManage(actorUserId, actorRole, session.hostUserId)) return { valid: false, status: 403, error: 'Host capability required' };
+  const target = (session.stageSpeakerUserIds || []).find((id) => moderationParticipantRef(session.sessionId, id) === String(participantRef));
+  if (!target) return { valid: false, status: 404, error: 'Stage speaker not found' };
+  session.stageSpeakerUserIds = session.stageSpeakerUserIds.filter((id) => String(id) !== String(target));
+  session.lifecycleVersion += 1;
+  await session.save();
+  return { valid: true, status: 200, session: publicSession(session), action: 'stage_revoked' };
+}
+
 async function resolveStageRequest({ sessionId, participantRef, actorUserId, actorRole, approve }) {
   if (!databaseAvailable()) return { valid: false, status: 503, error: 'Session storage unavailable' };
   const session = await findSession(sessionId);
@@ -554,7 +599,10 @@ module.exports = {
   moderateSessionParticipant,
   getStageStatus,
   requestStageAccess,
+  leaveStage,
   listStageRequests,
+  listStageSpeakers,
+  revokeStageSpeaker,
   resolveStageRequest,
   getSessionToken,
   validateJoin
