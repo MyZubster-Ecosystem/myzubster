@@ -2,6 +2,7 @@ const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const VirtualRoom = require('../models/VirtualRoom');
+const MetaverseCharacter = require('../models/MetaverseCharacter');
 const VirtualSession = require('../models/VirtualSession');
 
 const ROOM_TRANSITIONS = Object.freeze({
@@ -348,6 +349,55 @@ function mintRealtimeToken(session, actorUserId) {
   }, secret, { expiresIn: '5m' });
 }
 
+function moderationParticipantRef(sessionId, actorUserId) {
+  return hashRoomInviteCode(`${sessionId}:${actorUserId}`).slice(0, 24);
+}
+
+async function listSessionParticipants({ sessionId, actorUserId, actorRole }) {
+  if (!databaseAvailable()) return { valid: false, status: 503, error: 'Session storage unavailable' };
+  const session = await findSession(sessionId);
+  if (!session) return { valid: false, status: 404, error: 'Session not found' };
+  if (!canManage(actorUserId, actorRole, session.hostUserId)) return { valid: false, status: 403, error: 'Host capability required' };
+  const ids = (session.participantUserIds || []).filter((id) => String(id) !== String(session.hostUserId));
+  const characters = await MetaverseCharacter.find({ accountUserId: { $in: ids } })
+    .select('accountUserId characterName archetype -_id')
+    .lean();
+  const byId = new Map(characters.map((character) => [String(character.accountUserId), character]));
+  return {
+    valid: true,
+    status: 200,
+    participants: ids.map((id) => ({
+      ref: moderationParticipantRef(session.sessionId, id),
+      characterName: byId.get(String(id))?.characterName || 'Verified participant',
+      archetype: byId.get(String(id))?.archetype || 'explorer'
+    }))
+  };
+}
+
+async function moderateSessionParticipant({ sessionId, participantRef, actorUserId, actorRole, block = false }) {
+  if (!databaseAvailable()) return { valid: false, status: 503, error: 'Session storage unavailable' };
+  const session = await findSession(sessionId);
+  if (!session) return { valid: false, status: 404, error: 'Session not found' };
+  if (!canManage(actorUserId, actorRole, session.hostUserId)) return { valid: false, status: 403, error: 'Host capability required' };
+  if (session.state !== 'live') return { valid: false, status: 409, error: 'Only live sessions can be moderated' };
+  const target = (session.participantUserIds || []).find(
+    (id) => String(id) !== String(session.hostUserId)
+      && moderationParticipantRef(session.sessionId, id) === String(participantRef)
+  );
+  if (!target) return { valid: false, status: 404, error: 'Participant not found' };
+
+  session.participantUserIds = session.participantUserIds.filter((id) => String(id) !== String(target));
+  session.lifecycleVersion += 1;
+  await session.save();
+  if (block) {
+    await VirtualRoom.updateOne(
+      { roomId: session.roomId },
+      { $addToSet: { blockedUserIds: String(target) }, $pull: { allowedUserIds: String(target) } }
+    );
+  }
+  return { valid: true, status: 200, session: publicSession(session), action: block ? 'participant_blocked' : 'participant_removed' };
+}
+
 async function getSessionToken({ sessionId, actorUserId }) {
   if (!databaseAvailable()) return { valid: false, status: 503, error: 'Session storage unavailable' };
   const session = await findSession(sessionId);
@@ -381,6 +431,9 @@ module.exports = {
   joinSession,
   leaveSession,
   endSession,
+  moderationParticipantRef,
+  listSessionParticipants,
+  moderateSessionParticipant,
   getSessionToken,
   validateJoin
 };
