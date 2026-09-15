@@ -386,15 +386,15 @@ async function moderateSessionParticipant({ sessionId, participantRef, actorUser
   );
   if (!target) return { valid: false, status: 404, error: 'Participant not found' };
 
-  session.participantUserIds = session.participantUserIds.filter((id) => String(id) !== String(target));
-  session.lifecycleVersion += 1;
-  await session.save();
   if (block) {
     await VirtualRoom.updateOne(
       { roomId: session.roomId },
       { $addToSet: { blockedUserIds: String(target) }, $pull: { allowedUserIds: String(target) } }
     );
   }
+  session.participantUserIds = session.participantUserIds.filter((id) => String(id) !== String(target));
+  session.lifecycleVersion += 1;
+  await session.save();
   return { valid: true, status: 200, session: publicSession(session), action: block ? 'participant_blocked' : 'participant_removed' };
 }
 
