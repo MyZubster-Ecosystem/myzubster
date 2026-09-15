@@ -178,6 +178,12 @@ export function resolveMetaverseRoomMessageReport(sessionId, reportId) {
   });
 }
 
+export function moderateMetaverseReportedMessage(sessionId, reportId) {
+  return jsonRequest(`/api/metaverse/sessions/${encodeURIComponent(sessionId)}/message-reports/${encodeURIComponent(reportId)}/message`, {
+    method: 'DELETE', headers: authHeaders()
+  });
+}
+
 export function sendMetaverseRoomMessage(sessionId, text) {
   return jsonRequest(`/api/metaverse/sessions/${encodeURIComponent(sessionId)}/messages`, {
     method: 'POST', headers: authHeaders(), body: JSON.stringify({ text })
