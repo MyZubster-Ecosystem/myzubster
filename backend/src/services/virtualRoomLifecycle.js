@@ -116,6 +116,11 @@ async function updateRoom({ idOrSlug, actorUserId, actorRole, patch = {} }) {
     if (!ROOM_TRANSITIONS[room.state]?.has(patch.state)) return { valid: false, status: 409, error: `Invalid room transition ${room.state} -> ${patch.state}` };
     room.state = patch.state;
   }
+  const settingsLocked = !['draft', 'published'].includes(room.state);
+  if (settingsLocked && (patch.accessPolicy !== undefined || patch.capacity !== undefined)) {
+    return { valid: false, status: 409, error: 'Room access and capacity are locked after session scheduling' };
+  }
+
   if (patch.accessPolicy) {
     if (!['public', 'authenticated', 'private'].includes(patch.accessPolicy)) return { valid: false, status: 400, error: 'Invalid access policy' };
     room.accessPolicy = patch.accessPolicy;
