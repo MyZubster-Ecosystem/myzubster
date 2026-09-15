@@ -155,6 +155,13 @@ export function getMetaverseRoomMessages(sessionId, after = '') {
   return jsonRequest(`/api/metaverse/sessions/${encodeURIComponent(sessionId)}/messages?${query.toString()}`, { headers: authHeaders() });
 }
 
+export function deleteMetaverseRoomMessage(sessionId, messageId) {
+  return jsonRequest(`/api/metaverse/sessions/${encodeURIComponent(sessionId)}/messages/${encodeURIComponent(messageId)}`, {
+    method: 'DELETE',
+    headers: authHeaders()
+  });
+}
+
 export function sendMetaverseRoomMessage(sessionId, text) {
   return jsonRequest(`/api/metaverse/sessions/${encodeURIComponent(sessionId)}/messages`, {
     method: 'POST', headers: authHeaders(), body: JSON.stringify({ text })
