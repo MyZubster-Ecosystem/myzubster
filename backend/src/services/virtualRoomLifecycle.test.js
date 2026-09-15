@@ -4,6 +4,7 @@ const {
   publicInviteStatus,
   roomInviteRedemptionQuery,
   moderationParticipantRef,
+  blockedParticipantRef,
   roomDiscoveryQuery,
   validateJoin,
   publicRoom,
@@ -62,6 +63,13 @@ describe('virtual room lifecycle policy', () => {
     expect(ref).toHaveLength(24);
     expect(ref).not.toContain('account-secret');
     expect(ref).not.toBe(moderationParticipantRef('session-2', 'account-secret'));
+  });
+
+  test('scopes opaque blocklist references to the room', () => {
+    const ref = blockedParticipantRef('room-1', 'account-secret');
+    expect(ref).toHaveLength(24);
+    expect(ref).not.toContain('account-secret');
+    expect(ref).not.toBe(blockedParticipantRef('room-2', 'account-secret'));
   });
 
   test('discovers only active lifecycle states and never exposes private rooms', () => {
