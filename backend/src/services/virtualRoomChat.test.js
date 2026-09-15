@@ -1,4 +1,4 @@
-const { cleanRoomMessage, publicRoomMessage, canModerateRoomChat, roomChatThrottleKey, ROOM_CHAT_RETENTION_MS } = require('./virtualRoomChat');
+const { cleanRoomMessage, publicRoomMessage, canModerateRoomChat, roomChatThrottleKey, ROOM_CHAT_RETENTION_MS, ROOM_REPORT_RETENTION_MS, ROOM_REPORT_REASONS } = require('./virtualRoomChat');
 
 describe('virtual room chat policy', () => {
   test('sanitizes and limits room messages', () => {
@@ -40,6 +40,11 @@ describe('virtual room chat policy', () => {
     expect(key).not.toContain('account-secret');
     expect(key).not.toBe(roomChatThrottleKey('room-1', 'session-2', 'account-secret'));
     expect(key).not.toBe(roomChatThrottleKey('room-2', 'session-1', 'account-secret'));
+  });
+
+  test('limits report reasons and evidence retention', () => {
+    expect(Array.from(ROOM_REPORT_REASONS)).toEqual(['spam', 'harassment', 'unsafe', 'other']);
+    expect(ROOM_REPORT_RETENTION_MS).toBe(7 * 24 * 60 * 60 * 1000);
   });
 
   test('retains room chat for exactly 24 hours', () => {
