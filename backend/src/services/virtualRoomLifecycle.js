@@ -21,6 +21,10 @@ function cleanText(value, maxLength = 160) {
   return String(value || '').replace(/[<>\u0000-\u001f\u007f]/g, '').trim().slice(0, maxLength);
 }
 
+function hashRoomInviteCode(value) {
+  return crypto.createHash('sha256').update(String(value || '')).digest('hex');
+}
+
 function slugify(value) {
   return cleanText(value, 120).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 80);
 }
@@ -135,6 +139,54 @@ async function updateRoom({ idOrSlug, actorUserId, actorRole, patch = {} }) {
   if (Array.isArray(patch.allowedUserIds)) room.allowedUserIds = patch.allowedUserIds.map((id) => cleanText(id, 120)).filter(Boolean);
   if (Array.isArray(patch.blockedUserIds)) room.blockedUserIds = patch.blockedUserIds.map((id) => cleanText(id, 120)).filter(Boolean);
 
+  await room.save();
+  return { valid: true, status: 200, room: publicRoom(room) };
+}
+
+async function createRoomInvite({ idOrSlug, actorUserId, actorRole }) {
+  if (!databaseAvailable()) return { valid: false, status: 503, error: 'Room storage unavailable' };
+  const room = await VirtualRoom.findOne({
+    $or: [{ roomId: cleanText(idOrSlug, 160) }, { slug: cleanText(idOrSlug, 160) }]
+  }).select('+inviteTokenHash +inviteExpiresAt');
+  if (!room) return { valid: false, status: 404, error: 'Room not found' };
+  if (!canManage(actorUserId, actorRole, room.hostUserId)) return { valid: false, status: 403, error: 'Host capability required' };
+  if (room.accessPolicy !== 'private') return { valid: false, status: 409, error: 'Invitations are available only for private rooms' };
+  if (['ended', 'archive'].includes(room.state)) return { valid: false, status: 409, error: 'Closed rooms cannot issue invitations' };
+
+  const code = crypto.randomBytes(24).toString('base64url');
+  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+  room.inviteTokenHash = hashRoomInviteCode(code);
+  room.inviteExpiresAt = expiresAt;
+  await room.save();
+  return { valid: true, status: 201, code, expiresAt: expiresAt.toISOString() };
+}
+
+async function redeemRoomInvite({ idOrSlug, actorUserId, code }) {
+  if (!databaseAvailable()) return { valid: false, status: 503, error: 'Room storage unavailable' };
+  const key = cleanText(idOrSlug, 160);
+  const room = await VirtualRoom.findOne({ $or: [{ roomId: key }, { slug: key }] })
+    .select('+inviteTokenHash +inviteExpiresAt');
+  if (!room) return { valid: false, status: 404, error: 'Room not found' };
+  if (!actorUserId) return { valid: false, status: 401, error: 'Authentication required' };
+  if (room.accessPolicy !== 'private') return { valid: false, status: 409, error: 'Room does not require an invitation' };
+  const actor = String(actorUserId);
+  if ((room.blockedUserIds || []).includes(actor)) return { valid: false, status: 403, error: 'Access blocked' };
+  if ((room.allowedUserIds || []).includes(actor) || actor === String(room.hostUserId)) {
+    return { valid: true, status: 200, room: publicRoom(room) };
+  }
+  if (!room.inviteTokenHash || !room.inviteExpiresAt || room.inviteExpiresAt.getTime() <= Date.now()) {
+    return { valid: false, status: 410, error: 'Invitation expired or already used' };
+  }
+  const suppliedHash = hashRoomInviteCode(code);
+  const expected = Buffer.from(room.inviteTokenHash, 'hex');
+  const supplied = Buffer.from(suppliedHash, 'hex');
+  if (expected.length !== supplied.length || !crypto.timingSafeEqual(expected, supplied)) {
+    return { valid: false, status: 403, error: 'Invalid invitation' };
+  }
+
+  room.allowedUserIds = Array.from(new Set([...(room.allowedUserIds || []), actor]));
+  room.inviteTokenHash = null;
+  room.inviteExpiresAt = null;
   await room.save();
   return { valid: true, status: 200, room: publicRoom(room) };
 }
@@ -268,6 +320,7 @@ async function getSessionToken({ sessionId, actorUserId }) {
 
 module.exports = {
   ROOM_TRANSITIONS,
+  hashRoomInviteCode,
   publicRoom,
   publicSession,
   createRoom,
@@ -275,6 +328,8 @@ module.exports = {
   listDiscoverableRooms,
   findRoom,
   updateRoom,
+  createRoomInvite,
+  redeemRoomInvite,
   createSession,
   findCurrentSessionForRoom,
   findSession,
