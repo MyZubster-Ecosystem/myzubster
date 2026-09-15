@@ -2,6 +2,7 @@ const {
   ROOM_TRANSITIONS,
   hashRoomInviteCode,
   publicInviteStatus,
+  roomInviteRedemptionQuery,
   roomDiscoveryQuery,
   validateJoin,
   publicRoom,
@@ -35,6 +36,22 @@ describe('virtual room lifecycle policy', () => {
     expect(publicInviteStatus({ inviteTokenHash: 'hash', inviteExpiresAt: new Date(0) })).toEqual({
       active: false,
       expiresAt: null
+    });
+  });
+
+  test('builds an atomic invite claim that binds hash, expiry and block status', () => {
+    const now = new Date('2026-09-15T00:00:00.000Z');
+    expect(roomInviteRedemptionQuery({
+      roomId: 'room-1',
+      suppliedHash: 'hash',
+      actorUserId: 'user-1',
+      now
+    })).toEqual({
+      roomId: 'room-1',
+      accessPolicy: 'private',
+      inviteTokenHash: 'hash',
+      inviteExpiresAt: { $gt: now },
+      blockedUserIds: { $ne: 'user-1' }
     });
   });
 
