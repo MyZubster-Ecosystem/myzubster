@@ -29,6 +29,8 @@ function MetaverseRoomPage({ roomKey }) {
   const [canManage, setCanManage] = useState(false);
   const [joined, setJoined] = useState(false);
   const [events, setEvents] = useState([]);
+  const [editAccess, setEditAccess] = useState('authenticated');
+  const [editCapacity, setEditCapacity] = useState(25);
 
   useEffect(() => {
     let active = true;
@@ -39,6 +41,8 @@ function MetaverseRoomPage({ roomKey }) {
         setSession(result.session);
         setCanManage(Boolean(result.canManage));
         setJoined(Boolean(result.joined));
+        setEditAccess(result.room.accessPolicy);
+        setEditCapacity(result.room.capacity);
         setStatus('ready');
       })
       .catch((error) => {
@@ -133,6 +137,24 @@ function MetaverseRoomPage({ roomKey }) {
     }
   };
 
+  const saveSettings = async (event) => {
+    event.preventDefault();
+    setJoining(true);
+    setMessage('');
+    try {
+      const result = await updateMetaverseRoom(room.slug || room.id, {
+        accessPolicy: editAccess,
+        capacity: Number(editCapacity)
+      });
+      setRoom(result.room);
+      setMessage('Impostazioni della stanza salvate.');
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setJoining(false);
+    }
+  };
+
   const manageLifecycle = async () => {
     setJoining(true);
     setMessage('');
@@ -182,6 +204,13 @@ function MetaverseRoomPage({ roomKey }) {
           <div className="metaverse-panel">
             <h3>Controlli host</h3>
             <p className="metaverse-muted">Le transizioni sono validate dal server e non possono tornare indietro.</p>
+            {['draft', 'published'].includes(room.state) && !session && (
+              <form className="metaverse-form" onSubmit={saveSettings}>
+                <label>Accesso<select value={editAccess} onChange={(event) => setEditAccess(event.target.value)}><option value="public">Pubblico</option><option value="authenticated">Solo account</option><option value="private">Privato</option></select></label>
+                <label>Capacità<input type="number" min="1" max="500" value={editCapacity} onChange={(event) => setEditCapacity(event.target.value)} /></label>
+                <button type="submit" disabled={joining}>Salva impostazioni</button>
+              </form>
+            )}
             {room.state === 'draft' && <button className="metaverse-primary" onClick={manageLifecycle} disabled={joining}>Pubblica stanza</button>}
             {room.state === 'published' && !session && <button className="metaverse-primary" onClick={manageLifecycle} disabled={joining}>Crea sessione</button>}
             {session?.state === 'scheduled' && <button className="metaverse-primary" onClick={manageLifecycle} disabled={joining}>Avvia sessione</button>}
