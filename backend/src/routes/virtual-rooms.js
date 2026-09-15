@@ -33,7 +33,7 @@ const {
   findSession
 } = require('../services/virtualRoomLifecycle');
 const { appendSessionEvent, listSessionEvents } = require('../services/virtualSessionEvents');
-const { listRoomMessages, createRoomMessage, deleteRoomMessage, reportRoomMessage, listRoomMessageReports, resolveRoomMessageReport } = require('../services/virtualRoomChat');
+const { listRoomMessages, createRoomMessage, deleteRoomMessage, reportRoomMessage, listRoomMessageReports, resolveRoomMessageReport, moderateReportedRoomMessage } = require('../services/virtualRoomChat');
 
 const router = express.Router();
 
@@ -412,6 +412,22 @@ router.patch('/sessions/:id/message-reports/:reportId', authenticate, async (req
     const result = await resolveRoomMessageReport({ sessionId: req.params.id, reportId: req.params.reportId, actorUserId: req.userId, actorRole: req.userRole || 'user' });
     return res.status(result.status).json(result.valid ? { success: true } : { success: false, error: result.error });
   } catch (error) { return res.status(500).json({ success: false, error: 'Unable to resolve message report' }); }
+});
+
+router.delete('/sessions/:id/message-reports/:reportId/message', authenticate, async (req, res) => {
+  try {
+    const result = await moderateReportedRoomMessage({
+      sessionId: req.params.id,
+      reportId: req.params.reportId,
+      actorUserId: req.userId,
+      actorRole: req.userRole || 'user'
+    });
+    return res.status(result.status).json(result.valid
+      ? { success: true, removed: result.removed, messageId: result.messageId }
+      : { success: false, error: result.error });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: 'Unable to moderate reported message' });
+  }
 });
 
 router.post('/sessions/:id/messages', authenticate, async (req, res) => {
