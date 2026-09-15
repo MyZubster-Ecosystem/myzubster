@@ -10,6 +10,7 @@ const {
   revokeRoomInvite,
   redeemRoomInvite,
   createSession,
+  cancelSession,
   startSession,
   joinSession,
   leaveSession,
@@ -350,6 +351,17 @@ router.patch('/sessions/:id/stage/requests/:participantRef', authenticate, async
     return res.status(result.status).json(result.valid ? { success: true, session: result.session, action: result.action } : { success: false, error: result.error });
   } catch (error) {
     return res.status(500).json({ success: false, error: 'Unable to resolve stage request' });
+  }
+});
+
+router.post('/sessions/:id/cancel', authenticate, async (req, res) => {
+  try {
+    const result = await cancelSession({ sessionId: req.params.id, actorUserId: req.userId, actorRole: req.userRole || 'user' });
+    if (result.valid) await appendSessionEvent({ session: result.session, type: 'session_cancelled' });
+    return res.status(result.status).json(result.valid ? { success: true, session: result.session } : { success: false, error: result.error });
+  } catch (error) {
+    console.error('Virtual session cancel error:', error?.name || 'Error');
+    return res.status(500).json({ success: false, error: 'Unable to cancel session' });
   }
 });
 
