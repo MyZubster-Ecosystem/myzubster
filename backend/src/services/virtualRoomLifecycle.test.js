@@ -78,6 +78,12 @@ describe('virtual room lifecycle policy', () => {
     expect(view).not.toHaveProperty('stageSpeakerUserIds');
   });
 
+  test('keeps stage membership private in public session snapshots', () => {
+    const session = publicSession({ sessionId: 's', roomId: 'r', state: 'live', capacity: 5, participantUserIds: ['u'], stageSpeakerUserIds: ['u'], lifecycleVersion: 2 });
+    expect(session.participantCount).toBe(1);
+    expect(session).not.toHaveProperty('stageSpeakerUserIds');
+  });
+
   test('discovers only active lifecycle states and never exposes private rooms', () => {
     expect(roomDiscoveryQuery(false)).toEqual({
       state: { $in: ['published', 'scheduled', 'live'] },
