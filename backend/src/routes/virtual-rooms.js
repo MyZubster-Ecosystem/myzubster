@@ -33,7 +33,7 @@ const {
   findSession
 } = require('../services/virtualRoomLifecycle');
 const { appendSessionEvent, listSessionEvents } = require('../services/virtualSessionEvents');
-const { listRoomMessages, createRoomMessage } = require('../services/virtualRoomChat');
+const { listRoomMessages, createRoomMessage, deleteRoomMessage } = require('../services/virtualRoomChat');
 
 const router = express.Router();
 
@@ -375,6 +375,21 @@ router.get('/sessions/:id/messages', authenticate, async (req, res) => {
   } catch (error) {
     console.error('Virtual room chat read error:', error?.name || 'Error');
     return res.status(500).json({ success: false, error: 'Unable to read room chat' });
+  }
+});
+
+router.delete('/sessions/:id/messages/:messageId', authenticate, async (req, res) => {
+  try {
+    const result = await deleteRoomMessage({
+      sessionId: req.params.id,
+      messageId: req.params.messageId,
+      actorUserId: req.userId,
+      actorRole: req.userRole || 'user'
+    });
+    return res.status(result.status).json(result.valid ? { success: true } : { success: false, error: result.error });
+  } catch (error) {
+    console.error('Virtual room chat moderation error:', error?.name || 'Error');
+    return res.status(500).json({ success: false, error: 'Unable to remove room message' });
   }
 });
 
