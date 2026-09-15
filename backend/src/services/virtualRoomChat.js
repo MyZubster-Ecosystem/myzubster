@@ -109,7 +109,7 @@ async function reportRoomMessage({ sessionId, messageId, actorUserId, reason }) 
   const report = await VirtualRoomMessageReport.findOneAndUpdate(
     { sessionId: context.session.sessionId, messageId: message.messageId, reporterUserId: context.actor },
     {
-      $set: { reason, status: 'open', resolvedAt: null, expiresAt: new Date(now.getTime() + ROOM_REPORT_RETENTION_MS) },
+      $set: { reason, status: 'open', resolution: null, resolvedAt: null, expiresAt: new Date(now.getTime() + ROOM_REPORT_RETENTION_MS) },
       $setOnInsert: { reportId: crypto.randomUUID(), roomId: context.room.roomId }
     },
     { upsert: true, new: true, setDefaultsOnInsert: true }
@@ -124,12 +124,27 @@ async function listRoomMessageReports({ sessionId, actorUserId, actorRole }) {
   const reports = await VirtualRoomMessageReport.find({ roomId: context.room.roomId, sessionId: context.session.sessionId, status: 'open' }).sort({ createdAt: 1 }).lean();
   const messages = await MetaverseChatMessage.find({ messageId: { $in: reports.map((report) => report.messageId) }, worldId: `virtual-room:${context.room.roomId}` }).lean();
   const byId = new Map(messages.map((message) => [message.messageId, publicRoomMessage(message)]));
-  return { valid: true, status: 200, reports: reports.map((report) => ({
-    id: report.reportId,
-    reason: report.reason,
-    createdAt: report.createdAt,
-    message: byId.get(report.messageId) || null
-  })) };
+  const resolved = await VirtualRoomMessageReport.find({ roomId: context.room.roomId, sessionId: context.session.sessionId, status: 'resolved' })
+    .sort({ resolvedAt: -1 })
+    .limit(20)
+    .select('reportId reason resolution resolvedAt -_id')
+    .lean();
+  return {
+    valid: true,
+    status: 200,
+    reports: reports.map((report) => ({
+      id: report.reportId,
+      reason: report.reason,
+      createdAt: report.createdAt,
+      message: byId.get(report.messageId) || null
+    })),
+    history: resolved.map((report) => ({
+      id: report.reportId,
+      reason: report.reason,
+      resolution: report.resolution || 'dismissed',
+      resolvedAt: report.resolvedAt
+    }))
+  };
 }
 
 async function resolveRoomMessageReport({ sessionId, reportId, actorUserId, actorRole }) {
@@ -138,7 +153,7 @@ async function resolveRoomMessageReport({ sessionId, reportId, actorUserId, acto
   if (!canModerateRoomChat(actorUserId, context.session.hostUserId, actorRole)) return { valid: false, status: 403, error: 'Host capability required' };
   const report = await VirtualRoomMessageReport.findOneAndUpdate(
     { reportId: String(reportId), roomId: context.room.roomId, sessionId: context.session.sessionId, status: 'open' },
-    { $set: { status: 'resolved', resolvedAt: new Date() } },
+    { $set: { status: 'resolved', resolution: 'dismissed', resolvedAt: new Date() } },
     { new: true }
   );
   if (!report) return { valid: false, status: 404, error: 'Report not found' };
@@ -179,7 +194,7 @@ async function moderateReportedRoomMessage({ sessionId, reportId, actorUserId, a
           messageId,
           status: 'open'
         },
-        { $set: { status: 'resolved', resolvedAt: new Date() } },
+        { $set: { status: 'resolved', resolution: 'message_removed', resolvedAt: new Date() } },
         { session: databaseSession }
       );
     });
