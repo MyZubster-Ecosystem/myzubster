@@ -112,6 +112,24 @@ export function moderateMetaverseRoomParticipant(sessionId, participantRef, bloc
   });
 }
 
+export function getMetaverseStageStatus(sessionId) {
+  return jsonRequest(`/api/metaverse/sessions/${encodeURIComponent(sessionId)}/stage`, { headers: authHeaders() });
+}
+
+export function requestMetaverseStageAccess(sessionId) {
+  return jsonRequest(`/api/metaverse/sessions/${encodeURIComponent(sessionId)}/stage/requests`, { method: 'POST', headers: authHeaders() });
+}
+
+export function getMetaverseStageRequests(sessionId) {
+  return jsonRequest(`/api/metaverse/sessions/${encodeURIComponent(sessionId)}/stage/requests`, { headers: authHeaders() });
+}
+
+export function resolveMetaverseStageRequest(sessionId, participantRef, approve) {
+  return jsonRequest(`/api/metaverse/sessions/${encodeURIComponent(sessionId)}/stage/requests/${encodeURIComponent(participantRef)}`, {
+    method: 'PATCH', headers: authHeaders(), body: JSON.stringify({ approve })
+  });
+}
+
 export function startMetaverseRoomSession(sessionId) {
   return jsonRequest(`/api/metaverse/sessions/${encodeURIComponent(sessionId)}/start`, {
     method: 'POST',
