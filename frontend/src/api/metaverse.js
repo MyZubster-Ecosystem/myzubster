@@ -162,6 +162,22 @@ export function deleteMetaverseRoomMessage(sessionId, messageId) {
   });
 }
 
+export function reportMetaverseRoomMessage(sessionId, messageId, reason) {
+  return jsonRequest(`/api/metaverse/sessions/${encodeURIComponent(sessionId)}/messages/${encodeURIComponent(messageId)}/reports`, {
+    method: 'POST', headers: authHeaders(), body: JSON.stringify({ reason })
+  });
+}
+
+export function getMetaverseRoomMessageReports(sessionId) {
+  return jsonRequest(`/api/metaverse/sessions/${encodeURIComponent(sessionId)}/message-reports`, { headers: authHeaders() });
+}
+
+export function resolveMetaverseRoomMessageReport(sessionId, reportId) {
+  return jsonRequest(`/api/metaverse/sessions/${encodeURIComponent(sessionId)}/message-reports/${encodeURIComponent(reportId)}`, {
+    method: 'PATCH', headers: authHeaders()
+  });
+}
+
 export function sendMetaverseRoomMessage(sessionId, text) {
   return jsonRequest(`/api/metaverse/sessions/${encodeURIComponent(sessionId)}/messages`, {
     method: 'POST', headers: authHeaders(), body: JSON.stringify({ text })
