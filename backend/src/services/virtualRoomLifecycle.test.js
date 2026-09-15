@@ -3,6 +3,7 @@ const {
   hashRoomInviteCode,
   publicInviteStatus,
   roomInviteRedemptionQuery,
+  moderationParticipantRef,
   roomDiscoveryQuery,
   validateJoin,
   publicRoom,
@@ -53,6 +54,14 @@ describe('virtual room lifecycle policy', () => {
       inviteExpiresAt: { $gt: now },
       blockedUserIds: { $ne: 'user-1' }
     });
+  });
+
+  test('creates stable opaque moderation references without exposing account ids', () => {
+    const ref = moderationParticipantRef('session-1', 'account-secret');
+    expect(ref).toBe(moderationParticipantRef('session-1', 'account-secret'));
+    expect(ref).toHaveLength(24);
+    expect(ref).not.toContain('account-secret');
+    expect(ref).not.toBe(moderationParticipantRef('session-2', 'account-secret'));
   });
 
   test('discovers only active lifecycle states and never exposes private rooms', () => {
