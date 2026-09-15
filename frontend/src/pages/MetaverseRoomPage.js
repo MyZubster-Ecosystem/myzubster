@@ -78,6 +78,7 @@ function MetaverseRoomPage({ roomKey }) {
   const [roomMessageText, setRoomMessageText] = useState('');
   const [reportReason, setReportReason] = useState('spam');
   const [messageReports, setMessageReports] = useState([]);
+  const [moderationHistory, setModerationHistory] = useState([]);
 
   useEffect(() => {
     let active = true;
@@ -322,10 +323,15 @@ function MetaverseRoomPage({ roomKey }) {
   useEffect(() => {
     if (!canManage || !session?.id) {
       setMessageReports([]);
+      setModerationHistory([]);
       return undefined;
     }
     let active = true;
-    const refresh = () => getMetaverseRoomMessageReports(session.id).then((result) => { if (active) setMessageReports(result.reports || []); }).catch(() => {});
+    const refresh = () => getMetaverseRoomMessageReports(session.id).then((result) => {
+      if (!active) return;
+      setMessageReports(result.reports || []);
+      setModerationHistory(result.history || []);
+    }).catch(() => {});
     refresh();
     const timer = window.setInterval(refresh, 5000);
     return () => { active = false; window.clearInterval(timer); };
@@ -631,6 +637,15 @@ function MetaverseRoomPage({ roomKey }) {
         )}
         {session && canManage && messageReports.length > 0 && (
           <section className="metaverse-panel"><h3>Segnalazioni chat</h3>{messageReports.map((report) => <div key={report.id}><p><strong>{report.reason}</strong> · {report.message ? `${report.message.characterName}: ${report.message.text}` : 'Messaggio non più disponibile'}</p>{report.message && <button type="button" onClick={() => removeReportedMessage(report)}>Rimuovi messaggio e chiudi</button>} <button type="button" onClick={() => resolveMessageReport(report.id)}>Segna come risolta</button></div>)}</section>
+        )}
+        {session && canManage && moderationHistory.length > 0 && (
+          <section className="metaverse-panel">
+            <h3>Registro moderazione</h3>
+            <ul>{moderationHistory.map((entry) => (
+              <li key={entry.id}>{entry.resolution === 'message_removed' ? 'Messaggio rimosso' : 'Segnalazione archiviata'} · {entry.reason} · {new Date(entry.resolvedAt).toLocaleString('it-IT')}</li>
+            ))}</ul>
+            <small className="metaverse-muted">Registro anonimo conservato per un massimo di sette giorni.</small>
+          </section>
         )}
         {session && (
           <section className="metaverse-panel">
