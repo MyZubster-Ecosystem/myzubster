@@ -132,7 +132,7 @@ async function updateRoom({ idOrSlug, actorUserId, actorRole, patch = {} }) {
   }
   const settingsLocked = !['draft', 'published'].includes(room.state);
   if (settingsLocked && (patch.accessPolicy !== undefined || patch.capacity !== undefined || patch.stagePolicy !== undefined || patch.scheduledFor !== undefined)) {
-    return { valid: false, status: 409, error: 'Room access, capacity and stage policy are locked after session scheduling' };
+    return { valid: false, status: 409, error: 'Room access, capacity, stage policy and schedule are locked after session scheduling' };
   }
 
   if (patch.accessPolicy) {
