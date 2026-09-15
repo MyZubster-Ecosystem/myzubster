@@ -6,6 +6,8 @@ const {
   findRoom,
   updateRoom,
   createRoomInvite,
+  getRoomInviteStatus,
+  revokeRoomInvite,
   redeemRoomInvite,
   createSession,
   startSession,
@@ -109,6 +111,38 @@ router.patch('/rooms/:idOrSlug', authenticate, async (req, res) => {
   } catch (error) {
     console.error('Virtual room update error:', error?.name || 'Error');
     return res.status(500).json({ success: false, error: 'Unable to update room' });
+  }
+});
+
+router.get('/rooms/:idOrSlug/invitations/status', authenticate, async (req, res) => {
+  try {
+    const result = await getRoomInviteStatus({
+      idOrSlug: req.params.idOrSlug,
+      actorUserId: req.userId,
+      actorRole: req.userRole || 'user'
+    });
+    return res.status(result.status).json(result.valid
+      ? { success: true, invitation: result.invitation }
+      : { success: false, error: result.error });
+  } catch (error) {
+    console.error('Virtual room invitation status error:', error?.name || 'Error');
+    return res.status(500).json({ success: false, error: 'Unable to read invitation status' });
+  }
+});
+
+router.delete('/rooms/:idOrSlug/invitations', authenticate, async (req, res) => {
+  try {
+    const result = await revokeRoomInvite({
+      idOrSlug: req.params.idOrSlug,
+      actorUserId: req.userId,
+      actorRole: req.userRole || 'user'
+    });
+    return res.status(result.status).json(result.valid
+      ? { success: true, invitation: result.invitation }
+      : { success: false, error: result.error });
+  } catch (error) {
+    console.error('Virtual room invitation revoke error:', error?.name || 'Error');
+    return res.status(500).json({ success: false, error: 'Unable to revoke invitation' });
   }
 });
 
