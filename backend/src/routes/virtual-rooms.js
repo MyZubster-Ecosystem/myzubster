@@ -17,6 +17,10 @@ const {
   getSessionToken,
   listSessionParticipants,
   moderateSessionParticipant,
+  getStageStatus,
+  requestStageAccess,
+  listStageRequests,
+  resolveStageRequest,
   listRoomBlockedParticipants,
   unblockRoomParticipant,
   publicRoom,
@@ -277,6 +281,43 @@ router.delete('/sessions/:id/participants/:participantRef', authenticate, async 
   } catch (error) {
     console.error('Virtual session moderation error:', error?.name || 'Error');
     return res.status(500).json({ success: false, error: 'Unable to moderate participant' });
+  }
+});
+
+router.get('/sessions/:id/stage', authenticate, async (req, res) => {
+  try {
+    const result = await getStageStatus({ sessionId: req.params.id, actorUserId: req.userId });
+    return res.status(result.status).json(result.valid ? { success: true, stage: result.stage } : { success: false, error: result.error });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: 'Unable to read stage status' });
+  }
+});
+
+router.post('/sessions/:id/stage/requests', authenticate, async (req, res) => {
+  try {
+    const result = await requestStageAccess({ sessionId: req.params.id, actorUserId: req.userId });
+    return res.status(result.status).json(result.valid ? { success: true, stage: result.stage } : { success: false, error: result.error });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: 'Unable to request stage access' });
+  }
+});
+
+router.get('/sessions/:id/stage/requests', authenticate, async (req, res) => {
+  try {
+    const result = await listStageRequests({ sessionId: req.params.id, actorUserId: req.userId, actorRole: req.userRole || 'user' });
+    return res.status(result.status).json(result.valid ? { success: true, requests: result.requests } : { success: false, error: result.error });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: 'Unable to list stage requests' });
+  }
+});
+
+router.patch('/sessions/:id/stage/requests/:participantRef', authenticate, async (req, res) => {
+  try {
+    const result = await resolveStageRequest({ sessionId: req.params.id, participantRef: req.params.participantRef, actorUserId: req.userId, actorRole: req.userRole || 'user', approve: req.body?.approve === true });
+    if (result.valid) await appendSessionEvent({ session: result.session, type: result.action });
+    return res.status(result.status).json(result.valid ? { success: true, session: result.session, action: result.action } : { success: false, error: result.error });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: 'Unable to resolve stage request' });
   }
 });
 
