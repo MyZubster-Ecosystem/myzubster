@@ -294,12 +294,14 @@ async function cancelSession({ sessionId, actorUserId, actorRole }) {
   if (!session) return { valid: false, status: 404, error: 'Session not found' };
   if (!canManage(actorUserId, actorRole, session.hostUserId)) return { valid: false, status: 403, error: 'Host capability required' };
   if (!canCancelSessionState(session.state)) return { valid: false, status: 409, error: 'Only scheduled sessions can be cancelled' };
-  session.state = 'archive';
-  session.endedAt = new Date();
-  session.lifecycleVersion += 1;
-  await session.save();
-  await VirtualRoom.updateOne({ roomId: session.roomId, state: 'scheduled' }, { $set: { state: 'published' } });
-  return { valid: true, status: 200, session: publicSession(session) };
+  const cancelled = await VirtualSession.findOneAndUpdate(
+    { _id: session._id, state: 'scheduled' },
+    { $set: { state: 'archive', endedAt: new Date() }, $inc: { lifecycleVersion: 1 } },
+    { new: true }
+  );
+  if (!cancelled) return { valid: false, status: 409, error: 'Session state changed before cancellation' };
+  await VirtualRoom.updateOne({ roomId: cancelled.roomId, state: 'scheduled' }, { $set: { state: 'published' } });
+  return { valid: true, status: 200, session: publicSession(cancelled) };
 }
 
 async function startSession({ sessionId, actorUserId, actorRole }) {
@@ -313,12 +315,14 @@ async function startSession({ sessionId, actorUserId, actorRole }) {
   if (room.scheduledFor && room.scheduledFor.getTime() > Date.now()) {
     return { valid: false, status: 409, error: `Session is scheduled for ${room.scheduledFor.toISOString()}` };
   }
-  session.state = 'live';
-  session.startedAt = new Date();
-  session.lifecycleVersion += 1;
-  await session.save();
-  await VirtualRoom.updateOne({ roomId: session.roomId }, { $set: { state: 'live' } });
-  return { valid: true, status: 200, session: publicSession(session) };
+  const started = await VirtualSession.findOneAndUpdate(
+    { _id: session._id, state: 'scheduled' },
+    { $set: { state: 'live', startedAt: new Date() }, $inc: { lifecycleVersion: 1 } },
+    { new: true }
+  );
+  if (!started) return { valid: false, status: 409, error: 'Session state changed before start' };
+  await VirtualRoom.updateOne({ roomId: started.roomId }, { $set: { state: 'live' } });
+  return { valid: true, status: 200, session: publicSession(started) };
 }
 
 async function validateJoin({ session, room, actorUserId }) {
