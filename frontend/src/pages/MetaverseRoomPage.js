@@ -636,7 +636,7 @@ function MetaverseRoomPage({ roomKey }) {
           </section>
         )}
         {session && canManage && messageReports.length > 0 && (
-          <section className="metaverse-panel"><h3>Segnalazioni chat</h3>{messageReports.map((report) => <div key={report.id}><p><strong>{report.reason}</strong> · {report.message ? `${report.message.characterName}: ${report.message.text}` : 'Messaggio non più disponibile'}</p>{report.message && <button type="button" onClick={() => removeReportedMessage(report)}>Rimuovi messaggio e chiudi</button>} <button type="button" onClick={() => resolveMessageReport(report.id)}>Segna come risolta</button></div>)}</section>
+          <section className="metaverse-panel"><h3>Segnalazioni chat</h3>{messageReports.map((report) => <div key={report.id}><p><strong>{report.count} {report.count === 1 ? 'segnalazione' : 'segnalazioni'}</strong> · {report.reasons.join(', ')} · {report.message ? `${report.message.characterName}: ${report.message.text}` : 'Messaggio non più disponibile'}</p>{report.message && <button type="button" onClick={() => removeReportedMessage(report)}>Rimuovi messaggio e chiudi</button>} <button type="button" onClick={() => resolveMessageReport(report.id)}>Segna come risolta</button></div>)}</section>
         )}
         {session && canManage && moderationHistory.length > 0 && (
           <section className="metaverse-panel">
