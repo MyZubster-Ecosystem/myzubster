@@ -47,6 +47,9 @@ describe('authenticated metaverse UI wiring', () => {
     expect(roomPageSource).toContain('Richiedi di parlare');
     expect(roomPageSource).toContain('Richieste approvate dall’host');
     expect(roomPageSource).toContain('stagePolicy: editStagePolicy');
+    expect(roomPageSource).toContain('Data e ora della sessione');
+    expect(roomPageSource).toContain('scheduledFor: editScheduledFor');
+    expect(roomPageSource).toContain('toLocalDateTimeInput');
     expect(roomPageSource).toContain('Richieste di parola');
     expect(roomPageSource).toContain('Annulla richiesta');
     expect(roomPageSource).toContain('Lascia palco');
