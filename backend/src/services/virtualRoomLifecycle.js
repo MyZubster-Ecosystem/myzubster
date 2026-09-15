@@ -5,6 +5,8 @@ const VirtualRoom = require('../models/VirtualRoom');
 const MetaverseCharacter = require('../models/MetaverseCharacter');
 const VirtualSession = require('../models/VirtualSession');
 
+const CURRENT_SESSION_STATES = Object.freeze(['live', 'scheduled', 'ended']);
+
 const ROOM_TRANSITIONS = Object.freeze({
   draft: new Set(['published']),
   published: new Set(['scheduled', 'live']),
@@ -272,11 +274,12 @@ async function createSession({ roomId, actorUserId, actorRole }) {
 async function findCurrentSessionForRoom(roomId) {
   if (!databaseAvailable()) return null;
   const safeRoomId = cleanText(roomId, 160);
-  const live = await VirtualSession.findOne({ roomId: safeRoomId, state: 'live' })
-    .sort({ createdAt: -1 });
-  if (live) return live;
-  return VirtualSession.findOne({ roomId: safeRoomId, state: 'scheduled' })
-    .sort({ createdAt: -1 });
+  for (const state of CURRENT_SESSION_STATES) {
+    const session = await VirtualSession.findOne({ roomId: safeRoomId, state })
+      .sort({ createdAt: -1 });
+    if (session) return session;
+  }
+  return null;
 }
 
 async function findSession(sessionId) {
@@ -608,6 +611,7 @@ async function getSessionToken({ sessionId, actorUserId }) {
 
 module.exports = {
   ROOM_TRANSITIONS,
+  CURRENT_SESSION_STATES,
   hashRoomInviteCode,
   validateScheduledFor,
   publicInviteStatus,
