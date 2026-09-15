@@ -145,6 +145,45 @@ async function resolveRoomMessageReport({ sessionId, reportId, actorUserId, acto
   return { valid: true, status: 200 };
 }
 
+async function moderateReportedRoomMessage({ sessionId, reportId, actorUserId, actorRole }) {
+  const context = await authorizedContext(sessionId, actorUserId);
+  if (!context.valid) return context;
+  if (!canModerateRoomChat(actorUserId, context.session.hostUserId, actorRole)) return { valid: false, status: 403, error: 'Host capability required' };
+  const report = await VirtualRoomMessageReport.findOne({
+    reportId: String(reportId),
+    roomId: context.room.roomId,
+    sessionId: context.session.sessionId,
+    status: 'open'
+  }).select('messageId');
+  if (!report) return { valid: false, status: 404, error: 'Report not found' };
+
+  const databaseSession = await mongoose.startSession();
+  let removed = false;
+  try {
+    await databaseSession.withTransaction(async () => {
+      const deletion = await MetaverseChatMessage.deleteOne({
+        messageId: report.messageId,
+        sessionId: context.session.sessionId,
+        worldId: `virtual-room:${context.room.roomId}`
+      }).session(databaseSession);
+      removed = deletion.deletedCount > 0;
+      await VirtualRoomMessageReport.updateMany(
+        {
+          roomId: context.room.roomId,
+          sessionId: context.session.sessionId,
+          messageId: report.messageId,
+          status: 'open'
+        },
+        { $set: { status: 'resolved', resolvedAt: new Date() } },
+        { session: databaseSession }
+      );
+    });
+  } finally {
+    await databaseSession.endSession();
+  }
+  return { valid: true, status: 200, removed, messageId: report.messageId };
+}
+
 async function listRoomMessages({ sessionId, actorUserId, after }) {
   const context = await authorizedContext(sessionId, actorUserId);
   if (!context.valid) return context;
@@ -203,6 +242,7 @@ module.exports = {
   reportRoomMessage,
   listRoomMessageReports,
   resolveRoomMessageReport,
+  moderateReportedRoomMessage,
   listRoomMessages,
   createRoomMessage
 };
