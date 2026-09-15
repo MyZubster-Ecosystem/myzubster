@@ -308,7 +308,7 @@ router.post('/sessions/:id/stage/requests', authenticate, async (req, res) => {
 router.delete('/sessions/:id/stage', authenticate, async (req, res) => {
   try {
     const result = await leaveStage({ sessionId: req.params.id, actorUserId: req.userId });
-    if (result.valid) await appendSessionEvent({ session: result.session, type: result.action });
+    if (result.valid && result.changed) await appendSessionEvent({ session: result.session, type: result.action });
     return res.status(result.status).json(result.valid ? { success: true, stage: result.stage } : { success: false, error: result.error });
   } catch (error) {
     return res.status(500).json({ success: false, error: 'Unable to leave stage' });
