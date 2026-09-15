@@ -1,5 +1,5 @@
 const VirtualRoomMessageReport = require('../models/VirtualRoomMessageReport');
-const { cleanRoomMessage, publicRoomMessage, canModerateRoomChat, roomChatThrottleKey, moderateReportedRoomMessage, ROOM_CHAT_RETENTION_MS, ROOM_REPORT_RETENTION_MS, ROOM_REPORT_REASONS } = require('./virtualRoomChat');
+const { cleanRoomMessage, publicRoomMessage, canModerateRoomChat, roomChatThrottleKey, aggregateRoomReports, moderateReportedRoomMessage, ROOM_CHAT_RETENTION_MS, ROOM_REPORT_RETENTION_MS, ROOM_REPORT_REASONS } = require('./virtualRoomChat');
 
 describe('virtual room chat policy', () => {
   test('sanitizes and limits room messages', () => {
@@ -50,6 +50,23 @@ describe('virtual room chat policy', () => {
 
   test('exports the coordinated reported-message moderation action', () => {
     expect(typeof moderateReportedRoomMessage).toBe('function');
+  });
+
+  test('aggregates duplicate reports without exposing reporters', () => {
+    const message = { id: 'message-1', characterName: 'H4x0r', text: 'hello' };
+    const reports = aggregateRoomReports([
+      { reportId: 'report-1', messageId: 'message-1', reason: 'spam', createdAt: '2026-09-15T10:01:00.000Z', reporterUserId: 'secret-1' },
+      { reportId: 'report-2', messageId: 'message-1', reason: 'harassment', createdAt: '2026-09-15T10:00:00.000Z', reporterUserId: 'secret-2' },
+      { reportId: 'report-3', messageId: 'message-2', reason: 'other', createdAt: '2026-09-15T10:02:00.000Z', reporterUserId: 'secret-3' }
+    ], new Map([['message-1', message]]));
+    expect(reports[0]).toEqual({
+      id: 'report-1',
+      count: 2,
+      reasons: ['harassment', 'spam'],
+      createdAt: '2026-09-15T10:00:00.000Z',
+      message
+    });
+    expect(JSON.stringify(reports)).not.toContain('secret-');
   });
 
   test('records only privacy-safe moderation outcomes', () => {
