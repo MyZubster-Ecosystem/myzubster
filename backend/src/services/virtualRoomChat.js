@@ -40,6 +40,25 @@ async function authorizedContext(sessionId, actorUserId, requireLive = false) {
   return { valid: true, session, room, actor };
 }
 
+function canModerateRoomChat(actorUserId, hostUserId, actorRole = 'user') {
+  return Boolean(actorUserId && (actorRole === 'admin' || String(actorUserId) === String(hostUserId)));
+}
+
+async function deleteRoomMessage({ sessionId, messageId, actorUserId, actorRole }) {
+  const context = await authorizedContext(sessionId, actorUserId);
+  if (!context.valid) return context;
+  if (!canModerateRoomChat(actorUserId, context.session.hostUserId, actorRole)) {
+    return { valid: false, status: 403, error: 'Host capability required' };
+  }
+  const result = await MetaverseChatMessage.deleteOne({
+    messageId: String(messageId),
+    sessionId: context.session.sessionId,
+    worldId: `virtual-room:${context.room.roomId}`
+  });
+  if (!result.deletedCount) return { valid: false, status: 404, error: 'Message not found' };
+  return { valid: true, status: 200 };
+}
+
 async function listRoomMessages({ sessionId, actorUserId, after }) {
   const context = await authorizedContext(sessionId, actorUserId);
   if (!context.valid) return context;
@@ -90,6 +109,8 @@ module.exports = {
   ROOM_CHAT_RETENTION_MS,
   cleanRoomMessage,
   publicRoomMessage,
+  canModerateRoomChat,
+  deleteRoomMessage,
   listRoomMessages,
   createRoomMessage
 };
