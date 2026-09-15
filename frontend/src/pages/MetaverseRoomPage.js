@@ -5,9 +5,11 @@ import {
   endMetaverseRoomSession,
   getMetaverseRoom,
   getMetaverseRoomInviteStatus,
+  getMetaverseRoomParticipants,
   getMetaverseRoomSessionEvents,
   joinMetaverseRoomSession,
   leaveMetaverseRoomSession,
+  moderateMetaverseRoomParticipant,
   redeemMetaverseRoomInvite,
   revokeMetaverseRoomInvite,
   startMetaverseRoomSession,
@@ -37,6 +39,7 @@ function MetaverseRoomPage({ roomKey }) {
   const [editCapacity, setEditCapacity] = useState(25);
   const [inviteUrl, setInviteUrl] = useState('');
   const [inviteStatus, setInviteStatus] = useState({ active: false, expiresAt: null });
+  const [participants, setParticipants] = useState([]);
 
   useEffect(() => {
     let active = true;
@@ -108,6 +111,35 @@ function MetaverseRoomPage({ roomKey }) {
       if (timer) window.clearTimeout(timer);
     };
   }, [session?.id]);
+
+  useEffect(() => {
+    if (!canManage || session?.state !== 'live') {
+      setParticipants([]);
+      return undefined;
+    }
+    let active = true;
+    const refresh = () => getMetaverseRoomParticipants(session.id)
+      .then((result) => { if (active) setParticipants(result.participants || []); })
+      .catch(() => {});
+    refresh();
+    const timer = window.setInterval(refresh, 5000);
+    return () => { active = false; window.clearInterval(timer); };
+  }, [canManage, session?.id, session?.state]);
+
+  const moderateParticipant = async (participantRef, block) => {
+    setJoining(true);
+    setMessage('');
+    try {
+      const result = await moderateMetaverseRoomParticipant(session.id, participantRef, block);
+      setSession(result.session);
+      setParticipants((current) => current.filter((participant) => participant.ref !== participantRef));
+      setMessage(block ? 'Partecipante rimosso e bloccato.' : 'Partecipante rimosso dalla sessione.');
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setJoining(false);
+    }
+  };
 
   const join = async () => {
     if (!session?.id || session.state !== 'live') return;
@@ -305,6 +337,11 @@ function MetaverseRoomPage({ roomKey }) {
             )}
             {live && joined && <button onClick={leave} disabled={joining}>Lascia sessione</button>}
             {live && canManage && <button onClick={end} disabled={joining}>Concludi sessione</button>}
+            {live && canManage && participants.length > 0 && (
+              <div className="metaverse-panel"><h4>Moderazione partecipanti</h4>{participants.map((participant) => (
+                <div key={participant.ref}><span>{participant.characterName} · {participant.archetype}</span> <button onClick={() => moderateParticipant(participant.ref, false)} disabled={joining}>Rimuovi</button> <button onClick={() => moderateParticipant(participant.ref, true)} disabled={joining}>Rimuovi e blocca</button></div>
+              ))}</div>
+            )}
             {live && !authenticated && <p><a href="/social-login?returnTo=%2Fmetaverse">Accedi per entrare nella sessione.</a></p>}
             {!live && <p className="metaverse-muted">La sessione non è ancora live.</p>}
           </div>
