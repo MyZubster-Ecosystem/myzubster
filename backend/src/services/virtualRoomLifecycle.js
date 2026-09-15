@@ -284,6 +284,24 @@ async function findSession(sessionId) {
   return VirtualSession.findOne({ sessionId: cleanText(sessionId, 160) });
 }
 
+function canCancelSessionState(state) {
+  return state === 'scheduled';
+}
+
+async function cancelSession({ sessionId, actorUserId, actorRole }) {
+  if (!databaseAvailable()) return { valid: false, status: 503, error: 'Session storage unavailable' };
+  const session = await findSession(sessionId);
+  if (!session) return { valid: false, status: 404, error: 'Session not found' };
+  if (!canManage(actorUserId, actorRole, session.hostUserId)) return { valid: false, status: 403, error: 'Host capability required' };
+  if (!canCancelSessionState(session.state)) return { valid: false, status: 409, error: 'Only scheduled sessions can be cancelled' };
+  session.state = 'archive';
+  session.endedAt = new Date();
+  session.lifecycleVersion += 1;
+  await session.save();
+  await VirtualRoom.updateOne({ roomId: session.roomId, state: 'scheduled' }, { $set: { state: 'published' } });
+  return { valid: true, status: 200, session: publicSession(session) };
+}
+
 async function startSession({ sessionId, actorUserId, actorRole }) {
   if (!databaseAvailable()) return { valid: false, status: 503, error: 'Session storage unavailable' };
   const session = await findSession(sessionId);
@@ -604,6 +622,8 @@ module.exports = {
   createSession,
   findCurrentSessionForRoom,
   findSession,
+  canCancelSessionState,
+  cancelSession,
   startSession,
   joinSession,
   leaveSession,
