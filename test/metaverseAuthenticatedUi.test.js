@@ -43,6 +43,8 @@ describe('authenticated metaverse UI wiring', () => {
     expect(roomPageSource).toContain('endMetaverseRoomSession');
     expect(roomPageSource).toContain('Lascia sessione');
     expect(roomPageSource).toContain('Concludi sessione');
+    expect(roomPageSource).toContain('Annulla sessione programmata');
+    expect(roomPageSource).toContain('cancelMetaverseRoomSession');
     expect(roomPageSource).toContain('Moderazione partecipanti');
     expect(roomPageSource).toContain('Richiedi di parlare');
     expect(roomPageSource).toContain('Richieste approvate dall’host');
