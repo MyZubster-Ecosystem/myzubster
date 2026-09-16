@@ -229,6 +229,101 @@ REPRODUCIBLE RESULTS
 
 For example, a circular-care pilot can study materials, collection/reuse/recycling processes and traceability. Blockchain evidence can prove the integrity/version of selected records; it cannot by itself prove that an environmental claim is scientifically correct. Scientific conclusions still require valid methodology, measurements and review.
 
+### Circular Care / absorbent hygiene products (AHP)
+
+MyZubster has a dedicated technical specification for blockchain traceability of **absorbent hygiene products (AHP)**, including baby diapers, menstrual absorbent products and adult-incontinence products. The parent venture is `MZ-VENTURE-AHP-001 — MyZubster Circular Care`.
+
+The objective is to create an auditable chain of custody:
+
+```text
+DESIGN VERSION
+      ↓
+PRODUCT LOT
+      ↓
+SUPPLY
+      ↓
+COLLECTION
+      ↓
+TRANSPORT
+      ↓
+TREATMENT
+      ↓
+RECOVERED FRACTIONS
+      ↓
+DESTINATION / REUSE
+      ↓
+REPORT
+```
+
+The design uses a **hybrid evidence ledger**. Operational records and evidence files remain off-chain. Events are canonicalized and hashed with SHA-256. Related hashes are grouped into a Merkle tree. The intended blockchain transaction publishes only the Merkle root, manifest hash, schema version and anchoring receipt. This lets an authorized verifier prove that a specific event was included without publishing the underlying personal or operational document.
+
+Planned AHP event types include:
+
+- `DESIGN_VERSION_PUBLISHED`;
+- `LOT_CREATED`;
+- `LOT_SUPPLIED`;
+- `COLLECTION_RECORDED`;
+- `TRANSPORT_TRANSFERRED`;
+- `TREATMENT_ACCEPTED`;
+- `TREATMENT_COMPLETED`;
+- `FRACTION_RECOVERED`;
+- `DESTINATION_CONFIRMED`;
+- `CORRECTION_ISSUED`;
+- `ANCHOR_PUBLISHED`.
+
+Historical events are intended to be append-only. A correction creates a new signed event referring to the superseded event instead of deleting or silently changing history.
+
+A QR/NFC identifier is planned to connect a physical lot/container to the evidence trail. Post-consumer pilots should normally aggregate at container or batch level rather than tracking an individual person's use.
+
+#### What is already implemented or specified
+
+**Implemented elsewhere in the MyZubster blockchain/evidence stack:**
+
+- reusable SHA-256 evidence patterns;
+- append-only/tamper-evident MYZ evidence concepts for Marketplace and contributors;
+- blockchain/testnet integration work for other MyZubster evidence use cases;
+- XMR stagenet settlement verification architecture;
+- Base Sepolia Comic NFT proof of blockchain integration.
+
+**Specified for Circular Care/AHP:**
+
+- complete chain-of-custody event vocabulary;
+- required pseudonymous identifiers;
+- RFC 8785 canonical JSON + SHA-256 design;
+- Merkle batch architecture;
+- blockchain anchor receipt format;
+- digital-signature and actor-role model;
+- QR/NFC physical linkage design;
+- privacy boundaries;
+- verification states from `DRAFT` through `ANCHORED`;
+- correction/dispute model;
+- pilot acceptance criteria;
+- security baseline.
+
+#### What is not implemented yet
+
+The AHP document is currently a **technical specification, not a completed blockchain pilot**. In particular, MyZubster does not yet have evidence of a real AHP blockchain transaction representing a physical absorbent-product recycling batch.
+
+The remaining implementation gates are:
+
+1. implement the AHP event schema and local append-only evidence ledger;
+2. implement canonical JSON, signatures and persistent evidence storage for the AHP event model;
+3. connect a real authorized pilot site and obtain authorized operational data;
+4. assign a real pilot/product lot and connect it through QR/NFC;
+5. capture signed supply, collection, transport, treatment and destination events;
+6. reconcile input mass, rejected mass and recovered fractions within a declared tolerance;
+7. implement Merkle batching of verified event hashes;
+8. select a pilot blockchain/testnet using explicit cost, finality, energy, SDK, retention and governance criteria;
+9. implement the chain-specific anchor adapter;
+10. execute and confirm the first real **testnet** AHP anchor transaction;
+11. store transaction ID, chain/network, block reference, Merkle root and confirmation state in the anchor receipt;
+12. implement an independent Merkle-proof verifier and public evidence page;
+13. test corrections, key rotation, duplicate/replay protection and failed-anchor recovery;
+14. complete privacy/security review before any production deployment;
+15. require a separate production/Mainnet authorization rather than treating a successful testnet pilot as automatic Mainnet approval.
+
+A successful blockchain anchor proves **integrity and timestamp of the evidence**. It does not by itself prove that an absorbent product was recycled, that measurements are accurate, or that an environmental result is scientifically valid. Those claims require signed operational records, measurements and independent scientific/technical verification.
+
 ## 11. What blockchain means inside MyZubster
 
 MyZubster is not designed to put everything on-chain. The intended model is selective evidence anchoring:
@@ -242,6 +337,7 @@ MyZubster is not designed to put everything on-chain. The intended model is sele
 | Tari anchor | External MYZ evidence anchor | Testnet adapter; real wallet E2E pending |
 | XMR | Privacy-oriented settlement evidence | Stagenet implementation/validation; mainnet pending |
 | Comic NFT | ERC-721 narrative/digital collectible proof | Base Sepolia testnet NFT verified |
+| AHP / Circular Care | Chain-of-custody + Merkle blockchain evidence for absorbent-product circularity | Technical specification; physical pilot + testnet anchor pending |
 | IPFS | Content-addressed Comic artwork/metadata | Initial test pinning; redundancy pending |
 
 ## 12. The complete MyZubster journey
