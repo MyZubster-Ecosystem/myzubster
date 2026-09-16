@@ -1,6 +1,13 @@
 export const SUPPORTED_LANGUAGES = ['it','en','es','fr','de'];
 
 export function getLanguage() {
+  const requested = typeof window !== 'undefined'
+    ? new URLSearchParams(window.location.search).get('lang')?.slice(0,2).toLowerCase()
+    : null;
+  if (SUPPORTED_LANGUAGES.includes(requested)) {
+    localStorage.setItem('myzubster-language', requested);
+    return requested;
+  }
   const saved = localStorage.getItem('myzubster-language');
   if (SUPPORTED_LANGUAGES.includes(saved)) return saved;
   const browser = (navigator.language || 'en').slice(0,2).toLowerCase();
