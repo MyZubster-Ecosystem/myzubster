@@ -340,6 +340,9 @@ function MetaverseRoomPage({ roomKey }) {
   const reportRoomMessage = async (messageId) => {
     try {
       await reportMetaverseRoomMessage(session.id, messageId, reportReason);
+      setRoomMessages((current) => current.map((item) => (
+        item.id === messageId ? { ...item, reportedByMe: true } : item
+      )));
       setMessage('Segnalazione inviata all’host.');
     } catch (error) { setMessage(error.message); }
   };
@@ -630,7 +633,7 @@ function MetaverseRoomPage({ roomKey }) {
           <section className="metaverse-panel">
             <h3>Chat della stanza</h3>
             {!canManage && <label>Motivo segnalazione<select value={reportReason} onChange={(event) => setReportReason(event.target.value)}><option value="spam">Spam</option><option value="harassment">Molestie</option><option value="unsafe">Pericoloso</option><option value="other">Altro</option></select></label>}
-            <div aria-live="polite">{roomMessages.length === 0 ? <p className="metaverse-muted">Nessun messaggio.</p> : roomMessages.map((chatMessage) => <p key={chatMessage.id}><strong>{chatMessage.characterName}:</strong> {chatMessage.text} {canManage ? <button type="button" onClick={() => deleteRoomMessage(chatMessage.id)}>Elimina</button> : <button type="button" onClick={() => reportRoomMessage(chatMessage.id)}>Segnala</button>}</p>)}</div>
+            <div aria-live="polite">{roomMessages.length === 0 ? <p className="metaverse-muted">Nessun messaggio.</p> : roomMessages.map((chatMessage) => <p key={chatMessage.id}><strong>{chatMessage.characterName}:</strong> {chatMessage.text} {canManage ? <button type="button" onClick={() => deleteRoomMessage(chatMessage.id)}>Elimina</button> : <button type="button" disabled={chatMessage.reportedByMe} onClick={() => reportRoomMessage(chatMessage.id)}>{chatMessage.reportedByMe ? 'Segnalato' : 'Segnala'}</button>}</p>)}</div>
             {session.state === 'live' && <form onSubmit={sendRoomMessage}><label>Messaggio<input maxLength="280" value={roomMessageText} onChange={(event) => setRoomMessageText(event.target.value)} /></label><button type="submit">Invia</button></form>}
             <small className="metaverse-muted">I messaggi scadono automaticamente dopo 24 ore.</small>
           </section>
