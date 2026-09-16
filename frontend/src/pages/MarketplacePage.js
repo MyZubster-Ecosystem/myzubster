@@ -1,5 +1,6 @@
 import React,{useCallback,useEffect,useMemo,useRef,useState}from'react';
 import WalletHubPanel from'../components/WalletHubPanel';
+import{createSignedMarketplaceRequest}from'../services/marketplaceWalletClient';
 import{trackConversion,trackConversionOnce}from'../analytics/conversionAnalytics';
 import{getLanguage,LANGUAGE_NAMES,setLanguage}from'../i18n';
 
@@ -87,7 +88,7 @@ const C={
 function authHeaders(extra={}){const token=localStorage.getItem('myzubster-token');return{...extra,...(token?{Authorization:`Bearer ${token}`}:{})}}
 
 function MarketplacePage(){
-  const[lang,setLangState]=useState(getLanguage),t=C[lang]||C.en,[listings,setListings]=useState([]),[loading,setLoading]=useState(true),[error,setError]=useState(''),[category,setCategory]=useState(''),[location,setLocation]=useState(''),[showCreate,setShowCreate]=useState(false),[form,setForm]=useState({title:'',category:'services',description:'',location:'',price:'',currency:'FREE'}),[message,setMessage]=useState(''),[sellerPlan,setSellerPlan]=useState(null),[sellerState,setSellerState]=useState(null),[demoQuery,setDemoQuery]=useState(''),[demoPayment,setDemoPayment]=useState(''),[selectedDemo,setSelectedDemo]=useState(null),[demoFlow,setDemoFlow]=useState('idle');
+  const[lang,setLangState]=useState(getLanguage),t=C[lang]||C.en,[listings,setListings]=useState([]),[loading,setLoading]=useState(true),[error,setError]=useState(''),[category,setCategory]=useState(''),[location,setLocation]=useState(''),[showCreate,setShowCreate]=useState(false),[form,setForm]=useState({title:'',category:'services',description:'',location:'',price:'',currency:'FREE'}),[message,setMessage]=useState(''),[sellerPlan,setSellerPlan]=useState(null),[sellerState,setSellerState]=useState(null),[demoQuery,setDemoQuery]=useState(''),[demoPayment,setDemoPayment]=useState(''),[selectedDemo,setSelectedDemo]=useState(null),[demoFlow,setDemoFlow]=useState('idle'),[requestSigning,setRequestSigning]=useState(null);
   const params=useMemo(()=>new URLSearchParams(window.location.search),[]);
   const demoDeepLink=useMemo(()=>isDemoDeepLink(window.location.search),[]);
   const demoSectionRef=useRef(null),demoDialogRef=useRef(null);
@@ -104,7 +105,65 @@ function MarketplacePage(){
   async function apiAction(url,body){const r=await fetch(url,{method:'POST',headers:authHeaders({'Content-Type':'application/json'}),body:JSON.stringify(body)}),d=await r.json().catch(()=>({}));if(!r.ok){const e=new Error(d.message||d.error||'Operation failed');e.status=r.status;throw e}return d}
   async function becomeSeller(){trackConversion('seller_cta_clicked',{source:sellerSource||'direct',fromZorgax});const returnTo=`${window.location.pathname}${window.location.search}${window.location.hash}`;if(!localStorage.getItem('myzubster-token')){setMessage(t.login);window.location.assign(`/social-login?returnTo=${encodeURIComponent(returnTo)}`);return}try{setMessage(t.activating);const payload=await apiAction('/api/marketplace/seller/subscribe',{});setSellerState({active:true,membership:payload.membership,plan:payload.plan,sellerCanReceiveFunds:false});setSellerPlan(payload.plan||sellerPlan);setMessage(payload.message||t.success);trackConversion('seller_free_activated',{source:sellerSource||'direct',fromZorgax})}catch(e){trackConversion('seller_free_activation_error',{source:sellerSource||'direct',message:e.message});if(e.status===401){localStorage.removeItem('myzubster-token');window.location.assign(`/social-login?returnTo=${encodeURIComponent(returnTo)}`);return}setMessage(e.message)}}
   async function createListing(e){e.preventDefault();try{await apiAction('/api/listings/create',{...form,price:['FREE','BARTER'].includes(form.currency)?0:Number(form.price)});setMessage(t.published);setShowCreate(false);await load()}catch(e){setMessage(e.message)}}
-  async function requestListing(l){try{await apiAction('/api/marketplace/orders',{listingId:l.id||l._id,quantity:1,note:''});setMessage('✓')}catch(e){setMessage(e.message)}}
+  async function requestListing(l){
+    const listingId=l.id||l._id;
+    if(!localStorage.getItem('myzubster-token')){
+      const returnTo=`${window.location.pathname}${window.location.search}${window.location.hash}`;
+      setMessage(t.login);
+      window.location.assign(`/social-login?returnTo=${encodeURIComponent(returnTo)}`);
+      return;
+    }
+    try{
+      setMessage('Collega e verifica il wallet per firmare la richiesta…');
+      const order=await createSignedMarketplaceRequest({
+        listingId,
+        quantity:1,
+        note:'',
+        onChallenge:challenge=>new Promise((resolve,reject)=>{
+          setRequestSigning({
+            listing:l,
+            challenge,
+            resolve,
+            reject
+          });
+        })
+      });
+      setRequestSigning(null);
+      setMessage(`✓ Richiesta firmata e inviata${order?.order?._id?` · ${order.order._id}`:''}`);
+      trackConversion('marketplace_signed_request_created',{listingId});
+    }catch(e){
+      setRequestSigning(null);
+      if(e?.code==='MARKETPLACE_LISTING_CHANGED'){
+        setMessage('Le condizioni dell’annuncio sono cambiate. Controllale e firma una nuova richiesta.');
+      }else if(e?.code==='WALLET_ALREADY_LINKED'){
+        setMessage('Questo wallet è già collegato a un altro account MyZubster.');
+      }else if(e?.code==='WALLET_VERIFICATION_REQUIRED'||e?.code==='WALLET_NOT_VERIFIED'){
+        setMessage('Il wallet deve essere verificato prima di creare la richiesta.');
+      }else if(e?.code==='MARKETPLACE_CHALLENGE_EXPIRED'){
+        setMessage('La richiesta di firma è scaduta. Riprova per generarne una nuova.');
+      }else if(e?.code===4001||e?.code==='4001'||e?.code==='ACTION_REJECTED'){
+        setMessage('Firma annullata. Nessuna richiesta è stata creata.');
+      }else if(e?.message==='EVM_WALLET_NOT_AVAILABLE'){
+        setMessage('Nessun wallet EVM compatibile rilevato nel browser.');
+      }else{
+        setMessage(e?.message||'Impossibile creare la richiesta firmata.');
+      }
+    }
+  }
+  function confirmSignedRequest(){
+    const pending=requestSigning;
+    if(!pending)return;
+    setRequestSigning(null);
+    pending.resolve();
+  }
+  function cancelSignedRequest(){
+    const pending=requestSigning;
+    if(!pending)return;
+    setRequestSigning(null);
+    const error=new Error('Firma annullata. Nessuna richiesta è stata creata.');
+    error.code='ACTION_REJECTED';
+    pending.reject(error);
+  }
   function openDemo(demo){setSelectedDemo(demo);setDemoFlow('idle');trackConversion('marketplace_demo_opened',{demoId:demo.id,category:demo.category})}
   function closeDemo(){setSelectedDemo(null);setDemoFlow('idle')}
   function startDemoRequest(){setDemoFlow('review');trackConversion('marketplace_demo_request_started',{demoId:selectedDemo?.id})}
@@ -128,6 +187,8 @@ function MarketplacePage(){
     </section>
 
     {selectedDemo&&<div role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)closeDemo()}} style={{position:'fixed',inset:0,zIndex:1000,display:'grid',placeItems:'center',padding:12,background:'rgba(0,0,0,.68)'}}><section ref={demoDialogRef} tabIndex="-1" role="dialog" aria-modal="true" aria-labelledby="demo-detail-title" aria-describedby="demo-detail-description" style={{width:'min(720px,calc(100vw - 24px))',maxHeight:'calc(100vh - 24px)',overflowY:'auto',padding:'clamp(16px,4vw,24px)',border:'2px solid #5b5bd6',borderRadius:18,background:'Canvas',color:'CanvasText',boxSizing:'border-box',boxShadow:'0 18px 60px rgba(0,0,0,.35)'}}><div style={{position:'sticky',top:-1,zIndex:1,display:'flex',justifyContent:'flex-end',background:'Canvas',paddingBottom:8}}><button onClick={closeDemo} aria-label={t.closeDemo}>✕ {t.close}</button></div>{!DEMO_IMAGES[selectedDemo.id]&&<div style={{fontSize:58}} aria-hidden="true">{selectedDemo.icon}</div>}<small>{t.demoBadge} · {selectedDemo.category}</small><h2 id="demo-detail-title">{selectedDemo.name}</h2>{DEMO_IMAGES[selectedDemo.id]&&<img src={DEMO_IMAGES[selectedDemo.id]} alt={selectedDemo.offer} loading="lazy" decoding="async" style={{display:'block',width:'100%',maxHeight:'420px',objectFit:'cover',borderRadius:14,margin:'10px 0 16px'}}/>}<p id="demo-detail-description">{selectedDemo.description}</p><p><strong>{selectedDemo.offer}</strong></p><p>{selectedDemo.location} · {selectedDemo.price} · {selectedDemo.availability}</p><dl>{selectedDemo.details.map(([label,value])=><div key={label} style={{display:'grid',gridTemplateColumns:'minmax(90px,140px) minmax(0,1fr)',gap:10,padding:'6px 0'}}><dt><strong>{label}</strong></dt><dd style={{margin:0,overflowWrap:'anywhere'}}>{value}</dd></div>)}</dl><p style={{padding:10,border:'1px solid #b45309',borderRadius:10}}><strong>{t.demoWarning}</strong></p>{demoFlow==='idle'&&<button onClick={startDemoRequest}>{t.demoRequest}</button>}{demoFlow==='review'&&<div><h3>{t.demoReview}</h3><p>{selectedDemo.offer} · {selectedDemo.price}</p><p>{t.demoLocalReview}</p><button onClick={confirmDemoRequest}>{t.demoConfirm}</button></div>}{demoFlow==='confirmed'&&<p role="status" style={{padding:12,border:'1px solid #2f9e66',borderRadius:10}}><strong>✓ {t.demoConfirmed}</strong></p>}<div style={{marginTop:18}}><button onClick={closeDemo}>← {t.demoBack}</button></div></section></div>}
+
+    {requestSigning&&<div role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)cancelSignedRequest()}} style={{position:'fixed',inset:0,zIndex:1100,display:'grid',placeItems:'center',padding:12,background:'rgba(0,0,0,.72)'}}><section role="dialog" aria-modal="true" aria-labelledby="marketplace-sign-title" style={{width:'min(560px,calc(100vw - 24px))',padding:'clamp(16px,4vw,24px)',border:'2px solid #5b5bd6',borderRadius:18,background:'Canvas',color:'CanvasText',boxSizing:'border-box'}}><small>MYZUBSTER · SIGNED MARKETPLACE REQUEST</small><h2 id="marketplace-sign-title">Controlla prima di firmare</h2><p><strong>{requestSigning.listing.title}</strong></p><dl><div><dt>Quantità</dt><dd>1</dd></div><div><dt>Prezzo firmato</dt><dd>{requestSigning.challenge.payload?.listingSnapshot?.price} {requestSigning.challenge.payload?.listingSnapshot?.currency}</dd></div><div><dt>Modalità</dt><dd>{requestSigning.challenge.payload?.listingSnapshot?.exchangeMode}</dd></div></dl><p style={{padding:12,border:'1px solid #2f9e66',borderRadius:10}}><strong>Questa firma crea una richiesta Marketplace.</strong><br/>Non autorizza un pagamento.<br/>Non invia una transazione blockchain.<br/>Nessun gas.</p><div style={{display:'flex',gap:10,flexWrap:'wrap'}}><button type="button" onClick={confirmSignedRequest}>Firma richiesta · nessun gas</button><button type="button" onClick={cancelSignedRequest}>Annulla</button></div></section></div>}
 
     {loading&&<p>{t.loading}</p>}{error&&<p>{error}</p>}{!loading&&!error&&!listings.length&&<section><h3>{t.empty}</h3><p>{t.first}</p></section>}
     <section style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(min(240px,100%),1fr))',gap:16}}>{listings.map(l=><article key={l.id||l._id} style={{border:'1px solid #555',padding:16,minWidth:0}}><small>{l.category}</small><h3>{l.title}</h3>{l.description&&<p>{l.description}</p>}<strong>{l.currency==='FREE'?t.free:l.currency==='BARTER'?t.barter:`${l.price} ${l.currency}`}</strong><div><button onClick={()=>requestListing(l)}>{t.request}</button></div></article>)}</section>
