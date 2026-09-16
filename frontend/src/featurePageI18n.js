@@ -62,8 +62,13 @@ function addLanguageSwitcher(lang) {
 
 export function startFeaturePageI18n() {
   if (typeof window === 'undefined' || typeof document === 'undefined') return;
-  mountZorgaxGlobalAssistant();
   const path = window.location.pathname.replace(/\/+$/, '') || '/';
+  // App.js already owns the Zorgax launcher on the main React routes. Mount the
+  // global assistant only on feature routes where that launcher is absent.
+  const appOwnedZorgaxPaths = new Set(['/', '/marketplace', '/metaverse', '/life-pilot', '/zorgax/life-pilot', '/social-login', '/social-login.html', '/apps']);
+  if (!appOwnedZorgaxPaths.has(path) && !path.startsWith('/metaverse/rooms/')) {
+    mountZorgaxGlobalAssistant();
+  }
   if (!FRONTEND_PATHS.includes(path) && !path.startsWith('/metaverse/rooms/')) return;
   const lang = getLanguage();
   document.documentElement.lang = lang;
