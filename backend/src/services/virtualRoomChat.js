@@ -113,7 +113,7 @@ async function reportRoomMessage({ sessionId, messageId, actorUserId, reason }) 
     messageId: String(messageId),
     sessionId: context.session.sessionId,
     worldId: `virtual-room:${context.room.roomId}`
-  }).select('messageId senderUserId');
+  }).select('messageId +senderUserId');
   if (!message) return { valid: false, status: 404, error: 'Message not found' };
   if (String(message.senderUserId) === context.actor) return { valid: false, status: 400, error: 'Cannot report your own message' };
   const now = new Date();
@@ -256,6 +256,7 @@ async function listRoomMessages({ sessionId, actorUserId, after }) {
     createdAt: cursor ? { $gt: cursor, $lte: observedAt } : { $lte: observedAt }
   };
   const messages = await MetaverseChatMessage.find(query)
+    .select('+senderUserId')
     .sort({ createdAt: cursor ? 1 : -1 })
     .limit(ROOM_CHAT_PAGE_SIZE)
     .lean();
