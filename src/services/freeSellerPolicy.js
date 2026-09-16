@@ -1,4 +1,6 @@
 const FREE_SELLER_ACTIVE_LISTING_LIMIT = 5;
+const MARKETPLACE_PLATFORM_COMMISSION_RATE = 0.02;
+const MARKETPLACE_PLATFORM_COMMISSION_PERCENT = 2;
 
 function freeSellerPlan() {
   return {
@@ -11,7 +13,10 @@ function freeSellerPlan() {
     paymentMethodRequired: false,
     bankingInformationRequired: false,
     automaticPaidConversion: false,
-    paymentActivation: 'WHEN_REAL_PAYMENT_CAPABILITY_IS_REQUESTED',
+    paymentActivation: 'AT_FIRST_REAL_EARNING_OR_PAYOUT_ATTEMPT',
+    platformCommissionRate: MARKETPLACE_PLATFORM_COMMISSION_RATE,
+    platformCommissionPercent: MARKETPLACE_PLATFORM_COMMISSION_PERCENT,
+    message: 'Pubblica gratis. Paghi solo quando inizi a guadagnare.',
     benefits: [
       'seller profile',
       'up to 5 active commercial listings',
@@ -41,9 +46,31 @@ function canPublishCommercialListing(membership, activeCommercialListings) {
   return { allowed: true, limit: FREE_SELLER_ACTIVE_LISTING_LIMIT };
 }
 
+function requiresPaymentOnboarding({ isPaidTransaction = false, payoutRequested = false, sellerCanReceiveFunds = false } = {}) {
+  const monetizationStarted = Boolean(isPaidTransaction || payoutRequested);
+  const required = monetizationStarted && !sellerCanReceiveFunds;
+  return {
+    required,
+    monetizationStarted,
+    commissionRate: MARKETPLACE_PLATFORM_COMMISSION_RATE,
+    commissionPercent: MARKETPLACE_PLATFORM_COMMISSION_PERCENT,
+    reason: required ? 'FIRST_REAL_EARNING_REQUIRES_PAYMENT_ONBOARDING' : null
+  };
+}
+
+function calculatePlatformCommission(amount) {
+  const value = Number(amount);
+  if (!Number.isFinite(value) || value < 0) throw new TypeError('Transaction amount must be a non-negative number');
+  return Math.round(value * MARKETPLACE_PLATFORM_COMMISSION_RATE * 100) / 100;
+}
+
 module.exports = {
   FREE_SELLER_ACTIVE_LISTING_LIMIT,
+  MARKETPLACE_PLATFORM_COMMISSION_RATE,
+  MARKETPLACE_PLATFORM_COMMISSION_PERCENT,
   freeSellerPlan,
   isFreeSellerActive,
-  canPublishCommercialListing
+  canPublishCommercialListing,
+  requiresPaymentOnboarding,
+  calculatePlatformCommission
 };
