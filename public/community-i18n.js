@@ -1,0 +1,47 @@
+(() => {
+  const SUPPORTED = ['it','en','es','fr','de'];
+  const NAMES = {it:'Italiano',en:'English',es:'Español',fr:'Français',de:'Deutsch'};
+  const D = {
+    en:{
+      'Fumetto':'Comic','Mutuo aiuto':'Mutual aid','Università':'University','Mappa orti':'Garden map','Account':'Account',
+      'COMPETENZE · BISOGNI · SCAMBI · PROGETTI · COMUNITÀ':'SKILLS · NEEDS · EXCHANGES · PROJECTS · COMMUNITY',
+      'Quello che sai fare diventa una risorsa per qualcun altro.':'What you can do becomes a resource for someone else.',
+      'RETE DI MUTUO AIUTO':'MUTUAL AID NETWORK','Una comunità che si sostiene':'A community that supports itself',
+      '💻 Sviluppatori':'💻 Developers','🔊 Raver e culture underground':'🔊 Ravers and underground cultures','🌾 Agricoltori':'🌾 Farmers','🥛 Kefir e fermentazione':'🥛 Kefir and fermentation','🎨 Arte':'🎨 Art','🌿 Benessere':'🌿 Wellbeing',
+      'Crea il tuo profilo':'Create your profile','Offri o chiedi aiuto':'Offer or ask for help','Chiedi a Zorgax':'Ask Zorgax',
+      'UNIVERSITÀ · FORMAZIONE · RICERCA · GITHUB':'UNIVERSITY · TRAINING · RESEARCH · GITHUB','Dallo studio a un progetto pubblico e verificabile':'From study to a public, verifiable project','🎓 Studenti':'🎓 Students','🏛️ Docenti e tutor':'🏛️ Teachers and tutors','🔬 Ricercatori':'🔬 Researchers','Crea profilo accademico':'Create academic profile','Pubblica corso o ricerca':'Publish a course or research project','Trova un progetto con Zorgax':'Find a project with Zorgax','Apri GitHub':'Open GitHub',
+      'MAPPA VERDE':'GREEN MAP','Orti, giardini botanici, comunali e seed bank':'Community gardens, botanical gardens, municipal gardens and seed banks','Tutte le categorie':'All categories','📍 Vicino a me':'📍 Near me',
+      'Registrazione / login':'Sign up / login','Registrati':'Sign up','IDENTITÀ PUBBLICA OPZIONALE':'OPTIONAL PUBLIC IDENTITY','PGP + wallet':'PGP + wallet','Salva profilo':'Save profile',
+      'PUBBLICA':'PUBLISH','Nuovo annuncio':'New listing','Titolo':'Title','Pubblica annuncio':'Publish listing','Tutto':'All','Sanitari':'Health','Elettronica':'Electronics','Semi':'Seeds','Piante':'Plants','Pet':'Pets','Servizi':'Services','Aiuto':'Help','Eventi':'Events','Ricerca':'Research','Corsi':'Courses','Privacy e scambi responsabili':'Privacy and responsible exchanges'
+    },
+    es:{'Fumetto':'Cómic','Mutuo aiuto':'Ayuda mutua','Università':'Universidad','Mappa orti':'Mapa de huertos','Quello che sai fare diventa una risorsa per qualcun altro.':'Lo que sabes hacer se convierte en un recurso para otra persona.','Una comunità che si sostiene':'Una comunidad que se apoya','Crea il tuo profilo':'Crea tu perfil','Offri o chiedi aiuto':'Ofrece o pide ayuda','Nuovo annuncio':'Nuevo anuncio','Pubblica annuncio':'Publicar anuncio','Privacy e scambi responsabili':'Privacidad e intercambios responsables'},
+    fr:{'Fumetto':'BD','Mutuo aiuto':'Entraide','Università':'Université','Mappa orti':'Carte des jardins','Quello che sai fare diventa una risorsa per qualcun altro.':'Ce que vous savez faire devient une ressource pour quelqu’un d’autre.','Una comunità che si sostiene':'Une communauté qui s’entraide','Crea il tuo profilo':'Créer votre profil','Offri o chiedi aiuto':'Proposer ou demander de l’aide','Nuovo annuncio':'Nouvelle annonce','Pubblica annuncio':'Publier l’annonce','Privacy e scambi responsabili':'Confidentialité et échanges responsables'},
+    de:{'Fumetto':'Comic','Mutuo aiuto':'Gegenseitige Hilfe','Università':'Universität','Mappa orti':'Gartenkarte','Quello che sai fare diventa una risorsa per qualcun altro.':'Was du kannst, wird zur Ressource für jemand anderen.','Una comunità che si sostiene':'Eine Gemeinschaft, die sich gegenseitig unterstützt','Crea il tuo profilo':'Profil erstellen','Offri o chiedi aiuto':'Hilfe anbieten oder anfragen','Nuovo annuncio':'Neue Anzeige','Pubblica annuncio':'Anzeige veröffentlichen','Privacy e scambi responsabili':'Datenschutz und verantwortungsvoller Austausch'}
+  };
+
+  const saved = localStorage.getItem('myzubster-language');
+  const browser = (navigator.language || 'en').slice(0,2).toLowerCase();
+  let lang = SUPPORTED.includes(saved) ? saved : (SUPPORTED.includes(browser) ? browser : 'en');
+  document.documentElement.lang = lang;
+
+  function translate(root, dict) {
+    if (!dict || !root) return;
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    const nodes=[]; while(walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(node=>{const raw=node.nodeValue, key=raw.trim(); if(dict[key]) node.nodeValue=raw.replace(key,dict[key]);});
+    root.querySelectorAll('[placeholder],[title],[aria-label]').forEach(el=>['placeholder','title','aria-label'].forEach(attr=>{const v=el.getAttribute(attr); if(v&&dict[v]) el.setAttribute(attr,dict[v]);}));
+  }
+
+  function addSwitcher(){
+    if(document.getElementById('myz-community-language')) return;
+    const wrap=document.createElement('div'); wrap.id='myz-community-language'; wrap.style.cssText='position:fixed;right:10px;bottom:10px;z-index:12000;background:#071018e8;border:1px solid #365064;border-radius:10px;padding:6px';
+    const select=document.createElement('select'); select.setAttribute('aria-label','Language'); select.style.cssText='width:auto;min-width:120px;padding:7px;background:#08131d;color:#fff;border:1px solid #365064;border-radius:7px';
+    Object.entries(NAMES).forEach(([code,name])=>{const o=document.createElement('option');o.value=code;o.textContent=name;o.selected=code===lang;select.appendChild(o);});
+    select.addEventListener('change',e=>{localStorage.setItem('myzubster-language',e.target.value);location.reload();}); wrap.appendChild(select); document.body.appendChild(wrap);
+  }
+
+  const dict=lang==='it'?null:(D[lang]||D.en);
+  const apply=()=>translate(document.body,dict);
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>{apply();addSwitcher();new MutationObserver(apply).observe(document.body,{childList:true,subtree:true});},{once:true});
+  else {apply();addSwitcher();new MutationObserver(apply).observe(document.body,{childList:true,subtree:true});}
+})();
