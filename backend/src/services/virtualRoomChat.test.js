@@ -36,14 +36,18 @@ describe('virtual room chat policy', () => {
       text: 'Hello room',
       createdAt: '2026-09-16T10:00:00.000Z'
     };
-    expect(publicRoomMessageWithReportState(message, new Set(['message-1']))).toEqual({
+    expect(publicRoomMessageWithReportState(message, new Set(['message-1']), 'other-user')).toEqual({
       id: 'message-1',
       characterName: 'H4x0r',
       text: 'Hello room',
       createdAt: '2026-09-16T10:00:00.000Z',
-      reportedByMe: true
+      reportedByMe: true,
+      authoredByMe: false
     });
-    expect(publicRoomMessageWithReportState(message, new Set()).reportedByMe).toBe(false);
+    expect(publicRoomMessageWithReportState(message, new Set(), 'secret-sender')).toMatchObject({
+      reportedByMe: false,
+      authoredByMe: true
+    });
   });
 
   test('grants message moderation only to the host or an admin', () => {
