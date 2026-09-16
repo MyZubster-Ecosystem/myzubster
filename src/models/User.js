@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const { notifyAdminActivity } = require('../services/adminActivityNotificationService');
 
 const socialIdentitySchema = new mongoose.Schema({
   id: { type: String, trim: true },
@@ -61,5 +62,15 @@ UserSchema.pre('save', async function(next) {
   try { const salt = await bcrypt.genSalt(10); this.password = await bcrypt.hash(this.password, salt); next(); }
   catch (error) { next(error); }
 });
+
+UserSchema.post('save', function notifyNewRegistration(user) {
+  if (!user.createdAt || Math.abs(Date.now() - new Date(user.createdAt).getTime()) > 15000) return;
+  void notifyAdminActivity('registration', {
+    userId: user._id,
+    username: user.username,
+    email: user.email
+  });
+});
+
 UserSchema.methods.comparePassword = async function(candidatePassword) { return bcrypt.compare(candidatePassword, this.password); };
 module.exports = mongoose.model('User', UserSchema);
