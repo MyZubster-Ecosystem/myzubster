@@ -1,0 +1,54 @@
+const crypto = require('crypto');
+const { recoverAddress } = require('./walletSignatureService');
+
+function canonicalPayload(payload) {
+  return JSON.stringify({
+    schema: payload.schema,
+    intent: payload.intent,
+    listingId: String(payload.listingId),
+    quantity: Number(payload.quantity),
+    buyerId: String(payload.buyerId),
+    walletAddress: String(payload.walletAddress).toLowerCase(),
+    nonce: payload.nonce,
+    issuedAt: payload.issuedAt,
+    expiresAt: payload.expiresAt
+  });
+}
+
+function hashPayload(payload) {
+  return crypto
+    .createHash('sha256')
+    .update(canonicalPayload(payload))
+    .digest('hex');
+}
+
+function buildMarketplaceRequestMessage(payload) {
+  return [
+    'MyZubster Marketplace Request',
+    '',
+    `Schema: ${payload.schema}`,
+    `Intent: ${payload.intent}`,
+    `Listing: ${payload.listingId}`,
+    `Quantity: ${payload.quantity}`,
+    `Buyer: ${payload.buyerId}`,
+    `Wallet: ${payload.walletAddress}`,
+    `Nonce: ${payload.nonce}`,
+    `Issued At: ${payload.issuedAt}`,
+    `Expires At: ${payload.expiresAt}`,
+    `Payload Hash: ${hashPayload(payload)}`,
+    '',
+    'Signing creates a Marketplace request intent.',
+    'It does not authorize payment or transfer blockchain assets.'
+  ].join('\n');
+}
+
+function verifyMarketplaceRequest(message, signature) {
+  return recoverAddress(message, signature);
+}
+
+module.exports = {
+  canonicalPayload,
+  hashPayload,
+  buildMarketplaceRequestMessage,
+  verifyMarketplaceRequest
+};

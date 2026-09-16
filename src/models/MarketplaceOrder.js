@@ -11,6 +11,20 @@ const marketplaceOrderSchema = new mongoose.Schema({
   status: { type: String, enum: ['REQUESTED','ACCEPTED','REJECTED','COMPLETED','CANCELLED'], default: 'REQUESTED', index: true },
   snapshot: { title: { type: String, required: true }, price: { type: Number, default: 0 }, currency: { type: String, required: true }, exchangeMode: { type: String, required: true } },
   acceptedAt: Date, rejectedAt: Date, completedAt: Date, cancelledAt: Date,
+  walletEvidence: {
+    status: {
+      type: String,
+      enum: ['NOT_REQUIRED', 'SIGNED', 'VERIFIED', 'FAILED'],
+      default: 'NOT_REQUIRED'
+    },
+    walletAddress: { type: String, trim: true, lowercase: true },
+    networkFamily: { type: String, enum: ['EVM'] },
+    signature: { type: String, select: false },
+    payloadHash: { type: String, index: true },
+    challengeId: { type: mongoose.Schema.Types.ObjectId, ref: 'WalletChallenge' },
+    signedAt: Date,
+    verifiedAt: Date
+  },
   evidence: {
     schema: { type: String },
     payload: { type: mongoose.Schema.Types.Mixed },

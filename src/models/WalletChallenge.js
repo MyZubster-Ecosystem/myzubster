@@ -20,12 +20,20 @@ const WalletChallengeSchema = new mongoose.Schema({
   },
   action: {
     type: String,
-    enum: ['LINK_WALLET'],
+    enum: ['LINK_WALLET', 'MARKETPLACE_REQUEST'],
     default: 'LINK_WALLET'
   },
   message: {
     type: String,
     required: true
+  },
+  payload: {
+    type: mongoose.Schema.Types.Mixed
+  },
+  payloadHash: {
+    type: String,
+    trim: true,
+    index: true
   },
   expiresAt: {
     type: Date,
