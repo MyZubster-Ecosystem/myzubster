@@ -1,6 +1,13 @@
 (() => {
   const SUPPORTED = ['it','en','es','fr','de'];
   const NAMES = {it:'Italiano',en:'English',es:'Español',fr:'Français',de:'Deutsch'};
+  const META = {
+    it:{title:'MyZubster Community Map & Marketplace',description:'Marketplace MyZubster per prodotti, elettronica, orti, scambio semi, donatori di kefir e comunità pet.'},
+    en:{title:'MyZubster Community Map & Marketplace',description:'MyZubster community marketplace for products, electronics, gardens, seed exchange, kefir donors, services, research and pets.'},
+    es:{title:'MyZubster Community Map & Marketplace',description:'Marketplace comunitario MyZubster para productos, electrónica, huertos, semillas, servicios, investigación y mascotas.'},
+    fr:{title:'MyZubster Community Map & Marketplace',description:'Marketplace communautaire MyZubster pour produits, électronique, jardins, semences, services, recherche et animaux.'},
+    de:{title:'MyZubster Community Map & Marketplace',description:'MyZubster Community-Marktplatz für Produkte, Elektronik, Gärten, Saatgut, Dienstleistungen, Forschung und Haustiere.'}
+  };
   const D = {
     en:{
       'Fumetto':'Comic','Mutuo aiuto':'Mutual aid','Università':'University','Mappa orti':'Garden map','Account':'Account',
@@ -20,10 +27,16 @@
     de:{'Fumetto':'Comic','Mutuo aiuto':'Gegenseitige Hilfe','Università':'Universität','Mappa orti':'Gartenkarte','Quello che sai fare diventa una risorsa per qualcun altro.':'Was du kannst, wird zur Ressource für jemand anderen.','Una comunità che si sostiene':'Eine Gemeinschaft, die sich gegenseitig unterstützt','Crea il tuo profilo':'Profil erstellen','Offri o chiedi aiuto':'Hilfe anbieten oder anfragen','Nuovo annuncio':'Neue Anzeige','Pubblica annuncio':'Anzeige veröffentlichen','Privacy e scambi responsabili':'Datenschutz und verantwortungsvoller Austausch','✨ Compila con Zorgax':'✨ Mit Zorgax ausfüllen','Categoria':'Kategorie','Prezzo':'Preis','Chiudi':'Schließen'}
   };
 
+  const requested = new URLSearchParams(location.search).get('lang')?.slice(0,2).toLowerCase();
+  if (SUPPORTED.includes(requested)) localStorage.setItem('myzubster-language', requested);
   const saved = localStorage.getItem('myzubster-language');
   const browser = (navigator.language || 'en').slice(0,2).toLowerCase();
-  const lang = SUPPORTED.includes(saved) ? saved : (SUPPORTED.includes(browser) ? browser : 'en');
+  const lang = SUPPORTED.includes(requested) ? requested : (SUPPORTED.includes(saved) ? saved : (SUPPORTED.includes(browser) ? browser : 'en'));
   document.documentElement.lang = lang;
+  const meta = META[lang] || META.en;
+  document.title = meta.title;
+  const description = document.querySelector('meta[name="description"]');
+  if (description) description.setAttribute('content', meta.description);
 
   function translate(root, dict) {
     if (!dict || !root) return;
@@ -38,7 +51,7 @@
     const wrap=document.createElement('div'); wrap.id='myz-community-language'; wrap.style.cssText='position:fixed;right:10px;bottom:10px;z-index:12000;background:#071018e8;border:1px solid #365064;border-radius:10px;padding:6px';
     const select=document.createElement('select'); select.setAttribute('aria-label','Language'); select.style.cssText='width:auto;min-width:120px;padding:7px;background:#08131d;color:#fff;border:1px solid #365064;border-radius:7px';
     Object.entries(NAMES).forEach(([code,name])=>{const o=document.createElement('option');o.value=code;o.textContent=name;o.selected=code===lang;select.appendChild(o);});
-    select.addEventListener('change',e=>{localStorage.setItem('myzubster-language',e.target.value);location.reload();}); wrap.appendChild(select); document.body.appendChild(wrap);
+    select.addEventListener('change',e=>{localStorage.setItem('myzubster-language',e.target.value);const url=new URL(location.href);url.searchParams.set('lang',e.target.value);location.href=url.toString();}); wrap.appendChild(select); document.body.appendChild(wrap);
   }
 
   const dict=lang==='it'?null:(D[lang]||D.en);
