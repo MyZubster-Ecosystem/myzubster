@@ -1,4 +1,5 @@
 import { getLanguage, LANGUAGE_NAMES, setLanguage } from './i18n';
+import { mountZorgaxGlobalAssistant } from './components/ZorgaxGlobalMount';
 
 const TEXT = {
   en: {
@@ -61,6 +62,7 @@ function addLanguageSwitcher(lang) {
 
 export function startFeaturePageI18n() {
   if (typeof window === 'undefined' || typeof document === 'undefined') return;
+  mountZorgaxGlobalAssistant();
   const path = window.location.pathname.replace(/\/+$/, '') || '/';
   if (!FRONTEND_PATHS.includes(path) && !path.startsWith('/metaverse/rooms/')) return;
   const lang = getLanguage();
