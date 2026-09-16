@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { notifyAdminActivity } = require('../services/adminActivityNotificationService');
 
 const marketplaceListingSchema = new mongoose.Schema({
   ownerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
@@ -21,5 +22,9 @@ const marketplaceListingSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 marketplaceListingSchema.index({ status: 1, createdAt: -1 });
+marketplaceListingSchema.post('save', function notifyNewListing(listing) {
+  if (!listing.createdAt || Math.abs(Date.now() - new Date(listing.createdAt).getTime()) > 15000) return;
+  void notifyAdminActivity('listing', { listingId: listing._id, ownerId: listing.ownerId, ownerUsername: listing.ownerUsername, title: listing.title, category: listing.category, price: listing.price, currency: listing.currency, exchangeMode: listing.exchangeMode, location: listing.location });
+});
 
 module.exports = mongoose.models.MarketplaceListing || mongoose.model('MarketplaceListing', marketplaceListingSchema);
