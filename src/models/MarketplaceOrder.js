@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const { notifyAdminActivity } = require('../services/adminActivityNotificationService');
 const { createMarketplaceEvidence } = require('../services/marketplaceEvidenceService');
 
 const marketplaceOrderSchema = new mongoose.Schema({
@@ -45,11 +44,6 @@ const marketplaceOrderSchema = new mongoose.Schema({
 
 marketplaceOrderSchema.index({ buyerId: 1, createdAt: -1 });
 marketplaceOrderSchema.index({ sellerId: 1, createdAt: -1 });
-marketplaceOrderSchema.post('save', function notifyNewMarketplaceRequest(order) {
-  if (!order.createdAt || Math.abs(Date.now() - new Date(order.createdAt).getTime()) > 15000 || order.status !== 'REQUESTED') return;
-  void notifyAdminActivity('marketplace_request', { orderId: order._id, listingId: order.listingId, buyerId: order.buyerId, sellerId: order.sellerId, title: order.snapshot?.title, quantity: order.quantity, note: order.note });
-});
-
 marketplaceOrderSchema.post('save', async function ensureMarketplaceEvidence(order) {
   if (order.status !== 'COMPLETED' || order.evidence?.hash) return;
   try {

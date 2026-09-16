@@ -3,7 +3,8 @@ async function consumeWalletChallenge({
   challengeId,
   userId,
   action,
-  now = new Date()
+  now = new Date(),
+  session = null
 }) {
   return WalletChallenge.findOneAndUpdate(
     {
@@ -17,7 +18,8 @@ async function consumeWalletChallenge({
       $set: { usedAt: now }
     },
     {
-      new: true
+      new: true,
+      ...(session ? { session } : {})
     }
   );
 }

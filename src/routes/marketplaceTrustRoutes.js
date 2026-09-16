@@ -8,6 +8,7 @@ const MarketplaceReport = require('../models/MarketplaceReport');
 const MarketplaceReview = require('../models/MarketplaceReview');
 const MarketplaceMessage = require('../models/MarketplaceMessage');
 const { authenticate } = require('../middleware/auth');
+const { notifyAdminActivity } = require('../services/adminActivityNotificationService');
 const WalletLink = require('../models/WalletLink');
 const WalletChallenge = require('../models/WalletChallenge');
 const { createNonce } = require('../services/walletSignatureService');
@@ -19,6 +20,9 @@ const {
 const {
   consumeMarketplaceChallenge
 } = require('../services/walletChallengeConsumptionService');
+const {
+  createSignedMarketplaceOrderTransaction
+} = require('../services/marketplaceSignedOrderTransactionService');
 
 const mutationLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 40, standardHeaders: true, legacyHeaders: false, message: { success: false, message: 'Troppe operazioni Marketplace. Riprova tra poco.' } });
 const messageLimiter = rateLimit({ windowMs: 60 * 1000, max: 12, standardHeaders: true, legacyHeaders: false, message: { success: false, message: 'Troppi messaggi. Attendi un minuto.' } });
@@ -254,43 +258,42 @@ router.post('/orders', authenticate, mutationLimiter, async (req, res) => {
     }
 
     const consumedAt = new Date();
+    let order;
 
-    const consumedChallenge = await consumeMarketplaceChallenge({
-      WalletChallenge,
-      challengeId: challenge._id,
-      userId: req.userId,
-      now: consumedAt
-    });
-
-    if (!consumedChallenge) {
-      return res.status(409).json({
-        success: false,
-        code: 'MARKETPLACE_CHALLENGE_NOT_CONSUMABLE'
+    try {
+      order = await createSignedMarketplaceOrderTransaction({
+        mongoose,
+        WalletChallenge,
+        MarketplaceOrder,
+        consumeMarketplaceChallenge,
+        challenge,
+        userId: req.userId,
+        listing,
+        quantity,
+        note: String(req.body?.note || '').trim(),
+        recovered,
+        signature: req.body.signature,
+        consumedAt
       });
+    } catch (error) {
+      if (error.code === 'MARKETPLACE_CHALLENGE_NOT_CONSUMABLE') {
+        return res.status(409).json({
+          success: false,
+          code: 'MARKETPLACE_CHALLENGE_NOT_CONSUMABLE'
+        });
+      }
+      throw error;
     }
 
-    const order = await MarketplaceOrder.create({
-      listingId: listing._id,
-      buyerId: req.userId,
-      sellerId: listing.ownerId,
-      quantity,
-      note: String(req.body?.note || '').trim(),
-      snapshot: {
-        title: listing.title,
-        price: listing.price,
-        currency: listing.currency,
-        exchangeMode: listing.exchangeMode
-      },
-      walletEvidence: {
-        status: 'VERIFIED',
-        walletAddress: recovered,
-        networkFamily: 'EVM',
-        signature: req.body.signature,
-        payloadHash: challenge.payloadHash,
-        challengeId: challenge._id,
-        signedAt: consumedAt,
-        verifiedAt: consumedAt
-      }
+    // External side effect only after MongoDB committed successfully.
+    void notifyAdminActivity('marketplace_request', {
+      orderId: order._id,
+      listingId: order.listingId,
+      buyerId: order.buyerId,
+      sellerId: order.sellerId,
+      title: order.snapshot?.title,
+      quantity: order.quantity,
+      note: order.note
     });
 
     return res.status(201).json({
