@@ -4,6 +4,7 @@ const { authenticate, optionalAuthenticate } = require('../middleware/auth');
 const { createZorgaxAccessMiddleware, publicAccess } = require('../middleware/zorgaxAccess');
 const ZorgaxDataEntry = require('../models/ZorgaxDataEntry');
 const { answer, searchWeb, previewData, digestPreview } = require('../services/zorgaxAssistantService');
+const { askNicolaComics } = require('../services/nicolaComicsService');
 const { catalog, createCheckoutIntent, getPaymentIntent, listPaymentIntents } = require('../services/zorgaxLegacyMonetizationService');
 const { getAccess } = require('../services/zorgaxAccessService');
 const { refreshPaymentIntent, verifyAndActivatePaymentIntent } = require('../services/zorgaxPaymentIntentService');
@@ -174,6 +175,36 @@ router.post('/chat', optionalAuthenticate, loadZorgaxAccess, async (req, res) =>
     const safeRequestedLimit = Number.isFinite(requestedLimit) && requestedLimit > 0 ? requestedLimit : 5;
     const limit = policy.maxWebResults > 0 ? Math.min(safeRequestedLimit, policy.maxWebResults) : 1;
     const useWeb = requestedWeb && policy.webResearch;
+    const nicola = req.body?.nicolaComics;
+    if (nicola !== undefined) {
+      if (!nicola || typeof nicola !== 'object' || Array.isArray(nicola)) {
+        return res.status(400).json({ ok: false, error: 'nicolaComics deve essere un oggetto' });
+      }
+      const pilot = await askNicolaComics({
+        action: nicola.action || 'gallery',
+        comicId: nicola.comicId || null,
+        question: nicola.question
+      });
+      logFunnelEvent('zorgax_message_sent', req, {
+        webResearch: false,
+        sourceCount: pilot.source_count,
+        integration: 'nicola-comics'
+      });
+      return res.json({
+        ok: true,
+        entity: 'ZORGAX-001',
+        response: pilot.answer,
+        action: pilot.action,
+        sources: pilot.sources,
+        external_sources: [],
+        source_count: pilot.source_count,
+        upstream: pilot.upstream,
+        read_only: true,
+        access: publicAccess(req.zorgaxAccess),
+        featureAccess: policy,
+        accessNotice: null
+      });
+    }
     const result = await answer({ message: req.body?.message || req.body?.prompt, useWeb, history: req.body?.history || [], limit });
     const accessNotice = requestedWeb && !policy.webResearch
       ? 'Accedi a MyZubster per abilitare la ricerca web. La risposta corrente usa solo l’assistente base.'
@@ -186,7 +217,7 @@ router.post('/chat', optionalAuthenticate, loadZorgaxAccess, async (req, res) =>
     });
     res.json({ ok: true, entity: 'ZORGAX-001', ...result, external_sources: result.sources, access: publicAccess(req.zorgaxAccess), featureAccess: policy, accessNotice });
   }
-  catch (error) { res.status(502).json({ ok: false, error: error.message }); }
+  catch (error) { res.status(error.statusCode || 502).json({ ok: false, error: error.message }); }
 });
 
 router.get('/research', authenticate, requireZorgaxPlan('developer'), async (req, res) => {
