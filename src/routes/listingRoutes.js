@@ -6,7 +6,7 @@ const SellerMembership = require('../models/SellerMembership');
 const { authenticate } = require('../middleware/auth');
 
 const ALLOWED_CURRENCIES = new Set(['ETH', 'BTC', 'XMR', 'MYZ', 'TARI', 'BARTER', 'FREE']);
-const ALLOWED_CATEGORIES = new Set(['health_products','electronics','kefir_culture_donation','seeds','plants','produce','tools','services','volunteering','pet_adoption','pet_lost_found','pet_services']);
+const ALLOWED_CATEGORIES = new Set(['health_products','electronics','kefir_culture_donation','seeds','plants','produce','tools','services','development_services','event_support','agriculture_support','arts','wellness','help_request','university_course','thesis_project','research_project','internship','volunteering','pet_adoption','pet_lost_found','pet_services']);
 const SELLER_MONTHLY_EUR = Math.max(0, Number(process.env.MARKETPLACE_SELLER_MONTHLY_EUR || 9.90));
 
 function containsPrivateKeyMaterial(value) { const text=String(value||'').toUpperCase(); return /PRIVATE KEY|BEGIN PGP PRIVATE|BEGIN OPENSSH PRIVATE|SEED PHRASE|MNEMONIC/.test(text); }
