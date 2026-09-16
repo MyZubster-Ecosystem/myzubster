@@ -1,4 +1,12 @@
 (() => {
+  if (!document.getElementById('myz-community-i18n-script')) {
+    const i18nScript = document.createElement('script');
+    i18nScript.id = 'myz-community-i18n-script';
+    i18nScript.src = '/community-i18n.js';
+    i18nScript.defer = true;
+    document.head.appendChild(i18nScript);
+  }
+
   const TRACK_ENDPOINT = '/api/zorgax/assistant/track';
   const form = document.getElementById('listingForm');
   if (!form || document.getElementById('zorgaxListingAssistant')) return;
