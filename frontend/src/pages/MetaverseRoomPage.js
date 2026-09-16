@@ -344,7 +344,9 @@ function MetaverseRoomPage({ roomKey }) {
         item.id === messageId ? { ...item, reportedByMe: true } : item
       )));
       setMessage('Segnalazione inviata all’host.');
-    } catch (error) { setMessage(error.message); }
+    } catch (error) {
+      setMessage(error.status === 429 ? 'Hai inviato troppe segnalazioni. Riprova tra un minuto.' : error.message);
+    }
   };
 
   const resolveMessageReport = async (reportId) => {
