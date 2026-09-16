@@ -6,11 +6,14 @@ const VirtualRoom = require('../models/VirtualRoom');
 const VirtualSession = require('../models/VirtualSession');
 const VirtualRoomChatThrottle = require('../models/VirtualRoomChatThrottle');
 const VirtualRoomMessageReport = require('../models/VirtualRoomMessageReport');
+const VirtualRoomReportThrottle = require('../models/VirtualRoomReportThrottle');
 
 const ROOM_CHAT_RETENTION_MS = 24 * 60 * 60 * 1000;
 const ROOM_CHAT_PAGE_SIZE = 50;
 const ROOM_REPORT_RETENTION_MS = 7 * 24 * 60 * 60 * 1000;
 const ROOM_REPORT_REASONS = new Set(['spam', 'harassment', 'unsafe', 'other']);
+const ROOM_REPORT_RATE_LIMIT = 10;
+const ROOM_REPORT_WINDOW_MS = 60 * 1000;
 
 function databaseAvailable() {
   return mongoose.connection.readyState === 1;
@@ -46,6 +49,33 @@ async function claimRoomChatWindow({ roomId, sessionId, actorUserId, now = new D
     if (error?.code === 11000) return false;
     throw error;
   }
+}
+
+function roomReportThrottleKey(roomId, sessionId, actorUserId, now = new Date()) {
+  const bucket = Math.floor(now.getTime() / ROOM_REPORT_WINDOW_MS);
+  return crypto.createHash('sha256')
+    .update(`report:${roomId}:${sessionId}:${actorUserId}:${bucket}`)
+    .digest('hex');
+}
+
+async function claimRoomReportSlot({ roomId, sessionId, actorUserId, now = new Date() }) {
+  const key = roomReportThrottleKey(roomId, sessionId, actorUserId, now);
+  const update = {
+    $inc: { count: 1 },
+    $setOnInsert: { expiresAt: new Date(now.getTime() + (2 * ROOM_REPORT_WINDOW_MS)) }
+  };
+  let bucket;
+  try {
+    bucket = await VirtualRoomReportThrottle.findOneAndUpdate(
+      { key },
+      update,
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
+  } catch (error) {
+    if (error?.code !== 11000) throw error;
+    bucket = await VirtualRoomReportThrottle.findOneAndUpdate({ key }, { $inc: { count: 1 } }, { new: true });
+  }
+  return Boolean(bucket && bucket.count <= ROOM_REPORT_RATE_LIMIT);
 }
 
 function cleanRoomMessage(value) {
@@ -116,6 +146,12 @@ async function reportRoomMessage({ sessionId, messageId, actorUserId, reason }) 
   }).select('messageId +senderUserId');
   if (!message) return { valid: false, status: 404, error: 'Message not found' };
   if (String(message.senderUserId) === context.actor) return { valid: false, status: 400, error: 'Cannot report your own message' };
+  const rateAllowed = await claimRoomReportSlot({
+    roomId: context.room.roomId,
+    sessionId: context.session.sessionId,
+    actorUserId: context.actor
+  });
+  if (!rateAllowed) return { valid: false, status: 429, error: 'Report rate exceeded' };
   const now = new Date();
   const report = await VirtualRoomMessageReport.findOneAndUpdate(
     { sessionId: context.session.sessionId, messageId: message.messageId, reporterUserId: context.actor },
@@ -310,6 +346,10 @@ module.exports = {
   ROOM_CHAT_RETENTION_MS,
   ROOM_REPORT_RETENTION_MS,
   ROOM_REPORT_REASONS,
+  ROOM_REPORT_RATE_LIMIT,
+  ROOM_REPORT_WINDOW_MS,
+  roomReportThrottleKey,
+  claimRoomReportSlot,
   roomChatThrottleKey,
   claimRoomChatWindow,
   cleanRoomMessage,
