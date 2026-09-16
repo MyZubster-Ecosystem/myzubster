@@ -95,12 +95,17 @@ router.post('/orders/challenge', authenticate, mutationLimiter, async (req, res)
     const nonce = createNonce();
 
     const payload = {
-      schema: 'MYZUBSTER_MARKETPLACE_REQUEST_V1',
+      schema: 'MYZUBSTER_MARKETPLACE_REQUEST_V2',
       intent: 'MARKETPLACE_REQUEST',
       listingId: String(listing._id),
       quantity,
       buyerId: String(req.userId),
       walletAddress: wallet.walletAddress,
+      listingSnapshot: {
+        price: Number(listing.price),
+        currency: String(listing.currency || ''),
+        exchangeMode: String(listing.exchangeMode || '')
+      },
       nonce,
       issuedAt: now.toISOString(),
       expiresAt: expiresAt.toISOString()
@@ -213,6 +218,16 @@ router.post('/orders', authenticate, mutationLimiter, async (req, res) => {
     const payload = challenge.payload || {};
 
     if (
+      payload.schema !== 'MYZUBSTER_MARKETPLACE_REQUEST_V2' ||
+      payload.intent !== 'MARKETPLACE_REQUEST'
+    ) {
+      return res.status(409).json({
+        success: false,
+        code: 'MARKETPLACE_CHALLENGE_VERSION_UNSUPPORTED'
+      });
+    }
+
+    if (
       String(payload.listingId) !== String(listing._id) ||
       Number(payload.quantity) !== quantity ||
       String(payload.buyerId) !== String(req.userId)
@@ -220,6 +235,21 @@ router.post('/orders', authenticate, mutationLimiter, async (req, res) => {
       return res.status(400).json({
         success: false,
         code: 'MARKETPLACE_CHALLENGE_PAYLOAD_MISMATCH'
+      });
+    }
+
+    const signedSnapshot = payload.listingSnapshot || {};
+
+    const listingEconomicsChanged =
+      Number(signedSnapshot.price) !== Number(listing.price) ||
+      String(signedSnapshot.currency || '') !== String(listing.currency || '') ||
+      String(signedSnapshot.exchangeMode || '') !== String(listing.exchangeMode || '');
+
+    if (listingEconomicsChanged) {
+      return res.status(409).json({
+        success: false,
+        code: 'MARKETPLACE_LISTING_CHANGED',
+        message: 'Le condizioni dell’annuncio sono cambiate. Genera una nuova richiesta da firmare.'
       });
     }
 
@@ -232,8 +262,17 @@ router.post('/orders', authenticate, mutationLimiter, async (req, res) => {
       });
     }
 
+    const expectedMessage = buildMarketplaceRequestMessage(payload);
+
+    if (expectedMessage !== challenge.message) {
+      return res.status(400).json({
+        success: false,
+        code: 'MARKETPLACE_CHALLENGE_MESSAGE_MISMATCH'
+      });
+    }
+
     const recovered = verifyMarketplaceRequest(
-      challenge.message,
+      expectedMessage,
       req.body?.signature
     );
 

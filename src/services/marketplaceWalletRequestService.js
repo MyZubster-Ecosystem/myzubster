@@ -9,6 +9,11 @@ function canonicalPayload(payload) {
     quantity: Number(payload.quantity),
     buyerId: String(payload.buyerId),
     walletAddress: String(payload.walletAddress).toLowerCase(),
+    listingSnapshot: {
+      price: Number(payload.listingSnapshot?.price),
+      currency: String(payload.listingSnapshot?.currency || ''),
+      exchangeMode: String(payload.listingSnapshot?.exchangeMode || '')
+    },
     nonce: payload.nonce,
     issuedAt: payload.issuedAt,
     expiresAt: payload.expiresAt
@@ -32,6 +37,9 @@ function buildMarketplaceRequestMessage(payload) {
     `Quantity: ${payload.quantity}`,
     `Buyer: ${payload.buyerId}`,
     `Wallet: ${payload.walletAddress}`,
+    `Price: ${payload.listingSnapshot?.price}`,
+    `Currency: ${payload.listingSnapshot?.currency}`,
+    `Exchange Mode: ${payload.listingSnapshot?.exchangeMode}`,
     `Nonce: ${payload.nonce}`,
     `Issued At: ${payload.issuedAt}`,
     `Expires At: ${payload.expiresAt}`,

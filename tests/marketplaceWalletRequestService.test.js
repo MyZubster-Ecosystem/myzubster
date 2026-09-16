@@ -20,6 +20,11 @@ function makePayload(walletAddress) {
     quantity: 2,
     buyerId: '507f191e810c19729de860ea',
     walletAddress: normalizeAddress(walletAddress),
+    listingSnapshot: {
+      price: 10,
+      currency: 'EUR',
+      exchangeMode: 'SALE'
+    },
     nonce: createNonce(),
     issuedAt: '2026-09-16T08:30:00.000Z',
     expiresAt: '2026-09-16T08:35:00.000Z'
@@ -67,6 +72,48 @@ describe('MyZubster signed Marketplace request', () => {
     const altered = {
       ...original,
       listingId: '507f1f77bcf86cd799439012'
+    };
+
+    expect(hashPayload(original)).not.toBe(hashPayload(altered));
+  });
+
+  test('changing price changes payload hash', () => {
+    const wallet = Wallet.createRandom();
+    const original = makePayload(wallet.address);
+    const altered = {
+      ...original,
+      listingSnapshot: {
+        ...original.listingSnapshot,
+        price: 11
+      }
+    };
+
+    expect(hashPayload(original)).not.toBe(hashPayload(altered));
+  });
+
+  test('changing currency changes payload hash', () => {
+    const wallet = Wallet.createRandom();
+    const original = makePayload(wallet.address);
+    const altered = {
+      ...original,
+      listingSnapshot: {
+        ...original.listingSnapshot,
+        currency: 'USD'
+      }
+    };
+
+    expect(hashPayload(original)).not.toBe(hashPayload(altered));
+  });
+
+  test('changing exchange mode changes payload hash', () => {
+    const wallet = Wallet.createRandom();
+    const original = makePayload(wallet.address);
+    const altered = {
+      ...original,
+      listingSnapshot: {
+        ...original.listingSnapshot,
+        exchangeMode: 'BARTER'
+      }
     };
 
     expect(hashPayload(original)).not.toBe(hashPayload(altered));
