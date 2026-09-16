@@ -80,6 +80,7 @@
     {"src":"/api/zorgax/email/(.*)","dest":"/api/index.js"},
     {"src":"/api/zorgax/capital/(.*)","dest":"/api/index.js"},
     {"src":"/api/zorgax/digital-business/(.*)","dest":"/api/index.js"},
+    {"src":"/api/zorgax/nicola-comics/(.*)","dest":"/api/index.js"},
     {"src":"/api/robots/(.*)","dest":"/api/index.js"},
     {"src":"/zorgax/?","dest":"/api/index.js"},
     {"src":"/zargox/?","dest":"https://myzubster-gateway.vercel.app/zargox"},
