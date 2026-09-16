@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const axios = require('axios');
+const { anchorMarketplaceEvidenceOnBase } = require('./baseMarketplaceAnchorService');
 
 function canonicalize(value) {
   if (Array.isArray(value)) return value.map(canonicalize);
@@ -37,7 +38,7 @@ function hashMarketplaceEvidence(payload) {
   return crypto.createHash('sha256').update(JSON.stringify(canonicalize(payload))).digest('hex');
 }
 
-async function requestBlockchainAnchor(evidenceHash) {
+async function requestExternalBlockchainAnchor(evidenceHash) {
   const endpoint = process.env.MARKETPLACE_BLOCKCHAIN_ANCHOR_URL;
   if (!endpoint) return { status: 'NOT_CONFIGURED' };
 
@@ -62,6 +63,12 @@ async function requestBlockchainAnchor(evidenceHash) {
     confirmedAt: response.data?.confirmedAt ? new Date(response.data.confirmedAt) : (response.data?.confirmed === true ? new Date() : null),
     explorerUrl: response.data?.explorerUrl ? String(response.data.explorerUrl) : null
   };
+}
+
+async function requestBlockchainAnchor(evidenceHash) {
+  const provider = String(process.env.MARKETPLACE_BLOCKCHAIN_ANCHOR_PROVIDER || '').toLowerCase();
+  if (provider === 'base-sepolia') return anchorMarketplaceEvidenceOnBase(evidenceHash);
+  return requestExternalBlockchainAnchor(evidenceHash);
 }
 
 async function createMarketplaceEvidence(order) {
