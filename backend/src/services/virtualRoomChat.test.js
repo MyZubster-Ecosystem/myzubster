@@ -1,5 +1,5 @@
 const VirtualRoomMessageReport = require('../models/VirtualRoomMessageReport');
-const { cleanRoomMessage, publicRoomMessage, publicRoomMessageWithReportState, canModerateRoomChat, roomChatThrottleKey, aggregateRoomReports, moderateReportedRoomMessage, ROOM_CHAT_RETENTION_MS, ROOM_REPORT_RETENTION_MS, ROOM_REPORT_REASONS } = require('./virtualRoomChat');
+const { cleanRoomMessage, publicRoomMessage, publicRoomMessageWithReportState, canModerateRoomChat, roomChatThrottleKey, aggregateRoomReports, moderateReportedRoomMessage, roomReportThrottleKey, ROOM_REPORT_RATE_LIMIT, ROOM_REPORT_WINDOW_MS, ROOM_CHAT_RETENTION_MS, ROOM_REPORT_RETENTION_MS, ROOM_REPORT_REASONS } = require('./virtualRoomChat');
 
 describe('virtual room chat policy', () => {
   test('sanitizes and limits room messages', () => {
@@ -63,6 +63,17 @@ describe('virtual room chat policy', () => {
     expect(key).not.toContain('account-secret');
     expect(key).not.toBe(roomChatThrottleKey('room-1', 'session-2', 'account-secret'));
     expect(key).not.toBe(roomChatThrottleKey('room-2', 'session-1', 'account-secret'));
+  });
+
+  test('uses private fixed-window report throttle buckets', () => {
+    const now = new Date('2026-09-16T10:00:30.000Z');
+    const key = roomReportThrottleKey('room-1', 'session-1', 'secret-account', now);
+    expect(key).toHaveLength(64);
+    expect(key).not.toContain('secret-account');
+    expect(key).toBe(roomReportThrottleKey('room-1', 'session-1', 'secret-account', new Date('2026-09-16T10:00:59.999Z')));
+    expect(key).not.toBe(roomReportThrottleKey('room-1', 'session-1', 'secret-account', new Date('2026-09-16T10:01:00.000Z')));
+    expect(ROOM_REPORT_RATE_LIMIT).toBe(10);
+    expect(ROOM_REPORT_WINDOW_MS).toBe(60 * 1000);
   });
 
   test('limits report reasons and evidence retention', () => {
