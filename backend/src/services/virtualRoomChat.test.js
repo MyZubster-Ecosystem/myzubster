@@ -1,5 +1,5 @@
 const VirtualRoomMessageReport = require('../models/VirtualRoomMessageReport');
-const { cleanRoomMessage, publicRoomMessage, canModerateRoomChat, roomChatThrottleKey, aggregateRoomReports, moderateReportedRoomMessage, ROOM_CHAT_RETENTION_MS, ROOM_REPORT_RETENTION_MS, ROOM_REPORT_REASONS } = require('./virtualRoomChat');
+const { cleanRoomMessage, publicRoomMessage, publicRoomMessageWithReportState, canModerateRoomChat, roomChatThrottleKey, aggregateRoomReports, moderateReportedRoomMessage, ROOM_CHAT_RETENTION_MS, ROOM_REPORT_RETENTION_MS, ROOM_REPORT_REASONS } = require('./virtualRoomChat');
 
 describe('virtual room chat policy', () => {
   test('sanitizes and limits room messages', () => {
@@ -26,6 +26,24 @@ describe('virtual room chat policy', () => {
     });
     expect(message).not.toHaveProperty('senderUserId');
     expect(message).not.toHaveProperty('sessionId');
+  });
+
+  test('exposes only the authenticated user own report state', () => {
+    const message = {
+      messageId: 'message-1',
+      senderUserId: 'secret-sender',
+      characterName: 'H4x0r',
+      text: 'Hello room',
+      createdAt: '2026-09-16T10:00:00.000Z'
+    };
+    expect(publicRoomMessageWithReportState(message, new Set(['message-1']))).toEqual({
+      id: 'message-1',
+      characterName: 'H4x0r',
+      text: 'Hello room',
+      createdAt: '2026-09-16T10:00:00.000Z',
+      reportedByMe: true
+    });
+    expect(publicRoomMessageWithReportState(message, new Set()).reportedByMe).toBe(false);
   });
 
   test('grants message moderation only to the host or an admin', () => {
