@@ -1,5 +1,5 @@
 {
-  "version": "nicola_comics_participant_update_v2",
+  "version": "nicola_comics_participant_update_v3",
   "recordedAt": "2026-09-09",
   "participantPublicId": "nicolaususnicola-lgtm",
   "source": "participant_direct_email_confirmation",
@@ -61,7 +61,8 @@
     "The local Docker and HTTP results were reported by Nicola and documented in a public commit; this automation verified the repository evidence but did not independently reproduce the runtime.",
     "Automated pytest tests were not run in the documented session because pytest was unavailable.",
     "No NFT mint, token ownership, marketplace listing, sale, revenue, partnership, funding, or commercial validation is claimed.",
-    "The earlier shared-roadmap reference issue 1052 was inaccessible on 2026-09-09; issue 1176 is the current verified public-integration coordination issue."
+    "The earlier shared-roadmap reference issue 1052 was inaccessible on 2026-09-09; issue 1176 is the current verified public-integration coordination issue.",
+    "The 2026-09-16 continuation confirmation does not authorize an NFT mint, blockchain transaction, listing, sale, or removal of the existing human-review and rights-verification gates."
   ],
   "nextOperationalGate": [
     "Assign a real HTTPS endpoint in a hosting environment separated from Nicola's PC.",
@@ -71,7 +72,7 @@
     "Run and document the public end-to-end test.",
     "Keep rights TO_VERIFY and all on-chain fields empty until provenance, authorization, and any mint are independently verified."
   ],
-  "updatedAt": "2026-09-15",
+  "updatedAt": "2026-09-16",
   "localAdapterValidation": {
     "participantReportedAt": "2026-09-15",
     "environment": "PARTICIPANT_LOCAL_DOCKER",
@@ -106,5 +107,17 @@
     "authentication": "NOT_DECIDED",
     "zorgaxPublicMapping": "NOT_CONFIGURED",
     "publicEndToEndTest": "NOT_RUN"
+  },
+  "participantContinuation": {
+    "confirmedAt": "2026-09-16",
+    "meeting": {
+      "date": "2026-09-22",
+      "time": "10:30-11:30",
+      "participation": "PARTICIPANT_CONFIRMED"
+    },
+    "nicolaComicsPilot": "CONTINUE_CONFIRMED",
+    "firstNftCandidateWork": "CONTINUE_CONFIRMED_WITH_EXISTING_GATES",
+    "evidenceClass": "PARTICIPANT_DIRECT_CONFIRMATION",
+    "boundary": "This confirmation authorizes continued pilot preparation only; it does not authorize minting, blockchain transactions, listing, sale, or bypassing provenance, rights, security, or human-review gates."
   }
 }
