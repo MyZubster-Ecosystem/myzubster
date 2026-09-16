@@ -62,9 +62,14 @@ function publicRoomMessage(value) {
   };
 }
 
-function publicRoomMessageWithReportState(value, reportedMessageIds) {
+function publicRoomMessageWithReportState(value, reportedMessageIds, actorUserId) {
   const message = publicRoomMessage(value);
-  return { ...message, reportedByMe: reportedMessageIds.has(message.id) };
+  const source = typeof value?.toObject === 'function' ? value.toObject() : value;
+  return {
+    ...message,
+    reportedByMe: reportedMessageIds.has(message.id),
+    authoredByMe: Boolean(actorUserId && String(source.senderUserId) === String(actorUserId))
+  };
 }
 
 async function authorizedContext(sessionId, actorUserId, requireLive = false) {
@@ -108,8 +113,9 @@ async function reportRoomMessage({ sessionId, messageId, actorUserId, reason }) 
     messageId: String(messageId),
     sessionId: context.session.sessionId,
     worldId: `virtual-room:${context.room.roomId}`
-  }).select('messageId');
+  }).select('messageId senderUserId');
   if (!message) return { valid: false, status: 404, error: 'Message not found' };
+  if (String(message.senderUserId) === context.actor) return { valid: false, status: 400, error: 'Cannot report your own message' };
   const now = new Date();
   const report = await VirtualRoomMessageReport.findOneAndUpdate(
     { sessionId: context.session.sessionId, messageId: message.messageId, reporterUserId: context.actor },
@@ -267,7 +273,7 @@ async function listRoomMessages({ sessionId, actorUserId, after }) {
   return {
     valid: true,
     status: 200,
-    messages: messages.map((message) => publicRoomMessageWithReportState(message, reportedByMe)),
+    messages: messages.map((message) => publicRoomMessageWithReportState(message, reportedByMe, context.actor)),
     cursor: observedAt.toISOString(),
     retentionSeconds: ROOM_CHAT_RETENTION_MS / 1000
   };
@@ -296,7 +302,7 @@ async function createRoomMessage({ sessionId, actorUserId, text }) {
     createdAt: now,
     expiresAt: new Date(now.getTime() + ROOM_CHAT_RETENTION_MS)
   });
-  return { valid: true, status: 201, message: publicRoomMessage(message) };
+  return { valid: true, status: 201, message: publicRoomMessageWithReportState(message, new Set(), context.actor) };
 }
 
 module.exports = {
