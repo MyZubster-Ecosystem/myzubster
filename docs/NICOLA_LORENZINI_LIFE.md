@@ -80,7 +80,7 @@ The first validation period is seven days of real use. GO / CHANGE / STOP criter
 
 ## Nicola Comics × MyZubster
 
-Status updated on **2026-09-15**: `LOCAL_HTTP_MANUAL_PASS_PARTICIPANT_REPORTED; PUBLIC_INTEGRATION_PENDING`.
+Status updated on **2026-09-16**: `PUBLIC_PILOT_CI_PASS; UPSTREAM_ZORGAX_BRIDGE_PR_PREPARED; E2E_PENDING`.
 
 On **2026-09-16**, Nicola confirmed participation in the MyZubster LIFE meeting scheduled for **2026-09-22, 10:30–11:30**, and confirmed that he wants to continue the Nicola Comics × MyZubster pilot, including preparatory work on the first NFT candidate. This is a participant-confirmed next-step decision, not authorization to mint, execute a blockchain transaction, list or sell an asset, or bypass rights verification and human review.
 
@@ -122,11 +122,15 @@ The minimized evidence record is stored in:
 
 `docs/life/nicola-comics-participant-update-2026-09-09.json`
 
-### Public-integration gate
+### Public pilot verification and upstream gate
 
-Coordination now continues in [issue #1176](https://github.com/MyZubster-Ecosystem/myzubster/issues/1176). The next gate is to assign a real HTTPS endpoint separated from Nicola's PC, configure least-privilege authentication and `NICOLA_COMICS_BASE_URL` through the hosting environment, map Zorgax public intents to the four read-only actions, and document a public end-to-end test.
+On **2026-09-16**, the participant repository's [GitHub Actions run 35106091555](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/actions/runs/35106091555) completed successfully on commit `d8070fd33febcf0fe1dc0c6c6613056df1e3bc61`. The verified job includes software tests, Docker verification and a public smoke test against `https://myzubster-mvp.onrender.com` for `gallery`, `detail`, `candidate` and `next_steps`.
 
-No public deployment or Zorgax-public connection is claimed until that test is independently evidenced.
+This verifies the public participant-side pilot at that run. It does not prove that the bridge from the deployed MyZubster public Zorgax has passed end to end.
+
+Coordination continues in [issue #1176](https://github.com/MyZubster-Ecosystem/myzubster/issues/1176). Nicola's proposal branch and commits were reviewed, and a bounded maintainer-side implementation has been prepared in draft PR [#1210](https://github.com/MyZubster-Ecosystem/myzubster/pull/1210). The bridge accepts only explicit Nicola Comics requests, remains read-only, does not forward the generic chat message, and performs no mint, wallet, payment or persistent write.
+
+The next gate is human review, deployment configuration, and a documented public end-to-end test through the deployed MyZubster Zorgax route. No Zorgax-public E2E PASS is claimed before that test.
 
 ## Preliminary interview evidence
 
