@@ -6,8 +6,6 @@ const { MongoMemoryServer } = require('mongodb-memory-server');
 
 process.env.NODE_ENV = 'test';
 process.env.JWT_SECRET = 'seller-test-secret';
-process.env.MARKETPLACE_SELLER_MONTHLY_EUR = '9.90';
-process.env.MARKETPLACE_SELLER_TRIAL_DAYS = '30';
 process.env.STRIPE_WEBHOOK_SECRET = 'whsec_seller_test_secret';
 
 delete process.env.STRIPE_SECRET_KEY;
@@ -19,7 +17,6 @@ const SellerMembership = require('../src/models/SellerMembership');
 
 let mongo;
 let seller;
-let moderator;
 
 function tokenFor(user) {
   return jwt.sign({ userId:String(user._id), username:user.username, role:user.role }, process.env.JWT_SECRET, { expiresIn:'1h' });
@@ -36,20 +33,18 @@ function stripeSignature(payload, timestamp = Math.floor(Date.now() / 1000)) {
 beforeAll(async () => {
   mongo = await MongoMemoryServer.create();
   await mongoose.connect(mongo.getUri());
-  seller = await User.create({ username:'paid-seller', email:'seller-paid@example.test', password:'test-password' });
-  moderator = await User.create({ username:'seller-mod', email:'seller-mod@example.test', password:'test-password', role:'moderator' });
+  seller = await User.create({ username:'free-seller', email:'seller-free@example.test', password:'test-password' });
 }, 30000);
 
 afterAll(async () => { await mongoose.disconnect(); await mongo.stop(); }, 30000);
 
-test('publishing requires active seller membership, then works after verified activation', async () => {
+test('publishing is unlocked by free Seller activation with no payment method', async () => {
   const sellerToken = tokenFor(seller);
-  const modToken = tokenFor(moderator);
 
   const blocked = await request(app)
     .post('/api/listings/create')
     .set('Authorization', `Bearer ${sellerToken}`)
-    .send({ title:'Paid seller listing', category:'tools', currency:'FREE' })
+    .send({ title:'Free seller listing', category:'tools', currency:'FREE' })
     .expect(402);
   expect(blocked.body.code).toBe('SELLER_MEMBERSHIP_REQUIRED');
 
@@ -58,44 +53,67 @@ test('publishing requires active seller membership, then works after verified ac
     .set('Authorization', `Bearer ${sellerToken}`)
     .send({})
     .expect(201);
-  expect(subscribe.body.membership.status).toBe('PENDING_PAYMENT');
-  expect(subscribe.body.plan.amount).toBe(9.9);
-  expect(subscribe.body.plan.trialDays).toBe(30);
-  expect(subscribe.body.plan.paymentMethodRequired).toBe(true);
-  expect(subscribe.body.plan.firstChargeAfterTrial).toBe(true);
-  expect(subscribe.body.plan.accountAfterCancellation).toBe('MYZUBSTER_FREE');
 
-  await request(app)
-    .patch(`/api/marketplace/seller/moderation/${seller._id}/activate`)
-    .set('Authorization', `Bearer ${modToken}`)
-    .send({ paymentReference:'verified-test-payment' })
-    .expect(200);
-
-  const membership = await SellerMembership.findOne({ userId:seller._id });
-  expect(membership.status).toBe('ACTIVE');
-  expect(membership.paymentProvider).toBe('MANUAL');
+  expect(subscribe.body.membership.status).toBe('ACTIVE');
+  expect(subscribe.body.membership.plan).toBe('SELLER_FREE');
+  expect(subscribe.body.membership.paymentProvider).toBe('NONE');
+  expect(subscribe.body.plan.amount).toBe(0);
+  expect(subscribe.body.plan.paymentMethodRequired).toBe(false);
+  expect(subscribe.body.plan.automaticPaidConversion).toBe(false);
+  expect(subscribe.body.plan.platformCommissionPercent).toBe(2);
+  expect(subscribe.body.paymentRequired).toBe(false);
 
   await request(app)
     .post('/api/listings/create')
     .set('Authorization', `Bearer ${sellerToken}`)
-    .send({ title:'Paid seller listing', category:'tools', currency:'FREE' })
+    .send({ title:'Free seller listing', category:'tools', currency:'FREE' })
     .expect(201);
 });
 
-test('Stripe checkout fails closed until Stripe credentials are configured', async () => {
+test('legacy Seller checkout is not used for initial activation', async () => {
   const sellerToken = tokenFor(seller);
   const response = await request(app)
     .post('/api/marketplace/seller/checkout')
     .set('Authorization', `Bearer ${sellerToken}`)
     .send({})
-    .expect(503);
-  expect(response.body.success).toBe(false);
+    .expect(409);
+
+  expect(response.body.code).toBe('SELLER_CHECKOUT_NOT_REQUIRED');
+  expect(response.body.paymentRequired).toBe(false);
+  expect(response.body.plan.id).toBe('SELLER_FREE');
 });
 
-test('signed Stripe subscription webhook activates Seller without moderator', async () => {
+test('payment onboarding is requested at first real earning and commission is 2 percent', async () => {
+  const sellerToken = tokenFor(seller);
+  const response = await request(app)
+    .post('/api/marketplace/seller/payment-readiness')
+    .set('Authorization', `Bearer ${sellerToken}`)
+    .send({ isPaidTransaction:true, grossAmount:100 })
+    .expect(200);
+
+  expect(response.body.paymentOnboarding.required).toBe(true);
+  expect(response.body.paymentOnboarding.commissionPercent).toBe(2);
+  expect(response.body.commission).toBe(2);
+  expect(response.body.currency).toBe('EUR');
+});
+
+test('non-paid activity does not trigger payment onboarding', async () => {
+  const sellerToken = tokenFor(seller);
+  const response = await request(app)
+    .post('/api/marketplace/seller/payment-readiness')
+    .set('Authorization', `Bearer ${sellerToken}`)
+    .send({ isPaidTransaction:false, payoutRequested:false })
+    .expect(200);
+
+  expect(response.body.paymentOnboarding.required).toBe(false);
+  expect(response.body.paymentOnboarding.monetizationStarted).toBe(false);
+  expect(response.body.commission).toBeNull();
+});
+
+test('signed legacy Stripe subscription webhook remains supported for existing paid state', async () => {
   await SellerMembership.findOneAndUpdate(
     { userId:seller._id },
-    { $set:{ status:'PENDING_PAYMENT', paymentProvider:'STRIPE', priceAmount:9.9, priceCurrency:'EUR', verifiedAt:null, paymentReference:'' } },
+    { $set:{ plan:'SELLER_MONTHLY', status:'PENDING_PAYMENT', paymentProvider:'STRIPE', priceAmount:9.9, priceCurrency:'EUR', verifiedAt:null, paymentReference:'' } },
     { new:true, upsert:true }
   );
 
@@ -125,24 +143,13 @@ test('signed Stripe subscription webhook activates Seller without moderator', as
     .expect(200);
 
   const membership = await SellerMembership.findOne({ userId:seller._id });
+  expect(membership.plan).toBe('SELLER_MONTHLY');
   expect(membership.status).toBe('ACTIVE');
   expect(membership.paymentProvider).toBe('STRIPE');
   expect(membership.stripeSubscriptionId).toBe('sub_seller_test_1');
   expect(membership.stripeCustomerId).toBe('cus_seller_test_1');
   expect(membership.stripeLastEventId).toBe(event.id);
   expect(membership.expiresAt).toBeTruthy();
-});
-
-test('cancelling Seller preserves the free MyZubster account', async () => {
-  const sellerToken = tokenFor(seller);
-  const response = await request(app)
-    .post('/api/marketplace/seller/cancel')
-    .set('Authorization', `Bearer ${sellerToken}`)
-    .send({})
-    .expect(200);
-
-  expect(response.body.membership.status).toBe('CANCELLED');
-  expect(await User.exists({ _id:seller._id })).toBeTruthy();
 });
 
 test('Stripe webhook rejects invalid signatures', async () => {
