@@ -12,6 +12,7 @@ const monthlyPrice = () => {
   return raw == null || raw === '' ? 9.90 : Number(raw);
 };
 const SELLER_TRIAL_DAYS = 30;
+const SELLER_PRICING_POLICY = 'FIRST_30_DAYS_FREE_THEN_MONTHLY';
 const trialDays = () => SELLER_TRIAL_DAYS;
 
 function stripeConfigured() {
@@ -31,6 +32,8 @@ function plan() {
     currency: 'EUR',
     interval: 'month',
     trialDays: trialDays(),
+    pricingPolicy: SELLER_PRICING_POLICY,
+    trialLabel: 'Primi 30 giorni gratis, poi €9,90/mese',
     paymentMethodRequired: true,
     firstChargeAfterTrial: true,
     accountAfterCancellation: 'MYZUBSTER_FREE',
@@ -140,11 +143,26 @@ router.post('/checkout', authenticate, async (req,res) => {
     if(!Number.isFinite(amount)||amount<=0) return res.status(503).json({success:false,message:'Prezzo Seller non configurato correttamente'});
     const existingMembership=await SellerMembership.findOne({userId:req.userId});
     if(existingMembership?.status==='ACTIVE' && existingMembership.expiresAt>new Date()) return res.status(409).json({success:false,message:'Account Seller già attivo'});
+
     const trialEligible=!existingMembership?.stripeSubscriptionId&&!existingMembership?.verifiedAt&&!existingMembership?.startsAt;
-    const membership=await SellerMembership.findOneAndUpdate({userId:req.userId},{ $set:{plan:'SELLER_MONTHLY',status:'PENDING_PAYMENT',priceAmount:amount,priceCurrency:'EUR',billingReference,paymentReference:'',paymentProvider:'STRIPE',verifiedBy:null,verifiedAt:null}},{new:true,upsert:true,runValidators:true,setDefaultsOnInsert:true});
-    const params={mode:'subscription',success_url:successUrl,cancel_url:cancelUrl,client_reference_id:String(req.userId),'line_items[0][quantity]':'1','metadata[userId]':String(req.userId),'metadata[billingReference]':billingReference,'metadata[product]':'seller','subscription_data[metadata][userId]':String(req.userId),'subscription_data[metadata][billingReference]':billingReference,'subscription_data[metadata][product]':'seller',allow_promotion_codes:'false'};
     const sellerTrialDays=trialDays();
     const trialApplied=sellerTrialDays>0&&trialEligible;
+
+    if (existingMembership?.stripeCheckoutSessionId) {
+      try {
+        const existingSession=await stripeRequest('GET', `/v1/checkout/sessions/${encodeURIComponent(existingMembership.stripeCheckoutSessionId)}`);
+        if(existingSession.status==='open' && existingSession.url) {
+          logConversionEvent('seller_checkout_started', { userId:req.userId, path:req.originalUrl, provider:'STRIPE', plan:'SELLER_MONTHLY', amount, currency:'EUR', metadata:{ trialEligible:trialApplied, trialDays:sellerTrialDays, reused:true } });
+          return res.status(200).json({success:true,checkoutUrl:existingSession.url,sessionId:existingSession.id,membership:existingMembership,plan:plan(),trialApplied,reusedCheckout:true});
+        }
+        if(existingSession.status==='complete') return res.status(409).json({success:false,message:'Checkout Seller già completato; attendi la sincronizzazione dello stato account'});
+      } catch (sessionError) {
+        if (sessionError.statusCode !== 404) throw sessionError;
+      }
+    }
+
+    const membership=await SellerMembership.findOneAndUpdate({userId:req.userId},{ $set:{plan:'SELLER_MONTHLY',status:'PENDING_PAYMENT',priceAmount:amount,priceCurrency:'EUR',billingReference,paymentReference:'',paymentProvider:'STRIPE',verifiedBy:null,verifiedAt:null}},{new:true,upsert:true,runValidators:true,setDefaultsOnInsert:true});
+    const params={mode:'subscription',success_url:successUrl,cancel_url:cancelUrl,client_reference_id:String(req.userId),'line_items[0][quantity]':'1','metadata[userId]':String(req.userId),'metadata[billingReference]':billingReference,'metadata[product]':'seller','subscription_data[metadata][userId]':String(req.userId),'subscription_data[metadata][billingReference]':billingReference,'subscription_data[metadata][product]':'seller',allow_promotion_codes:'false'};
     if(trialApplied){params['subscription_data[trial_period_days]']=String(sellerTrialDays);params.payment_method_collection='always';}
     params['line_items[0][price_data][currency]']='eur';
     params['line_items[0][price_data][unit_amount]']=String(Math.round(amount*100));
@@ -172,8 +190,8 @@ router.post('/checkout', authenticate, async (req,res) => {
     membership.stripeCheckoutSessionId=session.id;
     if(typeof session.customer==='string') membership.stripeCustomerId=session.customer;
     await membership.save();
-    logConversionEvent('seller_checkout_started', { userId:req.userId, path:req.originalUrl, provider:'STRIPE', plan:'SELLER_MONTHLY', amount, currency:'EUR', metadata:{ trialEligible:trialApplied, trialDays:sellerTrialDays } });
-    res.status(201).json({success:true,checkoutUrl:session.url,sessionId:session.id,membership,plan:plan()});
+    logConversionEvent('seller_checkout_started', { userId:req.userId, path:req.originalUrl, provider:'STRIPE', plan:'SELLER_MONTHLY', amount, currency:'EUR', metadata:{ trialEligible:trialApplied, trialDays:sellerTrialDays, reused:false } });
+    res.status(201).json({success:true,checkoutUrl:session.url,sessionId:session.id,membership,plan:plan(),trialApplied,reusedCheckout:false});
   } catch(error) {
     console.error('Stripe Seller checkout error:', { message:error.message, statusCode:error.statusCode, code:error.stripeCode, param:error.stripeParam });
     res.status(502).json({success:false,message:error.message||'Checkout Stripe non disponibile'});
