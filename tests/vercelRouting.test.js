@@ -8,6 +8,7 @@ describe('Vercel routing', () => {
     '/api/zorgax/monetization/(.*)',
     '/api/zorgax/capital/(.*)',
     '/api/zorgax/digital-business/(.*)',
+    '/api/zorgax/nicola-comics/(.*)',
   ];
 
   test.each(protectedZorgaxRoutes)(
@@ -33,4 +34,3 @@ describe('Vercel routing', () => {
     }
   );
 });
-
