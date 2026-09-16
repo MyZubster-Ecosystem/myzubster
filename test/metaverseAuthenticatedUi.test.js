@@ -91,6 +91,8 @@ describe('authenticated metaverse UI wiring', () => {
     expect(roomPageSource).toContain('Messaggio rimosso dalla chat.');
     expect(roomPageSource).toContain('Segnalazioni chat');
     expect(roomPageSource).toContain('reportMetaverseRoomMessage');
+    expect(roomPageSource).toContain('chatMessage.reportedByMe');
+    expect(roomPageSource).toContain("chatMessage.reportedByMe ? 'Segnalato' : 'Segnala'");
     expect(roomPageSource).toContain('resolveMetaverseRoomMessageReport');
     expect(roomPageSource).toContain('moderateMetaverseReportedMessage');
     expect(roomPageSource).toContain('Rimuovi messaggio e chiudi');
