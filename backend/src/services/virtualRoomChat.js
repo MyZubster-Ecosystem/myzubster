@@ -62,6 +62,11 @@ function publicRoomMessage(value) {
   };
 }
 
+function publicRoomMessageWithReportState(value, reportedMessageIds) {
+  const message = publicRoomMessage(value);
+  return { ...message, reportedByMe: reportedMessageIds.has(message.id) };
+}
+
 async function authorizedContext(sessionId, actorUserId, requireLive = false) {
   if (!databaseAvailable()) return { valid: false, status: 503, error: 'Room chat storage unavailable' };
   const session = await VirtualSession.findOne({ sessionId: String(sessionId) });
@@ -262,7 +267,7 @@ async function listRoomMessages({ sessionId, actorUserId, after }) {
   return {
     valid: true,
     status: 200,
-    messages: messages.map((message) => ({ ...publicRoomMessage(message), reportedByMe: reportedByMe.has(message.messageId) })),
+    messages: messages.map((message) => publicRoomMessageWithReportState(message, reportedByMe)),
     cursor: observedAt.toISOString(),
     retentionSeconds: ROOM_CHAT_RETENTION_MS / 1000
   };
@@ -302,6 +307,7 @@ module.exports = {
   claimRoomChatWindow,
   cleanRoomMessage,
   publicRoomMessage,
+  publicRoomMessageWithReportState,
   canModerateRoomChat,
   aggregateRoomReports,
   deleteRoomMessage,
