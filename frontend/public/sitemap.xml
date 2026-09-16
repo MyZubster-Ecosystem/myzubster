@@ -1,6 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://www.myzubster.com/</loc></url>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://www.myzubster.com/</loc>
+    <xhtml:link rel="alternate" hreflang="it" href="https://www.myzubster.com/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.myzubster.com/en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.myzubster.com/"/>
+  </url>
+  <url>
+    <loc>https://www.myzubster.com/en</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.myzubster.com/en"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://www.myzubster.com/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.myzubster.com/"/>
+  </url>
+  <url>
+    <loc>https://www.myzubster.com/marketplace</loc>
+    <xhtml:link rel="alternate" hreflang="it" href="https://www.myzubster.com/marketplace"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.myzubster.com/en/marketplace"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.myzubster.com/marketplace"/>
+  </url>
+  <url>
+    <loc>https://www.myzubster.com/en/marketplace</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.myzubster.com/en/marketplace"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://www.myzubster.com/marketplace"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.myzubster.com/marketplace"/>
+  </url>
+  <url><loc>https://www.myzubster.com/en/research</loc></url>
   <url><loc>https://www.myzubster.com/come-funziona</loc></url>
   <url><loc>https://www.myzubster.com/onboarding</loc></url>
   <url><loc>https://www.myzubster.com/repositories</loc></url>
@@ -18,4 +42,5 @@
   <url><loc>https://www.myzubster.com/fumetto</loc></url>
   <url><loc>https://www.myzubster.com/darkode</loc></url>
   <url><loc>https://www.myzubster.com/apps</loc></url>
+  <url><loc>https://www.myzubster.com/btc-xmr-research-pilot</loc></url>
 </urlset>
