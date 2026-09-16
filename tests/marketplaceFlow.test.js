@@ -1,22 +1,27 @@
 const request = require('supertest');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
-const { MongoMemoryServer } = require('mongodb-memory-server');
+const { Wallet } = require('ethers');
+const { MongoMemoryReplSet } = require('mongodb-memory-server');
 
 process.env.NODE_ENV = 'test';
 process.env.JWT_SECRET = 'marketplace-test-secret';
+process.env.ADMIN_ACTIVITY_NOTIFICATIONS = 'false';
 
 const app = require('../server');
 const User = require('../src/models/User');
 const MarketplaceListing = require('../src/models/MarketplaceListing');
 const MarketplaceOrder = require('../src/models/MarketplaceOrder');
 const MarketplaceReview = require('../src/models/MarketplaceReview');
+const WalletLink = require('../src/models/WalletLink');
+const WalletChallenge = require('../src/models/WalletChallenge');
 
 let mongo;
 let buyer;
 let seller;
 let reporter;
 let moderator;
+let buyerWallet;
 
 function tokenFor(user) {
   return jwt.sign({ userId: String(user._id), username: user.username, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
@@ -26,8 +31,58 @@ async function makeUser(username, role = 'user') {
   return User.create({ username, email: `${username}@example.test`, password: 'test-password', role });
 }
 
+async function verifyWalletFor(user, wallet) {
+  const token = tokenFor(user);
+
+  const challenge = await request(app)
+    .post('/api/wallet/challenge')
+    .set('Authorization', `Bearer ${token}`)
+    .send({ walletAddress: wallet.address })
+    .expect(201);
+
+  const signature = await wallet.signMessage(challenge.body.message);
+
+  await request(app)
+    .post('/api/wallet/verify')
+    .set('Authorization', `Bearer ${token}`)
+    .send({
+      challengeId: challenge.body.challengeId,
+      signature
+    })
+    .expect(200);
+}
+
+async function createSignedRequest(user, wallet, listing, quantity = 1, note) {
+  const token = tokenFor(user);
+
+  const challenge = await request(app)
+    .post('/api/marketplace/orders/challenge')
+    .set('Authorization', `Bearer ${token}`)
+    .send({
+      listingId: String(listing._id),
+      quantity
+    })
+    .expect(201);
+
+  const signature = await wallet.signMessage(challenge.body.message);
+
+  return request(app)
+    .post('/api/marketplace/orders')
+    .set('Authorization', `Bearer ${token}`)
+    .send({
+      listingId: String(listing._id),
+      quantity,
+      ...(note ? { note } : {}),
+      challengeId: challenge.body.challengeId,
+      signature
+    })
+    .expect(201);
+}
+
 beforeAll(async () => {
-  mongo = await MongoMemoryServer.create();
+  mongo = await MongoMemoryReplSet.create({
+    replSet: { count: 1 }
+  });
   await mongoose.connect(mongo.getUri());
   [buyer, seller, reporter, moderator] = await Promise.all([
     makeUser('buyer'),
@@ -35,6 +90,9 @@ beforeAll(async () => {
     makeUser('reporter'),
     makeUser('moderator', 'moderator')
   ]);
+
+  buyerWallet = Wallet.createRandom();
+  await verifyWalletFor(buyer, buyerWallet);
 });
 
 afterAll(async () => {
@@ -55,11 +113,13 @@ test('listing → request → accept reserves stock → complete → review → 
     status: 'active'
   });
 
-  const requested = await request(app)
-    .post('/api/marketplace/orders')
-    .set('Authorization', `Bearer ${tokenFor(buyer)}`)
-    .send({ listingId: String(listing._id), quantity: 1, note: 'test request' })
-    .expect(201);
+  const requested = await createSignedRequest(
+    buyer,
+    buyerWallet,
+    listing,
+    1,
+    'test request'
+  );
 
   const orderId = requested.body.order._id;
 
@@ -118,11 +178,12 @@ test('cancelling an accepted request restores reserved stock', async () => {
     status: 'active'
   });
 
-  const requested = await request(app)
-    .post('/api/marketplace/orders')
-    .set('Authorization', `Bearer ${tokenFor(buyer)}`)
-    .send({ listingId: String(listing._id), quantity: 1 })
-    .expect(201);
+  const requested = await createSignedRequest(
+    buyer,
+    buyerWallet,
+    listing,
+    1
+  );
 
   const orderId = requested.body.order._id;
 
