@@ -1,5 +1,5 @@
 {
-  "version": "nicola_comics_participant_update_v3",
+  "version": "nicola_comics_participant_update_v4",
   "recordedAt": "2026-09-09",
   "participantPublicId": "nicolaususnicola-lgtm",
   "source": "participant_direct_email_confirmation",
@@ -62,14 +62,14 @@
     "Automated pytest tests were not run in the documented session because pytest was unavailable.",
     "No NFT mint, token ownership, marketplace listing, sale, revenue, partnership, funding, or commercial validation is claimed.",
     "The earlier shared-roadmap reference issue 1052 was inaccessible on 2026-09-09; issue 1176 is the current verified public-integration coordination issue.",
-    "The 2026-09-16 continuation confirmation does not authorize an NFT mint, blockchain transaction, listing, sale, or removal of the existing human-review and rights-verification gates."
+    "The 2026-09-16 continuation confirmation does not authorize an NFT mint, blockchain transaction, listing, sale, or removal of the existing human-review and rights-verification gates.",
+    "The verified public-pilot CI run proves the participant endpoint workflow at that run; it does not prove that the MyZubster public Zorgax bridge is deployed or that the full upstream end-to-end path has passed."
   ],
   "nextOperationalGate": [
-    "Assign a real HTTPS endpoint in a hosting environment separated from Nicola's PC.",
-    "Configure NICOLA_COMICS_BASE_URL in that environment without committing secrets.",
-    "Decide and configure least-privilege authentication and authorization.",
-    "Map Zorgax public intents to the read-only actions gallery, detail, candidate, and next_steps.",
-    "Run and document the public end-to-end test.",
+    "Review the bounded read-only upstream bridge in MyZubster pull request 1210.",
+    "Confirm the hosting authentication decision and configure any secret only in the deployment environment.",
+    "Deploy the reviewed bridge without exposing Nicola's PC or committing secrets.",
+    "Run and document the full public Zorgax end-to-end path in issue 1176.",
     "Keep rights TO_VERIFY and all on-chain fields empty until provenance, authorization, and any mint are independently verified."
   ],
   "updatedAt": "2026-09-16",
@@ -98,15 +98,38 @@
     }
   },
   "publicIntegration": {
-    "state": "PENDING",
+    "state": "PUBLIC_PILOT_VERIFIED_UPSTREAM_ZORGAX_PENDING",
     "adapterMode": "READ_ONLY",
     "localPcExposure": "PROHIBITED",
     "coordinationIssue": "https://github.com/MyZubster-Ecosystem/myzubster/issues/1176",
     "baseUrlConfiguration": "NICOLA_COMICS_BASE_URL",
-    "realHttpsEndpoint": "NOT_ASSIGNED",
+    "realHttpsEndpoint": "https://myzubster-mvp.onrender.com",
+    "publicPilotVerification": {
+      "status": "PASS_CI_VERIFIED",
+      "workflowRun": "https://github.com/nicolaususnicola-lgtm/myzubster-mvp/actions/runs/35106091555",
+      "commit": "d8070fd33febcf0fe1dc0c6c6613056df1e3bc61",
+      "workflowJobConclusion": "SUCCESS_VERIFIED",
+      "softwareTests": "PASS_WORKFLOW_STEP_VERIFIED",
+      "dockerVerification": "PASS_WORKFLOW_STEP_VERIFIED",
+      "publicActions": {
+        "gallery": "PASS_WORKFLOW_STEP_VERIFIED",
+        "detail": "PASS_WORKFLOW_STEP_VERIFIED",
+        "candidate": "PASS_WORKFLOW_STEP_VERIFIED",
+        "next_steps": "PASS_WORKFLOW_STEP_VERIFIED"
+      }
+    },
+    "upstreamBridge": {
+      "participantProposalBranch": "nicolaususnicola-lgtm/myzubster-mvp:feat/upstream-zorgax-bridge-proposal",
+      "participantProposalCommits": [
+        "c58310e3edb2deeb5642d97556e5921bb9f599bc",
+        "8eeefa285fc73b0f7c57f8c2ec4ba0cf6371ad95"
+      ],
+      "maintainerPullRequest": "https://github.com/MyZubster-Ecosystem/myzubster/pull/1210",
+      "state": "DRAFT_REVIEW_REQUIRED"
+    },
     "authentication": "NOT_DECIDED",
-    "zorgaxPublicMapping": "NOT_CONFIGURED",
-    "publicEndToEndTest": "NOT_RUN"
+    "zorgaxPublicMapping": "PR_PREPARED_NOT_DEPLOYED",
+    "publicEndToEndTest": "PENDING_UPSTREAM_DEPLOYMENT"
   },
   "participantContinuation": {
     "confirmedAt": "2026-09-16",
