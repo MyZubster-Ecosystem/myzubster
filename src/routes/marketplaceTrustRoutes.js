@@ -8,6 +8,21 @@ const MarketplaceReport = require('../models/MarketplaceReport');
 const MarketplaceReview = require('../models/MarketplaceReview');
 const MarketplaceMessage = require('../models/MarketplaceMessage');
 const { authenticate } = require('../middleware/auth');
+const { notifyAdminActivity } = require('../services/adminActivityNotificationService');
+const WalletLink = require('../models/WalletLink');
+const WalletChallenge = require('../models/WalletChallenge');
+const { createNonce } = require('../services/walletSignatureService');
+const {
+  hashPayload,
+  buildMarketplaceRequestMessage,
+  verifyMarketplaceRequest
+} = require('../services/marketplaceWalletRequestService');
+const {
+  consumeMarketplaceChallenge
+} = require('../services/walletChallengeConsumptionService');
+const {
+  createSignedMarketplaceOrderTransaction
+} = require('../services/marketplaceSignedOrderTransactionService');
 
 const mutationLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 40, standardHeaders: true, legacyHeaders: false, message: { success: false, message: 'Troppe operazioni Marketplace. Riprova tra poco.' } });
 const messageLimiter = rateLimit({ windowMs: 60 * 1000, max: 12, standardHeaders: true, legacyHeaders: false, message: { success: false, message: 'Troppi messaggi. Attendi un minuto.' } });
@@ -26,18 +41,310 @@ async function participantOrder(orderId, userId) {
   return order;
 }
 
+router.post('/orders/challenge', authenticate, mutationLimiter, async (req, res) => {
+  try {
+    const listing = await MarketplaceListing.findOne({
+      _id: req.body?.listingId,
+      status: 'active'
+    });
+
+    if (!listing) {
+      return res.status(404).json({
+        success: false,
+        code: 'LISTING_NOT_AVAILABLE',
+        message: 'Annuncio non disponibile'
+      });
+    }
+
+    if (String(listing.ownerId) === String(req.userId)) {
+      return res.status(400).json({
+        success: false,
+        code: 'SELF_REQUEST_NOT_ALLOWED',
+        message: 'Non puoi richiedere il tuo stesso annuncio'
+      });
+    }
+
+    const quantity = Math.max(
+      1,
+      Math.min(1000, Number(req.body?.quantity) || 1)
+    );
+
+    if (listing.stock < quantity) {
+      return res.status(400).json({
+        success: false,
+        code: 'INSUFFICIENT_STOCK',
+        message: 'Quantità superiore alla disponibilità'
+      });
+    }
+
+    const wallet = await WalletLink.findOne({
+      userId: req.userId,
+      status: 'VERIFIED'
+    }).sort({ lastVerifiedAt: -1 });
+
+    if (!wallet) {
+      return res.status(409).json({
+        success: false,
+        code: 'WALLET_VERIFICATION_REQUIRED',
+        message: 'Collega e verifica un wallet prima di firmare la richiesta'
+      });
+    }
+
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + 5 * 60 * 1000);
+    const nonce = createNonce();
+
+    const payload = {
+      schema: 'MYZUBSTER_MARKETPLACE_REQUEST_V2',
+      intent: 'MARKETPLACE_REQUEST',
+      listingId: String(listing._id),
+      quantity,
+      buyerId: String(req.userId),
+      walletAddress: wallet.walletAddress,
+      listingSnapshot: {
+        price: Number(listing.price),
+        currency: String(listing.currency || ''),
+        exchangeMode: String(listing.exchangeMode || '')
+      },
+      nonce,
+      issuedAt: now.toISOString(),
+      expiresAt: expiresAt.toISOString()
+    };
+
+    const payloadHash = hashPayload(payload);
+    const message = buildMarketplaceRequestMessage(payload);
+
+    const challenge = await WalletChallenge.create({
+      userId: req.userId,
+      walletAddress: wallet.walletAddress,
+      nonce,
+      action: 'MARKETPLACE_REQUEST',
+      message,
+      payload,
+      payloadHash,
+      expiresAt
+    });
+
+    return res.status(201).json({
+      success: true,
+      challengeId: challenge._id,
+      payload,
+      payloadHash,
+      message,
+      expiresAt
+    });
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      code: 'MARKETPLACE_CHALLENGE_FAILED',
+      message: 'Impossibile creare la richiesta da firmare'
+    });
+  }
+});
+
 router.post('/orders', authenticate, mutationLimiter, async (req, res) => {
   try {
-    const listing = await MarketplaceListing.findOne({ _id: req.body?.listingId, status: 'active' });
-    if (!listing) return res.status(404).json({ success: false, message: 'Annuncio non disponibile' });
-    if (String(listing.ownerId) === String(req.userId)) return res.status(400).json({ success: false, message: 'Non puoi richiedere il tuo stesso annuncio' });
-    const quantity = Math.max(1, Math.min(1000, Number(req.body?.quantity) || 1));
-    if (listing.stock < quantity) return res.status(400).json({ success: false, message: 'Quantità superiore alla disponibilità' });
-    const recentDuplicate = await MarketplaceOrder.findOne({ listingId: listing._id, buyerId: req.userId, status: { $in: ['REQUESTED','ACCEPTED'] } });
-    if (recentDuplicate) return res.status(409).json({ success: false, message: 'Hai già una richiesta aperta per questo annuncio' });
-    const order = await MarketplaceOrder.create({ listingId: listing._id, buyerId: req.userId, sellerId: listing.ownerId, quantity, note: String(req.body?.note || '').trim(), snapshot: { title: listing.title, price: listing.price, currency: listing.currency, exchangeMode: listing.exchangeMode } });
-    res.status(201).json({ success: true, order });
-  } catch (error) { res.status(400).json({ success: false, message: error.message || 'Richiesta non creata' }); }
+    const listing = await MarketplaceListing.findOne({
+      _id: req.body?.listingId,
+      status: 'active'
+    });
+
+    if (!listing) {
+      return res.status(404).json({
+        success: false,
+        message: 'Annuncio non disponibile'
+      });
+    }
+
+    if (String(listing.ownerId) === String(req.userId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Non puoi richiedere il tuo stesso annuncio'
+      });
+    }
+
+    const quantity = Math.max(
+      1,
+      Math.min(1000, Number(req.body?.quantity) || 1)
+    );
+
+    if (listing.stock < quantity) {
+      return res.status(400).json({
+        success: false,
+        message: 'Quantità superiore alla disponibilità'
+      });
+    }
+
+    const recentDuplicate = await MarketplaceOrder.findOne({
+      listingId: listing._id,
+      buyerId: req.userId,
+      status: { $in: ['REQUESTED', 'ACCEPTED'] }
+    });
+
+    if (recentDuplicate) {
+      return res.status(409).json({
+        success: false,
+        message: 'Hai già una richiesta aperta per questo annuncio'
+      });
+    }
+
+    const challenge = await WalletChallenge.findOne({
+      _id: req.body?.challengeId,
+      userId: req.userId,
+      action: 'MARKETPLACE_REQUEST'
+    });
+
+    if (!challenge) {
+      return res.status(404).json({
+        success: false,
+        code: 'MARKETPLACE_CHALLENGE_NOT_FOUND'
+      });
+    }
+
+    if (challenge.usedAt) {
+      return res.status(409).json({
+        success: false,
+        code: 'MARKETPLACE_CHALLENGE_ALREADY_USED'
+      });
+    }
+
+    if (challenge.expiresAt.getTime() <= Date.now()) {
+      return res.status(410).json({
+        success: false,
+        code: 'MARKETPLACE_CHALLENGE_EXPIRED'
+      });
+    }
+
+    const payload = challenge.payload || {};
+
+    if (
+      payload.schema !== 'MYZUBSTER_MARKETPLACE_REQUEST_V2' ||
+      payload.intent !== 'MARKETPLACE_REQUEST'
+    ) {
+      return res.status(409).json({
+        success: false,
+        code: 'MARKETPLACE_CHALLENGE_VERSION_UNSUPPORTED'
+      });
+    }
+
+    if (
+      String(payload.listingId) !== String(listing._id) ||
+      Number(payload.quantity) !== quantity ||
+      String(payload.buyerId) !== String(req.userId)
+    ) {
+      return res.status(400).json({
+        success: false,
+        code: 'MARKETPLACE_CHALLENGE_PAYLOAD_MISMATCH'
+      });
+    }
+
+    const signedSnapshot = payload.listingSnapshot || {};
+
+    const listingEconomicsChanged =
+      Number(signedSnapshot.price) !== Number(listing.price) ||
+      String(signedSnapshot.currency || '') !== String(listing.currency || '') ||
+      String(signedSnapshot.exchangeMode || '') !== String(listing.exchangeMode || '');
+
+    if (listingEconomicsChanged) {
+      return res.status(409).json({
+        success: false,
+        code: 'MARKETPLACE_LISTING_CHANGED',
+        message: 'Le condizioni dell’annuncio sono cambiate. Genera una nuova richiesta da firmare.'
+      });
+    }
+
+    const calculatedHash = hashPayload(payload);
+
+    if (calculatedHash !== challenge.payloadHash) {
+      return res.status(400).json({
+        success: false,
+        code: 'MARKETPLACE_CHALLENGE_HASH_MISMATCH'
+      });
+    }
+
+    const expectedMessage = buildMarketplaceRequestMessage(payload);
+
+    if (expectedMessage !== challenge.message) {
+      return res.status(400).json({
+        success: false,
+        code: 'MARKETPLACE_CHALLENGE_MESSAGE_MISMATCH'
+      });
+    }
+
+    const recovered = verifyMarketplaceRequest(
+      expectedMessage,
+      req.body?.signature
+    );
+
+    if (recovered !== String(challenge.walletAddress).toLowerCase()) {
+      return res.status(401).json({
+        success: false,
+        code: 'MARKETPLACE_SIGNATURE_MISMATCH'
+      });
+    }
+
+    const wallet = await WalletLink.findOne({
+      userId: req.userId,
+      walletAddress: recovered,
+      status: 'VERIFIED'
+    });
+
+    if (!wallet) {
+      return res.status(409).json({
+        success: false,
+        code: 'WALLET_NOT_VERIFIED'
+      });
+    }
+
+    const consumedAt = new Date();
+    let order;
+
+    try {
+      order = await createSignedMarketplaceOrderTransaction({
+        mongoose,
+        WalletChallenge,
+        MarketplaceOrder,
+        consumeMarketplaceChallenge,
+        challenge,
+        userId: req.userId,
+        listing,
+        quantity,
+        note: String(req.body?.note || '').trim(),
+        recovered,
+        signature: req.body.signature,
+        consumedAt
+      });
+    } catch (error) {
+      if (error.code === 'MARKETPLACE_CHALLENGE_NOT_CONSUMABLE') {
+        return res.status(409).json({
+          success: false,
+          code: 'MARKETPLACE_CHALLENGE_NOT_CONSUMABLE'
+        });
+      }
+      throw error;
+    }
+
+    // External side effect only after MongoDB committed successfully.
+    void notifyAdminActivity('marketplace_request', {
+      orderId: order._id,
+      listingId: order.listingId,
+      buyerId: order.buyerId,
+      sellerId: order.sellerId,
+      title: order.snapshot?.title,
+      quantity: order.quantity,
+      note: order.note
+    });
+
+    return res.status(201).json({
+      success: true,
+      order
+    });
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      message: error.message || 'Richiesta non creata'
+    });
+  }
 });
 
 router.get('/orders/mine', authenticate, async (req, res) => {

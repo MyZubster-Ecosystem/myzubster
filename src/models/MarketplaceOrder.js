@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const { notifyAdminActivity } = require('../services/adminActivityNotificationService');
 const { createMarketplaceEvidence } = require('../services/marketplaceEvidenceService');
 
 const marketplaceOrderSchema = new mongoose.Schema({
@@ -11,6 +10,20 @@ const marketplaceOrderSchema = new mongoose.Schema({
   status: { type: String, enum: ['REQUESTED','ACCEPTED','REJECTED','COMPLETED','CANCELLED'], default: 'REQUESTED', index: true },
   snapshot: { title: { type: String, required: true }, price: { type: Number, default: 0 }, currency: { type: String, required: true }, exchangeMode: { type: String, required: true } },
   acceptedAt: Date, rejectedAt: Date, completedAt: Date, cancelledAt: Date,
+  walletEvidence: {
+    status: {
+      type: String,
+      enum: ['NOT_REQUIRED', 'SIGNED', 'VERIFIED', 'FAILED'],
+      default: 'NOT_REQUIRED'
+    },
+    walletAddress: { type: String, trim: true, lowercase: true },
+    networkFamily: { type: String, enum: ['EVM'] },
+    signature: { type: String, select: false },
+    payloadHash: { type: String, index: true },
+    challengeId: { type: mongoose.Schema.Types.ObjectId, ref: 'WalletChallenge' },
+    signedAt: Date,
+    verifiedAt: Date
+  },
   evidence: {
     schema: { type: String },
     payload: { type: mongoose.Schema.Types.Mixed },
@@ -31,11 +44,6 @@ const marketplaceOrderSchema = new mongoose.Schema({
 
 marketplaceOrderSchema.index({ buyerId: 1, createdAt: -1 });
 marketplaceOrderSchema.index({ sellerId: 1, createdAt: -1 });
-marketplaceOrderSchema.post('save', function notifyNewMarketplaceRequest(order) {
-  if (!order.createdAt || Math.abs(Date.now() - new Date(order.createdAt).getTime()) > 15000 || order.status !== 'REQUESTED') return;
-  void notifyAdminActivity('marketplace_request', { orderId: order._id, listingId: order.listingId, buyerId: order.buyerId, sellerId: order.sellerId, title: order.snapshot?.title, quantity: order.quantity, note: order.note });
-});
-
 marketplaceOrderSchema.post('save', async function ensureMarketplaceEvidence(order) {
   if (order.status !== 'COMPLETED' || order.evidence?.hash) return;
   try {
