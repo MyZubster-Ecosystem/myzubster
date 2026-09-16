@@ -24,4 +24,9 @@ describe('marketplace category mapping', () => {
       'internship'
     ].forEach(category => expect(routes).toContain(`'${category}'`));
   });
+
+  test('the mapping regression remains covered by the preview build', () => {
+    expect(assistant).toContain('event_support');
+    expect(routes).toContain('ALLOWED_CATEGORIES');
+  });
 });
