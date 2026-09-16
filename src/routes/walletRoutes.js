@@ -11,6 +11,9 @@ const {
   buildLinkMessage,
   recoverAddress
 } = require('../services/walletSignatureService');
+const {
+  consumeLinkWalletChallenge
+} = require('../services/walletChallengeConsumptionService');
 
 const CHALLENGE_TTL_MS = 5 * 60 * 1000;
 
@@ -99,14 +102,27 @@ router.post('/verify', authenticate, async (req, res) => {
 
     const existingOwner = await WalletLink.findOne({
       walletAddress: recovered,
-      userId: { $ne: req.userId },
-      status: 'VERIFIED'
+      userId: { $ne: req.userId }
     });
 
     if (existingOwner) {
       return res.status(409).json({
         success: false,
         code: 'WALLET_ALREADY_LINKED'
+      });
+    }
+
+    const consumedChallenge = await consumeLinkWalletChallenge({
+      WalletChallenge,
+      challengeId: challenge._id,
+      userId: req.userId,
+      now
+    });
+
+    if (!consumedChallenge) {
+      return res.status(409).json({
+        success: false,
+        code: 'WALLET_CHALLENGE_NOT_CONSUMABLE'
       });
     }
 
@@ -132,9 +148,6 @@ router.post('/verify', authenticate, async (req, res) => {
         runValidators: true
       }
     );
-
-    challenge.usedAt = now;
-    await challenge.save();
 
     return res.json({
       success: true,
