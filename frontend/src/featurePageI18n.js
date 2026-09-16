@@ -41,10 +41,12 @@ function addLanguageSwitcher(lang) {
   if (window.location.pathname === '/' || document.getElementById('myz-global-language')) return;
   const wrap = document.createElement('div');
   wrap.id = 'myz-global-language';
-  wrap.style.cssText = 'position:fixed;top:10px;right:10px;z-index:10000;background:#0f172acc;border:1px solid #64748b;border-radius:10px;padding:6px;backdrop-filter:blur(8px)';
+  // Keep the global language control away from the top-right close button used
+  // by demo/detail popups. On narrow screens it sits below the popup header.
+  wrap.style.cssText = 'position:fixed;top:72px;right:12px;z-index:9000;background:#0f172acc;border:1px solid #64748b;border-radius:10px;padding:6px;backdrop-filter:blur(8px);max-width:calc(100vw - 24px)';
   const select = document.createElement('select');
   select.setAttribute('aria-label', 'Language');
-  select.style.cssText = 'background:#0f172a;color:#fff;border:1px solid #64748b;border-radius:7px;padding:7px;font-weight:700';
+  select.style.cssText = 'background:#0f172a;color:#fff;border:1px solid #64748b;border-radius:7px;padding:9px 34px 9px 10px;font-weight:700;min-height:44px;max-width:100%';
   Object.entries(LANGUAGE_NAMES).forEach(([code, name]) => {
     const option = document.createElement('option');
     option.value = code;
