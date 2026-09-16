@@ -3,47 +3,39 @@
 const fs = require('fs');
 const path = require('path');
 
-describe('Marketplace seller checkout UI', () => {
+describe('Marketplace free-first Seller UI', () => {
   const page = fs.readFileSync(path.join(__dirname, '../frontend/src/pages/MarketplacePage.js'), 'utf8');
 
-  test('sends the MyZubster bearer token to seller checkout', () => {
+  test('sends the MyZubster bearer token to free Seller activation', () => {
     expect(page).toContain("localStorage.getItem('myzubster-token')");
     expect(page).toContain('Authorization: `Bearer ${token}`');
-    expect(page).toContain("apiAction('/api/marketplace/seller/checkout',{})");
+    expect(page).toContain("apiAction('/api/marketplace/seller/subscribe',{})");
+    expect(page).not.toContain("apiAction('/api/marketplace/seller/checkout',{})");
   });
 
   test('redirects unauthenticated or expired sessions to login and returns to marketplace', () => {
     expect(page).toContain("window.location.assign(`/social-login?returnTo=${encodeURIComponent(returnTo)}`)");
-    expect(page).toContain('if (e.status === 401)');
+    expect(page).toContain('if(e.status===401)');
     expect(page).toContain("localStorage.removeItem('myzubster-token')");
   });
 
-  test('opens Stripe Checkout when the backend returns a checkout URL', () => {
-    expect(page).toContain('window.location.assign(payload.checkoutUrl)');
+  test('does not redirect initial Seller activation to Stripe Checkout', () => {
+    expect(page).not.toContain('window.location.assign(payload.checkoutUrl)');
+    expect(page).toContain("activate:'Diventa Seller gratis'");
+    expect(page).toContain("activating:'Attivazione gratuita del profilo Seller…'");
   });
 
-  test('supports an explicitly configured Seller trial with transparent renewal terms', () => {
-    expect(page).toContain("activateTrial:'Inizia {days} giorni gratis'");
-    expect(page).toContain("trialTerms:'Per i nuovi Seller idonei: nessun addebito per {days} giorni, poi 9,90 €/mese.");
-    expect(page).toContain("cohort:'Cohort Founding Seller'");
-  });
-
-  test('explains the 30-day Seller trial and preserves the free account on cancellation', () => {
-    expect(page).toContain("Stripe richiede un metodo di pagamento, ma oggi non addebita nulla");
-    expect(page).toContain("Dal {nextDay}° giorno: 9,90 €/mese");
-    expect(page).toContain("Il tuo account MyZubster resta sempre gratuito");
-    expect(page).toContain("apiAction('/api/marketplace/seller/cancel',{})");
-    expect(page).toContain("Non continuare dopo il mese gratuito");
-  });
-
-  test('tracks a cancelled Stripe Checkout return', () => {
-    expect(page).toContain("params.get('seller')==='cancelled'");
-    expect(page).toContain("trackConversionOnce('seller_checkout_return_cancelled'");
+  test('explains earnings-first monetization and the 2 percent commission', () => {
+    expect(page).toContain('Pubblica gratis. L’onboarding dei pagamenti parte solo al primo incasso reale');
+    expect(page).toContain('Commissione MyZubster sulle transazioni pagate idonee: 2%');
+    expect(page).toContain('Seller attivato gratis. Pubblica ora; configuri i pagamenti solo quando inizi a guadagnare.');
+    expect(page).not.toContain('30 giorni gratis');
+    expect(page).not.toContain('9,90 €/mese');
   });
 
   test('shows clearly labelled demo sellers without creating fake accounts or payments', () => {
     expect(page).toContain("const DEMO_SELLERS=[");
-    expect(page).toContain("demoNote:'Profili dimostrativi: non sono persone reali e non accettano ordini o pagamenti.'");
+    expect(page).toContain("demoNote:'Profili dimostrativi interattivi. Gli annunci demo sono contenuti di esempio e non creano transazioni reali.'");
     expect(page).toContain("id:'demo-kefir'");
     expect(page).toContain("id:'demo-repair'");
     expect(page).toContain("id:'demo-seeds'");
@@ -57,7 +49,7 @@ describe('Marketplace seller checkout UI', () => {
     expect(page).toContain("id:'demo-dj-package'");
     expect(page).toContain("id:'demo-event-machines'");
     expect(page).toContain("'clothing','accessories','event_equipment'");
-    expect(page.indexOf('DEMO_SELLERS.map')).toBeLessThan(page.indexOf('listings.map'));
+    expect(page.indexOf('filteredDemos.map')).toBeLessThan(page.indexOf('listings.map'));
   });
 
   test('maps every event demo popup to an uploaded visual', () => {
