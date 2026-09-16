@@ -82,6 +82,8 @@ The first validation period is seven days of real use. GO / CHANGE / STOP criter
 
 Status updated on **2026-09-15**: `LOCAL_HTTP_MANUAL_PASS_PARTICIPANT_REPORTED; PUBLIC_INTEGRATION_PENDING`.
 
+On **2026-09-16**, Nicola confirmed participation in the MyZubster LIFE meeting scheduled for **2026-09-22, 10:30–11:30**, and confirmed that he wants to continue the Nicola Comics × MyZubster pilot, including preparatory work on the first NFT candidate. This is a participant-confirmed next-step decision, not authorization to mint, execute a blockchain transaction, list or sell an asset, or bypass rights verification and human review.
+
 Nicola directly reported creating three narrative visuals with AI assistance, using the N4K48 appearance he selected, to describe the path from a software idea to the MyZubster metaverse. The public gallery and files are present in his repository:
 
 1. [Dall’idea software al metaverso](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/blob/main/docs/n4k48-comics/01-dall-idea-al-metaverso.png) — `n4k48-comic-001`
