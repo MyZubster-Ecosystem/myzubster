@@ -3,7 +3,7 @@ import { mountZorgaxGlobalAssistant } from './components/ZorgaxGlobalMount';
 
 const TEXT = {
   en: {
-    'Entra nel mondo':'Enter the world','personaggio creato':'character created','personaggi creati':'characters created','Il tuo nome pubblico':'Your public name','Come vuoi farti chiamare?':'What should we call you?','Ingresso…':'Entering…','Entra con il tuo account':'Enter with your account','Entra come ospite':'Enter as guest','Cambia personaggio':'Change character','VERIFICATO':'VERIFIED','ESPLORATORI VERIFICATI':'VERIFIED EXPLORERS','Accedi per usare un personaggio verificato.':'Sign in to use a verified character.','Sessione autenticata':'Authenticated session','Demo guidata':'Guided demo','Le azioni usano le API pilot reali.':'Actions use the real pilot APIs.','Nessun dato viene scritto nel backend.':'No data is written to the backend.','Accedi per modalità live':'Sign in for live mode','Percorso pilot':'Pilot journey','Onboarding':'Onboarding','Idee':'Ideas','Scelta':'Selection','Validazione':'Validation','Lancio':'Launch','Misurazione':'Measurement','Operazione completata. Nessuna pubblicazione o spesa automatica eseguita.':'Operation completed. No automatic publishing or spending was performed.',
+    'Entra nel mondo':'Enter the world','personaggio creato':'character created','personaggi creati':'characters created','Il tuo nome pubblico':'Your public name','Come vuoi farti chiamare?':'What should we call you?','Ingresso…':'Entering…','Entra con il tuo account':'Enter with your account','Entra come ospite':'Enter as guest','Cambia personaggio':'Change character','VERIFICATO':'VERIFIED','ESPLORATORI VERIFICATI':'VERIFIED EXPLORERS','Accedi per usare un personaggio verificato.':'Sign in to use a verified character.','Sessione autenticata':'Authenticated session','Demo guidata':'Guided demo','Le azioni usano le API pilot reali.':'Actions use the real pilot APIs.','Nessun dato viene scritto nel backend.':'No data is written in the backend.','Accedi per modalità live':'Sign in for live mode','Percorso pilot':'Pilot journey','Onboarding':'Onboarding','Idee':'Ideas','Scelta':'Selection','Validazione':'Validation','Lancio':'Launch','Misurazione':'Measurement','Operazione completata. Nessuna pubblicazione o spesa automatica eseguita.':'Operation completed. No automatic publishing or spending was performed.',
     'Prova subito Neon Plaza senza registrazione: crea un personaggio ospite, incontra Zorgax e completa la prima missione.':'Try Neon Plaza now without registering: create a guest character, meet Zorgax and complete your first mission.','🪐 Entra nella Neon Plaza — prova senza registrarti':'🪐 Enter Neon Plaza — try it without signing up','🚀 Crea il profilo e salva i progressi':'🚀 Create a profile and save your progress','🌱 Proponi un pilot':'🌱 Propose a pilot','✉️ Contatta MyZubster':'✉️ Contact MyZubster','Nessun wallet, visore VR o installazione richiesti.':'No wallet, VR headset or installation required.','📖 La nuova storia MyZubster':'📖 The new MyZubster story','Leggi il fumetto completo →':'Read the full comic →','MYZUBSTER · SCEGLI IL TUO PERCORSO':'MYZUBSTER · CHOOSE YOUR PATH','Da dove vuoi iniziare?':'Where do you want to start?','Puoi parlare con Zorgax, entrare nel Metaverso oppure esplorare il sito e i progetti. Scegli una direzione: non serve conoscere tutto in anticipo.':'Talk to Zorgax, enter the Metaverse, or explore the site and projects. Choose a direction — you do not need to understand everything in advance.','Parla con il copilota e trova il percorso giusto.':'Talk to the copilot and find the right path.','Entra nella Neon Plaza e crea il tuo personaggio.':'Enter Neon Plaza and create your character.','🌍 Sito e progetti':'🌍 Site and projects','Esplora orti, repository, fumetto e community.':'Explore gardens, repositories, comics and the community.','Scopri pilot ambientali, attività e opportunità concrete.':'Discover environmental pilots, activities and concrete opportunities.','Apri →':'Open →','Darkode · storia':'Darkode · story','Inizia con un piccolo contributo, prova un’utilità concreta':'Start with a small contribution and try a concrete utility'
   },
   es: {
@@ -38,7 +38,7 @@ function translateNode(root, dictionary) {
 }
 
 function addLanguageSwitcher(lang) {
-  if (window.location.pathname === '/' || document.getElementById('myz-global-language')) return;
+  if (window.location.pathname === '/' || window.location.pathname === '/marketplace' || document.getElementById('myz-global-language')) return;
   const wrap = document.createElement('div');
   wrap.id = 'myz-global-language';
   // Keep the global language control away from the top-right close button used
@@ -65,9 +65,9 @@ function addLanguageSwitcher(lang) {
 export function startFeaturePageI18n() {
   if (typeof window === 'undefined' || typeof document === 'undefined') return;
   const path = window.location.pathname.replace(/\/+$/, '') || '/';
-  // App.js already owns the Zorgax launcher on the main React routes. Mount the
-  // global assistant only on feature routes where that launcher is absent.
-  const appOwnedZorgaxPaths = new Set(['/', '/marketplace', '/metaverse', '/life-pilot', '/zorgax/life-pilot', '/social-login', '/social-login.html', '/apps']);
+  // App.js owns the Zorgax launcher on the main React routes except Marketplace,
+  // where the shared global assistant provides contextual help.
+  const appOwnedZorgaxPaths = new Set(['/', '/metaverse', '/life-pilot', '/zorgax/life-pilot', '/social-login', '/social-login.html', '/apps']);
   if (!appOwnedZorgaxPaths.has(path) && !path.startsWith('/metaverse/rooms/')) {
     mountZorgaxGlobalAssistant();
   }
