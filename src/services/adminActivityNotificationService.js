@@ -12,6 +12,7 @@ async function notifyAdminActivity(type, details = {}) {
 
   const labels = {
     registration: 'Nuovo utente registrato',
+    seller_activated: 'Nuovo Seller attivato',
     listing: 'Nuovo annuncio Marketplace',
     marketplace_request: 'Nuova richiesta Marketplace',
     marketplace_message: 'Nuovo contatto Marketplace'
