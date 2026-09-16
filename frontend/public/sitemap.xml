@@ -24,7 +24,18 @@
     <xhtml:link rel="alternate" hreflang="it" href="https://www.myzubster.com/marketplace"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://www.myzubster.com/marketplace"/>
   </url>
-  <url><loc>https://www.myzubster.com/en/research</loc></url>
+  <url>
+    <loc>https://www.myzubster.com/community</loc>
+    <xhtml:link rel="alternate" hreflang="it" href="https://www.myzubster.com/community"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.myzubster.com/en/research"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.myzubster.com/community"/>
+  </url>
+  <url>
+    <loc>https://www.myzubster.com/en/research</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.myzubster.com/en/research"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://www.myzubster.com/community"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.myzubster.com/community"/>
+  </url>
   <url><loc>https://www.myzubster.com/come-funziona</loc></url>
   <url><loc>https://www.myzubster.com/onboarding</loc></url>
   <url><loc>https://www.myzubster.com/repositories</loc></url>
@@ -38,7 +49,6 @@
   <url><loc>https://www.myzubster.com/press</loc></url>
   <url><loc>https://www.myzubster.com/zorgax</loc></url>
   <url><loc>https://www.myzubster.com/metaverse</loc></url>
-  <url><loc>https://www.myzubster.com/community</loc></url>
   <url><loc>https://www.myzubster.com/fumetto</loc></url>
   <url><loc>https://www.myzubster.com/darkode</loc></url>
   <url><loc>https://www.myzubster.com/apps</loc></url>
