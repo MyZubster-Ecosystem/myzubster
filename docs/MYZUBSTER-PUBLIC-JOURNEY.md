@@ -1,6 +1,6 @@
-# MyZubster Public Connected Journey
+# MyZubster — Public Connected Journey
 
-This document is the canonical public map connecting the MyZubster website, Marketplace, real-world handovers, evidence commitments, Knowledge Protocol, research pathways and the Comic Universe.
+This page connects the currently evidenced MyZubster journey from community discovery to Marketplace exchange, payment boundaries, kefir handover evidence, public knowledge, research and visual storytelling.
 
 <p align="center">
   <a href="https://www.myzubster.com/fumetto"><img src="https://raw.githubusercontent.com/MyZubster-Ecosystem/myzubster/main/public/comics/community/MyZubster-Community-Zorgax-Guide.jpg" alt="MyZubster Community and Zorgax visual guide" width="92%"></a>
@@ -81,10 +81,12 @@ Blockchain commitment evidence:
 - Confirmed: `2026-09-17T08:57:18.000Z`
 - Explorer: https://sepolia.basescan.org/tx/0x998a98b1733312e248f74a1387319dae30aab8123a6115c517e4ffe0ef9584bf
 
-The independent verifier in the core repository reproduced the exact v1 commitment and returned `MATCH` for the confirmed transaction.
+The independent verifier in the core repository reproduced the exact v1 commitment from the handover record and matched it against transaction calldata `MZ-HANDOVER-V1:<hash>` with `VERIFY_EXIT=0`.
 
-- KF-006 record: https://github.com/DanielIoni-creator/Myzubster-fermentation-kefir/blob/main/knowledge/KF-006-NICOLA-PILOT.md
+Important boundary: the blockchain proves integrity/timestamp evidence for the commitment. It does **not** independently prove the physical event, participant identity, food safety, microbiology, health effects, successful fermentation, learning or scientific validity.
+
 - Kefir repository: https://github.com/DanielIoni-creator/Myzubster-fermentation-kefir
+- KF-006 evidence: https://github.com/DanielIoni-creator/Myzubster-fermentation-kefir/blob/main/knowledge/KF-006-NICOLA-PILOT.md
 - Nicola profile: https://github.com/DanielIoni-creator/Nicola
 - Verifier source: https://github.com/MyZubster-Ecosystem/myzubster/blob/main/scripts/verify-handover-commitment.js
 
