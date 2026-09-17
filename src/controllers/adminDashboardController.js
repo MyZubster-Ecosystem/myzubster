@@ -2,10 +2,9 @@ const mongoose = require('mongoose');
 const User = require('../models/User');
 const SellerMembership = require('../models/SellerMembership');
 const Dashboard = require('../models/dashboardModel');
-const Wallet = require('../models/walletModel');
 
 // #218: Admin Dashboard - Monitoraggio Lavori e Pagamenti
-// Uses existing models (Dashboard, Wallet, Escrow, Dispute, etc.)
+// Dashboard is the project's registered balance/transaction ledger model.
 
 // Get system overview
 exports.getOverview = async (req, res) => {
@@ -14,17 +13,16 @@ exports.getOverview = async (req, res) => {
       User.countDocuments(),
       SellerMembership.countDocuments(),
       SellerMembership.countDocuments({ status: 'ACTIVE' }),
-      Wallet.countDocuments()
+      Dashboard.countDocuments()
     ]);
     const dashboard = await Dashboard.aggregate([{$group: {_id: null, totalMYZ: {$sum: '$balanceMYZ'}, totalXMR: {$sum: '$balanceXMR'}}}]);
-    const wallets = await Wallet.aggregate([{$group: {_id: null, totalMYZ: {$sum: '$balanceMYZ'}, totalXMR: {$sum: '$balanceXMR'}}}]);
     res.json({
       totalUsers,
       totalSellers,
       activeSellers,
       totalWallets,
-      totalMYZInCirculation: (dashboard[0]?.totalMYZ || 0) + (wallets[0]?.totalMYZ || 0),
-      totalXMRInCirculation: (dashboard[0]?.totalXMR || 0) + (wallets[0]?.totalXMR || 0)
+      totalMYZInCirculation: dashboard[0]?.totalMYZ || 0,
+      totalXMRInCirculation: dashboard[0]?.totalXMR || 0
     });
   } catch (e) { res.status(500).json({ error: e.message }); }
 };
@@ -32,8 +30,8 @@ exports.getOverview = async (req, res) => {
 // Get payment monitoring
 exports.getPaymentMonitoring = async (req, res) => {
   try {
-    const wallets = await Wallet.find({});
-    const allTxs = wallets.flatMap(w => w.transactions);
+    const dashboards = await Dashboard.find({});
+    const allTxs = dashboards.flatMap(d => d.transactions || []);
     const today = new Date().toISOString().slice(0,10);
     const todayTxs = allTxs.filter(t => new Date(t.timestamp).toISOString().slice(0,10) === today);
     const pending = allTxs.filter(t => t.status === 'pending');
