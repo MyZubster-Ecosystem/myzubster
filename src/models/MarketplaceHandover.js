@@ -14,7 +14,17 @@ const marketplaceHandoverSchema = new mongoose.Schema({
   acceptedAt: { type: Date, default: Date.now },
   handedOverAt: { type: Date, default: null },
   receivedAt: { type: Date, default: null },
-  recordedAt: { type: Date, default: null }
+  recordedAt: { type: Date, default: null },
+  blockchainCommitment: {
+    schema: { type: String, default: null },
+    algorithm: { type: String, default: null },
+    hash: { type: String, default: null },
+    preparedAt: { type: Date, default: null },
+    network: { type: String, default: null },
+    txId: { type: String, default: null },
+    anchoredAt: { type: Date, default: null },
+    confirmedAt: { type: Date, default: null }
+  }
 }, { timestamps: true });
 
 marketplaceHandoverSchema.index({ listingId: 1, recipientId: 1 }, { unique: true });
