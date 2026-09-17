@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { notifyAdminActivity } = require('../services/adminActivityNotificationService');
+const { notifySellerActivation } = require('../services/adminNotificationEmailService');
 
 const sellerMembershipSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, unique: true, index: true },
@@ -37,14 +37,11 @@ sellerMembershipSchema.pre('findOneAndUpdate', async function sellerActivationNo
   this._notifySellerActivation = !existing || existing.plan !== 'SELLER_FREE' || existing.status !== 'ACTIVE';
 });
 
-sellerMembershipSchema.post('findOneAndUpdate', function notifySellerActivation(membership) {
+sellerMembershipSchema.post('findOneAndUpdate', function sendSellerActivationNotification(membership) {
   if (!this._notifySellerActivation || !membership) return;
-  void notifyAdminActivity('seller_activated', {
+  void notifySellerActivation({
     userId: membership.userId,
-    sellerMembershipId: membership._id,
-    plan: membership.plan,
-    status: membership.status,
-    paymentProvider: membership.paymentProvider
+    plan: membership.plan
   });
 });
 
