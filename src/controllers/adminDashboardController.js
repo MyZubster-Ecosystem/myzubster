@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const User = require('../models/User');
 const SellerMembership = require('../models/SellerMembership');
+const Dashboard = require('../models/dashboardModel');
+const Wallet = require('../models/walletModel');
 
 // #218: Admin Dashboard - Monitoraggio Lavori e Pagamenti
 // Uses existing models (Dashboard, Wallet, Escrow, Dispute, etc.)
@@ -8,8 +10,6 @@ const SellerMembership = require('../models/SellerMembership');
 // Get system overview
 exports.getOverview = async (req, res) => {
   try {
-    const Dashboard = mongoose.model('Dashboard');
-    const Wallet = mongoose.model('Wallet');
     const [totalUsers, totalSellers, activeSellers, totalWallets] = await Promise.all([
       User.countDocuments(),
       SellerMembership.countDocuments(),
@@ -32,7 +32,6 @@ exports.getOverview = async (req, res) => {
 // Get payment monitoring
 exports.getPaymentMonitoring = async (req, res) => {
   try {
-    const Wallet = mongoose.model('Wallet');
     const wallets = await Wallet.find({});
     const allTxs = wallets.flatMap(w => w.transactions);
     const today = new Date().toISOString().slice(0,10);
@@ -53,7 +52,6 @@ exports.getPaymentMonitoring = async (req, res) => {
 // Get job monitoring
 exports.getJobMonitoring = async (req, res) => {
   try {
-    const Dashboard = mongoose.model('Dashboard');
     const dashboards = await Dashboard.find({ robotId: { $ne: null } });
     const totalRobots = dashboards.length;
     const totalJobs = dashboards.reduce((s, d) => s + d.jobsCompleted, 0);
