@@ -1,4 +1,5 @@
 const express = require('express');
+const crypto = require('crypto');
 const router = express.Router();
 const { authenticate } = require('../middleware/auth');
 const MarketplaceListing = require('../models/MarketplaceListing');
@@ -6,7 +7,26 @@ const MarketplaceHandover = require('../models/MarketplaceHandover');
 
 function view(handover) {
   const item = handover.toObject ? handover.toObject() : handover;
-  return { ...item, id: String(item._id), listingId: String(item.listingId), donorId: String(item.donorId), recipientId: String(item.recipientId) };
+  const commitment = item.blockchainCommitment || {};
+  const onchainRecorded = Boolean(commitment.network && commitment.txId && commitment.confirmedAt);
+  return { ...item, id: String(item._id), listingId: String(item.listingId), donorId: String(item.donorId), recipientId: String(item.recipientId), onchainRecorded };
+}
+
+function canonicalCommitmentPayload(handover) {
+  return {
+    schema: 'myzubster.marketplace-handover.v1',
+    handoverId: String(handover._id),
+    listingId: String(handover.listingId),
+    method: handover.method,
+    state: handover.state,
+    handedOverAt: handover.handedOverAt ? new Date(handover.handedOverAt).toISOString() : null,
+    receivedAt: handover.receivedAt ? new Date(handover.receivedAt).toISOString() : null,
+    recordedAt: handover.recordedAt ? new Date(handover.recordedAt).toISOString() : null
+  };
+}
+
+function canonicalJson(value) {
+  return JSON.stringify(value, Object.keys(value).sort());
 }
 
 router.post('/:listingId/accept', authenticate, async (req, res) => {
@@ -51,6 +71,37 @@ router.post('/:handoverId/record', authenticate, async (req, res) => {
   if (handover.state !== 'RECEIVED') return res.status(409).json({ success: false, message: 'La ricezione deve essere confermata prima della registrazione.' });
   handover.state = 'RECORDED'; handover.recordedAt = new Date(); await handover.save();
   res.json({ success: true, paymentRequired: false, onchainRecorded: false, handover: view(handover) });
+});
+
+router.post('/:handoverId/prepare-blockchain-commitment', authenticate, async (req, res) => {
+  const handover = await MarketplaceHandover.findById(req.params.handoverId);
+  if (!handover) return res.status(404).json({ success: false, message: 'Passaggio non trovato' });
+  const participant = [handover.donorId, handover.recipientId].some(id => String(id) === String(req.userId));
+  if (!participant) return res.status(403).json({ success: false, message: 'Solo i partecipanti possono preparare il commitment.' });
+  if (handover.state !== 'RECORDED' || !handover.recordedAt) {
+    return res.status(409).json({ success: false, message: 'Il passaggio deve essere RECORDED prima di preparare il commitment.' });
+  }
+
+  const payload = canonicalCommitmentPayload(handover);
+  const hash = crypto.createHash('sha256').update(canonicalJson(payload), 'utf8').digest('hex');
+  handover.blockchainCommitment = {
+    schema: payload.schema,
+    algorithm: 'SHA-256',
+    hash,
+    preparedAt: new Date(),
+    network: handover.blockchainCommitment?.network || null,
+    txId: handover.blockchainCommitment?.txId || null,
+    anchoredAt: handover.blockchainCommitment?.anchoredAt || null,
+    confirmedAt: handover.blockchainCommitment?.confirmedAt || null
+  };
+  await handover.save();
+
+  res.json({
+    success: true,
+    onchainRecorded: Boolean(handover.blockchainCommitment.network && handover.blockchainCommitment.txId && handover.blockchainCommitment.confirmedAt),
+    commitment: { schema: payload.schema, algorithm: 'SHA-256', hash, payload },
+    handover: view(handover)
+  });
 });
 
 router.get('/:handoverId', authenticate, async (req, res) => {
