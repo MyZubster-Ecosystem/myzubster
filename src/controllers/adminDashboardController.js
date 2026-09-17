@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const User = require('../models/User');
+const SellerMembership = require('../models/SellerMembership');
 
 // #218: Admin Dashboard - Monitoraggio Lavori e Pagamenti
 // Uses existing models (Dashboard, Wallet, Escrow, Dispute, etc.)
@@ -8,12 +10,18 @@ exports.getOverview = async (req, res) => {
   try {
     const Dashboard = mongoose.model('Dashboard');
     const Wallet = mongoose.model('Wallet');
-    const totalUsers = await Dashboard.countDocuments();
-    const totalWallets = await Wallet.countDocuments();
+    const [totalUsers, totalSellers, activeSellers, totalWallets] = await Promise.all([
+      User.countDocuments(),
+      SellerMembership.countDocuments(),
+      SellerMembership.countDocuments({ status: 'ACTIVE' }),
+      Wallet.countDocuments()
+    ]);
     const dashboard = await Dashboard.aggregate([{$group: {_id: null, totalMYZ: {$sum: '$balanceMYZ'}, totalXMR: {$sum: '$balanceXMR'}}}]);
     const wallets = await Wallet.aggregate([{$group: {_id: null, totalMYZ: {$sum: '$balanceMYZ'}, totalXMR: {$sum: '$balanceXMR'}}}]);
     res.json({
       totalUsers,
+      totalSellers,
+      activeSellers,
       totalWallets,
       totalMYZInCirculation: (dashboard[0]?.totalMYZ || 0) + (wallets[0]?.totalMYZ || 0),
       totalXMRInCirculation: (dashboard[0]?.totalXMR || 0) + (wallets[0]?.totalXMR || 0)
