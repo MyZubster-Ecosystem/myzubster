@@ -94,7 +94,12 @@ async function upsertVerifiedAccount(provider, profile) {
   user.isVerified = true; user.lastLogin = new Date();
   await user.save();
   if (provider === 'google' && isNewAccount) {
-    void notifyGoogleRegistration({ userId:String(user._id), email:profile.email || user.email, name:profile.name || user.username });
+    const result = await notifyGoogleRegistration({ userId:String(user._id), email:profile.email || user.email, name:profile.name || user.username });
+    console.info('[google-registration-email]', {
+      userId: String(user._id),
+      sent: result?.sent === true,
+      reason: result?.reason || null
+    });
   }
   const character = await ensureCharacter(user, provider, profile);
   const token = jwt.sign({ userId:user._id, username:user.username, role:user.role }, jwtSecret(), { expiresIn:process.env.JWT_EXPIRES_IN || '7d' });
