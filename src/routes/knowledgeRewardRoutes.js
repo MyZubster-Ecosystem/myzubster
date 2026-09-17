@@ -32,9 +32,7 @@ router.post('/preview', authenticate, (req, res) => {
   } catch (error) { return res.status(400).json({ success: false, message: error.message }); }
 });
 
-// Persistent claimable reward. Admin review is required. The contribution author
-// comes from the authenticated identity and cannot be supplied by the client.
-// This writes MongoDB records only; it never transfers MYZ.
+// Persistent claimable reward. Admin review is required. This writes MongoDB only.
 router.post('/contributions', authenticate, isAdmin, async (req, res) => {
   try {
     const authorId = String(req.body?.authorId || '').trim();
@@ -78,6 +76,56 @@ router.post('/contributions', authenticate, isAdmin, async (req, res) => {
   } catch (error) {
     const status = error?.code === 11000 ? 409 : 400;
     return res.status(status).json({ success: false, message: error.message });
+  }
+});
+
+// Finalize local state only after an authoritative external ledger operation succeeded.
+// This endpoint does not mint or transfer MYZ.
+router.post('/rewards/:rewardId/finalize', authenticate, isAdmin, async (req, res) => {
+  try {
+    const rewardId = String(req.params.rewardId || '').trim();
+    const ledgerReference = String(req.body?.ledgerReference || '').trim();
+    if (!rewardId || !ledgerReference) return res.status(400).json({ success: false, message: 'rewardId e ledgerReference sono obbligatori' });
+
+    const reward = await Reward.findOne({ rewardId, rewardType: 'knowledge_contribution' });
+    if (!reward) return res.status(404).json({ success: false, message: 'Knowledge reward non trovato' });
+
+    const contributionId = reward.metadata?.contributionId;
+    const contribution = contributionId ? await KnowledgeContribution.findOne({ contributionId }) : null;
+    if (!contribution) return res.status(409).json({ success: false, message: 'Contributo collegato non trovato: finalizzazione bloccata' });
+
+    if (reward.status === 'paid' || contribution.status === 'REWARDED') {
+      const existingReference = reward.metadata?.ledgerReference || contribution.ledgerReference;
+      if (existingReference !== ledgerReference) return res.status(409).json({ success: false, message: 'Reward gia finalizzato con un ledgerReference differente' });
+      return res.json({ success: true, idempotent: true, ledgerWritten: true, myzTransferred: false, rewardId, contributionId, ledgerReference, status: 'REWARDED' });
+    }
+
+    if (reward.status !== 'claimable' || contribution.status !== 'REWARD_ELIGIBLE') {
+      return res.status(409).json({ success: false, message: 'Reward o contributo non sono nello stato finalizzabile' });
+    }
+
+    reward.status = 'paid';
+    reward.metadata = reward.metadata || {};
+    reward.metadata.ledgerReference = ledgerReference;
+    reward.paidAt = new Date();
+    contribution.status = 'REWARDED';
+    contribution.ledgerReference = ledgerReference;
+    contribution.rewardedAt = reward.paidAt;
+
+    await contribution.save();
+    try {
+      await reward.save();
+    } catch (error) {
+      contribution.status = 'REWARD_ELIGIBLE';
+      contribution.ledgerReference = null;
+      contribution.rewardedAt = null;
+      await contribution.save();
+      throw error;
+    }
+
+    return res.json({ success: true, idempotent: false, ledgerWritten: true, myzTransferred: false, rewardId, contributionId, ledgerReference, status: 'REWARDED' });
+  } catch (error) {
+    return res.status(400).json({ success: false, message: error.message });
   }
 });
 
