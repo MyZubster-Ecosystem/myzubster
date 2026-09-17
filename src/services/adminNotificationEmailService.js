@@ -13,11 +13,28 @@ function emailConfig() {
 
 async function sendAdminNotification(subject, lines) {
   const config = emailConfig();
-  if (!config) return { sent: false, reason: 'not-configured' };
+  if (!config) {
+    console.warn('[admin-notification-email] skipped: SMTP configuration incomplete', {
+      host: Boolean(process.env.ZORGAX_SMTP_HOST),
+      port: Boolean(process.env.ZORGAX_SMTP_PORT),
+      user: Boolean(process.env.ZORGAX_SMTP_USER),
+      pass: Boolean(process.env.ZORGAX_SMTP_PASS),
+      from: Boolean(process.env.ZORGAX_EMAIL_FROM),
+      to: Boolean(process.env.MYZUBSTER_ADMIN_NOTIFICATION_EMAIL)
+    });
+    return { sent: false, reason: 'not-configured' };
+  }
   try {
     const transporter = nodemailer.createTransport({ host: config.host, port: config.port, secure: config.secure, auth: config.auth });
-    await transporter.sendMail({ from: config.from, to: config.to, subject, text: lines.filter(Boolean).join('\n') });
-    return { sent: true };
+    const info = await transporter.sendMail({ from: config.from, to: config.to, subject, text: lines.filter(Boolean).join('\n') });
+    console.info('[admin-notification-email] delivered', {
+      subject,
+      to: config.to,
+      messageId: info?.messageId || null,
+      accepted: info?.accepted || [],
+      rejected: info?.rejected || []
+    });
+    return { sent: true, messageId: info?.messageId || null };
   } catch (error) {
     console.warn('[admin-notification-email] delivery failed:', String(error?.message || error).slice(0, 240));
     return { sent: false, reason: 'delivery-failed' };
