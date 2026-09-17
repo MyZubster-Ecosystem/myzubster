@@ -1,10 +1,6 @@
-# MyZubster — Public Connected Journey
+# MyZubster Public Connected Journey
 
-This page connects the currently evidenced MyZubster journey from community discovery to Marketplace exchange, payment boundaries, kefir handover evidence, public knowledge, research and visual storytelling.
-
-<p align="center">
-  <a href="https://www.myzubster.com/fumetto"><img src="https://raw.githubusercontent.com/MyZubster-Ecosystem/myzubster/main/public/comics/community/MyZubster-Community-Zorgax-Guide.jpg" alt="MyZubster Community and Zorgax visual guide" width="92%"></a>
-</p>
+This document is the canonical public map connecting the MyZubster website, Marketplace, real-world handovers, evidence commitments, Knowledge Protocol, research pathways and the Comic Universe.
 
 ## One connected flow
 
@@ -49,13 +45,11 @@ The Marketplace connects offers and requests for skills, local resources, commun
 - Marketplace repository: https://github.com/DanielIoni-creator/MyZubster-Marketplace
 - Core implementation: https://github.com/MyZubster-Ecosystem/myzubster
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/MyZubster-Ecosystem/myzubster/main/frontend/public/images/marketplace/demo/produce-kefir.png" alt="MyZubster kefir Marketplace visual" width="72%">
-</p>
-
 ## Nicola kefir pilot — real recorded handover + public commitment
 
 The Nicola/N4K48 kefir pilot is the first concrete bridge between a Marketplace handover and the MyZubster Knowledge Protocol.
+
+**Public KF-006 evidence page:** https://www.myzubster.com/knowledge-kf-006.html
 
 Application evidence:
 
@@ -79,12 +73,11 @@ Blockchain commitment evidence:
 - Confirmed: `2026-09-17T08:57:18.000Z`
 - Explorer: https://sepolia.basescan.org/tx/0x998a98b1733312e248f74a1387319dae30aab8123a6115c517e4ffe0ef9584bf
 
-The independent verifier in the core repository reproduced the exact v1 commitment from the handover record and matched it against transaction calldata `MZ-HANDOVER-V1:<hash>` with `VERIFY_EXIT=0`.
+The independent verifier in the core repository reproduced the exact v1 commitment. The blockchain commitment proves integrity/timestamp of the committed digital record; it does not prove physical truth, participant identity, food safety, microbiological properties, health effects, learning or scientific reproducibility.
 
-Important boundary: the blockchain proves integrity/timestamp evidence for the commitment. It does **not** independently prove the physical event, participant identity, food safety, microbiology, health effects, successful fermentation, learning or scientific validity.
-
-- Kefir repository: https://github.com/DanielIoni-creator/Myzubster-fermentation-kefir
+- Public KF-006 page: https://www.myzubster.com/knowledge-kf-006.html
 - KF-006 evidence: https://github.com/DanielIoni-creator/Myzubster-fermentation-kefir/blob/main/knowledge/KF-006-NICOLA-PILOT.md
+- Kefir repository: https://github.com/DanielIoni-creator/Myzubster-fermentation-kefir
 - Nicola profile: https://github.com/DanielIoni-creator/Nicola
 - Verifier source: https://github.com/MyZubster-Ecosystem/myzubster/blob/main/scripts/verify-handover-commitment.js
 
@@ -92,6 +85,7 @@ Important boundary: the blockchain proves integrity/timestamp evidence for the c
 
 The kefir repository is also the first concrete dataset for the broader MyZubster Knowledge Protocol. Evidence classes remain distinct: `PERSONAL_PRACTICE`, `TRADITIONAL_PRACTICE`, `OBSERVATION`, `EXTERNAL_SOURCE`, `VERIFIED_GUIDANCE`. Community repetition never silently upgrades a claim to verified guidance.
 
+- KF-006 public evidence page: https://www.myzubster.com/knowledge-kf-006.html
 - Knowledge Explorer: https://myzubster-knowledge.vercel.app/knowledge.html
 - Read-only summary API: https://myzubster-knowledge.vercel.app/api/knowledge?action=summary
 - Knowledge Protocol: https://github.com/DanielIoni-creator/Myzubster-fermentation-kefir/blob/main/MYZUBSTER-KNOWLEDGE-PROTOCOL.md
@@ -100,6 +94,7 @@ The kefir repository is also the first concrete dataset for the broader MyZubste
 
 Research is a separate layer: `Question → protocol → consent/evidence plan → GitHub work → Zorgax support → measurements → review/reproduction → conclusions with limitations`.
 
+- KF-006 public evidence page: https://www.myzubster.com/knowledge-kf-006.html
 - University & Research: https://github.com/DanielIoni-creator/myzubster-university-research
 - Research Lab: https://github.com/DanielIoni-creator/Myzubster-research-lab
 - Student Profiles: https://github.com/DanielIoni-creator/Myzubster-student-profile
@@ -109,12 +104,9 @@ No README, visual, issue or pilot record by itself establishes a formal universi
 
 ## Visual and comic layer
 
-<p align="center">
-  <a href="https://www.myzubster.com/fumetto"><img src="https://raw.githubusercontent.com/MyZubster-Ecosystem/myzubster/main/public/comics/community/N4K48_Nicola_MyZubster_Comic.png" alt="Nicola N4K48 MyZubster comic" width="82%"></a>
-</p>
-
 The Comic Universe is the narrative navigation layer around the evidence system. Visuals explain how components connect; they are not evidence that an event, payment, partnership or scientific result occurred.
 
+- KF-006 public evidence page: https://www.myzubster.com/knowledge-kf-006.html
 - Interactive comic: https://www.myzubster.com/fumetto
 - Visual repository: https://github.com/MyZubster-Ecosystem/MyZubster-Visual
 - Nicola: https://github.com/DanielIoni-creator/Nicola
