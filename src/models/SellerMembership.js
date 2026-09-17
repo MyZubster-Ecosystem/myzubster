@@ -37,11 +37,16 @@ sellerMembershipSchema.pre('findOneAndUpdate', async function sellerActivationNo
   this._notifySellerActivation = !existing || existing.plan !== 'SELLER_FREE' || existing.status !== 'ACTIVE';
 });
 
-sellerMembershipSchema.post('findOneAndUpdate', function sendSellerActivationNotification(membership) {
+sellerMembershipSchema.post('findOneAndUpdate', async function sendSellerActivationNotification(membership) {
   if (!this._notifySellerActivation || !membership) return;
-  void notifySellerActivation({
+  const result = await notifySellerActivation({
     userId: membership.userId,
     plan: membership.plan
+  });
+  console.info('[seller-activation-email]', {
+    userId: String(membership.userId),
+    sent: result?.sent === true,
+    reason: result?.reason || null
   });
 });
 
