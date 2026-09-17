@@ -6,20 +6,42 @@ const Dashboard = require('../models/dashboardModel');
 // #218: Admin Dashboard - Monitoraggio Lavori e Pagamenti
 // Dashboard is the project's registered balance/transaction ledger model.
 
+const since = days => new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+
 // Get system overview
 exports.getOverview = async (req, res) => {
   try {
-    const [totalUsers, totalSellers, activeSellers, totalWallets] = await Promise.all([
+    const d1 = since(1), d7 = since(7), d30 = since(30);
+    const [
+      totalUsers, totalSellers, activeSellers, totalWallets,
+      users24h, users7d, users30d,
+      sellers24h, sellers7d, sellers30d,
+      activeSellers24h, activeSellers7d, activeSellers30d
+    ] = await Promise.all([
       User.countDocuments(),
       SellerMembership.countDocuments(),
       SellerMembership.countDocuments({ status: 'ACTIVE' }),
-      Dashboard.countDocuments()
+      Dashboard.countDocuments(),
+      User.countDocuments({ createdAt: { $gte: d1 } }),
+      User.countDocuments({ createdAt: { $gte: d7 } }),
+      User.countDocuments({ createdAt: { $gte: d30 } }),
+      SellerMembership.countDocuments({ createdAt: { $gte: d1 } }),
+      SellerMembership.countDocuments({ createdAt: { $gte: d7 } }),
+      SellerMembership.countDocuments({ createdAt: { $gte: d30 } }),
+      SellerMembership.countDocuments({ status: 'ACTIVE', createdAt: { $gte: d1 } }),
+      SellerMembership.countDocuments({ status: 'ACTIVE', createdAt: { $gte: d7 } }),
+      SellerMembership.countDocuments({ status: 'ACTIVE', createdAt: { $gte: d30 } })
     ]);
     const dashboard = await Dashboard.aggregate([{$group: {_id: null, totalMYZ: {$sum: '$balanceMYZ'}, totalXMR: {$sum: '$balanceXMR'}}}]);
     res.json({
       totalUsers,
       totalSellers,
       activeSellers,
+      growth: {
+        users: { last24h: users24h, last7d: users7d, last30d: users30d },
+        sellers: { last24h: sellers24h, last7d: sellers7d, last30d: sellers30d },
+        activeSellers: { last24h: activeSellers24h, last7d: activeSellers7d, last30d: activeSellers30d }
+      },
       totalWallets,
       totalMYZInCirculation: dashboard[0]?.totalMYZ || 0,
       totalXMRInCirculation: dashboard[0]?.totalXMR || 0
