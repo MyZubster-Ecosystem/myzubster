@@ -28,6 +28,16 @@ function providerAccountEmail(provider, profile) {
   return `facebook-${digest}@identity.myzubster.invalid`;
 }
 
+function configuredAdminEmail() {
+  return String(process.env.MYZUBSTER_ADMIN_EMAIL || '').trim().toLowerCase();
+}
+
+function shouldBootstrapAdmin(profile) {
+  const configured = configuredAdminEmail();
+  const verifiedEmail = String(profile?.email || '').trim().toLowerCase();
+  return Boolean(configured && verifiedEmail && configured === verifiedEmail);
+}
+
 async function uniqueUsername(base) {
   let candidate = base;
   let n = 1;
@@ -77,6 +87,10 @@ async function upsertVerifiedAccount(provider, profile) {
     const previousSnapshot = user.github?.publicSnapshot;
     user.github = { id:String(profile.id), login:profile.login, avatarUrl:profile.avatarUrl, profileUrl:profile.profileUrl, verifiedAt:new Date(), publicSnapshot:normalizeGithubSnapshot(profile.publicSnapshot) || previousSnapshot };
   }
+  if (shouldBootstrapAdmin(profile) && user.role !== 'admin') {
+    user.role = 'admin';
+    console.info('[auth] configured admin account promoted', { userId:String(user._id), provider });
+  }
   user.isVerified = true; user.lastLogin = new Date();
   await user.save();
   if (provider === 'google' && isNewAccount) {
@@ -87,4 +101,4 @@ async function upsertVerifiedAccount(provider, profile) {
   return { user, character, token };
 }
 
-module.exports = { upsertVerifiedAccount, _test:{ providerAccountEmail, normalizeGithubSnapshot } };
+module.exports = { upsertVerifiedAccount, _test:{ providerAccountEmail, normalizeGithubSnapshot, shouldBootstrapAdmin } };
