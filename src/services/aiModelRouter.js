@@ -1,17 +1,22 @@
 'use strict';
 
 const DEFAULT_BUDGET_USD = 25;
-const ASTRA_INPUT_PER_M = 4;
-const ASTRA_OUTPUT_PER_M = 20;
+const DEFAULT_OPENAI_MODEL = 'gpt-5.6-sol';
+const MODEL_PRICING_USD_PER_M = {
+  'gpt-5.6-sol': { input: 4, output: 20 },
+  'gpt-5.6-terra': { input: 2, output: 12 },
+  'gpt-5.6-luna': { input: 0.2, output: 1.2 }
+};
 
 function envNumber(name, fallback) {
   const value = Number(process.env[name]);
   return Number.isFinite(value) && value >= 0 ? value : fallback;
 }
 
-function estimateAstraCost({ inputTokens = 0, outputTokens = 0 } = {}) {
-  return (inputTokens / 1_000_000) * ASTRA_INPUT_PER_M +
-    (outputTokens / 1_000_000) * ASTRA_OUTPUT_PER_M;
+function estimateAstraCost({ inputTokens = 0, outputTokens = 0, model = process.env.ZORGAX_ASTRA_MODEL || DEFAULT_OPENAI_MODEL } = {}) {
+  const pricing = MODEL_PRICING_USD_PER_M[model] || MODEL_PRICING_USD_PER_M[DEFAULT_OPENAI_MODEL];
+  return (inputTokens / 1_000_000) * pricing.input +
+    (outputTokens / 1_000_000) * pricing.output;
 }
 
 function classifyTask(message, { useResearch = false } = {}) {
