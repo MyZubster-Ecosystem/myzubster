@@ -1,8 +1,8 @@
 'use strict';
 
 const DEFAULT_BUDGET_USD = 25;
-const ASTRA_INPUT_PER_M = 10;
-const ASTRA_OUTPUT_PER_M = 50;
+const ASTRA_INPUT_PER_M = 4;
+const ASTRA_OUTPUT_PER_M = 20;
 
 function envNumber(name, fallback) {
   const value = Number(process.env[name]);
@@ -33,7 +33,7 @@ function selectModel({ message, useResearch = false, astraSpentUsd = 0 } = {}) {
   if (astraEnabled && tier === 'complex' && astraSpentUsd < budgetUsd) {
     return {
       provider: 'openai',
-      model: process.env.ZORGAX_ASTRA_MODEL || 'gpt-6-astra',
+      model: process.env.ZORGAX_ASTRA_MODEL || 'gpt-5.6-sol',
       tier,
       budgetUsd,
       remainingBudgetUsd: Math.max(0, budgetUsd - astraSpentUsd)
