@@ -191,6 +191,7 @@ router.put('/github/automation', authenticate, async (req, res) => {
   await user.save();
   return res.json({ success: true, data: { linked: Boolean(user.github?.login), login: user.github?.login || null, enabled } });
 });
+router.put('/profile/bio', authenticate, async (req,res)=>{ try { const bio=typeof req.body?.bio==='string'?req.body.bio.trim():''; if(!bio)return res.status(400).json({success:false,message:'Inserisci una bio'}); if(bio.length>1000)return res.status(400).json({success:false,message:'Bio troppo lunga'}); const user=await User.findById(req.userId); if(!user)return res.status(404).json({success:false,message:'Utente non trovato'}); user.communityProfile=user.communityProfile||{}; user.communityProfile.bio=bio; user.communityProfile.updatedAt=new Date(); await user.save(); return res.json({success:true,data:{bio}}); } catch(error){ return res.status(500).json({success:false,message:'Impossibile salvare la bio MyZubster'}); }});
 router.post('/github/automation/apply', authenticate, async (req, res) => {
   try {
     const user = await User.findById(req.userId).select('+githubAutomation.accessTokenEncrypted github githubAutomation');
@@ -201,12 +202,13 @@ router.post('/github/automation/apply', authenticate, async (req, res) => {
     const readme = typeof req.body?.readme === 'string' ? req.body.readme.trim() : '';
     if (!bio && !readme) return res.status(400).json({ success:false, message:'Nessuna modifica approvata da applicare' });
     const token = decryptToken(user.githubAutomation.accessTokenEncrypted); const applied=[];
-    if (bio) { await updateBio(token,bio); applied.push('bio'); }
+    if (bio) { const previous=String(user.github?.publicSnapshot?.bio||'').slice(0,160); await updateBio(token,bio); user.githubAutomation.previousBio=previous; user.githubAutomation.lastPublishedBio=bio.slice(0,160); if(user.github?.publicSnapshot)user.github.publicSnapshot.bio=bio.slice(0,160); applied.push('bio'); }
     if (readme) { await updateProfileReadme(token,user.github.login,readme); applied.push('readme'); }
     user.githubAutomation.updatedAt=new Date(); await user.save();
     return res.json({ success:true, data:{ applied } });
   } catch(error) { console.error('GitHub profile automation apply error:',error.message); return res.status(502).json({ success:false, message:'GitHub non ha applicato le modifiche autorizzate' }); }
 });
+router.post('/github/automation/rollback-bio', authenticate, async (req,res)=>{ try { const user=await User.findById(req.userId).select('+githubAutomation.accessTokenEncrypted github githubAutomation'); if(!user?.githubAutomation?.accessTokenEncrypted)return res.status(403).json({success:false,message:'Autorizzazione GitHub non disponibile'}); if(typeof user.githubAutomation.previousBio!=='string')return res.status(409).json({success:false,message:'Nessuna bio precedente da ripristinare'}); const token=decryptToken(user.githubAutomation.accessTokenEncrypted); const restore=user.githubAutomation.previousBio; await updateBio(token,restore); const current=user.githubAutomation.lastPublishedBio||''; user.githubAutomation.lastPublishedBio=restore; user.githubAutomation.previousBio=current; if(user.github?.publicSnapshot)user.github.publicSnapshot.bio=restore; user.githubAutomation.updatedAt=new Date(); await user.save(); return res.json({success:true,data:{bio:restore}}); } catch(error){ console.error('GitHub bio rollback error:',error.message); return res.status(502).json({success:false,message:'GitHub non ha ripristinato la bio'}); }});
 router.get('/cultural-contributor/attestation', authenticate, culturalContributorController.getAttestation);
 router.post('/cultural-contributor/attestation', authenticate, culturalContributorController.attest);
 
