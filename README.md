@@ -16,6 +16,30 @@ MyZubster turns authorized real-world observations — photos, places, environme
   <a href="https://github.com/MyZubster-Ecosystem/myzubster"><strong>⭐ Star on GitHub</strong></a>
 </p>
 
+
+## 🔐 Start from GitHub — create or connect your MyZubster account
+
+You can now use GitHub as a public entry point into the MyZubster onboarding flow.
+
+<p align="center">
+  <a href="https://www.myzubster.com/social-login?returnTo=%2Fzorgax-profile-onboarding.html%3Fprovider%3Dgithub"><strong>🔗 Connect GitHub to MyZubster</strong></a>
+  ·
+  <a href="https://github.com/signup"><strong>🆕 Create a GitHub account</strong></a>
+  ·
+  <a href="https://www.myzubster.com/zorgax-profile-onboarding.html"><strong>🤖 Complete your profile with Zorgax</strong></a>
+  ·
+  <a href="https://www.myzubster.com/community-marketplace.html"><strong>🛒 Open Marketplace</strong></a>
+</p>
+
+**Interactive path:** GitHub → MyZubster social login → verified GitHub identity → Zorgax profile assistant → optional GitHub profile automation → Marketplace.
+
+- Existing GitHub user: choose **Connect GitHub to MyZubster** and authorize the login.
+- No GitHub account yet: create it on GitHub first, then return and connect it to MyZubster.
+- Google-first user: Google remains a valid MyZubster login identity; GitHub can be linked afterwards.
+- Profile automation is opt-in. GitHub write authorization is requested separately from normal login, and profile changes remain user-controlled.
+
+> MyZubster does not create a GitHub personal account on the user's behalf. Account registration happens on GitHub; MyZubster links the verified account and continues onboarding with Zorgax.
+
 ## 🧠 Learn · Share · Help others with Zorgax
 
 MyZubster connects documented knowledge to a learning and mentorship pathway: **learn → try → document → share → Zorgax assists → another person tries → evidence + feedback → improve → help the next pilot**.
