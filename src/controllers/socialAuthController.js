@@ -14,7 +14,7 @@ function callback(provider){
   if(provider==='github')return process.env.GITHUB_LOGIN_CALLBACK_URL||process.env.GITHUB_OAUTH_CALLBACK_URL||`${process.env.GATEWAY_PUBLIC_URL||'https://myzubster.com'}/api/auth/social/github/callback`;
   return process.env[`${provider.toUpperCase()}_LOGIN_CALLBACK_URL`]||`${process.env.GATEWAY_PUBLIC_URL||'https://myzubster.com'}/api/auth/social/${provider}/callback`;
 }
-function state(provider){return jwt.sign({purpose:'social-login',provider,nonce:crypto.randomBytes(16).toString('hex')},process.env.OAUTH_STATE_SECRET||secret(),{expiresIn:'10m'});}
+function state(provider,extra={}){return jwt.sign({purpose:'social-login',provider,nonce:crypto.randomBytes(16).toString('hex'),...extra},process.env.OAUTH_STATE_SECRET||secret(),{expiresIn:'10m'});}
 function verifyState(value,provider){
   if(!value||typeof value!=='string')throw new Error('Sessione OAuth mancante. Riavvia il login dal pulsante MyZubster.');
   try{const data=jwt.verify(value,process.env.OAUTH_STATE_SECRET||secret());if(data.purpose!=='social-login'||data.provider!==provider)throw new Error('OAuth state non valido');return data;}
@@ -39,7 +39,7 @@ exports.start=(req,res)=>{
     }
     if(provider==='github'){
       if(!process.env.GITHUB_OAUTH_CLIENT_ID||!process.env.GITHUB_OAUTH_CLIENT_SECRET||!callback('github').startsWith('http'))throw new Error('GitHub Login non configurato');
-      const params=new URLSearchParams({client_id:process.env.GITHUB_OAUTH_CLIENT_ID,redirect_uri:callback('github'),scope:'read:user user:email',state:state('github')});return res.redirect(`https://github.com/login/oauth/authorize?${params}`);
+      const writeProfile=req.query?.write_profile==='1';const params=new URLSearchParams({client_id:process.env.GITHUB_OAUTH_CLIENT_ID,redirect_uri:callback('github'),scope:writeProfile?'read:user user:email repo':'read:user user:email',state:state('github',writeProfile?{writeProfile:true,userId:String(req.query?.myz_user||'')}: {})});return res.redirect(`https://github.com/login/oauth/authorize?${params}`);
     }
     if(provider==='facebook'){
       if(!process.env.FACEBOOK_LOGIN_APP_ID||!process.env.FACEBOOK_LOGIN_APP_SECRET||!callback('facebook').startsWith('http'))throw new Error('Facebook Login non configurato');
