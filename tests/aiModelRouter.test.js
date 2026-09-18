@@ -45,7 +45,9 @@ describe('Zorgax AI model router', () => {
     expect(route.fallbackReason).toBe('openai_key_missing');
   });
 
-  test('estimates Astra token cost', () => {
-    expect(estimateAstraCost({ inputTokens: 5000, outputTokens: 1000 })).toBeCloseTo(0.1);
+  test('estimates OpenAI token cost by model', () => {
+    expect(estimateAstraCost({ inputTokens: 5000, outputTokens: 1000, model: 'gpt-5.6-sol' })).toBeCloseTo(0.04);
+    expect(estimateAstraCost({ inputTokens: 5000, outputTokens: 1000, model: 'gpt-5.6-terra' })).toBeCloseTo(0.022);
+    expect(estimateAstraCost({ inputTokens: 5000, outputTokens: 1000, model: 'gpt-5.6-luna' })).toBeCloseTo(0.0022);
   });
 });
