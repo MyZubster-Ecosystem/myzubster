@@ -182,7 +182,10 @@ router.post('/chat', optionalAuthenticate, loadZorgaxAccess, async (req, res) =>
         : null;
     logFunnelEvent('zorgax_message_sent', req, {
       webResearch: useWeb,
-      sourceCount: Array.isArray(result.sources) ? result.sources.length : 0
+      sourceCount: Array.isArray(result.sources) ? result.sources.length : 0,
+      aiProvider: result.ai_provider || null,
+      aiModel: result.ai_model || null,
+      aiFallbackReason: result.ai_fallback_reason || null
     });
     res.json({ ok: true, entity: 'ZORGAX-001', ...result, external_sources: result.sources, access: publicAccess(req.zorgaxAccess), featureAccess: policy, accessNotice });
   }
