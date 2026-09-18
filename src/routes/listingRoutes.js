@@ -7,7 +7,7 @@ const MarketplaceCategoryProposal = require('../models/MarketplaceCategoryPropos
 const { authenticate, isAdmin } = require('../middleware/auth');
 const { freeSellerPlan, canPublishCommercialListing } = require('../services/freeSellerPolicy');
 
-const ALLOWED_CURRENCIES = new Set(['ETH', 'BTC', 'XMR', 'MYZ', 'TARI', 'BARTER', 'FREE']);
+const ALLOWED_CURRENCIES = new Set(['EUR', 'ETH', 'BTC', 'XMR', 'MYZ', 'TARI', 'BARTER', 'FREE']);
 const ALLOWED_CATEGORIES = new Set(['health_products','electronics','kefir_culture_donation','seeds','plants','produce','clothing','accessories','event_equipment','tools','services','development_services','event_support','agriculture_support','art','arts','wellness','knowledge','help_request','university_course','thesis_project','research_project','internship','volunteering','pet_adoption','pet_lost_found','pet_services']);
 
 function containsPrivateKeyMaterial(value) { const text=String(value||'').toUpperCase(); return /PRIVATE KEY|BEGIN PGP PRIVATE|BEGIN OPENSSH PRIVATE|SEED PHRASE|MNEMONIC/.test(text); }
