@@ -9,7 +9,7 @@ const ZorgaxAIUsageSchema = new mongoose.Schema({
   outputTokens: { type: Number, default: 0, min: 0 },
   costUsd: { type: Number, required: true, min: 0 },
   route: { type: String, default: 'zorgax' },
-  requestId: { type: String, index: true },
+  requestId: { type: String, sparse: true, unique: true },
   createdAt: { type: Date, default: Date.now, index: true }
 });
 
