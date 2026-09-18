@@ -2,7 +2,7 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const { selectModel } = require('./aiModelRouter');
-const { getAstraMonthlySpend, recordAstraUsage } = require('./zorgaxAIUsageService');
+const { getAstraMonthlySpend, recordAstraUsage, reserveAstraBudget, settleAstraBudget, releaseAstraBudget } = require('./zorgaxAIUsageService');
 
 const DEFAULT_GATEWAY = 'https://myzubster-gateway.vercel.app';
 const MAX_SOURCES = 8;
@@ -29,7 +29,7 @@ function extractOpenAIText(json){
   if(typeof json?.output_text==='string') return json.output_text;
   return (json?.output||[]).flatMap(item=>item?.content||[]).filter(part=>part?.type==='output_text').map(part=>part.text||'').join('');
 }
-async function askOpenAI(message,sources=[],history=[]){
+async function askOpenAI(message,sources=[],history=[],reservationUsd=0){
   if(!process.env.OPENAI_API_KEY) throw new Error('OPENAI_API_KEY missing');
   const sourceContext=sources.length?\`\\n\\nFONTI WEB RECUPERATE:\\n\${sources.map(s=>\`[\${s.label}] \${s.title}\\n\${s.url}\\n\${s.snippet}\`).join('\\n\\n')}\`:'';
   const persona=loadZorgaxPersona();
@@ -39,7 +39,8 @@ async function askOpenAI(message,sources=[],history=[]){
   const json=await response.json().catch(()=>({}));
   if(!response.ok) throw new Error(\`OpenAI HTTP \${response.status}\`);
   const requestId=json.id||null;
-  await recordAstraUsage({inputTokens:Number(json.usage?.input_tokens)||0,outputTokens:Number(json.usage?.output_tokens)||0,requestId});
+  const usage=await recordAstraUsage({inputTokens:Number(json.usage?.input_tokens)||0,outputTokens:Number(json.usage?.output_tokens)||0,requestId});
+  await settleAstraBudget({reservedUsd:reservationUsd,actualUsd:Number(usage.costUsd)||0});
   return extractOpenAIText(json);
 }
 
@@ -53,5 +54,5 @@ async function askGeneralAI(message,sources=[],history=[],webRequested=false){
   const response=await fetch(`${gateway}/api/zargox/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:prompt,useWeb:false,history:Array.isArray(history)?history.slice(-12):[]})});
   const json=await response.json().catch(()=>({}));if(!response.ok)throw new Error(`AI gateway HTTP ${response.status}`);return json.response||json.message||json.answer||'';
 }
-async function answer({message,useWeb=true,history=[],limit=5}){const text=cleanText(message);if(!text)throw new Error('Messaggio mancante');if(dataIntent(text)){const dataPreview=previewData(text.replace(/^.*?\b(?:salva|inserisci|registra|memorizza|immetti)\b\s*/i,''));return{response:`Ho preparato l'anteprima dei dati. Non ho salvato nulla. Per renderli persistenti devi confermare esplicitamente con: ${dataPreview.confirmation}`,data_preview:dataPreview,action_required:'human_confirmation',sources:[]};}const research=useWeb?await searchWeb(text,limit):{query:text,sources:[],errors:[],live_search_available:false,providers_used:[]};const astraSpentUsd=await getAstraMonthlySpend().catch(()=>0);const route=selectModel({message:text,useResearch:useWeb,astraSpentUsd});let response;if(route.provider==='openai'){try{response=await askOpenAI(text,research.sources,history);}catch(error){console.error('[zorgax-openai-fallback]',error.message);response=await askGeneralAI(text,research.sources,history,useWeb);route.fallbackReason='openai_error';route.provider='ollama';route.model=process.env.OLLAMA_MODEL||'qwen2.5:3b';}}else{response=await askGeneralAI(text,research.sources,history,useWeb);}return{response,ai_provider:route.provider,ai_model:route.model,ai_budget_remaining_usd:route.remainingBudgetUsd,ai_fallback_reason:route.fallbackReason||null,sources:research.sources,search_errors:research.errors,web_research_requested:Boolean(useWeb),web_research_available:Boolean(research.live_search_available),web_providers_used:research.providers_used,specialist_mode:kefirIntent(text)?'kefir-circular-food':null,action_required:null};}
+async function answer({message,useWeb=true,history=[],limit=5}){const text=cleanText(message);if(!text)throw new Error('Messaggio mancante');if(dataIntent(text)){const dataPreview=previewData(text.replace(/^.*?\b(?:salva|inserisci|registra|memorizza|immetti)\b\s*/i,''));return{response:`Ho preparato l'anteprima dei dati. Non ho salvato nulla. Per renderli persistenti devi confermare esplicitamente con: ${dataPreview.confirmation}`,data_preview:dataPreview,action_required:'human_confirmation',sources:[]};}const research=useWeb?await searchWeb(text,limit):{query:text,sources:[],errors:[],live_search_available:false,providers_used:[]};const astraSpentUsd=await getAstraMonthlySpend().catch(()=>0);const route=selectModel({message:text,useResearch:useWeb,astraSpentUsd});let response;if(route.provider==='openai'){const reservationUsd=Math.min(route.remainingBudgetUsd,Number(process.env.ZORGAX_ASTRA_REQUEST_RESERVE_USD)||1);const reservation=await reserveAstraBudget({amountUsd:reservationUsd,budgetUsd:route.budgetUsd});if(!reservation){route.fallbackReason='budget_reservation_failed';route.provider='ollama';route.model=process.env.OLLAMA_MODEL||'qwen2.5:3b';response=await askGeneralAI(text,research.sources,history,useWeb);}else{try{response=await askOpenAI(text,research.sources,history,reservationUsd);}catch(error){await releaseAstraBudget({reservedUsd:reservationUsd}).catch(()=>{});console.error('[zorgax-openai-fallback]',error.message);response=await askGeneralAI(text,research.sources,history,useWeb);route.fallbackReason='openai_error';route.provider='ollama';route.model=process.env.OLLAMA_MODEL||'qwen2.5:3b';}}}else{response=await askGeneralAI(text,research.sources,history,useWeb);}return{response,ai_provider:route.provider,ai_model:route.model,ai_budget_remaining_usd:route.remainingBudgetUsd,ai_fallback_reason:route.fallbackReason||null,sources:research.sources,search_errors:research.errors,web_research_requested:Boolean(useWeb),web_research_available:Boolean(research.live_search_available),web_providers_used:research.providers_used,specialist_mode:kefirIntent(text)?'kefir-circular-food':null,action_required:null};}
 module.exports={answer,searchWeb,previewData,digestPreview,dataIntent,kefirIntent,inferCategory,looksTimeSensitive,googleNewsSearch};
