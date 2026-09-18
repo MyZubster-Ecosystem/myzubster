@@ -33,13 +33,13 @@ function extractOpenAIText(json){
 }
 async function askOpenAI(message,sources=[],history=[],reservationUsd=0){
   if(!process.env.OPENAI_API_KEY) throw new Error('OPENAI_API_KEY missing');
-  const sourceContext=sources.length?\`\\n\\nFONTI WEB RECUPERATE:\\n\${sources.map(s=>\`[\${s.label}] \${s.title}\\n\${s.url}\\n\${s.snippet}\`).join('\\n\\n')}\`:'';
+  const sourceContext=sources.length?`\n\nFONTI WEB RECUPERATE:\n${sources.map(s=>`[${s.label}] ${s.title}\n${s.url}\n${s.snippet}`).join('\n\n')}`:'';
   const persona=loadZorgaxPersona();
-  const input=\`\${persona}\\n\\nUSER MESSAGE:\\n\${cleanText(message)}\${sourceContext}\`;
+  const input=`${persona}\n\nUSER MESSAGE:\n${cleanText(message)}${sourceContext}`;
   const model=process.env.ZORGAX_ASTRA_MODEL||'gpt-5.6-sol';
-  const response=await fetch('https://api.openai.com/v1/responses',{method:'POST',headers:{Authorization:\`Bearer \${process.env.OPENAI_API_KEY}\`,'Content-Type':'application/json'},body:JSON.stringify({model,input,max_output_tokens:OPENAI_MAX_OUTPUT_TOKENS})});
+  const response=await fetch('https://api.openai.com/v1/responses',{method:'POST',headers:{Authorization:`Bearer ${process.env.OPENAI_API_KEY}`,'Content-Type':'application/json'},body:JSON.stringify({model,input,max_output_tokens:OPENAI_MAX_OUTPUT_TOKENS})});
   const json=await response.json().catch(()=>({}));
-  if(!response.ok) throw new Error(\`OpenAI HTTP \${response.status}\`);
+  if(!response.ok) throw new Error(`OpenAI HTTP ${response.status}`);
   const requestId=json.id||null;
   const usage=await recordAstraUsage({inputTokens:Number(json.usage?.input_tokens)||0,outputTokens:Number(json.usage?.output_tokens)||0,requestId});
   await settleAstraBudget({reservedUsd:reservationUsd,actualUsd:Number(usage.costUsd)||0});
