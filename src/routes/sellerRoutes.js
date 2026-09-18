@@ -171,6 +171,7 @@ router.get('/me', authenticate, async (req, res) => {
 router.post('/subscribe', authenticate, async (req, res) => {
   try {
     const { membership, preservedLegacyPaidState } = await activateFreeSeller(req.userId);
+    logConversionEvent('seller_activated', { userId:req.userId, path:req.originalUrl, provider:'NONE', plan:membership.plan, amount:0, currency:'EUR', metadata:{ preservedLegacyPaidState } });
     logConversionEvent('seller_free_activated', {
       userId:req.userId,
       path:req.originalUrl,
