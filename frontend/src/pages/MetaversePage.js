@@ -146,6 +146,7 @@ function AvatarCreator({ initialProfile, authenticated, busy, error, totalCharac
 
   return (
     <div className="metaverse-entry-shell">
+      <a href="/" style={{ position: 'fixed', top: 18, left: 18, color: '#eaf7ff', textDecoration: 'none', fontWeight: 800 }}>← Home MyZubster</a>
       <section className="metaverse-entry-card">
         <div className="metaverse-kicker">MYZUBSTER WORLD</div>
         <h2>Entra nel mondo</h2>
@@ -518,6 +519,7 @@ function MetaversePage() {
           )}
           <span>{Object.keys(players).length} online</span>
           <span>{lastLandmark}</span>
+          <a href="/" style={{ color: '#cfe5ef', textDecoration: 'none', fontWeight: 800 }}>← Home</a>
           <button onClick={resetProfile}>Cambia personaggio</button>
         </div>
       </header>
