@@ -2,6 +2,15 @@
 
 Pick the template closest to who you are, fork it on GitHub, and turn it into your own independent profile, project, community or pilot repository.
 
+
+## Interactive onboarding — from GitHub to MyZubster
+
+Use the same public onboarding from every profile template:
+
+[**Create / connect MyZubster with GitHub**](https://www.myzubster.com/social-login?returnTo=%2Fzorgax-profile-onboarding.html%3Fprovider%3Dgithub) · [**Create GitHub account**](https://github.com/signup) · [**Complete profile with Zorgax**](https://www.myzubster.com/zorgax-profile-onboarding.html) · [**Try Marketplace demos**](https://www.myzubster.com/marketplace-demos) · [**Open Marketplace**](https://www.myzubster.com/community-marketplace.html)
+
+Choose a community below, open its repository, fork it, then use Zorgax to turn the fork into your profile/project and connect it to the Marketplace or a pilot.
+
 ## How it works
 
 1. Choose one of the templates below.
