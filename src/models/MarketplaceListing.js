@@ -10,6 +10,7 @@ const marketplaceListingSchema = new mongoose.Schema({
   currency: { type: String, required: true, index: true },
   exchangeMode: { type: String, enum: ['payment', 'gift', 'barter'], default: 'payment' },
   description: { type: String, default: '', maxlength: 4000 },
+  images: { type: [{ url: { type: String, required: true, maxlength: 2048 }, alt: { type: String, default: '', maxlength: 160 } }], default: [], validate: [v => v.length <= 5, 'Massimo 5 immagini per annuncio'] },
   location: { type: String, default: '', maxlength: 160 },
   species: { type: String, default: '', maxlength: 120 },
   variety: { type: String, default: '', maxlength: 120 },
