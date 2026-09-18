@@ -7,7 +7,9 @@ const { getAstraMonthlySpend, recordAstraUsage, reserveAstraBudget, settleAstraB
 const DEFAULT_GATEWAY = 'https://myzubster-gateway.vercel.app';
 const MAX_SOURCES = 8;
 const OPENAI_MAX_INPUT_CHARS = 24000;
-const OPENAI_MAX_OUTPUT_TOKENS = 4096;
+const OPENAI_MAX_OUTPUT_TOKENS = Math.max(256, Math.min(Number(process.env.ZORGAX_ASTRA_MAX_OUTPUT_TOKENS) || 2048, 8192));
+const OPENAI_MAX_RETRY_DELAY_MS = 1500;
+const OPENAI_QUOTA_CODES = new Set(['credit_balance_exhausted','organization_usage_limit_exceeded','organization_spend_limit_exceeded','project_spend_limit_exceeded']);
 
 function clampLimit(value, fallback = 5) { return Math.max(1, Math.min(Number(value) || fallback, MAX_SOURCES)); }
 function cleanText(value, max = 6000) { return String(value || '').trim().slice(0, max); }
@@ -31,19 +33,65 @@ function extractOpenAIText(json){
   if(typeof json?.output_text==='string') return json.output_text;
   return (json?.output||[]).flatMap(item=>item?.content||[]).filter(part=>part?.type==='output_text').map(part=>part.text||'').join('');
 }
+function openAIErrorInfo(response,json){
+  const code=cleanText(json?.error?.code,120)||null;
+  const type=cleanText(json?.error?.type,120)||null;
+  const requestId=response.headers?.get?.('x-request-id')||null;
+  const retryAfterSeconds=Number(response.headers?.get?.('retry-after'));
+  return{status:response.status,code,type,requestId,retryAfterMs:Number.isFinite(retryAfterSeconds)&&retryAfterSeconds>=0?Math.ceil(retryAfterSeconds*1000):null};
+}
+function openAIFallbackReason(info={}){
+  if(OPENAI_QUOTA_CODES.has(info.code))return`openai_${info.code}`;
+  if(info.type==='insufficient_quota')return'openai_insufficient_quota';
+  if(info.status===429)return info.code?`openai_${info.code}`:'openai_rate_limit';
+  return info.status?`openai_http_${info.status}`:'openai_error';
+}
+function makeOpenAIError(info){
+  const error=new Error(`OpenAI HTTP ${info.status}${info.code?` (${info.code})`:''}`);
+  Object.assign(error,info,{fallbackReason:openAIFallbackReason(info)});
+  return error;
+}
+function isRetryableOpenAIError(error){
+  return error?.status===429&&!OPENAI_QUOTA_CODES.has(error?.code)&&error?.type!=='insufficient_quota';
+}
+function sleep(ms){return new Promise(resolve=>setTimeout(resolve,ms));}
+async function callOpenAI({model,input}){
+  const response=await fetch('https://api.openai.com/v1/responses',{method:'POST',headers:{Authorization:`Bearer ${process.env.OPENAI_API_KEY}`,'Content-Type':'application/json'},body:JSON.stringify({model,input,max_output_tokens:OPENAI_MAX_OUTPUT_TOKENS})});
+  const json=await response.json().catch(()=>({}));
+  if(!response.ok)throw makeOpenAIError(openAIErrorInfo(response,json));
+  return{json,model,requestId:json.id||response.headers?.get?.('x-request-id')||null};
+}
 async function askOpenAI(message,sources=[],history=[],reservationUsd=0){
   if(!process.env.OPENAI_API_KEY) throw new Error('OPENAI_API_KEY missing');
   const sourceContext=sources.length?`\n\nFONTI WEB RECUPERATE:\n${sources.map(s=>`[${s.label}] ${s.title}\n${s.url}\n${s.snippet}`).join('\n\n')}`:'';
   const persona=loadZorgaxPersona();
   const input=`${persona}\n\nUSER MESSAGE:\n${cleanText(message)}${sourceContext}`;
-  const model=process.env.ZORGAX_ASTRA_MODEL||'gpt-5.6-sol';
-  const response=await fetch('https://api.openai.com/v1/responses',{method:'POST',headers:{Authorization:`Bearer ${process.env.OPENAI_API_KEY}`,'Content-Type':'application/json'},body:JSON.stringify({model,input,max_output_tokens:OPENAI_MAX_OUTPUT_TOKENS})});
-  const json=await response.json().catch(()=>({}));
-  if(!response.ok) throw new Error(`OpenAI HTTP ${response.status}`);
-  const requestId=json.id||null;
-  const usage=await recordAstraUsage({inputTokens:Number(json.usage?.input_tokens)||0,outputTokens:Number(json.usage?.output_tokens)||0,requestId});
-  await settleAstraBudget({reservedUsd:reservationUsd,actualUsd:Number(usage.costUsd)||0});
-  return extractOpenAIText(json);
+  const primaryModel=process.env.ZORGAX_ASTRA_MODEL||'gpt-5.6-sol';
+  const secondaryModel=process.env.ZORGAX_ASTRA_FALLBACK_MODEL||'gpt-5.6-luna';
+  const models=[...new Set([primaryModel,secondaryModel].filter(Boolean))];
+  let lastError=null;
+  for(let modelIndex=0;modelIndex<models.length;modelIndex+=1){
+    const model=models[modelIndex];
+    const maxAttempts=modelIndex===0?2:1;
+    for(let attempt=0;attempt<maxAttempts;attempt+=1){
+      try{
+        const result=await callOpenAI({model,input});
+        const usage=await recordAstraUsage({inputTokens:Number(result.json.usage?.input_tokens)||0,outputTokens:Number(result.json.usage?.output_tokens)||0,requestId:result.requestId,model});
+        await settleAstraBudget({reservedUsd:reservationUsd,actualUsd:Number(usage.costUsd)||0});
+        return{text:extractOpenAIText(result.json),model};
+      }catch(error){
+        lastError=error;
+        console.warn('[zorgax-openai-attempt]',JSON.stringify({status:error.status||null,code:error.code||null,type:error.type||null,requestId:error.requestId||null,model,attempt:attempt+1,fallbackReason:error.fallbackReason||'openai_error'}));
+        if(OPENAI_QUOTA_CODES.has(error.code)||error.type==='insufficient_quota')throw error;
+        const canRetry=isRetryableOpenAIError(error)&&attempt+1<maxAttempts;
+        if(!canRetry)break;
+        if(error.retryAfterMs!=null&&error.retryAfterMs>OPENAI_MAX_RETRY_DELAY_MS)break;
+        const delay=error.retryAfterMs!=null?error.retryAfterMs:Math.min(500*(2**attempt),OPENAI_MAX_RETRY_DELAY_MS);
+        await sleep(delay);
+      }
+    }
+  }
+  throw lastError||new Error('OpenAI request failed');
 }
 
 async function askGeneralAI(message,sources=[],history=[],webRequested=false){
@@ -56,5 +104,5 @@ async function askGeneralAI(message,sources=[],history=[],webRequested=false){
   const response=await fetch(`${gateway}/api/zargox/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:prompt,useWeb:false,history:Array.isArray(history)?history.slice(-12):[]})});
   const json=await response.json().catch(()=>({}));if(!response.ok)throw new Error(`AI gateway HTTP ${response.status}`);return json.response||json.message||json.answer||'';
 }
-async function answer({message,useWeb=true,history=[],limit=5}){const text=cleanText(message);if(!text)throw new Error('Messaggio mancante');if(dataIntent(text)){const dataPreview=previewData(text.replace(/^.*?\b(?:salva|inserisci|registra|memorizza|immetti)\b\s*/i,''));return{response:`Ho preparato l'anteprima dei dati. Non ho salvato nulla. Per renderli persistenti devi confermare esplicitamente con: ${dataPreview.confirmation}`,data_preview:dataPreview,action_required:'human_confirmation',sources:[]};}const research=useWeb?await searchWeb(text,limit):{query:text,sources:[],errors:[],live_search_available:false,providers_used:[]};const astraSpentUsd=await getAstraMonthlySpend().catch(()=>0);const route=selectModel({message:text,useResearch:useWeb,astraSpentUsd});let response;if(route.provider==='openai'){const worstCaseInputTokens=Buffer.byteLength(cleanText(`${loadZorgaxPersona()}\n\nUSER MESSAGE:\n${text}${research.sources.length?`\n\nFONTI WEB RECUPERATE:\n${research.sources.map(s=>`[${s.label}] ${s.title}\n${s.url}\n${s.snippet}`).join('\n\n')}`:''}`,OPENAI_MAX_INPUT_CHARS),'utf8');const worstCaseUsd=estimateAstraCost({inputTokens:worstCaseInputTokens,outputTokens:OPENAI_MAX_OUTPUT_TOKENS});const configuredReserve=Math.max(0,Number(process.env.ZORGAX_ASTRA_REQUEST_RESERVE_USD)||1);const reservationUsd=Math.max(configuredReserve,worstCaseUsd);const reservation=reservationUsd<=route.remainingBudgetUsd?await reserveAstraBudget({amountUsd:reservationUsd,budgetUsd:route.budgetUsd}):null;if(!reservation){route.fallbackReason='budget_reservation_failed';route.provider='ollama';route.model=process.env.OLLAMA_MODEL||'qwen2.5:3b';response=await askGeneralAI(text,research.sources,history,useWeb);}else{try{response=await askOpenAI(text,research.sources,history,reservationUsd);}catch(error){await releaseAstraBudget({reservedUsd:reservationUsd}).catch(()=>{});console.error('[zorgax-openai-fallback]',error.message);response=await askGeneralAI(text,research.sources,history,useWeb);route.fallbackReason='openai_error';route.provider='ollama';route.model=process.env.OLLAMA_MODEL||'qwen2.5:3b';}}}else{response=await askGeneralAI(text,research.sources,history,useWeb);}return{response,ai_provider:route.provider,ai_model:route.model,ai_budget_remaining_usd:route.remainingBudgetUsd,ai_fallback_reason:route.fallbackReason||null,sources:research.sources,search_errors:research.errors,web_research_requested:Boolean(useWeb),web_research_available:Boolean(research.live_search_available),web_providers_used:research.providers_used,specialist_mode:kefirIntent(text)?'kefir-circular-food':null,action_required:null};}
-module.exports={answer,searchWeb,previewData,digestPreview,dataIntent,kefirIntent,inferCategory,looksTimeSensitive,googleNewsSearch};
+async function answer({message,useWeb=true,history=[],limit=5}){const text=cleanText(message);if(!text)throw new Error('Messaggio mancante');if(dataIntent(text)){const dataPreview=previewData(text.replace(/^.*?\b(?:salva|inserisci|registra|memorizza|immetti)\b\s*/i,''));return{response:`Ho preparato l'anteprima dei dati. Non ho salvato nulla. Per renderli persistenti devi confermare esplicitamente con: ${dataPreview.confirmation}`,data_preview:dataPreview,action_required:'human_confirmation',sources:[]};}const research=useWeb?await searchWeb(text,limit):{query:text,sources:[],errors:[],live_search_available:false,providers_used:[]};const astraSpentUsd=await getAstraMonthlySpend().catch(()=>0);const route=selectModel({message:text,useResearch:useWeb,astraSpentUsd});let response;if(route.provider==='openai'){const worstCaseInputTokens=Buffer.byteLength(cleanText(`${loadZorgaxPersona()}\n\nUSER MESSAGE:\n${text}${research.sources.length?`\n\nFONTI WEB RECUPERATE:\n${research.sources.map(s=>`[${s.label}] ${s.title}\n${s.url}\n${s.snippet}`).join('\n\n')}`:''}`,OPENAI_MAX_INPUT_CHARS),'utf8');const worstCaseUsd=estimateAstraCost({inputTokens:worstCaseInputTokens,outputTokens:OPENAI_MAX_OUTPUT_TOKENS,model:route.model});const configuredReserve=Math.max(0,Number(process.env.ZORGAX_ASTRA_REQUEST_RESERVE_USD)||1);const reservationUsd=Math.max(configuredReserve,worstCaseUsd);const reservation=reservationUsd<=route.remainingBudgetUsd?await reserveAstraBudget({amountUsd:reservationUsd,budgetUsd:route.budgetUsd}):null;if(!reservation){route.fallbackReason='budget_reservation_failed';route.provider='ollama';route.model=process.env.OLLAMA_MODEL||'qwen2.5:3b';response=await askGeneralAI(text,research.sources,history,useWeb);}else{try{const openaiResult=await askOpenAI(text,research.sources,history,reservationUsd);response=openaiResult.text;route.model=openaiResult.model;}catch(error){await releaseAstraBudget({reservedUsd:reservationUsd}).catch(()=>{});console.error('[zorgax-openai-fallback]',JSON.stringify({status:error.status||null,code:error.code||null,type:error.type||null,requestId:error.requestId||null,fallbackReason:error.fallbackReason||'openai_error'}));response=await askGeneralAI(text,research.sources,history,useWeb);route.fallbackReason=error.fallbackReason||'openai_error';route.provider='ollama';route.model=process.env.OLLAMA_MODEL||'qwen2.5:3b';}}}else{response=await askGeneralAI(text,research.sources,history,useWeb);}return{response,ai_provider:route.provider,ai_model:route.model,ai_budget_remaining_usd:route.remainingBudgetUsd,ai_fallback_reason:route.fallbackReason||null,sources:research.sources,search_errors:research.errors,web_research_requested:Boolean(useWeb),web_research_available:Boolean(research.live_search_available),web_providers_used:research.providers_used,specialist_mode:kefirIntent(text)?'kefir-circular-food':null,action_required:null};}
+module.exports={answer,searchWeb,previewData,digestPreview,dataIntent,kefirIntent,inferCategory,looksTimeSensitive,googleNewsSearch,openAIFallbackReason};
