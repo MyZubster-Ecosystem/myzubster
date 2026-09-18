@@ -45,7 +45,7 @@ document.querySelectorAll('[data-provider]').forEach(function(link){link.addEven
     history.replaceState({},document.title,'/social-login.html');
     const returnTo=sessionStorage.getItem('myzubster-login-return-to');
     if(returnTo)sessionStorage.removeItem('myzubster-login-return-to');
-    const next=returnTo||(verifiedProvider==='google'||verifiedProvider==='github'?'/zorgax-profile-onboarding.html?provider='+encodeURIComponent(verifiedProvider):'/onboarding');
+    const next=returnTo||'/';
     setTimeout(()=>location.assign(next),900);
   }catch(e){track('signup_error',{surface:'social_login',provider:provider||'unknown'});status.className='status err';status.textContent=e.message||'Login non riuscito.';}
 })();
