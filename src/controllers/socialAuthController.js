@@ -1,6 +1,8 @@
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const { upsertVerifiedAccount } = require('../services/socialIdentityService');
+const User = require('../models/User');
+const { encryptToken } = require('../services/githubProfileAutomation');
 
 const OAUTH_ENV_KEYS = [
   'GOOGLE_LOGIN_CLIENT_ID','GOOGLE_LOGIN_CLIENT_SECRET','GOOGLE_LOGIN_CALLBACK_URL','GOOGLE_OAUTH_CLIENT_ID','GOOGLE_OAUTH_CLIENT_SECRET','GOOGLE_OAUTH_CALLBACK_URL','GITHUB_OAUTH_CLIENT_ID','GITHUB_OAUTH_CLIENT_SECRET','GITHUB_LOGIN_CALLBACK_URL','GITHUB_OAUTH_CALLBACK_URL','FACEBOOK_LOGIN_APP_ID','FACEBOOK_LOGIN_APP_SECRET','FACEBOOK_LOGIN_CALLBACK_URL'
@@ -71,8 +73,8 @@ exports.callback=async(req,res)=>{
   const provider=String(req.params.provider||'').toLowerCase();
   try{
     if(!['google','github','facebook'].includes(provider))throw new Error('Provider non supportato');
-    const providerError=providerCallbackError(req.query);if(providerError)throw new Error(providerError);if(!req.query.state)throw new Error('Sessione OAuth mancante. Riavvia il login dal pulsante MyZubster.');if(!req.query.code)throw new Error('OAuth callback incompleto. Riavvia il login dal pulsante MyZubster.');verifyState(req.query.state,provider);
-    let profile;
+    const providerError=providerCallbackError(req.query);if(providerError)throw new Error(providerError);if(!req.query.state)throw new Error('Sessione OAuth mancante. Riavvia il login dal pulsante MyZubster.');if(!req.query.code)throw new Error('OAuth callback incompleto. Riavvia il login dal pulsante MyZubster.');const verifiedState=verifyState(req.query.state,provider);
+    let profile; let githubWriteToken=null;
     if(provider==='google'){
       const clientId=process.env.GOOGLE_LOGIN_CLIENT_ID||process.env.GOOGLE_OAUTH_CLIENT_ID;const clientSecret=process.env.GOOGLE_LOGIN_CLIENT_SECRET||process.env.GOOGLE_OAUTH_CLIENT_SECRET;
       const tokenRes=await fetch('https://oauth2.googleapis.com/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({code:req.query.code,client_id:clientId,client_secret:clientSecret,redirect_uri:callback('google'),grant_type:'authorization_code'})});const tokens=await tokenRes.json();if(!tokenRes.ok||!tokens.access_token)throw new Error('Login Google non riuscito');
@@ -83,14 +85,16 @@ exports.callback=async(req,res)=>{
       const userRes=await fetch('https://api.github.com/user',{headers});const user=await userRes.json();if(!userRes.ok||!user.id)throw new Error('Profilo GitHub non disponibile');
       let email=user.email;if(!email){const e=await fetch('https://api.github.com/user/emails',{headers});if(e.ok){const list=await e.json();email=list.find(x=>x.primary&&x.verified)?.email||list.find(x=>x.verified)?.email;}}
       if(!email)throw new Error('Serve una email GitHub verificata per creare un nuovo account');
-      const publicSnapshot=await captureGithubSnapshot(user,headers);
+      const publicSnapshot=await captureGithubSnapshot(user,headers);if(verifiedState.writeProfile===true)githubWriteToken=tokens.access_token;
       profile={id:String(user.id),email,name:user.name,login:user.login,avatarUrl:user.avatar_url,profileUrl:user.html_url,publicSnapshot};
     }else{
       const tokenUrl=new URL('https://graph.facebook.com/oauth/access_token');tokenUrl.searchParams.set('client_id',process.env.FACEBOOK_LOGIN_APP_ID);tokenUrl.searchParams.set('client_secret',process.env.FACEBOOK_LOGIN_APP_SECRET);tokenUrl.searchParams.set('redirect_uri',callback('facebook'));tokenUrl.searchParams.set('code',req.query.code);
       const tokenRes=await fetch(tokenUrl);const tokens=await tokenRes.json();if(!tokenRes.ok||!tokens.access_token){logFacebookOAuthError('token_exchange',tokenRes,tokens);throw new Error('Login Facebook non riuscito');}
       const meUrl=new URL('https://graph.facebook.com/me');meUrl.searchParams.set('fields','id,name,picture');meUrl.searchParams.set('access_token',tokens.access_token);const userRes=await fetch(meUrl);const user=await userRes.json();if(!userRes.ok||!user.id){logFacebookOAuthError('profile_fetch',userRes,user);throw new Error('Profilo Facebook non disponibile');}profile={id:String(user.id),name:user.name,avatarUrl:user.picture?.data?.url||null};
     }
-    redirectSuccess(res,await upsertVerifiedAccount(provider,profile),provider);
+    const result=await upsertVerifiedAccount(provider,profile);
+    if(provider==='github'&&verifiedState.writeProfile===true&&githubWriteToken){if(!verifiedState.userId||String(result.user._id)!==String(verifiedState.userId))throw new Error('Autorizzazione GitHub non associata all’account MyZubster corretto');const target=await User.findById(result.user._id).select('+githubAutomation.accessTokenEncrypted');target.githubAutomation=target.githubAutomation||{};target.githubAutomation.accessTokenEncrypted=encryptToken(githubWriteToken);target.githubAutomation.writeAuthorizedAt=new Date();target.githubAutomation.updatedAt=new Date();await target.save();}
+    redirectSuccess(res,result,provider);
   }catch(error){redirectError(res,error.message,provider);}
 };
 
