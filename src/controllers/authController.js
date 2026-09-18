@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const MetaverseCharacter = require('../../backend/src/models/MetaverseCharacter');
 const jwt = require('jsonwebtoken');
+const { logConversionEvent } = require('../services/conversionFunnel');
 
 function isValidMoneroAddress(value) {
   if (!value) return true;
@@ -283,6 +284,8 @@ exports.register = async (req, res) => {
       jwtSecret(),
       { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
     );
+
+    logConversionEvent('signup_completed', { userId:user._id, path:req.originalUrl, provider:github?.id ? 'GITHUB' : 'PASSWORD' });
 
     res.status(201).json({
       success: true,
