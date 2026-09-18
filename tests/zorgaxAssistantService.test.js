@@ -4,7 +4,8 @@ const {
   dataIntent,
   inferCategory,
   searchWeb,
-  looksTimeSensitive
+  looksTimeSensitive,
+  openAIFallbackReason
 } = require('../src/services/zorgaxAssistantService');
 
 const originalFetch = global.fetch;
@@ -82,5 +83,14 @@ describe('Zorgax live research fallbacks', () => {
     expect(result.sources[0].provider).toBe('google_news');
     expect(result.providers_used).toEqual(expect.arrayContaining(['google_news', 'wikipedia']));
     expect(global.fetch).toHaveBeenCalledTimes(2);
+  });
+});
+
+
+describe('Zorgax OpenAI fallback classification', () => {
+  test('distinguishes quota exhaustion from transient rate limits', () => {
+    expect(openAIFallbackReason({ status: 429, code: 'credit_balance_exhausted', type: 'insufficient_quota' })).toBe('openai_credit_balance_exhausted');
+    expect(openAIFallbackReason({ status: 429, code: 'rate_limit_exceeded', type: 'rate_limit_error' })).toBe('openai_rate_limit_exceeded');
+    expect(openAIFallbackReason({ status: 429 })).toBe('openai_rate_limit');
   });
 });
