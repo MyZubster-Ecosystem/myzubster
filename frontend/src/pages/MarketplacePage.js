@@ -5,7 +5,7 @@ import{getLanguage,LANGUAGE_NAMES,setLanguage}from'../i18n';
 
 const categories=['health_products','electronics','kefir_culture_donation','seeds','plants','produce','clothing','accessories','event_equipment','tools','services','development_services','event_support','agriculture_support','art','wellness','knowledge','help_request','university_course','thesis_project','research_project','internship','volunteering','pet_adoption','pet_lost_found','pet_services'];
 const demoCategories=[...categories];
-const currencies=['FREE','BARTER','MYZ','ETH','BTC','XMR','TARI'];
+const currencies=['FREE','BARTER','EUR','MYZ','ETH','BTC','XMR','TARI'];
 const DEMO_SELLERS=[
   {id:'demo-kefir',icon:'🥛',name:'Kefir Lab Demo',category:'produce',location:'Emilia-Romagna',offer:'Grani di kefir e guida introduttiva',description:'Esempio di scambio locale con istruzioni di conservazione e ritiro concordato.',price:'BARTER',requests:4,availability:'Su appuntamento',details:[['Tipo','Scambio alimentare'],['Consegna','Ritiro locale']]},
   {id:'demo-repair',icon:'🧰',name:'Circular Repair Demo',category:'services',location:'Cesena',offer:'Riparazione collaborativa di piccoli oggetti',description:'Sessione dimostrativa di diagnosi e riparazione con approccio circolare.',price:'15 MYZ',requests:7,availability:'Sabato',details:[['Durata','60 minuti'],['Modalità','In presenza']]},
