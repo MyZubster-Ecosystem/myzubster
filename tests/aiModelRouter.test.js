@@ -6,6 +6,7 @@ describe('Zorgax AI model router', () => {
   beforeEach(() => {
     process.env = { ...oldEnv };
     delete process.env.ZORGAX_ASTRA_ENABLED;
+    delete process.env.ZORGAX_ASTRA_KILL_SWITCH;
     delete process.env.ZORGAX_ASTRA_MONTHLY_BUDGET_USD;
     delete process.env.OPENAI_API_KEY;
   });
@@ -30,12 +31,12 @@ describe('Zorgax AI model router', () => {
     expect(selectModel({ message: 'ricerca LIFE KPI MRV', useResearch: true, astraSpentUsd: 25 }).provider).toBe('ollama');
   });
 
-  test('keeps OpenAI disabled when explicitly switched off', () => {
+  test('keeps OpenAI disabled when the kill switch is enabled', () => {
     process.env.OPENAI_API_KEY = 'test-key';
-    process.env.ZORGAX_ASTRA_ENABLED = 'false';
+    process.env.ZORGAX_ASTRA_KILL_SWITCH = 'true';
     const route = selectModel({ message: 'Analizza ricerca LIFE con KPI e MRV', useResearch: true, astraSpentUsd: 0 });
     expect(route.provider).toBe('ollama');
-    expect(route.fallbackReason).toBe('astra_disabled');
+    expect(route.fallbackReason).toBe('astra_kill_switch');
   });
 
   test('reports missing OpenAI key distinctly', () => {
