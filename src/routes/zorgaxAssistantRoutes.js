@@ -8,6 +8,7 @@ const { catalog, createCheckoutIntent, getPaymentIntent, listPaymentIntents } = 
 const { getAccess } = require('../services/zorgaxAccessService');
 const { refreshPaymentIntent, verifyAndActivatePaymentIntent } = require('../services/zorgaxPaymentIntentService');
 const { getPaymentReceipt } = require('../services/zorgaxBillingService');
+const { logConversionEvent } = require('../services/conversionFunnel');
 
 const router = express.Router();
 const { loadZorgaxAccess, requireZorgaxPlan } = createZorgaxAccessMiddleware();
@@ -114,6 +115,7 @@ router.get('/pricing', (_req, res) => res.json({ ok: true, entity: 'ZORGAX-001',
 router.post('/checkout/intent', authenticate, async (req, res) => {
   try {
     const intent = await createCheckoutIntent({ ownerId: req.userId, planId: req.body?.plan, asset: req.body?.asset, renew: req.body?.renew === true });
+    logConversionEvent('checkout_started', { userId:req.userId, path:req.originalUrl, provider:'CRYPTO', plan:req.body?.plan || null, currency:req.body?.asset || null });
     res.status(201).json({ ok: true, entity: 'ZORGAX-001', intent, warning: 'Il checkout non firma né invia fondi. L’accesso resta inattivo finché il pagamento non è verificato indipendentemente.' });
   } catch (error) { res.status(400).json({ ok: false, error: error.message }); }
 });
@@ -126,6 +128,7 @@ router.get('/checkout/intent/:intentId', authenticate, async (req, res) => {
 router.post('/checkout/intent/:intentId/verify', authenticate, async (req, res) => {
   try {
     const result = await verifyAndActivatePaymentIntent({ ownerId: req.userId, intentId: req.params.intentId, paymentReference: req.body?.paymentReference });
+    if (!result.pending) logConversionEvent('payment_completed', { userId:req.userId, path:req.originalUrl, provider:'CRYPTO', metadata:{ intentId:req.params.intentId } });
     res.status(result.pending ? 202 : 200).json({ ok: true, entity: 'ZORGAX-001', ...result });
   } catch (error) {
     const status = /non trovato/i.test(error.message) ? 404 : /scaduto|insufficienti|non verificato|non verificabile/i.test(error.message) ? 422 : 400;
