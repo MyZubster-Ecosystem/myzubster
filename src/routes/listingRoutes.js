@@ -3,6 +3,7 @@ const router = express.Router();
 const User = require('../models/User');
 const MarketplaceListing = require('../models/MarketplaceListing');
 const SellerMembership = require('../models/SellerMembership');
+const MarketplaceCategoryProposal = require('../models/MarketplaceCategoryProposal');
 const { authenticate } = require('../middleware/auth');
 const { freeSellerPlan, canPublishCommercialListing } = require('../services/freeSellerPolicy');
 
@@ -11,6 +12,7 @@ const ALLOWED_CATEGORIES = new Set(['health_products','electronics','kefir_cultu
 
 function containsPrivateKeyMaterial(value) { const text=String(value||'').toUpperCase(); return /PRIVATE KEY|BEGIN PGP PRIVATE|BEGIN OPENSSH PRIVATE|SEED PHRASE|MNEMONIC/.test(text); }
 function isCommunityExchange(category, currency) { const normalized=String(currency||'').toUpperCase(); return category==='kefir_culture_donation' || (category==='seeds' && ['FREE','BARTER'].includes(normalized)); }
+function categorySlug(value) { return String(value||'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'').slice(0,80); }
 async function activeSeller(userId) {
  const membership=await SellerMembership.findOne({ userId, status:'ACTIVE' }).lean();
  if(!membership)return null;
@@ -36,6 +38,10 @@ async function commercialPublishDecision(userId) {
  return { ...canPublishCommercialListing(membership, activeCommercialListings), membership, activeCommercialListings };
 }
 
+router.get('/categories', async (_req,res)=>{try{const approved=await MarketplaceCategoryProposal.find({status:'approved'}).select('name slug description').sort({name:1}).lean();res.json({success:true,standard:[...ALLOWED_CATEGORIES],custom:approved});}catch(_error){res.status(500).json({success:false,message:'Categorie non disponibili'});}});
+router.post('/categories/propose',authenticate,async(req,res)=>{try{const name=String(req.body?.name||'').trim();const description=String(req.body?.description||'').trim();const slug=categorySlug(name);if(name.length<3||!slug)return res.status(400).json({success:false,message:'Inserisci un nome categoria valido'});if(ALLOWED_CATEGORIES.has(slug))return res.status(409).json({success:false,message:'Questa categoria esiste già'});const existing=await MarketplaceCategoryProposal.findOne({proposerId:req.userId,slug});if(existing)return res.status(409).json({success:false,message:'Hai già proposto questa categoria',proposal:existing});const proposal=await MarketplaceCategoryProposal.create({proposerId:req.userId,name,slug,description,status:'pending'});res.status(201).json({success:true,message:'Categoria proposta. Sarà utilizzabile dopo approvazione.',proposal});}catch(error){res.status(400).json({success:false,message:error.message||'Proposta categoria non creata'});}});
+router.get('/categories/mine',authenticate,async(req,res)=>{try{const proposals=await MarketplaceCategoryProposal.find({proposerId:req.userId}).sort({createdAt:-1}).lean();res.json({success:true,proposals});}catch(_error){res.status(500).json({success:false,message:'Proposte non disponibili'});}});
+
 router.get('/', async (req,res)=>{ try { const {category,currency,location}=req.query; const query={status:'active'}; if(category)query.category=category; if(currency)query.currency=String(currency).toUpperCase(); if(location)query.location={$regex:String(location).replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),$options:'i'}; const listings=await MarketplaceListing.find(query).sort({createdAt:-1}).limit(200).lean(); res.json({success:true,count:listings.length,listings:listings.map(item=>({...item,id:String(item._id)}))}); } catch(_error){res.status(500).json({success:false,message:'Marketplace non disponibile'});} });
 router.get('/mine',authenticate,async(req,res)=>{try{const listings=await MarketplaceListing.find({ownerId:req.userId}).sort({createdAt:-1}).lean();res.json({success:true,listings:listings.map(item=>({...item,id:String(item._id)}))});}catch(_error){res.status(500).json({success:false,message:'Impossibile recuperare i tuoi annunci'});}});
 router.get('/profile/me',authenticate,async(req,res)=>{try{const user=await User.findById(req.userId).select('username moneroWallet communityProfile');if(!user)return res.status(404).json({success:false,message:'Utente non trovato'});res.json({success:true,profile:user});}catch(_error){res.status(500).json({success:false,message:'Errore nel recupero del profilo community'});}});
@@ -55,7 +61,8 @@ router.post('/create',authenticate,async(req,res)=>{try{
  const{title,category,price,currency,description,location,features,contact,stock,exchangeMode,species,variety,pet,kefir}=req.body||{};
  const normalizedCurrency=String(currency||(exchangeMode==='gift'?'FREE':exchangeMode==='barter'?'BARTER':'MYZ')).toUpperCase();
  if(!title||!category)return res.status(400).json({error:'Titolo e categoria sono obbligatori'});
- if(!ALLOWED_CATEGORIES.has(category))return res.status(400).json({error:'Categoria marketplace non supportata'});
+ const approvedCustomCategory=!ALLOWED_CATEGORIES.has(category)?await MarketplaceCategoryProposal.exists({slug:category,status:'approved'}):true;
+ if(!approvedCustomCategory)return res.status(400).json({error:'Categoria marketplace non supportata o non ancora approvata'});
  if(!ALLOWED_CURRENCIES.has(normalizedCurrency))return res.status(400).json({error:'Valuta/modalità non supportata'});
  if(!['FREE','BARTER'].includes(normalizedCurrency)&&(price===undefined||price===null||Number(price)<0))return res.status(400).json({error:'Prezzo non valido'});
  if(category.startsWith('pet_')&&pet?.sale===true)return res.status(400).json({error:'Il modulo pet supporta adozioni, smarriti/trovati e servizi; non la vendita diretta di animali.'});
