@@ -5,7 +5,9 @@ const {
   inferCategory,
   searchWeb,
   looksTimeSensitive,
-  openAIFallbackReason
+  openAIFallbackReason,
+  buildRuntimeProductContext,
+  buildAssistantPrompt
 } = require('../src/services/zorgaxAssistantService');
 
 const originalFetch = global.fetch;
@@ -92,5 +94,28 @@ describe('Zorgax OpenAI fallback classification', () => {
     expect(openAIFallbackReason({ status: 429, code: 'credit_balance_exhausted', type: 'insufficient_quota' })).toBe('openai_credit_balance_exhausted');
     expect(openAIFallbackReason({ status: 429, code: 'rate_limit_exceeded', type: 'rate_limit_error' })).toBe('openai_rate_limit_exceeded');
     expect(openAIFallbackReason({ status: 429 })).toBe('openai_rate_limit');
+  });
+});
+
+
+describe('Zorgax shared runtime product context', () => {
+  test('marks canonical live routes without promoting unverified capabilities', () => {
+    const runtime = buildRuntimeProductContext();
+    expect(runtime).toContain('LIVE ROUTE: /marketplace');
+    expect(runtime).toContain('LIVE ROUTE: /metaverse');
+    expect(runtime).toContain('LIVE/PILOT ROUTE: /life-pilot');
+    expect(runtime).toContain('LIVE AUTH ROUTE: /social-login');
+    expect(runtime).toContain('MYZ is an internal reward/accounting ledger');
+    expect(runtime).toContain('Advanced bounties');
+    expect(runtime).toContain('UNKNOWN/UNVERIFIED');
+    expect(runtime).toContain('does NOT automatically prove every feature');
+  });
+
+  test('injects the same canonical runtime facts into the shared assistant prompt', () => {
+    const prompt = buildAssistantPrompt('Quali funzioni sono live?', []);
+    expect(prompt).toContain('RUNTIME PRODUCT FACTS — CANONICAL APPLICATION CONTEXT');
+    expect(prompt).toContain('/marketplace');
+    expect(prompt).toContain('/life-pilot');
+    expect(prompt).toContain('USER MESSAGE:\\nQuali funzioni sono live?');
   });
 });
