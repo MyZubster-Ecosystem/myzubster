@@ -17,7 +17,7 @@ async function getAstraMonthlySpend(date = new Date()) {
 }
 
 function budgetKey(date = new Date()) {
-  return `openai:${process.env.ZORGAX_ASTRA_MODEL || 'gpt-5.6-sol'}:${date.getUTCFullYear()}-${String(date.getUTCMonth()+1).padStart(2,'0')}`;
+  return `openai:all:${date.getUTCFullYear()}-${String(date.getUTCMonth()+1).padStart(2,'0')}`;
 }
 
 async function reserveAstraBudget({ amountUsd, budgetUsd, date = new Date() }) {
