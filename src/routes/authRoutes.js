@@ -8,6 +8,7 @@ const culturalContributorController = require('../controllers/culturalContributo
 const zorgaxCulturalController = require('../controllers/zorgaxCulturalController');
 const User = require('../models/User');
 const { authenticate } = require('../middleware/auth');
+const { decryptToken, updateBio, updateProfileReadme } = require('../services/githubProfileAutomation');
 
 function legacyOrSocialCallback(provider, legacyHandler) {
   return (req, res, next) => {
@@ -189,6 +190,22 @@ router.put('/github/automation', authenticate, async (req, res) => {
   if (enabled && !user.githubAutomation.consentedAt) user.githubAutomation.consentedAt = new Date();
   await user.save();
   return res.json({ success: true, data: { linked: Boolean(user.github?.login), login: user.github?.login || null, enabled } });
+});
+router.post('/github/automation/apply', authenticate, async (req, res) => {
+  try {
+    const user = await User.findById(req.userId).select('+githubAutomation.accessTokenEncrypted github githubAutomation');
+    if (!user?.github?.login) return res.status(409).json({ success:false, message:'Collega GitHub prima di applicare modifiche' });
+    if (!user.githubAutomation?.enabled) return res.status(409).json({ success:false, message:'Attiva prima l’automazione GitHub' });
+    if (!user.githubAutomation?.accessTokenEncrypted) return res.status(403).json({ success:false, message:'Autorizza prima le modifiche GitHub' });
+    const bio = typeof req.body?.bio === 'string' ? req.body.bio.trim() : '';
+    const readme = typeof req.body?.readme === 'string' ? req.body.readme.trim() : '';
+    if (!bio && !readme) return res.status(400).json({ success:false, message:'Nessuna modifica approvata da applicare' });
+    const token = decryptToken(user.githubAutomation.accessTokenEncrypted); const applied=[];
+    if (bio) { await updateBio(token,bio); applied.push('bio'); }
+    if (readme) { await updateProfileReadme(token,user.github.login,readme); applied.push('readme'); }
+    user.githubAutomation.updatedAt=new Date(); await user.save();
+    return res.json({ success:true, data:{ applied } });
+  } catch(error) { console.error('GitHub profile automation apply error:',error.message); return res.status(502).json({ success:false, message:'GitHub non ha applicato le modifiche autorizzate' }); }
 });
 router.get('/cultural-contributor/attestation', authenticate, culturalContributorController.getAttestation);
 router.post('/cultural-contributor/attestation', authenticate, culturalContributorController.attest);
