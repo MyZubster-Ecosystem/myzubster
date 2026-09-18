@@ -4,7 +4,7 @@ Zorgax keeps ordinary chat on the existing local Ollama model and may escalate c
 
 ## Environment
 
-- `ZORGAX_ASTRA_ENABLED` defaults to enabled when `OPENAI_API_KEY` is configured; set it explicitly to `false` as a kill switch.
+- OpenAI/Astra routing is enabled whenever `OPENAI_API_KEY` is configured and the monthly budget allows it. Set `ZORGAX_ASTRA_KILL_SWITCH=true` only when an explicit emergency disable is needed.
 - `ZORGAX_ASTRA_MODEL=gpt-5.6-sol` selects the remote model (or override with another supported model).
 - `ZORGAX_ASTRA_MONTHLY_BUDGET_USD=25` sets the application-side monthly guard.
 - `OPENAI_API_KEY` must be configured only in the deployment secret store, never committed.
