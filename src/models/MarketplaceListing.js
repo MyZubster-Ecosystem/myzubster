@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const { notifyAdminActivity } = require('../services/adminActivityNotificationService');
 
 const marketplaceListingSchema = new mongoose.Schema({
+  listingId: { type: String, required: true, unique: true, index: true, default: () => new mongoose.Types.ObjectId().toString() },
   ownerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
   ownerUsername: { type: String, default: '' },
   title: { type: String, required: true, trim: true, maxlength: 160 },
