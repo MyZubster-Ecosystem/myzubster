@@ -175,6 +175,21 @@ router.get('/github/public-snapshot', authenticate, async (req, res) => {
     return res.status(500).json({ success: false, message: 'Impossibile leggere ora il profilo GitHub pubblico' });
   }
 });
+router.get('/github/automation/status', authenticate, async (req, res) => {
+  const user = await User.findById(req.userId).select('github githubAutomation');
+  return res.json({ success: true, data: { linked: Boolean(user?.github?.login), login: user?.github?.login || null, enabled: Boolean(user?.githubAutomation?.enabled) } });
+});
+router.put('/github/automation', authenticate, async (req, res) => {
+  const enabled = req.body?.enabled === true;
+  const user = await User.findById(req.userId);
+  if (!user) return res.status(404).json({ success: false, message: 'Utente non trovato' });
+  if (enabled && !user.github?.login) return res.status(409).json({ success: false, message: 'Collega e verifica GitHub prima di attivare l’automazione' });
+  user.githubAutomation.enabled = enabled;
+  user.githubAutomation.updatedAt = new Date();
+  if (enabled && !user.githubAutomation.consentedAt) user.githubAutomation.consentedAt = new Date();
+  await user.save();
+  return res.json({ success: true, data: { linked: Boolean(user.github?.login), login: user.github?.login || null, enabled } });
+});
 router.get('/cultural-contributor/attestation', authenticate, culturalContributorController.getAttestation);
 router.post('/cultural-contributor/attestation', authenticate, culturalContributorController.attest);
 
