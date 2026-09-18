@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const MetaverseCharacter = require('../../backend/src/models/MetaverseCharacter');
 const { notifyGoogleRegistration } = require('./adminNotificationEmailService');
+const { logConversionEvent } = require('./conversionFunnel');
 
 const PROVIDERS = new Set(['google', 'github', 'facebook']);
 
@@ -93,6 +94,7 @@ async function upsertVerifiedAccount(provider, profile) {
   }
   user.isVerified = true; user.lastLogin = new Date();
   await user.save();
+  logConversionEvent(isNewAccount ? 'signup_completed' : 'login_completed', { userId:user._id, path:`/api/auth/social/${provider}/callback`, provider:provider.toUpperCase(), metadata:{ newAccount:isNewAccount } });
   if (provider === 'google' && isNewAccount) {
     void notifyGoogleRegistration({ userId:String(user._id), email:profile.email || user.email, name:profile.name || user.username });
   }
