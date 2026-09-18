@@ -27,7 +27,9 @@ function classifyTask(message, { useResearch = false } = {}) {
 
 function selectModel({ message, useResearch = false, astraSpentUsd = 0 } = {}) {
   const budgetUsd = envNumber('ZORGAX_ASTRA_MONTHLY_BUDGET_USD', DEFAULT_BUDGET_USD);
-  const astraEnabled = String(process.env.ZORGAX_ASTRA_ENABLED || '').toLowerCase() === 'true';
+  const astraFlag = String(process.env.ZORGAX_ASTRA_ENABLED ?? 'true').toLowerCase();
+  const openaiConfigured = Boolean(String(process.env.OPENAI_API_KEY || '').trim());
+  const astraEnabled = astraFlag === 'true' && openaiConfigured;
   const tier = classifyTask(message, { useResearch });
 
   if (astraEnabled && tier === 'complex' && astraSpentUsd < budgetUsd) {
@@ -46,7 +48,7 @@ function selectModel({ message, useResearch = false, astraSpentUsd = 0 } = {}) {
     tier,
     budgetUsd,
     remainingBudgetUsd: Math.max(0, budgetUsd - astraSpentUsd),
-    fallbackReason: !astraEnabled ? 'astra_disabled' : tier !== 'complex' ? 'standard_task' : 'budget_exhausted'
+    fallbackReason: !openaiConfigured ? 'openai_key_missing' : astraFlag !== 'true' ? 'astra_disabled' : tier !== 'complex' ? 'standard_task' : 'budget_exhausted'
   };
 }
 
