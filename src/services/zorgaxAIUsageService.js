@@ -10,7 +10,7 @@ function monthStart(date = new Date()) {
 
 async function getAstraMonthlySpend(date = new Date()) {
   const rows = await ZorgaxAIUsage.aggregate([
-    { $match: { provider: 'openai', model: process.env.ZORGAX_ASTRA_MODEL || 'gpt-5.6-sol', createdAt: { $gte: monthStart(date) } } },
+    { $match: { provider: 'openai', createdAt: { $gte: monthStart(date) } } },
     { $group: { _id: null, total: { $sum: '$costUsd' } } }
   ]);
   return rows[0]?.total || 0;
@@ -45,11 +45,12 @@ async function releaseAstraBudget({ reservedUsd, date = new Date() }) {
   return ZorgaxAIBudget.findOneAndUpdate({ key: budgetKey(date), reservedUsd: { $gte: reserved } }, { $inc: { reservedUsd: -reserved }, $set: { updatedAt: new Date() } }, { new: true });
 }
 
-async function recordAstraUsage({ inputTokens = 0, outputTokens = 0, requestId } = {}) {
-  const costUsd = estimateAstraCost({ inputTokens, outputTokens });
+async function recordAstraUsage({ inputTokens = 0, outputTokens = 0, requestId, model } = {}) {
+  const modelId = model || process.env.ZORGAX_ASTRA_MODEL || 'gpt-5.6-sol';
+  const costUsd = estimateAstraCost({ inputTokens, outputTokens, model: modelId });
   return ZorgaxAIUsage.create({
     provider: 'openai',
-    model: process.env.ZORGAX_ASTRA_MODEL || 'gpt-5.6-sol',
+    model: modelId,
     inputTokens,
     outputTokens,
     costUsd,
