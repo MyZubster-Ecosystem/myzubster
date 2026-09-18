@@ -40,6 +40,23 @@ You can now use GitHub as a public entry point into the MyZubster onboarding flo
 
 > MyZubster does not create a GitHub personal account on the user's behalf. Account registration happens on GitHub; MyZubster links the verified account and continues onboarding with Zorgax.
 
+
+### ✨ Interactive Zorgax bio — human-approved
+
+From GitHub you can open the live profile assistant and let Zorgax prepare a bio **without publishing anything automatically**.
+
+<p align="center">
+  <a href="https://www.myzubster.com/social-login?returnTo=%2Fzorgax-profile-onboarding.html%3Fprovider%3Dgithub"><strong>1 · Verify / connect GitHub</strong></a>
+  ·
+  <a href="https://www.myzubster.com/zorgax-profile-onboarding.html?provider=github"><strong>2 · Generate a bio with Zorgax</strong></a>
+  ·
+  <a href="https://www.myzubster.com/community-marketplace.html"><strong>3 · Continue to Marketplace</strong></a>
+</p>
+
+**Live flow:** GitHub verified → Zorgax analyzes the available public profile context → shows the GitHub data used → generates an editable bio → **Discard / Save only on MyZubster / Approve and publish to GitHub / Restore previous GitHub bio**.
+
+The final decision is always the user's. GitHub write access is separate from normal login and is required only for an explicitly approved GitHub update.
+
 ## 🧠 Learn · Share · Help others with Zorgax
 
 MyZubster connects documented knowledge to a learning and mentorship pathway: **learn → try → document → share → Zorgax assists → another person tries → evidence + feedback → improve → help the next pilot**.
