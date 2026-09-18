@@ -27,6 +27,9 @@ function track(name,data){try{if(typeof window.va==='function')window.va('event'
 document.querySelectorAll('[data-provider]').forEach(function(link){link.addEventListener('click',function(){track('signup_start',{surface:'social_login',provider:link.dataset.provider,placement:link.dataset.provider==='google'?'primary_cta':'secondary_cta'});});});
 (async function(){
   const p=new URLSearchParams(location.search); const state=p.get('social_login'); const ticket=p.get('social_login_ticket'); const provider=p.get('provider'); const status=document.getElementById('status');
+  const requestedReturnTo=p.get('returnTo');
+  const safeReturnTo=requestedReturnTo&&requestedReturnTo.startsWith('/')&&!requestedReturnTo.startsWith('//')?requestedReturnTo:null;
+  if(safeReturnTo)sessionStorage.setItem('myzubster-login-return-to',safeReturnTo);
   if(state==='error'){track('signup_error',{surface:'social_login',provider:provider||'unknown'});status.className='status err';status.textContent=p.get('social_login_message')||'Login non riuscito.';return;}
   if(state!=='verified'||!ticket)return;
   status.textContent='Verifica account e Metaverse in corso…';
@@ -40,7 +43,9 @@ document.querySelectorAll('[data-provider]').forEach(function(link){link.addEven
     track('signup_complete',{surface:'social_login',provider:verifiedProvider});
     status.className='status ok';status.textContent='✓ Account verificato. Zorgax ha collegato la tua identità al Metaverse.';
     history.replaceState({},document.title,'/social-login.html');
-    const next=(verifiedProvider==='google'||verifiedProvider==='github')?'/zorgax-profile-onboarding.html?provider='+encodeURIComponent(verifiedProvider):'/onboarding';
+    const returnTo=sessionStorage.getItem('myzubster-login-return-to');
+    if(returnTo)sessionStorage.removeItem('myzubster-login-return-to');
+    const next=returnTo||(verifiedProvider==='google'||verifiedProvider==='github'?'/zorgax-profile-onboarding.html?provider='+encodeURIComponent(verifiedProvider):'/onboarding');
     setTimeout(()=>location.assign(next),900);
   }catch(e){track('signup_error',{surface:'social_login',provider:provider||'unknown'});status.className='status err';status.textContent=e.message||'Login non riuscito.';}
 })();
