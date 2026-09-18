@@ -1,6 +1,8 @@
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
+const { selectModel } = require('./aiModelRouter');
+const { getAstraMonthlySpend, recordAstraUsage } = require('./zorgaxAIUsageService');
 
 const DEFAULT_GATEWAY = 'https://myzubster-gateway.vercel.app';
 const MAX_SOURCES = 8;
@@ -23,6 +25,24 @@ async function searchWeb(query,requestedLimit=5){const cleanQuery=cleanText(quer
 function loadZorgaxPersona(){try{return fs.readFileSync(path.join(process.cwd(),'agents','zorgax','SYSTEM_PROMPT.md'),'utf8');}catch(_){return 'You are Zorgax, the MyZubster product copilot. MyZubster is a live evolving open-source ecosystem. Be concise, product-first, and guide users to Marketplace, Seller, Metaverse, LIFE Pilot, or Community.';}}
 function loadKefirModule(){try{return fs.readFileSync(path.join(process.cwd(),'agents','zorgax','KEFIR_ASSISTANT.md'),'utf8');}catch(_){return '';}}
 
+function extractOpenAIText(json){
+  if(typeof json?.output_text==='string') return json.output_text;
+  return (json?.output||[]).flatMap(item=>item?.content||[]).filter(part=>part?.type==='output_text').map(part=>part.text||'').join('');
+}
+async function askOpenAI(message,sources=[],history=[]){
+  if(!process.env.OPENAI_API_KEY) throw new Error('OPENAI_API_KEY missing');
+  const sourceContext=sources.length?\`\\n\\nFONTI WEB RECUPERATE:\\n\${sources.map(s=>\`[\${s.label}] \${s.title}\\n\${s.url}\\n\${s.snippet}\`).join('\\n\\n')}\`:'';
+  const persona=loadZorgaxPersona();
+  const input=\`\${persona}\\n\\nUSER MESSAGE:\\n\${cleanText(message)}\${sourceContext}\`;
+  const model=process.env.ZORGAX_ASTRA_MODEL||'gpt-5.6-sol';
+  const response=await fetch('https://api.openai.com/v1/responses',{method:'POST',headers:{Authorization:\`Bearer \${process.env.OPENAI_API_KEY}\`,'Content-Type':'application/json'},body:JSON.stringify({model,input})});
+  const json=await response.json().catch(()=>({}));
+  if(!response.ok) throw new Error(\`OpenAI HTTP \${response.status}\`);
+  const requestId=json.id||null;
+  await recordAstraUsage({inputTokens:Number(json.usage?.input_tokens)||0,outputTokens:Number(json.usage?.output_tokens)||0,requestId});
+  return extractOpenAIText(json);
+}
+
 async function askGeneralAI(message,sources=[],history=[],webRequested=false){
   const gateway=String(process.env.ZORGAX_PUBLIC_AI_URL||DEFAULT_GATEWAY).replace(/\/$/,'');
   const sourceContext=sources.length?`\n\nFONTI WEB RECUPERATE:\n${sources.map(s=>`[${s.label}] ${s.title}\n${s.url}\n${s.snippet}`).join('\n\n')}`:'';
@@ -33,5 +53,5 @@ async function askGeneralAI(message,sources=[],history=[],webRequested=false){
   const response=await fetch(`${gateway}/api/zargox/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:prompt,useWeb:false,history:Array.isArray(history)?history.slice(-12):[]})});
   const json=await response.json().catch(()=>({}));if(!response.ok)throw new Error(`AI gateway HTTP ${response.status}`);return json.response||json.message||json.answer||'';
 }
-async function answer({message,useWeb=true,history=[],limit=5}){const text=cleanText(message);if(!text)throw new Error('Messaggio mancante');if(dataIntent(text)){const dataPreview=previewData(text.replace(/^.*?\b(?:salva|inserisci|registra|memorizza|immetti)\b\s*/i,''));return{response:`Ho preparato l'anteprima dei dati. Non ho salvato nulla. Per renderli persistenti devi confermare esplicitamente con: ${dataPreview.confirmation}`,data_preview:dataPreview,action_required:'human_confirmation',sources:[]};}const research=useWeb?await searchWeb(text,limit):{query:text,sources:[],errors:[],live_search_available:false,providers_used:[]};const response=await askGeneralAI(text,research.sources,history,useWeb);return{response,sources:research.sources,search_errors:research.errors,web_research_requested:Boolean(useWeb),web_research_available:Boolean(research.live_search_available),web_providers_used:research.providers_used,specialist_mode:kefirIntent(text)?'kefir-circular-food':null,action_required:null};}
+async function answer({message,useWeb=true,history=[],limit=5}){const text=cleanText(message);if(!text)throw new Error('Messaggio mancante');if(dataIntent(text)){const dataPreview=previewData(text.replace(/^.*?\b(?:salva|inserisci|registra|memorizza|immetti)\b\s*/i,''));return{response:`Ho preparato l'anteprima dei dati. Non ho salvato nulla. Per renderli persistenti devi confermare esplicitamente con: ${dataPreview.confirmation}`,data_preview:dataPreview,action_required:'human_confirmation',sources:[]};}const research=useWeb?await searchWeb(text,limit):{query:text,sources:[],errors:[],live_search_available:false,providers_used:[]};const astraSpentUsd=await getAstraMonthlySpend().catch(()=>0);const route=selectModel({message:text,useResearch:useWeb,astraSpentUsd});let response;if(route.provider==='openai'){try{response=await askOpenAI(text,research.sources,history);}catch(error){console.error('[zorgax-openai-fallback]',error.message);response=await askGeneralAI(text,research.sources,history,useWeb);route.fallbackReason='openai_error';}}else{response=await askGeneralAI(text,research.sources,history,useWeb);}return{response,ai_provider:route.provider,ai_model:route.model,ai_budget_remaining_usd:route.remainingBudgetUsd,ai_fallback_reason:route.fallbackReason||null,sources:research.sources,search_errors:research.errors,web_research_requested:Boolean(useWeb),web_research_available:Boolean(research.live_search_available),web_providers_used:research.providers_used,specialist_mode:kefirIntent(text)?'kefir-circular-food':null,action_required:null};}
 module.exports={answer,searchWeb,previewData,digestPreview,dataIntent,kefirIntent,inferCategory,looksTimeSensitive,googleNewsSearch};
