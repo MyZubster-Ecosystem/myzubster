@@ -17,7 +17,7 @@ describe('Zorgax AI usage ledger and atomic budget', () => {
   });
 
   test('builds a stable monthly budget key', () => {
-    expect(budgetKey(new Date('2026-09-18T12:00:00Z'))).toBe('openai:gpt-5.6-sol:2026-09');
+    expect(budgetKey(new Date('2026-09-18T12:00:00Z'))).toBe('openai:all:2026-09');
   });
 
   test('rejects invalid or oversized reservations before touching MongoDB', async () => {
