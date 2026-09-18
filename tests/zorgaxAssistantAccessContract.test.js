@@ -42,6 +42,14 @@ describe('Zorgax assistant paid access contract', () => {
     expect(routeSource).not.toContain('req.body?.message || req.body?.prompt, authenticated');
   });
 
+  test('exposes the selected AI provider/model without hiding fallback state', () => {
+    expect(routeSource).toContain('aiProvider: result.ai_provider || null');
+    expect(routeSource).toContain('aiModel: result.ai_model || null');
+    expect(routeSource).toContain('aiFallbackReason: result.ai_fallback_reason || null');
+    expect(uiSource).toContain('function renderAiMeta(data)');
+    expect(uiSource).toContain("renderAiMeta(d)");
+  });
+
   test('offers guided intents with dedicated privacy-safe tracking', () => {
     expect(routeSource).toContain("'zorgax_intent_seller'");
     expect(routeSource).toContain("'zorgax_intent_marketplace'");
