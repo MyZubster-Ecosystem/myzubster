@@ -6,6 +6,7 @@ const SellerMembership = require('../models/SellerMembership');
 const MarketplaceCategoryProposal = require('../models/MarketplaceCategoryProposal');
 const { authenticate } = require('../middleware/auth');
 const { freeSellerPlan, canPublishCommercialListing } = require('../services/freeSellerPolicy');
+const { put } = require('@vercel/blob');
 
 const ALLOWED_CURRENCIES = new Set(['ETH', 'BTC', 'XMR', 'MYZ', 'TARI', 'BARTER', 'FREE']);
 const ALLOWED_CATEGORIES = new Set(['health_products','electronics','kefir_culture_donation','seeds','plants','produce','tools','services','development_services','event_support','agriculture_support','arts','wellness','help_request','university_course','thesis_project','research_project','internship','volunteering','pet_adoption','pet_lost_found','pet_services']);
@@ -37,6 +38,9 @@ async function commercialPublishDecision(userId) {
  const activeCommercialListings=await activeCommercialListingCount(userId);
  return { ...canPublishCommercialListing(membership, activeCommercialListings), membership, activeCommercialListings };
 }
+
+
+router.post('/images/upload',authenticate,express.raw({type:['image/jpeg','image/png','image/webp'],limit:'5mb'}),async(req,res)=>{try{const contentType=String(req.headers['content-type']||'').split(';')[0];if(!['image/jpeg','image/png','image/webp'].includes(contentType))return res.status(415).json({success:false,message:'Formato immagine non supportato'});if(!Buffer.isBuffer(req.body)||!req.body.length)return res.status(400).json({success:false,message:'Immagine mancante'});const ext=contentType==='image/png'?'png':contentType==='image/webp'?'webp':'jpg';const blob=await put(`marketplace/${req.userId}/${Date.now()}.${ext}`,req.body,{access:'public',addRandomSuffix:true,contentType});res.status(201).json({success:true,image:{url:blob.url}});}catch(error){res.status(500).json({success:false,message:error.message||'Caricamento immagine fallito'});}});
 
 router.get('/categories', async (_req,res)=>{try{const approved=await MarketplaceCategoryProposal.find({status:'approved'}).select('name slug description').sort({name:1}).lean();res.json({success:true,standard:[...ALLOWED_CATEGORIES],custom:approved});}catch(_error){res.status(500).json({success:false,message:'Categorie non disponibili'});}});
 router.post('/categories/propose',authenticate,async(req,res)=>{try{const name=String(req.body?.name||'').trim();const description=String(req.body?.description||'').trim();const slug=categorySlug(name);if(name.length<3||!slug)return res.status(400).json({success:false,message:'Inserisci un nome categoria valido'});if(ALLOWED_CATEGORIES.has(slug))return res.status(409).json({success:false,message:'Questa categoria esiste già'});const existing=await MarketplaceCategoryProposal.findOne({proposerId:req.userId,slug});if(existing)return res.status(409).json({success:false,message:'Hai già proposto questa categoria',proposal:existing});const proposal=await MarketplaceCategoryProposal.create({proposerId:req.userId,name,slug,description,status:'pending'});res.status(201).json({success:true,message:'Categoria proposta. Sarà utilizzabile dopo approvazione.',proposal});}catch(error){res.status(400).json({success:false,message:error.message||'Proposta categoria non creata'});}});
