@@ -24,6 +24,7 @@ const ZORGAX_FUNNEL_EVENTS = new Set([
   'zorgax_intent_metaverse',
   'zorgax_intent_life',
   'zorgax_intent_party',
+  'zorgax_to_home',
   'zorgax_to_marketplace',
   'zorgax_to_seller',
   'zorgax_to_metaverse',
