@@ -67,6 +67,21 @@ MyZubster connects documented knowledge to a learning and mentorship pathway: **
 
 > A learning or mentoring interaction does not by itself prove competence, safety, scientific validity or institutional endorsement.
 
+## 🧩 Start contributing in 10 minutes
+
+Want to help without learning the whole ecosystem first? Start with one small, reviewable change.
+
+1. **Fork** this repository and clone your fork.
+2. Read [CONTRIBUTING.md](CONTRIBUTING.md) and pick an issue labeled **good first issue** or **help wanted**.
+3. Choose **one focused task**: docs, accessibility, tests, UI copy, Marketplace demo verification, or a small bug fix.
+4. Create a branch, make the smallest useful change, and run the relevant checks.
+5. Open a pull request describing **what changed, how you tested it, and what remains**.
+6. If you want to build a real-world pilot instead, start from [Choose Your MyZubster Profile](examples/ecosystem-repositories/CHOOSE-YOUR-PROFILE.md) and connect it to the ecosystem.
+
+**Good first contributions do not require blockchain, AI or MyZubster architecture expertise.** Documentation fixes, reproducible bug reports, tests, translations, accessibility improvements and focused UI fixes are useful contributions.
+
+**Find a task:** [good first issue](https://github.com/MyZubster-Ecosystem/myzubster/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) · [help wanted](https://github.com/MyZubster-Ecosystem/myzubster/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22) · [all open issues](https://github.com/MyZubster-Ecosystem/myzubster/issues)
+
 ## 🚀 Start here — Star · Fork your profile · Contribute
 
 New to MyZubster? You can participate in under five minutes:
