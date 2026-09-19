@@ -1,6 +1,6 @@
 {
   "version": "myzubster_life_stakeholder_registry_v1",
-  "updatedAt": "2026-08-31",
+  "updatedAt": "2026-09-19",
   "truthRule": "Only FORMAL_CONFIRMED may be described as a confirmed LIFE partner/consortium role, and only with sufficient independently verifiable evidence.",
   "formalPartnerCount": 0,
   "stakeholders": [
@@ -9,9 +9,15 @@
       "label": "BIOAZUL",
       "category": "possible_replication_uptake_european_dimension_interlocutor",
       "state": "IN_DISCUSSION",
-      "evidence": ["authorised_correspondence_2026-08-31_not_published"],
+      "evidence": [
+        "authorised_correspondence_2026-08-31_not_published"
+      ],
       "nextReviewWindow": "late_2026-10",
-      "missing": ["follow_up_discussion", "explicit_participation_or_role_confirmation", "formal_agreement_if_any"],
+      "missing": [
+        "follow_up_discussion",
+        "explicit_participation_or_role_confirmation",
+        "formal_agreement_if_any"
+      ],
       "formalPartner": false
     },
     {
@@ -19,10 +25,14 @@
       "label": "UNIBO maritime-hydraulics contact lane",
       "category": "scientific_contact_lane_outside_current_biodiversity_kpi_scope",
       "state": "INACTIVE",
-      "evidence": ["authorised_response_2026-08-31_not_published"],
+      "evidence": [
+        "authorised_response_2026-08-31_not_published"
+      ],
       "restriction": "no_further_action_on_this_contact_lane",
       "scopeBoundary": "contact_lane_only_not_unibo_institution_wide",
-      "missing": ["better_matched_agriculture_or_biodiversity_scientific_interlocutor"],
+      "missing": [
+        "better_matched_agriculture_or_biodiversity_scientific_interlocutor"
+      ],
       "formalPartner": false
     },
     {
@@ -30,48 +40,185 @@
       "label": "Isola di Capraia / Tuscan Archipelago context",
       "category": "candidate_pilot_context",
       "state": "CANDIDATE",
-      "evidence": ["docs/life/02-pilot-shortlist.md", "issues/508"],
-      "missing": ["competent_authority", "outreach_response", "scope_data_permissions", "explicit_institutional_interest"]
+      "evidence": [
+        "docs/life/02-pilot-shortlist.md",
+        "issues/508"
+      ],
+      "missing": [
+        "competent_authority",
+        "outreach_response",
+        "scope_data_permissions",
+        "explicit_institutional_interest"
+      ]
     },
     {
       "id": "parco-nazionale-cinque-terre",
       "label": "Parco Nazionale delle Cinque Terre",
       "category": "candidate_pilot_organisation",
       "state": "CANDIDATE",
-      "evidence": ["docs/life/02-pilot-shortlist.md", "issues/508"],
-      "missing": ["outreach_evidence", "operational_fit", "explicit_interest_or_authorization"]
+      "evidence": [
+        "docs/life/02-pilot-shortlist.md",
+        "issues/508"
+      ],
+      "missing": [
+        "outreach_evidence",
+        "operational_fit",
+        "explicit_interest_or_authorization"
+      ]
     },
     {
       "id": "parco-nazionale-arcipelago-toscano",
       "label": "Parco Nazionale dell'Arcipelago Toscano",
       "category": "candidate_pilot_organisation",
       "state": "CANDIDATE",
-      "evidence": ["docs/life/02-pilot-shortlist.md", "issues/508"],
-      "missing": ["outreach_evidence", "candidate_site_or_data", "explicit_interest_or_authorization"]
+      "evidence": [
+        "docs/life/02-pilot-shortlist.md",
+        "issues/508"
+      ],
+      "missing": [
+        "outreach_evidence",
+        "candidate_site_or_data",
+        "explicit_interest_or_authorization"
+      ]
     },
     {
       "id": "taz-riccione",
       "label": "TAZ Riccione",
       "category": "proposed_event_venue_context",
       "state": "TENTATIVE",
-      "evidence": ["issues/835"],
-      "missing": ["authorised_venue_host_confirmation", "logistics", "organiser_host_authorization"]
+      "evidence": [
+        "issues/835"
+      ],
+      "missing": [
+        "authorised_venue_host_confirmation",
+        "logistics",
+        "organiser_host_authorization"
+      ]
     },
     {
       "id": "scientific-partner-role",
       "label": "Scientific partner for biodiversity/KPI methodology",
       "category": "project_role",
       "state": "UNFILLED",
-      "evidence": ["issues/509", "unibo_maritime_hydraulics_contact_lane_inactive_2026-08-31"],
-      "missing": ["qualified_agriculture_or_biodiversity_interlocutor", "methodology_discussion", "explicit_role_or_interest"]
+      "evidence": [
+        "issues/509",
+        "unibo_maritime_hydraulics_contact_lane_inactive_2026-08-31"
+      ],
+      "missing": [
+        "qualified_agriculture_or_biodiversity_interlocutor",
+        "methodology_discussion",
+        "explicit_role_or_interest"
+      ]
     },
     {
       "id": "formal-life-consortium-partner-layer",
       "label": "Formal LIFE consortium / institutional partner",
       "category": "formal_partner_layer",
       "state": "UNFILLED",
-      "evidence": ["issues/507", "issues/508", "issues/509"],
-      "missing": ["explicit_independently_verifiable_formal_agreement_or_role"]
+      "evidence": [
+        "issues/507",
+        "issues/508",
+        "issues/509"
+      ],
+      "missing": [
+        "explicit_independently_verifiable_formal_agreement_or_role"
+      ]
+    },
+    {
+      "id": "enea-circular-water-contact-lane",
+      "label": "ENEA Circular Water contact lane",
+      "category": "scientific_and_technical_contact_lane",
+      "state": "INACTIVE",
+      "evidence": [
+        "authorised_response_2026-09-16_not_published"
+      ],
+      "restriction": "no_active_contribution_conditions_identified_by_contacted_team",
+      "scopeBoundary": "contacted_team_and_current_proposal_only_not_enea_institution_wide",
+      "missing": [
+        "materially_reframed_scope_or_new_evidence_before_any_reactivation"
+      ],
+      "formalPartner": false
+    },
+    {
+      "id": "unibo-distal-contact-lane",
+      "label": "UNIBO DISTAL contact lane",
+      "category": "possible_scientific_interlocutor",
+      "state": "IN_DISCUSSION",
+      "evidence": [
+        "authorised_response_2026-09-16_not_published"
+      ],
+      "missing": [
+        "introductory_meeting",
+        "scope_fit",
+        "explicit_participation_or_role_confirmation",
+        "institutional_authorization_if_any"
+      ],
+      "formalPartner": false
+    },
+    {
+      "id": "unifi-dagri-contact-lane",
+      "label": "UNIFI DAGRI contact lane",
+      "category": "possible_scientific_interlocutor_and_coordinator_evaluation",
+      "state": "IN_DISCUSSION",
+      "evidence": [
+        "authorised_response_2026-09-16_not_published"
+      ],
+      "restriction": "coordination_and_partner_selection_subject_to_unifi_procedures",
+      "missing": [
+        "concise_concept_note",
+        "pilot_priorities_and_kpis",
+        "role_clarification",
+        "explicit_interest_or_authorization"
+      ],
+      "formalPartner": false
+    },
+    {
+      "id": "unipi-disaaa-contact-lane",
+      "label": "UNIPI DiSAAA-a contact lane",
+      "category": "possible_scientific_interlocutor_and_coordinator_evaluation",
+      "state": "IN_DISCUSSION",
+      "evidence": [
+        "authorised_response_2026-09-18_not_published"
+      ],
+      "missing": [
+        "concept_note",
+        "pilot_portfolio",
+        "kpi_mrv_framework",
+        "explicit_interest_or_role_confirmation"
+      ],
+      "formalPartner": false
+    },
+    {
+      "id": "romagna-acque-circular-water-contact-lane",
+      "label": "Romagna Acque Circular Water contact lane",
+      "category": "candidate_data_and_pilot_interlocutor",
+      "state": "CANDIDATE",
+      "evidence": [
+        "authorised_response_2026-09-17_not_published"
+      ],
+      "restriction": "laboratory_data_require_prior_authorization_from_the_production_area_technical_director",
+      "missing": [
+        "data_owner_authorization",
+        "defined_dataset_and_scope",
+        "explicit_pilot_interest"
+      ],
+      "formalPartner": false
+    },
+    {
+      "id": "contarina-ahp-pap-contact-lane",
+      "label": "Contarina AHP/PAP contact lane",
+      "category": "candidate_circular_care_pilot_interlocutor",
+      "state": "INACTIVE",
+      "evidence": [
+        "authorised_response_2026-09-18_not_published"
+      ],
+      "restriction": "requested_pilot_not_currently_possible_because_facility_is_not_yet_operational_pending_authorisations_and_procedures",
+      "missing": [
+        "facility_operational_readiness",
+        "renewed_contact_from_stakeholder",
+        "technical_scope_and_data_authorization"
+      ],
+      "formalPartner": false
     }
   ]
 }
