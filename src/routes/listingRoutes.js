@@ -76,6 +76,30 @@ router.post('/create',authenticate,async(req,res)=>{try{
  res.status(201).json({success:true,listing:{...listing.toObject(),id:String(listing._id)}});
 }catch(error){res.status(400).json({success:false,message:error.message||'Annuncio non creato'});}});
 
+router.patch('/:id',authenticate,async(req,res)=>{try{
+ const listing=await MarketplaceListing.findOne({_id:req.params.id,ownerId:req.userId});
+ if(!listing)return res.status(404).json({error:'Annuncio non trovato'});
+ const nextCategory=req.body?.category!==undefined?String(req.body.category):listing.category;
+ const nextCurrency=String(req.body?.currency!==undefined?req.body.currency:listing.currency).toUpperCase();
+ const nextExchangeMode=req.body?.exchangeMode!==undefined?String(req.body.exchangeMode):listing.exchangeMode;
+ const nextTitle=req.body?.title!==undefined?String(req.body.title).trim():listing.title;
+ const nextDescription=req.body?.description!==undefined?String(req.body.description).trim():listing.description;
+ const nextPrice=req.body?.price!==undefined?Number(req.body.price):listing.price;
+ const searchable=(nextTitle+' '+nextDescription).toLowerCase();
+ if(!nextTitle)return res.status(400).json({error:'Titolo obbligatorio'});
+ if(/\\b(laser|visual|mapping|proiettore)\\b/i.test(searchable)&&nextCategory==='kefir_culture_donation')return res.status(400).json({error:'Un annuncio laser/visual non può usare la categoria kefir. Usa event_support.'});
+ if(nextCategory==='kefir_culture_donation'&&!['FREE','BARTER'].includes(nextCurrency))return res.status(400).json({error:'Le colture di kefir possono essere pubblicate solo come dono gratuito o baratto non commerciale.'});
+ if(nextCategory==='kefir_culture_donation'&&req.body?.kefir!==undefined&&!['milk','water'].includes(req.body.kefir?.type))return res.status(400).json({error:'Indica kefir di latte oppure kefir d’acqua.'});
+ if(!['FREE','BARTER'].includes(nextCurrency)&&(!Number.isFinite(nextPrice)||nextPrice<0))return res.status(400).json({error:'Prezzo non valido'});
+ if([nextDescription,JSON.stringify(req.body?.contact!==undefined?req.body.contact:listing.contact||{})].some(containsPrivateKeyMaterial))return res.status(400).json({error:'Non pubblicare seed phrase o chiavi private.'});
+ const set={title:nextTitle,category:nextCategory,currency:nextCurrency,exchangeMode:nextExchangeMode,description:nextDescription,price:['FREE','BARTER'].includes(nextCurrency)?0:nextPrice};
+ for(const field of ['location','features','contact','stock'])if(req.body?.[field]!==undefined)set[field]=req.body[field];
+ if(nextCategory==='kefir_culture_donation'&&req.body?.kefir!==undefined)set.kefir={type:req.body.kefir.type,cultureAge:String(req.body.kefir.cultureAge||'').trim().slice(0,120),handlingNotes:String(req.body.kefir.handlingNotes||'').trim().slice(0,500),safetyAcknowledged:req.body.kefir.safetyAcknowledged===true,donationOnly:nextCurrency==='FREE'};
+ if(nextCategory!=='kefir_culture_donation')set.kefir=null;
+ const updated=await MarketplaceListing.findOneAndUpdate({_id:req.params.id,ownerId:req.userId},{$set:set},{new:true,runValidators:true});
+ res.json({success:true,listing:{...updated.toObject(),id:String(updated._id)}});
+}catch(error){res.status(400).json({success:false,message:error.message||'Impossibile modificare annuncio'});}});
+
 router.patch('/:id/status',authenticate,async(req,res)=>{try{const status=String(req.body?.status||'');if(!['active','paused','closed'].includes(status))return res.status(400).json({error:'Stato non valido'});if(status==='active'){const existing=await MarketplaceListing.findOne({_id:req.params.id,ownerId:req.userId}).select('category currency status').lean();if(!existing)return res.status(404).json({error:'Annuncio non trovato'});const communityExchange=isCommunityExchange(existing.category,existing.currency);if(!communityExchange&&existing.status!=='active'){const decision=await commercialPublishDecision(req.userId);if(!decision.allowed){if(decision.reason==='FREE_SELLER_ACTIVE_LISTING_LIMIT')return res.status(409).json({success:false,code:decision.reason,message:`Hai raggiunto il limite di ${decision.limit} annunci commerciali attivi del piano Seller Free.`,sellerPlan:freeSellerPlan(),activeCommercialListings:decision.activeCommercialListings,paymentRequired:false,automaticCharge:false});return res.status(402).json({success:false,code:'SELLER_MEMBERSHIP_REQUIRED',message:'Attiva gratuitamente il profilo Seller prima di riattivare un annuncio commerciale.',sellerPlan:freeSellerPlan(),paymentRequired:false,paymentMethodRequired:false});}}}const listing=await MarketplaceListing.findOneAndUpdate({_id:req.params.id,ownerId:req.userId},{$set:{status}},{new:true,runValidators:true});if(!listing)return res.status(404).json({error:'Annuncio non trovato'});res.json({success:true,listing:{...listing.toObject(),id:String(listing._id)}});}catch(_error){res.status(400).json({success:false,message:'Impossibile aggiornare annuncio'});}});
 router.delete('/:id',authenticate,async(req,res)=>{try{const listing=await MarketplaceListing.findOneAndDelete({_id:req.params.id,ownerId:req.userId});if(!listing)return res.status(404).json({error:'Annuncio non trovato'});res.json({success:true});}catch(_error){res.status(400).json({success:false,message:'Impossibile eliminare annuncio'});}});
 router.get('/:id',async(req,res)=>{try{const listing=await MarketplaceListing.findOne({_id:req.params.id,status:'active'}).lean();if(!listing)return res.status(404).json({error:'Annuncio non trovato'});res.json({success:true,listing:{...listing,id:String(listing._id)}});}catch(_error){res.status(404).json({error:'Annuncio non trovato'});}});
