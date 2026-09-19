@@ -23,6 +23,14 @@ MyZubster turns authorized real-world observations — photos, places, environme
   <a href="https://github.com/MyZubster-Ecosystem/myzubster"><strong>⭐ Star on GitHub</strong></a>
 </p>
 
+### 🚀 60-second path — Try → Star → Contribute
+
+1. **Try** the live project: [open MyZubster](https://www.myzubster.com/) or [talk to Zorgax](https://www.myzubster.com/zorgax).
+2. **Star** this repository if you want to follow the work and make the project easier to discover.
+3. **Contribute** one small, reviewable improvement: [good first issue](https://github.com/MyZubster-Ecosystem/myzubster/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22), [help wanted](https://github.com/MyZubster-Ecosystem/myzubster/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22), or [CONTRIBUTING.md](CONTRIBUTING.md).
+
+> **New here?** You do not need blockchain or AI expertise. A reproducible bug report, documentation fix, test, translation or accessibility improvement is a valid first contribution.
+
 
 ## 🔐 Start from GitHub — create or connect your MyZubster account
 
