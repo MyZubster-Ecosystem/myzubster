@@ -1,6 +1,6 @@
 # MyZubster LIFE — Public Stakeholder & Partner-State Registry
 
-**Updated:** 2026-08-31  
+**Updated:** 2026-09-19  
 **Status:** PUBLIC / EVIDENCE-FIRST / HUMAN-GATED
 
 This registry is the public source of truth for the relationship state of organisations, pilot sites, venues, institutional/scientific roles and other LIFE-aligned stakeholders referenced by MyZubster.
@@ -32,6 +32,12 @@ Only `FORMAL_CONFIRMED` may be described as a confirmed partner/consortium role,
 | Stakeholder / role | Category | Current state | Public evidence | What is still missing |
 |---|---|---|---|---|
 | BIOAZUL | possible LIFE replication / uptake / European-dimension interlocutor | `IN_DISCUSSION` | authorised correspondence received 2026-08-31; correspondence content not published | follow-up discussion targeted for late October 2026, explicit participation/role confirmation, formal agreement if any |
+| ENEA Circular Water contact lane | scientific/technical contact lane | `INACTIVE` | authorised response received 2026-09-16; content and personal contact details not published | contacted team reported no conditions for an active contribution under the current proposal; do not imply ENEA participation or re-open without materially new scope/evidence |
+| UNIBO DISTAL contact lane | possible scientific interlocutor | `IN_DISCUSSION` | authorised response received 2026-09-16; content and personal contact details not published | introductory meeting, scope fit, explicit participation/role confirmation, institutional authorization if any |
+| UNIFI DAGRI contact lane | possible scientific interlocutor / coordinator evaluation | `IN_DISCUSSION` | authorised response received 2026-09-16; content and personal contact details not published | concise concept note, pilot priorities and KPIs, role clarification; any coordination and partner selection remain subject to UNIFI procedures |
+| UNIPI DiSAAA-a contact lane | possible scientific interlocutor / coordinator evaluation | `IN_DISCUSSION` | authorised response received 2026-09-18; content and personal contact details not published | concept note, pilot portfolio, KPI/MRV framework, explicit interest or role confirmation |
+| Romagna Acque Circular Water contact lane | candidate data/pilot interlocutor | `CANDIDATE` | authorised response received 2026-09-17; content and personal contact details not published | prior authorization from the competent data owner, a defined dataset/scope, and explicit pilot interest |
+| Contarina AHP/PAP contact lane | candidate Circular Care pilot interlocutor | `INACTIVE` | authorised response received 2026-09-18; content and personal contact details not published | requested pilot is not currently possible while the facility remains non-operational pending authorisations/procedures; reconsider only on renewed stakeholder contact and operational readiness |
 | UNIBO maritime-hydraulics contact lane | scientific-contact lane outside current biodiversity/KPI scope | `INACTIVE` | authorised response received 2026-08-31; correspondence content and personal contact details not published | no further action on this lane; seek a better-matched agriculture/biodiversity scientific interlocutor separately |
 | Isola di Capraia / Tuscan Archipelago context | candidate pilot context | `CANDIDATE` | `docs/life/02-pilot-shortlist.md`; #508 | competent authority, outreach response, scope/data/permissions, explicit institutional interest |
 | Parco Nazionale delle Cinque Terre | candidate pilot organisation | `CANDIDATE` | `docs/life/02-pilot-shortlist.md`; #508 | outreach evidence, operational fit, explicit interest/authorization |
@@ -42,7 +48,9 @@ Only `FORMAL_CONFIRMED` may be described as a confirmed partner/consortium role,
 
 ## Current conclusion
 
-As of 2026-08-31, the public repository contains **candidate, preparatory and active-discussion stakeholder evidence but no record sufficient to label an external organisation as a formally confirmed LIFE consortium partner**.
+As of 2026-09-19, the public repository contains **candidate, preparatory and active-discussion stakeholder evidence but no record sufficient to label an external organisation as a formally confirmed LIFE consortium partner**.
+
+The September correspondence adds scoped contact lanes only. UNIBO DISTAL, UNIFI DAGRI and UNIPI DiSAAA-a remain exploratory discussions; requests for a meeting or more material do not constitute institutional interest, participation or coordination. Romagna Acque requires data-owner authorization before any data can be used. Contarina cannot currently support the requested pilot because the relevant facility is not operational. ENEA's contacted team reported no conditions for an active contribution under the current proposal, so that lane is `INACTIVE` and must not be represented as active.
 
 BIOAZUL is currently recorded only as `IN_DISCUSSION`: the relationship remains exploratory and no consortium role, partnership, commitment, funding or participation is confirmed.
 
