@@ -35,6 +35,7 @@ The dashboard reads canonical on-disk sources:
 | `myz/ledger.json` | MYZ internal reward accounting entries |
 | `myz/settlement-queue.json` | XMR payout settlement items |
 | `myz/settlement-policy.json` | the published state chain and rules |
+| `myz/funding-inputs.json` | verified BTC / Stripe treasury funding inputs |
 
 Anything that cannot be derived from a configured source is returned as `null`
 with a `reason`, and the UI renders it as **Unknown**. It is never rendered as
@@ -45,9 +46,9 @@ Concretely, in the current repository state the dashboard reports:
 - **MYZ balance** — `80`, derived from the single `RECORDED` ledger entry.
 - **XMR treasury balance** — `Unknown`. It lives in the Monero wallet RPC, which
   is not configured here.
-- **Available balance, funding inputs, conversion, escrow** — `Unknown` /
-  `Not configured`. No funding-input or conversion repository is wired yet, and
-  the settlement queue is empty.
+- **Funding inputs** — backed by `myz/funding-inputs.json`. The first real BTC treasury contribution is recorded as `CONFIRMED` with its public transaction evidence.
+- **Available balance** — only `SETTLED` funding inputs count as spendable. A merely `CONFIRMED` BTC receipt remains excluded until the settlement policy advances it.
+- **Conversion and escrow** — still `Unknown` / `Not configured` until a real conversion/escrow integration is wired.
 
 The dashboard is therefore honest and largely empty today. That is the correct
 output, not a gap to be papered over with sample data.
@@ -127,7 +128,6 @@ Run with `npx jest tests/settlementDashboardService.test.js tests/paymentDashboa
 
 - The MYZ ledger balance is an **accounting figure**, not a blockchain balance.
   MYZ remains an internal reward/accounting unit.
-- No BTC receipt, Stripe settlement, conversion record or escrow record exists
-  in this repository yet, so four of the six layers render as unconfigured.
+- A canonical BTC funding-input repository now exists. Conversion and escrow remain separate integrations and are still reported as unconfigured until real providers are wired.
 - External settlement remains dry-run until `MYZ_XMR_LIVE=true` and a Monero
   wallet RPC are configured (see `myz/XMR-SETTLEMENT.md`).
