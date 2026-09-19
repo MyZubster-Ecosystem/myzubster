@@ -192,6 +192,15 @@ Treasury rules should be versioned. Material changes to funding sources, allocat
 
 A future MYZ exchange, redemption or on-chain migration requires its own explicit implementation, governance, legal/compliance review and verifiable settlement layer. No exchange rate is implied by this document.
 
+## 13. Canonical treasury records
+
+Current machine-readable treasury records live in:
+
+- `myz/funding-inputs.json` — externally verifiable funding inputs.
+- `myz/treasury-reservations.json` — append-only reservations against settled funding.
+
+A `SETTLED` funding input may be allocated, but a reservation still does not prove that a bounty has been completed or paid. Payment requires the separate bounty acceptance and settlement evidence defined above.
+
 ## Related documents
 
 - [`BOUNTIES.md`](BOUNTIES.md) — canonical bounty lifecycle and settlement rules
