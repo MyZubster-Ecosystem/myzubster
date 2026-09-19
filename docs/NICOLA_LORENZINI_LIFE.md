@@ -98,6 +98,18 @@ Those earlier interviews remain contextual evidence. Nicola's later direct selec
 
 Continue the bounded seven-day Project Planner test and collect only real evidence from actual use. After the test, apply the predefined GO / CHANGE / STOP criteria without changing them to fit the outcome.
 
+## KF-006 authorized handover evidence
+
+Status recorded on **2026-09-19** from minimized participant-authorized evidence and the public verifier record.
+
+- Marketplace handover state: `RECORDED`.
+- Payment required: `false`.
+- Participant receipt confirmation: direct and authorized; message content and personal contact data are not published here.
+- Blockchain commitment: confirmed on Base Sepolia and independently matched by the repository verifier.
+- Canonical public evidence: `docs/MYZUBSTER-PUBLIC-JOURNEY.md`.
+
+The direct confirmation supports the participant-evidence layer for this handover. The blockchain record proves commitment integrity and timestamp only; it does not independently prove identity, food safety, health effects, successful fermentation, learning, competence or scientific validity.
+
 ## Zorgax participant automation status
 
 Status recorded on **2026-08-31**.
