@@ -27,7 +27,8 @@ const REPO_ROOT = path.resolve(__dirname, '..', '..');
 const DEFAULT_PATHS = Object.freeze({
   ledger: 'myz/ledger.json',
   queue: 'myz/settlement-queue.json',
-  policy: 'myz/settlement-policy.json'
+  policy: 'myz/settlement-policy.json',
+  fundingInputs: 'myz/funding-inputs.json'
 });
 
 /** Funding input lifecycle. BTC/Stripe are inputs only; they never approve a bounty. */
@@ -313,7 +314,7 @@ function buildDashboard(options = {}) {
     paths = {},
     filter = {},
     accountId = null,
-    fundingInputsProvider = () => UNCONFIGURED,
+    fundingInputsProvider = null,
     conversionProvider = () => UNCONFIGURED_CONVERSION,
     escrowProvider = () => UNCONFIGURED_ESCROW,
     live = process.env.MYZ_XMR_LIVE === 'true',
@@ -326,8 +327,9 @@ function buildDashboard(options = {}) {
   const ledgerResult = readSource(resolved.ledger, { baseDir });
   const queueResult = readSource(resolved.queue, { baseDir });
   const policyResult = readSource(resolved.policy, { baseDir });
+  const fundingResult = readSource(resolved.fundingInputs, { baseDir });
 
-  const sources = [ledgerResult.descriptor, queueResult.descriptor, policyResult.descriptor];
+  const sources = [ledgerResult.descriptor, queueResult.descriptor, policyResult.descriptor, fundingResult.descriptor];
   for (const source of sources) {
     if (!source.ok) {
       warnings.push(`${source.name} could not be read (${source.error}); its layer is reported as unknown, not zero.`);
@@ -341,7 +343,12 @@ function buildDashboard(options = {}) {
   // Layer 1 + 2: incoming funding and its confirmation/settlement state.
   let fundingInputs;
   try {
-    fundingInputs = normalizeFundingInputs(fundingInputsProvider());
+    const rawFunding = typeof fundingInputsProvider === 'function'
+      ? fundingInputsProvider()
+      : fundingResult.value;
+    fundingInputs = rawFunding
+      ? normalizeFundingInputs(rawFunding)
+      : { ...UNCONFIGURED, reason: fundingResult.descriptor.error ? `funding-input source unavailable: ${fundingResult.descriptor.error}` : UNCONFIGURED.reason };
   } catch (error) {
     warnings.push(`funding-input provider failed: ${error.message}`);
     fundingInputs = { ...UNCONFIGURED, reason: `funding-input provider failed: ${error.message}` };
@@ -472,13 +479,13 @@ function normalizeFundingInputs(input) {
       status: item?.status ?? null,
       amount: Number.isFinite(Number(item?.amount)) ? Number(item.amount) : null,
       currency: item?.currency ?? null,
-      confirmations: Number.isFinite(Number(item?.confirmations)) ? Number(item.confirmations) : null,
+      confirmations: Number.isFinite(Number(item?.confirmations ?? item?.confirmations_observed)) ? Number(item.confirmations ?? item.confirmations_observed) : null,
       timestamp: item?.timestamp ?? null,
-      txId: item?.txId ?? null,
-      reference: item?.reference ?? null,
+      txId: item?.txId ?? item?.tx_id ?? null,
+      reference: item?.reference ?? item?.funding_id ?? null,
       bountyId: item?.bounty_id ?? null,
       approvesBounty: false,
-      audit: { source: item?.source ?? null, reference: item?.reference ?? item?.txId ?? null }
+      audit: { source: item?.source ?? DEFAULT_PATHS.fundingInputs, reference: item?.reference ?? item?.funding_id ?? item?.txId ?? item?.tx_id ?? null }
     })),
     totals
   };
