@@ -3,6 +3,7 @@ const {
   createKnowledgeEvidence,
   verifyKnowledgeEvidence
 } = require('../services/knowledgeEvidenceService');
+const { buildGithubWorkEvidence, verifyGithubWorkEvidence } = require('../services/githubWorkEvidenceService');
 
 const router = express.Router();
 
@@ -32,6 +33,26 @@ router.post('/verify', (req, res) => {
     });
   } catch (error) {
     return res.status(400).json({ success: false, error: error.message });
+  }
+});
+
+router.post('/github-work', (req, res) => {
+  try {
+    const result = buildGithubWorkEvidence(req.body || {});
+    return res.status(201).json({ success: true, ...result });
+  } catch (error) {
+    return res.status(400).json({ success: false, error: error.message });
+  }
+});
+
+router.post('/github-work/verify', (req, res) => {
+  try {
+    const { payload, evidenceHash } = req.body || {};
+    if (!payload || !evidenceHash) return res.status(400).json({ success:false, error:'payload and evidenceHash are required' });
+    const match = verifyGithubWorkEvidence(payload, evidenceHash);
+    return res.status(match ? 200 : 409).json({ success:match, status:match?'MATCH':'MISMATCH', algorithm:'sha256', evidenceHash });
+  } catch (error) {
+    return res.status(400).json({ success:false, error:error.message });
   }
 });
 
