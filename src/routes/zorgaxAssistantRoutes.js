@@ -9,6 +9,7 @@ const { getAccess } = require('../services/zorgaxAccessService');
 const { refreshPaymentIntent, verifyAndActivatePaymentIntent } = require('../services/zorgaxPaymentIntentService');
 const { getPaymentReceipt } = require('../services/zorgaxBillingService');
 const zorgaxMyzCheckoutService = require('../services/zorgaxMyzCheckoutService');
+const { captureFunnelEvent } = require('../services/posthogAnalyticsService');
 
 const router = express.Router();
 const { loadZorgaxAccess, requireZorgaxPlan } = createZorgaxAccessMiddleware();
@@ -34,6 +35,17 @@ const ZORGAX_FUNNEL_EVENTS = new Set([
   'profile_builder_open',
   'profile_builder_profile_loaded',
   'profile_builder_draft_generated',
+  'profile_onboarding_open',
+  'profile_onboarding_profile_loaded',
+  'profile_onboarding_github_connected',
+  'profile_onboarding_connect_github_click',
+  'profile_onboarding_gmail_click',
+  'profile_onboarding_zorgax_start',
+  'profile_onboarding_zorgax_message',
+  'profile_onboarding_continue_partial',
+  'profile_onboarding_bio_generated',
+  'profile_onboarding_completed',
+  'profile_onboarding_enter_metaverse_click',
   'marketplace_demo_open',
   'marketplace_demo_category_selected',
   'seller_checkout_started',
@@ -95,7 +107,7 @@ function logFunnelEvent(event, req, metadata = {}) {
   }));
 }
 
-router.post('/track', optionalAuthenticate, (req, res) => {
+router.post('/track', optionalAuthenticate, async (req, res) => {
   const event = String(req.body?.event || '').trim();
   if (!ZORGAX_FUNNEL_EVENTS.has(event)) {
     return res.status(400).json({ ok: false, error: 'Evento funnel non valido' });
@@ -103,7 +115,24 @@ router.post('/track', optionalAuthenticate, (req, res) => {
 
   req.zorgaxFunnelSession = funnelSession(req, res);
   const target = typeof req.body?.target === 'string' ? req.body.target.slice(0, 80) : null;
-  logFunnelEvent(event, req, target ? { target } : {});
+  const metadata = target ? { target } : {};
+  logFunnelEvent(event, req, metadata);
+
+  try {
+    await captureFunnelEvent({
+      distinctId: req.userId ? `user:${req.userId}` : `session:${req.zorgaxFunnelSession}`,
+      event,
+      properties: {
+        authenticated: Boolean(req.userId),
+        path: req.originalUrl,
+        ...acquisitionContext(req),
+        ...metadata
+      }
+    });
+  } catch (error) {
+    console.warn('[posthog-funnel]', error.message);
+  }
+
   return res.status(202).json({ ok: true, accepted: true, event });
 });
 
