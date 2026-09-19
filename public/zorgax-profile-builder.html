@@ -9,7 +9,7 @@
 <body>
 <div class="wrap">
 <section class="card"><h1>👽 Zorgax · Profile Builder</h1><p class="muted">Completa in modo guidato il profilo di un ente, di un donatore di kefir o di un soundsystem. Gmail viene usato solo se autorizzato; Facebook serve come identità social collegata. Zorgax propone una bozza e distingue sempre dati dichiarati, dati collegati e informazioni ancora da confermare.</p><div class="row"><a class="btn secondary" href="/zorgax">← Zorgax</a><a class="btn secondary" href="/zorgax-email-profile.html">📧 Configura Gmail</a><a class="btn secondary" href="/api/auth/social/facebook/start">📘 Collega Facebook</a></div></section>
-<section class="card"><h2>🧠 Conoscenze verificabili</h2><p class="muted">Le card distinguono ciò che è dichiarato da ciò che è supportato da evidenze esterne, prova crittografica o dimostrazione nel progetto.</p><div id="knowledgeCards"></div></section>\n<div class="grid">
+<section class="card"><h2>🧠 Conoscenze verificabili</h2><p class="muted">Le card distinguono ciò che è dichiarato da ciò che è supportato da evidenze esterne, prova crittografica o dimostrazione nel progetto.</p><div id="knowledgeCards"></div></section>\n<section class="card"><h2>💻 GitHub Work Evidence</h2><p class="muted">Crea uno snapshot verificabile della tua attività GitHub. Inserisci commit pubblici nel formato <code>SHA | repository | URL | timestamp ISO</code>, uno per riga. Le metriche descrivono attività e continuità, non certificano automaticamente competenza o dedizione.</p><div class="field"><label for="ghAccount">Account GitHub</label><input id="ghAccount" placeholder="DanielIoni-creator"></div><div class="field"><label for="ghCommits">Commit verificabili</label><textarea id="ghCommits" placeholder="abcdef1 | MyZubster-Ecosystem/myzubster | https://github.com/.../commit/abcdef1 | 2026-09-19T02:00:00Z"></textarea></div><div class="row"><button id="ghSnapshot" class="secondary">Calcola snapshot</button><button id="ghAnchor" class="primary">⛓ Ancora su blockchain</button></div><div id="ghResult" class="out" style="min-height:100px">Nessuno snapshot calcolato.</div></section><div class="grid">
 <section class="card"><h2>1. Tipo di profilo</h2><div class="field"><label for="type">Profilo</label><select id="type"><option value="institution">🏛️ Ente / università / partner pubblico</option><option value="kefir">🥛 Donatore di kefir</option><option value="soundsystem">🔊 Soundsystem / crew</option></select></div><div class="field"><label for="name">Nome pubblico</label><input id="name" placeholder="Nome ente, donatore o soundsystem"></div><div class="field"><label for="location">Località / area</label><input id="location" placeholder="Città, regione o area operativa"></div><div class="field"><label for="notes">Cosa fai / cosa offri</label><textarea id="notes" placeholder="Ente: competenze, pilot, LCA/MRV... Kefir: latte/acqua, disponibilità grani, scambio/donazione... Soundsystem: genere, crew, area, eventi, servizi, sostenibilità..."></textarea></div><div class="row"><button id="load" class="secondary">Leggi profilo collegato</button><button id="ask" class="primary">Fai completare a Zorgax</button></div><div id="sourceStatus" class="status muted">Accedi per usare Gmail e identità Facebook collegate.</div></section>
 <section class="card"><h2>2. Bozza suggerita</h2><div id="out" class="out">Zorgax userà solo i dati disponibili e ti farà una domanda alla volta sui campi mancanti.</div><div class="row"><button id="copy" class="secondary">Copia bozza</button><a class="btn primary" href="/zorgax-email-profile.html">Approva profilo Gmail →</a></div><p class="muted">La bozza non prova automaticamente affiliazioni, proprietà, disponibilità di kefir, titolarità di un soundsystem o partnership istituzionali. Questi elementi devono essere confermati dal titolare o da evidenze verificabili.</p></section>
 </div>
@@ -31,6 +31,30 @@ const knowledgeClaims=[
 ];
 if(window.MyZubsterKnowledgeCards) window.MyZubsterKnowledgeCards.render('#knowledgeCards',knowledgeClaims);
 else window.addEventListener('DOMContentLoaded',()=>window.MyZubsterKnowledgeCards?.render('#knowledgeCards',knowledgeClaims));
+
+function githubCommits(){
+  return document.getElementById('ghCommits').value.split('\n').map(x=>x.trim()).filter(Boolean).map(line=>{
+    const p=line.split('|').map(x=>x.trim());
+    return {sha:p[0]||'',repository:p[1]||'',url:p[2]||'',committedAt:p[3]||''};
+  });
+}
+async function githubWorkEvidence(anchor){
+  const box=document.getElementById('ghResult'), account=document.getElementById('ghAccount').value.trim();
+  if(!account){box.textContent='Inserisci l’account GitHub.';return}
+  const commits=githubCommits(); if(!commits.length){box.textContent='Inserisci almeno un commit verificabile.';return}
+  if(anchor&&!confirm('Creare una transazione Base Sepolia con il solo hash SHA-256 dello snapshot GitHub?'))return;
+  box.textContent=anchor?'Creazione snapshot e anchor blockchain…':'Calcolo snapshot verificabile…';
+  try{
+    const r=await fetch('/api/knowledge-evidence/github-work',{method:'POST',headers:headers(),body:JSON.stringify({account,commits,anchor})});
+    const d=await r.json(); if(!r.ok)throw new Error(d.error||d.anchor?.error||'Operazione fallita');
+    const m=d.payload?.metrics||{};
+    box.innerHTML='<strong>GitHub Work Evidence</strong><br>Commit: '+escHtml(m.commits)+' · Repository: '+escHtml(m.repositories)+' · Giorni attivi: '+escHtml(m.activeDays)+'<br>Periodo: '+escHtml(m.firstCommitAt)+' → '+escHtml(m.lastCommitAt)+'<br>SHA-256: <code>'+escHtml(d.evidenceHash)+'</code><br>Commitment: <code>'+escHtml(d.commitment)+'</code>'+(d.anchor?.status?'<br>Blockchain: <strong>'+escHtml(d.anchor.status)+'</strong>':'')+(d.anchor?.explorerUrl?'<br><a href="'+escHtml(d.anchor.explorerUrl)+'" target="_blank" rel="noopener noreferrer">Apri transazione BaseScan</a>':'');
+  }catch(e){box.textContent='Errore: '+e.message}
+}
+function escHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+document.getElementById('ghSnapshot').onclick=()=>githubWorkEvidence(false);
+document.getElementById('ghAnchor').onclick=()=>githubWorkEvidence(true);
+
 track('profile_builder_open',type.value);if(token())loadProfile();
 </script>
 </body>
