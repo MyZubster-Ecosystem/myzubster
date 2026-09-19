@@ -4,6 +4,7 @@ const {
   verifyKnowledgeEvidence
 } = require('../services/knowledgeEvidenceService');
 const { buildGithubWorkEvidence, verifyGithubWorkEvidence } = require('../services/githubWorkEvidenceService');
+const { anchorMarketplaceEvidenceOnBase } = require('../services/baseMarketplaceAnchorService');
 
 const router = express.Router();
 
@@ -36,10 +37,19 @@ router.post('/verify', (req, res) => {
   }
 });
 
-router.post('/github-work', (req, res) => {
+router.post('/github-work', async (req, res) => {
   try {
     const result = buildGithubWorkEvidence(req.body || {});
-    return res.status(201).json({ success: true, ...result });
+    let anchor = { status: 'NOT_REQUESTED' };
+    if (req.body?.anchor === true) {
+      try {
+        anchor = await anchorMarketplaceEvidenceOnBase(result.evidenceHash);
+      } catch (error) {
+        anchor = { status: 'FAILED', error: error.message };
+      }
+    }
+    const code = anchor.status === 'FAILED' ? 502 : 201;
+    return res.status(code).json({ success: anchor.status !== 'FAILED', ...result, anchor });
   } catch (error) {
     return res.status(400).json({ success: false, error: error.message });
   }
