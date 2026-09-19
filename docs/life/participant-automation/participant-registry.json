@@ -1,6 +1,6 @@
 {
   "version": "zorgax_life_participant_registry_v1",
-  "updatedAt": "2026-09-02",
+  "updatedAt": "2026-09-19",
   "scope": "Internal MyZubster / Zorgax LIFE digital pilot. This is not an EU LIFE consortium or partner registry.",
   "rules": {
     "activationRequiresExplicitOptIn": true,
@@ -36,6 +36,19 @@
       "githubLinkage": {
         "participantReported": "COMPLETE",
         "runtimeVerification": "PENDING_TECHNICAL_VERIFICATION"
+      },
+      "latestAuthorizedEvidence": {
+        "type": "marketplace_kefir_handover",
+        "case": "KF-006",
+        "participantConfirmation": "DIRECT_AUTHORIZED",
+        "applicationState": "RECORDED",
+        "paymentRequired": false,
+        "blockchainCommitment": "CONFIRMED_BASE_SEPOLIA",
+        "source": "docs/MYZUBSTER-PUBLIC-JOURNEY.md",
+        "limitations": [
+          "on-chain commitment proves integrity and timestamp only",
+          "does_not_prove_food_safety_health_effects_learning_or_scientific_validity"
+        ]
       }
     }
   ],
