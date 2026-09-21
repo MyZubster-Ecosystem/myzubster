@@ -164,7 +164,7 @@ describe('MYZ-188 University → Developer → Community pilot', () => {
     const app = express();
     app.use('/api/ecosystem', ecosystemContributionRoutes);
 
-    const response = await request(app())
+    const response = await request(app)
       .get(`/api/ecosystem/graph?projectId=${manifest.projectId}`);
 
     expect(response.status).toBe(200);
