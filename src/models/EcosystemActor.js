@@ -18,7 +18,24 @@ const ecosystemActorSchema = new mongoose.Schema({
   github: {
     login: { type: String, default: '', trim: true, maxlength: 100 },
     org: { type: String, default: '', trim: true, maxlength: 100 },
-    repositories: { type: [String], default: [] }
+    repositories: { type: [String], default: [] },
+    verification: {
+      verifiedLogin: { type: String, default: '', trim: true, maxlength: 100 },
+      githubUserId: { type: Number, default: null },
+      profileUrl: { type: String, default: '', trim: true, maxlength: 500 },
+      verifiedAt: { type: Date, default: null }
+    },
+    verifiedRepositories: {
+      type: [{
+        fullName: { type: String, required: true, trim: true, maxlength: 200 },
+        githubRepositoryId: { type: Number, required: true },
+        htmlUrl: { type: String, required: true, trim: true, maxlength: 500 },
+        owner: { type: String, required: true, trim: true, maxlength: 100 },
+        visibility: { type: String, enum: ['public', 'private', 'internal'], default: 'public' },
+        verifiedAt: { type: Date, required: true }
+      }],
+      default: []
+    }
   },
   myzubsterProfile: { type: String, default: '', trim: true, maxlength: 500 },
   skills: { type: [String], default: [] },
