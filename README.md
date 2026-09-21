@@ -108,6 +108,90 @@ Nicola's independent MyZubster MVP is a **public, interactive pilot** showing ho
 
 > A learning or mentoring interaction does not by itself prove competence, safety, scientific validity or institutional endorsement.
 
+## 🧭 Where we are now — Nicola, Kefir, decentralization & Onion
+
+MyZubster is connecting several previously separate experiments into one **evidence-first public path**. The sections below distinguish what is implemented and inspectable from what is still experimental, planned or awaiting external validation.
+
+### 🧑‍💻 Nicola / N4K48 — Project Planner AI/Zorgax
+
+Nicola's original public repository is [`nicolaususnicola-lgtm/myzubster-mvp`](https://github.com/nicolaususnicola-lgtm/myzubster-mvp). Its central product experiment is the **N4K48 Project Planner AI/Zorgax**: a planner designed to turn one concrete objective into an ordered, measurable work path.
+
+The planner is intended to help a person:
+
+- define one concrete objective;
+- split it into manageable activities;
+- identify the next useful action and missing/incorrect steps;
+- monitor deadlines and progress;
+- preserve completed work and supporting evidence;
+- prepare a digital product for publication.
+
+Zorgax is the AI guidance layer: it assists planning, analysis and error detection while important decisions remain under human control. Nicola's MVP also documents real technical components around JSON persistence, Qdrant semantic retrieval, local Ollama AI/RAG, automated tests, economic-provenance primitives, an internal MYZ ledger and a scenario-only revenue/cost simulator.
+
+**Status boundary:** this is an experimental MVP under development. A repository, AI output, visual or local test does not by itself prove production readiness, commercial adoption, scientific validity, external payment or third-party endorsement.
+
+### 🥛 Kefir & Knowledge — KF-006
+
+The Nicola path is also connected to **KF-006**, a documented free kefir handover and knowledge pilot. MyZubster keeps the operational evidence separate from scientific conclusions:
+
+```text
+REAL-WORLD PRACTICE / KNOWLEDGE
+        ↓
+MARKETPLACE / DOCUMENTED HANDOVER
+        ↓
+STRUCTURED RECORD
+        ↓
+SHA-256 COMMITMENT
+        ↓
+OPTIONAL BASE SEPOLIA ANCHOR
+        ↓
+READ-ONLY VERIFICATION
+        ↓
+RESEARCH QUESTION / REVIEW
+```
+
+The record can demonstrate integrity and timestamp of the committed evidence. It does **not** by itself demonstrate food safety, microbiological properties, health effects, learning or scientific validity. The connected academic path remains **PROPOSED / NOT YET SCIENTIFICALLY VALIDATED** until an appropriate research protocol, data and review support a conclusion.
+
+**Explore:** [KF-006 evidence](https://www.myzubster.com/knowledge-kf-006.html) · [Kefir repository](https://github.com/DanielIoni-creator/Myzubster-fermentation-kefir) · [University & Research](https://github.com/DanielIoni-creator/myzubster-university-research)
+
+### 🧅 Tor / Onion and decentralization
+
+MyZubster now contains an **implemented self-hosting component for a Tor v3 Onion Service** in [`onion/`](onion/README.md). The Onion container forwards Tor traffic to the internal frontend over the Docker network, keeps its Onion identity in a persistent local volume and does not publish the container directly to the host.
+
+An optional privacy-minimized telemetry design is documented in [`docs/ONION-OPT-IN-TELEMETRY.md`](docs/ONION-OPT-IN-TELEMETRY.md). Telemetry is disabled by default and is designed not to collect Onion hostnames, account identities, private keys or device names.
+
+The research/search Onion crawler is a **separate experimental component, disabled by default**, with explicit allowlisting and a local Tor proxy. It must not be confused with autonomous unrestricted crawling.
+
+**Decentralization boundary:** having the self-hostable Onion component in the repository is verifiable implementation evidence; it is not evidence that a particular public `.onion` address is currently reachable or that a network of independent MyZubster nodes is already operating. Independently hosted compatible worlds/nodes, portable identity and broader decentralized/content-addressed storage remain part of the architecture/roadmap where not separately evidenced.
+
+### 🔗 Integrated path
+
+```text
+PERSON / COMMUNITY
+      ↓
+GOOGLE or GITHUB IDENTITY
+      ↓
+ZORGAX / HUMAN-APPROVED ASSISTANCE
+      ↓
+PROJECT / N4K48 PROJECT PLANNER
+      ↓
+MARKETPLACE / REAL-WORLD PILOT (e.g. KF-006)
+      ↓
+EVIDENCE + PROVENANCE
+      ↓
+SHA-256 / OPTIONAL BLOCKCHAIN ANCHOR
+      ↓
+GITHUB / REPRODUCIBLE PUBLIC RECORD
+      ↓
+RESEARCH / REVIEW
+      ↓
+MYZUBSTER COMMUNITY + METAVERSE NARRATIVE
+      ↓
+OPTIONAL SELF-HOSTING / TOR ONION ACCESS
+```
+
+The design principle is simple: **storytelling explains the journey; code, tests, records and independently checkable evidence establish what has actually happened.** Roadmap items remain labelled as roadmap until implementation and verification exist.
+
+
 ## 🧩 Start contributing in 10 minutes
 
 Want to help without learning the whole ecosystem first? Start with one small, reviewable change.
