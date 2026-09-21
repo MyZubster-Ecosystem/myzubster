@@ -184,13 +184,28 @@ router.post('/contributions/:contributionId/refresh', authenticate, async (req, 
 });
 
 router.post('/contributions/:contributionId/verify', authenticate, isAdmin, async (req, res) => {
-  const contribution = await EcosystemContribution.findOneAndUpdate(
-    { contributionId: req.params.contributionId },
-    { $set: { status: 'verified', updatedBy: req.userId } },
-    { new: true, runValidators: true }
-  );
-  if (!contribution) return res.status(404).json({ success: false, message: 'Contributo non trovato' });
-  return res.json({ success: true, contribution: publicContribution(contribution) });
+  try {
+    const contribution = await EcosystemContribution.findOne({ contributionId: req.params.contributionId });
+    if (!contribution) return res.status(404).json({ success: false, message: 'Contributo non trovato' });
+
+    const source = await verifyContributionSource({
+      kind: contribution.github.kind,
+      repository: contribution.github.repository,
+      number: contribution.github.number,
+      sha: contribution.github.sha,
+      releaseTag: contribution.github.releaseTag
+    });
+
+    contribution.github = { ...source, verifiedAt: new Date() };
+    contribution.status = 'verified';
+    contribution.updatedBy = req.userId;
+    await contribution.save();
+
+    return res.json({ success: true, contribution: publicContribution(contribution) });
+  } catch (error) {
+    const status = error?.response?.status === 404 ? 404 : 400;
+    return res.status(status).json({ success: false, message: error.message || 'Verifica contributo fallita' });
+  }
 });
 
 router.get('/actors/:actorId/contributions', async (req, res) => {
@@ -206,7 +221,7 @@ router.get('/projects/:projectId/contributions', async (req, res) => {
 router.get('/projects/:projectId/participants', async (req, res) => {
   const contributions = await EcosystemContribution.find({ projectId: req.params.projectId }).select('actorIds').lean();
   const actorIds = [...new Set(contributions.flatMap(item => item.actorIds || []))];
-  const actors = await EcosystemActor.find({ actorId: { $in: actorIds } }).select('actorId type name slug github status').sort({ name: 1 }).lean();
+  const actors = await EcosystemActor.find({ actorId: { $in: actorIds } }).select('actorId type name slug github status -_id').sort({ name: 1 }).lean();
   return res.json({ success: true, projectId: req.params.projectId, count: actors.length, participants: actors });
 });
 
