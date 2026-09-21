@@ -2,6 +2,9 @@ const mongoose = require('mongoose');
 const User = require('../models/User');
 const SellerMembership = require('../models/SellerMembership');
 const Dashboard = require('../models/dashboardModel');
+const MarketplaceListing = require('../models/MarketplaceListing');
+const PaymentIntent = require('../models/PaymentIntent');
+const PaymentDashboardTransaction = require('../models/PaymentDashboardTransaction');
 
 // #218: Admin Dashboard - Monitoraggio Lavori e Pagamenti
 // Dashboard remains the legacy XMR/operations model. Canonical MYZ accounting lives in myzLedgerApiService.
@@ -16,7 +19,8 @@ exports.getOverview = async (req, res) => {
       totalUsers, totalSellers, activeSellers, totalWallets,
       users24h, users7d, users30d,
       sellers24h, sellers7d, sellers30d,
-      activeSellers24h, activeSellers7d, activeSellers30d
+      activeSellers24h, activeSellers7d, activeSellers30d,
+      totalListings, activeListings, confirmedCryptoPurchases, stripePaidTransactions, stripeRevenue
     ] = await Promise.all([
       User.countDocuments(),
       SellerMembership.countDocuments(),
@@ -30,7 +34,12 @@ exports.getOverview = async (req, res) => {
       SellerMembership.countDocuments({ createdAt: { $gte: d30 } }),
       SellerMembership.countDocuments({ status: 'ACTIVE', createdAt: { $gte: d1 } }),
       SellerMembership.countDocuments({ status: 'ACTIVE', createdAt: { $gte: d7 } }),
-      SellerMembership.countDocuments({ status: 'ACTIVE', createdAt: { $gte: d30 } })
+      SellerMembership.countDocuments({ status: 'ACTIVE', createdAt: { $gte: d30 } }),
+      MarketplaceListing.countDocuments(),
+      MarketplaceListing.countDocuments({ status: 'active' }),
+      PaymentIntent.countDocuments({ status: 'CONFIRMED' }),
+      PaymentDashboardTransaction.countDocuments({ paymentStatus: 'paid', livemode: true }),
+      PaymentDashboardTransaction.aggregate([{ $match: { paymentStatus: 'paid', livemode: true } }, { $group: { _id: '$currency', amountCents: { $sum: '$amountCents' }, count: { $sum: 1 } } }])
     ]);
     const dashboard = await Dashboard.aggregate([{$group: {_id: null, totalXMR: {$sum: '$balanceXMR'}}}]);
     res.json({
@@ -45,7 +54,19 @@ exports.getOverview = async (req, res) => {
       totalWallets,
       totalMYZInCirculation: null,
       totalMYZAccountingSource: 'canonical-ledger',
-      totalXMRInCirculation: dashboard[0]?.totalXMR || 0
+      totalXMRInCirculation: dashboard[0]?.totalXMR || 0,
+      commerce: {
+        listings: { total: totalListings, active: activeListings },
+        purchases: { stripePaid: stripePaidTransactions, cryptoConfirmed: confirmedCryptoPurchases, total: stripePaidTransactions + confirmedCryptoPurchases },
+        stripeRevenue: stripeRevenue.map(row => ({ currency: row._id, amountMinor: row.amountCents, amount: row.amountCents / 100, transactions: row.count }))
+      },
+      funnel: {
+        visitors: null,
+        visitorsSource: 'vercel-analytics-external',
+        registeredUsers: totalUsers,
+        sellers: totalSellers,
+        purchasers: stripePaidTransactions + confirmedCryptoPurchases
+      }
     });
   } catch (e) { res.status(500).json({ error: e.message }); }
 };
