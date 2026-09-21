@@ -464,12 +464,16 @@ function buildDashboard(options = {}) {
 function normalizeFundingInputs(input) {
   if (!input || typeof input !== 'object') return { ...UNCONFIGURED };
   const items = Array.isArray(input.items) ? input.items : [];
+  // A canonical on-disk funding-input document is configured by its existence.
+  // Older documents predate the explicit `configured` flag; treating them as
+  // unconfigured hides independently verified SETTLED receipts in production.
+  const configured = input.configured !== false;
   const totals =
     input.totals && typeof input.totals === 'object'
       ? input.totals
       : { incoming: null, confirmed: null, settled: null };
   return {
-    configured: input.configured === true,
+    configured,
     reason: input.reason ?? null,
     items: items.map((item, index) => ({
       kind: 'FUNDING_INPUT',
