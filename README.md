@@ -185,6 +185,55 @@ The blockchain anchor proves only that a specific digital commitment existed by 
 
 A university study could then evaluate questions such as reproducibility, provenance, knowledge transfer and participant feedback using an approved protocol. **University participation or testing is not itself scientific validation or institutional endorsement.**
 
+### 🔬 MyZubster Scientific Knowledge Validation Framework — PROPOSED
+
+The University Knowledge Exchange Lab is designed to be **multidisciplinary**. The same provenance/evidence layer can support different scientific domains while each discipline keeps its own methods, safety requirements, controls and qualified review.
+
+```text
+PERSON / TEAM
+      ↓
+KNOWLEDGE CLAIM / QUESTION / HYPOTHESIS
+      ↓
+DISCIPLINE-SPECIFIC PROTOCOL
+      ↓
+AUTHORIZED PRACTICE / EXPERIMENT / OBSERVATION
+      ↓
+RAW DATA + METHODS + CONTEXT
+      ↓
+EVIDENCE / PROVENANCE
+      ↓
+CANONICAL SHA-256
+      ↓
+OPTIONAL BLOCKCHAIN ANCHOR
+      ↓
+REPRODUCTION / INDEPENDENT CHECK
+      ↓
+QUALIFIED SCIENTIFIC REVIEW
+      ↓
+DOCUMENTED RESULT + LIMITATIONS
+```
+
+Possible research tracks include:
+
+- **Agriculture / permaculture:** cultivation practices, soil observations, seeds, circular agriculture and field measurements, with agronomy-specific protocols and review.
+- **Biology / fermentation:** kefir and other culture-based observations, with appropriate microbiological, food-safety and laboratory boundaries.
+- **Chemistry:** controlled experiments, methods, measurements and raw datasets carried out only in appropriately equipped/authorized settings and reviewed under chemistry-specific standards.
+- **Water / environmental science:** water observations, sensors, sampling, datasets, provenance and comparison across sites under an appropriate environmental protocol.
+- **Computer science / AI:** software, source code, tests, datasets, model-assisted work and reproducible technical evaluation.
+- **Circular economy:** material/process observations, traceable inputs/outputs, reuse/recycling evidence and measurable impact hypotheses.
+
+Each student or research participant may use an **individual or team GitHub repository** as the reproducible public workspace when publication is appropriate. Sensitive, personal, restricted or unsafe research data must not be published merely to satisfy the GitHub/evidence workflow.
+
+#### Three distinct validation layers
+
+1. **Cryptographic verification** — hash/anchor can verify integrity and timestamp relationships for a digital record.
+2. **Reproducibility/evidence review** — another person or team can inspect methods, data and documented steps and attempt reproduction where appropriate.
+3. **Scientific validation** — requires discipline-appropriate methodology, controls, analysis and qualified independent review. It cannot be created by blockchain, GitHub, Zorgax or MyZubster alone.
+
+Zorgax may assist with protocol drafting, organization, provenance, missing-information checks and documentation, but must not fabricate measurements or convert an unreviewed claim into a scientifically validated result.
+
+**Status:** `PROPOSED`. KF-006 provides an existing evidence/provenance example; it is not itself proof that this multidisciplinary framework has been scientifically validated or adopted by a university.
+
 ### 🧅 Tor / Onion and decentralization
 
 MyZubster now contains an **implemented self-hosting component for a Tor v3 Onion Service** in [`onion/`](onion/README.md). The Onion container forwards Tor traffic to the internal frontend over the Docker network, keeps its Onion identity in a persistent local volume and does not publish the container directly to the host.
