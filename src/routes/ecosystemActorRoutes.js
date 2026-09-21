@@ -1,6 +1,7 @@
 const express = require('express');
 const EcosystemActor = require('../models/EcosystemActor');
 const { authenticate } = require('../middleware/auth');
+const { verifyGitHubLinks } = require('../services/githubEcosystemVerificationService');
 
 const router = express.Router();
 
@@ -32,7 +33,7 @@ function publicActor(actor) {
     name: value.name,
     slug: value.slug,
     description: value.description || '',
-    github: value.github || { login: '', org: '', repositories: [] },
+    github: value.github || { login: '', org: '', repositories: [], verification: {}, verifiedRepositories: [] },
     myzubsterProfile: value.myzubsterProfile || '',
     skills: value.skills || [],
     projects: value.projects || [],
@@ -41,6 +42,21 @@ function publicActor(actor) {
     createdAt: value.createdAt,
     updatedAt: value.updatedAt
   };
+}
+
+
+async function loadManagedActor(req, res) {
+  const actor = await EcosystemActor.findOne({ actorId: req.params.actorId });
+  if (!actor) {
+    res.status(404).json({ success: false, message: 'Actor non trovato' });
+    return null;
+  }
+  const ownsActor = String(actor.createdBy) === String(req.userId);
+  if (!ownsActor && req.userRole !== 'admin') {
+    res.status(403).json({ success: false, message: 'Permessi insufficienti per modificare questo actor' });
+    return null;
+  }
+  return actor;
 }
 
 function payload(body = {}, { partial = false } = {}) {
@@ -92,6 +108,94 @@ router.post('/', authenticate, async (req, res) => {
   } catch (error) {
     if (error?.code === 11000) return res.status(409).json({ success: false, message: 'Slug o actor già esistente' });
     return res.status(400).json({ success: false, message: error.message || 'Actor non creato' });
+  }
+});
+
+router.get('/:actorId/github', async (req, res) => {
+  try {
+    const actor = await EcosystemActor.findOne({ actorId: req.params.actorId }).lean();
+    if (!actor) return res.status(404).json({ success: false, message: 'Actor non trovato' });
+    return res.json({
+      success: true,
+      actorId: actor.actorId,
+      github: publicActor(actor).github
+    });
+  } catch (_error) {
+    return res.status(500).json({ success: false, message: 'Collegamento GitHub non disponibile' });
+  }
+});
+
+router.get('/:actorId/repositories', async (req, res) => {
+  try {
+    const actor = await EcosystemActor.findOne({ actorId: req.params.actorId }).lean();
+    if (!actor) return res.status(404).json({ success: false, message: 'Actor non trovato' });
+    return res.json({
+      success: true,
+      actorId: actor.actorId,
+      repositories: actor.github?.verifiedRepositories || []
+    });
+  } catch (_error) {
+    return res.status(500).json({ success: false, message: 'Repository GitHub non disponibili' });
+  }
+});
+
+router.post('/:actorId/github', authenticate, async (req, res) => {
+  try {
+    const actor = await loadManagedActor(req, res);
+    if (!actor) return;
+
+    const login = cleanString(req.body?.login, 100);
+    const repositories = cleanList(req.body?.repositories, 30, 200);
+    if (!login) return res.status(400).json({ success: false, message: 'GitHub login obbligatorio' });
+
+    const verified = await verifyGitHubLinks({ login, repositories });
+    const now = new Date();
+
+    actor.github.login = verified.identity.login;
+    actor.github.repositories = verified.verifiedRepositories.map(repo => repo.fullName);
+    actor.github.verification = {
+      verifiedLogin: verified.identity.login,
+      githubUserId: verified.identity.githubUserId,
+      profileUrl: verified.identity.profileUrl,
+      verifiedAt: now
+    };
+    actor.github.verifiedRepositories = verified.verifiedRepositories.map(repo => ({
+      ...repo,
+      verifiedAt: now
+    }));
+    actor.updatedBy = req.userId;
+    await actor.save();
+
+    return res.json({ success: true, actor: publicActor(actor) });
+  } catch (error) {
+    const status = error?.response?.status === 404 ? 404 : 400;
+    return res.status(status).json({ success: false, message: error.message || 'Verifica GitHub fallita' });
+  }
+});
+
+router.delete('/:actorId/github', authenticate, async (req, res) => {
+  try {
+    const actor = await loadManagedActor(req, res);
+    if (!actor) return;
+
+    actor.github = {
+      login: '',
+      org: '',
+      repositories: [],
+      verification: {
+        verifiedLogin: '',
+        githubUserId: null,
+        profileUrl: '',
+        verifiedAt: null
+      },
+      verifiedRepositories: []
+    };
+    actor.updatedBy = req.userId;
+    await actor.save();
+
+    return res.json({ success: true, actor: publicActor(actor) });
+  } catch (error) {
+    return res.status(400).json({ success: false, message: error.message || 'Scollegamento GitHub fallito' });
   }
 });
 
