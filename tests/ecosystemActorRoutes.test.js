@@ -92,6 +92,26 @@ describe('ecosystem actor registry', () => {
     expect((await request(app()).post('/api/ecosystem/actors').set('Authorization', `Bearer ${token()}`).send(payload)).status).toBe(409);
   });
 
+  test('rejects updates from another authenticated user', async () => {
+    const created = await request(app())
+      .post('/api/ecosystem/actors')
+      .set('Authorization', `Bearer ${token()}`)
+      .send({ type: 'developer', name: 'Owned Developer', slug: 'owned-developer' });
+
+    const otherToken = jwt.sign({
+      userId: String(new mongoose.Types.ObjectId()),
+      role: 'user',
+      username: 'other'
+    }, process.env.JWT_SECRET);
+
+    const forbidden = await request(app())
+      .patch(`/api/ecosystem/actors/${created.body.actor.actorId}`)
+      .set('Authorization', `Bearer ${otherToken}`)
+      .send({ name: 'Changed by other' });
+
+    expect(forbidden.status).toBe(403);
+  });
+
   test('updates an actor without exposing ownership metadata', async () => {
     const created = await request(app())
       .post('/api/ecosystem/actors')
