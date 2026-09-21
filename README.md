@@ -234,6 +234,46 @@ Zorgax may assist with protocol drafting, organization, provenance, missing-info
 
 **Status:** `PROPOSED`. KF-006 provides an existing evidence/provenance example; it is not itself proof that this multidisciplinary framework has been scientifically validated or adopted by a university.
 
+### 🔊 Sound System University Research Track — PROPOSED
+
+The [MyZubster Sound System project](https://github.com/DanielIoni-creator/Myzubster-soundsystem) can use the same evidence-first university framework as a distinct research track connecting technical practice, culture and reproducible documentation.
+
+Possible study areas include:
+
+- **Acoustics:** sound propagation, frequency response and documented measurement methods.
+- **Audio engineering:** system configuration, signal chain, calibration and reproducible technical workflows.
+- **Hearing and event safety:** measurement and risk-reduction questions under appropriate qualified guidance; MyZubster does not replace applicable safety rules or professional assessment.
+- **Energy and sustainability:** power requirements, energy use and measurable environmental hypotheses.
+- **Software / AI:** tooling, automation, analysis and Zorgax-assisted documentation, with human and AI contributions kept distinguishable.
+- **Culture and knowledge transfer:** documenting how sound-system practices, technical knowledge and community history are transmitted between participants.
+- **Open-source collaboration:** individual/student GitHub projects that can document methods, code, observations, revisions and reproducibility.
+
+```text
+SOUND SYSTEM / COMMUNITY PRACTICE
+        ↓
+RESEARCH QUESTION
+        ↓
+INDIVIDUAL OR TEAM GITHUB PROJECT
+        ↓
+DISCIPLINE-SPECIFIC PROTOCOL
+        ↓
+AUTHORIZED MEASUREMENTS / OBSERVATIONS
+        ↓
+RAW DATA + METHODS + CONTEXT
+        ↓
+MYZUBSTER EVIDENCE / PROVENANCE
+        ↓
+SHA-256 + OPTIONAL BLOCKCHAIN ANCHOR
+        ↓
+REPRODUCTION / COMPARISON
+        ↓
+QUALIFIED UNIVERSITY / SCIENTIFIC REVIEW
+```
+
+A Sound System GitHub repository, blockchain anchor or Zorgax analysis can establish provenance and support reproducibility, but **does not by itself scientifically validate acoustic, health, environmental or social claims**. Any university participation, protocol approval or research result must be evidenced separately.
+
+**Status:** `PROPOSED`. This section defines a research pathway; it does not claim an existing university partnership, approved study or validated scientific result.
+
 ### 🧅 Tor / Onion and decentralization
 
 MyZubster now contains an **implemented self-hosting component for a Tor v3 Onion Service** in [`onion/`](onion/README.md). The Onion container forwards Tor traffic to the internal frontend over the Docker network, keeps its Onion identity in a persistent local volume and does not publish the container directly to the host.
