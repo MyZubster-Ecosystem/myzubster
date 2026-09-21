@@ -1,0 +1,43 @@
+{
+  "schema": "myzubster.knowledge.evidence.record.v1",
+  "pilotId": "MYZ-188",
+  "algorithm": "sha256",
+  "evidenceHash": "d47dc850bb31142726d3f97d70b35f604c6f35e98957cb7d59d2c2635ba17fed",
+  "commitment": "MZ-KNOWLEDGE-V1:d47dc850bb31142726d3f97d70b35f604c6f35e98957cb7d59d2c2635ba17fed",
+  "payload": {
+    "schema": "myzubster.knowledge.evidence.v1",
+    "subject": "MYZ-188",
+    "domain": "ecosystem-collaboration",
+    "claim": "A bounded MyZubster technical pilot connects University/Research, Developer and Community actor types to public GitHub work, separate community validation and SHA-256 evidence without inferring external institutional affiliation, partnership, employment, bounty approval or payment.",
+    "evidenceLevel": "repository-verifiable",
+    "evidenceRefs": [
+      {
+        "type": "public-reference",
+        "reference": "https://github.com/MyZubster-Ecosystem/myzubster/issues/1335"
+      },
+      {
+        "type": "public-reference",
+        "reference": "https://github.com/MyZubster-Ecosystem/myzubster/commit/31caf1ed8a5107916793433bea70080455f486a4"
+      },
+      {
+        "type": "public-reference",
+        "reference": "https://github.com/MyZubster-Ecosystem/myzubster/commit/81ccf1d23f929cf6fe8c9b5b55256aa7b0080ba0"
+      },
+      {
+        "type": "public-reference",
+        "reference": "https://github.com/MyZubster-Ecosystem/myzubster/blob/feat/myz-188-university-developer-community-e2e/data/ecosystem-pilots/myz-188-university-developer-community.json"
+      }
+    ],
+    "transfer": null,
+    "version": "1"
+  },
+  "anchor": {
+    "status": "NOT_REQUESTED"
+  },
+  "boundaries": {
+    "paymentProof": false,
+    "bountyApproval": false,
+    "institutionalEndorsement": false,
+    "partnership": false
+  }
+}
