@@ -290,3 +290,40 @@ export function leaveMetaverse(sessionId) {
     body: JSON.stringify({ sessionId })
   });
 }
+
+export async function searchGitHubResearch(query, type = 'repositories') {
+  const cleanQuery = String(query || '').trim();
+  const allowedTypes = new Set(['repositories', 'issues', 'pull_requests']);
+  if (cleanQuery.length < 2 || cleanQuery.length > 100) {
+    throw new Error('La ricerca GitHub deve contenere da 2 a 100 caratteri');
+  }
+  if (!allowedTypes.has(type)) throw new Error('Tipo di ricerca GitHub non supportato');
+
+  const endpoint = type === 'repositories' ? 'repositories' : 'issues';
+  const qualifiers = type === 'pull_requests' ? ' is:pr' : type === 'issues' ? ' is:issue' : '';
+  const params = new URLSearchParams({ q: cleanQuery + qualifiers, per_page: '8', sort: 'updated', order: 'desc' });
+  const response = await fetch(`https://api.github.com/search/${endpoint}?${params.toString()}`, {
+    headers: { Accept: 'application/vnd.github+json' }
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const error = new Error(payload.message || `GitHub search failed (${response.status})`);
+    error.status = response.status;
+    throw error;
+  }
+
+  return {
+    totalCount: Number(payload.total_count || 0),
+    items: (payload.items || []).slice(0, 8).map((item) => ({
+      id: item.id,
+      type,
+      title: type === 'repositories' ? item.full_name : item.title,
+      description: type === 'repositories' ? item.description : item.repository_url?.split('/').slice(-2).join('/'),
+      url: item.html_url,
+      state: item.state || null,
+      language: item.language || null,
+      stars: Number(item.stargazers_count || 0),
+      updatedAt: item.updated_at
+    }))
+  };
+}
