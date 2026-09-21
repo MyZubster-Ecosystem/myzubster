@@ -12,7 +12,11 @@
       "name": "MyZubster University & Research Demo",
       "slug": "myz-188-university-research",
       "description": "MyZubster-owned university/research profile used only for the MYZ-188 technical pilot.",
-      "skills": ["research", "reproducibility", "evidence"],
+      "skills": [
+        "research",
+        "reproducibility",
+        "evidence"
+      ],
       "github": {
         "login": "DanielIoni-creator",
         "repository": "DanielIoni-creator/myzubster-university-research",
@@ -27,7 +31,12 @@
       "name": "MyZubster Developer Support Demo",
       "slug": "myz-188-developer-support",
       "description": "MyZubster-owned developer profile used to implement the bounded MYZ-188 technical pilot.",
-      "skills": ["github", "nodejs", "api", "evidence"],
+      "skills": [
+        "github",
+        "nodejs",
+        "api",
+        "evidence"
+      ],
       "github": {
         "login": "DanielIoni-creator",
         "repository": "DanielIoni-creator/Myzubster-developer-support",
@@ -42,7 +51,11 @@
       "name": "MyZubster Community DAO Demo",
       "slug": "myz-188-community-dao",
       "description": "MyZubster-owned community profile used to record a separate technical validation for MYZ-188.",
-      "skills": ["community-review", "validation", "open-collaboration"],
+      "skills": [
+        "community-review",
+        "validation",
+        "open-collaboration"
+      ],
       "github": {
         "login": "DanielIoni-creator",
         "repository": "DanielIoni-creator/Myzubster-community-dao",
@@ -73,7 +86,10 @@
     "algorithm": "sha256",
     "schema": "myzubster.knowledge.evidence.v1",
     "generatedBy": "scripts/ecosystem/seed-myz-188-pilot.js",
-    "anchoringRequired": false
+    "anchoringRequired": false,
+    "recordPath": "data/ecosystem-pilots/myz-188-evidence.json",
+    "recordSha": "263e970b0666bc25498daafa0c5599c8dc333026",
+    "recordCommitUrl": "https://github.com/MyZubster-Ecosystem/myzubster/commit/263e970b0666bc25498daafa0c5599c8dc333026"
   },
   "knowledgeGraph": {
     "endpoint": "/api/ecosystem/graph?projectId=myz-188-university-developer-community",
