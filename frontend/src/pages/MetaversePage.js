@@ -3,6 +3,7 @@ import {
   getMetaverseProfile,
   getMetaverseRooms,
   getMetaverseWorld,
+  searchGitHubResearch,
   joinMetaverse,
   leaveMetaverse,
   moveMetaversePlayer,
@@ -40,7 +41,8 @@ const LANDMARKS = [
   { id: 'projects', label: 'LIFE Projects', icon: '🌱', x: 56, y: 14, href: '/life-pilot' },
   { id: 'visual', label: 'Visual Gallery', icon: '🎨', x: 78, y: 14, href: '/fumetto' },
   { id: 'zorgax', label: 'Zorgax Observatory', icon: '👁️', x: 70, y: 62, href: '/zorgax' },
-  { id: 'creator', label: 'Creator Lab', icon: '⚙️', x: 15, y: 62, href: '/come-funziona' }
+  { id: 'creator', label: 'Creator Lab', icon: '⚙️', x: 15, y: 62, href: '/come-funziona' },
+  { id: 'github-research', label: 'GitHub Research Hub', icon: '🔎', x: 42, y: 62, href: 'https://github.com/search' }
 ];
 
 const LANDMARK_IDS = new Set(LANDMARKS.map((landmark) => landmark.id));
@@ -200,6 +202,69 @@ function AvatarCreator({ initialProfile, authenticated, busy, error, totalCharac
         )}
       </section>
     </div>
+  );
+}
+
+
+function GitHubResearchPanel() {
+  const [query, setQuery] = useState('metaverse open source');
+  const [type, setType] = useState('repositories');
+  const [results, setResults] = useState([]);
+  const [totalCount, setTotalCount] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [researchError, setResearchError] = useState('');
+
+  const submit = async (event) => {
+    event.preventDefault();
+    setLoading(true);
+    setResearchError('');
+    try {
+      const data = await searchGitHubResearch(query, type);
+      setResults(data.items);
+      setTotalCount(data.totalCount);
+    } catch (requestError) {
+      setResults([]);
+      setTotalCount(null);
+      setResearchError(requestError.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <section className="metaverse-panel metaverse-github-research">
+      <div className="metaverse-kicker">GITHUB RESEARCH HUB</div>
+      <h3>Ricerche open source</h3>
+      <p className="metaverse-muted">Trova repository, issue e pull request e trasformali in piste di ricerca per Neon Plaza.</p>
+      <form onSubmit={submit} className="metaverse-github-form">
+        <input
+          aria-label="Ricerca GitHub"
+          minLength={2}
+          maxLength={100}
+          required
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="es. WebXR, metaverse, AI"
+        />
+        <select aria-label="Tipo di ricerca GitHub" value={type} onChange={(event) => setType(event.target.value)}>
+          <option value="repositories">Repository</option>
+          <option value="issues">Issue</option>
+          <option value="pull_requests">Pull request</option>
+        </select>
+        <button type="submit" disabled={loading}>{loading ? 'Ricerca…' : 'Cerca su GitHub'}</button>
+      </form>
+      {researchError && <div className="metaverse-error">{researchError}</div>}
+      {Number.isInteger(totalCount) && <small className="metaverse-muted">{totalCount.toLocaleString('it-IT')} risultati GitHub</small>}
+      <div className="metaverse-github-results" aria-live="polite">
+        {results.map((item) => (
+          <a key={item.id} className="metaverse-github-result" href={item.url} target="_blank" rel="noreferrer">
+            <strong>{item.title}</strong>
+            {item.description && <span>{item.description}</span>}
+            <small>{[item.language, item.state, item.stars ? `★ ${item.stars}` : null].filter(Boolean).join(' · ')}</small>
+          </a>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -591,6 +656,8 @@ function MetaversePage() {
               {isAccountLinked(me?.identityStatus) ? 'MYZ VERIFIED' : 'Ospite'}
             </div>
           </section>
+
+          <GitHubResearchPanel />
 
           <MetaverseExperiencePanel
             identityStatus={me?.identityStatus}
