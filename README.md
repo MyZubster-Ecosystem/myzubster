@@ -373,6 +373,61 @@ A successful university pilot must therefore be presented according to exactly w
 
 **Status:** `PROPOSED / NOT YET EXPERIMENTALLY VALIDATED`.
 
+### 🎓 MyZubster University Living Lab & Post-Pilot Exploitation Model — PROPOSED
+
+MyZubster can separate **research/teaching participation** from any later commercial use of the platform.
+
+```text
+UNIVERSITY / RESEARCH LIVING LAB
+        ↓
+FREE PROJECT ACCESS FOR THE APPROVED PILOT
+        ↓
+STUDENT / RESEARCHER PROJECT
+        ↓
+ZORGAX + GITHUB + KNOWLEDGE / EVIDENCE WORKFLOW
+        ↓
+TEST / LEARN / DOCUMENT / REVIEW
+        ↓
+PILOT RESULT + LIMITATIONS
+        ↓
+END OF ACADEMIC ACTIVITY
+        ↓
+OPTIONAL, INDEPENDENT USER CHOICE
+        ↓
+MARKETPLACE / PROFESSIONAL / PAID SERVICES
+        ↓
+AGGREGATED MARKET-UPTAKE EVIDENCE, WHERE LAWFUL AND CONSENTED
+```
+
+#### Research layer
+
+For an approved university pilot, access to the functions required by the research protocol should not depend on a student purchasing a commercial service. The research agreement should define which MyZubster/Zorgax capabilities are supplied to the institution or participants, for how long, and how project costs are allocated.
+
+Possible measurements include onboarding completion, project completion, reproducibility, quality of documentation, human/AI contribution boundaries, knowledge transfer and participant feedback.
+
+#### Post-pilot exploitation layer
+
+After the academic activity, participants may independently choose whether to continue using MyZubster, become sellers, purchase optional services or use professional/marketplace functions. Such commercial activity must be clearly separated from academic assessment and must not be a condition for course participation, research participation, grades or access to required research functions.
+
+Where appropriate and lawfully designed, the project may measure **aggregate post-pilot uptake** (for example voluntary continued use or marketplace activity) as evidence relevant to sustainability and exploitation. Research use of such data requires the applicable consent/privacy/governance basis.
+
+#### Financial separation
+
+The project accounting should distinguish:
+
+- costs attributable to the university/research pilot;
+- MyZubster platform/infrastructure costs allocated to the project under the applicable funding rules;
+- non-project commercial operations;
+- post-pilot revenue and paid services.
+
+No cost or revenue should be labelled LIFE-eligible, reimbursable or project-funded merely because it occurs on MyZubster; eligibility must be established under the applicable call, grant agreement and partner accounting rules.
+
+#### Evidence boundary
+
+A functioning Living Lab can demonstrate use, workflows and measured pilot outcomes. It does not by itself prove scientific validity, educational effectiveness, commercial viability, funding eligibility or university endorsement of the wider platform.
+
+**Status:** `PROPOSED`. Institutional participation, free-access terms, research governance and any LIFE cost allocation remain subject to the relevant agreements and funding rules.
+
 ### 🧅 Tor / Onion and decentralization
 
 MyZubster now contains an **implemented self-hosting component for a Tor v3 Onion Service** in [`onion/`](onion/README.md). The Onion container forwards Tor traffic to the internal frontend over the Docker network, keeps its Onion identity in a persistent local volume and does not publish the container directly to the host.
