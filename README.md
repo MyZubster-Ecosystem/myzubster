@@ -274,6 +274,49 @@ A Sound System GitHub repository, blockchain anchor or Zorgax analysis can estab
 
 **Status:** `PROPOSED`. This section defines a research pathway; it does not claim an existing university partnership, approved study or validated scientific result.
 
+### ♻️ Circular Economy Research & Community Track — PROPOSED
+
+MyZubster connects the existing knowledge/evidence framework to a broader **circular-economy research and community track**. The goal is to document material flows, practical knowledge, reuse, local exchanges and measurable outcomes without presenting proposed pilots as already scientifically validated.
+
+Initial connected domains include:
+
+- **Circular Care / absorbent products:** open-source design questions, materials, reuse/recycling pathways, waste reduction and traceable lifecycle evidence. Health, hygiene and product-safety claims require appropriate standards, testing and qualified review.
+- **Industrial hemp:** cultivation, materials, transformation, local supply chains, by-products and circular applications, under applicable agricultural/legal requirements and agronomy-specific protocols.
+- **Community events / Sound System:** equipment sharing and rental, repair/reuse, energy and transport measurements, event logistics, technical/cultural knowledge transfer and documented community practices.
+- **Kefir / fermentation:** responsible starter exchange, preservation and transfer of food-culture knowledge, with food-safety and microbiological claims kept separate from provenance evidence.
+- **Circular Water:** observations, sampling/sensors, reuse hypotheses and environmental datasets under appropriate water/environmental protocols.
+- **Marketplace + Metaverse:** discovery and documentation layer for offers, needs, projects and evidence; a listing or digital representation is not proof that a physical exchange or environmental benefit occurred.
+
+```text
+RESOURCE / MATERIAL / KNOWLEDGE / COMMUNITY NEED
+        ↓
+INDIVIDUAL OR COMMUNITY GITHUB PROJECT
+        ↓
+CIRCULAR-ECO​NOMY QUESTION + BASELINE
+        ↓
+AUTHORIZED REAL-WORLD ACTIVITY / EXCHANGE
+        ↓
+INPUTS + OUTPUTS + METHODS + MEASUREMENTS
+        ↓
+MYZUBSTER EVIDENCE / PROVENANCE
+        ↓
+SHA-256 + OPTIONAL BLOCKCHAIN ANCHOR
+        ↓
+REUSE / REPAIR / TRANSFER / SECOND CYCLE
+        ↓
+MEASURABLE OUTCOME + LIMITATIONS
+        ↓
+REPRODUCTION / UNIVERSITY OR QUALIFIED REVIEW
+```
+
+The common research question is not simply whether an activity is “circular”, but **what entered the process, what changed, what was reused or avoided, what evidence supports the result, and whether another participant can reproduce or independently evaluate it**.
+
+This creates a common evidence model across Circular Care, hemp, events/Sound Systems, kefir, water and future circular pilots while allowing every domain to retain its own safety, scientific and regulatory requirements.
+
+**Evidence boundary:** GitHub documents work; SHA-256/blockchain can protect integrity/timestamp relationships; Zorgax can assist organization and analysis. None of these alone proves environmental benefit, safety, regulatory compliance, scientific validity or institutional endorsement.
+
+**Status:** `PROPOSED` as an integrated research framework. Individual components/pilots may have stronger evidence and must be described according to their own documented status.
+
 ### 🧅 Tor / Onion and decentralization
 
 MyZubster now contains an **implemented self-hosting component for a Tor v3 Onion Service** in [`onion/`](onion/README.md). The Onion container forwards Tor traffic to the internal frontend over the Docker network, keeps its Onion identity in a persistent local volume and does not publish the container directly to the host.
