@@ -153,6 +153,38 @@ The record can demonstrate integrity and timestamp of the committed evidence. It
 
 **Explore:** [KF-006 evidence](https://www.myzubster.com/knowledge-kf-006.html) · [Kefir repository](https://github.com/DanielIoni-creator/Myzubster-fermentation-kefir) · [University & Research](https://github.com/DanielIoni-creator/myzubster-university-research)
 
+### 🎓 University Knowledge Exchange Lab — PROPOSED
+
+MyZubster proposes a university-facing laboratory for documenting how **cultures and knowledge move between people**. Here, “culture” may mean a food culture such as kefir/fermentation or a broader technical, scientific, creative or community practice.
+
+Each consenting student can maintain an **individual GitHub project** rather than being represented only by a central platform record:
+
+```text
+STUDENT / PARTICIPANT
+        ↓
+INDIVIDUAL GITHUB PROJECT
+        ↓
+WHAT I KNOW / WHAT I WANT TO LEARN
+        ↓
+REAL EXCHANGE OR PRACTICAL ACTIVITY
+        ↓
+EVIDENCE + HUMAN NOTES
+        ↓
+CANONICAL SHA-256 RECORD
+        ↓
+OPTIONAL BLOCKCHAIN ANCHOR
+        ↓
+FEEDBACK / REPRODUCTION / REVIEW
+        ↓
+RESEARCH DATASET WHEN ETHICALLY AND METHODologically APPROVED
+```
+
+**Starting example:** KF-006 with Nicola is an already documented exchange/evidence case and can be used as a reference structure. Future kefir requests or university exchanges must remain `REQUESTED` / `PLANNED` until the actual exchange, consent and evidence exist; they must not be backfilled as completed events.
+
+The blockchain anchor proves only that a specific digital commitment existed by a given point and can later be checked for integrity. It does **not** prove that the underlying knowledge is correct, that a physical exchange occurred unless separately evidenced, or that a scientific conclusion is valid.
+
+A university study could then evaluate questions such as reproducibility, provenance, knowledge transfer and participant feedback using an approved protocol. **University participation or testing is not itself scientific validation or institutional endorsement.**
+
 ### 🧅 Tor / Onion and decentralization
 
 MyZubster now contains an **implemented self-hosting component for a Tor v3 Onion Service** in [`onion/`](onion/README.md). The Onion container forwards Tor traffic to the internal frontend over the Docker network, keeps its Onion identity in a persistent local volume and does not publish the container directly to the host.
