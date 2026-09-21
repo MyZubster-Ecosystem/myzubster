@@ -90,7 +90,7 @@ function buildPilotEvidence() {
   const refs = [
     manifest.canonicalWorkItem.url,
     manifest.implementation.commitUrl,
-    communityValidation.source.commitUrl,
+    manifest.communityValidation.commitUrl,
     manifest.manifestUrl
   ].filter(Boolean);
 
@@ -212,8 +212,8 @@ async function main() {
       description: communityValidation.summary,
       sourceSpec: {
         kind: 'commit',
-        repository: communityValidation.source.repository,
-        sha: communityValidation.source.sha
+        repository: manifest.communityValidation.repository,
+        sha: manifest.communityValidation.sha
       },
       ownerId,
       evidenceRefs: [pilotEvidence.commitment]
