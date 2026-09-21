@@ -5,6 +5,7 @@ const { MongoMemoryServer } = require('mongodb-memory-server');
 
 const manifest = require('../data/ecosystem-pilots/myz-188-university-developer-community.json');
 const communityValidation = require('../data/ecosystem-pilots/myz-188-community-validation.json');
+const evidenceRecord = require('../data/ecosystem-pilots/myz-188-evidence.json');
 const { buildPilotEvidence } = require('../scripts/ecosystem/seed-myz-188-pilot');
 const { verifyKnowledgeEvidence } = require('../src/services/knowledgeEvidenceService');
 const EcosystemActor = require('../src/models/EcosystemActor');
@@ -64,6 +65,9 @@ describe('MYZ-188 University → Developer → Community pilot', () => {
     expect(evidence.evidenceHash).toMatch(/^[a-f0-9]{64}$/);
     expect(evidence.commitment).toBe(`MZ-KNOWLEDGE-V1:${evidence.evidenceHash}`);
     expect(verifyKnowledgeEvidence(evidence.payload, evidence.evidenceHash)).toBe(true);
+    expect(evidenceRecord.evidenceHash).toBe(evidence.evidenceHash);
+    expect(evidenceRecord.commitment).toBe(evidence.commitment);
+    expect(manifest.evidence.recordPath).toBe('data/ecosystem-pilots/myz-188-evidence.json');
 
     const refs = evidence.payload.evidenceRefs.map(item => item.reference);
     expect(refs).toContain(manifest.canonicalWorkItem.url);
