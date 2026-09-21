@@ -16,6 +16,14 @@ function callback(provider){
   if(provider==='github')return process.env.GITHUB_LOGIN_CALLBACK_URL||process.env.GITHUB_OAUTH_CALLBACK_URL||`${process.env.GATEWAY_PUBLIC_URL||'https://myzubster.com'}/api/auth/social/github/callback`;
   return process.env[`${provider.toUpperCase()}_LOGIN_CALLBACK_URL`]||`${process.env.GATEWAY_PUBLIC_URL||'https://myzubster.com'}/api/auth/social/${provider}/callback`;
 }
+function githubClientId(){
+  const value=String(process.env.GITHUB_OAUTH_CLIENT_ID||'').trim();
+  // GitHub client secrets are 40 hexadecimal characters. Treating one as the
+  // public client ID produces a misleading GitHub 404 instead of a useful
+  // configuration error.
+  if(/^[a-f0-9]{40}$/i.test(value))throw new Error('GitHub Login non configurato: GITHUB_OAUTH_CLIENT_ID contiene un Client Secret');
+  return value;
+}
 function state(provider,extra={}){return jwt.sign({purpose:'social-login',provider,nonce:crypto.randomBytes(16).toString('hex'),...extra},process.env.OAUTH_STATE_SECRET||secret(),{expiresIn:'10m'});}
 function verifyState(value,provider){
   if(!value||typeof value!=='string')throw new Error('Sessione OAuth mancante. Riavvia il login dal pulsante MyZubster.');
@@ -28,7 +36,7 @@ function providerCallbackError(query={}){if(!query.error)return null;if(query.er
 function safeMetaText(value){return String(value||'').replace(/[\r\n\t]+/g,' ').slice(0,240);}
 function logFacebookOAuthError(stage,response,payload){const meta=payload?.error&&typeof payload.error==='object'?payload.error:{};console.error('[facebook-oauth]',JSON.stringify({stage,httpStatus:Number(response?.status)||null,type:safeMetaText(meta.type),code:Number.isFinite(Number(meta.code))?Number(meta.code):null,errorSubcode:Number.isFinite(Number(meta.error_subcode))?Number(meta.error_subcode):null,message:safeMetaText(meta.message),fbtraceId:safeMetaText(meta.fbtrace_id)}));}
 
-function providerAvailability(){return{google:Boolean((process.env.GOOGLE_LOGIN_CLIENT_ID||process.env.GOOGLE_OAUTH_CLIENT_ID)&&(process.env.GOOGLE_LOGIN_CLIENT_SECRET||process.env.GOOGLE_OAUTH_CLIENT_SECRET)&&callback('google').startsWith('http')),github:Boolean(process.env.GITHUB_OAUTH_CLIENT_ID&&process.env.GITHUB_OAUTH_CLIENT_SECRET&&callback('github').startsWith('http')),facebook:Boolean(process.env.FACEBOOK_LOGIN_APP_ID&&process.env.FACEBOOK_LOGIN_APP_SECRET&&callback('facebook').startsWith('http'))};}
+function providerAvailability(){let github=false;try{github=Boolean(githubClientId()&&process.env.GITHUB_OAUTH_CLIENT_SECRET&&callback('github').startsWith('http'));}catch(_){github=false;}return{google:Boolean((process.env.GOOGLE_LOGIN_CLIENT_ID||process.env.GOOGLE_OAUTH_CLIENT_ID)&&(process.env.GOOGLE_LOGIN_CLIENT_SECRET||process.env.GOOGLE_OAUTH_CLIENT_SECRET)&&callback('google').startsWith('http')),github,facebook:Boolean(process.env.FACEBOOK_LOGIN_APP_ID&&process.env.FACEBOOK_LOGIN_APP_SECRET&&callback('facebook').startsWith('http'))};}
 exports.providers=(_req,res)=>res.json({success:true,data:{providers:providerAvailability()}});
 
 exports.start=(req,res)=>{
@@ -40,8 +48,9 @@ exports.start=(req,res)=>{
       const params=new URLSearchParams({client_id:clientId,redirect_uri:callback('google'),response_type:'code',scope:'openid email profile',state:state('google'),prompt:'select_account'});return res.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${params}`);
     }
     if(provider==='github'){
-      if(!process.env.GITHUB_OAUTH_CLIENT_ID||!process.env.GITHUB_OAUTH_CLIENT_SECRET||!callback('github').startsWith('http'))throw new Error('GitHub Login non configurato');
-      const writeProfile=req.query?.write_profile==='1';const params=new URLSearchParams({client_id:process.env.GITHUB_OAUTH_CLIENT_ID,redirect_uri:callback('github'),scope:writeProfile?'read:user user:email repo':'read:user user:email',state:state('github',writeProfile?{writeProfile:true,userId:String(req.query?.myz_user||'')}: {})});return res.redirect(`https://github.com/login/oauth/authorize?${params}`);
+      const clientId=githubClientId();
+      if(!clientId||!process.env.GITHUB_OAUTH_CLIENT_SECRET||!callback('github').startsWith('http'))throw new Error('GitHub Login non configurato');
+      const writeProfile=req.query?.write_profile==='1';const params=new URLSearchParams({client_id:clientId,redirect_uri:callback('github'),scope:writeProfile?'read:user user:email repo':'read:user user:email',state:state('github',writeProfile?{writeProfile:true,userId:String(req.query?.myz_user||'')}: {})});return res.redirect(`https://github.com/login/oauth/authorize?${params}`);
     }
     if(provider==='facebook'){
       if(!process.env.FACEBOOK_LOGIN_APP_ID||!process.env.FACEBOOK_LOGIN_APP_SECRET||!callback('facebook').startsWith('http'))throw new Error('Facebook Login non configurato');
