@@ -62,7 +62,11 @@ async function verifyGitHubLinks({ login, repositories = [] }) {
   const identity = await verifyUser(login);
   const verifiedRepositories = [];
   for (const repository of repositories) {
-    verifiedRepositories.push(await verifyRepository(repository));
+    const verified = await verifyRepository(repository);
+    if (verified.visibility !== 'public') {
+      throw new Error('Solo repository GitHub pubblici possono essere collegati al registro pubblico');
+    }
+    verifiedRepositories.push(verified);
   }
   return { identity, verifiedRepositories };
 }
