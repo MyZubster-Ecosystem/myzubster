@@ -5,6 +5,7 @@ const Dashboard = require('../models/dashboardModel');
 const MarketplaceListing = require('../models/MarketplaceListing');
 const PaymentIntent = require('../models/PaymentIntent');
 const PaymentDashboardTransaction = require('../models/PaymentDashboardTransaction');
+const { stripeFundingInputsProvider } = require('../services/paymentDashboardStripeProvider');
 
 // #218: Admin Dashboard - Monitoraggio Lavori e Pagamenti
 // Dashboard remains the legacy XMR/operations model. Canonical MYZ accounting lives in myzLedgerApiService.
@@ -42,6 +43,14 @@ exports.getOverview = async (req, res) => {
       PaymentDashboardTransaction.aggregate([{ $match: { paymentStatus: 'paid', livemode: true } }, { $group: { _id: '$currency', amountCents: { $sum: '$amountCents' }, count: { $sum: 1 } } }])
     ]);
     const dashboard = await Dashboard.aggregate([{$group: {_id: null, totalXMR: {$sum: '$balanceXMR'}}}]);
+    let stripeLive = { configured: false, items: [], error: null };
+    try { stripeLive = await stripeFundingInputsProvider(); }
+    catch (error) { stripeLive = { configured: true, items: [], error: error.message }; }
+    const settledStripe = (stripeLive.items || []).filter(item => item.livemode === true && (item.status === 'SETTLED' || item.status === 'CONFIRMED'));
+    const stripeLiveRevenueByAsset = Object.values(settledStripe.reduce((acc, item) => { const asset = item.asset || 'UNKNOWN'; if (!acc[asset]) acc[asset] = { currency: asset, amount: 0, transactions: 0 }; acc[asset].amount += Number(item.amount || 0); acc[asset].transactions += 1; return acc; }, {}));
+    const stripeMongoRevenue = stripeRevenue.map(row => ({ currency: row._id, amountMinor: row.amountCents, amount: row.amountCents / 100, transactions: row.count }));
+    const stripeEffectiveCount = stripeLive.configured && !stripeLive.error ? settledStripe.length : stripePaidTransactions;
+    const stripeEffectiveRevenue = stripeLive.configured && !stripeLive.error ? stripeLiveRevenueByAsset : stripeMongoRevenue;
     res.json({
       totalUsers,
       totalSellers,
@@ -57,15 +66,18 @@ exports.getOverview = async (req, res) => {
       totalXMRInCirculation: dashboard[0]?.totalXMR || 0,
       commerce: {
         listings: { total: totalListings, active: activeListings },
-        purchases: { stripePaid: stripePaidTransactions, cryptoConfirmed: confirmedCryptoPurchases, total: stripePaidTransactions + confirmedCryptoPurchases },
-        stripeRevenue: stripeRevenue.map(row => ({ currency: row._id, amountMinor: row.amountCents, amount: row.amountCents / 100, transactions: row.count }))
+        purchases: { stripePaid: stripeEffectiveCount, cryptoConfirmed: confirmedCryptoPurchases, total: stripeEffectiveCount + confirmedCryptoPurchases },
+        stripeRevenue: stripeEffectiveRevenue,
+        stripeSource: stripeLive.configured && !stripeLive.error ? 'stripe-live-readonly' : 'verified-mongodb',
+        stripeWindowLimit: stripeLive.configured && !stripeLive.error ? Number(process.env.PAYMENT_DASHBOARD_STRIPE_LIMIT || 25) : null,
+        stripeError: stripeLive.error || null
       },
       funnel: {
         visitors: null,
         visitorsSource: 'vercel-analytics-external',
         registeredUsers: totalUsers,
         sellers: totalSellers,
-        purchasers: stripePaidTransactions + confirmedCryptoPurchases
+        purchasers: stripeEffectiveCount + confirmedCryptoPurchases
       }
     });
   } catch (e) { res.status(500).json({ error: e.message }); }
