@@ -56,6 +56,11 @@ exports.getOverview = async (req, res) => {
     const settledFunding = treasury.layers?.funding_inputs?.items || [];
     const settledByAsset = asset => settledFunding.filter(item => item.status === 'SETTLED' && item.asset === asset).reduce((sum,item) => sum + Number(item.amount || 0), 0);
     const btcBalance = settledByAsset('BTC');
+    const adminGithub = String(req.user?.github || req.user?.login || req.user?.username || '').trim();
+    const adminMyzAccountId = adminGithub ? `contributor:github:${adminGithub}` : null;
+    const adminMyz = adminMyzAccountId ? settlementDashboard.buildDashboard({ accountId: adminMyzAccountId }) : null;
+    const adminMyzEntries = (adminMyz?.layers?.bounty_rewards?.items || []).filter(item => item.accountId === adminMyzAccountId && item.status === 'RECORDED' && !item.neutralized && item.entryType !== 'REVERSAL');
+    const adminMyzBalance = adminMyz?.balances?.myz?.amount ?? null;
     res.json({
       totalUsers,
       totalSellers,
@@ -69,6 +74,7 @@ exports.getOverview = async (req, res) => {
       totalMYZInCirculation: null,
       totalMYZAccountingSource: 'canonical-ledger',
       totalXMRInCirculation: dashboard[0]?.totalXMR || 0,
+      myzBalance: { amount: adminMyzBalance, accountId: adminMyzAccountId, verifiedEntries: adminMyzEntries.length, source: 'canonical-ledger', assetType: 'internal-reward-accounting-unit' },
       cryptoBalances: {
         BTC: { amount: btcBalance, source: 'settled-funding-inputs', verified: true },
         XMR: { amount: treasury.balances?.xmr?.amount ?? null, source: treasury.balances?.xmr?.source ?? null, verified: false, reason: treasury.balances?.xmr?.reason || 'Monero wallet RPC balance unavailable' },
