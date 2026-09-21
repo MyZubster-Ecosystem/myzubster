@@ -82,7 +82,7 @@ async function verifyIssue(repository, issueNumber) {
   if (issue.pull_request) throw new Error('La sorgente indicata è una pull request, non una issue');
   return {
     kind: 'issue',
-    sourceKey: `${issue.repository_url ? normalized : normalized}#issue-${number}`,
+    sourceKey: `${normalized}#issue-${number}`,
     repository: normalized,
     number,
     sha: '',
