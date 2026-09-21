@@ -567,3 +567,44 @@ a.metaverse-landmark:focus-visible {
   font-size: 0.82rem;
   line-height: 1.45;
 }
+
+.metaverse-github-form {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0.75rem 0;
+}
+
+.metaverse-github-form input,
+.metaverse-github-form select {
+  width: 100%;
+  border: 1px solid rgba(127, 255, 212, 0.28);
+  border-radius: 8px;
+  background: rgba(4, 12, 25, 0.82);
+  color: #eefcff;
+  padding: 0.65rem 0.7rem;
+}
+
+.metaverse-github-form button {
+  border: 1px solid rgba(50, 220, 255, 0.45);
+  border-radius: 8px;
+  background: linear-gradient(135deg, #12657a, #5432a8);
+  color: white;
+  cursor: pointer;
+  padding: 0.65rem 0.8rem;
+}
+
+.metaverse-github-form button:disabled { opacity: 0.65; cursor: wait; }
+.metaverse-github-results { display: grid; gap: 0.55rem; margin-top: 0.7rem; }
+.metaverse-github-result {
+  display: grid;
+  gap: 0.2rem;
+  border: 1px solid rgba(111, 226, 255, 0.18);
+  border-radius: 8px;
+  background: rgba(6, 20, 38, 0.72);
+  color: #eafcff;
+  padding: 0.65rem;
+  text-decoration: none;
+}
+.metaverse-github-result:hover { border-color: rgba(111, 226, 255, 0.58); transform: translateY(-1px); }
+.metaverse-github-result span { color: #b9cad8; font-size: 0.82rem; line-height: 1.35; }
+.metaverse-github-result small { color: #72e7ff; }
