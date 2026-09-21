@@ -62,8 +62,10 @@ async function loadManagedActor(req, res) {
 function payload(body = {}, { partial = false } = {}) {
   const out = {};
   const fields = ['type', 'name', 'slug', 'description', 'myzubsterProfile', 'status'];
+  const requiredOnCreate = new Set(['type', 'name', 'slug']);
   for (const field of fields) {
-    if (!partial || Object.prototype.hasOwnProperty.call(body, field)) {
+    const supplied = Object.prototype.hasOwnProperty.call(body, field);
+    if ((partial && supplied) || (!partial && (requiredOnCreate.has(field) || supplied))) {
       const max = field === 'description' ? 2000 : field === 'myzubsterProfile' ? 500 : 180;
       out[field] = cleanString(body[field], max);
     }
