@@ -166,3 +166,57 @@ Human investigators remain responsible for experimental decisions, measurements,
 - Validation state: `NOT YET EXPERIMENTALLY VALIDATED`
 
 Any university adaptation should create a new version and preserve the previous protocol and change history.
+
+
+## 14. Hospital Waste Stream Pilot — PROPOSED
+
+A second-stage study may evaluate absorbent products arising from a **real hospital waste stream**, but only after the responsible institution has classified the relevant waste stream and approved the sampling and handling pathway.
+
+### Governance-first flow
+
+```text
+HOSPITAL / HEALTHCARE FACILITY
+        ↓
+WASTE / HYGIENE RESPONSIBLE FUNCTION
+        ↓
+WASTE CLASSIFICATION + RISK ASSESSMENT
+        ↓
+UNIVERSITY / QUALIFIED RESEARCH PROTOCOL
+        ↓
+AUTHORIZED WASTE OPERATOR / APPROVED SAMPLING PATH
+        ↓
+CONTROLLED SAMPLE + CHAIN OF CUSTODY
+        ↓
+AUTHORIZED MEASUREMENTS / PROCESS
+        ↓
+MASS-BALANCE DATASET
+        ↓
+EVIDENCE MANIFEST + SHA-256
+        ↓
+OPTIONAL BLOCKCHAIN ANCHOR
+        ↓
+ANALYSIS / REPLICATION / QUALIFIED REVIEW
+```
+
+Hospital-origin absorbent waste must **not** be assumed to have one uniform classification or risk profile. The hospital, qualified waste/safety professionals and the competent research institution must determine whether a proposed sample can be collected, transported, stored, treated and studied, and under which conditions.
+
+MyZubster participants should not directly retrieve hospital waste or improvise handling, decontamination, storage or transport outside an institutionally approved procedure.
+
+### Research comparison
+
+Where approved, the study may compare:
+
+- **Stage A:** clean/unused or laboratory-defined absorbent materials;
+- **Stage B:** an institutionally approved real-world healthcare waste sample.
+
+Potential research outcomes include differences in measured mass balance, recoverable fractions, residuals, variability and process limitations. Any safety, recyclability, environmental or industrial conclusion requires evidence beyond the mass-balance result itself.
+
+### Chain of custody and privacy
+
+For every authorized real-world sample, the protocol should define sample ID, custody transfers, timestamps, responsible roles, storage/transport conditions and permitted evidence. Patient-identifying or unnecessary personal/clinical information must not be placed in the public GitHub/blockchain evidence package.
+
+### Validation boundary
+
+A hospital or university supplying/allowing a sample does **not** by itself endorse MyZubster, certify a recycling process, approve recovered material for reuse, or establish scientific validity. Those conclusions require separate documented evaluation.
+
+**Track status:** `PROPOSED / REQUIRES INSTITUTIONAL APPROVAL BEFORE REAL-WASTE TESTING`.
