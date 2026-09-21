@@ -97,6 +97,12 @@ router.post('/', authenticate, async (req, res) => {
 
 router.patch('/:actorId', authenticate, async (req, res) => {
   try {
+    const existing = await EcosystemActor.findOne({ actorId: req.params.actorId });
+    if (!existing) return res.status(404).json({ success: false, message: 'Actor non trovato' });
+    const ownsActor = String(existing.createdBy) === String(req.userId);
+    if (!ownsActor && req.userRole !== 'admin') {
+      return res.status(403).json({ success: false, message: 'Permessi insufficienti per modificare questo actor' });
+    }
     const update = payload(req.body, { partial: true });
     update.updatedBy = req.userId;
     const actor = await EcosystemActor.findOneAndUpdate(
@@ -104,7 +110,6 @@ router.patch('/:actorId', authenticate, async (req, res) => {
       { $set: update },
       { new: true, runValidators: true }
     );
-    if (!actor) return res.status(404).json({ success: false, message: 'Actor non trovato' });
     return res.json({ success: true, actor: publicActor(actor) });
   } catch (error) {
     if (error?.code === 11000) return res.status(409).json({ success: false, message: 'Slug già esistente' });
