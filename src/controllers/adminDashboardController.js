@@ -6,6 +6,7 @@ const MarketplaceListing = require('../models/MarketplaceListing');
 const PaymentIntent = require('../models/PaymentIntent');
 const PaymentDashboardTransaction = require('../models/PaymentDashboardTransaction');
 const { stripeFundingInputsProvider } = require('../services/paymentDashboardStripeProvider');
+const settlementDashboard = require('../services/settlementDashboardService');
 
 // #218: Admin Dashboard - Monitoraggio Lavori e Pagamenti
 // Dashboard remains the legacy XMR/operations model. Canonical MYZ accounting lives in myzLedgerApiService.
@@ -51,6 +52,10 @@ exports.getOverview = async (req, res) => {
     const stripeMongoRevenue = stripeRevenue.map(row => ({ currency: row._id, amountMinor: row.amountCents, amount: row.amountCents / 100, transactions: row.count }));
     const stripeEffectiveCount = stripeLive.configured && !stripeLive.error ? settledStripe.length : stripePaidTransactions;
     const stripeEffectiveRevenue = stripeLive.configured && !stripeLive.error ? stripeLiveRevenueByAsset : stripeMongoRevenue;
+    const treasury = settlementDashboard.buildDashboard();
+    const settledFunding = treasury.layers?.funding_inputs?.items || [];
+    const settledByAsset = asset => settledFunding.filter(item => item.status === 'SETTLED' && item.asset === asset).reduce((sum,item) => sum + Number(item.amount || 0), 0);
+    const btcBalance = settledByAsset('BTC');
     res.json({
       totalUsers,
       totalSellers,
@@ -64,6 +69,11 @@ exports.getOverview = async (req, res) => {
       totalMYZInCirculation: null,
       totalMYZAccountingSource: 'canonical-ledger',
       totalXMRInCirculation: dashboard[0]?.totalXMR || 0,
+      cryptoBalances: {
+        BTC: { amount: btcBalance, source: 'settled-funding-inputs', verified: true },
+        XMR: { amount: treasury.balances?.xmr?.amount ?? null, source: treasury.balances?.xmr?.source ?? null, verified: false, reason: treasury.balances?.xmr?.reason || 'Monero wallet RPC balance unavailable' },
+        ETH: { amount: null, source: null, verified: false, reason: 'No verified Ethereum treasury balance provider is configured' }
+      },
       commerce: {
         listings: { total: totalListings, active: activeListings },
         purchases: { stripePaid: stripeEffectiveCount, cryptoConfirmed: confirmedCryptoPurchases, total: stripeEffectiveCount + confirmedCryptoPurchases },
