@@ -210,6 +210,22 @@ describe('ecosystem contribution graph', () => {
       .set('Authorization', `Bearer ${token()}`);
     expect(forbidden.status).toBe(403);
 
+    verifyContributionSource.mockResolvedValueOnce({
+      kind: 'issue',
+      sourceKey: 'org/repo#issue-1',
+      repository: 'org/repo',
+      number: 1,
+      sha: '',
+      releaseTag: '',
+      githubId: 1,
+      nodeId: 'I_1',
+      url: 'https://github.com/org/repo/issues/1',
+      title: 'Review',
+      author: 'reviewer',
+      sourceState: 'open',
+      merged: false
+    });
+
     const verified = await request(app())
       .post(`/api/ecosystem/contributions/${contribution.contributionId}/verify`)
       .set('Authorization', `Bearer ${token(ownerId, 'admin')}`);
