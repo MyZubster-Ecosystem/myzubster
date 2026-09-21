@@ -1,0 +1,5 @@
+export const knowledgeArticles = {
+  'MONERO:ART-001': { id:'ART-001', domain:'MONERO', title:'Introduzione a Monero', summary:'Concetti fondamentali di Monero, privacy e documentazione collegata.', tags:['monero','privacy','open-source'], relations:[{id:'ART-002',label:'Privacy'},{id:'ART-003',label:'Transazioni'}], sources:[{id:'SRC-001',title:'monero-docs',url:'https://www.getmonero.org/resources/user-guides/'}], concepts:[{id:'CON-PRIVACY',title:'Privacy'},{id:'CON-OSS',title:'Open Source'}] },
+  'MONERO:ART-002': { id:'ART-002', domain:'MONERO', title:'Privacy in Monero', summary:'Panoramica dei meccanismi di privacy usati da Monero.', tags:['privacy'], relations:[{id:'ART-001',label:'Introduzione'}], sources:[], concepts:[{id:'CON-PRIVACY',title:'Privacy'}] },
+  'MONERO:ART-003': { id:'ART-003', domain:'MONERO', title:'Transazioni Monero', summary:'Struttura e ciclo di vita delle transazioni Monero.', tags:['transazioni'], relations:[{id:'ART-001',label:'Introduzione'}], sources:[], concepts:[] }
+};

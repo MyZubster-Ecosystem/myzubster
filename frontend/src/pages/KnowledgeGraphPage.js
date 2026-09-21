@@ -1,0 +1,16 @@
+import React,{useMemo,useState} from 'react';
+import {knowledgeArticles} from '../data/knowledge';
+import './KnowledgeGraphPage.css';
+const color={article:'#ff4d8d',source:'#21d4b4',concept:'#8d7cff'};
+export default function KnowledgeGraphPage(){
+ const q=new URLSearchParams(window.location.search),domain=(q.get('domain')||'MONERO').toUpperCase(),id=(q.get('id')||'ART-001').toUpperCase();
+ const article=knowledgeArticles[`${domain}:${id}`];
+ const nodes=useMemo(()=>article?[{key:`a:${id}`,id,type:'article',title:article.title,description:article.summary},...article.relations.map(x=>{const a=knowledgeArticles[`${domain}:${x.id}`];return{key:`a:${x.id}`,id:x.id,type:'article',title:a?.title||x.label,description:a?.summary}}),...article.sources.map(x=>({key:`s:${x.id}`,id:x.id,type:'source',title:x.title,description:x.url,url:x.url})),...article.concepts.map(x=>({key:`c:${x.id}`,id:x.id,type:'concept',title:x.title,description:'Concetto collegato'}))]:[],[article,domain,id]);
+ const [selected,setSelected]=useState(`a:${id}`),[filter,setFilter]=useState('all');
+ if(!article)return <main className="kg-shell"><div className="kg-error">Articolo {domain}/{id} non trovato.</div></main>;
+ const shown=nodes.filter(n=>filter==='all'||n.type===filter||n.key===selected),active=nodes.find(n=>n.key===selected)||nodes[0],cx=390,cy=235;
+ const pos=new Map(shown.map((n,i)=>n.key===`a:${id}`?[n.key,{x:cx,y:cy}]:[n.key,{x:cx+Math.cos((Math.PI*2*(i-1))/Math.max(shown.length-1,1)-Math.PI/2)*225,y:cy+Math.sin((Math.PI*2*(i-1))/Math.max(shown.length-1,1)-Math.PI/2)*155}]));
+ const root=pos.get(`a:${id}`);
+ const open=n=>{if(n.type==='article')window.location.assign(`/conoscenze?domain=${domain}&id=${n.id}`)};
+ return <main className="kg-shell"><header><a href="/" className="kg-back">← MyZubster</a><p className="kg-eye">KNOWLEDGE GRAPH</p><h1>{domain} <span>↔</span> {id}</h1><p>{article.summary}</p></header><nav>{['all','article','source','concept'].map(x=><button key={x} className={filter===x?'active':''} onClick={()=>setFilter(x)}>{x==='all'?'Tutto':x}</button>)}</nav><section className="kg-work"><div className="kg-canvas"><svg viewBox="0 0 780 470" role="img" aria-label={`Grafo ${domain} ${id}`}>{shown.filter(n=>n.key!==`a:${id}`).map(n=>{const p=pos.get(n.key);return <line key={n.key} x1={root.x} y1={root.y} x2={p.x} y2={p.y}/>})}{shown.map(n=>{const p=pos.get(n.key),sel=n.key===selected;return <g key={n.key} className="kg-node" transform={`translate(${p.x} ${p.y})`} tabIndex="0" onClick={()=>setSelected(n.key)} onDoubleClick={()=>open(n)}><circle r={n.key===`a:${id}`?52:41} fill={sel?color[n.type]:'#10182d'} stroke={color[n.type]} strokeWidth={sel?4:2}/><text y="-3">{n.id}</text><text className="type" y="17">{n.type}</text></g>})}</svg></div><aside><span className={`kg-badge ${active.type}`}>{active.type}</span><h2>{active.title}</h2><code>{active.id}</code><p>{active.description}</p>{active.type==='article'&&active.id!==id&&<button className="kg-open" onClick={()=>open(active)}>Apri articolo</button>}{active.url&&<a href={active.url} target="_blank" rel="noreferrer">Apri fonte ↗</a>}</aside></section><footer>{nodes.length} nodi · {Math.max(nodes.length-1,0)} relazioni</footer></main>;
+}
