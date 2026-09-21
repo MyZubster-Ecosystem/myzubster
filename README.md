@@ -317,6 +317,62 @@ This creates a common evidence model across Circular Care, hemp, events/Sound Sy
 
 **Status:** `PROPOSED` as an integrated research framework. Individual components/pilots may have stronger evidence and must be described according to their own documented status.
 
+### ⚖️ Circular Care Mass-Balance Pilot — PROPOSED
+
+A university-scale pilot can test the **mass balance of absorbent-product recycling** (for example diapers, adult incontinence products and sanitary pads) before any industrial-scale claim or proposal.
+
+```text
+CONTROLLED INPUT SAMPLE
+        ↓
+INITIAL MASS + SAMPLE METADATA
+        ↓
+DOCUMENTED LAB-SCALE PROCESS
+        ↓
+SEPARATED / RECOVERED FRACTIONS
+        ↓
+MASS OF EACH FRACTION + RESIDUALS + MEASUREMENT UNCERTAINTY
+        ↓
+MASS-BALANCE DATASET
+        ↓
+GITHUB EVIDENCE PACKAGE
+        ↓
+CANONICAL SHA-256
+        ↓
+OPTIONAL BLOCKCHAIN ANCHOR
+        ↓
+REPEATED TRIALS + ANALYSIS
+        ↓
+UNIVERSITY / QUALIFIED REVIEW
+        ↓
+POTENTIAL LATER INDUSTRIAL EVALUATION
+```
+
+A core quantitative check can be expressed as:
+
+`initial mass ≈ recovered fractions + residual fractions + measured/estimated process losses`
+
+Each trial should document, where permitted and scientifically appropriate: sample definition, initial mass, instruments and calibration/uncertainty information, process conditions, recovered fractions, residuals, losses, timestamps, responsible operators, raw measurements, analysis code and versioned protocol.
+
+#### Safety-first staging
+
+The first proof-of-concept should use **laboratory-defined controlled materials/samples** whenever this reduces unnecessary biological or waste-handling risk. Post-consumer used absorbent products should only enter a study under appropriate institutional procedures for hygiene, biological risk, waste classification, handling, storage, treatment and disposal.
+
+#### What the blockchain can and cannot prove
+
+A SHA-256 commitment and optional blockchain anchor can make the identity, integrity and timing relationship of a dataset/report independently checkable. It **does not prove** that recycling occurred, that measurements are correct, that a recovered material is safe or suitable for reuse, or that the process is scientifically, legally or industrially approved.
+
+Those conclusions require the underlying experimental evidence, appropriate controls, repeated trials, analysis and qualified review.
+
+#### From university evidence to industry
+
+The intended sequence is:
+
+**controlled university pilot → reproducible mass-balance evidence → reviewed report → only then potential industrial evaluation with interested manufacturers/recyclers.**
+
+A successful university pilot must therefore be presented according to exactly what was tested. It must not be described as approval of an industrial process, regulatory authorization, product certification, or endorsement by a manufacturer unless separately documented.
+
+**Status:** `PROPOSED / NOT YET EXPERIMENTALLY VALIDATED`.
+
 ### 🧅 Tor / Onion and decentralization
 
 MyZubster now contains an **implemented self-hosting component for a Tor v3 Onion Service** in [`onion/`](onion/README.md). The Onion container forwards Tor traffic to the internal frontend over the Docker network, keeps its Onion identity in a persistent local volume and does not publish the container directly to the host.
