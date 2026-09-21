@@ -19,6 +19,7 @@ const {
 
 const manifest = require('../../data/ecosystem-pilots/myz-188-university-developer-community.json');
 const communityValidation = require('../../data/ecosystem-pilots/myz-188-community-validation.json');
+const evidenceRecord = require('../../data/ecosystem-pilots/myz-188-evidence.json');
 
 function requiredObjectId(value, name) {
   if (!mongoose.isValidObjectId(value)) throw new Error(`${name} must be a valid MongoDB ObjectId`);
@@ -104,6 +105,9 @@ function buildPilotEvidence() {
   });
 
   const evidenceHash = hashKnowledgeEvidence(payload);
+  if (evidenceRecord.evidenceHash !== evidenceHash) {
+    throw new Error('MYZ-188 static evidence record does not match the canonical pilot payload');
+  }
   return {
     payload,
     evidenceHash,
