@@ -55,8 +55,9 @@ exports.getOverview = async (req, res) => {
     const treasury = settlementDashboard.buildDashboard();
     const settledFunding = treasury.layers?.funding_inputs?.items || [];
     const settledByAsset = asset => settledFunding.filter(item => item.status === 'SETTLED' && item.asset === asset).reduce((sum,item) => sum + Number(item.amount || 0), 0);
-    const btcBalance = settledByAsset('BTC');
-    const adminGithub = String(req.user?.github || req.user?.login || req.user?.username || '').trim();
+    const btcSettled = settledFunding.filter(item => item.status === 'SETTLED' && item.asset === 'BTC');
+    const btcBalance = btcSettled.length ? settledByAsset('BTC') : null;
+    const adminGithub = String(req.user?.github?.login || req.user?.github || req.user?.login || req.user?.username || '').trim();
     const adminMyzAccountId = adminGithub ? `contributor:github:${adminGithub}` : null;
     const adminMyz = adminMyzAccountId ? settlementDashboard.buildDashboard({ accountId: adminMyzAccountId }) : null;
     const adminMyzEntries = (adminMyz?.layers?.bounty_rewards?.items || []).filter(item => item.accountId === adminMyzAccountId && item.status === 'RECORDED' && !item.neutralized && item.entryType !== 'REVERSAL');
@@ -76,7 +77,7 @@ exports.getOverview = async (req, res) => {
       totalXMRInCirculation: dashboard[0]?.totalXMR || 0,
       myzBalance: { amount: adminMyzBalance, accountId: adminMyzAccountId, verifiedEntries: adminMyzEntries.length, source: 'canonical-ledger', assetType: 'internal-reward-accounting-unit' },
       cryptoBalances: {
-        BTC: { amount: btcBalance, source: 'settled-funding-inputs', verified: true },
+        BTC: { amount: btcBalance, source: 'settled-funding-inputs', verified: btcBalance !== null, reason: btcBalance === null ? (treasury.layers?.funding_inputs?.reason || 'No settled BTC funding input available') : null },
         XMR: { amount: treasury.balances?.xmr?.amount ?? null, source: treasury.balances?.xmr?.source ?? null, verified: false, reason: treasury.balances?.xmr?.reason || 'Monero wallet RPC balance unavailable' },
         ETH: { amount: null, source: null, verified: false, reason: 'No verified Ethereum treasury balance provider is configured' }
       },
