@@ -60,6 +60,17 @@ describe('github ecosystem verification service', () => {
     });
   });
 
+  test('rejects private repositories from the public actor registry', async () => {
+    axios.get
+      .mockResolvedValueOnce({ data: { login: 'dev', id: 1, html_url: 'https://github.com/dev' } })
+      .mockResolvedValueOnce({ data: { full_name: 'dev/private-repo', id: 2, html_url: 'https://github.com/dev/private-repo', owner: { login: 'dev' }, visibility: 'private', private: true } });
+
+    await expect(verifyGitHubLinks({
+      login: 'dev',
+      repositories: ['dev/private-repo']
+    })).rejects.toThrow('Solo repository GitHub pubblici');
+  });
+
   test('verifies identity and every requested repository', async () => {
     axios.get
       .mockResolvedValueOnce({ data: { login: 'dev', id: 1, html_url: 'https://github.com/dev' } })
