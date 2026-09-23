@@ -5,6 +5,46 @@ const { notifyAdminActivity } = require('../services/adminActivityNotificationSe
 const socialIdentitySchema = new mongoose.Schema({ id: { type: String, trim: true }, email: { type: String, trim: true, lowercase: true }, verifiedAt: { type: Date } }, { _id: false });
 const githubRepoSnapshotSchema = new mongoose.Schema({ name: { type: String, trim: true, maxlength: 180 }, description: { type: String, trim: true, maxlength: 500 }, language: { type: String, trim: true, maxlength: 80 }, stars: { type: Number, default: 0 }, forks: { type: Number, default: 0 }, url: { type: String, trim: true, maxlength: 500 }, updatedAt: { type: Date } }, { _id: false });
 
+const professionalSkillSchema = new mongoose.Schema({
+  name: { type: String, required: true, trim: true, maxlength: 120 },
+  category: { type: String, trim: true, maxlength: 80 },
+  experience: { type: String, trim: true, maxlength: 180 },
+  level: { type: String, trim: true, maxlength: 80 },
+  evidence: [{ type: String, trim: true, maxlength: 500 }],
+  notes: { type: String, trim: true, maxlength: 600 }
+}, { _id: false });
+
+const professionalExperienceSchema = new mongoose.Schema({
+  title: { type: String, required: true, trim: true, maxlength: 140 },
+  organization: { type: String, trim: true, maxlength: 160 },
+  duration: { type: String, trim: true, maxlength: 120 },
+  description: { type: String, trim: true, maxlength: 1200 },
+  evidence: [{ type: String, trim: true, maxlength: 500 }]
+}, { _id: false });
+
+const professionalEvidenceSchema = new mongoose.Schema({
+  source: { type: String, trim: true, maxlength: 100 },
+  description: { type: String, trim: true, maxlength: 600 },
+  url: { type: String, trim: true, maxlength: 1000 }
+}, { _id: false });
+
+const professionalProfileSchema = new mongoose.Schema({
+  headline: { type: String, trim: true, maxlength: 180 },
+  summary: { type: String, trim: true, maxlength: 2000 },
+  skills: [professionalSkillSchema],
+  experiences: [professionalExperienceSchema],
+  interests: [{ type: String, trim: true, maxlength: 180 }],
+  goals: [{ type: String, trim: true, maxlength: 180 }],
+  collaborationAvailability: { type: String, trim: true, maxlength: 800 },
+  evidence: [professionalEvidenceSchema],
+  approvalStatus: { type: String, enum: ['approved'], default: 'approved' },
+  visibility: { type: String, enum: ['private', 'public'], default: 'private' },
+  approvedAt: { type: Date },
+  publishedAt: { type: Date },
+  updatedAt: { type: Date },
+  version: { type: Number, min: 1, default: 1 }
+}, { _id: false });
+
 const UserSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true, trim: true, minlength: 3, maxlength: 30 }, email: { type: String, required: true, unique: true, trim: true, lowercase: true }, password: { type: String, required: true, minlength: 6 }, role: { type: String, enum: ['user', 'admin', 'moderator'], default: 'user' }, moneroWallet: { type: String, trim: true },
   communityProfile: { pgpPublicKey: { type: String, trim: true, maxlength: 20000 }, tariWallet: { type: String, trim: true, maxlength: 300 }, myzWallet: { type: String, trim: true, maxlength: 300 }, displayLocation: { type: String, trim: true, maxlength: 160 }, bio: { type: String, trim: true, maxlength: 1000 }, seedExchangeEnabled: { type: Boolean, default: false }, petCommunityEnabled: { type: Boolean, default: false }, updatedAt: { type: Date } },
@@ -12,6 +52,7 @@ const UserSchema = new mongoose.Schema({
   github: { id: { type: String, sparse: true }, login: { type: String, trim: true }, avatarUrl: { type: String, trim: true }, profileUrl: { type: String, trim: true }, verifiedAt: { type: Date }, publicSnapshot: { name: { type: String, trim: true, maxlength: 180 }, bio: { type: String, trim: true, maxlength: 1000 }, company: { type: String, trim: true, maxlength: 180 }, location: { type: String, trim: true, maxlength: 180 }, blog: { type: String, trim: true, maxlength: 500 }, publicRepos: { type: Number, default: 0 }, followers: { type: Number, default: 0 }, following: { type: Number, default: 0 }, repositories: [githubRepoSnapshotSchema], profileReadme: { type: String, maxlength: 12000 }, capturedAt: { type: Date } } },
   socialIdentities: { google: socialIdentitySchema, github: socialIdentitySchema, facebook: socialIdentitySchema },
   zorgaxProfile: { archetype: { type: String, enum: ['guardian', 'builder', 'explorer', 'caretaker'], default: 'explorer' }, traits: [{ type: String, trim: true, maxlength: 80 }], summary: { type: String, trim: true, maxlength: 800 }, source: { type: String, enum: ['gmail-derived', 'gmail-auto-sync', 'manual'], default: 'manual' }, approvedAt: { type: Date }, updatedAt: { type: Date } },
+  professionalProfile: { type: professionalProfileSchema, default: undefined },
   gmailProfileSync: { enabled: { type: Boolean, default: false }, refreshTokenEncrypted: { type: String, select: false }, consentedAt: { type: Date }, lastSyncedAt: { type: Date }, revokedAt: { type: Date }, historyWindowDays: { type: Number, default: 180, min: 30, max: 365 }, sampleSize: { type: Number, default: 30, min: 5, max: 50 }, lastStatus: { type: String, enum: ['never', 'ready', 'success', 'error', 'revoked'], default: 'never' }, lastError: { type: String, trim: true, maxlength: 300 } },
   isVerified: { type: Boolean, default: false }, createdAt: { type: Date, default: Date.now }, lastLogin: { type: Date }
 });
