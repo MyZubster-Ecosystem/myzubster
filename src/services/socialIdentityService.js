@@ -84,9 +84,13 @@ async function upsertVerifiedAccount(provider, profile) {
   if (profile.email) providerIdentity.email = String(profile.email).toLowerCase();
   user.socialIdentities[provider] = providerIdentity;
   if (provider === 'github') {
-    const previousSnapshot = user.github?.publicSnapshot;
-    const publicSnapshot = normalizeGithubSnapshot(profile.publicSnapshot) || previousSnapshot;
-    user.github = { id:String(profile.id), login:profile.login, avatarUrl:profile.avatarUrl, profileUrl:profile.profileUrl, verifiedAt:new Date(), ...(publicSnapshot ? { publicSnapshot } : {}) };
+    user.set('github.id', String(profile.id));
+    user.set('github.login', profile.login);
+    user.set('github.avatarUrl', profile.avatarUrl);
+    user.set('github.profileUrl', profile.profileUrl);
+    user.set('github.verifiedAt', new Date());
+    const publicSnapshot = normalizeGithubSnapshot(profile.publicSnapshot);
+    if (publicSnapshot) user.set('github.publicSnapshot', publicSnapshot);
   }
   if (shouldBootstrapAdmin(profile) && user.role !== 'admin') {
     user.role = 'admin';
