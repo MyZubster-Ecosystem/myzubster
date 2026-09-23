@@ -44,6 +44,19 @@ test.each([
   expect(await MetaverseCharacter.countDocuments()).toBe(1);
 });
 
+test('GitHub account links without a public snapshot and retains an existing snapshot on a later login', async () => {
+  const profile = { id: 'github-no-snapshot', email: 'snapshot@example.test', login: 'snapshot-user' };
+  const first = await upsertVerifiedAccount('github', profile);
+  expect(first.user.github.id).toBe(profile.id);
+  expect(first.character.identityStatus).toBe('account-linked');
+
+  await upsertVerifiedAccount('github', { ...profile, publicSnapshot: { name: 'Public name', bio: 'Existing bio' } });
+  const next = await upsertVerifiedAccount('github', profile);
+  expect(next.user._id.toString()).toBe(first.user._id.toString());
+  expect(next.user.github.publicSnapshot.name).toBe('Public name');
+  expect(next.user.github.publicSnapshot.bio).toBe('Existing bio');
+});
+
 test('Facebook identity without email uses a stable internal address', async () => {
   const profile = { id: 'fb-no-email', name: 'No Email' };
   const first = await upsertVerifiedAccount('facebook', profile);
