@@ -1,4 +1,5 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const router = express.Router();
 const User = require('../models/User');
 const MarketplaceListing = require('../models/MarketplaceListing');
@@ -20,8 +21,8 @@ async function activeSeller(userId) {
  if(membership.plan==='SELLER_MONTHLY' && (!membership.expiresAt || membership.expiresAt>new Date()))return membership;
  return null;
 }
-async function activeCommercialListingCount(userId) {
- return MarketplaceListing.countDocuments({
+async function activeCommercialListingCount(userId, session=null) {
+ const query=MarketplaceListing.countDocuments({
   ownerId:userId,
   status:'active',
   $nor:[
@@ -29,6 +30,7 @@ async function activeCommercialListingCount(userId) {
    { category:'seeds', currency:{ $in:['FREE','BARTER'] } }
   ]
  });
+ return session?query.session(session):query;
 }
 async function commercialPublishDecision(userId) {
  const membership=await activeSeller(userId);
@@ -36,6 +38,43 @@ async function commercialPublishDecision(userId) {
  if(membership.plan==='SELLER_MONTHLY')return { allowed:true, membership, legacyPaid:true };
  const activeCommercialListings=await activeCommercialListingCount(userId);
  return { ...canPublishCommercialListing(membership, activeCommercialListings), membership, activeCommercialListings };
+}
+
+function sellerPolicyFailure(decision) {
+ const error=new Error(decision.reason==='FREE_SELLER_ACTIVE_LISTING_LIMIT'?'Limite annunci Seller Free raggiunto':'Attivazione Seller richiesta');
+ error.code=decision.reason;
+ error.decision=decision;
+ return error;
+}
+
+async function createCommercialListingTransaction(userId, listingData) {
+ const session=await mongoose.startSession();
+ let listing=null;
+ try {
+  await session.withTransaction(async()=>{
+   const membership=await SellerMembership.findOne({userId,status:'ACTIVE'}).session(session);
+   let decision;
+   if(!membership){
+    decision={allowed:false,reason:'SELLER_ACTIVATION_REQUIRED',membership:null};
+   }else if(membership.plan==='SELLER_MONTHLY'&&(!membership.expiresAt||membership.expiresAt>new Date())){
+    decision={allowed:true,membership,legacyPaid:true};
+   }else if(membership.plan==='SELLER_FREE'){
+    // Every quota-sensitive transaction writes the same membership document
+    // before counting. Concurrent attempts therefore conflict and MongoDB
+    // retries one transaction against the newly committed listing count.
+    await SellerMembership.updateOne({_id:membership._id},{$inc:{listingQuotaVersion:1}},{session});
+    const activeCommercialListings=await activeCommercialListingCount(userId,session);
+    decision={...canPublishCommercialListing(membership,activeCommercialListings),membership,activeCommercialListings};
+   }else{
+    decision={allowed:false,reason:'SELLER_ACTIVATION_REQUIRED',membership};
+   }
+   if(!decision.allowed)throw sellerPolicyFailure(decision);
+   [listing]=await MarketplaceListing.create([listingData],{session});
+  });
+  return listing;
+ }finally{
+  await session.endSession();
+ }
 }
 
 router.get('/categories', async (_req,res)=>{try{const approved=await MarketplaceCategoryProposal.find({status:'approved'}).select('name slug description').sort({name:1}).lean();res.json({success:true,standard:[...ALLOWED_CATEGORIES],custom:approved});}catch(_error){res.status(500).json({success:false,message:'Categorie non disponibili'});}});
@@ -53,13 +92,6 @@ router.post('/create',authenticate,async(req,res)=>{try{
  const requestedCategory=String(req.body?.category||'');
  const requestedCurrency=String(req.body?.currency||(req.body?.exchangeMode==='gift'?'FREE':req.body?.exchangeMode==='barter'?'BARTER':'MYZ')).toUpperCase();
  const communityExchange=isCommunityExchange(requestedCategory,requestedCurrency);
- if(!communityExchange){
-  const decision=await commercialPublishDecision(req.userId);
-  if(!decision.allowed){
-   if(decision.reason==='FREE_SELLER_ACTIVE_LISTING_LIMIT')return res.status(409).json({success:false,code:decision.reason,message:`Hai raggiunto il limite di ${decision.limit} annunci commerciali attivi del piano Seller Free. Metti in pausa o chiudi un annuncio prima di pubblicarne un altro.`,sellerPlan:freeSellerPlan(),activeCommercialListings:decision.activeCommercialListings,paymentRequired:false,automaticCharge:false});
-   return res.status(402).json({success:false,code:'SELLER_MEMBERSHIP_REQUIRED',message:'Per pubblicare annunci commerciali attiva gratuitamente il profilo Seller.',sellerPlan:freeSellerPlan(),paymentRequired:false,paymentMethodRequired:false});
-  }
- }
  const{title,category,price,currency,description,location,features,contact,stock,exchangeMode,species,variety,pet,kefir}=req.body||{};
  const normalizedCurrency=String(currency||(exchangeMode==='gift'?'FREE':exchangeMode==='barter'?'BARTER':'MYZ')).toUpperCase();
  if(!title||!category)return res.status(400).json({error:'Titolo e categoria sono obbligatori'});
@@ -72,9 +104,14 @@ router.post('/create',authenticate,async(req,res)=>{try{
  if(category==='kefir_culture_donation'&&!['milk','water'].includes(kefir?.type))return res.status(400).json({error:'Indica kefir di latte oppure kefir d’acqua.'});
  if(category==='kefir_culture_donation'&&kefir?.safetyAcknowledged!==true)return res.status(400).json({error:'È richiesta la conferma dei limiti sanitari e di sicurezza.'});
  if([description,JSON.stringify(contact||{})].some(containsPrivateKeyMaterial))return res.status(400).json({error:'Non pubblicare seed phrase o chiavi private.'});
- const listing=await MarketplaceListing.create({ownerId:req.userId,ownerUsername:req.username||'',title:String(title).trim(),category,price:['FREE','BARTER'].includes(normalizedCurrency)?0:Number(price),currency:normalizedCurrency,exchangeMode:exchangeMode||(normalizedCurrency==='FREE'?'gift':normalizedCurrency==='BARTER'?'barter':'payment'),description:String(description||'').trim(),location:String(location||'').trim(),species:String(species||'').trim(),variety:String(variety||'').trim(),features:Array.isArray(features)?features.slice(0,20):[],contact:contact||{},pet:category.startsWith('pet_')?{name:String(pet?.name||'').trim(),species:String(pet?.species||'').trim(),age:String(pet?.age||'').trim(),adoptionOnly:category==='pet_adoption'}:null,kefir:category==='kefir_culture_donation'?{type:kefir.type,cultureAge:String(kefir.cultureAge||'').trim().slice(0,120),handlingNotes:String(kefir.handlingNotes||'').trim().slice(0,500),safetyAcknowledged:true,donationOnly:normalizedCurrency==='FREE'}:null,stock:Math.max(1,Number(stock)||1)});
+ const listingData={ownerId:req.userId,ownerUsername:req.username||'',title:String(title).trim(),category,price:['FREE','BARTER'].includes(normalizedCurrency)?0:Number(price),currency:normalizedCurrency,exchangeMode:exchangeMode||(normalizedCurrency==='FREE'?'gift':normalizedCurrency==='BARTER'?'barter':'payment'),description:String(description||'').trim(),location:String(location||'').trim(),species:String(species||'').trim(),variety:String(variety||'').trim(),features:Array.isArray(features)?features.slice(0,20):[],contact:contact||{},pet:category.startsWith('pet_')?{name:String(pet?.name||'').trim(),species:String(pet?.species||'').trim(),age:String(pet?.age||'').trim(),adoptionOnly:category==='pet_adoption'}:null,kefir:category==='kefir_culture_donation'?{type:kefir.type,cultureAge:String(kefir.cultureAge||'').trim().slice(0,120),handlingNotes:String(kefir.handlingNotes||'').trim().slice(0,500),safetyAcknowledged:true,donationOnly:normalizedCurrency==='FREE'}:null,stock:Math.max(1,Number(stock)||1)};
+ const listing=communityExchange?await MarketplaceListing.create(listingData):await createCommercialListingTransaction(req.userId,listingData);
  res.status(201).json({success:true,listing:{...listing.toObject(),id:String(listing._id)}});
-}catch(error){res.status(400).json({success:false,message:error.message||'Annuncio non creato'});}});
+}catch(error){
+ if(error.code==='FREE_SELLER_ACTIVE_LISTING_LIMIT'){const decision=error.decision||{};return res.status(409).json({success:false,code:error.code,message:`Hai raggiunto il limite di ${decision.limit||freeSellerPlan().activeListingLimit} annunci commerciali attivi del piano Seller Free. Metti in pausa o chiudi un annuncio prima di pubblicarne un altro.`,sellerPlan:freeSellerPlan(),activeCommercialListings:decision.activeCommercialListings,paymentRequired:false,automaticCharge:false});}
+ if(error.code==='SELLER_ACTIVATION_REQUIRED')return res.status(402).json({success:false,code:'SELLER_MEMBERSHIP_REQUIRED',message:'Per pubblicare annunci commerciali attiva gratuitamente il profilo Seller.',sellerPlan:freeSellerPlan(),paymentRequired:false,paymentMethodRequired:false});
+ res.status(400).json({success:false,message:error.message||'Annuncio non creato'});
+}});
 
 router.patch('/:id',authenticate,async(req,res)=>{try{
  const listing=await MarketplaceListing.findOne({_id:req.params.id,ownerId:req.userId});
