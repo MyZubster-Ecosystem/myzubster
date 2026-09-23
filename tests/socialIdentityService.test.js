@@ -44,8 +44,16 @@ test.each([
   expect(await MetaverseCharacter.countDocuments()).toBe(1);
 });
 
-test('new social account requires an email', async () => {
-  await expect(upsertVerifiedAccount('facebook', { id: 'fb-no-email', name: 'No Email' }))
+test('Facebook identity without email uses a stable internal address', async () => {
+  const profile = { id: 'fb-no-email', name: 'No Email' };
+  const first = await upsertVerifiedAccount('facebook', profile);
+  expect(first.user.email).toMatch(/^facebook-[a-f0-9]{24}@identity\.myzubster\.invalid$/);
+  const second = await upsertVerifiedAccount('facebook', profile);
+  expect(second.user._id.toString()).toBe(first.user._id.toString());
+});
+
+test('new GitHub identity without verified email cannot create an account', async () => {
+  await expect(upsertVerifiedAccount('github', { id: 'gh-no-email', login: 'no-email' }))
     .rejects.toThrow('email');
 });
 
