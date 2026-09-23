@@ -1,5 +1,7 @@
 # MyZubster
 
+> **Canonical public GitHub repository:** [MyZubster-Ecosystem/myzubster](https://github.com/MyZubster-Ecosystem/myzubster). If another MyZubster link shows a GitHub 404, return to this repository; legacy/private repositories are not the public contribution entry point. To support the project, open this repository and use GitHub's **Star** or **Fork** controls.
+
 ## 🧭 Explore MyZubster — interactive links
 
 [🌐 **MyZubster**](https://www.myzubster.com/) · [🤖 **Zorgax**](https://www.myzubster.com/zorgax) · [🧠 **Knowledge Profile Builder**](https://www.myzubster.com/zorgax-profile-builder.html) · [👤 **Profile Onboarding**](https://www.myzubster.com/zorgax-profile-onboarding.html) · [🛒 **Marketplace**](https://www.myzubster.com/community-marketplace.html) · [🧪 **Marketplace demos**](https://www.myzubster.com/marketplace-demos) · [🔬 **University & Research**](https://github.com/DanielIoni-creator/myzubster-university-research) · [🔊 **Sound System**](https://github.com/DanielIoni-creator/Myzubster-soundsystem) · [🧑‍🔬 **Nicola pilot**](https://github.com/DanielIoni-creator/Nicola) · [🧩 **Yassen pilot**](https://github.com/DanielIoni-creator/Yassen) · [💻 **Core repository**](https://github.com/MyZubster-Ecosystem/myzubster)
