@@ -9,6 +9,7 @@ const zorgaxCulturalController = require('../controllers/zorgaxCulturalControlle
 const User = require('../models/User');
 const { authenticate } = require('../middleware/auth');
 const { decryptToken, updateBio, updateProfileReadme } = require('../services/githubProfileAutomation');
+const { normalizeProfessionalProfile, validateProfessionalProfile } = require('../services/professionalProfileService');
 
 function legacyOrSocialCallback(provider, legacyHandler) {
   return (req, res, next) => {
@@ -192,6 +193,66 @@ router.put('/github/automation', authenticate, async (req, res) => {
   return res.json({ success: true, data: { linked: Boolean(user.github?.login), login: user.github?.login || null, enabled } });
 });
 router.put('/profile/bio', authenticate, async (req,res)=>{ try { const bio=typeof req.body?.bio==='string'?req.body.bio.trim():''; if(!bio)return res.status(400).json({success:false,message:'Inserisci una bio'}); if(bio.length>1000)return res.status(400).json({success:false,message:'Bio troppo lunga'}); const user=await User.findById(req.userId); if(!user)return res.status(404).json({success:false,message:'Utente non trovato'}); user.communityProfile=user.communityProfile||{}; user.communityProfile.bio=bio; user.communityProfile.updatedAt=new Date(); await user.save(); return res.json({success:true,data:{bio}}); } catch(error){ return res.status(500).json({success:false,message:'Impossibile salvare la bio MyZubster'}); }});
+
+router.get('/profile/professional', authenticate, async (req, res) => {
+  try {
+    const user = await User.findById(req.userId).select('professionalProfile');
+    if (!user) return res.status(404).json({ success: false, message: 'Utente non trovato' });
+    return res.json({ success: true, data: { profile: user.professionalProfile || null } });
+  } catch (error) {
+    console.error('Professional profile read error:', error);
+    return res.status(500).json({ success: false, message: 'Impossibile leggere il profilo professionale' });
+  }
+});
+
+router.put('/profile/professional', authenticate, async (req, res) => {
+  try {
+    if (req.body?.approved !== true) {
+      return res.status(400).json({
+        success: false,
+        message: 'Serve approvazione esplicita prima di registrare il profilo professionale'
+      });
+    }
+
+    const visibility = req.body?.visibility;
+    if (!['private', 'public'].includes(visibility)) {
+      return res.status(400).json({ success: false, message: 'Visibilità profilo non valida' });
+    }
+
+    const profile = normalizeProfessionalProfile(req.body?.profile);
+    const validationErrors = validateProfessionalProfile(profile);
+    if (validationErrors.length) {
+      return res.status(400).json({ success: false, message: validationErrors[0], errors: validationErrors });
+    }
+
+    const user = await User.findById(req.userId);
+    if (!user) return res.status(404).json({ success: false, message: 'Utente non trovato' });
+
+    const now = new Date();
+    const version = Number(user.professionalProfile?.version || 0) + 1;
+    user.professionalProfile = {
+      ...profile,
+      approvalStatus: 'approved',
+      visibility,
+      approvedAt: now,
+      publishedAt: visibility === 'public' ? now : null,
+      updatedAt: now,
+      version
+    };
+    await user.save();
+
+    return res.json({
+      success: true,
+      data: {
+        profile: user.professionalProfile,
+        published: visibility === 'public'
+      }
+    });
+  } catch (error) {
+    console.error('Professional profile save error:', error);
+    return res.status(500).json({ success: false, message: 'Impossibile salvare il profilo professionale' });
+  }
+});
 router.post('/github/automation/apply', authenticate, async (req, res) => {
   try {
     const user = await User.findById(req.userId).select('+githubAutomation.accessTokenEncrypted github githubAutomation');
