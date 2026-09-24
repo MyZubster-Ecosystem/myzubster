@@ -1,9 +1,9 @@
 'use strict';
 
 const { PLANS } = require('./zorgaxPlanCatalog');
-const unified = require('./zorgaxUnifiedCheckoutService');
-
 const { SUPPORTED_ASSETS } = require('./zorgaxAssetCatalog');
+module.exports.SUPPORTED_ASSETS = SUPPORTED_ASSETS;
+const unified = require('./zorgaxUnifiedCheckoutService');
 const INTENT_TTL_MS = unified.INTENT_TTL_MS;
 const DEFAULT_BTC_WALLET = unified.btcWallet();
 
