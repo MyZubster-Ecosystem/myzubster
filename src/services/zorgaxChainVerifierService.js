@@ -164,14 +164,15 @@ async function verifySettlement({ asset, paymentReference, destination, cryptoAm
   if (!SUPPORTED_ASSETS.includes(normalizedAsset)) throw new Error('Asset non supportato');
   if (typeof fetchImpl !== 'function') throw new Error('HTTP client non disponibile');
 
+  if (normalizedAsset === 'ETH') {
+    return verifyEthereumWithRpc({ paymentReference, destination, cryptoAmount, fetchImpl });
+  }
+
   const endpoint = process.env[`ZORGAX_${normalizedAsset}_VERIFIER_URL`];
   const token = process.env[`ZORGAX_${normalizedAsset}_VERIFIER_TOKEN`];
   if (!endpoint || !token) {
     if (normalizedAsset === 'BTC') {
       return verifyBitcoinWithEsplora({ paymentReference, destination, cryptoAmount, fetchImpl });
-    }
-    if (normalizedAsset === 'ETH') {
-      return verifyEthereumWithRpc({ paymentReference, destination, cryptoAmount, fetchImpl });
     }
     throw new Error(`Verifier ${normalizedAsset} non configurato`);
   }
