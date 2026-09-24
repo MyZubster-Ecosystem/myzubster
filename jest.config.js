@@ -5,9 +5,7 @@ module.exports = {
   testPathIgnorePatterns: [
     '/node_modules/',
     '/frontend/',
-    '/tests/kefirHandDelivery.node.test.js
-};,
-    '/src/services/marketplaceOrderPaymentPolicy.test.js
-};
+    '/tests/kefirHandDelivery[.]node[.]test[.]js$',
+    '/src/services/marketplaceOrderPaymentPolicy[.]test[.]js$'
   ]
 };
