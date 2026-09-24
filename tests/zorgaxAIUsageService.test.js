@@ -1,5 +1,8 @@
 const ZorgaxAIBudget = require('../src/models/ZorgaxAIBudget');
-jest.mock('mongoose', () => ({ connection: { readyState: 1 } }));
+jest.mock('mongoose', () => {
+  const actual = jest.requireActual('mongoose');
+  return { ...actual, connection: { readyState: 1 } };
+});
 
 const { monthStart, budgetKey, reserveAstraBudget, settleAstraBudget, releaseAstraBudget } = require('../src/services/zorgaxAIUsageService');
 
