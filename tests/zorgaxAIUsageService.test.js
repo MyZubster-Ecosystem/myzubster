@@ -1,5 +1,6 @@
-const mongoose = require('mongoose');
 const ZorgaxAIBudget = require('../src/models/ZorgaxAIBudget');
+jest.mock('mongoose', () => ({ connection: { readyState: 1 } }));
+
 const { monthStart, budgetKey, reserveAstraBudget, settleAstraBudget, releaseAstraBudget } = require('../src/services/zorgaxAIUsageService');
 
 jest.mock('../src/models/ZorgaxAIBudget', () => ({
@@ -10,7 +11,6 @@ jest.mock('../src/models/ZorgaxAIBudget', () => ({
 describe('Zorgax AI usage ledger and atomic budget', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    jest.spyOn(mongoose.connection, 'readyState', 'get').mockReturnValue(1);
     process.env.ZORGAX_ASTRA_MODEL = 'gpt-5.6-sol';
   });
 
