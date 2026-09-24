@@ -1,6 +1,8 @@
 'use strict';
 
-// Quote capabilities are defined locally so the unified checkout does not load\n// the legacy monetization adapter while its own module is still initializing.\nconst SUPPORTED_ASSETS = Object.freeze(['BTC']);
+// Quote capabilities are defined locally so the unified checkout does not load
+// the legacy monetization adapter while its own module is still initializing.
+const SUPPORTED_ASSETS = Object.freeze(['BTC']);
 
 const DEFAULT_MAX_AGE_MS = 5 * 60 * 1000;
 const DEFAULT_BTC_QUOTE_URL = 'https://api.coingecko.com/api/v3/simple/price';
