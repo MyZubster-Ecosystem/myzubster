@@ -45,6 +45,7 @@ const {
   createZorgaxUnitEconomicsService
 } = require('../services/zorgaxUnitEconomicsService');
 const { PLANS } = require('../services/zorgaxPlanCatalog');
+const { isSettlementRailOperational } = require('../services/zorgaxLegacyMonetizationService');
 
 function errorStatus(error) {
   const message = String(error?.message || '');
@@ -125,6 +126,7 @@ function createZorgaxMonetizationRouter({
   const router = express.Router();
 
   router.get('/plans', (_req, res) => {
+    const ethOperational = isSettlementRailOperational('ETH');
     const plans = Object.values(PLANS).map(plan => ({
       id: plan.id,
       name: plan.name,
@@ -132,8 +134,8 @@ function createZorgaxMonetizationRouter({
       currency: 'EUR',
       billing: plan.billing,
       features: plan.features,
-      paymentMethods: plan.id === 'free' ? [] : ['card', 'BTC', 'MYZ'],
-      plannedPaymentMethods: plan.id === 'free' ? [] : ['XMR', 'ETH']
+      paymentMethods: plan.id === 'free' ? [] : ['card', 'BTC', 'MYZ', ...(ethOperational ? ['ETH'] : [])],
+      plannedPaymentMethods: plan.id === 'free' ? [] : ['XMR', ...(!ethOperational ? ['ETH'] : [])]
     }));
 
     return res.json({
