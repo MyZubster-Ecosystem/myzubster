@@ -21,6 +21,8 @@ describe('Zorgax professional profile save handoff', () => {
     expect(source).toContain('isMyzProfilePreview');
     expect(source).toContain('pendingProfessionalProfileDraft');
     expect(source).toContain('renderProfessionalProfileHandoffFromDraft');
+    expect(source).toContain("const contentOnly=raw.split(/\\n\\s*Approvo questa bozza");
+    expect(source).toContain("split(/\\n\\s*Non pubblicare");
     expect(source).not.toContain("fetch('/api/auth/profile/professional'");
   });
 });
