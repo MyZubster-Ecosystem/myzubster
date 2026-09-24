@@ -17,7 +17,8 @@
     "nft:compile": "hardhat compile",
     "nft:test:local": "hardhat run scripts/nft/test-comic-nft.js",
     "nft:deploy:base-sepolia": "hardhat run scripts/nft/deploy-comic-nft.js --network baseSepolia",
-    "nft:mint:comic-001": "hardhat run scripts/nft/mint-comic-001.js --network baseSepolia"
+    "nft:mint:comic-001": "hardhat run scripts/nft/mint-comic-001.js --network baseSepolia",
+    "myz:ledger:mongo-check": "node scripts/myz-ledger-mongo-check.js"
   },
   "dependencies": {
     "@vercel/functions": "^3.9.5",
