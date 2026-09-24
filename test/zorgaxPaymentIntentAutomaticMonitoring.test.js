@@ -1,12 +1,14 @@
 'use strict';
 
-jest.mock('../src/models/ZorgaxPaymentIntent');
+jest.mock('../src/models/PaymentIntent');
+jest.mock('../src/models/ZorgaxPurchase');
+jest.mock('../src/services/zorgaxEntitlementService');
 jest.mock('../src/services/zorgaxChainVerifierService');
-jest.mock('../src/services/zorgaxSubscriptionService');
 
-const ZorgaxPaymentIntent = require('../src/models/ZorgaxPaymentIntent');
+const PaymentIntent = require('../src/models/PaymentIntent');
+const { ZorgaxPurchase } = require('../src/models/ZorgaxPurchase');
+const { grantPurchaseEntitlement } = require('../src/services/zorgaxEntitlementService');
 const { verifySettlement } = require('../src/services/zorgaxChainVerifierService');
-const { recordVerifiedPayment } = require('../src/services/zorgaxSubscriptionService');
 const {
   refreshPaymentIntent,
   verifyAndActivatePaymentIntent
@@ -17,23 +19,14 @@ function paymentIntent(overrides = {}) {
   return {
     intentId: 'zorgax_monitor',
     ownerId: 'owner-1',
-    plan: 'pro',
-    asset: 'BTC',
-    destination: 'bc1qserverdestination',
-    quote: { cryptoAmount: '0.00014728' },
-    settlement: {
-      status: 'PENDING',
-      paymentReference: null,
-      submittedAt: null,
-      nextCheckAt: null,
-      checkAttempts: 0,
-      ...overrides.settlement
-    },
-    renewalOf: null,
+    purpose: 'zorgax:zorgax.pro',
+    asset: 'BTC', network:'bitcoin', amountMinor:14728,
+    status: 'AWAITING_PAYMENT', txId:null, submittedAt:null,
+    metadata:{ zorgax:{ plan:'pro', destination:'bc1qserverdestination', cryptoAmount:'0.00014728', checkAttempts:0, ...(overrides.settlement || {}) } },
     expiresAt,
     consumedAt: null,
     save: jest.fn().mockResolvedValue(undefined),
-    ...overrides
+    ...Object.fromEntries(Object.entries(overrides).filter(([key]) => key !== 'settlement'))
   };
 }
 
@@ -43,7 +36,7 @@ describe('Zorgax automatic payment monitoring', () => {
   test('persists a valid TXID when confirmations are still insufficient', async () => {
     const intent = paymentIntent();
     const txid = 'a'.repeat(64);
-    ZorgaxPaymentIntent.findOne.mockResolvedValue(intent);
+    PaymentIntent.findOne.mockResolvedValue(intent);
     verifySettlement.mockRejectedValue(new Error('Conferme blockchain insufficienti'));
 
     const result = await verifyAndActivatePaymentIntent({
@@ -53,32 +46,32 @@ describe('Zorgax automatic payment monitoring', () => {
     });
 
     expect(result).toMatchObject({ pending: true, automaticMonitoring: true, paymentReference: txid });
-    expect(intent.settlement.submittedAt).toBeInstanceOf(Date);
-    expect(intent.settlement.nextCheckAt).toBeInstanceOf(Date);
-    expect(intent.settlement.checkAttempts).toBe(1);
-    expect(recordVerifiedPayment).not.toHaveBeenCalled();
+    expect(intent.submittedAt).toBeInstanceOf(Date);
+    expect(intent.metadata.zorgax.nextCheckAt).toBeInstanceOf(Date);
+    expect(intent.metadata.zorgax.checkAttempts).toBe(1);
+    expect(grantPurchaseEntitlement).not.toHaveBeenCalled();
   });
 
   test('refreshes a persisted TXID and activates access after confirmation', async () => {
     const txid = 'b'.repeat(64);
     const intent = paymentIntent({
+      txId: txid,
+      submittedAt: new Date(Date.now() - 20_000),
       settlement: {
-        status: 'PENDING',
-        paymentReference: txid,
-        submittedAt: new Date(Date.now() - 20_000),
         nextCheckAt: new Date(Date.now() - 1_000),
         checkAttempts: 1
       }
     });
-    ZorgaxPaymentIntent.findOne.mockResolvedValue(intent);
+    PaymentIntent.findOne.mockResolvedValue(intent);
     verifySettlement.mockResolvedValue({ verified: true, paymentReference: txid, verifier: 'btc-test', confirmations: 1 });
-    recordVerifiedPayment.mockResolvedValue({ _id: 'sub-1', plan: 'pro', access: { status: 'ACTIVE' } });
+    ZorgaxPurchase.findOne.mockResolvedValue({ purchaseId:'p1', productId:'zorgax.pro', entitlement:{ key:'zorgax.access', tier:'PRO', durationDays:30 }, save:jest.fn().mockResolvedValue(undefined) });
+    grantPurchaseEntitlement.mockResolvedValue({ entitlement:{ status:'ACTIVE' } });
 
     const result = await refreshPaymentIntent({ ownerId: 'owner-1', intentId: intent.intentId });
 
     expect(result).toMatchObject({ pending: false, verified: true, plan: 'pro' });
-    expect(intent.settlement.status).toBe('VERIFIED');
-    expect(intent.consumedAt).toBeInstanceOf(Date);
+    expect(intent.status).toBe('VERIFIED');
+    expect(intent.confirmedAt).toBeInstanceOf(Date);
   });
 
   test('allows confirmation after quote expiry when the TXID was submitted in time', async () => {
@@ -86,17 +79,17 @@ describe('Zorgax automatic payment monitoring', () => {
     const expiresAt = new Date(Date.now() - 5_000);
     const intent = paymentIntent({
       expiresAt,
+      txId: txid,
+      submittedAt: new Date(expiresAt.getTime() - 5_000),
       settlement: {
-        status: 'PENDING',
-        paymentReference: txid,
-        submittedAt: new Date(expiresAt.getTime() - 5_000),
         nextCheckAt: new Date(Date.now() - 1_000),
         checkAttempts: 1
       }
     });
-    ZorgaxPaymentIntent.findOne.mockResolvedValue(intent);
+    PaymentIntent.findOne.mockResolvedValue(intent);
     verifySettlement.mockResolvedValue({ verified: true, paymentReference: txid, verifier: 'btc-test', confirmations: 1 });
-    recordVerifiedPayment.mockResolvedValue({ _id: 'sub-2', plan: 'pro', access: { status: 'ACTIVE' } });
+    ZorgaxPurchase.findOne.mockResolvedValue({ purchaseId:'p2', productId:'zorgax.pro', entitlement:{ key:'zorgax.access', tier:'PRO', durationDays:30 }, save:jest.fn().mockResolvedValue(undefined) });
+    grantPurchaseEntitlement.mockResolvedValue({ entitlement:{ status:'ACTIVE' } });
 
     await expect(refreshPaymentIntent({ ownerId: 'owner-1', intentId: intent.intentId }))
       .resolves.toMatchObject({ verified: true });
