@@ -132,7 +132,8 @@ function createZorgaxMonetizationRouter({
       currency: 'EUR',
       billing: plan.billing,
       features: plan.features,
-      paymentMethods: plan.id === 'free' ? [] : ['card', 'BTC', 'MYZ']
+      paymentMethods: plan.id === 'free' ? [] : ['card', 'BTC', 'MYZ'],
+      plannedPaymentMethods: plan.id === 'free' ? [] : ['XMR', 'ETH']
     }));
 
     return res.json({
