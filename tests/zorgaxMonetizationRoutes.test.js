@@ -36,6 +36,28 @@ function createApp({
 }
 
 describe('Zorgax monetization routes', () => {
+  test('publishes Free Pro and Developer monetization plans', async () => {
+    const app = createApp({
+      pricingService: { listProducts: jest.fn() },
+      creditService: { getBalance: jest.fn(), listLedger: jest.fn() },
+      monetizationService: {}
+    });
+
+    const response = await request(app)
+      .get('/api/zorgax/monetization/plans')
+      .expect(200);
+
+    expect(response.body.success).toBe(true);
+    expect(response.body.product).toBe('zorgax');
+    expect(response.body.plans.map(plan => plan.id)).toEqual([
+      'free',
+      'pro',
+      'developer'
+    ]);
+    expect(response.body.plans.find(plan => plan.id === 'pro').priceEur).toBe(9.9);
+    expect(response.body.plans.find(plan => plan.id === 'developer').priceEur).toBe(29.9);
+  });
+
   test('lists active products', async () => {
     const pricingService = {
       listProducts: jest.fn().mockResolvedValue([
