@@ -118,6 +118,13 @@ async function ethRpc(fetchImpl, method, params = []) {
 async function verifyEthereumWithRpc({ paymentReference, destination, cryptoAmount, fetchImpl }) {
   const txHash = String(paymentReference || '').trim().toLowerCase();
   if (!/^0x[0-9a-f]{64}$/.test(txHash)) throw new Error('Riferimento pagamento ETH non valido');
+  const configuredChainId = Number(process.env.ZORGAX_ETH_CHAIN_ID || 11155111);
+  const chainIdHex = await ethRpc(fetchImpl, 'eth_chainId');
+  const chainId = Number(BigInt(chainIdHex));
+  if (!Number.isSafeInteger(chainId) || chainId !== configuredChainId) {
+    throw new Error('Rete ETH non corrispondente alla configurazione Zorgax');
+  }
+
   const tx = await ethRpc(fetchImpl, 'eth_getTransactionByHash', [txHash]);
   if (!tx) throw new Error('Pagamento ETH non trovato');
 
