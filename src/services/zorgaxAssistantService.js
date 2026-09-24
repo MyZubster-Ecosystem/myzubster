@@ -100,8 +100,13 @@ async function askOpenAI(message,sources=[],history=[],reservationUsd=0,userCont
     for(let attempt=0;attempt<maxAttempts;attempt+=1){
       try{
         const result=await callOpenAI({model,input});
-        const usage=await recordAstraUsage({inputTokens:Number(result.json.usage?.input_tokens)||0,outputTokens:Number(result.json.usage?.output_tokens)||0,requestId:result.requestId,model});
-        await settleAstraBudget({reservedUsd:reservationUsd,actualUsd:Number(usage.costUsd)||0});
+        let usage=null;
+        try{
+          usage=await recordAstraUsage({inputTokens:Number(result.json.usage?.input_tokens)||0,outputTokens:Number(result.json.usage?.output_tokens)||0,requestId:result.requestId,model});
+          await settleAstraBudget({reservedUsd:reservationUsd,actualUsd:Number(usage?.costUsd)||0});
+        }catch(accountingError){
+          console.warn('[zorgax-ai-accounting]', accountingError.message);
+        }
         return{text:extractOpenAIText(result.json),model};
       }catch(error){
         lastError=error;
