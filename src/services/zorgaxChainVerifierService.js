@@ -91,6 +91,67 @@ async function verifyBitcoinWithEsplora({ paymentReference, destination, cryptoA
   });
 }
 
+function ethAmountToWei(value) {
+  const text = String(value ?? '').trim();
+  if (!/^\d+(?:\.\d+)?$/.test(text)) throw new Error('Importo ETH non valido');
+  const [whole, fraction = ''] = text.split('.');
+  const firstEighteen = (fraction + '000000000000000000').slice(0, 18);
+  let wei = (BigInt(whole) * 1000000000000000000n) + BigInt(firstEighteen || '0');
+  if (fraction.length > 18 && /[1-9]/.test(fraction.slice(18))) wei += 1n;
+  return wei;
+}
+
+async function ethRpc(fetchImpl, method, params = []) {
+  const endpoint = String(process.env.ZORGAX_ETH_RPC_URL || '').trim();
+  if (!endpoint) throw new Error('Verifier ETH non configurato');
+  const response = await fetchImpl(endpoint, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ jsonrpc:'2.0', id:1, method, params })
+  });
+  if (!response.ok) throw new Error(`Verifier ETH non disponibile (${response.status})`);
+  const payload = await response.json();
+  if (payload?.error) throw new Error(`Verifier ETH non disponibile: ${String(payload.error.message || payload.error.code || 'RPC error').slice(0,160)}`);
+  return payload?.result;
+}
+
+async function verifyEthereumWithRpc({ paymentReference, destination, cryptoAmount, fetchImpl }) {
+  const txHash = String(paymentReference || '').trim().toLowerCase();
+  if (!/^0x[0-9a-f]{64}$/.test(txHash)) throw new Error('Riferimento pagamento ETH non valido');
+  const tx = await ethRpc(fetchImpl, 'eth_getTransactionByHash', [txHash]);
+  if (!tx) throw new Error('Pagamento ETH non trovato');
+
+  if (String(tx.to || '').toLowerCase() !== String(destination || '').toLowerCase()) {
+    throw new Error('Destinazione pagamento non corrispondente');
+  }
+  let paidWei;
+  try { paidWei = BigInt(tx.value || '0x0'); }
+  catch (_error) { throw new Error('Importo pagamento ETH non valido'); }
+  const expectedWei = ethAmountToWei(cryptoAmount);
+  if (paidWei < expectedWei) throw new Error('Importo pagamento insufficiente');
+
+  const receipt = await ethRpc(fetchImpl, 'eth_getTransactionReceipt', [txHash]);
+  if (!receipt || !receipt.blockNumber) throw new Error('Conferme blockchain insufficienti');
+  if (receipt.status && String(receipt.status).toLowerCase() !== '0x1') throw new Error('Pagamento ETH fallito on-chain');
+
+  const latestHex = await ethRpc(fetchImpl, 'eth_blockNumber');
+  const latest = Number(BigInt(latestHex));
+  const mined = Number(BigInt(receipt.blockNumber));
+  if (!Number.isSafeInteger(latest) || !Number.isSafeInteger(mined) || latest < mined) throw new Error('Altezza blockchain ETH non valida');
+  const confirmations = latest - mined + 1;
+  const minConfirmations = Number(process.env.ZORGAX_ETH_MIN_CONFIRMATIONS || 1);
+  if (!Number.isInteger(minConfirmations) || minConfirmations < 1) throw new Error('Configurazione conferme ETH non valida');
+  if (confirmations < minConfirmations) throw new Error('Conferme blockchain insufficienti');
+
+  return {
+    verified:true,
+    verifier:'ethereum-json-rpc',
+    paymentReference:txHash,
+    confirmations,
+    amount:Number(paidWei) / 1e18
+  };
+}
+
 async function verifySettlement({ asset, paymentReference, destination, cryptoAmount, fetchImpl = global.fetch }) {
   const normalizedAsset = String(asset || '').toUpperCase();
   if (!SUPPORTED_ASSETS.includes(normalizedAsset)) throw new Error('Asset non supportato');
@@ -101,6 +162,9 @@ async function verifySettlement({ asset, paymentReference, destination, cryptoAm
   if (!endpoint || !token) {
     if (normalizedAsset === 'BTC') {
       return verifyBitcoinWithEsplora({ paymentReference, destination, cryptoAmount, fetchImpl });
+    }
+    if (normalizedAsset === 'ETH') {
+      return verifyEthereumWithRpc({ paymentReference, destination, cryptoAmount, fetchImpl });
     }
     throw new Error(`Verifier ${normalizedAsset} non configurato`);
   }
@@ -122,6 +186,8 @@ module.exports = {
   DEFAULT_BTC_ESPLORA_URL,
   validateVerificationPayload,
   btcAmountToSats,
+  ethAmountToWei,
   verifyBitcoinWithEsplora,
+  verifyEthereumWithRpc,
   verifySettlement
 };
