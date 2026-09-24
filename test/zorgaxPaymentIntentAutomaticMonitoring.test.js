@@ -70,7 +70,7 @@ describe('Zorgax automatic payment monitoring', () => {
     const result = await refreshPaymentIntent({ ownerId: 'owner-1', intentId: intent.intentId });
 
     expect(result).toMatchObject({ pending: false, verified: true, plan: 'pro' });
-    expect(intent.status).toBe('VERIFIED');
+    expect(intent.status).toBe('CONFIRMED');
     expect(intent.confirmedAt).toBeInstanceOf(Date);
   });
 
