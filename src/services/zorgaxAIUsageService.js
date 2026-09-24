@@ -22,7 +22,7 @@ function budgetKey(date = new Date()) {
 }
 
 async function reserveAstraBudget({ amountUsd, budgetUsd, date = new Date() }) {
-  if (mongoose.connection.readyState !== 1) return null;
+  if (mongoose.connection.readyState !== 1) return { untracked: true, reason: 'budget_db_unavailable' };
   const amount = Math.max(0, Number(amountUsd) || 0);
   const cap = Math.max(0, Number(budgetUsd) || 0);
   if (!amount || !cap || amount > cap) return null;
