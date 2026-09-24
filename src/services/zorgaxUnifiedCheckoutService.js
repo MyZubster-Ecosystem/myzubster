@@ -15,6 +15,35 @@ function btcWallet() {
   return process.env.ZORGAX_WALLET_BTC || process.env.WALLET_BTC || DEFAULT_BTC_WALLET;
 }
 
+function ethWallet() {
+  const value = String(process.env.ZORGAX_WALLET_ETH || process.env.WALLET_ETH || '').trim();
+  return /^0x[0-9a-fA-F]{40}$/.test(value) ? value : '';
+}
+
+function ethNetwork() {
+  return {
+    id: String(process.env.ZORGAX_ETH_NETWORK || 'sepolia').trim() || 'sepolia',
+    chainId: Number(process.env.ZORGAX_ETH_CHAIN_ID || 11155111),
+    rpcConfigured: Boolean(String(process.env.ZORGAX_ETH_RPC_URL || '').trim())
+  };
+}
+
+function ethToGwei(value) {
+  const raw = String(value || '').trim();
+  if (!/^\d+(?:\.\d{1,9})?$/.test(raw)) throw new Error('Importo ETH non valido');
+  const [whole, fraction = ''] = raw.split('.');
+  const gwei = BigInt(whole) * 1000000000n + BigInt((fraction + '000000000').slice(0, 9));
+  if (gwei <= 0n || gwei > BigInt(Number.MAX_SAFE_INTEGER)) throw new Error('Importo ETH fuori intervallo');
+  return Number(gwei);
+}
+
+function gweiToEth(value) {
+  if (!Number.isSafeInteger(value) || value <= 0) throw new Error('Importo gwei non valido');
+  const whole = Math.floor(value / 1000000000);
+  const fraction = String(value % 1000000000).padStart(9, '0');
+  return `${whole}.${fraction}`;
+}
+
 function btcToSatoshis(value) {
   const raw = String(value || '').trim();
   if (!/^\d+(?:\.\d{1,8})?$/.test(raw)) throw new Error('Importo BTC non valido');
@@ -37,6 +66,12 @@ function normalizeTxid(value) {
   return txid;
 }
 
+function normalizeEthTxHash(value) {
+  const txid = String(value || '').trim().toLowerCase();
+  if (!/^0x[0-9a-f]{64}$/.test(txid)) throw new Error('Hash transazione ETH non valido');
+  return txid;
+}
+
 function markMetadataModified(intent) {
   if (typeof intent?.markModified === 'function') intent.markModified('metadata');
 }
@@ -51,8 +86,10 @@ function publicIntent(intent) {
     purchaseId:z.purchaseId || null,
     plan:{ id:plan.id, name:plan.name, priceEur:plan.priceEur, billing:plan.billing },
     asset:source.asset,
+    network:source.network,
+    chainId:z.chainId || null,
     destination:z.destination || source.destination || null,
-    quote:{ denomination:'EUR', amount:z.priceEur, cryptoAmount:z.cryptoAmount || satsToBtc(source.amountMinor), eurPerCoin:z.eurPerCoin, observedAt:z.quoteObservedAt, source:z.quoteSource, status:'QUOTED' },
+    quote:{ denomination:'EUR', amount:z.priceEur, cryptoAmount:z.cryptoAmount || (source.asset === 'ETH' ? gweiToEth(source.amountMinor) : satsToBtc(source.amountMinor)), eurPerCoin:z.eurPerCoin, observedAt:z.quoteObservedAt, source:z.quoteSource, status:'QUOTED' },
     settlementStatus:source.status === 'CONFIRMED' ? 'VERIFIED' : source.status === 'EXPIRED' ? 'EXPIRED' : 'PENDING',
     paymentReference:source.txId || null,
     submittedAt:source.submittedAt || null,
@@ -68,27 +105,36 @@ function publicIntent(intent) {
 async function createCheckoutIntent({ ownerId, planId, asset = 'BTC', renew = false }) {
   if (!ownerId) throw new Error('Owner checkout non valido');
   const plan = requirePaidPlan(planId);
-  if (String(asset).toUpperCase() !== 'BTC') throw new Error('Solo BTC è operativo per il checkout crypto Zorgax');
-  const quote = await quotePlan({ asset:'BTC', priceEur:plan.priceEur });
-  const amountMinor = btcToSatoshis(quote.cryptoAmount);
+  const normalizedAsset = String(asset || 'BTC').toUpperCase();
+  if (!['BTC', 'ETH'].includes(normalizedAsset)) throw new Error('Asset crypto Zorgax non supportato');
+
+  const isEth = normalizedAsset === 'ETH';
+  const destination = isEth ? ethWallet() : btcWallet();
+  if (!destination) throw new Error(`Wallet ${normalizedAsset} non configurato`);
+  if (isEth && !ethNetwork().rpcConfigured) throw new Error('RPC ETH non configurato');
+
+  const quote = await quotePlan({ asset:normalizedAsset, priceEur:plan.priceEur });
+  const amountMinor = isEth ? ethToGwei(quote.cryptoAmount) : btcToSatoshis(quote.cryptoAmount);
+  const network = isEth ? ethNetwork().id : 'bitcoin';
+  const chainId = isEth ? ethNetwork().chainId : null;
   const crypto = require('crypto');
   const intentId = `zorgax_${Date.now()}_${crypto.randomBytes(8).toString('hex')}`;
   const purchaseId = `zpur_${crypto.randomUUID()}`;
   const entitlement = entitlementForPlan(plan.id);
-  const destination = btcWallet();
   const expiresAt = new Date(Date.now() + INTENT_TTL_MS);
 
   const intent = await PaymentIntent.create({
     intentId,
     ownerId:String(ownerId),
     purpose:`zorgax:${productIdForPlan(plan.id)}`,
-    asset:'BTC',
-    network:'bitcoin',
+    asset:normalizedAsset,
+    network,
     amountMinor,
+    destination,
     paymentReference:`zorgaxref_${crypto.randomBytes(16).toString('hex')}`,
     status:'AWAITING_PAYMENT',
     expiresAt,
-    metadata:{ zorgax:{ purchaseId, plan:plan.id, priceEur:plan.priceEur, cryptoAmount:quote.cryptoAmount, eurPerCoin:quote.eurPerCoin, quoteObservedAt:quote.observedAt, quoteSource:quote.source, destination, renew:Boolean(renew), confirmations:0, checkAttempts:0 } }
+    metadata:{ zorgax:{ purchaseId, plan:plan.id, priceEur:plan.priceEur, cryptoAmount:quote.cryptoAmount, eurPerCoin:quote.eurPerCoin, quoteObservedAt:quote.observedAt, quoteSource:quote.source, destination, network, chainId, renew:Boolean(renew), confirmations:0, checkAttempts:0 } }
   });
 
   await ZorgaxPurchase.create({
@@ -97,15 +143,14 @@ async function createCheckoutIntent({ ownerId, planId, asset = 'BTC', renew = fa
     productId:productIdForPlan(plan.id),
     paymentIntentId:intentId,
     creditsGranted:0,
-    payment:{ asset:'BTC', network:'bitcoin', amountMinor },
+    payment:{ asset:normalizedAsset, network, amountMinor },
     entitlement,
     status:PURCHASE_STATUSES.PENDING,
-    metadata:{ source:'zorgax-unified-checkout', plan:plan.id, priceEur:plan.priceEur, cryptoAmount:quote.cryptoAmount, destination, renew:Boolean(renew) }
+    metadata:{ source:'zorgax-unified-checkout', plan:plan.id, priceEur:plan.priceEur, cryptoAmount:quote.cryptoAmount, destination, network, chainId, renew:Boolean(renew) }
   });
 
   return publicIntent(intent);
 }
-
 async function ownedIntent(ownerId, intentId) {
   const intent = await PaymentIntent.findOne({ ownerId:String(ownerId), intentId:String(intentId || ''), purpose:/^zorgax:/ });
   if (!intent) throw new Error('Payment intent non trovato');
@@ -158,13 +203,14 @@ async function activate(intent, verification) {
 }
 
 function retryable(error) {
-  return /Conferme blockchain insufficienti|Pagamento BTC non trovato|Verifier .* non disponibile/i.test(String(error?.message || ''));
+  return /Conferme blockchain insufficienti|Pagamento (BTC|ETH) non trovato|Verifier .* non disponibile/i.test(String(error?.message || ''));
 }
 
 async function verifyBoundIntent(intent) {
   const z = intent.metadata?.zorgax || {};
   try {
-    const verification = await verifySettlement({ asset:'BTC', paymentReference:intent.txId, destination:z.destination, cryptoAmount:z.cryptoAmount || satsToBtc(intent.amountMinor) });
+    const cryptoAmount = z.cryptoAmount || (intent.asset === 'ETH' ? gweiToEth(intent.amountMinor) : satsToBtc(intent.amountMinor));
+    const verification = await verifySettlement({ asset:intent.asset, paymentReference:intent.txId, destination:z.destination, cryptoAmount, network:intent.network, chainId:z.chainId });
     return activate(intent, verification);
   } catch (error) {
     if (!retryable(error)) throw error;
@@ -180,7 +226,7 @@ async function verifyAndActivatePaymentIntent({ ownerId, intentId, paymentRefere
   const intent = await ownedIntent(ownerId, intentId);
   if (intent.status === 'CONFIRMED') return { intentId:intent.intentId, settlementStatus:'VERIFIED', pending:false, verified:true, plan:intent.metadata?.zorgax?.plan };
   if (intent.status === 'EXPIRED') throw new Error('Payment intent scaduto');
-  const txid = normalizeTxid(paymentReference);
+  const txid = intent.asset === 'ETH' ? normalizeEthTxHash(paymentReference) : normalizeTxid(paymentReference);
   if (intent.txId && intent.txId !== txid) throw new Error('Payment intent già associato a un altro TXID');
   if (!intent.txId && intent.expiresAt <= new Date()) {
     intent.status='EXPIRED';
@@ -213,8 +259,11 @@ function catalog() {
     plans:Object.values(PLANS),
     settlement:{
       mode:'non-custodial',
-      assets:['BTC'],
-      wallets:{ BTC:{ configured:Boolean(btcWallet()), operational:Boolean(btcWallet()), address:btcWallet() } },
+      assets:['BTC', 'ETH'],
+      wallets:{
+        BTC:{ configured:Boolean(btcWallet()), operational:Boolean(btcWallet()), address:btcWallet(), network:'bitcoin' },
+        ETH:{ configured:Boolean(ethWallet()), operational:Boolean(ethWallet() && ethNetwork().rpcConfigured), address:ethWallet() || null, network:ethNetwork().id, chainId:ethNetwork().chainId, walletProvider:'MetaMask-compatible' }
+      },
       automaticSigning:false,
       privateKeysAccepted:false,
       note:'External settlement must be independently verified before paid access is activated.'
@@ -227,12 +276,17 @@ module.exports = {
   RETRY_DELAY_MS,
   btcToSatoshis,
   btcWallet,
+  ethWallet,
+  ethNetwork,
+  ethToGwei,
+  gweiToEth,
   catalog,
   createCheckoutIntent,
   getPaymentIntent,
   listPaymentIntents,
   markMetadataModified,
   normalizeTxid,
+  normalizeEthTxHash,
   publicIntent,
   refreshPaymentIntent,
   satsToBtc,
