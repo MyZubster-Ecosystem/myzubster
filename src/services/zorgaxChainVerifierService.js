@@ -1,7 +1,7 @@
 'use strict';
 
 const crypto = require('crypto');
-const { SUPPORTED_ASSETS } = require('./zorgaxLegacyMonetizationService');
+const { SUPPORTED_ASSETS } = require('./zorgaxAssetCatalog');
 
 const DEFAULT_BTC_ESPLORA_URL = 'https://blockstream.info/api';
 
