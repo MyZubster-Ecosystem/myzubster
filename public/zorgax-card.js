@@ -92,7 +92,7 @@
     if (!plan || !btcButton || !accessState || document.getElementById('startCard') || document.getElementById('startMyz')) return;
 
     const notice = document.querySelector('.notice');
-    if (notice) notice.textContent = 'Zorgax e Marketplace Seller sono servizi separati. Gli upgrade Zorgax possono essere pagati con carta, BTC oppure con crediti MYZ interni quando il relativo prezzo è configurato. MYZ non viene convertito automaticamente in EUR o crypto e non implica rimborso in denaro.';
+    if (notice) notice.textContent = 'Zorgax e Marketplace Seller sono servizi separati. Gli upgrade Zorgax possono essere pagati con carta, BTC oppure con crediti MYZ interni quando il relativo prezzo è configurato. XMR ed ETH sono in configurazione e non sono ancora attivi. MYZ non viene convertito automaticamente in EUR o crypto e non implica rimborso in denaro.';
 
     observeZorgaxLabel(accessState);
 
@@ -106,13 +106,25 @@
       summary.style.gap = '8px';
       summary.innerHTML = [
         ['Free', '€0', 'Chat base · ricerca limitata'],
-        ['Pro', '€9,90', 'AI avanzata · web research · workspace · priorità'],
-        ['Developer', '€29,90', 'Pro + API · automazioni · limiti più alti']
+        ['Pro', '€9,90', 'AI avanzata · web research · workspace · priorità · carta/BTC/MYZ · XMR/ETH in configurazione'],
+        ['Developer', '€29,90', 'Pro + API · automazioni · limiti più alti · carta/BTC/MYZ · XMR/ETH in configurazione']
       ].map(([name, price, features]) =>
         `<div style="padding:10px;border:1px solid rgba(125,211,252,.22);border-radius:12px;background:rgba(2,132,199,.05)"><strong>${name}</strong><div style="font-size:18px;margin:4px 0">${price}${name === 'Free' ? '' : '/30 giorni'}</div><div style="font-size:11px;color:#cbd5e1;line-height:1.4">${features}</div></div>`
       ).join('');
       paybar.appendChild(summary);
     }
+
+    const xmrButton = document.createElement('button');
+    xmrButton.id = 'startXmr';
+    xmrButton.type = 'button';
+    xmrButton.textContent = 'XMR in configurazione';
+    xmrButton.disabled = true;
+
+    const ethButton = document.createElement('button');
+    ethButton.id = 'startEth';
+    ethButton.type = 'button';
+    ethButton.textContent = 'ETH in configurazione';
+    ethButton.disabled = true;
 
     const myzButton = document.createElement('button');
     myzButton.id = 'startMyz';
@@ -124,7 +136,9 @@
     cardButton.id = 'startCard';
     cardButton.type = 'button';
     cardButton.textContent = '💳 Paga con carta';
-    btcButton.insertAdjacentElement('afterend', myzButton);
+    btcButton.insertAdjacentElement('afterend', xmrButton);
+    xmrButton.insertAdjacentElement('afterend', ethButton);
+    ethButton.insertAdjacentElement('afterend', myzButton);
     myzButton.insertAdjacentElement('afterend', cardButton);
 
     const myzState = document.createElement('span');
