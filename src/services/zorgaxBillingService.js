@@ -1,6 +1,8 @@
 'use strict';
 
 const PaymentIntent = require('../models/PaymentIntent');
+const ZorgaxPaymentIntent = require('../models/ZorgaxPaymentIntent');
+const ZorgaxSubscription = require('../models/ZorgaxSubscription');
 const { ZorgaxPurchase } = require('../models/ZorgaxPurchase');
 const { listEntitlements } = require('./zorgaxEntitlementService');
 
@@ -9,6 +11,45 @@ function receiptId(intentId) {
 }
 
 async function getPaymentReceipt({ ownerId, intentId }) {
+  const legacyQuery = ZorgaxPaymentIntent.findOne({
+    ownerId:String(ownerId),
+    intentId:String(intentId || ''),
+    'settlement.status':'VERIFIED'
+  });
+  const legacy = typeof legacyQuery?.lean === 'function' ? await legacyQuery.lean() : await legacyQuery;
+  if (legacy) {
+    const subscriptionQuery = ZorgaxSubscription.findOne({ ownerId:String(ownerId) });
+    const subscription = typeof subscriptionQuery?.lean === 'function' ? await subscriptionQuery.lean() : await subscriptionQuery;
+    return {
+      receiptId:receiptId(legacy.intentId),
+      documentType:'PAYMENT_RECEIPT',
+      fiscalInvoice:false,
+      entity:'ZORGAX-001',
+      intentId:legacy.intentId,
+      plan:legacy.plan,
+      payment:{
+        asset:legacy.asset,
+        destination:legacy.destination || null,
+        paymentReference:legacy.settlement?.paymentReference || null,
+        cryptoAmount:legacy.quote?.cryptoAmount || null,
+        amountEur:legacy.quote?.amount ?? null,
+        quoteSource:legacy.quote?.source || null,
+        quoteObservedAt:legacy.quote?.observedAt || null,
+        confirmations:legacy.settlement?.confirmations ?? null,
+        verifiedAt:legacy.settlement?.verifiedAt || legacy.updatedAt || null,
+        verifier:legacy.settlement?.verifier || null
+      },
+      access:{
+        status:subscription?.access?.status || 'ACTIVE',
+        startsAt:subscription?.access?.startsAt || legacy.settlement?.verifiedAt || legacy.updatedAt || null,
+        expiresAt:subscription?.access?.expiresAt || null,
+        renewal:Boolean(subscription?.renewalOf)
+      },
+      issuedAt:legacy.settlement?.verifiedAt || legacy.updatedAt || null,
+      note:'Ricevuta tecnica di pagamento non-custodial. Non costituisce fattura fiscale.'
+    };
+  }
+
   const intent = await PaymentIntent.findOne({
     ownerId:String(ownerId),
     intentId:String(intentId || ''),

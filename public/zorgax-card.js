@@ -92,9 +92,39 @@
     if (!plan || !btcButton || !accessState || document.getElementById('startCard') || document.getElementById('startMyz')) return;
 
     const notice = document.querySelector('.notice');
-    if (notice) notice.textContent = 'Zorgax e Marketplace Seller sono servizi separati. Gli upgrade Zorgax possono essere pagati con carta, BTC oppure con crediti MYZ interni quando il relativo prezzo è configurato. MYZ non viene convertito automaticamente in EUR o crypto e non implica rimborso in denaro.';
+    if (notice) notice.textContent = 'Zorgax e Marketplace Seller sono servizi separati. Gli upgrade Zorgax possono essere pagati con carta, BTC, crediti MYZ interni e, quando il backend ETH è configurato, tramite MetaMask. XMR resta in configurazione. MYZ non viene convertito automaticamente in EUR o crypto e non implica rimborso in denaro.';
 
     observeZorgaxLabel(accessState);
+
+    const paybar = document.querySelector('.paybar');
+    if (paybar && !document.getElementById('zorgaxPlanSummary')) {
+      const summary = document.createElement('div');
+      summary.id = 'zorgaxPlanSummary';
+      summary.style.marginTop = '10px';
+      summary.style.display = 'grid';
+      summary.style.gridTemplateColumns = 'repeat(auto-fit,minmax(180px,1fr))';
+      summary.style.gap = '8px';
+      summary.innerHTML = [
+        ['Free', '€0', 'Chat base · ricerca limitata'],
+        ['Pro', '€9,90', 'AI avanzata · web research · workspace · priorità · carta/BTC/MYZ · ETH via MetaMask se configurato · XMR in configurazione'],
+        ['Developer', '€29,90', 'Pro + API · automazioni · limiti più alti · carta/BTC/MYZ · ETH via MetaMask se configurato · XMR in configurazione']
+      ].map(([name, price, features]) =>
+        `<div style="padding:10px;border:1px solid rgba(125,211,252,.22);border-radius:12px;background:rgba(2,132,199,.05)"><strong>${name}</strong><div style="font-size:18px;margin:4px 0">${price}${name === 'Free' ? '' : '/30 giorni'}</div><div style="font-size:11px;color:#cbd5e1;line-height:1.4">${features}</div></div>`
+      ).join('');
+      paybar.appendChild(summary);
+    }
+
+    const xmrButton = document.createElement('button');
+    xmrButton.id = 'startXmr';
+    xmrButton.type = 'button';
+    xmrButton.textContent = 'XMR in configurazione';
+    xmrButton.disabled = true;
+
+    const ethButton = document.createElement('button');
+    ethButton.id = 'startEth';
+    ethButton.type = 'button';
+    ethButton.textContent = 'ETH in configurazione';
+    ethButton.disabled = true;
 
     const myzButton = document.createElement('button');
     myzButton.id = 'startMyz';
@@ -106,7 +136,9 @@
     cardButton.id = 'startCard';
     cardButton.type = 'button';
     cardButton.textContent = '💳 Paga con carta';
-    btcButton.insertAdjacentElement('afterend', myzButton);
+    btcButton.insertAdjacentElement('afterend', xmrButton);
+    xmrButton.insertAdjacentElement('afterend', ethButton);
+    ethButton.insertAdjacentElement('afterend', myzButton);
     myzButton.insertAdjacentElement('afterend', cardButton);
 
     const myzState = document.createElement('span');
@@ -116,6 +148,41 @@
     cardButton.insertAdjacentElement('afterend', myzState);
 
     let myzPlans = {};
+    let ethOperational = false;
+
+    function ethToWeiHex(value) {
+      const raw = String(value || '').trim();
+      if (!/^\d+(?:\.\d{1,18})?$/.test(raw)) throw new Error('Importo ETH non valido');
+      const [whole, fraction = ''] = raw.split('.');
+      const wei = BigInt(whole) * 1000000000000000000n + BigInt((fraction + '000000000000000000').slice(0, 18));
+      if (wei <= 0n) throw new Error('Importo ETH non valido');
+      return '0x' + wei.toString(16);
+    }
+
+    async function refreshEthOffer() {
+      try {
+        const response = await fetch('/api/zorgax/assistant/pricing', { headers:{ Accept:'application/json' } });
+        const data = await response.json();
+        const eth = data?.settlement?.wallets?.ETH;
+        ethOperational = Boolean(response.ok && data?.ok && eth?.operational && eth?.address && eth?.chainId);
+        if (!ethOperational) {
+          ethButton.disabled = true;
+          ethButton.textContent = 'ETH in configurazione';
+          return;
+        }
+        if (!window.ethereum) {
+          ethButton.disabled = true;
+          ethButton.textContent = 'MetaMask non trovato';
+          return;
+        }
+        ethButton.disabled = false;
+        ethButton.textContent = '🦊 Paga con ETH · MetaMask';
+      } catch (_error) {
+        ethOperational = false;
+        ethButton.disabled = true;
+        ethButton.textContent = 'ETH non disponibile';
+      }
+    }
 
     async function refreshMyzOffer() {
       try {
@@ -143,7 +210,96 @@
 
     plan.addEventListener('change', refreshMyzOffer);
     refreshMyzOffer();
+    refreshEthOffer();
     refreshSellerState(accessState);
+
+    ethButton.addEventListener('click', async () => {
+      const t = token();
+      if (!t) {
+        location.assign('/social-login?returnTo=' + encodeURIComponent('/zorgax'));
+        return;
+      }
+      if (!ethOperational || !window.ethereum) {
+        accessState.textContent = 'ETH/MetaMask non è ancora disponibile su questa configurazione.';
+        return;
+      }
+
+      ethButton.disabled = true;
+      const original = ethButton.textContent;
+      ethButton.textContent = 'Preparo MetaMask…';
+      try {
+        const intentResponse = await fetch('/api/zorgax/assistant/checkout/intent', {
+          method:'POST',
+          headers:{ 'Content-Type':'application/json', Authorization:`Bearer ${t}` },
+          body:JSON.stringify({ plan:plan.value, asset:'ETH' })
+        });
+        const intentData = await intentResponse.json();
+        if (!intentResponse.ok || !intentData.ok || !intentData.intent) {
+          throw new Error(intentData.error || 'Checkout ETH non disponibile');
+        }
+
+        const intent = intentData.intent;
+        const chainId = Number(intent.chainId);
+        if (!Number.isSafeInteger(chainId) || chainId <= 0) throw new Error('Rete ETH non valida');
+        const chainIdHex = '0x' + chainId.toString(16);
+
+        const accounts = await window.ethereum.request({ method:'eth_requestAccounts' });
+        const from = Array.isArray(accounts) ? accounts[0] : null;
+        if (!from) throw new Error('Nessun account MetaMask disponibile');
+
+        try {
+          await window.ethereum.request({
+            method:'wallet_switchEthereumChain',
+            params:[{ chainId:chainIdHex }]
+          });
+        } catch (switchError) {
+          if (switchError?.code === 4902) {
+            throw new Error(`La rete ${intent.network || chainId} non è configurata in MetaMask`);
+          }
+          throw switchError;
+        }
+
+        const txHash = await window.ethereum.request({
+          method:'eth_sendTransaction',
+          params:[{
+            from,
+            to:intent.destination,
+            value:ethToWeiHex(intent.quote?.cryptoAmount)
+          }]
+        });
+        accessState.textContent = `Transazione ETH inviata: ${String(txHash).slice(0,12)}… Verifico on-chain…`;
+
+        let verifyResponse = await fetch(`/api/zorgax/assistant/checkout/intent/${encodeURIComponent(intent.intentId)}/verify`, {
+          method:'POST',
+          headers:{ 'Content-Type':'application/json', Authorization:`Bearer ${t}` },
+          body:JSON.stringify({ paymentReference:txHash })
+        });
+        let verifyData = await verifyResponse.json();
+        if (!verifyResponse.ok && verifyResponse.status !== 202) throw new Error(verifyData.error || 'Verifica ETH non riuscita');
+
+        for (let attempt = 0; verifyData.pending && attempt < 5; attempt += 1) {
+          await new Promise(resolve => setTimeout(resolve, 5000));
+          verifyResponse = await fetch(`/api/zorgax/assistant/checkout/intent/${encodeURIComponent(intent.intentId)}/refresh`, {
+            method:'POST',
+            headers:{ Authorization:`Bearer ${t}` }
+          });
+          verifyData = await verifyResponse.json();
+          if (!verifyResponse.ok && verifyResponse.status !== 202) throw new Error(verifyData.error || 'Verifica ETH non riuscita');
+        }
+
+        if (verifyData.verified || verifyData.settlementStatus === 'VERIFIED') {
+          accessState.textContent = 'Pagamento ETH verificato. Attivo Zorgax…';
+          await refreshPaidState(accessState);
+        } else {
+          accessState.textContent = 'Transazione ETH ricevuta. Attendo le conferme blockchain; puoi aggiornare tra poco.';
+        }
+      } catch (error) {
+        accessState.textContent = `ETH/MetaMask: ${error.message || 'operazione annullata'}`;
+      } finally {
+        await refreshEthOffer();
+        if (ethOperational && window.ethereum) ethButton.textContent = original;
+      }
+    });
 
     myzButton.addEventListener('click', async () => {
       const t = token();

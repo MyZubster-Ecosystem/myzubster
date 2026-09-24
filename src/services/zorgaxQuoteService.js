@@ -1,9 +1,10 @@
 'use strict';
 
-const { SUPPORTED_ASSETS } = require('./zorgaxLegacyMonetizationService');
+const { SUPPORTED_ASSETS } = require('./zorgaxAssetCatalog');
 
 const DEFAULT_MAX_AGE_MS = 5 * 60 * 1000;
 const DEFAULT_BTC_QUOTE_URL = 'https://api.coingecko.com/api/v3/simple/price';
+const DEFAULT_ETH_QUOTE_URL = DEFAULT_BTC_QUOTE_URL;
 
 function normalizeQuote(asset, payload, priceEur) {
   const normalizedAsset = String(asset || '').toUpperCase();
@@ -16,7 +17,9 @@ function normalizeQuote(asset, payload, priceEur) {
   const rawAmount = Number(priceEur) / eurPerCoin;
   const cryptoAmount = normalizedAsset === 'BTC'
     ? (Math.ceil(rawAmount * 1e8) / 1e8).toFixed(8)
-    : Number(rawAmount.toPrecision(12));
+    : normalizedAsset === 'ETH'
+      ? (Math.ceil(rawAmount * 1e9) / 1e9).toFixed(9)
+      : Number(rawAmount.toPrecision(12));
 
   return {
     asset: normalizedAsset,
@@ -29,24 +32,34 @@ function normalizeQuote(asset, payload, priceEur) {
   };
 }
 
-async function fetchDefaultBitcoinQuote(fetchImpl) {
-  const url = new URL(DEFAULT_BTC_QUOTE_URL);
-  url.searchParams.set('ids', 'bitcoin');
+async function fetchDefaultCoinGeckoQuote(asset, fetchImpl) {
+  const normalizedAsset = String(asset || '').toUpperCase();
+  const id = normalizedAsset === 'ETH' ? 'ethereum' : 'bitcoin';
+  const url = new URL(normalizedAsset === 'ETH' ? DEFAULT_ETH_QUOTE_URL : DEFAULT_BTC_QUOTE_URL);
+  url.searchParams.set('ids', id);
   url.searchParams.set('vs_currencies', 'eur');
   url.searchParams.set('include_last_updated_at', 'true');
 
   const response = await fetchImpl(url, { headers: { accept: 'application/json' } });
-  if (!response.ok) throw new Error(`Provider quotazioni BTC non disponibile (${response.status})`);
+  if (!response.ok) throw new Error(`Provider quotazioni ${normalizedAsset} non disponibile (${response.status})`);
   const payload = await response.json();
-  const eurPerCoin = Number(payload?.bitcoin?.eur);
-  const lastUpdatedAt = Number(payload?.bitcoin?.last_updated_at);
-  if (!Number.isFinite(eurPerCoin) || eurPerCoin <= 0) throw new Error('Quotazione BTC/EUR non valida');
+  const eurPerCoin = Number(payload?.[id]?.eur);
+  const lastUpdatedAt = Number(payload?.[id]?.last_updated_at);
+  if (!Number.isFinite(eurPerCoin) || eurPerCoin <= 0) throw new Error(`Quotazione ${normalizedAsset}/EUR non valida`);
 
   return {
     eurPerCoin,
     observedAt: Number.isFinite(lastUpdatedAt) && lastUpdatedAt > 0 ? new Date(lastUpdatedAt * 1000).toISOString() : new Date().toISOString(),
     source: 'coingecko-keyless'
   };
+}
+
+async function fetchDefaultBitcoinQuote(fetchImpl) {
+  return fetchDefaultCoinGeckoQuote('BTC', fetchImpl);
+}
+
+async function fetchDefaultEthereumQuote(fetchImpl) {
+  return fetchDefaultCoinGeckoQuote('ETH', fetchImpl);
 }
 
 async function quotePlan({ asset, priceEur, fetchImpl = global.fetch }) {
@@ -67,6 +80,8 @@ async function quotePlan({ asset, priceEur, fetchImpl = global.fetch }) {
     payload = await response.json();
   } else if (normalizedAsset === 'BTC') {
     payload = await fetchDefaultBitcoinQuote(fetchImpl);
+  } else if (normalizedAsset === 'ETH') {
+    payload = await fetchDefaultEthereumQuote(fetchImpl);
   } else {
     throw new Error('Provider quotazioni non configurato');
   }
@@ -77,4 +92,4 @@ async function quotePlan({ asset, priceEur, fetchImpl = global.fetch }) {
   return quote;
 }
 
-module.exports = { DEFAULT_MAX_AGE_MS, DEFAULT_BTC_QUOTE_URL, normalizeQuote, fetchDefaultBitcoinQuote, quotePlan };
+module.exports = { DEFAULT_MAX_AGE_MS, DEFAULT_BTC_QUOTE_URL, DEFAULT_ETH_QUOTE_URL, normalizeQuote, fetchDefaultBitcoinQuote, fetchDefaultEthereumQuote, quotePlan };
