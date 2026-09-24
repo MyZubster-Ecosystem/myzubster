@@ -33,19 +33,43 @@ async function verifyLegacyIntent({ intent, ownerId, paymentReference }) {
   if (intent.consumedAt || intent.settlement?.status === 'VERIFIED') {
     throw new Error('Payment intent già utilizzato');
   }
-  if (intent.expiresAt && intent.expiresAt <= new Date()) {
+  const existingReference = intent.settlement?.paymentReference || null;
+  const submittedAt = intent.settlement?.submittedAt ? new Date(intent.settlement.submittedAt) : null;
+  if (intent.expiresAt && intent.expiresAt <= new Date() && !(existingReference && submittedAt && submittedAt <= intent.expiresAt)) {
     intent.settlement.status = 'EXPIRED';
     await intent.save();
     throw new Error('Payment intent scaduto');
   }
 
-  const reference = normalizePaymentReference(intent.asset, paymentReference);
-  const verification = await verifySettlement({
-    asset: intent.asset,
-    paymentReference: reference,
-    destination: intent.destination,
-    cryptoAmount: intent.quote.cryptoAmount
-  });
+  const reference = normalizePaymentReference(intent.asset, paymentReference || existingReference);
+  if (!intent.settlement.paymentReference) intent.settlement.paymentReference = reference;
+  if (!intent.settlement.submittedAt) intent.settlement.submittedAt = new Date();
+
+  let verification;
+  try {
+    verification = await verifySettlement({
+      asset: intent.asset,
+      paymentReference: reference,
+      destination: intent.destination,
+      cryptoAmount: intent.quote.cryptoAmount
+    });
+  } catch (error) {
+    if (!isRetryableVerificationError(error)) throw error;
+    intent.settlement.nextCheckAt = new Date(Date.now() + unified.RETRY_DELAY_MS);
+    intent.settlement.checkAttempts = Number(intent.settlement.checkAttempts || 0) + 1;
+    intent.settlement.lastError = String(error.message).slice(0, 300);
+    await intent.save();
+    return {
+      intentId:intent.intentId,
+      settlementStatus:'PENDING',
+      pending:true,
+      automaticMonitoring:true,
+      paymentReference:reference,
+      confirmations:intent.settlement.confirmations || 0,
+      nextCheckAt:intent.settlement.nextCheckAt,
+      message:error.message
+    };
+  }
 
   const access = await recordVerifiedPayment({
     ownerId: String(ownerId),
