@@ -1,7 +1,7 @@
 'use strict';
 
 const crypto = require('crypto');
-const { SUPPORTED_ASSETS } = require('./zorgaxLegacyMonetizationService');
+// Keep verifier capabilities independent from legacy monetization adapters to avoid\n// a circular dependency with the unified checkout service.\nconst SUPPORTED_ASSETS = Object.freeze(['BTC']);
 
 const DEFAULT_BTC_ESPLORA_URL = 'https://blockstream.info/api';
 
