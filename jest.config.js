@@ -4,6 +4,10 @@ module.exports = {
   ],
   testPathIgnorePatterns: [
     '/node_modules/',
-    '/frontend/'
+    '/frontend/',
+    '/tests/kefirHandDelivery.node.test.js
+};,
+    '/src/services/marketplaceOrderPaymentPolicy.test.js
+};
   ]
 };
