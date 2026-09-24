@@ -18,6 +18,9 @@ describe('Zorgax professional profile save handoff', () => {
   test('keeps persistence behind the explicit onboarding approval buttons', () => {
     expect(source).toContain('const profileHandoff=renderProfessionalProfileHandoff(text)');
     expect(source).toContain('if(!profileHandoff)renderDataPreview(d.data_preview)');
+    expect(source).toContain('isMyzProfilePreview');
+    expect(source).toContain('pendingProfessionalProfileDraft');
+    expect(source).toContain('renderProfessionalProfileHandoffFromDraft');
     expect(source).not.toContain("fetch('/api/auth/profile/professional'");
   });
 });
