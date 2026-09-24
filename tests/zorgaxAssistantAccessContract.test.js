@@ -27,6 +27,16 @@ describe('Zorgax assistant paid access contract', () => {
     expect(routeSource).toContain('userContext });');
   });
 
+  test('falls back to Free chat when access lookup is temporarily unavailable', () => {
+    const accessSource = fs.readFileSync(
+      path.join(__dirname, '../src/middleware/zorgaxAccess.js'),
+      'utf8'
+    );
+    expect(accessSource).toContain("source: req.userId ? 'AUTHENTICATED_FREE_FALLBACK' : 'GUEST'");
+    expect(accessSource).toContain('req.zorgaxPolicy = getAccessPolicy(access, { authenticated: Boolean(req.userId) })');
+    expect(accessSource).toContain('next();');
+  });
+
   test('requires Developer for the direct research API', () => {
     expect(routeSource).toContain("router.get('/research', authenticate, requireZorgaxPlan('developer')");
   });

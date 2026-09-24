@@ -33,7 +33,15 @@ function createZorgaxAccessMiddleware({ getAccessFn = getAccess } = {}) {
       req.zorgaxPolicy = getAccessPolicy(access, { authenticated: Boolean(req.userId) });
       next();
     } catch (error) {
-      res.status(503).json({ ok: false, error: 'Controllo accesso Zorgax non disponibile' });
+      console.warn('[zorgax-access-fallback]', error.message);
+      const access = {
+        ...guestAccess(),
+        source: req.userId ? 'AUTHENTICATED_FREE_FALLBACK' : 'GUEST',
+        billingRequired: Boolean(req.userId)
+      };
+      req.zorgaxAccess = access;
+      req.zorgaxPolicy = getAccessPolicy(access, { authenticated: Boolean(req.userId) });
+      next();
     }
   }
 
