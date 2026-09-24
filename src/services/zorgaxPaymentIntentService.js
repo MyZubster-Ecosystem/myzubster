@@ -18,7 +18,7 @@ function isRetryableVerificationError(error) {
 }
 
 function isLegacyIntent(intent) {
-  return Boolean(intent && intent.settlement && intent.quote && intent.plan && intent.destination);
+  return Boolean(intent && intent.settlement);
 }
 
 async function loadLegacyIntent(ownerId, intentId) {
