@@ -50,7 +50,7 @@ exports.start=(req,res)=>{
     if(provider==='github'){
       const clientId=githubClientId();
       if(!clientId||!process.env.GITHUB_OAUTH_CLIENT_SECRET||!callback('github').startsWith('http'))throw new Error('GitHub Login non configurato');
-      const writeProfile=req.query?.write_profile==='1';const params=new URLSearchParams({client_id:clientId,redirect_uri:callback('github'),scope:writeProfile?'read:user user:email repo':'read:user user:email',state:state('github',writeProfile?{writeProfile:true,userId:String(req.query?.myz_user||'')}: {})});return res.redirect(`https://github.com/login/oauth/authorize?${params}`);
+      const writeProfile=req.query?.write_profile==='1';const params=new URLSearchParams({client_id:clientId,redirect_uri:callback('github'),scope:writeProfile?'user repo':'read:user user:email',state:state('github',writeProfile?{writeProfile:true,userId:String(req.query?.myz_user||'')}: {})});return res.redirect(`https://github.com/login/oauth/authorize?${params}`);
     }
     if(provider==='facebook'){
       if(!process.env.FACEBOOK_LOGIN_APP_ID||!process.env.FACEBOOK_LOGIN_APP_SECRET||!callback('facebook').startsWith('http'))throw new Error('Facebook Login non configurato');
