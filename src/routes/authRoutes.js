@@ -8,7 +8,7 @@ const culturalContributorController = require('../controllers/culturalContributo
 const zorgaxCulturalController = require('../controllers/zorgaxCulturalController');
 const User = require('../models/User');
 const { authenticate } = require('../middleware/auth');
-const { decryptToken, updateBio, updateProfileReadme } = require('../services/githubProfileAutomation');
+const { decryptToken, updateProfile, updateBio, getProfileReadme, updateProfileReadme, deleteProfileReadme } = require('../services/githubProfileAutomation');
 const { normalizeProfessionalProfile, validateProfessionalProfile } = require('../services/professionalProfileService');
 
 function legacyOrSocialCallback(provider, legacyHandler) {
@@ -259,15 +259,67 @@ router.post('/github/automation/apply', authenticate, async (req, res) => {
     if (!user?.github?.login) return res.status(409).json({ success:false, message:'Collega GitHub prima di applicare modifiche' });
     if (!user.githubAutomation?.enabled) return res.status(409).json({ success:false, message:'Attiva prima l’automazione GitHub' });
     if (!user.githubAutomation?.accessTokenEncrypted) return res.status(403).json({ success:false, message:'Autorizza prima le modifiche GitHub' });
-    const bio = typeof req.body?.bio === 'string' ? req.body.bio.trim() : '';
-    const readme = typeof req.body?.readme === 'string' ? req.body.readme.trim() : '';
-    if (!bio && !readme) return res.status(400).json({ success:false, message:'Nessuna modifica approvata da applicare' });
-    const token = decryptToken(user.githubAutomation.accessTokenEncrypted); const applied=[];
-    if (bio) { const previous=String(user.github?.publicSnapshot?.bio||'').slice(0,160); await updateBio(token,bio); user.githubAutomation.previousBio=previous; user.githubAutomation.lastPublishedBio=bio.slice(0,160); if(user.github?.publicSnapshot)user.github.publicSnapshot.bio=bio.slice(0,160); applied.push('bio'); }
-    if (readme) { await updateProfileReadme(token,user.github.login,readme); applied.push('readme'); }
+    if (req.body?.approved !== true) return res.status(400).json({ success:false, message:'Serve una conferma esplicita dell’anteprima prima della pubblicazione' });
+    const name = typeof req.body?.name === 'string' ? req.body.name.trim().slice(0,180) : '';
+    const bio = typeof req.body?.bio === 'string' ? req.body.bio.trim().slice(0,160) : '';
+    const readme = typeof req.body?.readme === 'string' ? req.body.readme.trim().slice(0,50000) : '';
+    if (!name && !bio && !readme) return res.status(400).json({ success:false, message:'Nessuna modifica approvata da applicare' });
+
+    const token = decryptToken(user.githubAutomation.accessTokenEncrypted);
+    const applied=[];
+    const snapshot=user.github?.publicSnapshot||{};
+    const previousReadme=readme ? await getProfileReadme(token,user.github.login) : null;
+
+    if (name || bio) {
+      await updateProfile(token,{...(name?{name}:{}),...(bio?{bio}:{})});
+      if(name){
+        user.githubAutomation.previousName=String(snapshot.name||'').slice(0,180);
+        user.githubAutomation.lastPublishedName=name;
+        if(user.github?.publicSnapshot)user.github.publicSnapshot.name=name;
+        applied.push('name');
+      }
+      if(bio){
+        user.githubAutomation.previousBio=String(snapshot.bio||'').slice(0,160);
+        user.githubAutomation.lastPublishedBio=bio;
+        if(user.github?.publicSnapshot)user.github.publicSnapshot.bio=bio;
+        applied.push('bio');
+      }
+    }
+    if (readme) {
+      user.githubAutomation.previousReadme=String(previousReadme?.content||'').slice(0,50000);
+      user.githubAutomation.previousReadmeExisted=Boolean(previousReadme?.exists);
+      await updateProfileReadme(token,user.github.login,readme);
+      user.githubAutomation.lastPublishedReadme=readme;
+      if(user.github?.publicSnapshot)user.github.publicSnapshot.profileReadme=readme.slice(0,12000);
+      applied.push('readme');
+    }
     user.githubAutomation.updatedAt=new Date(); await user.save();
-    return res.json({ success:true, data:{ applied } });
+    return res.json({ success:true, data:{ applied, profileUrl:user.github.profileUrl||('https://github.com/'+user.github.login) } });
   } catch(error) { console.error('GitHub profile automation apply error:',error.message); return res.status(502).json({ success:false, message:'GitHub non ha applicato le modifiche autorizzate' }); }
+});
+router.post('/github/automation/rollback-profile', authenticate, async (req,res)=>{
+  try{
+    const user=await User.findById(req.userId).select('+githubAutomation.accessTokenEncrypted github githubAutomation');
+    if(!user?.githubAutomation?.accessTokenEncrypted)return res.status(403).json({success:false,message:'Autorizzazione GitHub non disponibile'});
+    const token=decryptToken(user.githubAutomation.accessTokenEncrypted);const restored=[];
+    const profilePatch={};
+    if(typeof user.githubAutomation.previousName==='string'){profilePatch.name=user.githubAutomation.previousName;restored.push('name');}
+    if(typeof user.githubAutomation.previousBio==='string'){profilePatch.bio=user.githubAutomation.previousBio;restored.push('bio');}
+    if(Object.keys(profilePatch).length)await updateProfile(token,profilePatch);
+    if(typeof user.githubAutomation.previousReadmeExisted==='boolean'){
+      if(user.githubAutomation.previousReadmeExisted)await updateProfileReadme(token,user.github.login,user.githubAutomation.previousReadme||'');
+      else await deleteProfileReadme(token,user.github.login);
+      restored.push('readme');
+    }
+    if(!restored.length)return res.status(409).json({success:false,message:'Nessuna versione precedente da ripristinare'});
+    if(user.github?.publicSnapshot){
+      if(typeof profilePatch.name==='string')user.github.publicSnapshot.name=profilePatch.name;
+      if(typeof profilePatch.bio==='string')user.github.publicSnapshot.bio=profilePatch.bio;
+      if(typeof user.githubAutomation.previousReadmeExisted==='boolean')user.github.publicSnapshot.profileReadme=user.githubAutomation.previousReadmeExisted?String(user.githubAutomation.previousReadme||'').slice(0,12000):'';
+    }
+    user.githubAutomation.updatedAt=new Date();await user.save();
+    return res.json({success:true,data:{restored}});
+  }catch(error){console.error('GitHub profile rollback error:',error.message);return res.status(502).json({success:false,message:'GitHub non ha ripristinato il profilo'});}
 });
 router.post('/github/automation/rollback-bio', authenticate, async (req,res)=>{ try { const user=await User.findById(req.userId).select('+githubAutomation.accessTokenEncrypted github githubAutomation'); if(!user?.githubAutomation?.accessTokenEncrypted)return res.status(403).json({success:false,message:'Autorizzazione GitHub non disponibile'}); if(typeof user.githubAutomation.previousBio!=='string')return res.status(409).json({success:false,message:'Nessuna bio precedente da ripristinare'}); const token=decryptToken(user.githubAutomation.accessTokenEncrypted); const restore=user.githubAutomation.previousBio; await updateBio(token,restore); const current=user.githubAutomation.lastPublishedBio||''; user.githubAutomation.lastPublishedBio=restore; user.githubAutomation.previousBio=current; if(user.github?.publicSnapshot)user.github.publicSnapshot.bio=restore; user.githubAutomation.updatedAt=new Date(); await user.save(); return res.json({success:true,data:{bio:restore}}); } catch(error){ console.error('GitHub bio rollback error:',error.message); return res.status(502).json({success:false,message:'GitHub non ha ripristinato la bio'}); }});
 router.get('/cultural-contributor/attestation', authenticate, culturalContributorController.getAttestation);
