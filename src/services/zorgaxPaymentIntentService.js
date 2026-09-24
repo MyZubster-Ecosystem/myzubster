@@ -10,7 +10,7 @@ function normalizePaymentReference(asset, value) {
 }
 
 function isRetryableVerificationError(error) {
-  return /Conferme blockchain insufficienti|Pagamento BTC non trovato|Verifier .* non disponibile/i.test(String(error?.message || ''));
+  return /Conferme blockchain insufficienti|Pagamento (BTC|ETH) non trovato|Verifier .* non disponibile/i.test(String(error?.message || ''));
 }
 
 module.exports = {
