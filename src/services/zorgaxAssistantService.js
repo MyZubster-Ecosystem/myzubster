@@ -51,7 +51,8 @@ function buildAssistantPrompt(message,sources=[],userContext=''){
   const persona=loadZorgaxPersona();
   const runtime=buildRuntimeProductContext();
   const kefirContext=kefirIntent(message)?`\n\nACTIVE SPECIALIST MODE: KEFIR / CIRCULAR FOOD\n${loadKefirModule()}`:'';
-  const identityContext=cleanText(userContext,8000);\n  return `${persona}${runtime}${kefirContext}${identityContext?`\\n\\n${identityContext}`:''}\\n\\nUSER MESSAGE:\\n${cleanText(message)}${buildSourceContext(sources)}`;
+  const identityContext=cleanText(userContext,8000);
+  return `${persona}${runtime}${kefirContext}${identityContext?`\\n\\n${identityContext}`:''}\\n\\nUSER MESSAGE:\\n${cleanText(message)}${buildSourceContext(sources)}`;
 }
 
 function extractOpenAIText(json){
