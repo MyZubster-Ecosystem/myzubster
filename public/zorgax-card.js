@@ -96,6 +96,24 @@
 
     observeZorgaxLabel(accessState);
 
+    const paybar = document.querySelector('.paybar');
+    if (paybar && !document.getElementById('zorgaxPlanSummary')) {
+      const summary = document.createElement('div');
+      summary.id = 'zorgaxPlanSummary';
+      summary.style.marginTop = '10px';
+      summary.style.display = 'grid';
+      summary.style.gridTemplateColumns = 'repeat(auto-fit,minmax(180px,1fr))';
+      summary.style.gap = '8px';
+      summary.innerHTML = [
+        ['Free', '€0', 'Chat base · ricerca limitata'],
+        ['Pro', '€9,90', 'AI avanzata · web research · workspace · priorità'],
+        ['Developer', '€29,90', 'Pro + API · automazioni · limiti più alti']
+      ].map(([name, price, features]) =>
+        `<div style="padding:10px;border:1px solid rgba(125,211,252,.22);border-radius:12px;background:rgba(2,132,199,.05)"><strong>${name}</strong><div style="font-size:18px;margin:4px 0">${price}${name === 'Free' ? '' : '/30 giorni'}</div><div style="font-size:11px;color:#cbd5e1;line-height:1.4">${features}</div></div>`
+      ).join('');
+      paybar.appendChild(summary);
+    }
+
     const myzButton = document.createElement('button');
     myzButton.id = 'startMyz';
     myzButton.type = 'button';
