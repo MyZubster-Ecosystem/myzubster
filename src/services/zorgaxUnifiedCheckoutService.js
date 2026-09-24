@@ -130,7 +130,6 @@ async function createCheckoutIntent({ ownerId, planId, asset = 'BTC', renew = fa
     asset:normalizedAsset,
     network,
     amountMinor,
-    destination,
     paymentReference:`zorgaxref_${crypto.randomBytes(16).toString('hex')}`,
     status:'AWAITING_PAYMENT',
     expiresAt,
