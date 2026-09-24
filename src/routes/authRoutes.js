@@ -1,5 +1,6 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 const router = express.Router();
 const authController = require('../controllers/authController');
 const socialAuthController = require('../controllers/socialAuthController');
@@ -10,6 +11,15 @@ const User = require('../models/User');
 const { authenticate } = require('../middleware/auth');
 const { decryptToken, updateProfile, updateBio, getProfileReadme, updateProfileReadme, deleteProfileReadme } = require('../services/githubProfileAutomation');
 const { normalizeProfessionalProfile, validateProfessionalProfile } = require('../services/professionalProfileService');
+const { createMongoConnector } = require('../services/mongoConnection');
+
+const ensureAuthMongo = createMongoConnector({
+  mongoose,
+  mongoUri: process.env.MONGODB_URI || process.env.MONGO_URI,
+  serverSelectionTimeoutMS: 5000,
+  connectTimeoutMS: 5000,
+  socketTimeoutMS: 15000
+});
 
 function legacyOrSocialCallback(provider, legacyHandler) {
   return (req, res, next) => {
@@ -255,6 +265,7 @@ router.put('/profile/professional', authenticate, async (req, res) => {
 });
 router.post('/github/automation/apply', authenticate, async (req, res) => {
   try {
+    await ensureAuthMongo();
     const user = await User.findById(req.userId).select('github +githubAutomation.accessTokenEncrypted githubAutomation.enabled githubAutomation.consentedAt githubAutomation.updatedAt githubAutomation.writeAuthorizedAt githubAutomation.previousName githubAutomation.previousBio githubAutomation.previousReadme githubAutomation.previousReadmeExisted githubAutomation.lastPublishedName githubAutomation.lastPublishedBio githubAutomation.lastPublishedReadme');
     if (!user?.github?.login) return res.status(409).json({ success:false, message:'Collega GitHub prima di applicare modifiche' });
     if (!user.githubAutomation?.enabled) return res.status(409).json({ success:false, message:'Attiva prima l’automazione GitHub' });
@@ -299,6 +310,7 @@ router.post('/github/automation/apply', authenticate, async (req, res) => {
 });
 router.post('/github/automation/rollback-profile', authenticate, async (req,res)=>{
   try{
+    await ensureAuthMongo();
     const user=await User.findById(req.userId).select('github +githubAutomation.accessTokenEncrypted githubAutomation.enabled githubAutomation.consentedAt githubAutomation.updatedAt githubAutomation.writeAuthorizedAt githubAutomation.previousName githubAutomation.previousBio githubAutomation.previousReadme githubAutomation.previousReadmeExisted githubAutomation.lastPublishedName githubAutomation.lastPublishedBio githubAutomation.lastPublishedReadme');
     if(!user?.githubAutomation?.accessTokenEncrypted)return res.status(403).json({success:false,message:'Autorizzazione GitHub non disponibile'});
     const token=decryptToken(user.githubAutomation.accessTokenEncrypted);const restored=[];
@@ -321,7 +333,7 @@ router.post('/github/automation/rollback-profile', authenticate, async (req,res)
     return res.json({success:true,data:{restored}});
   }catch(error){console.error('GitHub profile rollback error:',error.message);return res.status(502).json({success:false,message:'GitHub non ha ripristinato il profilo'});}
 });
-router.post('/github/automation/rollback-bio', authenticate, async (req,res)=>{ try { const user=await User.findById(req.userId).select('github +githubAutomation.accessTokenEncrypted githubAutomation.enabled githubAutomation.consentedAt githubAutomation.updatedAt githubAutomation.writeAuthorizedAt githubAutomation.previousName githubAutomation.previousBio githubAutomation.previousReadme githubAutomation.previousReadmeExisted githubAutomation.lastPublishedName githubAutomation.lastPublishedBio githubAutomation.lastPublishedReadme'); if(!user?.githubAutomation?.accessTokenEncrypted)return res.status(403).json({success:false,message:'Autorizzazione GitHub non disponibile'}); if(typeof user.githubAutomation.previousBio!=='string')return res.status(409).json({success:false,message:'Nessuna bio precedente da ripristinare'}); const token=decryptToken(user.githubAutomation.accessTokenEncrypted); const restore=user.githubAutomation.previousBio; await updateBio(token,restore); const current=user.githubAutomation.lastPublishedBio||''; user.githubAutomation.lastPublishedBio=restore; user.githubAutomation.previousBio=current; if(user.github?.publicSnapshot)user.github.publicSnapshot.bio=restore; user.githubAutomation.updatedAt=new Date(); await user.save(); return res.json({success:true,data:{bio:restore}}); } catch(error){ console.error('GitHub bio rollback error:',error.message); return res.status(502).json({success:false,message:'GitHub non ha ripristinato la bio'}); }});
+router.post('/github/automation/rollback-bio', authenticate, async (req,res)=>{ try { await ensureAuthMongo(); const user=await User.findById(req.userId).select('github +githubAutomation.accessTokenEncrypted githubAutomation.enabled githubAutomation.consentedAt githubAutomation.updatedAt githubAutomation.writeAuthorizedAt githubAutomation.previousName githubAutomation.previousBio githubAutomation.previousReadme githubAutomation.previousReadmeExisted githubAutomation.lastPublishedName githubAutomation.lastPublishedBio githubAutomation.lastPublishedReadme'); if(!user?.githubAutomation?.accessTokenEncrypted)return res.status(403).json({success:false,message:'Autorizzazione GitHub non disponibile'}); if(typeof user.githubAutomation.previousBio!=='string')return res.status(409).json({success:false,message:'Nessuna bio precedente da ripristinare'}); const token=decryptToken(user.githubAutomation.accessTokenEncrypted); const restore=user.githubAutomation.previousBio; await updateBio(token,restore); const current=user.githubAutomation.lastPublishedBio||''; user.githubAutomation.lastPublishedBio=restore; user.githubAutomation.previousBio=current; if(user.github?.publicSnapshot)user.github.publicSnapshot.bio=restore; user.githubAutomation.updatedAt=new Date(); await user.save(); return res.json({success:true,data:{bio:restore}}); } catch(error){ console.error('GitHub bio rollback error:',error.message); return res.status(502).json({success:false,message:'GitHub non ha ripristinato la bio'}); }});
 router.get('/cultural-contributor/attestation', authenticate, culturalContributorController.getAttestation);
 router.post('/cultural-contributor/attestation', authenticate, culturalContributorController.attest);
 
