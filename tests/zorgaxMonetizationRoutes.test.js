@@ -54,8 +54,13 @@ describe('Zorgax monetization routes', () => {
       'pro',
       'developer'
     ]);
-    expect(response.body.plans.find(plan => plan.id === 'pro').priceEur).toBe(9.9);
-    expect(response.body.plans.find(plan => plan.id === 'developer').priceEur).toBe(29.9);
+    const pro = response.body.plans.find(plan => plan.id === 'pro');
+    const developer = response.body.plans.find(plan => plan.id === 'developer');
+    expect(pro.priceEur).toBe(9.9);
+    expect(developer.priceEur).toBe(29.9);
+    expect(pro.paymentMethods).toEqual(['card', 'BTC', 'MYZ']);
+    expect(pro.plannedPaymentMethods).toEqual(['XMR', 'ETH']);
+    expect(developer.plannedPaymentMethods).toEqual(['XMR', 'ETH']);
   });
 
   test('lists active products', async () => {
