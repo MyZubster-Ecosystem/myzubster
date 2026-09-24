@@ -1,4 +1,5 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const crypto = require('crypto');
 const { authenticate, optionalAuthenticate } = require('../middleware/auth');
 const { createZorgaxAccessMiddleware, publicAccess } = require('../middleware/zorgaxAccess');
@@ -99,6 +100,10 @@ function acquisitionContext(req) {
 
 async function authenticatedAssistantContext(req) {
   if (!req.userId) return '';
+  if (mongoose.connection.readyState !== 1) {
+    console.warn('[zorgax-auth-context] database unavailable, skipping identity enrichment');
+    return '';
+  }
   try {
     const user = await User.findById(req.userId)
       .select('username role github.id github.login github.profileUrl github.verifiedAt github.publicSnapshot communityProfile.displayLocation communityProfile.bio')
