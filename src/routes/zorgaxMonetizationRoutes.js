@@ -44,6 +44,7 @@ const ZorgaxSubscription = require('../models/ZorgaxSubscription');
 const {
   createZorgaxUnitEconomicsService
 } = require('../services/zorgaxUnitEconomicsService');
+const { PLANS } = require('../services/zorgaxPlanCatalog');
 
 function errorStatus(error) {
   const message = String(error?.message || '');
@@ -122,6 +123,25 @@ function createZorgaxMonetizationRouter({
   })
 } = {}) {
   const router = express.Router();
+
+  router.get('/plans', (_req, res) => {
+    const plans = Object.values(PLANS).map(plan => ({
+      id: plan.id,
+      name: plan.name,
+      priceEur: plan.priceEur,
+      currency: 'EUR',
+      billing: plan.billing,
+      features: plan.features,
+      paymentMethods: plan.id === 'free' ? [] : ['card', 'BTC', 'MYZ']
+    }));
+
+    return res.json({
+      success: true,
+      product: 'zorgax',
+      billingPeriodDays: 30,
+      plans
+    });
+  });
 
   router.get(
     '/products',
