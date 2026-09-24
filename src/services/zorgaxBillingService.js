@@ -1,6 +1,6 @@
 'use strict';
 
-const PaymentIntent = require('../models/PaymentIntent');
+const PaymentIntent = require('../models/ZorgaxPaymentIntent');
 const { ZorgaxPurchase } = require('../models/ZorgaxPurchase');
 const { listEntitlements } = require('./zorgaxEntitlementService');
 
