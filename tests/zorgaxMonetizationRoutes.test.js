@@ -63,6 +63,35 @@ describe('Zorgax monetization routes', () => {
     expect(developer.plannedPaymentMethods).toEqual(['XMR', 'ETH']);
   });
 
+  test('publishes ETH as active only when the MetaMask backend rail is configured', async () => {
+    const previousWallet = process.env.ZORGAX_WALLET_ETH;
+    const previousRpc = process.env.ZORGAX_ETH_RPC_URL;
+    process.env.ZORGAX_WALLET_ETH = '0x1111111111111111111111111111111111111111';
+    process.env.ZORGAX_ETH_RPC_URL = 'https://rpc.invalid.example';
+
+    try {
+      const app = createApp({
+        pricingService: { listProducts: jest.fn() },
+        creditService: { getBalance: jest.fn(), listLedger: jest.fn() },
+        monetizationService: {}
+      });
+
+      const response = await request(app)
+        .get('/api/zorgax/monetization/plans')
+        .expect(200);
+
+      const pro = response.body.plans.find(plan => plan.id === 'pro');
+      expect(pro.paymentMethods).toContain('ETH');
+      expect(pro.plannedPaymentMethods).not.toContain('ETH');
+      expect(pro.plannedPaymentMethods).toContain('XMR');
+    } finally {
+      if (previousWallet === undefined) delete process.env.ZORGAX_WALLET_ETH;
+      else process.env.ZORGAX_WALLET_ETH = previousWallet;
+      if (previousRpc === undefined) delete process.env.ZORGAX_ETH_RPC_URL;
+      else process.env.ZORGAX_ETH_RPC_URL = previousRpc;
+    }
+  });
+
   test('lists active products', async () => {
     const pricingService = {
       listProducts: jest.fn().mockResolvedValue([
