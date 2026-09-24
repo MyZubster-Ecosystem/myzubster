@@ -111,7 +111,9 @@ async function refreshPaymentIntent(args) {
     if (legacy.consumedAt || legacy.settlement?.status === 'VERIFIED') {
       return { intentId:legacy.intentId, settlementStatus:'VERIFIED', pending:false, verified:true, plan:legacy.plan };
     }
-    if (legacy.expiresAt && legacy.expiresAt <= new Date()) {
+    const submittedAt = legacy.settlement?.submittedAt ? new Date(legacy.settlement.submittedAt) : null;
+    const wasSubmittedInTime = Boolean(legacy.settlement?.paymentReference && submittedAt && submittedAt <= legacy.expiresAt);
+    if (legacy.expiresAt && legacy.expiresAt <= new Date() && !wasSubmittedInTime) {
       legacy.settlement.status = 'EXPIRED';
       await legacy.save();
       throw new Error('Payment intent scaduto');
