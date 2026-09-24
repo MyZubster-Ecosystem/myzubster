@@ -4,7 +4,10 @@ const { PLANS } = require('./zorgaxPlanCatalog');
 const { SUPPORTED_ASSETS } = require('./zorgaxAssetCatalog');
 module.exports.SUPPORTED_ASSETS = SUPPORTED_ASSETS;
 const unified = require('./zorgaxUnifiedCheckoutService');
+const crypto = require('crypto');
 const ZorgaxPaymentIntent = require('../models/ZorgaxPaymentIntent');
+const ZorgaxSubscription = require('../models/ZorgaxSubscription');
+const { quotePlan } = require('./zorgaxQuoteService');
 const INTENT_TTL_MS = unified.INTENT_TTL_MS;
 const DEFAULT_BTC_WALLET = unified.btcWallet();
 
@@ -22,6 +25,53 @@ function isSettlementRailOperational(asset) {
   if (normalized === 'BTC') return Boolean(unified.btcWallet());
   if (normalized === 'ETH') return Boolean(unified.ethWallet() && process.env.ZORGAX_ETH_RPC_URL);
   return false;
+}
+
+async function createCheckoutIntent({ ownerId, planId, asset = 'BTC', renew = false }) {
+  const normalizedOwnerId = String(ownerId || '').trim();
+  if (!normalizedOwnerId) throw new Error('Owner checkout non valido');
+  const plan = PLANS[String(planId || '').toLowerCase()];
+  if (!plan || plan.id === 'free') throw new Error('Piano Zorgax non valido');
+
+  const normalizedAsset = String(asset || 'BTC').toUpperCase();
+  if (!SUPPORTED_ASSETS.includes(normalizedAsset)) throw new Error('Asset crypto Zorgax non supportato');
+  const destination = normalizedAsset === 'ETH' ? unified.ethWallet() : unified.btcWallet();
+  if (!destination) throw new Error(`Wallet ${normalizedAsset} non configurato`);
+
+  const quote = await quotePlan({ asset:normalizedAsset, priceEur:plan.priceEur });
+  let renewalOf = null;
+  if (renew) {
+    const active = await ZorgaxSubscription.findOne({
+      ownerId: normalizedOwnerId,
+      plan: plan.id,
+      'access.status':'ACTIVE'
+    }).sort({ createdAt:-1 });
+    renewalOf = active?._id ? String(active._id) : null;
+  }
+
+  const intentId = `zorgax_${Date.now()}_${crypto.randomBytes(8).toString('hex')}`;
+  const expiresAt = new Date(Date.now() + INTENT_TTL_MS);
+  const document = {
+    intentId,
+    ownerId: String(ownerId),
+    plan: plan.id,
+    asset: normalizedAsset,
+    destination,
+    renewalOf,
+    quote: {
+      denomination:'EUR',
+      amount:plan.priceEur,
+      cryptoAmount: String(quote.cryptoAmount),
+      eurPerCoin:quote.eurPerCoin,
+      observedAt:quote.observedAt,
+      source:quote.source,
+      status:'QUOTED'
+    },
+    settlement:{ status:'PENDING' },
+    expiresAt
+  };
+  const created = await ZorgaxPaymentIntent.create(document);
+  return publicLegacyIntent(created);
 }
 
 function publicLegacyIntent(intent) {
@@ -64,15 +114,14 @@ async function getPaymentIntent({ ownerId, intentId }) {
     }
     return publicLegacyIntent(legacy);
   }
-  return unified.getPaymentIntent({ ownerId, intentId });
+  throw new Error('Payment intent non trovato');
 }
 
 async function listPaymentIntents({ ownerId, limit = 20 }) {
   const safeLimit = Math.max(1, Math.min(Number(limit) || 20, 50));
   const query = ZorgaxPaymentIntent.find({ ownerId:String(ownerId) }).sort({ createdAt:-1 }).limit(safeLimit);
   const legacy = typeof query?.lean === 'function' ? await query.lean() : await query;
-  if (Array.isArray(legacy) && legacy.length) return legacy.map(publicLegacyIntent);
-  return unified.listPaymentIntents({ ownerId, limit:safeLimit });
+  return Array.isArray(legacy) ? legacy.map(publicLegacyIntent) : [];
 }
 
 module.exports = {
@@ -83,7 +132,7 @@ module.exports = {
   publicWallets,
   isSettlementRailOperational,
   catalog: unified.catalog,
-  createCheckoutIntent: unified.createCheckoutIntent,
+  createCheckoutIntent,
   getPaymentIntent,
   listPaymentIntents,
   publicIntent: unified.publicIntent,
