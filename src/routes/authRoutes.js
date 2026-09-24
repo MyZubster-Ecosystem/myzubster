@@ -8,6 +8,7 @@ const emailProfileController = require('../controllers/emailProfileController');
 const culturalContributorController = require('../controllers/culturalContributorController');
 const zorgaxCulturalController = require('../controllers/zorgaxCulturalController');
 const User = require('../models/User');
+const MetaverseCharacter = require('../../backend/src/models/MetaverseCharacter');
 const { authenticate } = require('../middleware/auth');
 const { decryptToken, updateProfile, updateBio, getProfileReadme, updateProfileReadme, deleteProfileReadme } = require('../services/githubProfileAutomation');
 const { normalizeProfessionalProfile, validateProfessionalProfile } = require('../services/professionalProfileService');
@@ -305,7 +306,21 @@ router.post('/github/automation/apply', authenticate, async (req, res) => {
       applied.push('readme');
     }
     user.githubAutomation.updatedAt=new Date(); await user.save();
-    return res.json({ success:true, data:{ applied, profileUrl:user.github.profileUrl||('https://github.com/'+user.github.login) } });
+    let metaverseLinked=false;
+    try {
+      const character=await MetaverseCharacter.findOne({accountUserId:user._id});
+      if(character){
+        if(name) character.displayName=name.slice(0,30);
+        if(user.github?.login) character.github={id:String(user.github.id||''),login:user.github.login,profileUrl:user.github.profileUrl||('https://github.com/'+user.github.login),verifiedAt:user.github.verifiedAt||new Date()};
+        character.identityStatus='account-linked';
+        character.lastSeenAt=new Date();
+        await character.save();
+        metaverseLinked=true;
+      }
+    } catch(characterError) {
+      console.warn('Metaverse profile bridge warning:', characterError.message);
+    }
+    return res.json({ success:true, data:{ applied, metaverseLinked, comicProfileReady:true, profileUrl:user.github.profileUrl||('https://github.com/'+user.github.login) } });
   } catch(error) { console.error('GitHub profile automation apply error:',error.message); return res.status(502).json({ success:false, message:'GitHub non ha applicato le modifiche autorizzate' }); }
 });
 router.post('/github/automation/rollback-profile', authenticate, async (req,res)=>{
