@@ -23,9 +23,9 @@ describe('Zorgax Stripe card checkout wiring', () => {
   });
 
   test('keeps Zorgax and Seller Stripe subscriptions separated', () => {
-    expect(seller).toContain("object.metadata?.product==='zorgax'");
+    expect(seller).toContain("object.metadata?.product === 'zorgax'");
     expect(seller).toContain('activateZorgaxInvoice(object)');
-    expect(subscription).toContain("'STRIPE'");
+    expect(subscription).toContain("require('./ZorgaxPurchase').ZorgaxPurchase");
   });
 
   test('shows Seller membership separately from the Zorgax plan', () => {
