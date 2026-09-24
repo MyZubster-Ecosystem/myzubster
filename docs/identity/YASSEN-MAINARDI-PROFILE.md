@@ -2,12 +2,12 @@
 
 ![Yassen Mainardi — MyZubster Profile](../../assets/profiles/yassen-mainardi/Yassen-Mainardi-MyZubster-Profile.png)
 
-**Status:** `DRAFT / PUBLIC-SAFE`  
+**Status:** `PUBLIC-SAFE / ACCOUNT-LINKED`  
 **MyZubster role:** LIFE pilot candidate / future tester  
-**GitHub linkage:** `PENDING_VERIFICATION`  
+**GitHub linkage:** `VERIFIED / yassenmainardi`  
 **LIFE plan linkage:** `CONNECTED / VOLUNTARY PILOT`  
 **LIFE objective:** `EMPLOYMENT INCLUSION THROUGH MYZUBSTER`  
-**Metaverse activation:** `PENDING_VERIFIED_LINKAGE`
+**Metaverse activation:** `ACTIVE / NEON-PLAZA / ACCOUNT-LINKED`
 
 ## Public profile
 
@@ -18,6 +18,8 @@ Yassen Mainardi has a public GitHub repository dedicated to his MyZubster-relate
 - Existing MyZubster relationship record: [`yassen-mainardi-friendship-declaration.md`](./yassen-mainardi-friendship-declaration.md)
 
 The source repository describes Yassen as preparing a persistent digital profile and a possible future testing role connected to the MyZubster/LIFE direction.
+
+Production verification on 2026-09-24 confirms that the MyZubster metaverse world API exposes Yassen as an `account-linked` character in `neon-plaza`, with GitHub login `yassenmainardi` and public profile URL `https://github.com/yassenmainardi`.
 
 ## LIFE inclusion pilot linkage
 
@@ -137,13 +139,13 @@ OPTIONAL METAVERSE ACTIVATION
 | Public GitHub repository exists | `VERIFIED_PUBLIC` |
 | Repository owner login | `yassenmainardi` |
 | MyZubster relationship record exists | `VERIFIED_PUBLIC` |
-| GitHub collaborator/write access for MyZubster | `NOT_VERIFIED` |
-| MyZubster account ↔ GitHub account binding | `PENDING` |
+| GitHub collaborator/write access for MyZubster | `SEPARATE FROM IDENTITY LINKAGE / NOT ASSERTED HERE` |
+| MyZubster account ↔ GitHub account binding | `VERIFIED / account-linked` |
 | LIFE inclusion pilot linkage | `CONNECTED / VOLUNTARY PILOT` |
 | LIFE employment objective | `DEFINED` |
 | Formal LIFE participation/consent | `PENDING` |
 | MyZubster automated job-matching/application functions | `IMPLEMENTATION / VERIFICATION REQUIRED` |
-| Metaverse character activation | `PENDING` |
+| Metaverse character activation | `ACTIVE / neon-plaza / explorer` |
 
 ## Privacy and evidence boundary
 
