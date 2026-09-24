@@ -958,3 +958,10 @@ See [`docs/PUBLIC-COMMUNITY-ACTIVITY.md`](docs/PUBLIC-COMMUNITY-ACTIVITY.md) and
 Passive visitors must not be deanonymized or correlated with GitHub identities without an explicit legitimate privacy-respecting basis.
 
 **Transparency note:** Proposed features are not released features; discussions are not partnerships; merges are not payments; and external settlement is not `PAID` until independently verified.
+
+## GitHub community network
+
+MyZubster maintains a transparent map of project-linked and autonomous contributor profiles. Operator-controlled accounts are separated from independent contributors so community size is not overstated.
+
+[Explore the GitHub community network →](docs/GITHUB-COMMUNITY-NETWORK.md)
+
