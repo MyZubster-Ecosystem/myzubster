@@ -3,6 +3,7 @@ const crypto = require('crypto');
 const { authenticate, optionalAuthenticate } = require('../middleware/auth');
 const { createZorgaxAccessMiddleware, publicAccess } = require('../middleware/zorgaxAccess');
 const ZorgaxDataEntry = require('../models/ZorgaxDataEntry');
+const User = require('../models/User');
 const { answer, searchWeb, previewData, digestPreview } = require('../services/zorgaxAssistantService');
 const { catalog, createCheckoutIntent, getPaymentIntent, listPaymentIntents } = require('../services/zorgaxLegacyMonetizationService');
 const { getAccess } = require('../services/zorgaxAccessService');
@@ -92,6 +93,50 @@ function acquisitionContext(req) {
     return context;
   } catch (_error) {
     return {};
+  }
+}
+
+
+async function authenticatedAssistantContext(req) {
+  if (!req.userId) return '';
+  try {
+    const user = await User.findById(req.userId)
+      .select('username role github.id github.login github.profileUrl github.verifiedAt github.publicSnapshot communityProfile.displayLocation communityProfile.bio')
+      .lean();
+    if (!user) return '';
+    const github = user.github || {};
+    const verifiedGithub = Boolean(github.id && github.login);
+    const snapshot = github.publicSnapshot || {};
+    const repos = Array.isArray(snapshot.repositories) ? snapshot.repositories.slice(0, 6) : [];
+    const context = {
+      myzubsterUsername: user.username || '',
+      role: user.role || 'user',
+      githubVerified: verifiedGithub,
+      githubLogin: verifiedGithub ? github.login : '',
+      githubProfileUrl: verifiedGithub ? (github.profileUrl || `https://github.com/${github.login}`) : '',
+      githubPublic: verifiedGithub ? {
+        name: snapshot.name || '',
+        bio: snapshot.bio || '',
+        company: snapshot.company || '',
+        location: snapshot.location || '',
+        blog: snapshot.blog || '',
+        publicRepos: Number(snapshot.publicRepos || 0),
+        repositories: repos.map(repo => ({
+          name: repo.name || '',
+          description: repo.description || '',
+          language: repo.language || '',
+          url: repo.url || ''
+        }))
+      } : null,
+      communityProfile: {
+        displayLocation: user.communityProfile?.displayLocation || '',
+        bio: user.communityProfile?.bio || ''
+      }
+    };
+    return `AUTHENTICATED MYZUBSTER CONTEXT — trusted first-party session data. Use it only to avoid asking the signed-in user to repeat already-linked identity information. Do not expose internal field names or claim facts beyond the values present. A verified GitHub identity means the account link was verified by MyZubster; it does not independently prove skills, employment, affiliations or repository ownership beyond GitHub's returned identity. Never publish or modify GitHub data without explicit user approval.\n${JSON.stringify(context)}`;
+  } catch (error) {
+    console.warn('[zorgax-auth-context]', error.message);
+    return '';
   }
 }
 
@@ -229,7 +274,8 @@ router.post('/chat', optionalAuthenticate, loadZorgaxAccess, async (req, res) =>
     const safeRequestedLimit = Number.isFinite(requestedLimit) && requestedLimit > 0 ? requestedLimit : 5;
     const limit = policy.maxWebResults > 0 ? Math.min(safeRequestedLimit, policy.maxWebResults) : 1;
     const useWeb = requestedWeb && policy.webResearch;
-    const result = await answer({ message: req.body?.message || req.body?.prompt, useWeb, history: req.body?.history || [], limit });
+    const userContext = await authenticatedAssistantContext(req);
+    const result = await answer({ message: req.body?.message || req.body?.prompt, useWeb, history: req.body?.history || [], limit, userContext });
     const accessNotice = requestedWeb && !policy.webResearch
       ? 'Accedi a MyZubster per abilitare la ricerca web. La risposta corrente usa solo l’assistente base.'
       : policy.researchMode === 'LIMITED' && requestedWeb
