@@ -7,6 +7,9 @@ const MarketplaceOrder = require('../models/MarketplaceOrder');
 const MarketplaceReport = require('../models/MarketplaceReport');
 const MarketplaceReview = require('../models/MarketplaceReview');
 const MarketplaceMessage = require('../models/MarketplaceMessage');
+const MarketplaceWalletChallenge = require('../models/MarketplaceWalletChallenge');
+const User = require('../models/User');
+const { createMarketplaceRequestChallenge, verifyMarketplaceRequestChallenge } = require('../services/marketplaceWalletRequestService');
 const { authenticate } = require('../middleware/auth');
 
 const mutationLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 40, standardHeaders: true, legacyHeaders: false, message: { success: false, message: 'Troppe operazioni Marketplace. Riprova tra poco.' } });
@@ -26,6 +29,63 @@ async function participantOrder(orderId, userId) {
   return order;
 }
 
+function signedRequestStatus(error) {
+  const code = error?.code || '';
+  if (['MARKETPLACE_CHALLENGE_CONSUMED','MARKETPLACE_CHALLENGE_EXPIRED','WALLET_NOT_VERIFIED'].includes(code)) return 409;
+  if (code === 'WALLET_SIGNATURE_REQUIRED') return 400;
+  if (code.startsWith('MARKETPLACE_') || code.startsWith('INVALID_')) return 400;
+  return 400;
+}
+
+router.post('/orders/challenge', authenticate, mutationLimiter, async (req, res) => {
+  try {
+    const listing = await MarketplaceListing.findOne({ _id:req.body?.listingId, status:'active' });
+    if (!listing) return res.status(404).json({ success:false, code:'LISTING_NOT_FOUND', message:'Annuncio non disponibile' });
+    if (String(listing.ownerId) === String(req.userId)) return res.status(400).json({ success:false, code:'SELF_REQUEST_NOT_ALLOWED', message:'Non puoi richiedere il tuo stesso annuncio' });
+
+    const quantity = Math.max(1, Math.min(1000, Number(req.body?.quantity) || 1));
+    if (listing.stock < quantity) return res.status(400).json({ success:false, code:'INSUFFICIENT_STOCK', message:'Quantità superiore alla disponibilità' });
+
+    const user = await User.findById(req.userId).select('evmWallet');
+    if (!user?.evmWallet || user.evmWallet.status !== 'WALLET_VERIFIED' || !user.evmWallet.address) {
+      return res.status(409).json({ success:false, code:'WALLET_NOT_VERIFIED', message:'Verifica prima MetaMask nel Wallet Hub' });
+    }
+
+    const challenge = createMarketplaceRequestChallenge({
+      userId:req.userId,
+      walletAddress:user.evmWallet.address,
+      chainId:user.evmWallet.chainId,
+      listing,
+      quantity
+    });
+
+    const stored = await MarketplaceWalletChallenge.create(challenge.stored);
+    console.info(JSON.stringify({
+      event:'marketplace_wallet_request_challenge_created',
+      userId:String(req.userId),
+      listingId:String(listing._id),
+      challengeId:String(stored._id),
+      walletAddress:user.evmWallet.address,
+      chainId:user.evmWallet.chainId
+    }));
+
+    res.set('Cache-Control','no-store');
+    return res.status(201).json({
+      success:true,
+      data:{
+        challengeId:String(stored._id),
+        payload:challenge.public.payload,
+        message:challenge.public.message,
+        expiresAt:challenge.public.expiresAt,
+        payment:false,
+        gasRequired:false
+      }
+    });
+  } catch (error) {
+    return res.status(signedRequestStatus(error)).json({ success:false, code:error?.code || 'MARKETPLACE_CHALLENGE_FAILED', message:error?.message || 'Impossibile creare il challenge Marketplace' });
+  }
+});
+
 router.post('/orders', authenticate, mutationLimiter, async (req, res) => {
   try {
     const listing = await MarketplaceListing.findOne({ _id: req.body?.listingId, status: 'active' });
@@ -33,11 +93,80 @@ router.post('/orders', authenticate, mutationLimiter, async (req, res) => {
     if (String(listing.ownerId) === String(req.userId)) return res.status(400).json({ success: false, message: 'Non puoi richiedere il tuo stesso annuncio' });
     const quantity = Math.max(1, Math.min(1000, Number(req.body?.quantity) || 1));
     if (listing.stock < quantity) return res.status(400).json({ success: false, message: 'Quantità superiore alla disponibilità' });
+
+    let walletEvidence = { status:'NOT_REQUIRED' };
+    const walletSignature = req.body?.walletSignature;
+    if (walletSignature) {
+      if (!walletSignature.challengeId || !walletSignature.signature) {
+        const error = new Error('Challenge ID e firma MetaMask sono obbligatori');
+        error.code = 'WALLET_SIGNATURE_REQUIRED';
+        throw error;
+      }
+
+      const user = await User.findById(req.userId).select('evmWallet');
+      if (!user?.evmWallet || user.evmWallet.status !== 'WALLET_VERIFIED' || !user.evmWallet.address) {
+        const error = new Error('Il wallet MetaMask non risulta verificato');
+        error.code = 'WALLET_NOT_VERIFIED';
+        throw error;
+      }
+
+      const challenge = await MarketplaceWalletChallenge.findOne({ _id:walletSignature.challengeId, userId:req.userId }).select('+payload +message');
+      const verified = verifyMarketplaceRequestChallenge({
+        challenge,
+        expectedUserId:req.userId,
+        expectedListingId:listing._id,
+        expectedQuantity:quantity,
+        currentWalletAddress:user.evmWallet.address,
+        signature:walletSignature.signature
+      });
+
+      walletEvidence = {
+        status:'VERIFIED',
+        walletAddress:verified.walletAddress,
+        networkFamily:'EVM',
+        chainId:verified.chainId,
+        signature:String(walletSignature.signature),
+        payloadHash:verified.payloadHash,
+        challengeId:challenge._id,
+        requestSchema:challenge.payload?.schema || 'myzubster.marketplace-request.v1',
+        signedAt:verified.signedAt,
+        verifiedAt:new Date()
+      };
+    }
+
     const recentDuplicate = await MarketplaceOrder.findOne({ listingId: listing._id, buyerId: req.userId, status: { $in: ['REQUESTED','ACCEPTED'] } });
     if (recentDuplicate) return res.status(409).json({ success: false, message: 'Hai già una richiesta aperta per questo annuncio' });
-    const order = await MarketplaceOrder.create({ listingId: listing._id, buyerId: req.userId, sellerId: listing.ownerId, quantity, note: String(req.body?.note || '').trim(), snapshot: { title: listing.title, price: listing.price, currency: listing.currency, exchangeMode: listing.exchangeMode } });
-    res.status(201).json({ success: true, order });
-  } catch (error) { res.status(400).json({ success: false, message: error.message || 'Richiesta non creata' }); }
+
+    const order = await MarketplaceOrder.create({
+      listingId: listing._id,
+      buyerId: req.userId,
+      sellerId: listing.ownerId,
+      quantity,
+      note: String(req.body?.note || '').trim(),
+      snapshot: { title: listing.title, price: listing.price, currency: listing.currency, exchangeMode: listing.exchangeMode },
+      walletEvidence
+    });
+
+    if (walletEvidence.status === 'VERIFIED') {
+      await MarketplaceWalletChallenge.updateOne(
+        { _id:walletEvidence.challengeId, consumedAt:null },
+        { $set:{ consumedAt:new Date() } }
+      );
+      console.info(JSON.stringify({
+        event:'marketplace_wallet_request_verified',
+        userId:String(req.userId),
+        listingId:String(listing._id),
+        orderId:String(order._id),
+        challengeId:String(walletEvidence.challengeId),
+        walletAddress:walletEvidence.walletAddress
+      }));
+    }
+
+    res.status(201).json({ success: true, order, requestSigned:walletEvidence.status === 'VERIFIED' });
+  } catch (error) {
+    if (error?.code === 11000) return res.status(409).json({ success:false, code:'MARKETPLACE_CHALLENGE_REPLAY', message:'Questo challenge è già stato usato per una richiesta Marketplace' });
+    res.status(signedRequestStatus(error)).json({ success: false, code:error?.code || 'MARKETPLACE_REQUEST_FAILED', message: error.message || 'Richiesta non creata' });
+  }
 });
 
 router.get('/orders/mine', authenticate, async (req, res) => {
