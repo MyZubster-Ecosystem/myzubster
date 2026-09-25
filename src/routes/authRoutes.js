@@ -1,4 +1,5 @@
 const express = require('express');
+const rateLimit = require('express-rate-limit');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const router = express.Router();
@@ -21,6 +22,14 @@ const ensureAuthMongo = createMongoConnector({
   serverSelectionTimeoutMS: 5000,
   connectTimeoutMS: 5000,
   socketTimeoutMS: 15000
+});
+
+const ethereumLoginLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success:false, code:'ETHEREUM_LOGIN_RATE_LIMIT', message:'Troppi tentativi di accesso Ethereum. Riprova tra poco.' }
 });
 
 function legacyOrSocialCallback(provider, legacyHandler) {
@@ -50,8 +59,8 @@ router.get('/social/providers', socialAuthController.providers);
 router.get('/social/:provider/start', socialAuthController.start);
 router.get('/social/:provider/callback', socialAuthController.callback);
 router.post('/social/exchange-ticket', socialAuthController.exchangeTicket);
-router.post('/ethereum/challenge', ethereumAuthController.challenge);
-router.post('/ethereum/verify', ethereumAuthController.verify);
+router.post('/ethereum/challenge', ethereumLoginLimiter, ethereumAuthController.challenge);
+router.post('/ethereum/verify', ethereumLoginLimiter, ethereumAuthController.verify);
 router.get('/gmail/start', emailProfileController.gmailStart);
 router.get('/gmail/callback', legacyOrSocialCallback('google', emailProfileController.gmailCallback));
 router.post('/gmail/verify-ticket', emailProfileController.verifyDraft);
