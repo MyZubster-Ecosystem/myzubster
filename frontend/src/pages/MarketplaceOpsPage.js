@@ -119,6 +119,97 @@ function MarketplaceOpsPage() {
     }
   }
 
+  async function verifyEthPayment(order, txId = order.payment?.txId) {
+    if (!txId) {
+      setStatus('TX hash Sepolia non disponibile.');
+      return;
+    }
+    try {
+      const payload = await requestJson(`/api/marketplace/orders/${order._id}/payment/verify`, {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json' },
+        body:JSON.stringify({ txId })
+      });
+      const confirmations = Number(payload.evidence?.confirmations || payload.payment?.confirmations || 0);
+      setStatus(`✓ Pagamento ETH verificato su Sepolia · ${confirmations} conferme.`);
+      await load();
+    } catch (error) {
+      const evidence = error.payload?.evidence || {};
+      if (error.code === 'PAYMENT_NOT_VERIFIED' && evidence.reason === 'INSUFFICIENT_CONFIRMATIONS') {
+        setStatus(`Transazione trovata su Sepolia: ${Number(evidence.confirmations || 0)}/${Number(evidence.minConfirmations || 3)} conferme. Riprova tra poco.`);
+      } else if (error.code === 'PAYMENT_NOT_VERIFIED') {
+        setStatus(`Pagamento ETH non valido: ${evidence.reason || 'verifica non completata'}.`);
+      } else {
+        setStatus(error.message);
+      }
+      await load();
+    }
+  }
+
+  async function payWithEth(order) {
+    if (!window.ethereum?.request) {
+      setStatus('MetaMask non è disponibile in questo browser.');
+      return;
+    }
+
+    try {
+      const intentPayload = await requestJson(`/api/marketplace/orders/${order._id}/payment/eth-intent`, {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json' },
+        body:'{}'
+      });
+      const intent = intentPayload.data || {};
+      const confirmed = window.confirm(
+        `Inviare ${intent.expectedAmountEth} test ETH su Ethereum Sepolia a ${shortWallet(intent.expectedRecipient)}? ` +
+        'Questa è una transazione blockchain testnet e richiede conferma esplicita in MetaMask.'
+      );
+      if (!confirmed) {
+        setStatus('Pagamento ETH annullato prima della richiesta MetaMask.');
+        return;
+      }
+
+      const accounts = await window.ethereum.request({ method:'eth_requestAccounts' });
+      const from = String(accounts?.[0] || '');
+      if (!from || from.toLowerCase() !== String(intent.expectedSender || '').toLowerCase()) {
+        throw new Error(`Seleziona in MetaMask il wallet buyer verificato ${shortWallet(intent.expectedSender)}.`);
+      }
+
+      let chainHex = String(await window.ethereum.request({ method:'eth_chainId' })).toLowerCase();
+      if (chainHex !== String(intent.chainHex || '0xaa36a7').toLowerCase()) {
+        try {
+          await window.ethereum.request({
+            method:'wallet_switchEthereumChain',
+            params:[{ chainId:intent.chainHex || '0xaa36a7' }]
+          });
+          chainHex = String(await window.ethereum.request({ method:'eth_chainId' })).toLowerCase();
+        } catch (switchError) {
+          if (Number(switchError?.code) === 4902) {
+            throw new Error('Ethereum Sepolia non è configurata in MetaMask. Aggiungi la rete Sepolia e riprova.');
+          }
+          throw new Error('Passa a Ethereum Sepolia in MetaMask per continuare.');
+        }
+      }
+      if (chainHex !== String(intent.chainHex || '0xaa36a7').toLowerCase()) {
+        throw new Error('Rete MetaMask non corretta: serve Ethereum Sepolia.');
+      }
+
+      setStatus('Conferma ora la transazione Sepolia in MetaMask…');
+      const txId = await window.ethereum.request({
+        method:'eth_sendTransaction',
+        params:[{
+          from,
+          to:intent.expectedRecipient,
+          value:`0x${BigInt(intent.expectedAmountWei).toString(16)}`
+        }]
+      });
+
+      setStatus(`Transazione Sepolia inviata: ${shortHash(txId)}. Verifica delle conferme in corso…`);
+      await verifyEthPayment(order, txId);
+    } catch (error) {
+      setStatus(error.message || 'Pagamento ETH Sepolia non riuscito.');
+    }
+  }
+
   async function leaveReview(order) {
     const score = Number(window.prompt('Punteggio 1-5', '5'));
     if (!Number.isInteger(score) || score < 1 || score > 5) return;
