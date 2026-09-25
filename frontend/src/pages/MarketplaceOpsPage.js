@@ -8,7 +8,13 @@ function headers(extra = {}) {
 async function requestJson(url, options = {}) {
   const response = await fetch(url, { ...options, headers: headers(options.headers || {}) });
   const payload = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(payload.message || payload.error || 'Operazione non riuscita');
+  if (!response.ok) {
+    const error = new Error(payload.message || payload.error || 'Operazione non riuscita');
+    error.status = response.status;
+    error.code = payload.code;
+    error.payload = payload;
+    throw error;
+  }
   return payload;
 }
 
