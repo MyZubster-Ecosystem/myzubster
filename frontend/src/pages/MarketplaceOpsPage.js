@@ -8,7 +8,13 @@ function headers(extra = {}) {
 async function requestJson(url, options = {}) {
   const response = await fetch(url, { ...options, headers: headers(options.headers || {}) });
   const payload = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(payload.message || payload.error || 'Operazione non riuscita');
+  if (!response.ok) {
+    const error = new Error(payload.message || payload.error || 'Operazione non riuscita');
+    error.status = response.status;
+    error.code = payload.code;
+    error.payload = payload;
+    throw error;
+  }
   return payload;
 }
 
@@ -113,6 +119,97 @@ function MarketplaceOpsPage() {
     }
   }
 
+  async function verifyEthPayment(order, txId = order.payment?.txId) {
+    if (!txId) {
+      setStatus('TX hash Sepolia non disponibile.');
+      return;
+    }
+    try {
+      const payload = await requestJson(`/api/marketplace/orders/${order._id}/payment/verify`, {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json' },
+        body:JSON.stringify({ txId })
+      });
+      const confirmations = Number(payload.evidence?.confirmations || payload.payment?.confirmations || 0);
+      setStatus(`✓ Pagamento ETH verificato su Sepolia · ${confirmations} conferme.`);
+      await load();
+    } catch (error) {
+      const evidence = error.payload?.evidence || {};
+      if (error.code === 'PAYMENT_NOT_VERIFIED' && evidence.reason === 'INSUFFICIENT_CONFIRMATIONS') {
+        setStatus(`Transazione trovata su Sepolia: ${Number(evidence.confirmations || 0)}/${Number(evidence.minConfirmations || 3)} conferme. Riprova tra poco.`);
+      } else if (error.code === 'PAYMENT_NOT_VERIFIED') {
+        setStatus(`Pagamento ETH non valido: ${evidence.reason || 'verifica non completata'}.`);
+      } else {
+        setStatus(error.message);
+      }
+      await load();
+    }
+  }
+
+  async function payWithEth(order) {
+    if (!window.ethereum?.request) {
+      setStatus('MetaMask non è disponibile in questo browser.');
+      return;
+    }
+
+    try {
+      const intentPayload = await requestJson(`/api/marketplace/orders/${order._id}/payment/eth-intent`, {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json' },
+        body:'{}'
+      });
+      const intent = intentPayload.data || {};
+      const confirmed = window.confirm(
+        `Inviare ${intent.expectedAmountEth} test ETH su Ethereum Sepolia a ${shortWallet(intent.expectedRecipient)}? ` +
+        'Questa è una transazione blockchain testnet e richiede conferma esplicita in MetaMask.'
+      );
+      if (!confirmed) {
+        setStatus('Pagamento ETH annullato prima della richiesta MetaMask.');
+        return;
+      }
+
+      const accounts = await window.ethereum.request({ method:'eth_requestAccounts' });
+      const from = String(accounts?.[0] || '');
+      if (!from || from.toLowerCase() !== String(intent.expectedSender || '').toLowerCase()) {
+        throw new Error(`Seleziona in MetaMask il wallet buyer verificato ${shortWallet(intent.expectedSender)}.`);
+      }
+
+      let chainHex = String(await window.ethereum.request({ method:'eth_chainId' })).toLowerCase();
+      if (chainHex !== String(intent.chainHex || '0xaa36a7').toLowerCase()) {
+        try {
+          await window.ethereum.request({
+            method:'wallet_switchEthereumChain',
+            params:[{ chainId:intent.chainHex || '0xaa36a7' }]
+          });
+          chainHex = String(await window.ethereum.request({ method:'eth_chainId' })).toLowerCase();
+        } catch (switchError) {
+          if (Number(switchError?.code) === 4902) {
+            throw new Error('Ethereum Sepolia non è configurata in MetaMask. Aggiungi la rete Sepolia e riprova.');
+          }
+          throw new Error('Passa a Ethereum Sepolia in MetaMask per continuare.');
+        }
+      }
+      if (chainHex !== String(intent.chainHex || '0xaa36a7').toLowerCase()) {
+        throw new Error('Rete MetaMask non corretta: serve Ethereum Sepolia.');
+      }
+
+      setStatus('Conferma ora la transazione Sepolia in MetaMask…');
+      const txId = await window.ethereum.request({
+        method:'eth_sendTransaction',
+        params:[{
+          from,
+          to:intent.expectedRecipient,
+          value:`0x${BigInt(intent.expectedAmountWei).toString(16)}`
+        }]
+      });
+
+      setStatus(`Transazione Sepolia inviata: ${shortHash(txId)}. Verifica delle conferme in corso…`);
+      await verifyEthPayment(order, txId);
+    } catch (error) {
+      setStatus(error.message || 'Pagamento ETH Sepolia non riuscito.');
+    }
+  }
+
   async function leaveReview(order) {
     const score = Number(window.prompt('Punteggio 1-5', '5'));
     if (!Number.isInteger(score) || score < 1 || score > 5) return;
@@ -163,6 +260,15 @@ function MarketplaceOpsPage() {
         <p>Stato: {order.status} · Quantità: {order.quantity}</p>
         <p>{order.snapshot?.currency === 'FREE' ? 'Gratis' : order.snapshot?.currency === 'BARTER' ? 'Baratto' : `${Number(order.snapshot?.price || 0) * Number(order.quantity || 1)} ${order.snapshot?.currency || ''}`}</p>
         {order.payment?.status && <p>Pagamento: <strong>{order.payment.status}</strong>{order.payment.transferId ? ` · transfer_id ${order.payment.transferId}` : ''}</p>}
+        {String(order.payment?.asset || '').toUpperCase() === 'ETH' && <section aria-label="Pagamento ETH Sepolia" style={{ margin:'12px 0', padding:12, border:'1px solid #5b5bd6', borderRadius:10, background:'rgba(91,91,214,.08)' }}>
+          <strong>{order.payment?.status === 'PAID' ? '✓ Pagamento ETH verificato' : 'ETH · Ethereum Sepolia testnet'}</strong>
+          {order.payment?.expectedSender && <p style={{ margin:'6px 0' }}>Da: <code>{shortWallet(order.payment.expectedSender)}</code></p>}
+          {order.payment?.expectedRecipient && <p style={{ margin:'6px 0' }}>A: <code>{shortWallet(order.payment.expectedRecipient)}</code></p>}
+          {order.payment?.expectedAtomicAmount && <p style={{ margin:'6px 0' }}>Importo previsto: {Number(order.snapshot?.price || 0) * Number(order.quantity || 1)} ETH · testnet</p>}
+          {order.payment?.txId && <p style={{ margin:'6px 0' }}>TX: <code title={order.payment.txId}>{shortHash(order.payment.txId)}</code> · conferme {Number(order.payment.confirmations || 0)}</p>}
+          <p style={{ margin:'8px 0 0', fontSize:13 }}>Sepolia usa test ETH. Lo stato <strong>PAID</strong> viene assegnato solo dopo verifica server-side di sender, recipient, importo, esito e conferme.</p>
+          {order.payment?.status === 'PAID' && order.payment?.txId && <p style={{ margin:'8px 0 0' }}><a href={`https://sepolia.etherscan.io/tx/${encodeURIComponent(order.payment.txId)}`} target="_blank" rel="noreferrer">Apri transazione verificata su Sepolia Etherscan ↗</a></p>}
+        </section>}
         {order.viewerRole === 'SELLER' && order.walletEvidence?.status === 'VERIFIED' && <section aria-label="Prova wallet della richiesta" style={{ margin:'12px 0', padding:12, border:'1px solid #2f9e66', borderRadius:10, background:'rgba(47,158,102,.08)' }}>
           <div style={{ display:'flex', gap:8, alignItems:'center', flexWrap:'wrap' }}>
             <strong>✓ Richiesta firmata · wallet verificato</strong>
@@ -186,8 +292,12 @@ function MarketplaceOpsPage() {
         </p>}
         <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
           {order.status === 'ACCEPTED' && order.viewerRole === 'BUYER' && String(order.snapshot?.currency || '').toUpperCase() === 'MYZ' && order.payment?.status !== 'PAID' && <button onClick={()=>payWithMyz(order)}>Paga con MYZ</button>}
-          {order.status === 'REQUESTED' && <><button onClick={()=>updateOrder(order,'ACCEPTED')}>Accetta</button><button onClick={()=>updateOrder(order,'REJECTED')}>Rifiuta</button><button onClick={()=>updateOrder(order,'CANCELLED')}>Annulla</button></>}
-          {order.status === 'ACCEPTED' && <><button onClick={()=>updateOrder(order,'COMPLETED')}>Completa</button><button onClick={()=>updateOrder(order,'CANCELLED')}>Annulla</button></>}
+          {order.status === 'ACCEPTED' && order.viewerRole === 'BUYER' && String(order.snapshot?.currency || '').toUpperCase() === 'ETH' && order.payment?.status !== 'PAID' && !(order.payment?.status === 'CONFIRMING' && order.payment?.txId) && <button onClick={()=>payWithEth(order)}>Paga ETH su Sepolia · testnet</button>}
+          {order.status === 'ACCEPTED' && order.viewerRole === 'BUYER' && String(order.snapshot?.currency || '').toUpperCase() === 'ETH' && order.payment?.status === 'CONFIRMING' && order.payment?.txId && <button onClick={()=>verifyEthPayment(order)}>Verifica conferme ETH</button>}
+          {order.status === 'REQUESTED' && order.viewerRole === 'SELLER' && <><button onClick={()=>updateOrder(order,'ACCEPTED')}>Accetta</button><button onClick={()=>updateOrder(order,'REJECTED')}>Rifiuta</button></>}
+          {order.status === 'REQUESTED' && order.viewerRole === 'BUYER' && <button onClick={()=>updateOrder(order,'CANCELLED')}>Annulla</button>}
+          {order.status === 'ACCEPTED' && order.viewerRole === 'SELLER' && <><button onClick={()=>updateOrder(order,'COMPLETED')}>Completa</button><button onClick={()=>updateOrder(order,'CANCELLED')}>Annulla</button></>}
+          {order.status === 'ACCEPTED' && order.viewerRole === 'BUYER' && <button onClick={()=>updateOrder(order,'CANCELLED')}>Annulla</button>}
           {order.status === 'COMPLETED' && <button onClick={()=>leaveReview(order)}>Lascia recensione</button>}
         </div>
       </article>)}

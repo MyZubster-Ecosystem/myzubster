@@ -212,8 +212,13 @@ router.patch('/orders/:id/status', authenticate, mutationLimiter, async (req, re
     if (order.status === 'REQUESTED') allowed = seller ? ['ACCEPTED','REJECTED','CANCELLED'] : ['CANCELLED'];
     if (order.status === 'ACCEPTED') allowed = seller ? ['COMPLETED','CANCELLED'] : ['CANCELLED'];
     if (!allowed.includes(next)) return res.status(400).json({ success: false, message: 'Transizione di stato non valida' });
-    if (next === 'COMPLETED' && String(order.snapshot?.currency || '').toUpperCase() === 'MYZ' && order.payment?.status !== 'PAID') {
-      return res.status(409).json({ success:false, code:'MYZ_PAYMENT_REQUIRED', message:'L’ordine MYZ deve risultare PAID prima di essere completato.' });
+    const orderCurrency = String(order.snapshot?.currency || '').toUpperCase();
+    if (next === 'COMPLETED' && ['MYZ','XMR','BTC','ETH'].includes(orderCurrency) && order.payment?.status !== 'PAID') {
+      return res.status(409).json({
+        success:false,
+        code:'VERIFIED_PAYMENT_REQUIRED',
+        message:`L’ordine ${orderCurrency} deve risultare PAID prima di essere completato.`
+      });
     }
     if (order.status === 'REQUESTED' && next === 'ACCEPTED') {
       const listing = await MarketplaceListing.findOneAndUpdate({ _id: order.listingId, status: 'active', stock: { $gte: order.quantity } }, { $inc: { stock: -order.quantity } }, { new: true });

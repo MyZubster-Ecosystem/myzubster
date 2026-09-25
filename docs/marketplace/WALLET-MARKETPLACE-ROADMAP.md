@@ -1,7 +1,7 @@
 # MyZubster Wallet + Blockchain Marketplace Roadmap
 
 Status: **public technical roadmap**  
-Last updated: 2026-09-16
+Last updated: 2026-09-25
 
 ## Goal
 
@@ -366,6 +366,30 @@ CONFIRMED_ON_CHAIN != PHYSICAL_EVENT_VERIFIED
 4. Design payment intent separately from request signing.
 5. Add sandbox payment flow.
 6. Evaluate optional user-signed on-chain Marketplace actions only where they add real value.
+
+## Current implementation snapshot — 2026-09-25
+
+The development branches now cover the following staged milestones:
+
+```text
+verified EVM wallet
+  -> optional Ethereum login
+  -> signed MARKETPLACE_REQUEST
+  -> Seller-visible wallet evidence
+  -> ACCEPTED ETH order
+  -> server-owned Sepolia payment intent
+  -> explicit MetaMask eth_sendTransaction
+  -> server-side sender/recipient/amount/receipt/confirmation verification
+  -> PAID only after verified Sepolia evidence
+```
+
+The ETH payment rail is deliberately **Sepolia testnet only** at this stage. It is a sandbox validation flow, not a production Ethereum Mainnet payment claim.
+
+The payment intent freezes the expected buyer wallet, Seller wallet, amount, network and confirmation policy before the browser requests a transaction. The client does not decide the authoritative recipient or amount.
+
+Marketplace completion for MYZ/XMR/BTC/ETH now requires verified `PAID` state where those rails apply. Signed request intent alone never satisfies the payment gate.
+
+Remaining work before any production ETH claim includes deployed RPC validation, real browser/mobile wallet E2E tests, wallet recovery/rotation policy, Mainnet-specific risk and UX review, operational monitoring, and an explicit decision about whether production ETH settlement should be enabled at all.
 
 ## MVP acceptance criteria
 

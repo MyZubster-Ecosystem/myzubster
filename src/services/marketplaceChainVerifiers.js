@@ -29,7 +29,7 @@ async function verifyBitcoinTestnetPayment({ txid, expectedAddress, expectedAmou
   return { verified:paidSats >= expectedSats && confirmations >= minConfirmations, network:'bitcoin-testnet', txid:String(txid), expectedAddress, expectedSats, paidSats, confirmations, minConfirmations };
 }
 
-async function verifyEthereumSepoliaPayment({ txHash, expectedAddress, expectedAmountWei, minConfirmations = 1 }) {
+async function verifyEthereumSepoliaPayment({ txHash, expectedAddress, expectedSender, expectedAmountWei, minConfirmations = 1 }) {
   const rpcUrl = assertHttpsUrl(process.env.ETH_SEPOLIA_RPC_URL || '', 'ETH_SEPOLIA_RPC_URL');
   const [tx, receipt, latestHex] = await Promise.all([
     jsonRpc(rpcUrl, 'eth_getTransactionByHash', [String(txHash)]),
@@ -39,12 +39,36 @@ async function verifyEthereumSepoliaPayment({ txHash, expectedAddress, expectedA
   if (!tx || !receipt) return { verified:false, reason:'TX_NOT_FOUND' };
   const successful = receipt.status === '0x1';
   const recipientMatches = String(tx.to || '').toLowerCase() === String(expectedAddress || '').toLowerCase();
+  const senderMatches = expectedSender
+    ? String(tx.from || '').toLowerCase() === String(expectedSender || '').toLowerCase()
+    : true;
   const actualWei = BigInt(tx.value || '0x0');
   const expectedWei = BigInt(String(expectedAmountWei));
   const blockNumber = Number.parseInt(receipt.blockNumber, 16);
   const latestBlock = Number.parseInt(latestHex, 16);
   const confirmations = Number.isFinite(blockNumber) && Number.isFinite(latestBlock) ? Math.max(0, latestBlock - blockNumber + 1) : 0;
-  return { verified:successful && recipientMatches && actualWei >= expectedWei && confirmations >= minConfirmations, network:'sepolia', txHash:String(txHash), expectedAddress:String(expectedAddress), expectedWei:expectedWei.toString(), actualWei:actualWei.toString(), successful, recipientMatches, confirmations, minConfirmations };
+  let reason = null;
+  if (!successful) reason = 'TX_FAILED';
+  else if (!recipientMatches) reason = 'RECIPIENT_MISMATCH';
+  else if (!senderMatches) reason = 'SENDER_MISMATCH';
+  else if (actualWei < expectedWei) reason = 'AMOUNT_TOO_LOW';
+  else if (confirmations < minConfirmations) reason = 'INSUFFICIENT_CONFIRMATIONS';
+  const verified = !reason;
+  return {
+    verified,
+    reason,
+    network:'sepolia',
+    txHash:String(txHash),
+    expectedAddress:String(expectedAddress),
+    expectedSender:expectedSender ? String(expectedSender) : null,
+    expectedWei:expectedWei.toString(),
+    actualWei:actualWei.toString(),
+    successful,
+    recipientMatches,
+    senderMatches,
+    confirmations,
+    minConfirmations
+  };
 }
 
 module.exports = { verifyBitcoinTestnetPayment, verifyEthereumSepoliaPayment };
