@@ -1,0 +1,79 @@
+name: Marketplace ETH Sepolia E2E
+
+on:
+  workflow_dispatch:
+    inputs:
+      order_id:
+        description: 'MyZubster Marketplace order ID used for the E2E run'
+        required: true
+        type: string
+      tx_hash:
+        description: 'Ethereum Sepolia transaction hash'
+        required: true
+        type: string
+      expected_sender:
+        description: 'Verified Buyer EVM address frozen by the payment intent'
+        required: true
+        type: string
+      expected_recipient:
+        description: 'Verified Seller EVM address frozen by the payment intent'
+        required: true
+        type: string
+      expected_amount_wei:
+        description: 'Expected payment amount in wei from the server-owned intent'
+        required: true
+        type: string
+      min_confirmations:
+        description: 'Minimum confirmations required'
+        required: true
+        default: '3'
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  verify-sepolia-payment:
+    name: Verify real Sepolia Marketplace payment
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      NODE_ENV: test
+      ETH_SEPOLIA_RPC_URL: ${{ secrets.ETH_SEPOLIA_RPC_URL }}
+      MYZ_E2E_ORDER_ID: ${{ inputs.order_id }}
+      MYZ_E2E_TX_HASH: ${{ inputs.tx_hash }}
+      MYZ_E2E_EXPECTED_SENDER: ${{ inputs.expected_sender }}
+      MYZ_E2E_EXPECTED_RECIPIENT: ${{ inputs.expected_recipient }}
+      MYZ_E2E_EXPECTED_AMOUNT_WEI: ${{ inputs.expected_amount_wei }}
+      MYZ_E2E_MIN_CONFIRMATIONS: ${{ inputs.min_confirmations }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install exact dependency tree
+        run: npm ci --ignore-scripts
+
+      - name: Require configured Sepolia RPC
+        run: |
+          if [ -z "$ETH_SEPOLIA_RPC_URL" ]; then
+            echo "ETH_SEPOLIA_RPC_URL repository secret is required"
+            exit 1
+          fi
+
+      - name: Verify transaction independently
+        run: node scripts/verify-marketplace-eth-sepolia-e2e.js
+
+      - name: Upload E2E evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: marketplace-eth-sepolia-e2e-${{ github.run_id }}
+          path: marketplace-eth-sepolia-e2e-evidence.json
+          if-no-files-found: warn
+          retention-days: 90
