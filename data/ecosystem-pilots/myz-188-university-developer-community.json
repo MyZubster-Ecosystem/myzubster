@@ -1,0 +1,113 @@
+{
+  "schema": "myzubster.ecosystem-pilot.v1",
+  "pilotId": "MYZ-188",
+  "projectId": "myz-188-university-developer-community",
+  "status": "IMPLEMENTED_RUNTIME_SEED_PENDING",
+  "claim": "A bounded MyZubster technical pilot connects University/Research, Developer and Community actor types to public GitHub work, separate community validation and SHA-256 evidence without inferring external institutional affiliation, partnership, employment, bounty approval or payment.",
+  "actors": [
+    {
+      "role": "university",
+      "actorId": "actor-myz-188-university",
+      "type": "university",
+      "name": "MyZubster University & Research Demo",
+      "slug": "myz-188-university-research",
+      "description": "MyZubster-owned university/research profile used only for the MYZ-188 technical pilot.",
+      "skills": [
+        "research",
+        "reproducibility",
+        "evidence"
+      ],
+      "github": {
+        "login": "DanielIoni-creator",
+        "repository": "DanielIoni-creator/myzubster-university-research",
+        "repositoryId": 1369312676,
+        "repositoryUrl": "https://github.com/DanielIoni-creator/myzubster-university-research"
+      }
+    },
+    {
+      "role": "developer",
+      "actorId": "actor-myz-188-developer",
+      "type": "developer",
+      "name": "MyZubster Developer Support Demo",
+      "slug": "myz-188-developer-support",
+      "description": "MyZubster-owned developer profile used to implement the bounded MYZ-188 technical pilot.",
+      "skills": [
+        "github",
+        "nodejs",
+        "api",
+        "evidence"
+      ],
+      "github": {
+        "login": "DanielIoni-creator",
+        "repository": "DanielIoni-creator/Myzubster-developer-support",
+        "repositoryId": 1369317250,
+        "repositoryUrl": "https://github.com/DanielIoni-creator/Myzubster-developer-support"
+      }
+    },
+    {
+      "role": "community",
+      "actorId": "actor-myz-188-community",
+      "type": "community",
+      "name": "MyZubster Community DAO Demo",
+      "slug": "myz-188-community-dao",
+      "description": "MyZubster-owned community profile used to record a separate technical validation for MYZ-188.",
+      "skills": [
+        "community-review",
+        "validation",
+        "open-collaboration"
+      ],
+      "github": {
+        "login": "DanielIoni-creator",
+        "repository": "DanielIoni-creator/Myzubster-community-dao",
+        "repositoryId": 1369316106,
+        "repositoryUrl": "https://github.com/DanielIoni-creator/Myzubster-community-dao"
+      }
+    }
+  ],
+  "canonicalWorkItem": {
+    "repository": "MyZubster-Ecosystem/myzubster",
+    "number": 1335,
+    "url": "https://github.com/MyZubster-Ecosystem/myzubster/issues/1335"
+  },
+  "implementation": {
+    "repository": "MyZubster-Ecosystem/myzubster",
+    "sha": "31caf1ed8a5107916793433bea70080455f486a4",
+    "commitUrl": "https://github.com/MyZubster-Ecosystem/myzubster/commit/31caf1ed8a5107916793433bea70080455f486a4",
+    "description": "Adds the MYZ-188 production-safe pilot seeder."
+  },
+  "communityValidation": {
+    "path": "data/ecosystem-pilots/myz-188-community-validation.json",
+    "repository": "MyZubster-Ecosystem/myzubster",
+    "sha": "81ccf1d23f929cf6fe8c9b5b55256aa7b0080ba0",
+    "commitUrl": "https://github.com/MyZubster-Ecosystem/myzubster/commit/81ccf1d23f929cf6fe8c9b5b55256aa7b0080ba0",
+    "status": "CONTRACT_PASS_RUNTIME_PENDING"
+  },
+  "evidence": {
+    "algorithm": "sha256",
+    "schema": "myzubster.knowledge.evidence.v1",
+    "generatedBy": "scripts/ecosystem/seed-myz-188-pilot.js",
+    "anchoringRequired": false,
+    "recordPath": "data/ecosystem-pilots/myz-188-evidence.json",
+    "recordSha": "263e970b0666bc25498daafa0c5599c8dc333026",
+    "recordCommitUrl": "https://github.com/MyZubster-Ecosystem/myzubster/commit/263e970b0666bc25498daafa0c5599c8dc333026"
+  },
+  "knowledgeGraph": {
+    "endpoint": "/api/ecosystem/graph?projectId=myz-188-university-developer-community",
+    "expectedPath": [
+      "actor",
+      "contribution",
+      "project",
+      "evidence"
+    ]
+  },
+  "manifestUrl": "https://github.com/MyZubster-Ecosystem/myzubster/blob/feat/myz-188-university-developer-community-e2e/data/ecosystem-pilots/myz-188-university-developer-community.json",
+  "boundaries": {
+    "externalUniversityEndorsement": false,
+    "institutionalPartnership": false,
+    "employment": false,
+    "funding": false,
+    "bountyApprovalInferred": false,
+    "paymentInferred": false,
+    "communityGovernanceApproval": false
+  }
+}

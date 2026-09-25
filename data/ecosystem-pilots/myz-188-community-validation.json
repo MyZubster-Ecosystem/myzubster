@@ -1,0 +1,43 @@
+{
+  "schema": "myzubster.community-validation.v1",
+  "pilotId": "MYZ-188",
+  "projectId": "myz-188-university-developer-community",
+  "validatorActorId": "actor-myz-188-community",
+  "validatorRole": "community",
+  "validatorProfile": "DanielIoni-creator/Myzubster-community-dao",
+  "validationType": "technical-contract-review",
+  "status": "CONTRACT_PASS_RUNTIME_PENDING",
+  "summary": "The MyZubster community demo actor records that the MYZ-188 contract keeps University, Developer and Community roles separate, uses public GitHub evidence, and does not infer payment, employment, partnership or institutional endorsement. Runtime seeding and graph smoke remain a separate deployment gate.",
+  "checks": [
+    {
+      "id": "actor-separation",
+      "status": "PASS",
+      "note": "University, Developer and Community use distinct actor IDs and actor types."
+    },
+    {
+      "id": "public-repositories-only",
+      "status": "PASS",
+      "note": "All three pilot profile repositories are public GitHub repositories."
+    },
+    {
+      "id": "canonical-work-item",
+      "status": "PASS",
+      "note": "GitHub issue #1335 is the bounded canonical work item for the pilot."
+    },
+    {
+      "id": "financial-boundary",
+      "status": "PASS",
+      "note": "Contribution state is explicitly separate from bounty, reward and payment state."
+    },
+    {
+      "id": "institutional-boundary",
+      "status": "PASS",
+      "note": "The university actor is a MyZubster technical profile/template and does not assert external university endorsement."
+    },
+    {
+      "id": "runtime-graph",
+      "status": "PENDING",
+      "note": "Run the seed against an authorized MongoDB environment, then smoke GET /api/ecosystem/graph?projectId=myz-188-university-developer-community."
+    }
+  ]
+}
