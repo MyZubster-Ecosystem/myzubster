@@ -45,6 +45,27 @@ const professionalProfileSchema = new mongoose.Schema({
   version: { type: Number, min: 1, default: 1 }
 }, { _id: false });
 
+const evmWalletChallengeSchema = new mongoose.Schema({
+  address: { type: String, trim: true },
+  chainId: { type: Number, min: 1 },
+  nonceHash: { type: String, select: false },
+  messageHash: { type: String, select: false },
+  issuedAt: { type: Date },
+  expiresAt: { type: Date },
+  action: { type: String, enum: ['LINK_WALLET'] }
+}, { _id: false });
+
+const evmWalletSchema = new mongoose.Schema({
+  walletType: { type: String, enum: ['EVM'], default: 'EVM' },
+  provider: { type: String, enum: ['metamask'], default: 'metamask' },
+  address: { type: String, trim: true },
+  chainId: { type: Number, min: 1 },
+  status: { type: String, enum: ['WALLET_NOT_CONNECTED','WALLET_CHALLENGE_PENDING','WALLET_VERIFIED','WALLET_DISCONNECTED'], default: 'WALLET_NOT_CONNECTED' },
+  verifiedAt: { type: Date },
+  lastVerifiedAt: { type: Date },
+  linkChallenge: { type: evmWalletChallengeSchema, select: false, default: undefined }
+}, { _id: false });
+
 const UserSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true, trim: true, minlength: 3, maxlength: 30 }, email: { type: String, required: true, unique: true, trim: true, lowercase: true }, password: { type: String, required: true, minlength: 6 }, role: { type: String, enum: ['user', 'admin', 'moderator'], default: 'user' }, moneroWallet: { type: String, trim: true },
   communityProfile: { pgpPublicKey: { type: String, trim: true, maxlength: 20000 }, tariWallet: { type: String, trim: true, maxlength: 300 }, myzWallet: { type: String, trim: true, maxlength: 300 }, displayLocation: { type: String, trim: true, maxlength: 160 }, bio: { type: String, trim: true, maxlength: 1000 }, seedExchangeEnabled: { type: Boolean, default: false }, petCommunityEnabled: { type: Boolean, default: false }, updatedAt: { type: Date } },
@@ -53,11 +74,12 @@ const UserSchema = new mongoose.Schema({
   socialIdentities: { google: socialIdentitySchema, github: socialIdentitySchema, facebook: socialIdentitySchema },
   zorgaxProfile: { archetype: { type: String, enum: ['guardian', 'builder', 'explorer', 'caretaker'], default: 'explorer' }, traits: [{ type: String, trim: true, maxlength: 80 }], summary: { type: String, trim: true, maxlength: 800 }, source: { type: String, enum: ['gmail-derived', 'gmail-auto-sync', 'manual'], default: 'manual' }, approvedAt: { type: Date }, updatedAt: { type: Date } },
   professionalProfile: { type: professionalProfileSchema, default: undefined },
+  evmWallet: { type: evmWalletSchema, default: undefined },
   gmailProfileSync: { enabled: { type: Boolean, default: false }, refreshTokenEncrypted: { type: String, select: false }, consentedAt: { type: Date }, lastSyncedAt: { type: Date }, revokedAt: { type: Date }, historyWindowDays: { type: Number, default: 180, min: 30, max: 365 }, sampleSize: { type: Number, default: 30, min: 5, max: 50 }, lastStatus: { type: String, enum: ['never', 'ready', 'success', 'error', 'revoked'], default: 'never' }, lastError: { type: String, trim: true, maxlength: 300 } },
   isVerified: { type: Boolean, default: false }, createdAt: { type: Date, default: Date.now }, lastLogin: { type: Date }
 });
 
-UserSchema.index({ 'github.id': 1 }, { unique: true, sparse: true }); UserSchema.index({ 'socialIdentities.google.id': 1 }, { unique: true, sparse: true }); UserSchema.index({ 'socialIdentities.github.id': 1 }, { unique: true, sparse: true }); UserSchema.index({ 'socialIdentities.facebook.id': 1 }, { unique: true, sparse: true }); UserSchema.index({ 'gmailProfileSync.enabled': 1, 'gmailProfileSync.lastSyncedAt': 1 });
+UserSchema.index({ 'evmWallet.address': 1 }, { unique: true, sparse: true }); UserSchema.index({ 'github.id': 1 }, { unique: true, sparse: true }); UserSchema.index({ 'socialIdentities.google.id': 1 }, { unique: true, sparse: true }); UserSchema.index({ 'socialIdentities.github.id': 1 }, { unique: true, sparse: true }); UserSchema.index({ 'socialIdentities.facebook.id': 1 }, { unique: true, sparse: true }); UserSchema.index({ 'gmailProfileSync.enabled': 1, 'gmailProfileSync.lastSyncedAt': 1 });
 UserSchema.pre('save', async function(next) { if (!this.isModified('password')) return next(); try { const salt = await bcrypt.genSalt(10); this.password = await bcrypt.hash(this.password, salt); next(); } catch (error) { next(error); } });
 UserSchema.post('save', function notifyNewRegistration(user) { if (!user.createdAt || Math.abs(Date.now() - new Date(user.createdAt).getTime()) > 15000) return; void notifyAdminActivity('registration', { userId: user._id, username: user.username, email: user.email }); });
 UserSchema.methods.comparePassword = async function(candidatePassword) { return bcrypt.compare(candidatePassword, this.password); };
