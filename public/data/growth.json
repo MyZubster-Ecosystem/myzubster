@@ -1,0 +1,63 @@
+{
+  "schema_version": "1.0",
+  "name": "MyZubster Growth & Ecosystem",
+  "reviewed_at": "2026-09-24",
+  "methodology": {
+    "principle": "Separate visibility, participation and adoption. Do not convert them into a single popularity score.",
+    "visibility": "Public web/social mentions are visibility signals only.",
+    "participation": "Public GitHub aliases and contributions are participation signals backed by inspectable artifacts.",
+    "adoption": "Independent integrations, deployments and repeated external use require stronger public evidence.",
+    "privacy": "Do not identify passive visitors or correlate anonymous website analytics with GitHub identities."
+  },
+  "current": {
+    "public_contributor_aliases_tracked": 7,
+    "documented_external_github_activity": 5,
+    "external_web_social_mentions": 4,
+    "merged_external_showcase_contributions": 2,
+    "latest_minimum_verified_iwau": 1,
+    "independent_integrations": 0,
+    "independent_deployments": 0,
+    "verified_repeated_adoption": 0
+  },
+  "weekly": [
+    {
+      "label": "2026-08-17 → 2026-08-23",
+      "minimum_verified_iwau": 1,
+      "new_external_contributors_minimum": 1,
+      "external_prs_merged_minimum": 1,
+      "independent_integrations": 0,
+      "independent_deployments": 0,
+      "independent_demos": 0,
+      "external_quickstarts": 0
+    }
+  ],
+  "sources": [
+    {
+      "label": "Weekly Adoption Scorecard",
+      "url": "https://github.com/MyZubster-Ecosystem/myzubster/blob/main/ADOPTION_SCORECARD.md",
+      "supports": "IWAU, new external contributors, merged PRs, integrations, deployments, demos and quickstarts"
+    },
+    {
+      "label": "Public Community & External Web Activity",
+      "url": "https://github.com/MyZubster-Ecosystem/myzubster/blob/main/docs/PUBLIC-COMMUNITY-ACTIVITY.md",
+      "supports": "external GitHub interactions and public web/social mentions"
+    },
+    {
+      "label": "Contributor Registry",
+      "url": "https://github.com/MyZubster-Ecosystem/myzubster/blob/main/docs/CONTRIBUTORS.md",
+      "supports": "public contributor aliases and evidence states"
+    },
+    {
+      "label": "Independent Showcase",
+      "url": "https://github.com/MyZubster-Ecosystem/myzubster/blob/main/SHOWCASE.md",
+      "supports": "merged external contributions, integrations, deployments and repeated adoption"
+    }
+  ],
+  "next_measurements": [
+    "Add one conservative weekly snapshot for external contributor activity.",
+    "Track profile-to-MyZubster and Community entry clicks with privacy-safe aggregate analytics.",
+    "Track first-time Community registrations and returning active community members as aggregate counts.",
+    "Keep stars, forks and page views as attention metrics, not adoption evidence.",
+    "Promote independent integrations, deployments and reproducible demos only when public evidence exists."
+  ]
+}
