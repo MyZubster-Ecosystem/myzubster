@@ -1,6 +1,7 @@
 const express = require('express');
 const MarketplaceListing = require('../models/MarketplaceListing');
 const SellerMembership = require('../models/SellerMembership');
+const User = require('../models/User');
 
 const router = express.Router();
 const SUPPORTED = ['XMR', 'BTC', 'ETH'];
@@ -41,17 +42,29 @@ router.get('/listings/:id/checkout-options', async (req, res) => {
     }
 
     const membership = await SellerMembership.findOne({ userId:listing.ownerId, status:'ACTIVE' }).lean();
+    const seller = await User.findById(listing.ownerId).select('evmWallet').lean();
+    const sellerEthReady = seller?.evmWallet?.status === 'WALLET_VERIFIED' && Boolean(seller?.evmWallet?.address);
     const accepted = normalizeAccepted(membership);
     const preferred = accepted.includes(membership?.preferredSettlementCurrency) ? membership.preferredSettlementCurrency : 'XMR';
-    const methods = accepted.map(asset => ({
-      asset,
-      network:NETWORKS[asset],
-      available:asset === 'XMR',
-      mode:asset === 'XMR' ? 'DIRECT_VERIFIED_SETTLEMENT' : 'CHECKOUT_SELECTION_ONLY',
-      message:asset === 'XMR'
-        ? 'Pagamento XMR disponibile tramite il flusso di settlement verificato.'
-        : `${asset} selezionabile dal checkout; settlement on-chain non ancora attivato.`
-    }));
+    const methods = accepted.map(asset => {
+      const ethAvailable = asset === 'ETH' && sellerEthReady;
+      const xmrAvailable = asset === 'XMR';
+      return {
+        asset,
+        network:NETWORKS[asset],
+        available:xmrAvailable || ethAvailable,
+        mode:xmrAvailable
+          ? 'DIRECT_VERIFIED_SETTLEMENT'
+          : ethAvailable
+            ? 'DIRECT_VERIFIED_TESTNET_SETTLEMENT'
+            : 'CHECKOUT_SELECTION_ONLY',
+        message:xmrAvailable
+          ? 'Pagamento XMR disponibile tramite il flusso di settlement verificato.'
+          : ethAvailable
+            ? 'Pagamento ETH disponibile su Sepolia testnet con verifica server-side di sender, recipient, importo e conferme.'
+            : `${asset} selezionabile dal checkout; settlement verificato non ancora attivato per questo Seller.`
+      };
+    });
 
     res.json({
       success:true,
@@ -93,6 +106,31 @@ router.post('/listings/:id/select-payment-method', async (req, res) => {
     const membership = await SellerMembership.findOne({ userId:listing.ownerId, status:'ACTIVE' }).lean();
     const accepted = normalizeAccepted(membership);
     if (!accepted.includes(requested)) return res.status(409).json({ success:false, code:'PAYMENT_METHOD_NOT_ACCEPTED', message:'Il Seller non accetta questa valuta' });
+
+    if (requested === 'ETH') {
+      const seller = await User.findById(listing.ownerId).select('evmWallet').lean();
+      if (seller?.evmWallet?.status !== 'WALLET_VERIFIED' || !seller?.evmWallet?.address) {
+        return res.status(409).json({
+          success:false,
+          code:'SELLER_ETH_WALLET_NOT_READY',
+          selectedAsset:'ETH',
+          network:NETWORKS.ETH,
+          conversionEnabled:false,
+          message:'Il Seller deve verificare un wallet EVM prima di ricevere pagamenti ETH.'
+        });
+      }
+      return res.json({
+        success:true,
+        selectedAsset:'ETH',
+        network:NETWORKS.ETH,
+        chainId:11155111,
+        mode:'DIRECT_VERIFIED_TESTNET_SETTLEMENT',
+        conversionEnabled:false,
+        testnet:true,
+        nextStep:'REQUEST_ORDER_THEN_CREATE_ETH_PAYMENT_INTENT'
+      });
+    }
+
     if (requested !== 'XMR') {
       return res.status(503).json({
         success:false,
@@ -103,6 +141,7 @@ router.post('/listings/:id/select-payment-method', async (req, res) => {
         message:`${requested} è configurato come scelta Marketplace ma il settlement verificato non è ancora attivo.`
       });
     }
+
     res.json({
       success:true,
       selectedAsset:'XMR',
