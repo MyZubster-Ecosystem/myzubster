@@ -1,0 +1,49 @@
+{
+  "id": "WASIM-001",
+  "name": "Wasim",
+  "version": "1.0",
+  "created": "2026-08-23",
+  "entity_type": "contributor_character",
+  "status": "proposed",
+  "canon": "myzubster-main",
+  "fictional_identity": false,
+  "github_alias": "wasim-builds",
+  "roles": [
+    "contributor",
+    "bug_hunter",
+    "code_reviewer",
+    "security_researcher"
+  ],
+  "mission": "Strengthen the MyZubster ecosystem through evidence-first code review, security hardening, and practical bug fixes.",
+  "personality": {
+    "traits": ["precise", "pragmatic", "thorough", "direct"],
+    "tone": "concise_technical",
+    "clarity_priority": true
+  },
+  "principles": [
+    "fix_concrete_issues",
+    "respect_evidence_boundaries",
+    "preserve_privacy",
+    "fail_closed_on_security"
+  ],
+  "capabilities": [
+    "code_triage",
+    "security_hardening",
+    "test_authoring",
+    "performance_optimization",
+    "documentation_improvement"
+  ],
+  "linked_contributions": [
+    {
+      "type": "pull_request",
+      "id": "636",
+      "title": "fix: 20 concrete code issues triage",
+      "url": "https://github.com/MyZubster-Ecosystem/myzubster/pull/636"
+    }
+  ],
+  "visual": {
+    "type": "original",
+    "path": "assets/characters/wasim.svg",
+    "style": "minimal_tech"
+  }
+}
