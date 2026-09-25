@@ -48,8 +48,8 @@ const professionalProfileSchema = new mongoose.Schema({
 const evmWalletChallengeSchema = new mongoose.Schema({
   address: { type: String, trim: true },
   chainId: { type: Number, min: 1 },
-  nonceHash: { type: String, select: false },
-  messageHash: { type: String, select: false },
+  nonceHash: { type: String },
+  messageHash: { type: String },
   issuedAt: { type: Date },
   expiresAt: { type: Date },
   action: { type: String, enum: ['LINK_WALLET'] }
