@@ -109,7 +109,51 @@ function MarketplacePage(){
   async function createListing(e){e.preventDefault();try{await apiAction('/api/listings/create',{...form,price:['FREE','BARTER'].includes(form.currency)?0:Number(form.price)});setMessage(t.published);setShowCreate(false);await load()}catch(e){setMessage(e.message)}}
   async function proposeCategory(){const name=categoryProposal.name.trim();if(name.length<3){setMessage(t.categoryName);return}try{const payload=await apiAction('/api/listings/categories/propose',{name,description:categoryProposal.description.trim()});const slug=payload?.proposal?.slug||'';if(slug){setCategoryCatalog(current=>[...new Set([...current,slug])]);setForm(current=>({...current,category:slug}))}setCategoryProposal({name:'',description:''});setShowCategoryProposal(false);setMessage(t.categoryPending)}catch(e){setMessage(e.message)}}
   async function submitKnowledge(e){e.preventDefault();const returnTo=`${window.location.pathname}${window.location.search}${window.location.hash}`;if(!localStorage.getItem('myzubster-token')){setMessage(t.login);window.location.assign(`/social-login?returnTo=${encodeURIComponent(returnTo)}`);return}try{await apiAction('/api/knowledge-rewards/submissions',{...knowledgeForm,type:'community_knowledge'});setKnowledgeForm({title:'',category:'knowledge',description:'',reference:''});setMessage(t.knowledgeSaved);await loadKnowledge()}catch(e){setMessage(e.message)}}
-  async function requestListing(l){try{await apiAction('/api/marketplace/orders',{listingId:l.id||l._id,quantity:1,note:''});setMessage('✓')}catch(e){setMessage(e.message)}}
+  async function requestListing(l){
+    const listingId=l.id||l._id;
+    const returnTo=`${window.location.pathname}${window.location.search}${window.location.hash}`;
+    if(!localStorage.getItem('myzubster-token')){
+      setMessage(t.login);
+      window.location.assign(`/social-login?returnTo=${encodeURIComponent(returnTo)}`);
+      return;
+    }
+    try{
+      const walletRes=await fetch('/api/wallet/me',{headers:authHeaders()});
+      const walletPayload=await walletRes.json().catch(()=>({}));
+      const verifiedWallet=walletRes.ok&&walletPayload?.data?.status==='WALLET_VERIFIED'&&walletPayload?.data?.address;
+
+      if(verifiedWallet&&window.ethereum?.request){
+        const accounts=await window.ethereum.request({method:'eth_requestAccounts'});
+        const activeAddress=String(accounts?.[0]||'');
+        if(!activeAddress||activeAddress.toLowerCase()!==String(walletPayload.data.address).toLowerCase()){
+          throw new Error('Seleziona in MetaMask il wallet già verificato su MyZubster prima di firmare la richiesta.');
+        }
+
+        setMessage('Preparo la richiesta Marketplace da firmare…');
+        const challenge=await apiAction('/api/marketplace/orders/challenge',{listingId,quantity:1});
+        setMessage('Firma la richiesta in MetaMask. Non è un pagamento e non trasferisce ETH.');
+        const signature=await window.ethereum.request({
+          method:'personal_sign',
+          params:[challenge.data.message,activeAddress]
+        });
+        const order=await apiAction('/api/marketplace/orders',{
+          listingId,
+          quantity:1,
+          note:'',
+          walletSignature:{challengeId:challenge.data.challengeId,signature}
+        });
+        setMessage(order.requestSigned?'✓ Richiesta firmata con MetaMask. Nessun pagamento eseguito.':'✓ Richiesta creata.');
+        trackConversion('marketplace_request_signed',{listingId:String(listingId),wallet:'EVM'});
+        return;
+      }
+
+      await apiAction('/api/marketplace/orders',{listingId,quantity:1,note:''});
+      setMessage('✓ Richiesta creata. Nessun pagamento eseguito.');
+      trackConversion('marketplace_request_created',{listingId:String(listingId),wallet:'none'});
+    }catch(e){
+      setMessage(e.message);
+    }
+  }
   function openDemo(demo){setSelectedDemo(demo);setDemoFlow('idle');trackConversion('marketplace_demo_opened',{demoId:demo.id,category:demo.category})}
   function closeDemo(){setSelectedDemo(null);setDemoFlow('idle')}
   function startDemoRequest(){setDemoFlow('review');trackConversion('marketplace_demo_request_started',{demoId:selectedDemo?.id})}
