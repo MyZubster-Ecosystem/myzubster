@@ -37,6 +37,24 @@ function signedRequestStatus(error) {
   return 400;
 }
 
+function publicWalletEvidence(walletEvidence) {
+  const evidence = walletEvidence || {};
+  const status = String(evidence.status || 'NOT_REQUIRED');
+  if (status !== 'VERIFIED') {
+    return { status };
+  }
+  return {
+    status:'VERIFIED',
+    walletAddress:evidence.walletAddress || null,
+    networkFamily:evidence.networkFamily || 'EVM',
+    chainId:Number(evidence.chainId || 0) || null,
+    payloadHash:evidence.payloadHash || null,
+    requestSchema:evidence.requestSchema || null,
+    signedAt:evidence.signedAt || null,
+    verifiedAt:evidence.verifiedAt || null
+  };
+}
+
 router.post('/orders/challenge', authenticate, mutationLimiter, async (req, res) => {
   try {
     const listing = await MarketplaceListing.findOne({ _id:req.body?.listingId, status:'active' });
@@ -177,6 +195,7 @@ router.get('/orders/mine', authenticate, async (req, res) => {
       success:true,
       orders:orders.map(order => ({
         ...order,
+        walletEvidence:publicWalletEvidence(order.walletEvidence),
         viewerRole:String(order.buyerId) === viewerId ? 'BUYER' : 'SELLER'
       }))
     });
