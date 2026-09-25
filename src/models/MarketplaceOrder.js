@@ -10,6 +10,18 @@ const marketplaceOrderSchema = new mongoose.Schema({
   note: { type: String, default: '', maxlength: 1000 },
   status: { type: String, enum: ['REQUESTED','ACCEPTED','REJECTED','COMPLETED','CANCELLED'], default: 'REQUESTED', index: true },
   snapshot: { title: { type: String, required: true }, price: { type: Number, default: 0 }, currency: { type: String, required: true }, exchangeMode: { type: String, required: true } },
+  walletEvidence: {
+    status: { type: String, enum: ['NOT_REQUIRED','SIGNED','VERIFIED','FAILED'], default: 'NOT_REQUIRED', index: true },
+    walletAddress: { type: String, trim: true },
+    networkFamily: { type: String, enum: ['EVM'] },
+    chainId: { type: Number, min: 1 },
+    signature: { type: String, select: false },
+    payloadHash: { type: String, index: true },
+    challengeId: { type: mongoose.Schema.Types.ObjectId, ref: 'MarketplaceWalletChallenge' },
+    requestSchema: { type: String },
+    signedAt: Date,
+    verifiedAt: Date
+  },
   payment: {
     status: { type: String, enum: ['NOT_REQUIRED','AWAITING_PAYMENT','CONFIRMING','PAID','FAILED'], default: 'AWAITING_PAYMENT', index: true },
     asset: { type: String, enum: ['XMR','BTC','ETH','MYZ'] },
@@ -35,6 +47,7 @@ const marketplaceOrderSchema = new mongoose.Schema({
 marketplaceOrderSchema.index({ buyerId: 1, createdAt: -1 });
 marketplaceOrderSchema.index({ sellerId: 1, createdAt: -1 });
 marketplaceOrderSchema.index({ 'payment.asset': 1, 'payment.network': 1, 'payment.txId': 1 }, { unique: true, sparse: true });
+marketplaceOrderSchema.index({ 'walletEvidence.challengeId': 1 }, { unique: true, sparse: true });
 marketplaceOrderSchema.post('save', function notifyNewMarketplaceRequest(order) {
   if (!order.createdAt || Math.abs(Date.now() - new Date(order.createdAt).getTime()) > 15000 || order.status !== 'REQUESTED') return;
   void notifyAdminActivity('marketplace_request', { orderId: order._id, listingId: order.listingId, buyerId: order.buyerId, sellerId: order.sellerId, title: order.snapshot?.title, quantity: order.quantity, note: order.note });
