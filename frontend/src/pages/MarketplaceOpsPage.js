@@ -260,6 +260,15 @@ function MarketplaceOpsPage() {
         <p>Stato: {order.status} · Quantità: {order.quantity}</p>
         <p>{order.snapshot?.currency === 'FREE' ? 'Gratis' : order.snapshot?.currency === 'BARTER' ? 'Baratto' : `${Number(order.snapshot?.price || 0) * Number(order.quantity || 1)} ${order.snapshot?.currency || ''}`}</p>
         {order.payment?.status && <p>Pagamento: <strong>{order.payment.status}</strong>{order.payment.transferId ? ` · transfer_id ${order.payment.transferId}` : ''}</p>}
+        {String(order.payment?.asset || '').toUpperCase() === 'ETH' && <section aria-label="Pagamento ETH Sepolia" style={{ margin:'12px 0', padding:12, border:'1px solid #5b5bd6', borderRadius:10, background:'rgba(91,91,214,.08)' }}>
+          <strong>{order.payment?.status === 'PAID' ? '✓ Pagamento ETH verificato' : 'ETH · Ethereum Sepolia testnet'}</strong>
+          {order.payment?.expectedSender && <p style={{ margin:'6px 0' }}>Da: <code>{shortWallet(order.payment.expectedSender)}</code></p>}
+          {order.payment?.expectedRecipient && <p style={{ margin:'6px 0' }}>A: <code>{shortWallet(order.payment.expectedRecipient)}</code></p>}
+          {order.payment?.expectedAtomicAmount && <p style={{ margin:'6px 0' }}>Importo previsto: {Number(order.snapshot?.price || 0) * Number(order.quantity || 1)} ETH · testnet</p>}
+          {order.payment?.txId && <p style={{ margin:'6px 0' }}>TX: <code title={order.payment.txId}>{shortHash(order.payment.txId)}</code> · conferme {Number(order.payment.confirmations || 0)}</p>}
+          <p style={{ margin:'8px 0 0', fontSize:13 }}>Sepolia usa test ETH. Lo stato <strong>PAID</strong> viene assegnato solo dopo verifica server-side di sender, recipient, importo, esito e conferme.</p>
+          {order.payment?.status === 'PAID' && order.payment?.txId && <p style={{ margin:'8px 0 0' }}><a href={`https://sepolia.etherscan.io/tx/${encodeURIComponent(order.payment.txId)}`} target="_blank" rel="noreferrer">Apri transazione verificata su Sepolia Etherscan ↗</a></p>}
+        </section>}
         {order.viewerRole === 'SELLER' && order.walletEvidence?.status === 'VERIFIED' && <section aria-label="Prova wallet della richiesta" style={{ margin:'12px 0', padding:12, border:'1px solid #2f9e66', borderRadius:10, background:'rgba(47,158,102,.08)' }}>
           <div style={{ display:'flex', gap:8, alignItems:'center', flexWrap:'wrap' }}>
             <strong>✓ Richiesta firmata · wallet verificato</strong>
@@ -283,8 +292,12 @@ function MarketplaceOpsPage() {
         </p>}
         <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
           {order.status === 'ACCEPTED' && order.viewerRole === 'BUYER' && String(order.snapshot?.currency || '').toUpperCase() === 'MYZ' && order.payment?.status !== 'PAID' && <button onClick={()=>payWithMyz(order)}>Paga con MYZ</button>}
-          {order.status === 'REQUESTED' && <><button onClick={()=>updateOrder(order,'ACCEPTED')}>Accetta</button><button onClick={()=>updateOrder(order,'REJECTED')}>Rifiuta</button><button onClick={()=>updateOrder(order,'CANCELLED')}>Annulla</button></>}
-          {order.status === 'ACCEPTED' && <><button onClick={()=>updateOrder(order,'COMPLETED')}>Completa</button><button onClick={()=>updateOrder(order,'CANCELLED')}>Annulla</button></>}
+          {order.status === 'ACCEPTED' && order.viewerRole === 'BUYER' && String(order.snapshot?.currency || '').toUpperCase() === 'ETH' && order.payment?.status !== 'PAID' && !(order.payment?.status === 'CONFIRMING' && order.payment?.txId) && <button onClick={()=>payWithEth(order)}>Paga ETH su Sepolia · testnet</button>}
+          {order.status === 'ACCEPTED' && order.viewerRole === 'BUYER' && String(order.snapshot?.currency || '').toUpperCase() === 'ETH' && order.payment?.status === 'CONFIRMING' && order.payment?.txId && <button onClick={()=>verifyEthPayment(order)}>Verifica conferme ETH</button>}
+          {order.status === 'REQUESTED' && order.viewerRole === 'SELLER' && <><button onClick={()=>updateOrder(order,'ACCEPTED')}>Accetta</button><button onClick={()=>updateOrder(order,'REJECTED')}>Rifiuta</button></>}
+          {order.status === 'REQUESTED' && order.viewerRole === 'BUYER' && <button onClick={()=>updateOrder(order,'CANCELLED')}>Annulla</button>}
+          {order.status === 'ACCEPTED' && order.viewerRole === 'SELLER' && <><button onClick={()=>updateOrder(order,'COMPLETED')}>Completa</button><button onClick={()=>updateOrder(order,'CANCELLED')}>Annulla</button></>}
+          {order.status === 'ACCEPTED' && order.viewerRole === 'BUYER' && <button onClick={()=>updateOrder(order,'CANCELLED')}>Annulla</button>}
           {order.status === 'COMPLETED' && <button onClick={()=>leaveReview(order)}>Lascia recensione</button>}
         </div>
       </article>)}
