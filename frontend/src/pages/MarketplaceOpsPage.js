@@ -12,6 +12,26 @@ async function requestJson(url, options = {}) {
   return payload;
 }
 
+function shortWallet(value) {
+  const address = String(value || '');
+  if (!address) return 'wallet non disponibile';
+  if (address.length <= 20) return address;
+  return `${address.slice(0, 8)}…${address.slice(-6)}`;
+}
+
+function shortHash(value) {
+  const hash = String(value || '');
+  if (!hash) return 'hash non disponibile';
+  if (hash.length <= 24) return hash;
+  return `${hash.slice(0, 12)}…${hash.slice(-10)}`;
+}
+
+function formatEvidenceDate(value) {
+  if (!value) return '';
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? '' : date.toLocaleString();
+}
+
 function MarketplaceOpsPage() {
   const [orders, setOrders] = useState([]);
   const [reports, setReports] = useState([]);
@@ -143,6 +163,27 @@ function MarketplaceOpsPage() {
         <p>Stato: {order.status} · Quantità: {order.quantity}</p>
         <p>{order.snapshot?.currency === 'FREE' ? 'Gratis' : order.snapshot?.currency === 'BARTER' ? 'Baratto' : `${Number(order.snapshot?.price || 0) * Number(order.quantity || 1)} ${order.snapshot?.currency || ''}`}</p>
         {order.payment?.status && <p>Pagamento: <strong>{order.payment.status}</strong>{order.payment.transferId ? ` · transfer_id ${order.payment.transferId}` : ''}</p>}
+        {order.viewerRole === 'SELLER' && order.walletEvidence?.status === 'VERIFIED' && <section aria-label="Prova wallet della richiesta" style={{ margin:'12px 0', padding:12, border:'1px solid #2f9e66', borderRadius:10, background:'rgba(47,158,102,.08)' }}>
+          <div style={{ display:'flex', gap:8, alignItems:'center', flexWrap:'wrap' }}>
+            <strong>✓ Richiesta firmata · wallet verificato</strong>
+            <span style={{ fontSize:12, opacity:.8 }}>EVM · chain ID {order.walletEvidence.chainId || '—'}</span>
+          </div>
+          <p style={{ margin:'8px 0 4px' }}>
+            Wallet buyer: <code title={order.walletEvidence.walletAddress || ''}>{shortWallet(order.walletEvidence.walletAddress)}</code>
+          </p>
+          <p style={{ margin:'4px 0', fontSize:13, opacity:.85 }}>
+            Payload hash: <code title={order.walletEvidence.payloadHash || ''}>{shortHash(order.walletEvidence.payloadHash)}</code>
+          </p>
+          {formatEvidenceDate(order.walletEvidence.verifiedAt) && <p style={{ margin:'4px 0', fontSize:13, opacity:.85 }}>
+            Verificata: {formatEvidenceDate(order.walletEvidence.verifiedAt)}
+          </p>}
+          <p style={{ margin:'8px 0 0', fontSize:13 }}>
+            Questa firma prova l'intento della richiesta e il controllo del wallet. <strong>Non è un pagamento</strong>, non trasferisce ETH e non significa che l'ordine sia già accettato o saldato.
+          </p>
+        </section>}
+        {order.viewerRole === 'BUYER' && order.walletEvidence?.status === 'VERIFIED' && <p style={{ padding:10, border:'1px solid rgba(47,158,102,.6)', borderRadius:10 }}>
+          ✓ Hai firmato questa richiesta con il wallet verificato {shortWallet(order.walletEvidence.walletAddress)}. La firma non è un pagamento.
+        </p>}
         <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
           {order.status === 'ACCEPTED' && order.viewerRole === 'BUYER' && String(order.snapshot?.currency || '').toUpperCase() === 'MYZ' && order.payment?.status !== 'PAID' && <button onClick={()=>payWithMyz(order)}>Paga con MYZ</button>}
           {order.status === 'REQUESTED' && <><button onClick={()=>updateOrder(order,'ACCEPTED')}>Accetta</button><button onClick={()=>updateOrder(order,'REJECTED')}>Rifiuta</button><button onClick={()=>updateOrder(order,'CANCELLED')}>Annulla</button></>}
