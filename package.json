@@ -17,7 +17,8 @@
     "nft:compile": "hardhat compile",
     "nft:test:local": "hardhat run scripts/nft/test-comic-nft.js",
     "nft:deploy:base-sepolia": "hardhat run scripts/nft/deploy-comic-nft.js --network baseSepolia",
-    "nft:mint:comic-001": "hardhat run scripts/nft/mint-comic-001.js --network baseSepolia"
+    "nft:mint:comic-001": "hardhat run scripts/nft/mint-comic-001.js --network baseSepolia",
+    "test:node-contracts": "node --test tests/kefirHandDelivery.node.test.js src/services/marketplaceOrderPaymentPolicy.test.js"
   },
   "dependencies": {
     "@vercel/functions": "^3.9.5",
@@ -76,5 +77,13 @@
   },
   "overrides": {
     "qs": "6.16.0"
+  },
+  "jest": {
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/frontend/",
+      "\\.node\\.test\\.js$",
+      "/src/services/marketplaceOrderPaymentPolicy\\.test\\.js$"
+    ]
   }
 }
