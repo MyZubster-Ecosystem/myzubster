@@ -77,13 +77,5 @@
   },
   "overrides": {
     "qs": "6.16.0"
-  },
-  "jest": {
-    "testPathIgnorePatterns": [
-      "/node_modules/",
-      "/frontend/",
-      "\\.node\\.test\\.js$",
-      "/src/services/marketplaceOrderPaymentPolicy\\.test\\.js$"
-    ]
   }
 }
