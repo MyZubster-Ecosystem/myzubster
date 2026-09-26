@@ -49,6 +49,9 @@ jobs:
       - name: Unit test backend
         run: npm test -- --testPathIgnorePatterns=/frontend/
 
+      - name: Node contract tests
+        run: npm run test:node-contracts
+
       - name: Unit test frontend
         working-directory: frontend
         run: npm test -- --watchAll=false
