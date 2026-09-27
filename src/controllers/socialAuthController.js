@@ -86,7 +86,18 @@ exports.callback=async(req,res)=>{
     let profile; let githubWriteToken=null;
     if(provider==='google'){
       const clientId=process.env.GOOGLE_LOGIN_CLIENT_ID||process.env.GOOGLE_OAUTH_CLIENT_ID;const clientSecret=process.env.GOOGLE_LOGIN_CLIENT_SECRET||process.env.GOOGLE_OAUTH_CLIENT_SECRET;
-      const tokenRes=await fetch('https://oauth2.googleapis.com/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({code:req.query.code,client_id:clientId,client_secret:clientSecret,redirect_uri:callback('google'),grant_type:'authorization_code'})});const tokens=await tokenRes.json();if(!tokenRes.ok||!tokens.access_token)throw new Error('Login Google non riuscito');
+      const tokenRes=await fetch('https://oauth2.googleapis.com/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({code:req.query.code,client_id:clientId,client_secret:clientSecret,redirect_uri:callback('google'),grant_type:'authorization_code'})});
+      const tokens=await tokenRes.json();
+      if(!tokenRes.ok||!tokens.access_token){
+        console.error('[GOOGLE-TOKEN-ERROR]',{
+          status:tokenRes.status,
+          error:String(tokens?.error||''),
+          description:String(tokens?.error_description||'').slice(0,240),
+          redirectUri:callback('google'),
+          clientIdSuffix:String(clientId||'').slice(-32)
+        });
+        throw new Error('Login Google non riuscito');
+      }
       const userRes=await fetch('https://openidconnect.googleapis.com/v1/userinfo',{headers:{Authorization:`Bearer ${tokens.access_token}`}});const user=await userRes.json();if(!userRes.ok||!user.sub||!user.email||user.email_verified!==true)throw new Error('Google non ha restituito una email verificata');profile={id:user.sub,email:user.email,name:user.name,avatarUrl:user.picture};
     }else if(provider==='github'){
       const tokenRes=await fetch('https://github.com/login/oauth/access_token',{method:'POST',headers:{Accept:'application/json','Content-Type':'application/json'},body:JSON.stringify({client_id:process.env.GITHUB_OAUTH_CLIENT_ID,client_secret:process.env.GITHUB_OAUTH_CLIENT_SECRET,code:req.query.code,redirect_uri:callback('github')})});const tokens=await tokenRes.json();if(!tokenRes.ok||!tokens.access_token)throw new Error('Login GitHub non riuscito');
@@ -104,7 +115,13 @@ exports.callback=async(req,res)=>{
     const result=await upsertVerifiedAccount(provider,profile);
     if(provider==='github'&&verifiedState.writeProfile===true&&githubWriteToken){if(!verifiedState.userId||String(result.user._id)!==String(verifiedState.userId))throw new Error('Autorizzazione GitHub non associata all’account MyZubster corretto');const target=await User.findById(result.user._id).select('+githubAutomation.accessTokenEncrypted');target.githubAutomation=target.githubAutomation||{};target.githubAutomation.accessTokenEncrypted=encryptToken(githubWriteToken);target.githubAutomation.writeAuthorizedAt=new Date();target.githubAutomation.updatedAt=new Date();await target.save();}
     redirectSuccess(res,result,provider);
-  }catch(error){redirectError(res,error.message,provider);}
+  }catch(error){
+    console.error('[OAUTH-CALLBACK-ERROR]', {
+      provider,
+      message: String(error?.message || error)
+    });
+    redirectError(res,error.message,provider);
+  }
 };
 
 exports.exchangeTicket=async(req,res)=>{try{const data=jwt.verify(req.body?.ticket,secret());if(data.purpose!=='social-login-result')throw new Error();res.json({success:true,data:{token:data.token,userId:data.userId,characterId:data.characterId,provider:data.provider,metaverseVerified:true}});}catch(_){res.status(400).json({success:false,message:'Ticket login scaduto o non valido'});}};
