@@ -545,3 +545,20 @@ MIT License. See `LICENSE`.
 ---
 
 **Transparency note:** MyZubster is an evolving project. Code, tests, CI and independently verifiable evidence take precedence over promotional descriptions. Proposed features are not released features; merges are not payments; external mentions are not partnerships; and settlement is not `PAID` until verified according to the applicable rail.
+
+## Visual assets · 2026-09-27
+
+A curated set of new MyZubster visuals is available in
+[`docs/visuals/2026-09-27/`](docs/visuals/2026-09-27/).
+
+The collection covers:
+
+- Kefir donor / handover
+- Nicola / Knowledge
+- Sepolia payment flow
+- MyZubster ecosystem and community
+- Kefir / Zorgax / ecosystem story
+- University Living Lab / LIFE
+
+See [`docs/visuals/2026-09-27/README.md`](docs/visuals/2026-09-27/README.md)
+for the complete inventory and evidence boundary.
