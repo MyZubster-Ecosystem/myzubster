@@ -562,3 +562,21 @@ The collection covers:
 
 See [`docs/visuals/2026-09-27/README.md`](docs/visuals/2026-09-27/README.md)
 for the complete inventory and evidence boundary.
+
+## 🖼️ Interactive visual gallery · 2026-09-27
+
+The latest visual set is browsable directly from GitHub. **Click any thumbnail to open the full-resolution asset.**
+
+| Visual | Topic |
+|---|---|
+| [![Kefir donor workflow](docs/visuals/2026-09-27/Come%20funziona%20MyZubster%20per%20i%20donatori%20di%20kefir.png)](docs/visuals/2026-09-27/Come%20funziona%20MyZubster%20per%20i%20donatori%20di%20kefir.png) | Kefir donor workflow |
+| [![Kefir donor Rimini Riccione](docs/visuals/2026-09-27/Donatore%20di%20Kefir%20a%20Rimini%20e%20Riccione.png)](docs/visuals/2026-09-27/Donatore%20di%20Kefir%20a%20Rimini%20e%20Riccione.png) | Local Kefir donor context |
+| [![MyZubster ecosystem Facebook](docs/visuals/2026-09-27/MyZubster-ecosistema-facebook.jpg)](docs/visuals/2026-09-27/MyZubster-ecosistema-facebook.jpg) | Community / social ecosystem |
+| [![Nicola software cyberpunk](docs/visuals/2026-09-27/MyZubster_Nicola_Software_Cyberpunk%281%29.png)](docs/visuals/2026-09-27/MyZubster_Nicola_Software_Cyberpunk%281%29.png) | Nicola / software / Knowledge |
+| [![Sepolia ETH E2E payment flow](docs/visuals/2026-09-27/MyZubster_Sepolia_ETH_E2E_Payment_Flow.png)](docs/visuals/2026-09-27/MyZubster_Sepolia_ETH_E2E_Payment_Flow.png) | Base Sepolia / ETH payment flow |
+| [![Kefir Zorgax Google GitHub Tor Metaverse story](docs/visuals/2026-09-27/MyZubster_Story_Kefir_Zorgax_Google_GitHub_Tor_Metaverso%281%29.png)](docs/visuals/2026-09-27/MyZubster_Story_Kefir_Zorgax_Google_GitHub_Tor_Metaverso%281%29.png) | Kefir → Zorgax → Google/GitHub/Tor/Metaverse |
+| [![University Living Lab LIFE](docs/visuals/2026-09-27/MyZubster_University_Living_Lab_LIFE_Visual%281%29.png)](docs/visuals/2026-09-27/MyZubster_University_Living_Lab_LIFE_Visual%281%29.png) | University / Living Lab / LIFE |
+
+> **Evidence boundary:** these are documentation and narrative visuals. A visual alone does not establish a partnership, scientific validation, production deployment, payment or other operational claim.
+
+For the complete inventory, see [docs/visuals/2026-09-27/README.md](docs/visuals/2026-09-27/README.md).
