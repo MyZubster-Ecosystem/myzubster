@@ -12,6 +12,7 @@ const { refreshPaymentIntent, verifyAndActivatePaymentIntent } = require('../ser
 const { getPaymentReceipt } = require('../services/zorgaxBillingService');
 const zorgaxMyzCheckoutService = require('../services/zorgaxMyzCheckoutService');
 const { captureFunnelEvent } = require('../services/posthogAnalyticsService');
+const { recordTopic } = require('../services/zorgaxTopicAnalyticsService');
 
 const router = express.Router();
 const { loadZorgaxAccess, requireZorgaxPlan } = createZorgaxAccessMiddleware();
@@ -28,6 +29,9 @@ const ZORGAX_FUNNEL_EVENTS = new Set([
   'zorgax_intent_metaverse',
   'zorgax_intent_life',
   'zorgax_intent_party',
+  'zorgax_intent_circular_project',
+  'zorgax_intent_university',
+  'zorgax_intent_community',
   'zorgax_to_home',
   'zorgax_to_marketplace',
   'zorgax_to_seller',
@@ -287,6 +291,12 @@ router.post('/chat', optionalAuthenticate, loadZorgaxAccess, async (req, res) =>
     const useWeb = requestedWeb && policy.webResearch;
     const userContext = await authenticatedAssistantContext(req);
     const result = await answer({ message: req.body?.message || req.body?.prompt, useWeb, history: req.body?.history || [], limit, userContext });
+    // Analytics failures must never prevent an assistant response.
+    try {
+      await recordTopic({ message: req.body?.message || req.body?.prompt });
+    } catch (analyticsError) {
+      console.warn('[zorgax-topic-analytics]', analyticsError.message);
+    }
     const accessNotice = requestedWeb && !policy.webResearch
       ? 'Accedi a MyZubster per abilitare la ricerca web. La risposta corrente usa solo l’assistente base.'
       : policy.researchMode === 'LIMITED' && requestedWeb
