@@ -1,11 +1,12 @@
-const hre = require("hardhat");
+import { network } from "hardhat";
 
 async function main() {
-  const [owner] = await hre.ethers.getSigners();
+  const { ethers } = await network.create();
+  const [owner] = await ethers.getSigners();
 
   console.log("Test owner:", owner.address);
 
-  const Factory = await hre.ethers.getContractFactory("MyZubsterComicNFT");
+  const Factory = await ethers.getContractFactory("MyZubsterComicNFT");
   const nft = await Factory.deploy();
   await nft.waitForDeployment();
 
