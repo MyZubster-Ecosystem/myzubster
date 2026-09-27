@@ -65,6 +65,6 @@ function startGuidedIntent(button){const event=button.dataset.guidedEvent,prompt
 document.querySelectorAll('[data-guided-event]').forEach(button=>button.addEventListener('click',()=>startGuidedIntent(button)));
 document.querySelectorAll('[data-funnel-event]').forEach(link=>link.addEventListener('click',()=>trackFunnel(link.dataset.funnelEvent)));
 document.getElementById('startChat').addEventListener('click',()=>{trackFunnel('zorgax_chat_opened');if(!input.value.trim())input.value='Ciao Zorgax, cosa posso fare su MyZubster?';input.scrollIntoView({behavior:'smooth',block:'center'});input.focus()});
-trackFunnel('zorgax_open');
+trackFunnel('zorgax_open');trackFunnel('journey_zorgax_open');
 send.onclick=sendMessage;input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage()}});refreshStatus().finally(async()=>{await refreshAccess();await refreshBilling()});maybeShowGmailPopup();messages.scrollTop=0;input.focus({preventScroll:true});
 </script></body></html>
