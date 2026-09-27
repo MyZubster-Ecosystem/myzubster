@@ -5,11 +5,7 @@ module.exports = {
   testPathIgnorePatterns: [
     '/node_modules/',
     '/frontend/',
-    '\\.node\\.test\\.js
-  ]
-};,
-    '/src/services/marketplaceOrderPaymentPolicy\\.test\\.js
-  ]
-};
+    '\\.node\\.test\\.js',
+    '/src/services/marketplaceOrderPaymentPolicy\\.test\\.js'
   ]
 };
