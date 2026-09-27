@@ -34,16 +34,52 @@ const MARKETPLACE_DEMO_IMAGE_BASE =
 const MARKETPLACE_CATEGORY_CARD_VISUAL =
   `${MARKETPLACE_DEMO_IMAGE_BASE}/marketplace-category-card-visuals.png`;
 
+const ANALYTICS_TOKEN_KEYS = [
+  'myzubster-token',
+  'myzubster_token',
+  'authToken',
+  'auth_token',
+  'token',
+  'accessToken',
+  'access_token',
+  'jwt'
+];
+
+function analyticsToken() {
+  try {
+    for (const store of [localStorage, sessionStorage]) {
+      for (const key of ANALYTICS_TOKEN_KEYS) {
+        const value = store.getItem(key);
+        if (value) return value;
+      }
+    }
+  } catch (_error) {}
+  return '';
+}
+
 function trackMarketplaceDemo(event, target) {
   try {
+    const token = analyticsToken();
     fetch('/api/zorgax/assistant/track', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: 'Bearer ' + token } : {})
+      },
       body: JSON.stringify(target ? { event, target } : { event }),
       keepalive: true
     }).catch(() => {});
   } catch (_error) {}
 }
+
+function trackJourney(event, target) {
+  trackMarketplaceDemo(event, target);
+}
+
+const journeyPath = window.location.pathname.replace(/\/+$/, '') || '/';
+if (analyticsToken()) trackJourney('journey_login_authenticated');
+if (journeyPath === '/marketplace') trackJourney('journey_marketplace_open');
+if (journeyPath === '/metaverse') trackJourney('journey_metaverse_open');
 
 const marketplaceDemoVisualStyle = document.createElement('style');
 
