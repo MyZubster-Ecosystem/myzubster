@@ -1,0 +1,28 @@
+name: Hardhat 3 contracts
+
+on:
+  pull_request:
+    paths:
+      - 'contracts/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/hardhat3-contracts.yml'
+  push:
+    paths:
+      - 'contracts/**'
+      - 'package.json'
+      - 'package-lock.json'
+
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm audit --audit-level=high
+      - run: npm run nft:compile
+      - run: npm run nft:test:local
