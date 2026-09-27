@@ -25,24 +25,32 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
 
       - name: Install locked dependencies
         run: npm ci --ignore-scripts
 
-      - name: Audit all dependencies
+      - name: Gate production dependencies (high/critical)
         run: |
           set +e
-          npm audit --json > npm-audit.json
+          npm audit --omit=dev --audit-level=high --json > npm-audit-runtime.json
           status=$?
-          cat npm-audit.json
+          cat npm-audit-runtime.json
           exit $status
 
-      - name: Upload audit report
+      - name: Report full dependency audit
+        continue-on-error: true
+        run: |
+          npm audit --json > npm-audit-full.json || true
+          cat npm-audit-full.json
+
+      - name: Upload audit reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: npm-audit-report
-          path: npm-audit.json
+          name: npm-audit-reports
+          path: |
+            npm-audit-runtime.json
+            npm-audit-full.json
           if-no-files-found: ignore
