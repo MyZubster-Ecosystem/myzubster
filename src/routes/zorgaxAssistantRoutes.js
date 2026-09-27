@@ -51,7 +51,13 @@ const ZORGAX_FUNNEL_EVENTS = new Set([
   'marketplace_demo_open',
   'marketplace_demo_category_selected',
   'seller_checkout_started',
-  'seller_checkout_succeeded'
+  'seller_checkout_succeeded',
+  'journey_login_authenticated',
+  'journey_profile_open',
+  'journey_profile_completed',
+  'journey_zorgax_open',
+  'journey_metaverse_open',
+  'journey_marketplace_open'
 ]);
 
 function readCookie(req, name) {
