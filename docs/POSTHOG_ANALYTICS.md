@@ -21,3 +21,17 @@ Recommended first funnel:
 4. `profile_onboarding_enter_metaverse_click`
 
 Existing events such as `zorgax_open`, `zorgax_first_message`, `marketplace_demo_open`, and seller checkout events are forwarded through the same endpoint.
+
+
+## Unified authenticated journey
+
+The privacy-safe tracking endpoint also accepts a compact cross-product journey:
+
+- `journey_login_authenticated`
+- `journey_profile_open`
+- `journey_profile_completed`
+- `journey_zorgax_open`
+- `journey_metaverse_open`
+- `journey_marketplace_open`
+
+When a valid MyZubster token is available, the backend uses the internal user id as the PostHog `distinct_id` (`user:<id>`). Email addresses are not sent as analytics properties. Anonymous activity continues to use the short-lived funnel session id.
