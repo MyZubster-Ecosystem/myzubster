@@ -132,6 +132,8 @@ The pages identify the public account as `nicolaususnicola-lgtm`, label the acti
 
 Nicola also reported that local RAG retrieval through Qdrant and `/api/ai/ask` succeeded after changing `AI_CONTEXT_LIMIT` from `1` to `5`. Commit [`d360ae96`](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/commit/d360ae96a26f2e9f82e8982015b29b71b75d27e3) independently verifies the configuration change. It does not independently reproduce the local retrieval result, and no workflow run was found for that commit.
 
+Nicola subsequently reported a successful syntax check and full re-ingestion with 46 knowledge chunks loaded into Qdrant and one empty document skipped. Commit [`ea80799`](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/commit/ea80799da0b775f866d80915d9282a0c5df8600a) independently verifies the `scripts/ingest_knowledge.py` change: chunking now prefers paragraph and line boundaries, preserves overlap and prevents non-progress loops. The public software Knowledge Card was independently observed linking to that commit and describing the same contribution. The commit does not independently prove the reported syntax-check or ingestion counts, and no workflow run or commit status was found.
+
 The minimized record is stored in:
 
 `docs/life/nicola-zorgax-profile-onboarding-test-2026-09-28.json`
