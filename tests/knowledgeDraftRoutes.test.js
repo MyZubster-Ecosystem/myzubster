@@ -87,4 +87,20 @@ describe('private knowledge drafts', () => {
       .set('Authorization', auth(alice)).expect(200);
     expect(KnowledgeDraft.findOneAndUpdate.mock.calls[0][0]).toEqual({ _id: draftId, ownerId: alice, status: 'published', visibility: 'public' });
   });
+
+  test('catalog includes only explicitly public cards with selected public fields', async () => {
+    KnowledgeDraft.find.mockImplementation(query => {
+      expect(query).toEqual({ status: 'published', visibility: 'public' });
+      return { select: fields => {
+        expect(fields).toBe('title domain description evidence verificationNote publishedAt publisherName');
+        return { sort: () => ({ limit: max => {
+          expect(max).toBe(100);
+          return { lean: async () => [{ _id: draftId, title: 'Prove Docker', publisherName: 'N4K48' }] };
+        } }) };
+      } };
+    });
+    const result = await request(app).get('/api/knowledge-evidence/public').expect(200);
+    expect(result.body.cards).toEqual([{ _id: draftId, title: 'Prove Docker', publisherName: 'N4K48' }]);
+    expect(result.headers['cache-control']).toBe('no-store');
+  });
 });

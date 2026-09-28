@@ -14,13 +14,23 @@ const mongoose = require('mongoose');
 const router = express.Router();
 
 // Only explicitly published cards are returned, and only their intended public fields.
+router.get('/public', async (_req, res) => {
+  res.set('Cache-Control', 'no-store');
+  try {
+    const cards = await KnowledgeDraft.find({ status: 'published', visibility: 'public' })
+      .select('title domain description evidence verificationNote publishedAt publisherName')
+      .sort({ publishedAt: -1 }).limit(100).lean();
+    return res.json({ success: true, cards });
+  } catch (_) { return res.status(500).json({ success: false, error: 'Impossibile leggere il catalogo' }); }
+});
+
 router.get('/public/:id', async (req, res) => {
+  res.set('Cache-Control', 'no-store');
   if (!mongoose.isValidObjectId(req.params.id)) return res.status(404).json({ success: false, error: 'Scheda non trovata' });
   try {
     const card = await KnowledgeDraft.findOne({ _id: req.params.id, status: 'published', visibility: 'public' })
       .select('title domain description evidence verificationNote publishedAt publisherName').lean();
     if (!card) return res.status(404).json({ success: false, error: 'Scheda non trovata' });
-    res.set('Cache-Control', 'no-store');
     return res.json({ success: true, card });
   } catch (_) { return res.status(500).json({ success: false, error: 'Impossibile leggere la scheda' }); }
 });
