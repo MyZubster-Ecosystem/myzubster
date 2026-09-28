@@ -1,9 +1,9 @@
 {
-  "version": "nicola_zorgax_profile_onboarding_test_v4",
+  "version": "nicola_zorgax_profile_onboarding_test_v5",
   "recordedAt": "2026-09-28",
   "participantPublicId": "nicolaususnicola-lgtm",
   "source": "participant_direct_email_report_with_public_artifact_verification",
-  "scope": "Zorgax Knowledge Profile Builder private-draft and first-publication test",
+  "scope": "Zorgax Knowledge Profile Builder publication and linked software-contribution evidence test",
   "privacy": {
     "publicContactStored": false,
     "rawEmailBodyStored": false,
@@ -65,6 +65,23 @@
     "The GitHub commit proves the configuration change, not the participant-reported local retrieval result.",
     "MyZubster does not automatically certify the cards' claims, linked sources, ownership or competence.",
     "Professional experience, licences and qualifications on the transport card remain participant-declared; no private supporting documents were accessed.",
+    "The chunking commit proves the code change, not the participant-reported syntax-check result, re-ingestion execution or Qdrant document counts.",
     "No email, merge, publication, transaction or GitHub write was performed on Nicola's behalf."
-  ]
+  ],
+  "softwareContributionEvidence": {
+    "participantReportedResult": "Syntax check passed and a full re-ingestion loaded 46 knowledge chunks into Qdrant and skipped 1 empty document.",
+    "verifiedPublicCommit": {
+      "sha": "ea80799da0b775f866d80915d9282a0c5df8600a",
+      "url": "https://github.com/nicolaususnicola-lgtm/myzubster-mvp/commit/ea80799da0b775f866d80915d9282a0c5df8600a",
+      "verifiedChange": "scripts/ingest_knowledge.py now prefers paragraph and line boundaries, preserves overlap, and guards against non-progress loops."
+    },
+    "publicCardEvidenceLink": {
+      "cardId": "6abaaefb3a7460c4574a45fd",
+      "url": "https://www.myzubster.com/knowledge-card?id=6abaaefb3a7460c4574a45fd",
+      "verifiedPresent": true
+    },
+    "independentRuntimeReproduction": "NOT_PERFORMED",
+    "workflowRunForCommit": "NONE_FOUND",
+    "commitStatus": "NONE_FOUND"
+  }
 }
