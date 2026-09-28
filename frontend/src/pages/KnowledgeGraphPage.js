@@ -64,7 +64,7 @@ export default function KnowledgeGraphPage(){
  const [selected,setSelected]=useState(`a:${id}`),[filter,setFilter]=useState('all');
  useEffect(()=>setSelected(`a:${id}`),[id]);
  if(!article)return <main className="kg-shell"><div className="kg-error">{loadError?`Errore: ${loadError}`:`Conoscenza ${domain}/${id} non trovata.`}<br/><a href="/knowledge">Apri catalogo Conoscenze</a></div></main>;
- const rootKey=`a:${id}`,shown=nodes.filter(n=>filter==='all'||n.type===filter||n.key===selected),active=nodes.find(n=>n.key===selected)||nodes[0],cx=390,cy=235;
+ const rootKey=`a:${id}`,shown=nodes.filter(n=>filter==='all'||n.type===filter||n.key===selected||n.key===rootKey),active=nodes.find(n=>n.key===selected)||nodes[0],cx=390,cy=235;
  const pos=new Map(shown.map((n,i)=>n.key===rootKey?[n.key,{x:cx,y:cy}]:[n.key,{x:cx+Math.cos((Math.PI*2*(i-1))/Math.max(shown.length-1,1)-Math.PI/2)*225,y:cy+Math.sin((Math.PI*2*(i-1))/Math.max(shown.length-1,1)-Math.PI/2)*155}]));
  const root=pos.get(rootKey);
  const open=n=>{if(n.type==='article'){const d=n.domain||domain;window.location.assign(`/conoscenze?domain=${encodeURIComponent(d)}&id=${encodeURIComponent(n.id)}`)}};
