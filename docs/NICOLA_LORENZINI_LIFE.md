@@ -147,6 +147,18 @@ Nicola then reported that the Proof v2 evidence had been added to the existing p
 
 A scoped implementation was prepared in draft [PR #1414](https://github.com/MyZubster-Ecosystem/myzubster/pull/1414) on branch `feat/nicola-proof-v2-knowledge-graph-2026-09-29`. It adds parent-aware graph edges for the payload, digest, Proof v2, explorer references and documentation, while stating that the proof covers integrity and linkage only. The PR is not merged or deployed; Nicola's requested mobile test therefore remains pending review, merge and deployment. The Sepolia contract state is still pending independent explorer verification.
 
+
+### Architecture comparison and decision gate — 2026-09-29
+
+Nicola compared the pilot with existing systems and proposed evaluating standards before further consolidation of Proof v2. The comparison was checked against official documentation:
+
+- [Talent Protocol Builder Score](https://talentprotocol.com/) computes an explainable score from public GitHub and on-chain data and can optionally publish an EAS attestation on Base. Its own [terms](https://talentprotocol.com/terms) state that the score is an automated summary rather than an endorsement or credential.
+- [Ethereum Attestation Service](https://docs.attest.org/) supports schema-based on-chain and off-chain attestations and is a candidate for a future standardized artifact-integrity attestation.
+- [cheqd Trust Registries](https://docs.cheqd.io/product/studio/trust-registries) combine DIDs, Verifiable Credentials and issuer authorization chains; this is relevant only if MyZubster later introduces governed credential issuers and relying parties.
+- [Open Badges 3.0](https://www.1edtech.org/standards/open-badges) represents issuer-signed achievements as credentials compatible with the W3C Verifiable Credentials Data Model 2.0 and can carry criteria and evidence.
+
+The participant hypothesis is that MyZubster's distinctive layer is not a new score or credential format, but the navigable evidence path from a person and declared activity to concrete artifacts and proofs. The resulting architectural recommendation is provisional: retain the MyZubster Knowledge Graph as the relationship/navigation layer; keep the current Proof v2 as an experimental integrity anchor; evaluate EAS for generic attestations; evaluate Open Badges only for issuer-backed achievements; and consider cheqd only if a formal multi-issuer trust registry becomes necessary. Do not add a reputation score, issue credentials, or merge the Proof v2 integration until a human review defines claim types, issuer/verifier roles, canonicalization, status/revocation, privacy, chain/cost and migration requirements.
+
 The minimized record is stored in:
 
 `docs/life/nicola-zorgax-profile-onboarding-test-2026-09-28.json`
