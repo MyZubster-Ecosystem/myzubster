@@ -13,8 +13,9 @@ const schema = new mongoose.Schema({
   description: { type: String, required: true, trim: true, maxlength: 3000 },
   evidence: { type: [evidenceSchema], default: [] },
   verificationNote: { type: String, trim: true, maxlength: 1000 },
-  status: { type: String, enum: ['draft'], default: 'draft' },
-  visibility: { type: String, enum: ['private'], default: 'private' }
+  status: { type: String, enum: ['draft', 'review_requested'], default: 'draft' },
+  visibility: { type: String, enum: ['private'], default: 'private' },
+  reviewRequestedAt: { type: Date, default: null }
 }, { timestamps: true });
 
 schema.index({ ownerId: 1, updatedAt: -1 });
