@@ -138,6 +138,8 @@ The minimized record is stored in:
 
 The functional failures are participant-reported and were not independently reproduced in the production browser during this update. The code fix must preserve the local draft and conversation across reauthentication, send prior turns as assistant history, avoid repeated answered questions, and keep publication behind explicit approval.
 
+In a follow-up on **2026-09-28**, Nicola reported that `/zorgax-profile-builder.html` retained its URL but rendered the MyZubster homepage instead of the Knowledge Profile Builder. This routing failure was independently reproduced in the public browser and traced to the Builder being absent from the Vercel static builds and explicit routes before the frontend catch-all. Nicola also reported three local draft Knowledge Cards and a GitHub profile update; their content remains participant-reported and was not imported or published.
+
 ## Human-control rules
 
 This pilot is advisory-first. Zorgax must not autonomously:
