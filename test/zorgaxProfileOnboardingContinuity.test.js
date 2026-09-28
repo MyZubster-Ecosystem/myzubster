@@ -1,5 +1,7 @@
 const fs=require('fs');
 const path=require('path');
+const vercel=fs.readFileSync(path.join(__dirname,'..','vercel.json'),'utf8');
+const server=fs.readFileSync(path.join(__dirname,'..','server.js'),'utf8');
 
 describe('Zorgax profile onboarding continuity',()=>{
   const source=fs.readFileSync(path.join(__dirname,'..','public','zorgax-profile-onboarding.html'),'utf8');
@@ -22,4 +24,13 @@ describe('Zorgax profile onboarding continuity',()=>{
     expect(source).toContain('captureProfessionalProfileDraft(text)');
     expect(source).toContain('resta non salvata finché non scegli Approva e salva privato');
   });
+  test('serves the Knowledge Profile Builder before the frontend fallback',()=>{
+    expect(vercel).toContain('public/zorgax-profile-builder.html');
+    expect(vercel).toContain('"/zorgax-profile-builder\\\\.html/?"');
+    expect(vercel).toContain('"Location":"/zorgax-profile-builder"');
+    expect(vercel).toContain('"/zorgax-profile-builder/?"');
+    expect(server).toContain("['/zorgax-profile-builder', 'zorgax-profile-builder.html']");
+    expect(server).toContain("['/zorgax-profile-builder.html', '/zorgax-profile-builder']");
+  });
+
 });
