@@ -1,9 +1,9 @@
 {
-  "version": "nicola_zorgax_profile_onboarding_test_v8",
+  "version": "nicola_zorgax_profile_onboarding_test_v9",
   "recordedAt": "2026-09-28",
   "participantPublicId": "nicolaususnicola-lgtm",
   "source": "participant_direct_email_report_with_public_artifact_verification",
-  "scope": "Zorgax Knowledge Profile Builder publication, linked software evidence, visual-graph test and Sepolia URL-hash proof",
+  "scope": "Zorgax Knowledge Profile Builder publication, linked software evidence, visual-graph test and Sepolia URL-hash/content-snapshot proofs",
   "privacy": {
     "publicContactStored": false,
     "rawEmailBodyStored": false,
@@ -69,7 +69,10 @@
     "The visual graph implementation and READY deployment were independently verified, but participant navigation and rendered N4K48 nodes were not verified because Vercel authentication blocked access.",
     "The Sepolia experiment anchors the SHA-256 of the Knowledge Card URL string only; it does not prove the card contents, authorship, ownership, competence or continued availability.",
     "No email, merge, publication, transaction or GitHub write was performed on Nicola's behalf.",
-    "The six-source revision is saved only as a participant-reported private draft; its exact text and source set remain unverified until owner-controlled publication."
+    "The six-source revision is saved only as a participant-reported private draft; its exact text and source set remain unverified until owner-controlled publication.",
+    "Proof v2 independently verifies the SHA-256 of the exact committed content-snapshot bytes, not that the snapshot equals the current live card.",
+    "Proof v2 contains one source entry with an empty URL; this source is not independently navigable.",
+    "The Proof v2 Sepolia deployment and on-chain knowledgeHash value remain participant-reported because the explorer pages were not retrievable."
   ],
   "softwareContributionEvidence": {
     "participantReportedResult": "Syntax check passed and a full re-ingestion loaded 46 knowledge chunks into Qdrant and skipped 1 empty document.",
@@ -157,6 +160,54 @@
       "privateDraftContentStored": false,
       "independentPublicVerification": "NOT_POSSIBLE_BEFORE_PARTICIPANT_PUBLICATION",
       "nextStep": "PARTICIPANT_OWNER_CONTROLLED_PUBLICATION_THEN_PUBLIC_CARD_VERIFICATION"
+    }
+  },
+  "onChainKnowledgeProofV2": {
+    "network": "Ethereum Sepolia testnet",
+    "proofType": "SHA256_OF_COMMITTED_CONTENT_SNAPSHOT_BYTES",
+    "cardId": "6abaaefb3a7460c4574a45fd",
+    "cardUrl": "https://www.myzubster.com/knowledge-card?id=6abaaefb3a7460c4574a45fd",
+    "canonicalFormatIdentifier": "MYZUBSTER-KNOWLEDGE-CARD-V1",
+    "canonicalPayload": {
+      "path": "proofs/knowledge-card-6abaaefb3a7460c4574a45fd-v1.json",
+      "commitSha": "ecefd81c5c9da0be15c99aeeb83878480abd60a8",
+      "commitUrl": "https://github.com/nicolaususnicola-lgtm/myzubster-mvp/commit/ecefd81c5c9da0be15c99aeeb83878480abd60a8",
+      "blobSha": "54034df12c008c6a9ad82d9fcd3eea05cfa2768e",
+      "utf8ByteLength": 3168,
+      "jsonValid": true,
+      "sourceEntryCount": 6,
+      "sourceEntryWithEmptyUrl": true
+    },
+    "documentation": {
+      "path": "proofs/SEPOLIA_PROOF_V2.md",
+      "commitSha": "405467e8d7b4e55ea9f18044a00aa66804f3ada3",
+      "commitUrl": "https://github.com/nicolaususnicola-lgtm/myzubster-mvp/commit/405467e8d7b4e55ea9f18044a00aa66804f3ada3"
+    },
+    "knowledgeHash": "0x6097e05866bafceec24663d2638cb1dae5742ac78284abbfd45cc9c3b0bfb845",
+    "independentHashRecomputation": {
+      "algorithm": "SHA-256",
+      "input": "EXACT_UTF8_BYTES_OF_COMMITTED_PAYLOAD",
+      "computedHex": "6097e05866bafceec24663d2638cb1dae5742ac78284abbfd45cc9c3b0bfb845",
+      "matchesReportedHash": true
+    },
+    "contractAddress": "0x21787249Df054132093FcF09bB914C0CCC539390",
+    "deployTransactionHash": "0xc837ba3f3046f3712e3eba4b81107cb22939b61300f2cab3cfe5bbb7b3319ded",
+    "explorerReferences": {
+      "contractUrl": "https://sepolia.etherscan.io/address/0x21787249Df054132093FcF09bB914C0CCC539390",
+      "transactionUrl": "https://sepolia.etherscan.io/tx/0xc837ba3f3046f3712e3eba4b81107cb22939b61300f2cab3cfe5bbb7b3319ded",
+      "deploymentSuccess": "PARTICIPANT_REPORTED_NOT_INDEPENDENTLY_RETRIEVED",
+      "contractKnowledgeHash": "PARTICIPANT_REPORTED_NOT_INDEPENDENTLY_RETRIEVED"
+    },
+    "proofScope": "CRYPTOGRAPHIC_LINK_TO_COMMITTED_SNAPSHOT_BYTES_NOT_TRUTH_OR_LIVE_CARD_EQUIVALENCE",
+    "canonicalizationCaveat": "The committed payload is reproducible as exact bytes, but the repository does not independently prove that it is an automatic or complete canonical export of the current live card.",
+    "publicCardLinkageStatus": "NOT_YET_VERIFIED",
+    "workflowRunsForCommits": "NONE_FOUND",
+    "commitStatuses": "NONE_FOUND",
+    "automationActions": {
+      "deployedContract": false,
+      "sentTransaction": false,
+      "connectedWallet": false,
+      "modifiedKnowledgeCard": false
     }
   }
 }
