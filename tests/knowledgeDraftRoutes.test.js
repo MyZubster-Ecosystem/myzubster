@@ -50,5 +50,31 @@ describe('private knowledge drafts', () => {
     KnowledgeDraft.findOneAndUpdate.mockResolvedValue(null);
     await request(app).put('/api/knowledge-evidence/drafts/' + draftId).set('Authorization', auth(bob)).send(body).expect(404);
     expect(KnowledgeDraft.findOneAndUpdate.mock.calls[0][0]).toEqual({ _id: draftId, ownerId: bob });
+    expect(KnowledgeDraft.findOneAndUpdate.mock.calls[0][1]).toEqual({
+      $set: expect.objectContaining({ status: 'draft', reviewRequestedAt: null })
+    });
+  });
+
+  test('moves only an owner draft into private human review without publishing', async () => {
+    KnowledgeDraft.findOneAndUpdate.mockResolvedValue({
+      _id: draftId, ownerId: alice, ...body,
+      status: 'review_requested', visibility: 'private', reviewRequestedAt: new Date()
+    });
+    const response = await request(app).post('/api/knowledge-evidence/drafts/' + draftId + '/review-request')
+      .set('Authorization', auth(alice)).expect(200);
+    expect(KnowledgeDraft.findOneAndUpdate.mock.calls[0][0]).toEqual({
+      _id: draftId, ownerId: alice, status: 'draft'
+    });
+    expect(KnowledgeDraft.findOneAndUpdate.mock.calls[0][1].$set).toEqual({
+      status: 'review_requested', reviewRequestedAt: expect.any(Date)
+    });
+    expect(response.body.draft.visibility).toBe('private');
+    expect(response.body.publication).toBe('NOT_PERFORMED');
+  });
+
+  test('rejects invalid review requests and keeps the endpoint authenticated', async () => {
+    await request(app).post('/api/knowledge-evidence/drafts/' + draftId + '/review-request').expect(401);
+    await request(app).post('/api/knowledge-evidence/drafts/not-an-id/review-request')
+      .set('Authorization', auth(alice)).expect(400);
   });
 });
