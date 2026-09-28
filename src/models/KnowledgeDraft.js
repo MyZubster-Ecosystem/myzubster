@@ -20,5 +20,6 @@ const schema = new mongoose.Schema({
 }, { timestamps: true });
 
 schema.index({ ownerId: 1, updatedAt: -1 });
+schema.index({ status: 1, visibility: 1, publishedAt: -1 });
 
 module.exports = mongoose.model('KnowledgeDraft', schema);
