@@ -1,0 +1,50 @@
+{
+  "version": "nicola_zorgax_profile_onboarding_test_v3",
+  "recordedAt": "2026-09-28",
+  "participantPublicId": "nicolaususnicola-lgtm",
+  "source": "participant_direct_email_report_with_public_artifact_verification",
+  "scope": "Zorgax Knowledge Profile Builder private-draft and first-publication test",
+  "privacy": {
+    "publicContactStored": false,
+    "rawEmailBodyStored": false,
+    "privateDraftContentStored": false,
+    "note": "Only the minimized workflow outcome and already-public artifact references are recorded."
+  },
+  "builderResult": {
+    "privateDraftsSavedParticipantReported": 3,
+    "privateDraftsReopenedParticipantReported": 3,
+    "publicationFlowImplementation": {
+      "pullRequest": 1410,
+      "state": "MERGED",
+      "ownerConfirmationRequired": true,
+      "withdrawalSupported": true
+    },
+    "firstPublicCard": {
+      "state": "VERIFIED_PUBLIC",
+      "id": "6abaaefb3a7460c4574a45fd",
+      "title": "Prove Docker e chat AI del progetto myzubster-mvp",
+      "url": "https://www.myzubster.com/knowledge-card?id=6abaaefb3a7460c4574a45fd",
+      "publisherPublicId": "nicolaususnicola-lgtm",
+      "publishedOn": "2026-09-28",
+      "automaticVerification": false
+    },
+    "secondCard": "PARTICIPANT_REPORTED_NEXT_STEP"
+  },
+  "ragEvidence": {
+    "participantReportedResult": "Local retrieval through Qdrant and /api/ai/ask succeeded after raising AI_CONTEXT_LIMIT from 1 to 5.",
+    "verifiedPublicCommit": {
+      "sha": "d360ae96a26f2e9f82e8982015b29b71b75d27e3",
+      "url": "https://github.com/nicolaususnicola-lgtm/myzubster-mvp/commit/d360ae96a26f2e9f82e8982015b29b71b75d27e3",
+      "verifiedChange": "docker-compose.yml changes AI_CONTEXT_LIMIT from 1 to 5."
+    },
+    "independentRuntimeReproduction": "NOT_PERFORMED",
+    "workflowRunForCommit": "NONE_FOUND"
+  },
+  "evidenceBoundaries": [
+    "The public card and its intended owner-statement labels were independently observed.",
+    "The GitHub commit proves the configuration change, not the participant-reported local retrieval result.",
+    "MyZubster does not automatically certify the card's claims, linked sources, ownership or competence.",
+    "The two remaining private cards were not read, copied, imported or published by the automation.",
+    "No email, merge, publication, transaction or GitHub write was performed on Nicola's behalf."
+  ]
+}
