@@ -17,5 +17,9 @@ describe('Zorgax profile onboarding continuity',()=>{
     expect(source).toContain("history:recentHistory");
     expect(source).toContain('non ripetere una domanda già risposta');
     expect(source).toContain('prepara una bozza professionale modificabile e salvabile privatamente');
+    expect(source).toContain('BOZZA PROFILO PRIVATO');
+    expect(source).toContain('function captureProfessionalProfileDraft');
+    expect(source).toContain('captureProfessionalProfileDraft(text)');
+    expect(source).toContain('resta non salvata finché non scegli Approva e salva privato');
   });
 });
