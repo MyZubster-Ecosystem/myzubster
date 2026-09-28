@@ -73,7 +73,7 @@ If evidence is unavailable, the status must remain no stronger than the stronges
 | [`MyZubsterGateway#339`](https://github.com/MyZubster-Ecosystem/MyZubsterGateway/issues/339) — automated code review | `laurentketterle-hub` | **DISPUTED:** 150 MYZ in issue, 100 MYZ in PR title/final statement, 250 MYZ in other payment statements | [PR #354](https://github.com/MyZubster-Ecosystem/MyZubsterGateway/pull/354) merged | **NOT ESTABLISHED** | **DISPUTED / NOT VERIFIED** | Multiple receipt comments exist, but no transaction hash or independently verifiable network evidence was published. |
 | [`MyZubsterGateway#747`](https://github.com/MyZubster-Ecosystem/MyZubsterGateway/issues/747) — seed marketplace | `jdjioe5-cpu`, `devyeyostellar`, `laurentketterle-hub` attribution/claim history disputed | **DISPUTED:** 0.04 XMR or 250 MYZ; another comment proposed 0.06 XMR | [PR #953](https://github.com/MyZubster-Ecosystem/MyZubsterGateway/pull/953) merged by `laurentketterle-hub`; earlier PR/assignment history conflicts | **NOT ESTABLISHED** | **DISPUTED / NOT VERIFIED** | A pending-payment placeholder was followed by `PAGATO` and receipt comments, but no transaction hash/network/explorer evidence was published. |
 
-Reviewed on 2026-09-01 against current GitHub issue/PR state. These rows record the strongest status supported by public evidence; they do not erase contributor claims or substitute for technical review.
+Historical entries reviewed on 2026-09-01 against GitHub issue/PR state; the BTC and ETH settlements above were independently checked on 2026-09-28. These rows record the strongest status supported by the cited evidence; they do not erase contributor claims or substitute for technical review.
 
 ## Paused external-unfunded listings
 
