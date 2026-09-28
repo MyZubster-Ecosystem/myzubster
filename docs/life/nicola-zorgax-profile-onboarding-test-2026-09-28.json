@@ -1,5 +1,5 @@
 {
-  "version": "nicola_zorgax_profile_onboarding_test_v3",
+  "version": "nicola_zorgax_profile_onboarding_test_v4",
   "recordedAt": "2026-09-28",
   "participantPublicId": "nicolaususnicola-lgtm",
   "source": "participant_direct_email_report_with_public_artifact_verification",
@@ -19,16 +19,36 @@
       "ownerConfirmationRequired": true,
       "withdrawalSupported": true
     },
-    "firstPublicCard": {
-      "state": "VERIFIED_PUBLIC",
-      "id": "6abaaefb3a7460c4574a45fd",
-      "title": "Prove Docker e chat AI del progetto myzubster-mvp",
-      "url": "https://www.myzubster.com/knowledge-card?id=6abaaefb3a7460c4574a45fd",
-      "publisherPublicId": "nicolaususnicola-lgtm",
-      "publishedOn": "2026-09-28",
-      "automaticVerification": false
-    },
-    "secondCard": "PARTICIPANT_REPORTED_NEXT_STEP"
+    "publicationTest": "COMPLETED_PARTICIPANT_REPORTED_AND_PUBLIC_ARTIFACTS_VERIFIED",
+    "publicCards": [
+      {
+        "state": "VERIFIED_PUBLIC",
+        "id": "6abaaefb3a7460c4574a45fd",
+        "title": "Prove Docker e chat AI del progetto myzubster-mvp",
+        "url": "https://www.myzubster.com/knowledge-card?id=6abaaefb3a7460c4574a45fd",
+        "publisherPublicId": "nicolaususnicola-lgtm",
+        "publishedOn": "2026-09-28",
+        "automaticVerification": false
+      },
+      {
+        "state": "VERIFIED_PUBLIC",
+        "id": "6abaaf563a7460c4574a4623",
+        "title": "Apprendimento e collaborazione nel percorso MyZubster",
+        "url": "https://www.myzubster.com/knowledge-card?id=6abaaf563a7460c4574a4623",
+        "publisherPublicId": "nicolaususnicola-lgtm",
+        "publishedOn": "2026-09-28",
+        "automaticVerification": false
+      },
+      {
+        "state": "VERIFIED_PUBLIC",
+        "id": "6abaae353a7460c4574a4597",
+        "title": "Autista di camion e organizzazione dei trasporti",
+        "url": "https://www.myzubster.com/knowledge-card?id=6abaae353a7460c4574a4597",
+        "publisherPublicId": "nicolaususnicola-lgtm",
+        "publishedOn": "2026-09-28",
+        "automaticVerification": false
+      }
+    ]
   },
   "ragEvidence": {
     "participantReportedResult": "Local retrieval through Qdrant and /api/ai/ask succeeded after raising AI_CONTEXT_LIMIT from 1 to 5.",
@@ -41,10 +61,10 @@
     "workflowRunForCommit": "NONE_FOUND"
   },
   "evidenceBoundaries": [
-    "The public card and its intended owner-statement labels were independently observed.",
+    "All three public cards and their intended owner-statement labels were independently observed.",
     "The GitHub commit proves the configuration change, not the participant-reported local retrieval result.",
-    "MyZubster does not automatically certify the card's claims, linked sources, ownership or competence.",
-    "The two remaining private cards were not read, copied, imported or published by the automation.",
+    "MyZubster does not automatically certify the cards' claims, linked sources, ownership or competence.",
+    "Professional experience, licences and qualifications on the transport card remain participant-declared; no private supporting documents were accessed.",
     "No email, merge, publication, transaction or GitHub write was performed on Nicola's behalf."
   ]
 }
