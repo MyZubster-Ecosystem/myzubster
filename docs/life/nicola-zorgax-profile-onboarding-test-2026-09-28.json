@@ -1,5 +1,5 @@
 {
-  "version": "nicola_zorgax_profile_onboarding_test_v7",
+  "version": "nicola_zorgax_profile_onboarding_test_v8",
   "recordedAt": "2026-09-28",
   "participantPublicId": "nicolaususnicola-lgtm",
   "source": "participant_direct_email_report_with_public_artifact_verification",
@@ -68,7 +68,8 @@
     "The chunking commit proves the code change, not the participant-reported syntax-check result, re-ingestion execution or Qdrant document counts.",
     "The visual graph implementation and READY deployment were independently verified, but participant navigation and rendered N4K48 nodes were not verified because Vercel authentication blocked access.",
     "The Sepolia experiment anchors the SHA-256 of the Knowledge Card URL string only; it does not prove the card contents, authorship, ownership, competence or continued availability.",
-    "No email, merge, publication, transaction or GitHub write was performed on Nicola's behalf."
+    "No email, merge, publication, transaction or GitHub write was performed on Nicola's behalf.",
+    "The six-source revision is saved only as a participant-reported private draft; its exact text and source set remain unverified until owner-controlled publication."
   ],
   "softwareContributionEvidence": {
     "participantReportedResult": "Syntax check passed and a full re-ingestion loaded 46 knowledge chunks into Qdrant and skipped 1 empty document.",
@@ -139,7 +140,7 @@
       "contractStateValues": "PARTICIPANT_REPORTED_NOT_INDEPENDENTLY_RETRIEVED"
     },
     "proofScope": "URL_STRING_HASH_ONLY_NOT_CARD_CONTENT_HASH",
-    "cardUpdateStatus": "PARTICIPANT_INTENDS_TO_ADD_SOURCES_NOT_YET_VERIFIED",
+    "cardUpdateStatus": "PRIVATE_DRAFT_SAVED_PARTICIPANT_REPORTED_NOT_PUBLICLY_VERIFIED",
     "workflowRunForCommit": "NONE_FOUND",
     "commitStatus": "NONE_FOUND",
     "automationActions": {
@@ -147,6 +148,15 @@
       "sentTransaction": false,
       "connectedWallet": false,
       "modifiedKnowledgeCard": false
+    },
+    "cardEvidenceDraft": {
+      "participantReportedState": "PRIVATE_DRAFT_SAVED",
+      "sourceCountParticipantReported": 6,
+      "sourceFormatParticipantReported": "name | URL | note",
+      "duplicatesRemovedParticipantReported": true,
+      "privateDraftContentStored": false,
+      "independentPublicVerification": "NOT_POSSIBLE_BEFORE_PARTICIPANT_PUBLICATION",
+      "nextStep": "PARTICIPANT_OWNER_CONTROLLED_PUBLICATION_THEN_PUBLIC_CARD_VERIFICATION"
     }
   }
 }
