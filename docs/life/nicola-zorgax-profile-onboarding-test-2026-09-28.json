@@ -1,9 +1,9 @@
 {
-  "version": "nicola_zorgax_profile_onboarding_test_v5",
+  "version": "nicola_zorgax_profile_onboarding_test_v6",
   "recordedAt": "2026-09-28",
   "participantPublicId": "nicolaususnicola-lgtm",
   "source": "participant_direct_email_report_with_public_artifact_verification",
-  "scope": "Zorgax Knowledge Profile Builder publication and linked software-contribution evidence test",
+  "scope": "Zorgax Knowledge Profile Builder publication, linked software-contribution evidence and visual-graph access test",
   "privacy": {
     "publicContactStored": false,
     "rawEmailBodyStored": false,
@@ -66,6 +66,7 @@
     "MyZubster does not automatically certify the cards' claims, linked sources, ownership or competence.",
     "Professional experience, licences and qualifications on the transport card remain participant-declared; no private supporting documents were accessed.",
     "The chunking commit proves the code change, not the participant-reported syntax-check result, re-ingestion execution or Qdrant document counts.",
+    "The visual graph implementation and READY deployment were independently verified, but participant navigation and rendered N4K48 nodes were not verified because Vercel authentication blocked access.",
     "No email, merge, publication, transaction or GitHub write was performed on Nicola's behalf."
   ],
   "softwareContributionEvidence": {
@@ -83,5 +84,28 @@
     "independentRuntimeReproduction": "NOT_PERFORMED",
     "workflowRunForCommit": "NONE_FOUND",
     "commitStatus": "NONE_FOUND"
+  },
+  "visualKnowledgeGraphEvidence": {
+    "participantReportedResult": "Access request sent; participant could not inspect N4K48 nodes, public cards, sources or mobile navigation because Vercel required team-owner approval.",
+    "deployment": {
+      "url": "https://myzubster-knowledge-4u97rq3hu-myzubster.vercel.app/conoscenze",
+      "project": "myzubster-knowledge",
+      "state": "READY",
+      "target": "production",
+      "protectionState": "VERCEL_SSO_REDIRECT_CONFIRMED"
+    },
+    "productionAlias": {
+      "url": "https://myzubster-knowledge-myzubster.vercel.app/conoscenze",
+      "protectionState": "VERCEL_SSO_REDIRECT_CONFIRMED"
+    },
+    "verifiedPublicCommit": {
+      "sha": "6c9b786ce9cbc8fdc2bd0e8f26855754d139b729",
+      "url": "https://github.com/danieldirimini-myzubster/myzubster/commit/6c9b786ce9cbc8fdc2bd0e8f26855754d139b729",
+      "verifiedChange": "Adds dynamic public Knowledge Card nodes, publisher/person nodes, source links and related-card navigation to the visual graph."
+    },
+    "participantGraphNavigationTest": "BLOCKED_BY_DEPLOYMENT_PROTECTION",
+    "mobileTest": "NOT_PERFORMED",
+    "accessPermissionChangedByAutomation": false,
+    "temporaryBypassCreatedByAutomation": false
   }
 }
