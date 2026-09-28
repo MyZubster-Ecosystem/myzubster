@@ -7,10 +7,23 @@ const { buildGithubWorkEvidence, verifyGithubWorkEvidence } = require('../servic
 const { anchorMarketplaceEvidenceOnBase } = require('../services/baseMarketplaceAnchorService');
 const { authenticate } = require('../middleware/auth');
 const KnowledgeDraft = require('../models/KnowledgeDraft');
+const User = require('../models/User');
 const { normalizeKnowledgeDraft } = require('../services/knowledgeDraftService');
 const mongoose = require('mongoose');
 
 const router = express.Router();
+
+// Only explicitly published cards are returned, and only their intended public fields.
+router.get('/public/:id', async (req, res) => {
+  if (!mongoose.isValidObjectId(req.params.id)) return res.status(404).json({ success: false, error: 'Scheda non trovata' });
+  try {
+    const card = await KnowledgeDraft.findOne({ _id: req.params.id, status: 'published', visibility: 'public' })
+      .select('title domain description evidence verificationNote publishedAt publisherName').lean();
+    if (!card) return res.status(404).json({ success: false, error: 'Scheda non trovata' });
+    res.set('Cache-Control', 'no-store');
+    return res.json({ success: true, card });
+  } catch (_) { return res.status(500).json({ success: false, error: 'Impossibile leggere la scheda' }); }
+});
 
 // Drafts are account-owned and private. A URL supplied as evidence is not a verification.
 router.get('/drafts', authenticate, async (req, res) => {
@@ -40,10 +53,39 @@ router.put('/drafts/:id', authenticate, async (req, res) => {
   catch (error) { return res.status(400).json({ success: false, error: error.message }); }
   try {
     const draft = await KnowledgeDraft.findOneAndUpdate(
-      { _id: req.params.id, ownerId: req.userId }, { $set: fields }, { new: true, runValidators: true }
+      { _id: req.params.id, ownerId: req.userId, status: 'draft', visibility: 'private' }, { $set: fields }, { new: true, runValidators: true }
     );
     return draft ? res.json({ success: true, draft }) : res.status(404).json({ success: false, error: 'Scheda non trovata' });
   } catch (_) { return res.status(500).json({ success: false, error: 'Impossibile aggiornare la bozza' }); }
+});
+
+router.post('/drafts/:id/publish', authenticate, async (req, res) => {
+  if (!mongoose.isValidObjectId(req.params.id)) return res.status(400).json({ success: false, error: 'Scheda non valida' });
+  if (req.body?.confirm !== true) return res.status(400).json({ success: false, error: 'Conferma esplicita richiesta' });
+  try {
+    const owner = await User.findById(req.userId).select('username').lean();
+    if (!owner) return res.status(401).json({ success: false, error: 'Account non trovato' });
+    const card = await KnowledgeDraft.findOneAndUpdate(
+      { _id: req.params.id, ownerId: req.userId, status: 'draft', visibility: 'private' },
+      { $set: { status: 'published', visibility: 'public', publishedAt: new Date(), publisherName: owner.username } },
+      { new: true, runValidators: true }
+    );
+    return card ? res.json({ success: true, card, url: `/knowledge-card?id=${card._id}` })
+      : res.status(409).json({ success: false, error: 'Scheda non trovata o già pubblicata' });
+  } catch (_) { return res.status(500).json({ success: false, error: 'Impossibile pubblicare la scheda' }); }
+});
+
+router.post('/drafts/:id/unpublish', authenticate, async (req, res) => {
+  if (!mongoose.isValidObjectId(req.params.id)) return res.status(400).json({ success: false, error: 'Scheda non valida' });
+  try {
+    const card = await KnowledgeDraft.findOneAndUpdate(
+      { _id: req.params.id, ownerId: req.userId, status: 'published', visibility: 'public' },
+      { $set: { status: 'draft', visibility: 'private' }, $unset: { publishedAt: '', publisherName: '' } },
+      { new: true, runValidators: true }
+    );
+    return card ? res.json({ success: true, card })
+      : res.status(409).json({ success: false, error: 'Scheda non trovata o già privata' });
+  } catch (_) { return res.status(500).json({ success: false, error: 'Impossibile ritirare la scheda' }); }
 });
 
 router.post('/', async (req, res) => {
