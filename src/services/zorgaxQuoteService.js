@@ -1,6 +1,6 @@
 'use strict';
 
-const { SUPPORTED_ASSETS } = require('./zorgaxLegacyMonetizationService');
+const SUPPORTED_ASSETS = Object.freeze(['BTC']);
 
 const DEFAULT_MAX_AGE_MS = 5 * 60 * 1000;
 const DEFAULT_BTC_QUOTE_URL = 'https://api.coingecko.com/api/v3/simple/price';
@@ -77,4 +77,11 @@ async function quotePlan({ asset, priceEur, fetchImpl = global.fetch }) {
   return quote;
 }
 
-module.exports = { DEFAULT_MAX_AGE_MS, DEFAULT_BTC_QUOTE_URL, normalizeQuote, fetchDefaultBitcoinQuote, quotePlan };
+module.exports = {
+  SUPPORTED_ASSETS,
+  DEFAULT_MAX_AGE_MS,
+  DEFAULT_BTC_QUOTE_URL,
+  normalizeQuote,
+  fetchDefaultBitcoinQuote,
+  quotePlan
+};
