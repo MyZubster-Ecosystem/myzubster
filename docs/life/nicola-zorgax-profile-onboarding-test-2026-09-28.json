@@ -1,0 +1,61 @@
+{
+  "version": "nicola_zorgax_profile_onboarding_test_v1",
+  "recordedAt": "2026-09-28",
+  "participantPublicId": "nicolaususnicola-lgtm",
+  "source": "participant_direct_email_report",
+  "scope": "Zorgax profile onboarding usability test",
+  "privacy": {
+    "publicContactStored": false,
+    "rawEmailBodyStored": false,
+    "privateProfileAnswersStored": false,
+    "note": "The participant requested a private draft. Public evidence records only the minimized workflow outcome and omits the supplied profile details."
+  },
+  "target": {
+    "page": "https://www.myzubster.com/zorgax-profile-onboarding",
+    "githubPublicId": "nicolaususnicola-lgtm"
+  },
+  "participantReportedResults": {
+    "expiredSession": {
+      "observed": true,
+      "error": "jwt expired",
+      "recovery": "REAUTHENTICATION_REPORTED_SUCCESSFUL",
+      "independentProductionReproduction": "NOT_PERFORMED"
+    },
+    "conversationContinuity": {
+      "priorAnswersProvided": true,
+      "repeatedRoleQuestionObserved": true,
+      "privateDraftSaveCompleted": false,
+      "independentProductionReproduction": "NOT_PERFORMED"
+    },
+    "publication": {
+      "newProfilePublished": false,
+      "githubModifiedByParticipant": false
+    },
+    "knowledgeBuilder": {
+      "routeObserved": "URL retained but homepage rendered",
+      "localDraftCardsPrepared": 3,
+      "cardsRegisteredInBuilder": false,
+      "githubProfileUpdated": {
+        "state": "VERIFIED_PUBLIC_COMMIT",
+        "commit": "65ad92a04bd7ca94eff7c6ab4ed9048297fc548f",
+        "url": "https://github.com/nicolaususnicola-lgtm/nicolaususnicola-lgtm/commit/65ad92a04bd7ca94eff7c6ab4ed9048297fc548f",
+        "boundary": "The commit is verified present; driving experience, licences and service availability remain participant-declared."
+      },
+      "requestedOutcome": "WORKING_PRIVATE_DRAFT_PATH",
+      "independentProductionReproduction": "CONFIRMED_HOMEPAGE_FALLBACK"
+    }
+  },
+  "preparedRemediation": [
+    "Preserve the local draft and guided-chat history when reauthentication is required.",
+    "Replace the raw expired-token error with a safe reauthentication action that returns to onboarding.",
+    "Send prior user and assistant turns through the supported history field.",
+    "Instruct the guide not to repeat answered questions and to produce a private editable draft once sufficient information is present.",
+    "Register the Knowledge Profile Builder as a Vercel static build and route both the canonical path and the .html redirect before the frontend catch-all."
+  ],
+  "evidenceBoundaries": [
+    "This record captures Nicola's direct test report; it does not independently prove the production failure or recovery.",
+    "The public GitHub account is visible, but this record does not independently verify the MyZubster OAuth database linkage.",
+    "No profile publication, GitHub write, commercial result, or completed professional profile is claimed.",
+    "The three local Knowledge Card drafts were not imported. The public GitHub profile commit was verified present, while personal experience, licences and service availability remain participant-declared."
+  ]
+}

@@ -120,6 +120,26 @@ The participant profile, automation documentation and prior validation artifacts
 
 The next technical change for the selected Project Planner pilot is being prepared through a dedicated branch and pull request. A branch or PR is evidence of implementation work only; it is not evidence that the MVP has been pilot-tested or commercially validated.
 
+## Profile onboarding test — 2026-09-28
+
+Nicola reported testing the public Zorgax profile onboarding page with a private-draft goal. He supplied real profile answers during the guided flow, but those answers are intentionally not copied into this public evidence record.
+
+Participant-reported outcomes:
+
+- the first authenticated submission failed with an expired JWT;
+- signing in again restored access and the linked GitHub identity was reported as verified;
+- the guided flow repeated the role question after the role and activities had already been supplied;
+- a local draft was prepared, but a professional private draft could not be saved through the site;
+- no new profile was published and Nicola reported no GitHub modification.
+
+The minimized record is stored in:
+
+`docs/life/nicola-zorgax-profile-onboarding-test-2026-09-28.json`
+
+The functional failures are participant-reported and were not independently reproduced in the production browser during this update. The code fix must preserve the local draft and conversation across reauthentication, send prior turns as assistant history, avoid repeated answered questions, and keep publication behind explicit approval.
+
+In a follow-up on **2026-09-28**, Nicola reported that `/zorgax-profile-builder.html` retained its URL but rendered the MyZubster homepage instead of the Knowledge Profile Builder. This routing failure was independently reproduced in the public browser and traced to the Builder being absent from the Vercel static builds and explicit routes before the frontend catch-all. Nicola also reported three local draft Knowledge Cards; their contents were not imported or published. His public GitHub profile update was verified at commit [`65ad92a`](https://github.com/nicolaususnicola-lgtm/nicolaususnicola-lgtm/commit/65ad92a04bd7ca94eff7c6ab4ed9048297fc548f), which adds driving services and the MyZubster learning journey. The commit is public evidence of the edit; driving experience, licences and service availability remain participant-declared.
+
 ## Human-control rules
 
 This pilot is advisory-first. Zorgax must not autonomously:
