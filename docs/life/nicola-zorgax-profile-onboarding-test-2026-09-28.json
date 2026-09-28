@@ -35,7 +35,12 @@
       "routeObserved": "URL retained but homepage rendered",
       "localDraftCardsPrepared": 3,
       "cardsRegisteredInBuilder": false,
-      "githubProfileUpdated": "PARTICIPANT_REPORTED",
+      "githubProfileUpdated": {
+        "state": "VERIFIED_PUBLIC_COMMIT",
+        "commit": "65ad92a04bd7ca94eff7c6ab4ed9048297fc548f",
+        "url": "https://github.com/nicolaususnicola-lgtm/nicolaususnicola-lgtm/commit/65ad92a04bd7ca94eff7c6ab4ed9048297fc548f",
+        "boundary": "The commit is verified present; driving experience, licences and service availability remain participant-declared."
+      },
       "requestedOutcome": "WORKING_PRIVATE_DRAFT_PATH",
       "independentProductionReproduction": "CONFIRMED_HOMEPAGE_FALLBACK"
     }
@@ -51,6 +56,6 @@
     "This record captures Nicola's direct test report; it does not independently prove the production failure or recovery.",
     "The public GitHub account is visible, but this record does not independently verify the MyZubster OAuth database linkage.",
     "No profile publication, GitHub write, commercial result, or completed professional profile is claimed.",
-    "The three local Knowledge Card drafts and the reported GitHub profile update were not imported or independently content-verified."
+    "The three local Knowledge Card drafts were not imported. The public GitHub profile commit was verified present, while personal experience, licences and service availability remain participant-declared."
   ]
 }
