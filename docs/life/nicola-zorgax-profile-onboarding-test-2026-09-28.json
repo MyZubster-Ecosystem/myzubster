@@ -1,9 +1,9 @@
 {
-  "version": "nicola_zorgax_profile_onboarding_test_v9",
+  "version": "nicola_zorgax_profile_onboarding_test_v10",
   "recordedAt": "2026-09-28",
   "participantPublicId": "nicolaususnicola-lgtm",
   "source": "participant_direct_email_report_with_public_artifact_verification",
-  "scope": "Zorgax Knowledge Profile Builder publication, linked software evidence, visual-graph test and Sepolia URL-hash/content-snapshot proofs",
+  "scope": "Zorgax Knowledge Profile Builder publication, linked software evidence, visual-graph tests, Sepolia URL-hash/content-snapshot proofs and proposed Proof v2 graph integration",
   "privacy": {
     "publicContactStored": false,
     "rawEmailBodyStored": false,
@@ -28,7 +28,8 @@
         "url": "https://www.myzubster.com/knowledge-card?id=6abaaefb3a7460c4574a45fd",
         "publisherPublicId": "nicolaususnicola-lgtm",
         "publishedOn": "2026-09-28",
-        "automaticVerification": false
+        "automaticVerification": false,
+        "latestRevisionState": "PARTICIPANT_REPORTED_UPDATED_NOT_INDEPENDENTLY_REVERIFIED"
       },
       {
         "state": "VERIFIED_PUBLIC",
@@ -69,10 +70,11 @@
     "The visual graph implementation and READY deployment were independently verified, but participant navigation and rendered N4K48 nodes were not verified because Vercel authentication blocked access.",
     "The Sepolia experiment anchors the SHA-256 of the Knowledge Card URL string only; it does not prove the card contents, authorship, ownership, competence or continued availability.",
     "No email, merge, publication, transaction or GitHub write was performed on Nicola's behalf.",
-    "The six-source revision is saved only as a participant-reported private draft; its exact text and source set remain unverified until owner-controlled publication.",
+    "The participant later reported the six-source Proof v2 revision published at the existing public card URL; the updated live contents were not independently re-retrieved in this run.",
     "Proof v2 independently verifies the SHA-256 of the exact committed content-snapshot bytes, not that the snapshot equals the current live card.",
     "Proof v2 contains one source entry with an empty URL; this source is not independently navigable.",
-    "The Proof v2 Sepolia deployment and on-chain knowledgeHash value remain participant-reported because the explorer pages were not retrievable."
+    "The Proof v2 Sepolia deployment and on-chain knowledgeHash value remain participant-reported because the explorer pages were not retrievable.",
+    "Draft PR #1414 proves only that the graph integration was prepared; it does not prove review, merge, deployment or participant mobile testing."
   ],
   "softwareContributionEvidence": {
     "participantReportedResult": "Syntax check passed and a full re-ingestion loaded 46 knowledge chunks into Qdrant and skipped 1 empty document.",
@@ -143,7 +145,7 @@
       "contractStateValues": "PARTICIPANT_REPORTED_NOT_INDEPENDENTLY_RETRIEVED"
     },
     "proofScope": "URL_STRING_HASH_ONLY_NOT_CARD_CONTENT_HASH",
-    "cardUpdateStatus": "PRIVATE_DRAFT_SAVED_PARTICIPANT_REPORTED_NOT_PUBLICLY_VERIFIED",
+    "cardUpdateStatus": "PUBLIC_UPDATE_COMPLETED_PARTICIPANT_REPORTED_NOT_INDEPENDENTLY_REVERIFIED",
     "workflowRunForCommit": "NONE_FOUND",
     "commitStatus": "NONE_FOUND",
     "automationActions": {
@@ -153,13 +155,13 @@
       "modifiedKnowledgeCard": false
     },
     "cardEvidenceDraft": {
-      "participantReportedState": "PRIVATE_DRAFT_SAVED",
+      "participantReportedState": "PUBLIC_UPDATE_COMPLETED_PARTICIPANT_REPORTED",
       "sourceCountParticipantReported": 6,
       "sourceFormatParticipantReported": "name | URL | note",
       "duplicatesRemovedParticipantReported": true,
       "privateDraftContentStored": false,
-      "independentPublicVerification": "NOT_POSSIBLE_BEFORE_PARTICIPANT_PUBLICATION",
-      "nextStep": "PARTICIPANT_OWNER_CONTROLLED_PUBLICATION_THEN_PUBLIC_CARD_VERIFICATION"
+      "independentPublicVerification": "PENDING_RECHECK_OF_UPDATED_LIVE_CONTENT",
+      "nextStep": "INDEPENDENTLY_RECHECK_UPDATED_PUBLIC_CARD"
     }
   },
   "onChainKnowledgeProofV2": {
@@ -200,7 +202,7 @@
     },
     "proofScope": "CRYPTOGRAPHIC_LINK_TO_COMMITTED_SNAPSHOT_BYTES_NOT_TRUTH_OR_LIVE_CARD_EQUIVALENCE",
     "canonicalizationCaveat": "The committed payload is reproducible as exact bytes, but the repository does not independently prove that it is an automatic or complete canonical export of the current live card.",
-    "publicCardLinkageStatus": "NOT_YET_VERIFIED",
+    "publicCardLinkageStatus": "PARTICIPANT_REPORTED_UPDATED_NOT_INDEPENDENTLY_REVERIFIED",
     "workflowRunsForCommits": "NONE_FOUND",
     "commitStatuses": "NONE_FOUND",
     "automationActions": {
@@ -208,6 +210,33 @@
       "sentTransaction": false,
       "connectedWallet": false,
       "modifiedKnowledgeCard": false
+    }
+  },
+  "updatedAt": "2026-09-29",
+  "knowledgeGraphProofV2Integration": {
+    "participantRequestedPath": [
+      "N4K48",
+      "Knowledge Card",
+      "canonical payload",
+      "SHA-256",
+      "Proof v2 Sepolia",
+      "GitHub documentation"
+    ],
+    "cardId": "6abaaefb3a7460c4574a45fd",
+    "implementationPullRequest": 1414,
+    "implementationPullRequestUrl": "https://github.com/MyZubster-Ecosystem/myzubster/pull/1414",
+    "branch": "feat/nicola-proof-v2-knowledge-graph-2026-09-29",
+    "state": "DRAFT_PR_OPEN_NOT_MERGED_OR_DEPLOYED",
+    "implementationScope": "SCOPED_TO_THE_AUTHORIZED_PUBLIC_CARD_ID",
+    "proofBoundary": "INTEGRITY_AND_LINKAGE_ONLY_NOT_CERTIFICATION",
+    "onChainExplorerVerification": "PENDING_INDEPENDENT_CHECK",
+    "participantMobileTest": "PENDING_REVIEW_MERGE_AND_DEPLOYMENT",
+    "automationActions": {
+      "merged": false,
+      "deployed": false,
+      "modifiedKnowledgeCard": false,
+      "sentEmail": false,
+      "sentTransaction": false
     }
   }
 }
