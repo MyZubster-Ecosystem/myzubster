@@ -1,9 +1,9 @@
 {
-  "version": "nicola_zorgax_profile_onboarding_test_v10",
+  "version": "nicola_zorgax_profile_onboarding_test_v11",
   "recordedAt": "2026-09-28",
   "participantPublicId": "nicolaususnicola-lgtm",
   "source": "participant_direct_email_report_with_public_artifact_verification",
-  "scope": "Zorgax Knowledge Profile Builder publication, linked software evidence, visual-graph tests, Sepolia URL-hash/content-snapshot proofs and proposed Proof v2 graph integration",
+  "scope": "Zorgax Knowledge Profile Builder publication, software evidence, visual-graph tests, Sepolia proofs, proposed Proof v2 graph integration and standards architecture review",
   "privacy": {
     "publicContactStored": false,
     "rawEmailBodyStored": false,
@@ -74,7 +74,8 @@
     "Proof v2 independently verifies the SHA-256 of the exact committed content-snapshot bytes, not that the snapshot equals the current live card.",
     "Proof v2 contains one source entry with an empty URL; this source is not independently navigable.",
     "The Proof v2 Sepolia deployment and on-chain knowledgeHash value remain participant-reported because the explorer pages were not retrievable.",
-    "Draft PR #1414 proves only that the graph integration was prepared; it does not prove review, merge, deployment or participant mobile testing."
+    "Draft PR #1414 proves only that the graph integration was prepared; it does not prove review, merge, deployment or participant mobile testing.",
+    "The standards comparison supports an architecture review only; it does not establish uniqueness, interoperability, issuer authority or production readiness."
   ],
   "softwareContributionEvidence": {
     "participantReportedResult": "Syntax check passed and a full re-ingestion loaded 46 knowledge chunks into Qdrant and skipped 1 empty document.",
@@ -226,7 +227,7 @@
     "implementationPullRequest": 1414,
     "implementationPullRequestUrl": "https://github.com/MyZubster-Ecosystem/myzubster/pull/1414",
     "branch": "feat/nicola-proof-v2-knowledge-graph-2026-09-29",
-    "state": "DRAFT_PR_OPEN_NOT_MERGED_OR_DEPLOYED",
+    "state": "DRAFT_PR_OPEN_ARCHITECTURE_REVIEW_REQUIRED_NOT_MERGED_OR_DEPLOYED",
     "implementationScope": "SCOPED_TO_THE_AUTHORIZED_PUBLIC_CARD_ID",
     "proofBoundary": "INTEGRITY_AND_LINKAGE_ONLY_NOT_CERTIFICATION",
     "onChainExplorerVerification": "PENDING_INDEPENDENT_CHECK",
@@ -237,6 +238,59 @@
       "modifiedKnowledgeCard": false,
       "sentEmail": false,
       "sentTransaction": false
-    }
+    },
+    "mergeRecommendation": "HOLD_FOR_HUMAN_ARCHITECTURE_DECISION"
+  },
+  "proofV2ArchitectureReview": {
+    "recordedOn": "2026-09-29",
+    "source": "PARTICIPANT_COMPARISON_CHECKED_AGAINST_OFFICIAL_DOCUMENTATION",
+    "participantHypothesis": "MYZUBSTER_DIFFERENTIATION_IS_NAVIGABLE_EVIDENCE_COMPOSITION_NOT_A_NOVEL_SCORE_OR_CREDENTIAL_FORMAT",
+    "benchmarks": [
+      {
+        "system": "Talent Protocol Builder Score",
+        "officialUrl": "https://talentprotocol.com/",
+        "verifiedRole": "Explainable browser-computed score from public GitHub and on-chain data with optional EAS attestation on Base.",
+        "boundary": "Talent states that the score is an automated summary, not an endorsement or credential.",
+        "fit": "REFERENCE_PATTERN_ONLY"
+      },
+      {
+        "system": "Ethereum Attestation Service",
+        "officialUrl": "https://docs.attest.org/",
+        "verifiedRole": "Custom schema-based on-chain and off-chain attestations.",
+        "fit": "EVALUATE_FOR_STANDARDIZED_ARTIFACT_INTEGRITY_ATTESTATIONS"
+      },
+      {
+        "system": "cheqd Trust Registries",
+        "officialUrl": "https://docs.cheqd.io/product/studio/trust-registries",
+        "verifiedRole": "DIDs, Verifiable Credentials and authorization chains for issuers and relying parties.",
+        "fit": "EVALUATE_ONLY_IF_FORMAL_MULTI_ISSUER_GOVERNANCE_IS_REQUIRED"
+      },
+      {
+        "system": "1EdTech Open Badges 3.0",
+        "officialUrl": "https://www.1edtech.org/standards/open-badges",
+        "verifiedRole": "Issuer-signed achievement credentials compatible with the W3C Verifiable Credentials Data Model 2.0, including criteria and evidence.",
+        "fit": "EVALUATE_FOR_ISSUER_BACKED_ACHIEVEMENTS_NOT_SELF_DECLARED_PROFILE_CLAIMS"
+      }
+    ],
+    "provisionalLayering": {
+      "knowledgeGraph": "RETAIN_AS_EVIDENCE_RELATIONSHIP_AND_NAVIGATION_LAYER",
+      "currentProofV2": "KEEP_AS_EXPERIMENTAL_INTEGRITY_ANCHOR",
+      "attestations": "EVALUATE_EAS_BEFORE_EXTENDING_CUSTOM_CONTRACTS",
+      "credentials": "EVALUATE_OPEN_BADGES_ONLY_WITH_DEFINED_ISSUER_AND_ASSESSMENT_PROCESS",
+      "trustRegistry": "EVALUATE_CHEQD_ONLY_WITH_MULTI_ISSUER_TRUST_REQUIREMENTS",
+      "scoring": "DO_NOT_ADD_BEFORE_OBJECTIVE_GOVERNANCE_AND_ANTI_GAMING_REVIEW"
+    },
+    "decisionInputsRequired": [
+      "CLAIM_TYPES_AND_EVIDENCE_MODEL",
+      "ISSUER_HOLDER_VERIFIER_ROLES",
+      "CANONICALIZATION_AND_VERSIONING",
+      "STATUS_REVOCATION_AND_EXPIRY",
+      "PRIVACY_AND_DATA_MINIMIZATION",
+      "CHAIN_COST_AND_PORTABILITY",
+      "MIGRATION_AND_INTEROPERABILITY",
+      "THREAT_MODEL_AND_ANTI_GAMING"
+    ],
+    "decisionStatus": "PENDING_HUMAN_ARCHITECTURE_REVIEW",
+    "implementationImpact": "NO_NEW_CODE_OR_CREDENTIAL_ISSUANCE_AUTHORIZED_BY_THIS_MESSAGE"
   }
 }
