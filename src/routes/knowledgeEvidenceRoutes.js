@@ -40,10 +40,26 @@ router.put('/drafts/:id', authenticate, async (req, res) => {
   catch (error) { return res.status(400).json({ success: false, error: error.message }); }
   try {
     const draft = await KnowledgeDraft.findOneAndUpdate(
-      { _id: req.params.id, ownerId: req.userId }, { $set: fields }, { new: true, runValidators: true }
+      { _id: req.params.id, ownerId: req.userId },
+      { $set: { ...fields, status: 'draft', reviewRequestedAt: null } },
+      { new: true, runValidators: true }
     );
     return draft ? res.json({ success: true, draft }) : res.status(404).json({ success: false, error: 'Scheda non trovata' });
   } catch (_) { return res.status(500).json({ success: false, error: 'Impossibile aggiornare la bozza' }); }
+});
+
+router.post('/drafts/:id/review-request', authenticate, async (req, res) => {
+  if (!mongoose.isValidObjectId(req.params.id)) return res.status(400).json({ success: false, error: 'Scheda non valida' });
+  try {
+    const draft = await KnowledgeDraft.findOneAndUpdate(
+      { _id: req.params.id, ownerId: req.userId, status: 'draft' },
+      { $set: { status: 'review_requested', reviewRequestedAt: new Date() } },
+      { new: true, runValidators: true }
+    );
+    return draft
+      ? res.json({ success: true, draft, publication: 'NOT_PERFORMED' })
+      : res.status(404).json({ success: false, error: 'Bozza non trovata o già inviata in revisione' });
+  } catch (_) { return res.status(500).json({ success: false, error: 'Impossibile richiedere la revisione' }); }
 });
 
 router.post('/', async (req, res) => {
