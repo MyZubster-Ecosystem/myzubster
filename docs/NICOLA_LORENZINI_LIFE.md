@@ -122,13 +122,13 @@ The next technical change for the selected Project Planner pilot is being prepar
 
 ## Knowledge Profile Builder result — 2026-09-28
 
-Nicola reported that all three Knowledge Cards were saved as private drafts and reopened successfully. The private card bodies were not copied into this repository.
+Nicola reported that all three Knowledge Cards were saved as private drafts, reopened successfully and then published through the owner-controlled flow merged in [PR #1410](https://github.com/MyZubster-Ecosystem/myzubster/pull/1410). All three public artifacts were independently observed:
 
-After the owner-controlled publication flow was merged in [PR #1410](https://github.com/MyZubster-Ecosystem/myzubster/pull/1410), Nicola published the first card, **“Prove Docker e chat AI del progetto myzubster-mvp.”** The public artifact was independently observed at:
+- [Prove Docker e chat AI del progetto myzubster-mvp](https://www.myzubster.com/knowledge-card?id=6abaaefb3a7460c4574a45fd)
+- [Apprendimento e collaborazione nel percorso MyZubster](https://www.myzubster.com/knowledge-card?id=6abaaf563a7460c4574a4623)
+- [Autista di camion e organizzazione dei trasporti](https://www.myzubster.com/knowledge-card?id=6abaae353a7460c4574a4597)
 
-https://www.myzubster.com/knowledge-card?id=6abaaefb3a7460c4574a45fd
-
-The public page labels the activities as owner declarations, lists owner-supplied sources, states that MyZubster does not automatically certify the claims, and identifies the public account as `nicolaususnicola-lgtm`.
+The pages identify the public account as `nicolaususnicola-lgtm`, label the activities as owner declarations, list owner-supplied sources and state that MyZubster does not automatically certify the claims. Professional experience, licences and qualifications on the transport card remain participant-declared; no private supporting documents were accessed.
 
 Nicola also reported that local RAG retrieval through Qdrant and `/api/ai/ask` succeeded after changing `AI_CONTEXT_LIMIT` from `1` to `5`. Commit [`d360ae96`](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/commit/d360ae96a26f2e9f82e8982015b29b71b75d27e3) independently verifies the configuration change. It does not independently reproduce the local retrieval result, and no workflow run was found for that commit.
 
