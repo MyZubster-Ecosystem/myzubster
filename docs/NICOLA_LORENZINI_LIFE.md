@@ -120,6 +120,24 @@ The participant profile, automation documentation and prior validation artifacts
 
 The next technical change for the selected Project Planner pilot is being prepared through a dedicated branch and pull request. A branch or PR is evidence of implementation work only; it is not evidence that the MVP has been pilot-tested or commercially validated.
 
+## Profile onboarding test — 2026-09-28
+
+Nicola reported testing the public Zorgax profile onboarding page with a private-draft goal. He supplied real profile answers during the guided flow, but those answers are intentionally not copied into this public evidence record.
+
+Participant-reported outcomes:
+
+- the first authenticated submission failed with an expired JWT;
+- signing in again restored access and the linked GitHub identity was reported as verified;
+- the guided flow repeated the role question after the role and activities had already been supplied;
+- a local draft was prepared, but a professional private draft could not be saved through the site;
+- no new profile was published and Nicola reported no GitHub modification.
+
+The minimized record is stored in:
+
+`docs/life/nicola-zorgax-profile-onboarding-test-2026-09-28.json`
+
+The functional failures are participant-reported and were not independently reproduced in the production browser during this update. The code fix must preserve the local draft and conversation across reauthentication, send prior turns as assistant history, avoid repeated answered questions, and keep publication behind explicit approval.
+
 ## Human-control rules
 
 This pilot is advisory-first. Zorgax must not autonomously:
