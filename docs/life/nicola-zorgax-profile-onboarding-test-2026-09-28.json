@@ -1,9 +1,9 @@
 {
-  "version": "nicola_zorgax_profile_onboarding_test_v6",
+  "version": "nicola_zorgax_profile_onboarding_test_v7",
   "recordedAt": "2026-09-28",
   "participantPublicId": "nicolaususnicola-lgtm",
   "source": "participant_direct_email_report_with_public_artifact_verification",
-  "scope": "Zorgax Knowledge Profile Builder publication, linked software-contribution evidence and visual-graph access test",
+  "scope": "Zorgax Knowledge Profile Builder publication, linked software evidence, visual-graph test and Sepolia URL-hash proof",
   "privacy": {
     "publicContactStored": false,
     "rawEmailBodyStored": false,
@@ -67,6 +67,7 @@
     "Professional experience, licences and qualifications on the transport card remain participant-declared; no private supporting documents were accessed.",
     "The chunking commit proves the code change, not the participant-reported syntax-check result, re-ingestion execution or Qdrant document counts.",
     "The visual graph implementation and READY deployment were independently verified, but participant navigation and rendered N4K48 nodes were not verified because Vercel authentication blocked access.",
+    "The Sepolia experiment anchors the SHA-256 of the Knowledge Card URL string only; it does not prove the card contents, authorship, ownership, competence or continued availability.",
     "No email, merge, publication, transaction or GitHub write was performed on Nicola's behalf."
   ],
   "softwareContributionEvidence": {
@@ -107,5 +108,45 @@
     "mobileTest": "NOT_PERFORMED",
     "accessPermissionChangedByAutomation": false,
     "temporaryBypassCreatedByAutomation": false
+  },
+  "onChainKnowledgeProof": {
+    "network": "Ethereum Sepolia testnet",
+    "proofType": "SHA256_OF_KNOWLEDGE_CARD_URL_STRING",
+    "cardUrl": "https://www.myzubster.com/knowledge-card?id=6abaaefb3a7460c4574a45fd",
+    "contractAddress": "0xabCF68e97a32eCa503942A563FF16F209ed45d11",
+    "deployTransactionHash": "0x09dddd29aca76c9a425ba9cb45cefb1bfbe203b9628f5f9526e4a281012d4f20",
+    "creatorAddressParticipantReported": "0x08ae56e99AdB11Df571c437B18620D6c0075d700",
+    "knowledgeHash": "0x15b21c4f189259f143f6c946ac866001d88f5bc7aa371cac7cbcc1ce66b43685",
+    "independentHashRecomputation": {
+      "input": "https://www.myzubster.com/knowledge-card?id=6abaaefb3a7460c4574a45fd",
+      "algorithm": "SHA-256",
+      "matchesReportedHash": true
+    },
+    "timestamp": {
+      "unix": 1790630820,
+      "utc": "2026-09-28T21:27:00Z"
+    },
+    "verifiedPublicCommit": {
+      "sha": "2df5b391f707eb0945dda9512ceb9387736b6402",
+      "url": "https://github.com/nicolaususnicola-lgtm/myzubster-mvp/commit/2df5b391f707eb0945dda9512ceb9387736b6402",
+      "verifiedChange": "Adds contracts/MyZubsterProof.sol and docs/sepolia-proof.md with the bounded proof description."
+    },
+    "explorerReferences": {
+      "contractUrl": "https://sepolia.etherscan.io/address/0xabCF68e97a32eCa503942A563FF16F209ed45d11#code",
+      "transactionUrl": "https://sepolia.etherscan.io/tx/0x09dddd29aca76c9a425ba9cb45cefb1bfbe203b9628f5f9526e4a281012d4f20",
+      "deploymentSuccess": "PARTICIPANT_REPORTED_NOT_INDEPENDENTLY_RETRIEVED",
+      "sourceExactMatch": "PARTICIPANT_REPORTED_NOT_INDEPENDENTLY_RETRIEVED",
+      "contractStateValues": "PARTICIPANT_REPORTED_NOT_INDEPENDENTLY_RETRIEVED"
+    },
+    "proofScope": "URL_STRING_HASH_ONLY_NOT_CARD_CONTENT_HASH",
+    "cardUpdateStatus": "PARTICIPANT_INTENDS_TO_ADD_SOURCES_NOT_YET_VERIFIED",
+    "workflowRunForCommit": "NONE_FOUND",
+    "commitStatus": "NONE_FOUND",
+    "automationActions": {
+      "deployedContract": false,
+      "sentTransaction": false,
+      "connectedWallet": false,
+      "modifiedKnowledgeCard": false
+    }
   }
 }
