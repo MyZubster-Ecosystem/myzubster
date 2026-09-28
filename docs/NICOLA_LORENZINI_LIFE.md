@@ -120,6 +120,16 @@ The participant profile, automation documentation and prior validation artifacts
 
 The next technical change for the selected Project Planner pilot is being prepared through a dedicated branch and pull request. A branch or PR is evidence of implementation work only; it is not evidence that the MVP has been pilot-tested or commercially validated.
 
+## Knowledge Profile Builder test — 2026-09-28
+
+Nicola reported that the corrected Knowledge Profile Builder opened successfully and that all three Knowledge Cards were saved as private drafts and reopened from the saved-drafts menu. The draft bodies are intentionally not copied into this public profile, and the participant-side save was not independently reproduced inside his account.
+
+Nicola then asked how to publish the cards while preserving the distinction between participant declarations and verified evidence. The Builder on `main` currently supports private draft creation, listing and editing only; it has no public transition. A bounded follow-up change therefore prepares a `review_requested` state and a “Richiedi revisione” action. That action keeps the card private and records no claim as verified. Publication remains a separate human-controlled decision after privacy, ownership and evidence review.
+
+The minimized test record is stored in:
+
+`docs/life/nicola-zorgax-profile-onboarding-test-2026-09-28.json`
+
 ## Human-control rules
 
 This pilot is advisory-first. Zorgax must not autonomously:
