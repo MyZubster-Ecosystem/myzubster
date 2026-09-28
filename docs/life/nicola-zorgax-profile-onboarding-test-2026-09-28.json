@@ -1,0 +1,44 @@
+{
+  "version": "nicola_zorgax_profile_onboarding_test_v2",
+  "recordedAt": "2026-09-28",
+  "participantPublicId": "nicolaususnicola-lgtm",
+  "source": "participant_direct_email_report",
+  "scope": "Zorgax Knowledge Profile Builder private-draft test",
+  "privacy": {
+    "publicContactStored": false,
+    "rawEmailBodyStored": false,
+    "privateDraftContentStored": false,
+    "note": "Only the minimized workflow outcome is recorded. The three private card bodies and evidence details remain in the participant-owned account."
+  },
+  "target": {
+    "page": "https://www.myzubster.com/zorgax-profile-builder",
+    "githubPublicId": "nicolaususnicola-lgtm"
+  },
+  "participantReportedResults": {
+    "builderAccess": "SUCCESS",
+    "privateDraftsSaved": 3,
+    "privateDraftsReopenedFromSavedList": 3,
+    "publicationRequested": true,
+    "publicationPerformed": false
+  },
+  "repositoryVerification": {
+    "currentBuilderCapability": "PRIVATE_DRAFT_CREATE_READ_UPDATE_ONLY",
+    "currentDraftStatus": "draft",
+    "currentVisibility": "private",
+    "publicTransitionPresent": false
+  },
+  "preparedChange": {
+    "workflow": "DRAFT_TO_PRIVATE_REVIEW_REQUEST",
+    "reviewStatus": "review_requested",
+    "visibilityDuringReview": "private",
+    "automaticPublication": false,
+    "automaticGitHubWrite": false,
+    "humanReviewRequired": true
+  },
+  "evidenceBoundaries": [
+    "Saving and reopening the three drafts is participant-reported and was not independently reproduced inside the participant account.",
+    "The private card bodies were not read, copied, imported or published by the automation.",
+    "A review request is not publication and does not verify participant-declared claims.",
+    "A human reviewer must check privacy, source relevance, ownership and the distinction between declarations and verified evidence before any public release."
+  ]
+}
