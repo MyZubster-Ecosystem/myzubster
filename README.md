@@ -2,6 +2,60 @@
 
 > **Canonical public GitHub repository:** [MyZubster-Ecosystem/myzubster](https://github.com/MyZubster-Ecosystem/myzubster). If another MyZubster link shows a GitHub 404, return to this repository; legacy/private repositories are not the public contribution entry point. To support the project, open this repository and use GitHub's **Star** or **Fork** controls.
 
+## ⚡ Understand MyZubster in one minute
+
+MyZubster helps a person turn knowledge, skills and authorized observations into **reviewable contributions and verifiable public history**. You can start with GitHub and Zorgax; blockchain knowledge, cryptocurrency and a wallet are **not required** to participate.
+
+```text
+CONNECT GITHUB
+      ↓
+VERIFIED PUBLIC GITHUB IDENTITY
+      ↓
+ZORGAX ORGANIZES BIO, SKILLS, SOURCES AND KNOWLEDGE DRAFTS
+      ↓
+ISSUES + PULL REQUESTS + REVIEWED EVIDENCE BUILD PUBLIC HISTORY
+      ↓
+PROFILE + OPTIONAL CHARACTER + METAVERSE + COMIC / CHRONICLE
+      ↓
+RESEARCH, PILOTS, MARKETPLACE AND OPEN-SOURCE PROJECTS
+```
+
+### What Zorgax and the knowledge workflow do
+
+1. A person describes an idea, skill, experience or authorized observation.
+2. Zorgax helps organize questions, sources, a profile, a Knowledge Card or a scoped task.
+3. The person reviews and approves the draft; nothing is automatically treated as true or published.
+4. Sources, issue activity, pull requests, tests and human review provide the evidence trail.
+5. Accepted work can become part of the contributor's public history and, with explicit consent, inform an optional MyZubster character and the narrative Comic / Chronicle layer.
+6. The resulting knowledge can support research, a reproducible technical tool, a real-world pilot, a Marketplace offer or another open-source output.
+
+**Evidence boundary:** a Zorgax conversation is not scientific validation; a character or comic is not proof; an issue or pull request is not automatically completed work; a merge is not automatically a payment.
+
+### Concrete knowledge examples
+
+| Track | How knowledge is applied | Evidence status |
+|---|---|---|
+| **Kefir / KF-006** | Responsible exchange, documentation and reproducible community learning, without medical claims. | Knowledge-sharing track; each real exchange or test needs its own evidence. |
+| **Docker and digital tools** | Turn technical knowledge into reproducible environments, setup instructions, tests and reusable open-source services. | Technical contributions are verified through repository history, tests and review. |
+| **Nicola / N4K48** | A participant-owned public pilot connecting comics, evidence-first AI, provenance and an inspectable knowledge anchor. | Public pilot with linked evidence; it does not automatically prove every separate kefir or Docker activity. |
+| **Open Period Care** | Convert voluntary anonymized observations into academic research questions, product requirements and controlled open-source prototyping. | Proposed pilot; scientific, privacy and safety review remain required. |
+
+### Optional MetaMask / Ethereum-compatible anchor
+
+A Knowledge Card can first be registered as a canonical **SHA-256 evidence record without any blockchain transaction**. When an explicit public timestamp/anchor is useful, a compatible wallet such as **MetaMask** can be used for an optional transaction on **Base Sepolia**, an Ethereum-compatible test network.
+
+```text
+KNOWLEDGE CARD
+      ↓
+SHA-256 EVIDENCE RECORD
+      ↓
+OPTIONAL METAMASK APPROVAL
+      ↓
+BASE SEPOLIA / ETHEREUM-COMPATIBLE TESTNET ANCHOR
+```
+
+MetaMask and Ethereum are not required for GitHub login, Zorgax, profile creation, contribution, research or normal MyZubster use. A testnet anchor is not a payment, token sale, proof of scientific truth or production/mainnet deployment.
+
 ## 🧭 Explore MyZubster — interactive links
 
 [🌐 **MyZubster**](https://www.myzubster.com/) · [🤖 **Zorgax**](https://www.myzubster.com/zorgax) · [🧠 **Knowledge Profile Builder**](https://www.myzubster.com/zorgax-profile-builder.html) · [👤 **Profile Onboarding**](https://www.myzubster.com/zorgax-profile-onboarding.html) · [🛒 **Marketplace**](https://www.myzubster.com/community-marketplace.html) · [🧪 **Marketplace demos**](https://www.myzubster.com/marketplace-demos) · [🔬 **University & Research**](https://github.com/DanielIoni-creator/myzubster-university-research) · [🔊 **Sound System**](https://github.com/DanielIoni-creator/Myzubster-soundsystem) · [🧑‍🔬 **Nicola pilot**](https://github.com/DanielIoni-creator/Nicola) · [🧩 **Yassen pilot**](https://github.com/DanielIoni-creator/Yassen) · [💻 **Core repository**](https://github.com/MyZubster-Ecosystem/myzubster)
