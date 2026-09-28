@@ -5,8 +5,46 @@ const {
 } = require('../services/knowledgeEvidenceService');
 const { buildGithubWorkEvidence, verifyGithubWorkEvidence } = require('../services/githubWorkEvidenceService');
 const { anchorMarketplaceEvidenceOnBase } = require('../services/baseMarketplaceAnchorService');
+const { authenticate } = require('../middleware/auth');
+const KnowledgeDraft = require('../models/KnowledgeDraft');
+const { normalizeKnowledgeDraft } = require('../services/knowledgeDraftService');
+const mongoose = require('mongoose');
 
 const router = express.Router();
+
+// Drafts are account-owned and private. A URL supplied as evidence is not a verification.
+router.get('/drafts', authenticate, async (req, res) => {
+  try {
+    const drafts = await KnowledgeDraft.find({ ownerId: req.userId }).sort({ updatedAt: -1 }).limit(50).lean();
+    return res.json({ success: true, drafts });
+  } catch (_) { return res.status(500).json({ success: false, error: 'Impossibile leggere le bozze' }); }
+});
+
+router.post('/drafts', authenticate, async (req, res) => {
+  let fields;
+  try { fields = normalizeKnowledgeDraft(req.body); }
+  catch (error) { return res.status(400).json({ success: false, error: error.message }); }
+  try {
+    if (await KnowledgeDraft.countDocuments({ ownerId: req.userId }) >= 50) {
+      return res.status(409).json({ success: false, error: 'Limite di 50 bozze raggiunto' });
+    }
+    const draft = await KnowledgeDraft.create({ ...fields, ownerId: req.userId });
+    return res.status(201).json({ success: true, draft });
+  } catch (_) { return res.status(500).json({ success: false, error: 'Impossibile salvare la bozza' }); }
+});
+
+router.put('/drafts/:id', authenticate, async (req, res) => {
+  if (!mongoose.isValidObjectId(req.params.id)) return res.status(400).json({ success: false, error: 'Scheda non valida' });
+  let fields;
+  try { fields = normalizeKnowledgeDraft(req.body); }
+  catch (error) { return res.status(400).json({ success: false, error: error.message }); }
+  try {
+    const draft = await KnowledgeDraft.findOneAndUpdate(
+      { _id: req.params.id, ownerId: req.userId }, { $set: fields }, { new: true, runValidators: true }
+    );
+    return draft ? res.json({ success: true, draft }) : res.status(404).json({ success: false, error: 'Scheda non trovata' });
+  } catch (_) { return res.status(500).json({ success: false, error: 'Impossibile aggiornare la bozza' }); }
+});
 
 router.post('/', async (req, res) => {
   try {
