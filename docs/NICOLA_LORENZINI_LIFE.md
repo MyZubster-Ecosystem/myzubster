@@ -134,6 +134,8 @@ Nicola also reported that local RAG retrieval through Qdrant and `/api/ai/ask` s
 
 Nicola subsequently reported a successful syntax check and full re-ingestion with 46 knowledge chunks loaded into Qdrant and one empty document skipped. Commit [`ea80799`](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/commit/ea80799da0b775f866d80915d9282a0c5df8600a) independently verifies the `scripts/ingest_knowledge.py` change: chunking now prefers paragraph and line boundaries, preserves overlap and prevents non-progress loops. The public software Knowledge Card was independently observed linking to that commit and describing the same contribution. The commit does not independently prove the reported syntax-check or ingestion counts, and no workflow run or commit status was found.
 
+Nicola then attempted the visual Knowledge Graph test but reported that Vercel showed `Request Sent` and required team-owner approval. The deployment `myzubster-knowledge-4u97rq3hu-myzubster.vercel.app` was independently verified as a `READY` production deployment tied to commit [`6c9b786`](https://github.com/danieldirimini-myzubster/myzubster/commit/6c9b786ce9cbc8fdc2bd0e8f26855754d139b729), which adds dynamic public Knowledge Card, publisher and source nodes. Both the deployment URL and its production alias redirect to Vercel SSO, so the N4K48 nodes, source navigation and mobile behavior remain `BLOCKED_BY_DEPLOYMENT_PROTECTION` and were not verified by the participant. No access permission or temporary bypass URL was created by this automation.
+
 The minimized record is stored in:
 
 `docs/life/nicola-zorgax-profile-onboarding-test-2026-09-28.json`
