@@ -209,7 +209,28 @@ Workflow [#102](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/actions/r
 
 A `MATCH` establishes cryptographic equality between the exact committed payload digest, the on-chain value and any supplied expected digest. It does not certify the truth of the card, competence, authorship, ownership or equivalence with the current live card.
 
-The next authorized steps remain owner-controlled: add the contribution to the existing public Knowledge Card, then check duplicate-safe propagation in the Knowledge Graph. No graph code was extended in this update because draft [PR #1414](https://github.com/MyZubster-Ecosystem/myzubster/pull/1414) remains behind the human architecture-review gate.
+Nicola subsequently reported republishing the existing Knowledge Card with PR #16 and the merge commit. A direct public-page check still showed the previous source set and did not expose either requested URL. The owner-controlled publication is therefore recorded as participant-reported but not independently confirmed. No graph code was extended because the source data is not yet publicly visible and draft [PR #1414](https://github.com/MyZubster-Ecosystem/myzubster/pull/1414) remains behind the human architecture-review gate.
+
+## MYZ-209 graph follow-up and Proof v3 — 30 September 2026
+
+Nicola reported republishing the software Knowledge Card with the MYZ-213 verifier PR and merge commit. The public page was checked directly after reload and still exposed the previous revision: neither [PR #16](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/pull/16) nor merge commit [`6412a556`](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/commit/6412a556bd3325b64dc6833d1aef4dd5eebd94d4) appeared in its visible sources.
+
+The public Knowledge Graph was also checked directly. It showed exactly one `N4K48` person node and one `K-4A45FD` card node, so no duplicate person or card was observed. It still contained the existing `PAYLOAD V1 → SHA-256 → PROOF V2 → DOCS` trail and did not expose the two new MYZ-213 references. `SRC-8` and `SRC-9` continued to represent the Proof v1 contract and deployment transaction.
+
+Nicola also produced a third immutable payload proof:
+
+- payload commit [`e57261a`](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/commit/e57261a325625057350aa059ca142f1eb84b30c2);
+- Proof v3 documentation commit [`1483478`](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/commit/148347838cf7bd1c1b83853311fd7a543f5e50e1);
+- exact payload size: 5,083 UTF-8 bytes;
+- independently recomputed SHA-256: `d1c89d2a4157a159b56e92825ca59fdb1f0e84e003b05e022af67da69ed25ac4`;
+- Sepolia contract [`0x3233…A59bF`](https://sepolia.etherscan.io/address/0x3233fA7f8c50Aa25d9B1263c25F28535B6eA59bF);
+- successful [deployment transaction](https://sepolia.etherscan.io/tx/0x5c7717be6dc70e6416f8053c72bb1e2bec2b7c5462b23fcb9c4b1077f907fed4) in block `11817050`.
+
+The deployment input ends with the same 32-byte digest, and Etherscan identifies the expected creator and created contract. The contract source is not verified on Etherscan. A direct `knowledgeHash()` call was not independently executed in this run; the documented MYZ-213 `MATCH` remains participant-reported, supported by the reproducible payload digest and deployment data. Workflow runs [#106](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/actions/runs/36769733635) and [#107](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/actions/runs/36773676486) completed successfully.
+
+The v3 payload contains ten sources and includes PR #16, but it does not include the verifier merge-commit URL. It therefore does not exactly mirror the two new sources described in the email. Proof v3 establishes integrity for its own committed bytes only; it does not certify truth, identity, ownership or professional competence.
+
+Before any graph change, the public card must first visibly expose the intended sources. The phone test remains pending.
 
 ## Relationship to the EU LIFE Programme
 
