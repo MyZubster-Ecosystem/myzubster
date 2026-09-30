@@ -1,5 +1,5 @@
 {
-  "version": "nicola_zorgax_profile_onboarding_test_v15",
+  "version": "nicola_zorgax_profile_onboarding_test_v16",
   "recordedAt": "2026-09-28",
   "participantPublicId": "nicolaususnicola-lgtm",
   "source": "participant_direct_email_report_with_public_artifact_verification",
@@ -703,6 +703,62 @@
       "releasedProduction": false,
       "connectedWallet": false,
       "sentTransaction": false
+    },
+    "completion": {
+      "status": "COMPLETED_PRODUCTION_VERIFIED",
+      "completedOn": "2026-09-30",
+      "source": "PARTICIPANT_POST_DEPLOY_REPORT_AND_INDEPENDENT_PRODUCTION_UI_VERIFICATION",
+      "pullRequest25": {
+        "number": 25,
+        "url": "https://github.com/danieldirimini-myzubster/myzubster/pull/25",
+        "state": "MERGED_BY_HUMAN_OUTSIDE_AUTOMATION",
+        "headSha": "0c28bd06acb458c8dd2199a1c82840fd1940e41a",
+        "mergeCommitSha": "157fc5edf7440a732c489a918efe6be8e34888c3"
+      },
+      "productionDeployments": {
+        "gateway": {
+          "status": "SUCCESS",
+          "url": "https://vercel.com/myzubster/myzubster-gateway/HsUGMq6nRrHf8yr9T4GKfBJBoFxb"
+        },
+        "knowledge": {
+          "status": "SUCCESS",
+          "url": "https://vercel.com/myzubster/myzubster-knowledge/GJk6H2ec8MtY1PmTgSrJw3AhNAEM"
+        },
+        "publicGraph": "https://myzubster-knowledge-myzubster.vercel.app/conoscenze?card=6abaaefb3a7460c4574a45fd"
+      },
+      "independentProductionVerification": {
+        "activeFilter": "proof",
+        "visibleProofNodes": [
+          "PROOF V3",
+          "SHA-256",
+          "PROOF V2"
+        ],
+        "proofV2Count": 1,
+        "proofV3Count": 1,
+        "rawProofSourceDuplicatesVisible": false,
+        "proofV3DirectlyRepresentedForCard": "K-4A45FD",
+        "normalSourcesAvailableInFullView": true,
+        "proofV3Details": {
+          "digest": "d1c89d2a4157a159b56e92825ca59fdb1f0e84e003b05e022af67da69ed25ac4",
+          "contract": "https://sepolia.etherscan.io/address/0x3233fA7f8c50Aa25d9B1263c25F28535B6eA59bF",
+          "transaction": "https://sepolia.etherscan.io/tx/0x5c7717be6dc70e6416f8053c72bb1e2bec2b7c5462b23fcb9c4b1077f907fed4",
+          "documentation": "https://github.com/nicolaususnicola-lgtm/myzubster-mvp/commit/148347838cf7bd1c1b83853311fd7a543f5e50e1"
+        }
+      },
+      "mergeCommitChecks": {
+        "vercelGateway": "SUCCESS",
+        "vercelKnowledge": "SUCCESS",
+        "githubActionsRunsFound": 0,
+        "separateBaselineFailuresRemainOpen": true
+      },
+      "evidenceBoundary": "COMPLETION_COVERS_BOUNDED_SYNC_DEDUPLICATION_AND_RENDERED_PROOF_NAVIGATION_NOT_TRUTH_IDENTITY_OWNERSHIP_OR_SKILL_CERTIFICATION",
+      "automationActions": {
+        "sentEmail": false,
+        "mergedPullRequest": false,
+        "releasedProduction": false,
+        "connectedWallet": false,
+        "sentTransaction": false
+      }
     }
   }
 }
