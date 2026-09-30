@@ -1,14 +1,14 @@
 {
-  "version": "nicola_zorgax_profile_onboarding_test_v11",
+  "version": "nicola_zorgax_profile_onboarding_test_v12",
   "recordedAt": "2026-09-28",
   "participantPublicId": "nicolaususnicola-lgtm",
   "source": "participant_direct_email_report_with_public_artifact_verification",
-  "scope": "Zorgax Knowledge Profile Builder publication, software evidence, visual-graph tests, Sepolia proofs, proposed Proof v2 graph integration and standards architecture review",
+  "scope": "Zorgax Knowledge Profile Builder publication, software evidence, visual-graph tests, Sepolia proofs, Proof v2 graph integration, standards architecture review and MYZ-209 PC validation",
   "privacy": {
     "publicContactStored": false,
     "rawEmailBodyStored": false,
     "privateDraftContentStored": false,
-    "note": "Only the minimized workflow outcome and already-public artifact references are recorded."
+    "note": "Only minimized workflow outcomes and already-public artifact references are recorded; the synthetic private draft contents and title are not stored."
   },
   "builderResult": {
     "privateDraftsSavedParticipantReported": 3,
@@ -75,7 +75,11 @@
     "Proof v2 contains one source entry with an empty URL; this source is not independently navigable.",
     "The Proof v2 Sepolia deployment and on-chain knowledgeHash value remain participant-reported because the explorer pages were not retrievable.",
     "Draft PR #1414 proves only that the graph integration was prepared; it does not prove review, merge, deployment or participant mobile testing.",
-    "The standards comparison supports an architecture review only; it does not establish uniqueness, interoperability, issuer authority or production readiness."
+    "The standards comparison supports an architecture review only; it does not establish uniqueness, interoperability, issuer authority or production readiness.",
+    "The MYZ-209 PC browser session, private-draft persistence and public-catalog exclusion are participant-reported and were not independently reproduced.",
+    "No private draft contents or synthetic draft title are stored in this record.",
+    "Reachable Etherscan pages and a participant-observed successful transaction do not replace an independent digest recomputation or on-chain knowledgeHash() read.",
+    "Draft PR #1418 prepares UI corrections only; it is not merged or deployed."
   ],
   "softwareContributionEvidence": {
     "participantReportedResult": "Syntax check passed and a full re-ingestion loaded 46 knowledge chunks into Qdrant and skipped 1 empty document.",
@@ -111,10 +115,19 @@
       "url": "https://github.com/danieldirimini-myzubster/myzubster/commit/6c9b786ce9cbc8fdc2bd0e8f26855754d139b729",
       "verifiedChange": "Adds dynamic public Knowledge Card nodes, publisher/person nodes, source links and related-card navigation to the visual graph."
     },
-    "participantGraphNavigationTest": "BLOCKED_BY_DEPLOYMENT_PROTECTION",
+    "participantGraphNavigationTest": "COMPLETED_PARTICIPANT_REPORTED_ON_PC",
     "mobileTest": "NOT_PERFORMED",
     "accessPermissionChangedByAutomation": false,
-    "temporaryBypassCreatedByAutomation": false
+    "temporaryBypassCreatedByAutomation": false,
+    "previousParticipantGraphNavigationTest": "BLOCKED_BY_DEPLOYMENT_PROTECTION",
+    "latestParticipantPcTest": {
+      "participantNode": "N4K48",
+      "publicAccountId": "nicolaususnicola-lgtm",
+      "cardAndEvidenceNodesSelectable": true,
+      "canonicalPayloadReferenceReachable": true,
+      "proofV2DocumentationReferenceReachable": true,
+      "sepoliaReferencesReachable": true
+    }
   },
   "onChainKnowledgeProof": {
     "network": "Ethereum Sepolia testnet",
@@ -198,7 +211,7 @@
     "explorerReferences": {
       "contractUrl": "https://sepolia.etherscan.io/address/0x21787249Df054132093FcF09bB914C0CCC539390",
       "transactionUrl": "https://sepolia.etherscan.io/tx/0xc837ba3f3046f3712e3eba4b81107cb22939b61300f2cab3cfe5bbb7b3319ded",
-      "deploymentSuccess": "PARTICIPANT_REPORTED_NOT_INDEPENDENTLY_RETRIEVED",
+      "deploymentSuccess": "PARTICIPANT_REPORTED_OBSERVED_SUCCESS_NOT_INDEPENDENTLY_RETRIEVED",
       "contractKnowledgeHash": "PARTICIPANT_REPORTED_NOT_INDEPENDENTLY_RETRIEVED"
     },
     "proofScope": "CRYPTOGRAPHIC_LINK_TO_COMMITTED_SNAPSHOT_BYTES_NOT_TRUTH_OR_LIVE_CARD_EQUIVALENCE",
@@ -213,7 +226,7 @@
       "modifiedKnowledgeCard": false
     }
   },
-  "updatedAt": "2026-09-29",
+  "updatedAt": "2026-09-30",
   "knowledgeGraphProofV2Integration": {
     "participantRequestedPath": [
       "N4K48",
@@ -292,5 +305,64 @@
     ],
     "decisionStatus": "PENDING_HUMAN_ARCHITECTURE_REVIEW",
     "implementationImpact": "NO_NEW_CODE_OR_CREDENTIAL_ISSUANCE_AUTHORIZED_BY_THIS_MESSAGE"
+  },
+  "myz209PcValidation": {
+    "recordedOn": "2026-09-30",
+    "source": "PARTICIPANT_DIRECT_EMAIL_REPORT",
+    "environment": "PC",
+    "aiAssistanceReported": true,
+    "publicCatalog": {
+      "threeOriginalCardsVisible": true,
+      "dockerCardOpenedInGraph": true
+    },
+    "graph": {
+      "participantNode": "N4K48",
+      "publicAccountId": "nicolaususnicola-lgtm",
+      "cardAndEvidenceNodesSelectable": true,
+      "canonicalPayloadReferenceReachable": true,
+      "proofV2DocumentationReferenceReachable": true,
+      "sepoliaReferencesReachable": true
+    },
+    "publicEvidence": {
+      "githubCommitsReachable": true,
+      "etherscanPagesReachable": true,
+      "deploymentTransactionState": "PARTICIPANT_REPORTED_SUCCESS",
+      "digestRecomputedDuringSession": false,
+      "onChainKnowledgeHashReadDuringSession": false
+    },
+    "privacyTest": {
+      "syntheticDraftTitleStored": false,
+      "saveState": "PARTICIPANT_REPORTED_SAVED_PRIVATE",
+      "persistedAfterReload": true,
+      "previewWorked": true,
+      "absentFromMainPublicCatalog": true,
+      "absentFromGraphPublicCatalog": true,
+      "publicLinkResult": "CARD_UNAVAILABLE_OR_WITHDRAWN",
+      "remainedPrivate": true,
+      "privateContentStored": false
+    },
+    "sessionAndUiFindings": {
+      "githubAuthorizationRequiredBeforeCardsLoadedAndSavingWorked": true,
+      "authenticatedAccountMissingPersonalKnowledgeLink": true,
+      "staleLoginPromptAfterAuthenticatedDraftAccess": true,
+      "fixPullRequest": 1418,
+      "fixPullRequestUrl": "https://github.com/MyZubster-Ecosystem/myzubster/pull/1418",
+      "fixState": "DRAFT_PR_OPEN_NOT_MERGED"
+    },
+    "pending": [
+      "PARTICIPANT_PHONE_TEST",
+      "NEXT_REAL_CONTRIBUTION_UPDATE",
+      "DUPLICATE_SAFE_GRAPH_SYNCHRONIZATION",
+      "HUMAN_REVIEW_OF_PR_1418"
+    ],
+    "proofBoundary": "PROOF_V2_IS_INTEGRITY_AND_LINKAGE_EVIDENCE_ONLY_NOT_SKILL_CERTIFICATION",
+    "zorgaxPrivateTest": "NOT_PERFORMED_OR_ACTIVATED",
+    "automationActions": {
+      "sentEmail": false,
+      "mergedPullRequest": false,
+      "publishedDraft": false,
+      "accessedPrivateDraftContent": false,
+      "sentTransaction": false
+    }
   }
 }
