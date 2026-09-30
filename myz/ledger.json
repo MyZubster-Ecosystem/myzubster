@@ -24,6 +24,27 @@
       ],
       "reverses_entry_id": null,
       "note": "Verified contribution merged in PR #420; bounty #383 completed. Internal MYZ accounting credit only."
+    },
+    {
+      "entry_id": "MYZ-LEDGER-000002",
+      "timestamp": "2026-09-30T22:40:48Z",
+      "account_id": "contributor:github:nicolaususnicola-lgtm",
+      "amount_myz": 250,
+      "entry_type": "BOUNTY_REWARD",
+      "reference": {
+        "program": "knowledge-graph",
+        "bounty_id": "MYZ-209",
+        "pull_request": 25,
+        "repository": "danieldirimini-myzubster/myzubster",
+        "merge_commit": "157fc5edf7440a732c489a918efe6be8e34888c3"
+      },
+      "status": "RECORDED",
+      "evidence": [
+        "https://github.com/danieldirimini-myzubster/myzubster/pull/25",
+        "https://github.com/danieldirimini-myzubster/myzubster/commit/157fc5edf7440a732c489a918efe6be8e34888c3"
+      ],
+      "reverses_entry_id": null,
+      "note": "MYZ-209 verified in preview and production after merge. Internal MYZ accounting credit only; no EUR valuation or external settlement is asserted."
     }
   ],
   "integrity": {
