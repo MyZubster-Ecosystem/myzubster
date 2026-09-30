@@ -187,10 +187,29 @@ Nicola reported a PC validation session completed with AI support. This is parti
 - Both public GitHub commits and the referenced Etherscan pages were reachable; Nicola reported the deployment transaction as successful.
 - The session did not independently recompute the digest or read `knowledgeHash()` from the contract.
 - A synthetic private draft persisted after reload, remained visible in preview, and did not appear in either public catalog. Its public URL returned an unavailable/withdrawn state while the draft remained private.
-- Two usability defects were isolated: the authenticated account area lacked a **Le mie conoscenze** shortcut, and the Builder could keep showing **Accedi per salvare** after authenticated draft loading and saving worked. Draft PR [#1418](https://github.com/MyZubster-Ecosystem/myzubster/pull/1418) contains the minimal UI fix and regression test.
+- Two usability defects were isolated: the authenticated account area lacked a **Le mie conoscenze** shortcut, and the Builder could keep showing **Accedi per salvare** after authenticated draft loading and saving worked. PR [#1419](https://github.com/MyZubster-Ecosystem/myzubster/pull/1419) contains the broader UI correction; draft PR [#1418](https://github.com/MyZubster-Ecosystem/myzubster/pull/1418) was closed unmerged as a duplicate. PR #1419 remains open and unmerged; its repository-wide CI, evidence-gate and security checks currently fail and require human review.
 - Phone validation and the next real contribution update with duplicate-safe graph synchronization remain pending.
 - Proof v2 remains integrity/linkage evidence only; it is not a certification of skill, truth, authorship or ownership.
 - Zorgax Private was not tested or activated in this session.
+
+## MYZ-213 repeatable Proof v2 verifier — 30 September 2026
+
+Nicola reported completing MYZ-213 in his public `nicolaususnicola-lgtm/myzubster-mvp` repository. [PR #16](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/pull/16) is merged at commit [`6412a556`](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/commit/6412a556bd3325b64dc6833d1aef4dd5eebd94d4).
+
+The public implementation was independently inspected and verifies that the tool:
+
+- hashes the exact payload bytes without JSON reserialization;
+- reads `knowledgeHash()` from the Proof v2 contract on Ethereum Sepolia;
+- compares the payload digest, the on-chain digest and an optional expected digest;
+- reports `MATCH`, `NO_MATCH` or `ERROR` with exit codes 0, 1 and 2;
+- includes tests for changed payloads, unavailable RPC, the live Sepolia integration, CLI behavior and the visual `/knowledge-proof-verifier` route;
+- documents the reproducible command for the committed payload, contract and expected digest.
+
+Workflow [#102](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/actions/runs/36766863999) succeeded on the pull-request head, and post-merge workflow [#103](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/actions/runs/36767091993) succeeded on the merge commit. This verifies the public implementation and automated test execution; the automation did not independently rerun the command outside CI.
+
+A `MATCH` establishes cryptographic equality between the exact committed payload digest, the on-chain value and any supplied expected digest. It does not certify the truth of the card, competence, authorship, ownership or equivalence with the current live card.
+
+The next authorized steps remain owner-controlled: add the contribution to the existing public Knowledge Card, then check duplicate-safe propagation in the Knowledge Graph. No graph code was extended in this update because draft [PR #1414](https://github.com/MyZubster-Ecosystem/myzubster/pull/1414) remains behind the human architecture-review gate.
 
 ## Relationship to the EU LIFE Programme
 
