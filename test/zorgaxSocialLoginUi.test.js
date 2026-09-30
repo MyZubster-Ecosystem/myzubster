@@ -10,7 +10,7 @@ describe('Zorgax social login UI', () => {
 
   test('exposes only provider availability booleans', () => {
     expect(routes).toContain("router.get('/social/providers', socialAuthController.providers)");
-    expect(controller).toContain('data: { providers: providerAvailability() }');
+    expect(controller.replace(/\s/g, '')).toContain('data:{providers:providerAvailability()}');
     expect(controller).not.toContain('data: { providers: process.env');
   });
 
@@ -29,14 +29,14 @@ describe('Zorgax social login UI', () => {
 
   test('exchanges the short-lived OAuth ticket for the normal MyZubster session', () => {
     expect(page).toContain("fetch('/api/auth/social/exchange-ticket'");
-    expect(page).toContain("localStorage.setItem('myzubster-token',data.data.token)");
+    expect(page).toContain("localStorage.setItem('myzubster-token',d.data.token)");
     expect(page).toContain('finishReturnTo()');
     expect(page).toContain('window.location.assign(destination)');
   });
 
   test('preserves a safe return path across authentication', () => {
-    expect(page).toContain("const RETURN_TO_KEY = 'myzubster-login-return-to'");
-    expect(page).toContain("value.startsWith('/') && !value.startsWith('//')");
-    expect(page).toContain('sessionStorage.setItem(RETURN_TO_KEY, fromQuery)');
+    expect(page).toContain("const RETURN_TO_KEY='myzubster-login-return-to'");
+    expect(page).toContain("v.startsWith('/')&&!v.startsWith('//')");
+    expect(page).toContain('sessionStorage.setItem(RETURN_TO_KEY,q)');
   });
 });

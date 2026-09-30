@@ -64,7 +64,7 @@ async function resolveSessionSummary(sessionId) {
 
   if (!databaseAvailable()) {
     return {
-      id: normalizedSessionId,
+      id: null,
       state: 'unknown',
       live: false,
       participantCount: null,
@@ -89,7 +89,7 @@ async function resolveSessionSummary(sessionId) {
   });
 
   return {
-    id: normalizedSessionId,
+    id: contextIdFor(NEON_PLAZA_ROOM.id, normalizedSessionId),
     state: 'live',
     live: true,
     participantCount,
@@ -151,23 +151,20 @@ function validatePartyContext(context) {
     errors.push('expiresAt must be an ISO date');
   }
 
-  const serialized = JSON.stringify(context || {}).toLowerCase();
-  const forbiddenKeys = [
-    'authorization',
-    'token',
-    'email',
-    'userid',
-    'accountuserid',
-    'roles',
-    'ipaddress',
-    'privatekey',
-    'precisecoordinates',
-    'hiddenlocation',
-    'secretlocation'
-  ];
-  for (const key of forbiddenKeys) {
-    if (serialized.includes(`\"${key}\"`)) errors.push(`forbidden field: ${key}`);
+  const forbiddenKeys = new Set([
+    'authorization', 'token', 'email', 'userid', 'accountuserid', 'roles',
+    'ipaddress', 'privatekey', 'precisecoordinates', 'hiddenlocation',
+    'secretlocation', 'sessionid'
+  ]);
+  function inspectFields(value) {
+    if (!value || typeof value !== 'object') return;
+    for (const [key, child] of Object.entries(value)) {
+      const normalized = key.toLowerCase();
+      if (forbiddenKeys.has(normalized)) errors.push(`forbidden field: ${normalized}`);
+      inspectFields(child);
+    }
   }
+  inspectFields(context);
 
   return {
     valid: errors.length === 0,

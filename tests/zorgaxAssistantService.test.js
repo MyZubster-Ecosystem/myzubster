@@ -48,7 +48,7 @@ describe('Zorgax live research fallbacks', () => {
     expect(looksTimeSensitive('spiegami la fotosintesi')).toBe(false);
   });
 
-  test('uses Google News before Wikipedia for current queries when paid search keys are absent', async () => {
+  test('uses the supported Wikipedia fallback when paid search keys are absent', async () => {
     delete process.env.BRAVE_SEARCH_API_KEY;
     delete process.env.TAVILY_API_KEY;
 
@@ -82,9 +82,9 @@ describe('Zorgax live research fallbacks', () => {
     const result = await searchWeb('ultime notizie sul clima oggi', 3);
 
     expect(result.live_search_available).toBe(true);
-    expect(result.sources[0].provider).toBe('google_news');
-    expect(result.providers_used).toEqual(expect.arrayContaining(['google_news', 'wikipedia']));
-    expect(global.fetch).toHaveBeenCalledTimes(2);
+    expect(result.sources[0].provider).toBe('wikipedia');
+    expect(result.providers_used).toEqual(['wikipedia']);
+    expect(global.fetch).toHaveBeenCalledTimes(1);
   });
 });
 

@@ -1,3 +1,5 @@
+jest.mock('../models/CommunityMembership', () => ({ findOne: jest.fn() }));
+const CommunityMembership = require('../models/CommunityMembership');
 const jwt = require('jsonwebtoken');
 const VirtualSession = require('../models/VirtualSession');
 const {
@@ -16,6 +18,7 @@ describe('realtimeGateway', () => {
     process.env.JWT_SECRET = 'test-secret';
     delete process.env.REALTIME_TOKEN_SECRET;
     jest.clearAllMocks();
+    CommunityMembership.findOne.mockReturnValue({ lean: jest.fn().mockResolvedValue(null) });
   });
 
   test('mints and verifies a bounded realtime token', () => {
@@ -47,8 +50,8 @@ describe('realtimeGateway', () => {
     await expect(authorizeChannel({ channel: 'user:u1', userId: 'u2', role: 'user' })).resolves.toEqual({ allowed: false, reason: 'user_channel_forbidden' });
   });
 
-  test('community channels fail closed without membership authority', async () => {
-    await expect(authorizeChannel({ channel: 'community:c1', userId: 'u1', role: 'user' })).resolves.toEqual({ allowed: false, reason: 'community_membership_authority_unavailable' });
+  test('community channels deny access without active membership', async () => {
+    await expect(authorizeChannel({ channel: 'community:c1', userId: 'u1', role: 'user' })).resolves.toEqual({ allowed: false, reason: 'community_channel_forbidden' });
   });
 
   test('session channels allow participants and reject outsiders', async () => {

@@ -1,6 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const test = require('node:test');
 const assert = require('node:assert/strict');
 
 const routes = fs.readFileSync(path.join(__dirname, '../src/routes/marketplaceHandoverRoutes.js'), 'utf8');

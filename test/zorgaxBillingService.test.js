@@ -1,31 +1,18 @@
 'use strict';
-
-jest.mock('../src/models/ZorgaxPaymentIntent');
-jest.mock('../src/models/ZorgaxSubscription');
-
-const ZorgaxPaymentIntent = require('../src/models/ZorgaxPaymentIntent');
-const ZorgaxSubscription = require('../src/models/ZorgaxSubscription');
+jest.mock('../src/models/PaymentIntent', () => ({ findOne: jest.fn() }));
+jest.mock('../src/models/ZorgaxPurchase', () => ({ ZorgaxPurchase: { findOne: jest.fn() } }));
+jest.mock('../src/services/zorgaxEntitlementService', () => ({ listEntitlements: jest.fn() }));
+const PaymentIntent = require('../src/models/PaymentIntent');
+const { ZorgaxPurchase } = require('../src/models/ZorgaxPurchase');
+const { listEntitlements } = require('../src/services/zorgaxEntitlementService');
 const { getPaymentReceipt } = require('../src/services/zorgaxBillingService');
-
-describe('Zorgax payment receipts', () => {
-  test('builds an owner-scoped technical receipt from verified server records', async () => {
-    const verifiedAt = new Date('2026-08-31T12:00:00Z');
-    ZorgaxPaymentIntent.findOne.mockReturnValue({ lean: jest.fn().mockResolvedValue({
-      intentId: 'zorgax_receipt', ownerId: 'owner-1', plan: 'pro', asset: 'BTC', destination: 'bc1qdest',
-      quote: { cryptoAmount: '0.00014728', amount: 9.9, source: 'quote-test', observedAt: verifiedAt },
-      settlement: { status: 'VERIFIED', paymentReference: 'd'.repeat(64), confirmations: 1, verifiedAt, verifier: 'btc-test' },
-      updatedAt: verifiedAt
-    }) });
-    ZorgaxSubscription.findOne.mockReturnValue({ lean: jest.fn().mockResolvedValue({
-      ownerId: 'owner-1', renewalOf: null,
-      access: { status: 'ACTIVE', startsAt: verifiedAt, expiresAt: new Date('2026-09-30T12:00:00Z') }
-    }) });
-
-    const receipt = await getPaymentReceipt({ ownerId: 'owner-1', intentId: 'zorgax_receipt' });
-
-    expect(ZorgaxPaymentIntent.findOne).toHaveBeenCalledWith(expect.objectContaining({ ownerId: 'owner-1', 'settlement.status': 'VERIFIED' }));
-    expect(receipt).toMatchObject({ documentType: 'PAYMENT_RECEIPT', fiscalInvoice: false, plan: 'pro' });
-    expect(receipt.payment.paymentReference).toBe('d'.repeat(64));
-    expect(receipt.access.status).toBe('ACTIVE');
-  });
+test('builds an owner-scoped technical receipt from confirmed intent and credited purchase', async () => {
+  const confirmedAt = new Date('2026-08-31T12:00:00Z');
+  PaymentIntent.findOne.mockReturnValue({ lean: jest.fn().mockResolvedValue({ intentId: 'zorgax_receipt', ownerId: 'owner-1', asset: 'BTC', status: 'CONFIRMED', txId: 'd'.repeat(64), confirmedAt, metadata: { zorgax: { plan: 'pro', destination: 'bc1qdest', cryptoAmount: '0.00014728', priceEur: 9.9 } } }) });
+  ZorgaxPurchase.findOne.mockReturnValue({ lean: jest.fn().mockResolvedValue({ ownerId: 'owner-1', purchaseId: 'purchase-1', creditedAt: confirmedAt }) });
+  listEntitlements.mockResolvedValue([{ sourcePurchaseId: 'purchase-1', status: 'ACTIVE', startsAt: confirmedAt, endsAt: new Date('2026-09-30T12:00:00Z') }]);
+  const receipt = await getPaymentReceipt({ ownerId: 'owner-1', intentId: 'zorgax_receipt' });
+  expect(PaymentIntent.findOne).toHaveBeenCalledWith({ ownerId: 'owner-1', intentId: 'zorgax_receipt', status: 'CONFIRMED', purpose: /^zorgax:/ });
+  expect(ZorgaxPurchase.findOne).toHaveBeenCalledWith({ ownerId: 'owner-1', paymentIntentId: 'zorgax_receipt', status: 'CREDITED' });
+  expect(receipt).toMatchObject({ documentType: 'PAYMENT_RECEIPT', fiscalInvoice: false, plan: 'pro', payment: { paymentReference: 'd'.repeat(64) }, access: { status: 'ACTIVE' } });
 });

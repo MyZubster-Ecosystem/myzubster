@@ -1,14 +1,10 @@
 'use strict';
 
-const fs = require('fs');
-const path = require('path');
-
-describe('Zorgax trusted payment activation boundary', () => {
-  test('loads payment coordinates from the persisted intent', () => {
-    const source = fs.readFileSync(path.join(__dirname, '../src/services/zorgaxPaymentIntentService.js'), 'utf8');
-    expect(source).toContain('asset: intent.asset');
-    expect(source).toContain('destination: intent.destination');
-    expect(source).toContain('cryptoAmount: intent.quote.cryptoAmount');
-    expect(source).toContain('recordVerifiedPayment');
-  });
+const { PaymentIntent, verifySettlement, grantPurchaseEntitlement, checkout, paymentIntent, reset } = require('./helpers/zorgaxCheckoutFixture');
+beforeEach(reset);
+test('verifies persisted coordinates and grants only the owner purchase entitlement', async () => {
+  PaymentIntent.findOne.mockResolvedValue(paymentIntent());
+  await checkout.verifyAndActivatePaymentIntent({ ownerId: 'owner-1', intentId: 'zorgax_test', paymentReference: 'a'.repeat(64), destination: 'attacker', cryptoAmount: '0' });
+  expect(verifySettlement).toHaveBeenCalledWith({ asset: 'BTC', paymentReference: 'a'.repeat(64), destination: 'bc1qserverdestination', cryptoAmount: '0.00007212' });
+  expect(grantPurchaseEntitlement).toHaveBeenCalledWith(expect.objectContaining({ ownerId: 'owner-1', purchaseId: 'purchase-1', tier: 'PRO', durationDays: 30 }));
 });
