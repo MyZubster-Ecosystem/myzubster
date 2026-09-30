@@ -36,7 +36,7 @@ beforeAll(async () => {
   seller = await User.create({ username:'free-seller', email:'seller-free@example.test', password:'test-password' });
 }, 30000);
 
-afterAll(async () => { await mongoose.disconnect(); await mongo.stop(); }, 30000);
+afterAll(async () => { await mongoose.disconnect(); if (mongo) await mongo.stop(); }, 30000);
 
 test('publishing is unlocked by free Seller activation with no payment method', async () => {
   const sellerToken = tokenFor(seller);
