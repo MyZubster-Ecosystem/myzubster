@@ -13,6 +13,7 @@ const { getPaymentReceipt } = require('../services/zorgaxBillingService');
 const zorgaxMyzCheckoutService = require('../services/zorgaxMyzCheckoutService');
 const { captureFunnelEvent } = require('../services/posthogAnalyticsService');
 
+const { privacyPolicy } = require('../services/zorgaxPrivacyPolicy');
 const router = express.Router();
 const { loadZorgaxAccess, requireZorgaxPlan } = createZorgaxAccessMiddleware();
 const FUNNEL_COOKIE = 'myz_funnel_session';
@@ -195,7 +196,7 @@ router.post('/track', optionalAuthenticate, async (req, res) => {
 router.get('/status', (_req, res) => {
   const openaiConfigured = Boolean(String(process.env.OPENAI_API_KEY || '').trim());
   const astraKillSwitch = String(process.env.ZORGAX_ASTRA_KILL_SWITCH || '').toLowerCase() === 'true';
-  res.json({ ok: true, entity: 'ZORGAX-001', capability: 'general-assistant-v1', chat: true, web_research: true, data_entry: true, monetization: true, paid_access_lifecycle: true, paid_access_enforced: true, payment_intents_persisted: true, automatic_payment_monitoring: true, payment_history: true, payment_receipts: true, renewal_stacking: true, automatic_recurring_charges: false, payment_activation_requires_trusted_verifier: true, crypto_quotes_require_trusted_provider: true, guest_chat: true, guest_web_research: false, free_web_research_limit: 2, pro_workspace_required: true, developer_api_required: true, data_write_requires_auth: true, data_write_requires_confirmation: true, autonomous_persistent_writes: false, ai: { openai_configured: openaiConfigured, astra_enabled: openaiConfigured && !astraKillSwitch, astra_kill_switch: astraKillSwitch, astra_model: process.env.ZORGAX_ASTRA_MODEL || 'gpt-5.6-sol' }, providers: { brave_search: Boolean(process.env.BRAVE_SEARCH_API_KEY), tavily: Boolean(process.env.TAVILY_API_KEY), google_news: true, wikipedia: true, general_ai_gateway: true } });
+  res.json({ ok: true, entity: 'ZORGAX-001', capability: 'general-assistant-v1', chat: true, web_research: true, data_entry: true, monetization: true, paid_access_lifecycle: true, paid_access_enforced: true, payment_intents_persisted: true, automatic_payment_monitoring: true, payment_history: true, payment_receipts: true, renewal_stacking: true, automatic_recurring_charges: false, payment_activation_requires_trusted_verifier: true, crypto_quotes_require_trusted_provider: true, guest_chat: true, guest_web_research: false, free_web_research_limit: 2, pro_workspace_required: true, developer_api_required: true, data_write_requires_auth: true, data_write_requires_confirmation: true, autonomous_persistent_writes: false, ai: { default_privacy_mode: 'private', external_consent_required: true, private_requires_local_ollama: true, openai_configured: openaiConfigured, astra_enabled: openaiConfigured && !astraKillSwitch, astra_kill_switch: astraKillSwitch, astra_model: process.env.ZORGAX_ASTRA_MODEL || 'gpt-5.6-sol' }, providers: { brave_search: Boolean(process.env.BRAVE_SEARCH_API_KEY), tavily: Boolean(process.env.TAVILY_API_KEY), google_news: true, wikipedia: true, general_ai_gateway: false } });
 });
 
 router.get('/pricing', (_req, res) => res.json({ ok: true, entity: 'ZORGAX-001', ...catalog(), myz: zorgaxMyzCheckoutService.catalog() }));
@@ -279,14 +280,15 @@ router.get('/access', authenticate, async (req, res) => {
 router.post('/chat', optionalAuthenticate, loadZorgaxAccess, async (req, res) => {
   try {
     req.zorgaxFunnelSession = funnelSession(req, res);
-    const requestedWeb = req.body?.useWeb !== false;
+    const privacy = privacyPolicy(req.body || {});
+    const requestedWeb = privacy.externalAllowed && req.body?.useWeb !== false;
     const policy = req.zorgaxPolicy;
     const requestedLimit = Number(req.body?.limit);
     const safeRequestedLimit = Number.isFinite(requestedLimit) && requestedLimit > 0 ? requestedLimit : 5;
     const limit = policy.maxWebResults > 0 ? Math.min(safeRequestedLimit, policy.maxWebResults) : 1;
     const useWeb = requestedWeb && policy.webResearch;
-    const userContext = await authenticatedAssistantContext(req);
-    const result = await answer({ message: req.body?.message || req.body?.prompt, useWeb, history: req.body?.history || [], limit, userContext });
+    const userContext = privacy.externalAllowed ? '' : await authenticatedAssistantContext(req);
+    const result = await answer({ message: req.body?.message || req.body?.prompt, useWeb, history: req.body?.history || [], limit, userContext, privacyMode: privacy.privacyMode, externalConsent: req.body?.externalConsent });
     const accessNotice = requestedWeb && !policy.webResearch
       ? 'Accedi a MyZubster per abilitare la ricerca web. La risposta corrente usa solo l’assistente base.'
       : policy.researchMode === 'LIMITED' && requestedWeb
@@ -301,7 +303,7 @@ router.post('/chat', optionalAuthenticate, loadZorgaxAccess, async (req, res) =>
     });
     res.json({ ok: true, entity: 'ZORGAX-001', ...result, external_sources: result.sources, access: publicAccess(req.zorgaxAccess), featureAccess: policy, accessNotice });
   }
-  catch (error) { res.status(502).json({ ok: false, error: error.message }); }
+  catch (error) { res.status(error.status || 502).json({ ok: false, error: error.message }); }
 });
 
 router.get('/research', authenticate, requireZorgaxPlan('developer'), async (req, res) => {
@@ -311,7 +313,7 @@ router.get('/research', authenticate, requireZorgaxPlan('developer'), async (req
     const result = await searchWeb(req.query.q, limit);
     res.json({ ok: true, entity: 'ZORGAX-001', ...result, read_only: true, access: publicAccess(req.zorgaxAccess) });
   }
-  catch (error) { res.status(502).json({ ok: false, error: error.message }); }
+  catch (error) { res.status(error.status || 502).json({ ok: false, error: error.message }); }
 });
 
 router.post('/data/preview', (req, res) => {
