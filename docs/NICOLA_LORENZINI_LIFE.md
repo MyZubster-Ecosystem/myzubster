@@ -178,6 +178,20 @@ This pilot is advisory-first. Zorgax must not autonomously:
 
 Those actions require explicit human approval.
 
+## MYZ-209 PC validation — 30 September 2026
+
+Nicola reported a PC validation session completed with AI support. This is participant-reported evidence; the automation did not access his private draft or reproduce the browser session.
+
+- The public catalog showed the three original cards and the Docker card opened in the visual graph.
+- The graph identified N4K48 as `nicolaususnicola-lgtm`; the card and evidence nodes were selectable and linked to the canonical payload, Proof v2 documentation and Sepolia references.
+- Both public GitHub commits and the referenced Etherscan pages were reachable; Nicola reported the deployment transaction as successful.
+- The session did not independently recompute the digest or read `knowledgeHash()` from the contract.
+- A synthetic private draft persisted after reload, remained visible in preview, and did not appear in either public catalog. Its public URL returned an unavailable/withdrawn state while the draft remained private.
+- Two usability defects were isolated: the authenticated account area lacked a **Le mie conoscenze** shortcut, and the Builder could keep showing **Accedi per salvare** after authenticated draft loading and saving worked. Draft PR [#1418](https://github.com/MyZubster-Ecosystem/myzubster/pull/1418) contains the minimal UI fix and regression test.
+- Phone validation and the next real contribution update with duplicate-safe graph synchronization remain pending.
+- Proof v2 remains integrity/linkage evidence only; it is not a certification of skill, truth, authorship or ownership.
+- Zorgax Private was not tested or activated in this session.
+
 ## Relationship to the EU LIFE Programme
 
 This profile refers to an **internal MyZubster LIFE pilot track**. It must not be presented as participation in an EU-funded LIFE project, an approved LIFE grant, or an official European Commission / MASE partnership.
