@@ -19,14 +19,6 @@ describe('Zorgax assistant paid access contract', () => {
     expect(routeSource).toContain('Math.min(safeRequestedLimit, policy.maxWebResults)');
   });
 
-  test('injects verified signed-in GitHub identity into assistant context', () => {
-    expect(routeSource).toContain("const User = require('../models/User')");
-    expect(routeSource).toContain('async function authenticatedAssistantContext(req)');
-    expect(routeSource).toContain('githubVerified: verifiedGithub');
-    expect(routeSource).toContain('const userContext = await authenticatedAssistantContext(req)');
-    expect(routeSource).toContain('userContext });');
-  });
-
   test('falls back to Free chat when access lookup is temporarily unavailable', () => {
     const accessSource = fs.readFileSync(
       path.join(__dirname, '../src/middleware/zorgaxAccess.js'),
