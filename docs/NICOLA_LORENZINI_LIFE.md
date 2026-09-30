@@ -120,6 +120,49 @@ The participant profile, automation documentation and prior validation artifacts
 
 The next technical change for the selected Project Planner pilot is being prepared through a dedicated branch and pull request. A branch or PR is evidence of implementation work only; it is not evidence that the MVP has been pilot-tested or commercially validated.
 
+## Knowledge Profile Builder result — 2026-09-28
+
+Nicola reported that all three Knowledge Cards were saved as private drafts, reopened successfully and then published through the owner-controlled flow merged in [PR #1410](https://github.com/MyZubster-Ecosystem/myzubster/pull/1410). All three public artifacts were independently observed:
+
+- [Prove Docker e chat AI del progetto myzubster-mvp](https://www.myzubster.com/knowledge-card?id=6abaaefb3a7460c4574a45fd)
+- [Apprendimento e collaborazione nel percorso MyZubster](https://www.myzubster.com/knowledge-card?id=6abaaf563a7460c4574a4623)
+- [Autista di camion e organizzazione dei trasporti](https://www.myzubster.com/knowledge-card?id=6abaae353a7460c4574a4597)
+
+The pages identify the public account as `nicolaususnicola-lgtm`, label the activities as owner declarations, list owner-supplied sources and state that MyZubster does not automatically certify the claims. Professional experience, licences and qualifications on the transport card remain participant-declared; no private supporting documents were accessed.
+
+Nicola also reported that local RAG retrieval through Qdrant and `/api/ai/ask` succeeded after changing `AI_CONTEXT_LIMIT` from `1` to `5`. Commit [`d360ae96`](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/commit/d360ae96a26f2e9f82e8982015b29b71b75d27e3) independently verifies the configuration change. It does not independently reproduce the local retrieval result, and no workflow run was found for that commit.
+
+Nicola subsequently reported a successful syntax check and full re-ingestion with 46 knowledge chunks loaded into Qdrant and one empty document skipped. Commit [`ea80799`](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/commit/ea80799da0b775f866d80915d9282a0c5df8600a) independently verifies the `scripts/ingest_knowledge.py` change: chunking now prefers paragraph and line boundaries, preserves overlap and prevents non-progress loops. The public software Knowledge Card was independently observed linking to that commit and describing the same contribution. The commit does not independently prove the reported syntax-check or ingestion counts, and no workflow run or commit status was found.
+
+Nicola then attempted the visual Knowledge Graph test but reported that Vercel showed `Request Sent` and required team-owner approval. The deployment `myzubster-knowledge-4u97rq3hu-myzubster.vercel.app` was independently verified as a `READY` production deployment tied to commit [`6c9b786`](https://github.com/danieldirimini-myzubster/myzubster/commit/6c9b786ce9cbc8fdc2bd0e8f26855754d139b729), which adds dynamic public Knowledge Card, publisher and source nodes. Both the deployment URL and its production alias redirect to Vercel SSO, so the N4K48 nodes, source navigation and mobile behavior remain `BLOCKED_BY_DEPLOYMENT_PROTECTION` and were not verified by the participant. No access permission or temporary bypass URL was created by this automation.
+
+Nicola subsequently reported a first Ethereum Sepolia testnet proof for the software Knowledge Card. Commit [`2df5b39`](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/commit/2df5b391f707eb0945dda9512ceb9387736b6402) independently verifies the Solidity source and the repository documentation. The recorded `knowledgeHash` (`0x15b21c4f189259f143f6c946ac866001d88f5bc7aa371cac7cbcc1ce66b43685`) was independently recomputed and exactly matches the SHA-256 of the card URL string. Timestamp `1790630820` converts to `2026-09-28T21:27:00Z`. This experiment anchors only the URL string, not a canonical hash of the card contents; it does not certify the card, its ownership or Nicola's competence. The linked Etherscan contract and transaction pages were not independently retrieved in this run, so deployment success, stored contract values and Etherscan `Exact Match` remain participant-reported pending human explorer verification. Nicola stated an intention to add these sources to the card; that card update is not yet recorded as completed.
+
+Nicola later reported that he updated the software Knowledge Card in the Builder, normalized the sources to one entry per line using the format `name | URL | note`, removed duplicates and saved the result as a private draft containing six sources. The draft itself and its exact source set are not public, were not stored in this record and could not be independently inspected. Publication remains an owner-controlled action. After Nicola publishes the revision, the public card must be checked again before the updated evidence list is treated as verified.
+
+Nicola then reported a second Sepolia proof based on a committed content snapshot rather than the card URL. Commit [`ecefd81`](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/commit/ecefd81c5c9da0be15c99aeeb83878480abd60a8) independently verifies the one-line UTF-8 JSON payload (`MYZUBSTER-KNOWLEDGE-CARD-V1`), and commit [`405467e`](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/commit/405467e8d7b4e55ea9f18044a00aa66804f3ada3) documents Proof v2. SHA-256 was independently recomputed over the exact 3,168 committed bytes and matches `6097e05866bafceec24663d2638cb1dae5742ac78284abbfd45cc9c3b0bfb845`. The payload is valid JSON, targets card `6abaaefb3a7460c4574a45fd` and contains six source entries; one local-Docker source has an empty URL and therefore is not a public link. The hash match proves the digest of the committed bytes only. It does not prove that the snapshot is an automatic or complete canonical export of the live card, nor certify its statements. The new Etherscan contract and transaction pages could not be retrieved automatically, so deployment success and the reported `knowledgeHash()` value remain pending independent explorer verification.
+
+
+Nicola then reported that the Proof v2 evidence had been added to the existing public Knowledge Card and requested the graph path `N4K48 → Knowledge Card → canonical payload → SHA-256 → Proof v2 Sepolia → GitHub documentation`. The [public card URL](https://www.myzubster.com/knowledge-card?id=6abaaefb3a7460c4574a45fd) is recorded, but the updated live contents were not independently re-retrieved in this run, so publication of the revision remains participant-reported.
+
+A scoped implementation was prepared in draft [PR #1414](https://github.com/MyZubster-Ecosystem/myzubster/pull/1414) on branch `feat/nicola-proof-v2-knowledge-graph-2026-09-29`. It adds parent-aware graph edges for the payload, digest, Proof v2, explorer references and documentation, while stating that the proof covers integrity and linkage only. The PR is not merged or deployed; Nicola's requested mobile test therefore remains pending review, merge and deployment. The Sepolia contract state is still pending independent explorer verification.
+
+
+### Architecture comparison and decision gate — 2026-09-29
+
+Nicola compared the pilot with existing systems and proposed evaluating standards before further consolidation of Proof v2. The comparison was checked against official documentation:
+
+- [Talent Protocol Builder Score](https://talentprotocol.com/) computes an explainable score from public GitHub and on-chain data and can optionally publish an EAS attestation on Base. Its own [terms](https://talentprotocol.com/terms) state that the score is an automated summary rather than an endorsement or credential.
+- [Ethereum Attestation Service](https://docs.attest.org/) supports schema-based on-chain and off-chain attestations and is a candidate for a future standardized artifact-integrity attestation.
+- [cheqd Trust Registries](https://docs.cheqd.io/product/studio/trust-registries) combine DIDs, Verifiable Credentials and issuer authorization chains; this is relevant only if MyZubster later introduces governed credential issuers and relying parties.
+- [Open Badges 3.0](https://www.1edtech.org/standards/open-badges) represents issuer-signed achievements as credentials compatible with the W3C Verifiable Credentials Data Model 2.0 and can carry criteria and evidence.
+
+The participant hypothesis is that MyZubster's distinctive layer is not a new score or credential format, but the navigable evidence path from a person and declared activity to concrete artifacts and proofs. The resulting architectural recommendation is provisional: retain the MyZubster Knowledge Graph as the relationship/navigation layer; keep the current Proof v2 as an experimental integrity anchor; evaluate EAS for generic attestations; evaluate Open Badges only for issuer-backed achievements; and consider cheqd only if a formal multi-issuer trust registry becomes necessary. Do not add a reputation score, issue credentials, or merge the Proof v2 integration until a human review defines claim types, issuer/verifier roles, canonicalization, status/revocation, privacy, chain/cost and migration requirements.
+
+The minimized record is stored in:
+
+`docs/life/nicola-zorgax-profile-onboarding-test-2026-09-28.json`
+
 ## Human-control rules
 
 This pilot is advisory-first. Zorgax must not autonomously:
@@ -134,6 +177,60 @@ This pilot is advisory-first. Zorgax must not autonomously:
 - claim or guarantee profit.
 
 Those actions require explicit human approval.
+
+## MYZ-209 PC validation — 30 September 2026
+
+Nicola reported a PC validation session completed with AI support. This is participant-reported evidence; the automation did not access his private draft or reproduce the browser session.
+
+- The public catalog showed the three original cards and the Docker card opened in the visual graph.
+- The graph identified N4K48 as `nicolaususnicola-lgtm`; the card and evidence nodes were selectable and linked to the canonical payload, Proof v2 documentation and Sepolia references.
+- Both public GitHub commits and the referenced Etherscan pages were reachable; Nicola reported the deployment transaction as successful.
+- The session did not independently recompute the digest or read `knowledgeHash()` from the contract.
+- A synthetic private draft persisted after reload, remained visible in preview, and did not appear in either public catalog. Its public URL returned an unavailable/withdrawn state while the draft remained private.
+- Two usability defects were isolated: the authenticated account area lacked a **Le mie conoscenze** shortcut, and the Builder could keep showing **Accedi per salvare** after authenticated draft loading and saving worked. PR [#1419](https://github.com/MyZubster-Ecosystem/myzubster/pull/1419) contains the broader UI correction; draft PR [#1418](https://github.com/MyZubster-Ecosystem/myzubster/pull/1418) was closed unmerged as a duplicate. PR #1419 remains open and unmerged; its repository-wide CI, evidence-gate and security checks currently fail and require human review.
+- Phone validation and the next real contribution update with duplicate-safe graph synchronization remain pending.
+- Proof v2 remains integrity/linkage evidence only; it is not a certification of skill, truth, authorship or ownership.
+- Zorgax Private was not tested or activated in this session.
+
+## MYZ-213 repeatable Proof v2 verifier — 30 September 2026
+
+Nicola reported completing MYZ-213 in his public `nicolaususnicola-lgtm/myzubster-mvp` repository. [PR #16](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/pull/16) is merged at commit [`6412a556`](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/commit/6412a556bd3325b64dc6833d1aef4dd5eebd94d4).
+
+The public implementation was independently inspected and verifies that the tool:
+
+- hashes the exact payload bytes without JSON reserialization;
+- reads `knowledgeHash()` from the Proof v2 contract on Ethereum Sepolia;
+- compares the payload digest, the on-chain digest and an optional expected digest;
+- reports `MATCH`, `NO_MATCH` or `ERROR` with exit codes 0, 1 and 2;
+- includes tests for changed payloads, unavailable RPC, the live Sepolia integration, CLI behavior and the visual `/knowledge-proof-verifier` route;
+- documents the reproducible command for the committed payload, contract and expected digest.
+
+Workflow [#102](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/actions/runs/36766863999) succeeded on the pull-request head, and post-merge workflow [#103](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/actions/runs/36767091993) succeeded on the merge commit. This verifies the public implementation and automated test execution; the automation did not independently rerun the command outside CI.
+
+A `MATCH` establishes cryptographic equality between the exact committed payload digest, the on-chain value and any supplied expected digest. It does not certify the truth of the card, competence, authorship, ownership or equivalence with the current live card.
+
+Nicola subsequently reported republishing the existing Knowledge Card with PR #16 and the merge commit. A direct public-page check still showed the previous source set and did not expose either requested URL. The owner-controlled publication is therefore recorded as participant-reported but not independently confirmed. No graph code was extended because the source data is not yet publicly visible and draft [PR #1414](https://github.com/MyZubster-Ecosystem/myzubster/pull/1414) remains behind the human architecture-review gate.
+
+## MYZ-209 graph follow-up and Proof v3 — 30 September 2026
+
+Nicola reported republishing the software Knowledge Card with the MYZ-213 verifier PR and merge commit. The public page was checked directly after reload and still exposed the previous revision: neither [PR #16](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/pull/16) nor merge commit [`6412a556`](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/commit/6412a556bd3325b64dc6833d1aef4dd5eebd94d4) appeared in its visible sources.
+
+The public Knowledge Graph was also checked directly. It showed exactly one `N4K48` person node and one `K-4A45FD` card node, so no duplicate person or card was observed. It still contained the existing `PAYLOAD V1 → SHA-256 → PROOF V2 → DOCS` trail and did not expose the two new MYZ-213 references. `SRC-8` and `SRC-9` continued to represent the Proof v1 contract and deployment transaction.
+
+Nicola also produced a third immutable payload proof:
+
+- payload commit [`e57261a`](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/commit/e57261a325625057350aa059ca142f1eb84b30c2);
+- Proof v3 documentation commit [`1483478`](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/commit/148347838cf7bd1c1b83853311fd7a543f5e50e1);
+- exact payload size: 5,083 UTF-8 bytes;
+- independently recomputed SHA-256: `d1c89d2a4157a159b56e92825ca59fdb1f0e84e003b05e022af67da69ed25ac4`;
+- Sepolia contract [`0x3233…A59bF`](https://sepolia.etherscan.io/address/0x3233fA7f8c50Aa25d9B1263c25F28535B6eA59bF);
+- successful [deployment transaction](https://sepolia.etherscan.io/tx/0x5c7717be6dc70e6416f8053c72bb1e2bec2b7c5462b23fcb9c4b1077f907fed4) in block `11817050`.
+
+The deployment input ends with the same 32-byte digest, and Etherscan identifies the expected creator and created contract. The contract source is not verified on Etherscan. A direct `knowledgeHash()` call was not independently executed in this run; the documented MYZ-213 `MATCH` remains participant-reported, supported by the reproducible payload digest and deployment data. Workflow runs [#106](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/actions/runs/36769733635) and [#107](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/actions/runs/36773676486) completed successfully.
+
+The v3 payload contains ten sources and includes PR #16, but it does not include the verifier merge-commit URL. It therefore does not exactly mirror the two new sources described in the email. Proof v3 establishes integrity for its own committed bytes only; it does not certify truth, identity, ownership or professional competence.
+
+Before any graph change, the public card must first visibly expose the intended sources. The phone test remains pending.
 
 ## Relationship to the EU LIFE Programme
 
@@ -151,3 +248,23 @@ The public repository profile contains only the public GitHub identity and minim
 - Authenticated MyZubster GitHub OAuth linkage: `PENDING_TECHNICAL_VERIFICATION`; participant reported the login step completed on 2026-08-31.
 - Human selection of `project-planner-ai`: `CONFIRMED` on 2026-08-31.
 - Project Planner MVP test result: `PENDING`.
+
+
+## MYZ-209 evidence synchronization and Proof v3 — 30 September 2026
+
+PR [#24](https://github.com/danieldirimini-myzubster/myzubster/pull/24) was merged by a human outside this automation at commit [`cb5f122`](https://github.com/danieldirimini-myzubster/myzubster/commit/cb5f122ea695b623a0bb9ba1cfeb87a407eb9322). It introduced stable evidence identifiers derived from the Knowledge Card ID and normalized URL, idempotent deduplication and synchronization with the card's current public evidence while preserving the earlier Proof trail. PR #23's technical-review attribution was included and preserved.
+
+Nicola reported that the post-deployment PC check showed stable `SRC-*` identifiers after refresh, one N4K48 node, one `K-4A45FD` card node and no duplicate person or card. He also found that Proof v3 was missing from the Proof filter. That report led to separate PR [#25](https://github.com/danieldirimini-myzubster/myzubster/pull/25), branch `fix/myz-209-proof-v3-filter`.
+
+The current PR #25 head [`0c28bd0`](https://github.com/danieldirimini-myzubster/myzubster/commit/0c28bd06acb458c8dd2199a1c82840fd1940e41a) changes only `KnowledgeGraphPage.js`, `knowledgeGraphEvidence.js` and its test file. Both Vercel projects report `READY`. An independent interactive check of the [Knowledge preview](https://myzubster-knowledge-git-fix-myz-209-proof-v3-filter-myzubster.vercel.app/conoscenze?card=6abaaefb3a7460c4574a45fd) confirmed that the active Proof filter renders exactly one `PROOF V2`, one `PROOF V3` and the `SHA-256` digest node; Proof v3 exposes its digest, Sepolia contract, transaction and documentation links, and no raw Proof `SRC-*` duplicates were visible in the filtered graph.
+
+PR #25 remains open and unmerged. Its repository-wide **CI – Test e Lint**, **Continuous Evidence Gate**, **Security Audit** and **MYZ-164 Seller Free policy** workflows still fail in pre-existing Zorgax/payment, Seller and dependency-audit areas. The main CI stops on backend tests before the frontend unit-test step, so the Vercel build and browser acceptance check are positive evidence, but not a green full-suite result. Human review must decide whether the card-specific Proof v3 mapping is acceptable, preserve the architecture-review gate and address or explicitly disposition the unrelated baseline failures before merge. This automation performed no merge, email send, wallet action or production release.
+
+
+### MYZ-209 production completion
+
+Nicola reported a successful post-deployment production check for card `6abaaefb3a7460c4574a45fd`. GitHub independently confirms that [PR #25](https://github.com/danieldirimini-myzubster/myzubster/pull/25) was merged by a human at [`157fc5e`](https://github.com/danieldirimini-myzubster/myzubster/commit/157fc5edf7440a732c489a918efe6be8e34888c3), and both production Vercel projects report successful deployments for that merge commit.
+
+The [public production graph](https://myzubster-knowledge-myzubster.vercel.app/conoscenze?card=6abaaefb3a7460c4574a45fd) was independently checked after deployment. With the Proof filter active it renders one `PROOF V3`, the `SHA-256` digest and one `PROOF V2`; no raw Proof `SRC-*` duplicates are visible. The Proof v3 detail exposes the expected digest, Sepolia contract, deployment transaction and documentation link. Normal source nodes remain available in the full view.
+
+MYZ-209 is therefore recorded as `COMPLETED_PRODUCTION_VERIFIED` for its bounded synchronization and visualization acceptance criteria. This does not resolve the separate repository-wide Zorgax/payment, Seller or dependency-audit failures, and it does not turn Proof v2/v3 into certification of truth, identity, ownership or skill. The merge and production deployment were performed by humans outside this automation.
