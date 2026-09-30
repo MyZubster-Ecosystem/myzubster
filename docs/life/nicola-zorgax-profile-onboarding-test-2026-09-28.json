@@ -1,5 +1,5 @@
 {
-  "version": "nicola_zorgax_profile_onboarding_test_v14",
+  "version": "nicola_zorgax_profile_onboarding_test_v15",
   "recordedAt": "2026-09-28",
   "participantPublicId": "nicolaususnicola-lgtm",
   "source": "participant_direct_email_report_with_public_artifact_verification",
@@ -594,6 +594,115 @@
       "sentTransaction": false,
       "modifiedKnowledgeCard": false,
       "extendedGraphCode": false
+    }
+  },
+  "myz209EvidenceSynchronizationAndProofV3Followup": {
+    "recordedOn": "2026-09-30",
+    "source": "PARTICIPANT_EMAIL_THREAD_WITH_GITHUB_AND_INTERACTIVE_PREVIEW_VERIFICATION",
+    "cardId": "6abaaefb3a7460c4574a45fd",
+    "pullRequest24": {
+      "repository": "danieldirimini-myzubster/myzubster",
+      "number": 24,
+      "url": "https://github.com/danieldirimini-myzubster/myzubster/pull/24",
+      "state": "MERGED_BY_HUMAN_OUTSIDE_AUTOMATION",
+      "headSha": "866d5e0de47a0a795a0d5c98f011fba8fea46285",
+      "mergeCommitSha": "cb5f122ea695b623a0bb9ba1cfeb87a407eb9322",
+      "scope": [
+        "STABLE_EVIDENCE_IDS_FROM_CARD_AND_NORMALIZED_URL",
+        "IDEMPOTENT_DEDUPLICATION",
+        "CURRENT_PUBLIC_EVIDENCE_SYNCHRONIZATION",
+        "PRESERVE_EXISTING_PROOF_TRAIL"
+      ],
+      "preservedPullRequest23": true,
+      "participantPostDeployReport": {
+        "stableSourceIdsAfterRefresh": true,
+        "duplicateParticipantNodeObserved": false,
+        "duplicateCardNodeObserved": false,
+        "proofV2Visible": true,
+        "proofV3VisibleInProofFilter": false,
+        "verificationLevel": "PARTICIPANT_REPORTED"
+      }
+    },
+    "pullRequest25": {
+      "repository": "danieldirimini-myzubster/myzubster",
+      "number": 25,
+      "url": "https://github.com/danieldirimini-myzubster/myzubster/pull/25",
+      "branch": "fix/myz-209-proof-v3-filter",
+      "state": "OPEN_READY_FOR_HUMAN_REVIEW_NOT_MERGED",
+      "draft": false,
+      "mergeable": true,
+      "headSha": "0c28bd06acb458c8dd2199a1c82840fd1940e41a",
+      "changedFiles": [
+        "frontend/src/pages/KnowledgeGraphPage.js",
+        "frontend/src/pages/knowledgeGraphEvidence.js",
+        "frontend/src/pages/knowledgeGraphEvidence.test.js"
+      ],
+      "scope": [
+        "DISTINGUISH_PROOF_V2_AND_PROOF_V3",
+        "PRESERVE_PR24_STABLE_SOURCE_IDENTITIES",
+        "GROUP_VERSIONED_PROOF_EVIDENCE",
+        "SUPPRESS_DUPLICATE_RAW_PROOF_SOURCES",
+        "EXPOSE_VERSION_DIGEST_CONTRACT_TRANSACTION_AND_DOCUMENTATION"
+      ],
+      "vercel": {
+        "gateway": "SUCCESS",
+        "gatewayDeployment": "https://vercel.com/myzubster/myzubster-gateway/Afan2qjfLPbVk5BWbKwg4qGXdRrU",
+        "knowledge": "SUCCESS",
+        "knowledgeDeployment": "https://vercel.com/myzubster/myzubster-knowledge/A5fyA1hAPcWWq2w9u2eVCzgQg5XD",
+        "preview": "https://myzubster-knowledge-git-fix-myz-209-proof-v3-filter-myzubster.vercel.app/conoscenze?card=6abaaefb3a7460c4574a45fd"
+      },
+      "independentInteractivePreviewVerification": {
+        "status": "PASSED",
+        "activeFilter": "proof",
+        "visibleProofNodes": [
+          "PROOF V3",
+          "SHA-256",
+          "PROOF V2"
+        ],
+        "proofV2Count": 1,
+        "proofV3Count": 1,
+        "rawProofSourceDuplicatesVisible": false,
+        "proofV3Details": {
+          "digest": "d1c89d2a4157a159b56e92825ca59fdb1f0e84e003b05e022af67da69ed25ac4",
+          "contract": "https://sepolia.etherscan.io/address/0x3233fA7f8c50Aa25d9B1263c25F28535B6eA59bF",
+          "transaction": "https://sepolia.etherscan.io/tx/0x5c7717be6dc70e6416f8053c72bb1e2bec2b7c5462b23fcb9c4b1077f907fed4",
+          "documentation": "https://github.com/nicolaususnicola-lgtm/myzubster-mvp/commit/148347838cf7bd1c1b83853311fd7a543f5e50e1"
+        }
+      },
+      "repositoryWideChecks": {
+        "ciTestAndLint": {
+          "runId": 36785886715,
+          "conclusion": "failure",
+          "frontendUnitStep": "NOT_REACHED_AFTER_BACKEND_FAILURE"
+        },
+        "continuousEvidenceGate": {
+          "runId": 36785886691,
+          "conclusion": "failure"
+        },
+        "securityAudit": {
+          "runId": 36785886734,
+          "conclusion": "failure"
+        },
+        "sellerFreePolicy": {
+          "runId": 36785886650,
+          "conclusion": "failure"
+        },
+        "failureScopeAssessment": "LOGS_POINT_TO_EXISTING_ZORGAX_PAYMENT_SELLER_AND_DEPENDENCY_BASELINE_NOT_TO_CHANGED_KNOWLEDGE_GRAPH_FILES"
+      },
+      "decision": "HOLD_FOR_HUMAN_REVIEW_NO_AUTOMATIC_MERGE",
+      "humanReviewRequired": [
+        "REVIEW_CARD_SPECIFIC_PROOF_V3_MAPPING_VERSUS_STRUCTURED_API_MODEL",
+        "PRESERVE_ARCHITECTURE_REVIEW_GATE",
+        "RESOLVE_OR_EXPLICITLY_DISPOSITION_REPOSITORY_WIDE_BASELINE_FAILURES"
+      ]
+    },
+    "evidenceBoundary": "PREVIEW_PASS_VERIFIES_CURRENT_RENDERED_UI_ONLY_NOT_FULL_TEST_SUITE_OR_TRUTH_IDENTITY_OWNERSHIP_OR_SKILL",
+    "automationActions": {
+      "sentEmail": false,
+      "mergedPullRequest": false,
+      "releasedProduction": false,
+      "connectedWallet": false,
+      "sentTransaction": false
     }
   }
 }
