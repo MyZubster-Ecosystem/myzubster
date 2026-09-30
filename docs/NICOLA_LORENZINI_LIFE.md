@@ -248,3 +248,14 @@ The public repository profile contains only the public GitHub identity and minim
 - Authenticated MyZubster GitHub OAuth linkage: `PENDING_TECHNICAL_VERIFICATION`; participant reported the login step completed on 2026-08-31.
 - Human selection of `project-planner-ai`: `CONFIRMED` on 2026-08-31.
 - Project Planner MVP test result: `PENDING`.
+
+
+## MYZ-209 evidence synchronization and Proof v3 — 30 September 2026
+
+PR [#24](https://github.com/danieldirimini-myzubster/myzubster/pull/24) was merged by a human outside this automation at commit [`cb5f122`](https://github.com/danieldirimini-myzubster/myzubster/commit/cb5f122ea695b623a0bb9ba1cfeb87a407eb9322). It introduced stable evidence identifiers derived from the Knowledge Card ID and normalized URL, idempotent deduplication and synchronization with the card's current public evidence while preserving the earlier Proof trail. PR #23's technical-review attribution was included and preserved.
+
+Nicola reported that the post-deployment PC check showed stable `SRC-*` identifiers after refresh, one N4K48 node, one `K-4A45FD` card node and no duplicate person or card. He also found that Proof v3 was missing from the Proof filter. That report led to separate PR [#25](https://github.com/danieldirimini-myzubster/myzubster/pull/25), branch `fix/myz-209-proof-v3-filter`.
+
+The current PR #25 head [`0c28bd0`](https://github.com/danieldirimini-myzubster/myzubster/commit/0c28bd06acb458c8dd2199a1c82840fd1940e41a) changes only `KnowledgeGraphPage.js`, `knowledgeGraphEvidence.js` and its test file. Both Vercel projects report `READY`. An independent interactive check of the [Knowledge preview](https://myzubster-knowledge-git-fix-myz-209-proof-v3-filter-myzubster.vercel.app/conoscenze?card=6abaaefb3a7460c4574a45fd) confirmed that the active Proof filter renders exactly one `PROOF V2`, one `PROOF V3` and the `SHA-256` digest node; Proof v3 exposes its digest, Sepolia contract, transaction and documentation links, and no raw Proof `SRC-*` duplicates were visible in the filtered graph.
+
+PR #25 remains open and unmerged. Its repository-wide **CI – Test e Lint**, **Continuous Evidence Gate**, **Security Audit** and **MYZ-164 Seller Free policy** workflows still fail in pre-existing Zorgax/payment, Seller and dependency-audit areas. The main CI stops on backend tests before the frontend unit-test step, so the Vercel build and browser acceptance check are positive evidence, but not a green full-suite result. Human review must decide whether the card-specific Proof v3 mapping is acceptable, preserve the architecture-review gate and address or explicitly disposition the unrelated baseline failures before merge. This automation performed no merge, email send, wallet action or production release.
