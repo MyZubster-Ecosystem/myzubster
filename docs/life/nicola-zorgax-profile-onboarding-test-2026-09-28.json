@@ -1,9 +1,9 @@
 {
-  "version": "nicola_zorgax_profile_onboarding_test_v13",
+  "version": "nicola_zorgax_profile_onboarding_test_v14",
   "recordedAt": "2026-09-28",
   "participantPublicId": "nicolaususnicola-lgtm",
   "source": "participant_direct_email_report_with_public_artifact_verification",
-  "scope": "Zorgax Knowledge Profile Builder publication, software evidence, visual-graph tests, Sepolia proofs, repeatable Proof v2 verification, graph integration, standards architecture review and MYZ-209 PC validation",
+  "scope": "Zorgax Knowledge Profile Builder publication, software evidence, visual-graph tests, Sepolia proofs v1-v3, repeatable proof verification, graph integration, standards architecture review and MYZ-209 PC validation",
   "privacy": {
     "publicContactStored": false,
     "rawEmailBodyStored": false,
@@ -82,7 +82,12 @@
     "PR #1418 was closed unmerged as a duplicate of #1419; PR #1419 prepares the MYZ-209 UI corrections and remains unmerged with repository-wide CI, evidence-gate and security checks failing.",
     "PR #16, merge commit 6412a556bd3325b64dc6833d1aef4dd5eebd94d4 and successful workflow runs #102 and #103 verify the MYZ-213 implementation and automated test execution; they do not independently certify the card claims, authorship, ownership or competence.",
     "The repeatable verifier's MATCH result proves equality between the exact committed payload digest, the on-chain knowledgeHash() response and an optional expected digest; it does not prove truth or current live-card equivalence.",
-    "The MYZ-213 contribution has not yet been independently observed as a new public Knowledge Card revision or a duplicate-safe graph propagation."
+    "The MYZ-213 contribution has not yet been independently observed as a new public Knowledge Card revision or a duplicate-safe graph propagation.",
+    "The participant reported republishing the card with PR #16 and its merge commit, but a direct public-page check still showed the previous source set; publication of those two references is therefore not independently verified.",
+    "The public graph showed exactly one N4K48 node and one K-4A45FD card node, but no node for PR #16 or its merge commit; SRC-8 and SRC-9 still represent the Proof v1 contract and transaction.",
+    "Proof v3 independently reproduces the SHA-256 of the exact 5,083 committed bytes and the Sepolia deployment transaction succeeded with the same digest in its constructor input.",
+    "The Proof v3 contract is not source-verified on Etherscan; a direct knowledgeHash() eth_call was not independently executed in this run, so the participant-reported CLI MATCH remains separately qualified.",
+    "The v3 payload includes PR #16 but does not include the verifier merge-commit URL, so it is not an exact snapshot of the two-source publication described in the email."
   ],
   "softwareContributionEvidence": {
     "participantReportedResult": "Syntax check passed and a full re-ingestion loaded 46 knowledge chunks into Qdrant and skipped 1 empty document.",
@@ -267,10 +272,13 @@
     },
     "mergeRecommendation": "HOLD_FOR_HUMAN_ARCHITECTURE_DECISION",
     "nextContributionSync": {
-      "contribution": "MYZ-213_REPEATABLE_PROOF_V2_VERIFIER",
-      "knowledgeCardUpdate": "PENDING_OWNER_CONTROLLED_UPDATE",
-      "graphPropagation": "PENDING_DUPLICATE_SAFE_TEST",
-      "codeExtension": "HELD_BY_HUMAN_ARCHITECTURE_REVIEW_GATE"
+      "contribution": "MYZ-213_REPEATABLE_VERIFIER_AND_PROOF_V3",
+      "participantReportedKnowledgeCardUpdate": true,
+      "independentlyObservedKnowledgeCardState": "PREVIOUS_REVISION_WITHOUT_PR_16_OR_MERGE_COMMIT",
+      "graphDuplicateCheck": "PASSED_FOR_PERSON_AND_CARD_ONLY",
+      "newEvidencePropagation": "NOT_OBSERVED",
+      "graphCodeChange": "NOT_PREPARED_UNTIL_PUBLIC_CARD_SOURCE_IS_VISIBLE",
+      "architectureGate": "HOLD_FOR_HUMAN_ARCHITECTURE_DECISION"
     }
   },
   "proofV2ArchitectureReview": {
@@ -375,8 +383,8 @@
     },
     "pending": [
       "PARTICIPANT_PHONE_TEST",
-      "NEXT_REAL_CONTRIBUTION_UPDATE",
-      "DUPLICATE_SAFE_GRAPH_SYNCHRONIZATION",
+      "PUBLIC_CARD_VISIBILITY_OF_PR_16_AND_MERGE_COMMIT",
+      "DUPLICATE_SAFE_GRAPH_SYNCHRONIZATION_AFTER_PUBLIC_SOURCE_VISIBILITY",
       "HUMAN_REVIEW_OF_PR_1419_AND_FAILED_CHECKS"
     ],
     "proofBoundary": "PROOF_V2_IS_INTEGRITY_AND_LINKAGE_EVIDENCE_ONLY_NOT_SKILL_CERTIFICATION",
@@ -388,6 +396,42 @@
       "accessedPrivateDraftContent": false,
       "sentTransaction": false,
       "closedSupersededPullRequest": 1418
+    },
+    "publicKnowledgeCardFollowup": {
+      "recordedOn": "2026-09-30",
+      "cardId": "6abaaefb3a7460c4574a45fd",
+      "url": "https://www.myzubster.com/knowledge-card?id=6abaaefb3a7460c4574a45fd",
+      "participantReportedRepublished": true,
+      "requestedNewEvidence": [
+        "https://github.com/nicolaususnicola-lgtm/myzubster-mvp/pull/16",
+        "https://github.com/nicolaususnicola-lgtm/myzubster-mvp/commit/6412a556bd3325b64dc6833d1aef4dd5eebd94d4"
+      ],
+      "independentlyObservedState": "PUBLIC_PAGE_STILL_SHOWS_PREVIOUS_REVISION",
+      "requestedEvidenceVisible": false,
+      "observedPreviousProofV2Sources": true,
+      "verificationState": "PARTICIPANT_REPORTED_REPUBLISHED_BUT_NOT_PUBLICLY_CONFIRMED"
+    },
+    "knowledgeGraphFollowup": {
+      "url": "https://myzubster-knowledge-myzubster.vercel.app/conoscenze?card=6abaaefb3a7460c4574a45fd",
+      "independentlyObservedNodeCount": 14,
+      "participantNodeCount": 1,
+      "participantNode": "N4K48",
+      "knowledgeCardNodeCount": 1,
+      "knowledgeCardNode": "K-4A45FD",
+      "duplicateParticipantOrCardObserved": false,
+      "pullRequest16EvidenceNodeVisible": false,
+      "mergeCommitEvidenceNodeVisible": false,
+      "observedExistingTrail": [
+        "PAYLOAD V1",
+        "SHA-256",
+        "PROOF V2",
+        "DOCS"
+      ],
+      "observedLegacySourceMappings": {
+        "SRC-8": "Proof v1 smart contract",
+        "SRC-9": "Proof v1 deploy transaction"
+      },
+      "state": "NO_DUPLICATES_OBSERVED_NEW_EVIDENCE_NOT_PROPAGATED"
     }
   },
   "myz213RepeatableProofVerifier": {
@@ -473,6 +517,82 @@
       "mergedParticipantPullRequest": false,
       "modifiedKnowledgeCard": false,
       "sentTransaction": false,
+      "extendedGraphCode": false
+    }
+  },
+  "onChainKnowledgeProofV3": {
+    "recordedOn": "2026-09-30",
+    "network": "Ethereum Sepolia testnet",
+    "chainId": 11155111,
+    "cardId": "6abaaefb3a7460c4574a45fd",
+    "proofType": "SHA256_OF_EXACT_COMMITTED_UPDATED_CARD_PAYLOAD_BYTES",
+    "canonicalPayload": {
+      "path": "proofs/knowledge-card-6abaaefb3a7460c4574a45fd-v3.json",
+      "commitSha": "e57261a325625057350aa059ca142f1eb84b30c2",
+      "commitUrl": "https://github.com/nicolaususnicola-lgtm/myzubster-mvp/commit/e57261a325625057350aa059ca142f1eb84b30c2",
+      "blobSha": "916a991e3891d53892f5d194095f81d3ba672c72",
+      "utf8ByteLength": 5083,
+      "jsonValid": true,
+      "sourceEntryCount": 10,
+      "includesVerifierPullRequest16": true,
+      "includesVerifierMergeCommit": false
+    },
+    "documentation": {
+      "path": "proofs/SEPOLIA_PROOF_V3.md",
+      "commitSha": "148347838cf7bd1c1b83853311fd7a543f5e50e1",
+      "commitUrl": "https://github.com/nicolaususnicola-lgtm/myzubster-mvp/commit/148347838cf7bd1c1b83853311fd7a543f5e50e1"
+    },
+    "knowledgeHash": "0xd1c89d2a4157a159b56e92825ca59fdb1f0e84e003b05e022af67da69ed25ac4",
+    "independentHashRecomputation": {
+      "algorithm": "SHA-256",
+      "input": "EXACT_UTF8_BYTES_OF_COMMITTED_PAYLOAD",
+      "computedHex": "d1c89d2a4157a159b56e92825ca59fdb1f0e84e003b05e022af67da69ed25ac4",
+      "matchesReportedHash": true
+    },
+    "contractAddress": "0x3233fA7f8c50Aa25d9B1263c25F28535B6eA59bF",
+    "contractUrl": "https://sepolia.etherscan.io/address/0x3233fA7f8c50Aa25d9B1263c25F28535B6eA59bF",
+    "deployTransactionHash": "0x5c7717be6dc70e6416f8053c72bb1e2bec2b7c5462b23fcb9c4b1077f907fed4",
+    "deployTransactionUrl": "https://sepolia.etherscan.io/tx/0x5c7717be6dc70e6416f8053c72bb1e2bec2b7c5462b23fcb9c4b1077f907fed4",
+    "explorerVerification": {
+      "status": "SUCCESS",
+      "block": 11817050,
+      "timestamp": "2026-09-30T20:27:00Z",
+      "creator": "0x08ae56e99AdB11Df571c437B18620D6c0075d700",
+      "createdContractMatches": true,
+      "constructorInputDigestMatches": true,
+      "sourceCodeVerification": "NOT_VERIFIED_ON_ETHERSCAN",
+      "exactMatchingBytecodeContractCount": 1
+    },
+    "readback": {
+      "participantAndDocumentationResult": "MATCH",
+      "independentDirectEthCall": "NOT_PERFORMED",
+      "supportingEvidence": "Deployment input ends with the verified digest and runtime bytecode exposes the storage-slot getter used for knowledgeHash()."
+    },
+    "workflows": [
+      {
+        "runNumber": 106,
+        "runId": 36769733635,
+        "headSha": "e57261a325625057350aa059ca142f1eb84b30c2",
+        "conclusion": "success",
+        "url": "https://github.com/nicolaususnicola-lgtm/myzubster-mvp/actions/runs/36769733635"
+      },
+      {
+        "runNumber": 107,
+        "runId": 36773676486,
+        "headSha": "148347838cf7bd1c1b83853311fd7a543f5e50e1",
+        "conclusion": "success",
+        "url": "https://github.com/nicolaususnicola-lgtm/myzubster-mvp/actions/runs/36773676486"
+      }
+    ],
+    "publicCardEquivalence": "NOT_VERIFIED_PUBLIC_PAGE_STILL_SHOWS_PREVIOUS_REVISION",
+    "graphPropagation": "NOT_PROPAGATED",
+    "proofBoundary": "CRYPTOGRAPHIC_INTEGRITY_AND_LINKAGE_ONLY_NOT_TRUTH_IDENTITY_OWNERSHIP_OR_SKILL_CERTIFICATION",
+    "automationActions": {
+      "sentEmail": false,
+      "connectedWallet": false,
+      "deployedContract": false,
+      "sentTransaction": false,
+      "modifiedKnowledgeCard": false,
       "extendedGraphCode": false
     }
   }
