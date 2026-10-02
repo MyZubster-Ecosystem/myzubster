@@ -64,7 +64,7 @@ describe('Zorgax unit economics', () => {
 
     const report = await service.getMonthlyReport({ month: '2026-09' });
     expect(find).toHaveBeenCalledWith({
-      'verification.status': 'VERIFIED',
+      status: 'CREDITED',
       createdAt: {
         $gte: new Date('2026-09-01T00:00:00.000Z'),
         $lt: new Date('2026-10-01T00:00:00.000Z')

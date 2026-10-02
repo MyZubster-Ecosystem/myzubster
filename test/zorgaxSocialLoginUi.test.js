@@ -10,7 +10,7 @@ describe('Zorgax social login UI', () => {
 
   test('exposes only provider availability booleans', () => {
     expect(routes).toContain("router.get('/social/providers', socialAuthController.providers)");
-    expect(controller).toContain('data: { providers: providerAvailability() }');
+    expect(controller).toContain('data:{providers:providerAvailability()}');
     expect(controller).not.toContain('data: { providers: process.env');
   });
 

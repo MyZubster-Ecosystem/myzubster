@@ -4,11 +4,13 @@ const fs = require('fs');
 const path = require('path');
 
 describe('Zorgax trusted payment activation boundary', () => {
-  test('loads payment coordinates from the persisted intent', () => {
-    const source = fs.readFileSync(path.join(__dirname, '../src/services/zorgaxPaymentIntentService.js'), 'utf8');
-    expect(source).toContain('asset: intent.asset');
-    expect(source).toContain('destination: intent.destination');
-    expect(source).toContain('cryptoAmount: intent.quote.cryptoAmount');
-    expect(source).toContain('recordVerifiedPayment');
+  test('verifies persisted settlement coordinates before granting entitlement', () => {
+    const source = fs.readFileSync(path.join(__dirname, '../src/services/zorgaxUnifiedCheckoutService.js'), 'utf8');
+    expect(source).toContain("verifySettlement({ asset:'BTC'");
+    expect(source).toContain('paymentReference:intent.txId');
+    expect(source).toContain('destination:z.destination');
+    expect(source).toContain('cryptoAmount:z.cryptoAmount');
+    expect(source.indexOf('await verifySettlement')).toBeLessThan(source.indexOf('return activate(intent, verification)'));
+    expect(source.indexOf('await grantPurchaseEntitlement')).toBeLessThan(source.indexOf("intent.status = 'CONFIRMED'"));
   });
 });

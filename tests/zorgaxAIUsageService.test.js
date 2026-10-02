@@ -1,4 +1,9 @@
 const ZorgaxAIBudget = require('../src/models/ZorgaxAIBudget');
+jest.mock('mongoose', () => {
+  const actual = jest.requireActual('mongoose');
+  return { ...actual, connection: { readyState: 1 } };
+});
+
 const { monthStart, budgetKey, reserveAstraBudget, settleAstraBudget, releaseAstraBudget } = require('../src/services/zorgaxAIUsageService');
 
 jest.mock('../src/models/ZorgaxAIBudget', () => ({
@@ -10,6 +15,10 @@ describe('Zorgax AI usage ledger and atomic budget', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     process.env.ZORGAX_ASTRA_MODEL = 'gpt-5.6-sol';
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   test('uses UTC month boundary for monthly budget', () => {
@@ -28,11 +37,11 @@ describe('Zorgax AI usage ledger and atomic budget', () => {
 
   test('atomically reserves only when reserved plus spent stays under cap', async () => {
     ZorgaxAIBudget.updateOne.mockResolvedValue({});
-    ZorgaxAIBudget.findOneAndUpdate.mockResolvedValue({ key: 'openai:gpt-5.6-sol:2026-09', reservedUsd: 1, spentUsd: 0 });
+    ZorgaxAIBudget.findOneAndUpdate.mockResolvedValue({ key: 'openai:all:2026-09', reservedUsd: 1, spentUsd: 0 });
     const row = await reserveAstraBudget({ amountUsd: 1, budgetUsd: 25, date: new Date('2026-09-18T12:00:00Z') });
     expect(row).toBeTruthy();
     const [filter, update] = ZorgaxAIBudget.findOneAndUpdate.mock.calls[0];
-    expect(filter.key).toBe('openai:gpt-5.6-sol:2026-09');
+    expect(filter.key).toBe('openai:all:2026-09');
     expect(filter.$expr).toBeDefined();
     expect(update.$inc.reservedUsd).toBe(1);
   });

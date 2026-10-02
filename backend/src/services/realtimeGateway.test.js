@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const VirtualSession = require('../models/VirtualSession');
+const CommunityMembership = require('../models/CommunityMembership');
 const {
   mintSocketToken,
   verifySocketToken,
@@ -8,6 +9,10 @@ const {
 } = require('./realtimeGateway');
 
 jest.mock('../models/VirtualSession', () => ({
+  findOne: jest.fn()
+}));
+
+jest.mock('../models/CommunityMembership', () => ({
   findOne: jest.fn()
 }));
 
@@ -47,8 +52,9 @@ describe('realtimeGateway', () => {
     await expect(authorizeChannel({ channel: 'user:u1', userId: 'u2', role: 'user' })).resolves.toEqual({ allowed: false, reason: 'user_channel_forbidden' });
   });
 
-  test('community channels fail closed without membership authority', async () => {
-    await expect(authorizeChannel({ channel: 'community:c1', userId: 'u1', role: 'user' })).resolves.toEqual({ allowed: false, reason: 'community_membership_authority_unavailable' });
+  test('community channels fail closed without membership', async () => {
+    CommunityMembership.findOne.mockReturnValue({ lean: async () => null });
+    await expect(authorizeChannel({ channel: 'community:c1', userId: 'u1', role: 'user' })).resolves.toEqual({ allowed: false, reason: 'community_channel_forbidden' });
   });
 
   test('session channels allow participants and reject outsiders', async () => {

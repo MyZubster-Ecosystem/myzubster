@@ -5,8 +5,9 @@ const path = require('path');
 
 describe('Zorgax payment intent identifiers', () => {
   test('uses cryptographic randomness instead of Math.random', () => {
-    const source = fs.readFileSync(path.join(__dirname, '../src/services/zorgaxLegacyMonetizationService.js'), 'utf8');
+    const source = fs.readFileSync(path.join(__dirname, '../src/services/zorgaxUnifiedCheckoutService.js'), 'utf8');
     expect(source).toContain("crypto.randomBytes(8).toString('hex')");
+    expect(source).toContain('crypto.randomUUID()');
     expect(source).not.toContain('Math.random()');
   });
 });

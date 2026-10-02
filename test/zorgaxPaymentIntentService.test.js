@@ -1,52 +1,46 @@
 'use strict';
 
-jest.mock('../src/models/ZorgaxPaymentIntent');
-jest.mock('../src/services/zorgaxChainVerifierService');
-jest.mock('../src/services/zorgaxSubscriptionService');
+jest.mock('../src/services/zorgaxUnifiedCheckoutService', () => ({
+  RETRY_DELAY_MS: 15000,
+  normalizeTxid: jest.fn(value => String(value || '').trim().toLowerCase()),
+  refreshPaymentIntent: jest.fn(),
+  verifyAndActivatePaymentIntent: jest.fn()
+}));
 
-const ZorgaxPaymentIntent = require('../src/models/ZorgaxPaymentIntent');
-const { verifySettlement } = require('../src/services/zorgaxChainVerifierService');
-const { recordVerifiedPayment } = require('../src/services/zorgaxSubscriptionService');
-const { verifyAndActivatePaymentIntent } = require('../src/services/zorgaxPaymentIntentService');
+const unified = require('../src/services/zorgaxUnifiedCheckoutService');
+const service = require('../src/services/zorgaxPaymentIntentService');
 
-describe('Zorgax persisted payment intent activation', () => {
+describe('Zorgax payment intent compatibility service', () => {
   beforeEach(() => jest.clearAllMocks());
 
-  test('uses immutable server-side intent values for verification and activation', async () => {
-    const intent = {
-      intentId: 'zorgax_test', ownerId: 'owner-1', plan: 'pro', asset: 'BTC',
-      destination: 'bc1qserverdestination', quote: { cryptoAmount: '0.00007212' },
-      settlement: { status: 'PENDING' }, expiresAt: new Date(Date.now() + 60000), consumedAt: null,
-      save: jest.fn().mockResolvedValue(undefined)
-    };
-    ZorgaxPaymentIntent.findOne.mockResolvedValue(intent);
-    verifySettlement.mockResolvedValue({ verified: true, paymentReference: 'a'.repeat(64), verifier: 'btc-test', confirmations: 1, amount: 0.00007212 });
-    recordVerifiedPayment.mockResolvedValue({ _id: 'sub-1', plan: 'pro', access: { status: 'ACTIVE' } });
-
-    const result = await verifyAndActivatePaymentIntent({ ownerId: 'owner-1', intentId: 'zorgax_test', paymentReference: 'a'.repeat(64) });
-
-    expect(verifySettlement).toHaveBeenCalledWith(expect.objectContaining({ asset: 'BTC', destination: 'bc1qserverdestination', cryptoAmount: '0.00007212' }));
-    expect(recordVerifiedPayment).toHaveBeenCalledWith(expect.objectContaining({ ownerId: 'owner-1', planId: 'pro', asset: 'BTC' }));
-    expect(intent.settlement.status).toBe('VERIFIED');
-    expect(intent.consumedAt).toBeInstanceOf(Date);
-    expect(result.access.status).toBe('ACTIVE');
+  test('delegates verification and activation to the unified checkout service', async () => {
+    unified.verifyAndActivatePaymentIntent.mockResolvedValue({
+      intentId: 'zorgax_test',
+      settlementStatus: 'VERIFIED',
+      verified: true
+    });
+    const input = { ownerId: 'owner-1', intentId: 'zorgax_test', paymentReference: 'A'.repeat(64) };
+    await expect(service.verifyAndActivatePaymentIntent(input)).resolves.toEqual(
+      expect.objectContaining({ settlementStatus: 'VERIFIED', verified: true })
+    );
+    expect(unified.verifyAndActivatePaymentIntent).toHaveBeenCalledWith(input);
   });
 
-  test('expires stale intents before calling a verifier', async () => {
-    const intent = {
-      ownerId: 'owner-1', settlement: { status: 'PENDING' }, expiresAt: new Date(Date.now() - 1000), consumedAt: null,
-      save: jest.fn().mockResolvedValue(undefined)
-    };
-    ZorgaxPaymentIntent.findOne.mockResolvedValue(intent);
-
-    await expect(verifyAndActivatePaymentIntent({ ownerId: 'owner-1', intentId: 'expired', paymentReference: 'b'.repeat(64) })).rejects.toThrow('Payment intent scaduto');
-    expect(verifySettlement).not.toHaveBeenCalled();
-    expect(intent.settlement.status).toBe('EXPIRED');
+  test('normalizes BTC references through the unified checkout service', () => {
+    const reference = 'A'.repeat(64);
+    expect(service.normalizePaymentReference('BTC', reference)).toBe(reference.toLowerCase());
+    expect(unified.normalizeTxid).toHaveBeenCalledWith(reference);
   });
 
-  test('rejects already consumed intents', async () => {
-    ZorgaxPaymentIntent.findOne.mockResolvedValue({ settlement: { status: 'VERIFIED' }, consumedAt: new Date(), expiresAt: new Date(Date.now() + 60000) });
-    await expect(verifyAndActivatePaymentIntent({ ownerId: 'owner-1', intentId: 'used', paymentReference: 'c'.repeat(64) })).rejects.toThrow('Payment intent già utilizzato');
-    expect(verifySettlement).not.toHaveBeenCalled();
+  test('keeps non-BTC references bounded and non-empty', () => {
+    expect(service.normalizePaymentReference('ETH', '  0xabc  ')).toBe('0xabc');
+    expect(() => service.normalizePaymentReference('ETH', '')).toThrow('Riferimento pagamento non valido');
+    expect(() => service.normalizePaymentReference('ETH', 'x'.repeat(181))).toThrow('Riferimento pagamento non valido');
+  });
+
+  test('classifies temporary verifier failures as retryable', () => {
+    expect(service.isRetryableVerificationError(new Error('Conferme blockchain insufficienti'))).toBe(true);
+    expect(service.isRetryableVerificationError(new Error('Verifier BTC non disponibile'))).toBe(true);
+    expect(service.isRetryableVerificationError(new Error('Pagamento rifiutato'))).toBe(false);
   });
 });

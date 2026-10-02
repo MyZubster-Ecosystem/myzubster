@@ -62,15 +62,7 @@ async function resolveSessionSummary(sessionId) {
   const normalizedSessionId = safeString(sessionId, 128);
   if (!normalizedSessionId) return null;
 
-  if (!databaseAvailable()) {
-    return {
-      id: normalizedSessionId,
-      state: 'unknown',
-      live: false,
-      participantCount: null,
-      source: 'unavailable'
-    };
-  }
+  if (!databaseAvailable()) return null;
 
   const now = new Date();
   const presence = await MetaversePresence.findOne({
@@ -163,7 +155,8 @@ function validatePartyContext(context) {
     'privatekey',
     'precisecoordinates',
     'hiddenlocation',
-    'secretlocation'
+    'secretlocation',
+    'sessionid'
   ];
   for (const key of forbiddenKeys) {
     if (serialized.includes(`\"${key}\"`)) errors.push(`forbidden field: ${key}`);
