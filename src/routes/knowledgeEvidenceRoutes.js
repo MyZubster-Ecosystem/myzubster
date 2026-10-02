@@ -139,13 +139,19 @@ const DEFAULT_PENDING_GITHUB_NOTE = 'Attività dichiarate dal titolare; eventual
 const GITHUB_LINKED_NOTE = 'Almeno una fonte GitHub pubblica è stata collegata e ne è stata controllata la disponibilità. Contenuto, attribuzione e competenze non sono verificati indipendentemente.';
 function noteAfterGithubEvidence(existing) {
   const previous = typeof existing === 'string' ? existing.trim() : '';
-  if (previous.includes(GITHUB_LINKED_NOTE)) return previous;
   if (!previous || previous === DEFAULT_PENDING_GITHUB_NOTE) {
     return 'Attività dichiarate dal titolare. ' + GITHUB_LINKED_NOTE;
   }
-  // Preserve personalized verification notes, removing only the obsolete standard sentence.
-  const retained = previous.replace(DEFAULT_PENDING_GITHUB_NOTE, '').trim().replace(/[;,.\s]+$/, '');
-  return (retained ? retained.slice(0, 1000 - GITHUB_LINKED_NOTE.length - 2) + '\n' : '') + GITHUB_LINKED_NOTE;
+  // Also repair notes saved by the previous implementation, which dropped
+  // punctuation before appending the standard GitHub evidence sentence.
+  const linkedAt = previous.indexOf(GITHUB_LINKED_NOTE);
+  const prefix = (linkedAt >= 0 ? previous.slice(0, linkedAt) : previous)
+    .replace(DEFAULT_PENDING_GITHUB_NOTE, '').trim();
+  const suffix = linkedAt >= 0 ? previous.slice(linkedAt + GITHUB_LINKED_NOTE.length).trim() : '';
+  const normalizedPrefix = prefix ? (/[.!?]$/.test(prefix) ? prefix : prefix + '.') : '';
+  const budget = 1000 - GITHUB_LINKED_NOTE.length - (suffix ? suffix.length + 1 : 0) - 1;
+  const safePrefix = normalizedPrefix.slice(0, Math.max(0, budget)).trim();
+  return (safePrefix ? safePrefix + ' ' : '') + GITHUB_LINKED_NOTE + (suffix ? ' ' + suffix : '');
 }
 
 router.post('/drafts/:id/github-evidence', authenticate, async (req, res) => {
