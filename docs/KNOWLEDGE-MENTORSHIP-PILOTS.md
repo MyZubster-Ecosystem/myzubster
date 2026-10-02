@@ -102,3 +102,12 @@ Knowledge/Kefir pilot: https://github.com/DanielIoni-creator/Myzubster-fermentat
 ## Evidence boundary
 
 A successful mentoring interaction is evidence that an interaction occurred only to the extent documented. It does not by itself prove mastery, competence, employability, health outcomes, safety, scientific validity or institutional endorsement. Those require evidence appropriate to the claim.
+
+## Contributor Pilot Nodes
+
+Small verified contributions can become the entry point to an independent contributor pilot. The canonical pathway, reward states, opt-in rules and machine-readable schema are documented in:
+
+- `docs/CONTRIBUTOR-PILOT-NODES.md`
+- `docs/schemas/contributor-pilot-node.v1.schema.json`
+
+A completed bounty does not automatically create a node. The contributor must opt in, and only documented evidence may be attached to the resulting passport/pilot.
