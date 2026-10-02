@@ -1,0 +1,30 @@
+# Local Prometheus + Grafana stack for MyZubster (issue #99).
+#
+#   cd monitoring && docker compose -f docker-compose.monitoring.yml up -d
+#
+# Prometheus UI : http://localhost:9090
+# Grafana       : http://localhost:3001 (admin/admin)
+#   -> import grafana-dashboard.json from this folder.
+version: "3.8"
+
+services:
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:11.1.0
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - ./grafana-dashboard.json:/var/lib/grafana/dashboards/myzubster-performance.json:ro
+    depends_on:
+      - prometheus
+    restart: unless-stopped
