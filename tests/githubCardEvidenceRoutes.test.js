@@ -47,6 +47,37 @@ describe('owner-approved GitHub evidence',()=>{
   expect(KnowledgeDraft.findOneAndUpdate.mock.calls[0][0]).toEqual(expect.objectContaining({ownerId:alice,'evidence.url':{$ne:url},'evidence.11':{$exists:false}}));
   expect(KnowledgeDraft.findOneAndUpdate.mock.calls[0][1].$push.evidence.note).toContain('Non certifica automaticamente');
  });
+ test('updates the obsolete default note when attaching a new GitHub source',async()=>{
+  const stale='Attività dichiarate dal titolare; eventuali commit e PR devono essere aggiunti e controllati prima di considerarli evidenze del lavoro.';
+  KnowledgeDraft.findOne.mockReturnValue({lean:async()=>({evidence:[],verificationNote:stale})});
+  global.fetch.mockResolvedValue({ok:true,json:async()=>({number:1424,title:'Contributor PR',user:{login:'contributor'}})});
+  KnowledgeDraft.findOneAndUpdate.mockResolvedValue({_id:cardId,evidence:[{url}]});
+  await request(app).post(endpoint).set('Authorization',auth(alice)).send({url,confirm:true}).expect(200);
+  const note=KnowledgeDraft.findOneAndUpdate.mock.calls[0][1].$set.verificationNote;
+  expect(note).toContain('Almeno una fonte GitHub pubblica');
+  expect(note).not.toContain('devono essere aggiunti');
+  expect(note).toContain('non sono verificati indipendentemente');
+ });
+ test('refreshes an already published owned card with a stale note',async()=>{
+  const stale='Attività dichiarate dal titolare; eventuali commit e PR devono essere aggiunti e controllati prima di considerarli evidenze del lavoro.';
+  KnowledgeDraft.findOne.mockReturnValue({lean:async()=>({status:'published',evidence:[{url}],verificationNote:stale})});
+  KnowledgeDraft.findOneAndUpdate.mockResolvedValue({_id:cardId,status:'published',verificationNote:'updated'});
+  await request(app).post('/api/knowledge-evidence/drafts/'+cardId+'/refresh-github-note').set('Authorization',auth(alice)).send({confirm:true}).expect(200);
+  expect(KnowledgeDraft.findOneAndUpdate.mock.calls[0][0]).toEqual({ _id:cardId,ownerId:alice,verificationNote:stale });
+  expect(KnowledgeDraft.findOneAndUpdate.mock.calls[0][1].$set.verificationNote).toContain('Almeno una fonte GitHub pubblica');
+ });
+ test('preserves custom verification comments and requires a linked source',async()=>{
+  const route='/api/knowledge-evidence/drafts/'+cardId+'/refresh-github-note';
+  await request(app).post(route).set('Authorization',auth(alice)).send({}).expect(400);
+  KnowledgeDraft.findOne.mockReturnValue({lean:async()=>({evidence:[],verificationNote:'Revisione manuale in corso'})});
+  await request(app).post(route).set('Authorization',auth(alice)).send({confirm:true}).expect(409);
+  KnowledgeDraft.findOne.mockReturnValue({lean:async()=>({evidence:[{url}],verificationNote:'Revisione manuale in corso'})});
+  KnowledgeDraft.findOneAndUpdate.mockResolvedValue({_id:cardId});
+  await request(app).post(route).set('Authorization',auth(alice)).send({confirm:true}).expect(200);
+  const note=KnowledgeDraft.findOneAndUpdate.mock.calls[0][1].$set.verificationNote;
+  expect(note).toContain('Revisione manuale in corso');
+  expect(note).toContain('non sono verificati indipendentemente');
+ });
  test('does not duplicate an existing public evidence URL',async()=>{
   KnowledgeDraft.findOne.mockReturnValue({lean:async()=>({evidence:[{url}]})});
   const response=await request(app).post(endpoint).set('Authorization',auth(alice)).send({url,confirm:true}).expect(200);
