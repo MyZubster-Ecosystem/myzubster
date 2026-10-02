@@ -98,6 +98,26 @@ router.post('/drafts/:id/unpublish', authenticate, async (req, res) => {
   } catch (_) { return res.status(500).json({ success: false, error: 'Impossibile ritirare la scheda' }); }
 });
 
+// Existing published cards may predate automatic verification-note updates.
+// The owner can explicitly repair a stale note without withdrawing their card.
+router.post('/drafts/:id/refresh-github-note', authenticate, async (req, res) => {
+  if (!mongoose.isValidObjectId(req.params.id)) return res.status(400).json({ success:false, error:'Scheda non valida' });
+  if (req.body?.confirm !== true) return res.status(400).json({ success:false, error:'Conferma esplicita richiesta' });
+  try {
+    const card = await KnowledgeDraft.findOne({ _id:req.params.id, ownerId:req.userId }).lean();
+    if (!card) return res.status(404).json({ success:false, error:'Scheda non trovata' });
+    const sources = (card.evidence || []).filter(item => githubEvidenceTarget(item.url));
+    if (!sources.length) return res.status(409).json({ success:false, error:'Nessuna fonte GitHub collegata alla scheda' });
+    const updatedNote = noteAfterGithubEvidence(card.verificationNote).slice(0,1000);
+    if (updatedNote === (card.verificationNote || '').trim()) return res.json({ success:true, unchanged:true, card });
+    const updated = await KnowledgeDraft.findOneAndUpdate(
+      { _id:req.params.id, ownerId:req.userId, verificationNote:card.verificationNote || '' },
+      { $set:{ verificationNote:updatedNote } }, { new:true, runValidators:true }
+    );
+    return updated ? res.json({ success:true, card:updated }) : res.status(409).json({ success:false, error:'La scheda è cambiata; ricarica e riprova' });
+  } catch (_) { return res.status(500).json({ success:false, error:'Impossibile aggiornare la nota di verifica' }); }
+});
+
 // A public GitHub PR/commit can document work, but cannot certify a skill.
 function githubEvidenceTarget(raw) {
   let url;
@@ -113,6 +133,19 @@ function githubEvidenceTarget(raw) {
     return { kind: 'commit', url: 'https://github.com/'+owner+'/'+repo+'/commit/'+value.toLowerCase(), api: 'https://api.github.com/repos/'+owner+'/'+repo+'/commits/'+value.toLowerCase() };
   }
   return null;
+}
+
+const DEFAULT_PENDING_GITHUB_NOTE = 'Attività dichiarate dal titolare; eventuali commit e PR devono essere aggiunti e controllati prima di considerarli evidenze del lavoro.';
+const GITHUB_LINKED_NOTE = 'Almeno una fonte GitHub pubblica è stata collegata e ne è stata controllata la disponibilità. Contenuto, attribuzione e competenze non sono verificati indipendentemente.';
+function noteAfterGithubEvidence(existing) {
+  const previous = typeof existing === 'string' ? existing.trim() : '';
+  if (previous.includes(GITHUB_LINKED_NOTE)) return previous;
+  if (!previous || previous === DEFAULT_PENDING_GITHUB_NOTE) {
+    return 'Attività dichiarate dal titolare. ' + GITHUB_LINKED_NOTE;
+  }
+  // Preserve personalized verification notes, removing only the obsolete standard sentence.
+  const retained = previous.replace(DEFAULT_PENDING_GITHUB_NOTE, '').trim().replace(/[;,.\s]+$/, '');
+  return (retained ? retained.slice(0, 1000 - GITHUB_LINKED_NOTE.length - 2) + '\n' : '') + GITHUB_LINKED_NOTE;
 }
 
 router.post('/drafts/:id/github-evidence', authenticate, async (req, res) => {
@@ -136,7 +169,7 @@ router.post('/drafts/:id/github-evidence', authenticate, async (req, res) => {
     const item = { label:label.slice(0,160), url:target.url, note };
     const updated = await KnowledgeDraft.findOneAndUpdate(
       { _id:req.params.id, ownerId:req.userId, 'evidence.url':{$ne:target.url}, 'evidence.11':{$exists:false} },
-      { $push:{ evidence:item } }, { new:true, runValidators:true }
+      { $push:{ evidence:item }, $set:{ verificationNote: noteAfterGithubEvidence(card.verificationNote).slice(0,1000) } }, { new:true, runValidators:true }
     );
     if (!updated) return res.status(409).json({ success:false, error:'Fonte già presente o limite raggiunto; ricarica la scheda' });
     return res.json({ success:true, card:updated, evidence:item, check:'PUBLIC_SOURCE_ACCESSIBLE_NOT_SKILL_VERIFIED' });
