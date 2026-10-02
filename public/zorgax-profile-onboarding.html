@@ -63,12 +63,26 @@ body{margin:0;font-family:system-ui,-apple-system,sans-serif;background:#070b16;
    const published=(Array.isArray(data.cards)?data.cards:[]).filter(c=>c.publisherName===authenticatedMyzUsername&&/^[0-9a-f]{24}$/i.test(String(c._id||'')));
    if(!published.length){message.textContent='Non trovo Knowledge Card pubbliche di '+authenticatedMyzUsername+'. Pubblica prima almeno una scheda.';return}
    const clean=value=>String(value||'').replace(/[\r\n\[\]<>]/g,' ').replace(/\s+/g,' ').trim();
+   // Never cut words or leave a half-sentence in a public GitHub profile.
+   // Prefer complete sentences; if even the first sentence is too long, link to the full source instead.
+   const completeSummary=(value,max,fallback)=>{
+    const content=clean(value);
+    if(content.length<=max)return content;
+    const sentences=content.match(/[^.!?]+[.!?](?=\s|$)/g)||[];
+    let summary='';
+    for(const sentence of sentences){
+     const proposed=(summary?summary+' ':'')+sentence.trim();
+     if(proposed.length>max)break;
+     summary=proposed;
+    }
+    return summary||fallback;
+   };
    const lines=published.map(c=>{
     const title=clean(c.title||'Conoscenza pubblicata');
     const domain=clean(c.domain);
-    const description=clean(c.description).slice(0,220);
-    const note=clean(c.verificationNote).slice(0,180);
-    const sources=(Array.isArray(c.evidence)?c.evidence:[]).filter(e=>{try{const u=new URL(e.url);return u.protocol==='https:'&&u.hostname==='github.com'&&/^\/[a-z\d_.-]+\/[a-z\d_.-]+\/(pull\/[1-9]\d*|commit\/[a-f0-9]{40})\/?$/i.test(u.pathname)}catch(_){return false}}).slice(0,8).map(e=>'\n  - Fonte GitHub: ['+clean(e.label).slice(0,100)+']('+String(e.url)+') — '+clean(e.note).slice(0,120)).join('');
+    const description=completeSummary(c.description,520,'Descrizione completa nella Knowledge Card.');
+    const note=completeSummary(c.verificationNote,750,'Nota di verifica completa nella Knowledge Card.');
+    const sources=(Array.isArray(c.evidence)?c.evidence:[]).filter(e=>{try{const u=new URL(e.url);return u.protocol==='https:'&&u.hostname==='github.com'&&/^\/[a-z\d_.-]+\/[a-z\d_.-]+\/(pull\/[1-9]\d*|commit\/[a-f0-9]{40})\/?$/i.test(u.pathname)}catch(_){return false}}).slice(0,8).map(e=>'\n  - Fonte GitHub: ['+clean(e.label).slice(0,100)+']('+String(e.url)+') — '+completeSummary(e.note,420,'Dettagli completi nel link GitHub.')).join('');
     return '- **['+title+'](https://www.myzubster.com/knowledge-card?id='+c._id+')**'+(domain?' — '+domain:'')+(description?'\n  - Attività dichiarate: '+description:'')+(note?'\n  - Stato verifica: '+note:'')+sources;
    });
    const section=KNOWLEDGE_BLOCK_START+'\n## Knowledge Card MyZubster\n\nSchede pubblicate e dichiarate dal titolare; le competenze non sono automaticamente certificate.\n\n'+lines.join('\n')+'\n'+KNOWLEDGE_BLOCK_END;
