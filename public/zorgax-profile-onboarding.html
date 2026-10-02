@@ -77,12 +77,26 @@ body{margin:0;font-family:system-ui,-apple-system,sans-serif;background:#070b16;
     }
     return summary||fallback;
    };
+   // A manually supplied public GitHub URL is still a declared source, not automatically verified.
+   // Parse it directly, so importing an already-published card never silently discards valid sources.
+   const publicGithubSourceUrl=value=>{
+    const valueText=String(value||'').trim();
+    return /^https:\/\/github\.com\/[a-z\d_.-]+\/[a-z\d_.-]+\/(?:pull\/[1-9]\d*|commit\/[a-f\d]{40})\/?$/i.test(valueText)?valueText:'';
+   };
+   let sourceCount=0;
    const lines=published.map(c=>{
     const title=clean(c.title||'Conoscenza pubblicata');
     const domain=clean(c.domain);
     const description=completeSummary(c.description,520,'Descrizione completa nella Knowledge Card.');
     const note=completeSummary(c.verificationNote,750,'Nota di verifica completa nella Knowledge Card.');
-    const sources=(Array.isArray(c.evidence)?c.evidence:[]).filter(e=>{try{const u=new URL(e.url);return u.protocol==='https:'&&u.hostname==='github.com'&&/^\/[a-z\d_.-]+\/[a-z\d_.-]+\/(pull\/[1-9]\d*|commit\/[a-f0-9]{40})\/?$/i.test(u.pathname)}catch(_){return false}}).slice(0,8).map(e=>'\n  - Fonte GitHub: ['+clean(e.label).slice(0,100)+']('+String(e.url)+') — '+completeSummary(e.note,420,'Dettagli completi nel link GitHub.')).join('');
+    const sources=(Array.isArray(c.evidence)?c.evidence:[]).map(e=>({
+     url:publicGithubSourceUrl(e&&e.url),
+     label:clean(e&&e.label),
+     note:completeSummary(e&&e.note,420,'Dettagli completi nella Knowledge Card.')
+    })).filter(e=>e.url).slice(0,8).map(e=>{
+     sourceCount++;
+     return '\n  - Fonte GitHub: ['+(e.label||'Commit o PR GitHub').slice(0,100)+']('+e.url+')'+(e.note?' — '+e.note:'');
+    }).join('');
     return '- **['+title+'](https://www.myzubster.com/knowledge-card?id='+c._id+')**'+(domain?' — '+domain:'')+(description?'\n  - Attività dichiarate: '+description:'')+(note?'\n  - Stato verifica: '+note:'')+sources;
    });
    const section=KNOWLEDGE_BLOCK_START+'\n## Knowledge Card MyZubster\n\nSchede pubblicate e dichiarate dal titolare; le competenze non sono automaticamente certificate.\n\n'+lines.join('\n')+'\n'+KNOWLEDGE_BLOCK_END;
@@ -94,7 +108,7 @@ body{margin:0;font-family:system-ui,-apple-system,sans-serif;background:#070b16;
    if(!githubFinalName.value)githubFinalName.value=String(githubSnapshot.profile.name||'').slice(0,180);
    if(!githubFinalBio.value)githubFinalBio.value=String(githubSnapshot.profile.bio||'').slice(0,160);
    githubFinalReadme.value=updated;githubFinalCard.hidden=false;githubFinalApprove.checked=false;saveGithubFinalDraft();
-   message.textContent=published.length+' Knowledge Card caricate nell’anteprima. Controlla il README prima di confermare la pubblicazione su GitHub.';
+   message.textContent=published.length+' Knowledge Card caricate e '+sourceCount+' fonti GitHub importate nell’anteprima. Controlla i collegamenti prima di confermare la pubblicazione su GitHub.';
    githubFinalCard.scrollIntoView({behavior:'smooth',block:'start'});
   }catch(e){message.textContent='Importazione non riuscita: '+e.message}
  }
