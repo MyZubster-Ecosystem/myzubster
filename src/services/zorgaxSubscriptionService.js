@@ -2,6 +2,7 @@
 
 const crypto = require('crypto');
 const { ZorgaxPurchase, PURCHASE_STATUSES } = require('../models/ZorgaxPurchase');
+const ZorgaxSubscription = require('../models/ZorgaxSubscription');
 const { getAccess: getEntitlementAccess, grantPurchaseEntitlement } = require('./zorgaxEntitlementService');
 const { entitlementForPlan, productIdForPlan, requirePaidPlan } = require('./zorgaxPlanCatalog');
 
@@ -25,6 +26,14 @@ async function recordVerifiedPayment({ ownerId, planId, asset, paymentReference,
   if (!verification || verification.verified !== true) throw new Error('Pagamento non verificato: accesso non attivabile');
 
   const ref = normalizePaymentReference(paymentReference);
+
+  const legacyQuery = ZorgaxSubscription.findOne({ 'verification.paymentReference':ref });
+  const legacyExisting = typeof legacyQuery?.lean === 'function' ? await legacyQuery.lean() : await legacyQuery;
+  if (legacyExisting) {
+    if (String(legacyExisting.ownerId) !== String(ownerId)) throw new Error('Pagamento già utilizzato');
+    return legacyExisting;
+  }
+
   const paymentIntentId = externalIntentId(ref);
   const productId = productIdForPlan(plan.id);
   const entitlement = entitlementForPlan(plan.id);
