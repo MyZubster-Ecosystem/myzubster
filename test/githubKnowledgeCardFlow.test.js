@@ -9,7 +9,8 @@ describe('GitHub evidence on Knowledge Card and README',()=>{
  });
  test('Zorgax README synchronization shows recorded contribution sources',()=>{
   const s=read('zorgax-profile-onboarding.html');
-  expect(s).toContain('Fonte GitHub: ');
+  expect(s).toContain("'Fonte GitHub'");
+  expect(s).toContain('publicGithubSourceUrl');
   expect(s).toContain('MYZUBSTER-KNOWLEDGE-CARDS:START');
   expect(s).toContain("githubFinalApprove.checked=false;saveGithubFinalDraft()");
  });
