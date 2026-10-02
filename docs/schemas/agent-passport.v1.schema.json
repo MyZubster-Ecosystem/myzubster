@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://www.myzubster.com/schemas/agent-passport.v1.json",
+  "title": "MyZubster Agent Passport",
+  "type": "object",
+  "required": ["schema", "agentId", "name", "agentType", "implementation", "contributions", "reviewState"],
+  "properties": {
+    "schema": {"const": "myzubster.agent-passport.v1"},
+    "agentId": {"type": "string", "pattern": "^agent:[a-z0-9._-]+$"},
+    "name": {"type": "string", "minLength": 1},
+    "agentType": {"enum": ["automation-bot", "ai-assistant", "integration-agent", "monitor", "other"]},
+    "implementation": {
+      "type": "object",
+      "required": ["repository"],
+      "properties": {
+        "repository": {"type": "string"},
+        "path": {"type": ["string","null"]},
+        "versionRef": {"type": ["string","null"]}
+      },
+      "additionalProperties": false
+    },
+    "contributions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["task", "evidence", "reviewState", "limitations"],
+        "properties": {
+          "task": {"type": "string"},
+          "trigger": {"type": ["string","null"]},
+          "output": {"type": ["string","null"]},
+          "timestamp": {"type": ["string","null"]},
+          "evidence": {"type": "array", "items": {"type": "string", "format": "uri"}},
+          "reviewState": {"enum": ["UNREVIEWED", "TESTED", "PROJECT_REVIEWED", "EXTERNALLY_REVIEWED"]},
+          "reviewer": {"type": ["string","null"]},
+          "limitations": {"type": "array", "items": {"type": "string"}}
+        },
+        "additionalProperties": false
+      }
+    },
+    "knowledgeCards": {"type": "array", "items": {"type": "string"}},
+    "reviewState": {"enum": ["UNREVIEWED", "TESTED", "PROJECT_REVIEWED", "EXTERNALLY_REVIEWED"]},
+    "reward": {
+      "type": ["object","null"],
+      "properties": {
+        "accountingType": {"enum": ["INTERNAL", "EXTERNAL_SETTLEMENT_REFERENCE", "NONE"]},
+        "recipientType": {"enum": ["HUMAN", "TEAM", "ORGANIZATION", "NONE"]},
+        "evidence": {"type": ["string","null"]}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
