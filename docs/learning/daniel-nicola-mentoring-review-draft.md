@@ -37,3 +37,11 @@ Daniel's declared mentoring activity relates to practical Web3 tool setup, step-
 - [ ] If Daniel wants a mentoring Knowledge Card, publish it through his own MyZubster account as **mentoring activity declared by the owner**. Nicola's personal Knowledge Card requires Nicola's own review and approval.
 
 No credential, seed phrase, private key, home address, or personal wallet address is required in either document.
+
+## Verified evidence update — 2 October 2026
+
+A separate, earlier **Base Sepolia knowledge-transfer anchor** has now been identified and its [public verifier](https://www.myzubster.com/api/knowledge-anchor/n4k48/0xff3c108275625673ad22a886da2df7120ae81b8f0106ec833613513b03c7bc31) was fetched successfully (HTTP 200, `MATCH`). It anchors the immutable [18 September canonical collaboration manifest](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/blob/main/knowledge/KNOWLEDGE-TRANSFER-2026-09-18-DANIEL-NICOLA.json), which records a 30-commit snapshot covering the economic ledger, balances and UI. This is an on-chain commitment **to that manifest**, not proof that a particular guided MetaMask training exercise was completed, that Nicola mastered the described skills, or that any NFT was minted. The manifest retains `recipient_attestation:"PENDING"`.
+
+Public source evidence also covers the fork's [Docker Compose setup](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/blob/main/docker-compose.yml) and [local Docker-based Nicola Comics API test report](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/blob/main/docs/nicola-comics/TEST-REPORT-2026-09-15.md). The main MyZubster repository documents [a Tor v3 onion Docker service](https://github.com/MyZubster-Ecosystem/myzubster/blob/main/onion/README.md), but no working onion deployment by Nicola has been independently established. Its kefir documentation and [handover implementation](https://github.com/MyZubster-Ecosystem/myzubster/commit/b9ff495f66974090117be46e92bcd20d5950f859) are MyZubster/Daniel artifacts; Nicola's particular kefir participation or knowledge transfer has not yet been corroborated.
+
+For precise status by topic, see the [review evidence ledger](nicola-evidence-ledger-review.md). No additional on-chain anchoring or public Knowledge Card should occur before review and explicit approval.
