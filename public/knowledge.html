@@ -1,13 +1,95 @@
 <!DOCTYPE html>
-<html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Conoscenze pubbliche · MyZubster</title><meta name="description" content="Esplora le schede Conoscenze pubblicate dai partecipanti MyZubster, con dichiarazioni e fonti distinte.">
-<style>*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#28205a,#0c0b20 60%);color:#f8fafc;font:16px/1.5 Arial,sans-serif}.wrap{max-width:1050px;margin:auto;padding:24px}a{color:#7dd3fc}.muted{color:#cbd5e1}.panel,.card{background:#16152e;border:1px solid #475569;border-radius:18px;padding:20px;margin:16px 0}.filters{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px}label{display:block;font-size:14px;color:#cbd5e1}input,select{width:100%;padding:11px;margin-top:5px;background:#090b19;color:white;border:1px solid #64748b;border-radius:10px;font:inherit}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:14px}.card{margin:0;display:flex;flex-direction:column}.card h2{font-size:1.2rem;margin:7px 0}.card p{overflow-wrap:anywhere;white-space:pre-wrap}.tag{color:#fef08a;font-size:13px}.source{margin-top:auto}.button{display:inline-block;padding:9px 12px;border-radius:10px;background:#4338ca;color:white;text-decoration:none;font-weight:bold}.button:hover{background:#6366f1}@media(max-width:700px){.filters{grid-template-columns:1fr}}</style></head>
-<body><main class="wrap"><p><a href="/">← MyZubster</a> · <a href="/zorgax-profile-builder">Crea la tua scheda</a> · <a href="/knowledge-absorbents.html">🩸 Assorbenti open source</a></p><h1>Conoscenze della comunità</h1><p class="muted">Schede pubblicate dai titolari. Una dichiarazione e un link a una fonte non equivalgono a una verifica indipendente. Apri una scheda per leggere la nota sullo stato della verifica.</p>
-<section class="panel" aria-label="Filtri del catalogo"><div class="filters"><label>Cerca titolo, testo o fonte<input id="search" type="search" placeholder="Es. Docker, trasporti, Nicola"></label><label>Ambito<select id="domain"><option value="">Tutti gli ambiti</option></select></label><label>Account<select id="owner"><option value="">Tutti gli account</option></select></label></div><p id="status" class="muted" role="status">Caricamento delle schede…</p></section><div id="cards" class="grid"></div></main>
+<html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Conoscenze pubbliche · MyZubster</title><meta name="description" content="Esplora le schede Conoscenze pubblicate dai partecipanti MyZubster come catalogo o grafo interattivo, con dichiarazioni, relazioni e fonti distinte.">
+<style>
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#28205a,#0c0b20 60%);color:#f8fafc;font:16px/1.5 Arial,sans-serif}.wrap{max-width:1120px;margin:auto;padding:24px}a{color:#7dd3fc}.muted{color:#cbd5e1}.panel,.card{background:#16152e;border:1px solid #475569;border-radius:18px;padding:20px;margin:16px 0}.filters{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px}label{display:block;font-size:14px;color:#cbd5e1}input,select{width:100%;padding:11px;margin-top:5px;background:#090b19;color:white;border:1px solid #64748b;border-radius:10px;font:inherit}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:14px}.card{margin:0;display:flex;flex-direction:column}.card h2{font-size:1.2rem;margin:7px 0}.card p{overflow-wrap:anywhere;white-space:pre-wrap}.tag{color:#fef08a;font-size:13px}.source{margin-top:auto}.button,.view-switch button{display:inline-block;padding:9px 12px;border-radius:10px;background:#4338ca;color:white;text-decoration:none;font-weight:bold;border:1px solid #6366f1;cursor:pointer;font:inherit}.button:hover,.view-switch button:hover{background:#6366f1}.view-switch{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}.view-switch button[aria-pressed="false"]{background:#111827;border-color:#475569;color:#e2e8f0}.graph-shell{margin-top:16px}.graph-help{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px}.legend{display:flex;gap:10px;flex-wrap:wrap;font-size:13px;color:#cbd5e1}.legend span::before{content:"●";margin-right:4px}.legend .domain::before{color:#22d3ee}.legend .card-node::before{color:#818cf8}.legend .owner::before{color:#34d399}.legend .source-node::before{color:#fbbf24}.graph-frame{overflow:auto;border:1px solid #475569;border-radius:16px;background:#090b19}.graph-svg{display:block;width:100%;min-width:680px}.edge{stroke:#64748b;stroke-width:1.4;opacity:.6}.node{cursor:pointer;outline:none}.node circle{stroke:#e2e8f0;stroke-width:1.4}.node:focus circle,.node.selected circle{stroke:#fef08a;stroke-width:3}.node text{fill:#e2e8f0;font-size:12px;pointer-events:none}.node.domain circle{fill:#155e75}.node.card-node circle{fill:#4338ca}.node.owner circle{fill:#047857}.node.source-node circle{fill:#a16207}.graph-detail{margin-top:12px;padding:14px;border-radius:12px;background:#111827;border:1px solid #334155}.graph-detail h2{margin:0 0 8px;font-size:1.05rem}.graph-detail p{margin:7px 0;overflow-wrap:anywhere}.graph-detail .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.graph-detail button{padding:8px 10px;border-radius:9px;background:#1f2937;color:#fff;border:1px solid #475569;cursor:pointer}.graph-empty{padding:24px;color:#cbd5e1;text-align:center}@media(max-width:700px){.filters{grid-template-columns:1fr}.wrap{padding:16px}.panel{padding:16px}}
+</style></head>
+<body><main class="wrap">
+<p><a href="/">← MyZubster</a> · <a href="/zorgax-profile-builder">Crea la tua scheda</a> · <a href="/knowledge-absorbents">🩸 Assorbenti open source</a></p>
+<h1>Conoscenze della comunità</h1>
+<p class="muted">Schede pubblicate dai titolari. Il grafo rende visibili le relazioni tra schede, ambiti, contributori e fonti pubbliche. Una dichiarazione o una fonte indicata non equivalgono automaticamente a verifica indipendente.</p>
+<section class="panel" aria-label="Filtri del catalogo">
+<div class="filters"><label>Cerca titolo, testo o fonte<input id="search" type="search" placeholder="Es. Docker, trasporti, Nicola"></label><label>Ambito<select id="domain"><option value="">Tutti gli ambiti</option></select></label><label>Account<select id="owner"><option value="">Tutti gli account</option></select></label></div>
+<div class="view-switch" role="group" aria-label="Vista conoscenze"><button id="cardsViewBtn" type="button" aria-pressed="true">📚 Schede</button><button id="graphViewBtn" type="button" aria-pressed="false">🕸 Grafo interattivo</button></div>
+<p id="status" class="muted" role="status">Caricamento delle schede…</p>
+</section>
+<div id="cards" class="grid"></div>
+<section id="graphSection" class="graph-shell" hidden aria-label="Grafo interattivo delle conoscenze">
+<div class="graph-help"><strong>Esplora le connessioni</strong><span class="muted">Tocca un nodo per vedere dettagli; tocca un ambito o un contributore per filtrare.</span></div>
+<div class="legend" aria-label="Legenda"><span class="domain">Ambito</span><span class="card-node">Knowledge Card</span><span class="owner">Contributore</span><span class="source-node">Fonte</span></div>
+<div class="graph-frame"><svg id="graphSvg" class="graph-svg" role="img" aria-label="Rete delle Knowledge Card pubbliche"></svg></div>
+<aside id="graphDetail" class="graph-detail" aria-live="polite"><h2>Seleziona un nodo</h2><p class="muted">Il grafo usa solo Knowledge Card e fonti già pubbliche.</p></aside>
+</section>
+</main>
 <script>
-const cardsEl=document.getElementById('cards'),statusEl=document.getElementById('status'),searchEl=document.getElementById('search'),domainEl=document.getElementById('domain'),ownerEl=document.getElementById('owner');let all=[];
+const cardsEl=document.getElementById('cards'),statusEl=document.getElementById('status'),searchEl=document.getElementById('search'),domainEl=document.getElementById('domain'),ownerEl=document.getElementById('owner'),graphSection=document.getElementById('graphSection'),graphSvg=document.getElementById('graphSvg'),graphDetail=document.getElementById('graphDetail'),cardsViewBtn=document.getElementById('cardsViewBtn'),graphViewBtn=document.getElementById('graphViewBtn');
+let all=[],activeView='cards',selectedNodeId='';
+const NS='http://www.w3.org/2000/svg';
+
 function add(tag,value,parent){const el=document.createElement(tag);el.textContent=value;parent.appendChild(el);return el}
 function options(select,values){for(const value of [...new Set(values.filter(Boolean))].sort((a,b)=>a.localeCompare(b,'it'))){const option=document.createElement('option');option.value=value;option.textContent=value;select.appendChild(option)}}
-function render(){const query=searchEl.value.trim().toLocaleLowerCase('it');const visible=all.filter(card=>(!ownerEl.value||card.publisherName===ownerEl.value)&&(!domainEl.value||card.domain===domainEl.value)&&(!query||[card.title,card.description,card.publisherName,card.domain,card.verificationNote,...(card.evidence||[]).flatMap(e=>[e.label,e.note,e.url])].join(' ').toLocaleLowerCase('it').includes(query)));cardsEl.replaceChildren();statusEl.textContent=visible.length+' schede pubbliche trovate'+(all.length?' su '+all.length:'')+'.';for(const card of visible){const article=document.createElement('article');article.className='card';cardsEl.appendChild(article);add('span','Dichiarazione del titolare · fonti non verificate automaticamente',article).className='tag';add('h2',card.title,article);add('p','Account: '+(card.publisherName||'MyZubster')+' · Ambito: '+card.domain,article).className='muted';add('p',card.description.length>250?card.description.slice(0,247)+'…':card.description,article);add('p',(card.evidence||[]).length+' fonti indicate · '+(card.verificationNote?'nota sulla verifica presente':'nessuna nota di verifica'),article).className='muted source';const link=document.createElement('a');link.className='button';link.href='/knowledge-card?id='+encodeURIComponent(card._id);link.textContent='Apri scheda e fonti';article.appendChild(link)}}
-async function load(){try{const response=await fetch('/api/knowledge-evidence/public',{cache:'no-store'});if(!response.ok)throw new Error('Catalogo temporaneamente non disponibile');const data=await response.json();all=data.cards||[];options(domainEl,all.map(x=>x.domain));options(ownerEl,all.map(x=>x.publisherName));const requestedOwner=new URLSearchParams(location.search).get('owner');if(requestedOwner&&[...ownerEl.options].some(x=>x.value===requestedOwner))ownerEl.value=requestedOwner;render()}catch(error){statusEl.textContent=error.message}}
-for(const element of [searchEl,domainEl,ownerEl])element.addEventListener(element===searchEl?'input':'change',render);load();
+function safeHttpUrl(value){try{const url=new URL(value,location.origin);return ['http:','https:'].includes(url.protocol)?url.href:''}catch(_){return ''}}
+function shortened(value,max=24){const text=String(value||'');return text.length>max?text.slice(0,max-1)+'…':text}
+function visibleCards(){const query=searchEl.value.trim().toLocaleLowerCase('it');return all.filter(card=>(!ownerEl.value||card.publisherName===ownerEl.value)&&(!domainEl.value||card.domain===domainEl.value)&&(!query||[card.title,card.description,card.publisherName,card.domain,card.verificationNote,...(card.evidence||[]).flatMap(e=>[e.label,e.note,e.url])].join(' ').toLocaleLowerCase('it').includes(query)))}
+
+function renderCards(visible){cardsEl.replaceChildren();for(const card of visible){const article=document.createElement('article');article.className='card';cardsEl.appendChild(article);add('span','Dichiarazione del titolare · fonti non verificate automaticamente',article).className='tag';add('h2',card.title,article);add('p','Account: '+(card.publisherName||'MyZubster')+' · Ambito: '+card.domain,article).className='muted';add('p',(card.description||'').length>250?card.description.slice(0,247)+'…':card.description||'',article);add('p',(card.evidence||[]).length+' fonti indicate · '+(card.verificationNote?'nota sulla verifica presente':'nessuna nota di verifica'),article).className='muted source';const link=document.createElement('a');link.className='button';link.href='/knowledge-card?id='+encodeURIComponent(card._id);link.textContent='Apri scheda e fonti';article.appendChild(link)}}
+
+function graphData(cards){
+ const nodes=new Map(),edges=[];
+ const ensure=(id,type,label,data={})=>{if(!nodes.has(id))nodes.set(id,{id,type,label,data});return nodes.get(id)};
+ for(const card of cards){
+  const cardId='card:'+card._id,domainName=card.domain||'Generale',ownerName=card.publisherName||'MyZubster',domainId='domain:'+domainName,ownerId='owner:'+ownerName;
+  ensure(domainId,'domain',domainName,{value:domainName});
+  ensure(ownerId,'owner',ownerName,{value:ownerName});
+  ensure(cardId,'card-node',card.title||'Knowledge Card',{card});
+  edges.push({from:domainId,to:cardId,label:'ambito'},{from:ownerId,to:cardId,label:'contributo'});
+  for(const evidence of (card.evidence||[]).slice(0,4)){
+   const url=safeHttpUrl(evidence.url);if(!url)continue;
+   const sourceId='source:'+url,host=(()=>{try{return new URL(url).hostname}catch(_){return 'fonte'}})();
+   ensure(sourceId,'source-node',evidence.label||host,{url,evidence});
+   edges.push({from:cardId,to:sourceId,label:'fonte'});
+  }
+ }
+ return {nodes:[...nodes.values()],edges};
+}
+
+function positions(nodes,width){
+ const types=['domain','card-node','owner','source-node'],x={domain:80,'card-node':Math.round(width*.38),owner:Math.round(width*.68),'source-node':width-80},pos=new Map();
+ const groups=Object.fromEntries(types.map(t=>[t,nodes.filter(n=>n.type===t)]));
+ const maxCount=Math.max(1,...types.map(t=>groups[t].length)),height=Math.max(520,100+maxCount*78);
+ for(const type of types){const group=groups[type];group.forEach((node,index)=>{const y=group.length===1?height/2:60+(height-120)*(index/(group.length-1));pos.set(node.id,{x:x[type],y})})}
+ return {pos,height};
+}
+
+function svgEl(tag,attrs={}){const el=document.createElementNS(NS,tag);for(const [key,value] of Object.entries(attrs))el.setAttribute(key,String(value));return el}
+function showNodeDetail(node){
+ selectedNodeId=node.id;graphSvg.querySelectorAll('.node').forEach(el=>el.classList.toggle('selected',el.dataset.id===node.id));
+ graphDetail.replaceChildren();add('h2',node.label,graphDetail);
+ if(node.type==='card-node'){
+  const card=node.data.card;add('p','Knowledge Card · '+(card.domain||'Generale')+' · '+(card.publisherName||'MyZubster'),graphDetail).className='muted';add('p',card.description||'Nessuna descrizione.',graphDetail);add('p','Stato verifica: '+(card.verificationNote||'nessuna verifica indipendente dichiarata'),graphDetail).className='muted';
+  const actions=document.createElement('div');actions.className='actions';graphDetail.appendChild(actions);const a=document.createElement('a');a.className='button';a.href='/knowledge-card?id='+encodeURIComponent(card._id);a.textContent='Apri Knowledge Card';actions.appendChild(a);
+ }else if(node.type==='domain'){
+  add('p','Ambito di conoscenza. Selezionandolo puoi vedere soltanto le schede pubbliche collegate a questo dominio.',graphDetail).className='muted';const b=document.createElement('button');b.textContent='Filtra questo ambito';b.onclick=()=>{domainEl.value=node.data.value;renderAll()};graphDetail.appendChild(b);
+ }else if(node.type==='owner'){
+  add('p','Contributore o account che ha pubblicato Knowledge Card visibili nel grafo.',graphDetail).className='muted';const b=document.createElement('button');b.textContent='Mostra le sue schede';b.onclick=()=>{ownerEl.value=node.data.value;renderAll()};graphDetail.appendChild(b);
+ }else if(node.type==='source-node'){
+  const e=node.data.evidence||{};add('p',e.note||'Fonte pubblica collegata da una Knowledge Card.',graphDetail).className='muted';const a=document.createElement('a');a.className='button';a.href=node.data.url;a.target='_blank';a.rel='noopener noreferrer';a.textContent='Apri fonte';graphDetail.appendChild(a);
+ }
+}
+
+function renderGraph(cards){
+ graphSvg.replaceChildren();const graph=graphData(cards);
+ if(!graph.nodes.length){graphSvg.setAttribute('viewBox','0 0 800 300');graphSvg.setAttribute('height','300');const t=svgEl('text',{x:400,y:150,'text-anchor':'middle',fill:'#cbd5e1'});t.textContent='Nessuna conoscenza corrisponde ai filtri.';graphSvg.appendChild(t);return}
+ const width=Math.max(760,graphSvg.parentElement.clientWidth||900),layout=positions(graph.nodes,width),pos=layout.pos;height=layout.height;graphSvg.setAttribute('viewBox','0 0 '+width+' '+height);graphSvg.setAttribute('height',height);
+ for(const edge of graph.edges){const a=pos.get(edge.from),b=pos.get(edge.to);if(!a||!b)continue;graphSvg.appendChild(svgEl('line',{x1:a.x,y1:a.y,x2:b.x,y2:b.y,class:'edge'}))}
+ for(const node of graph.nodes){const p=pos.get(node.id),g=svgEl('g',{class:'node '+node.type,tabindex:'0',role:'button','data-id':node.id,'aria-label':node.label});if(node.id===selectedNodeId)g.classList.add('selected');const r=node.type==='card-node'?20:16;g.appendChild(svgEl('circle',{cx:p.x,cy:p.y,r}));const title=svgEl('title');title.textContent=node.label;g.appendChild(title);const text=svgEl('text',{x:p.x,y:p.y+34,'text-anchor':'middle'});text.textContent=shortened(node.label,node.type==='card-node'?28:22);g.appendChild(text);const activate=()=>showNodeDetail(node);g.addEventListener('click',activate);g.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();activate()}});graphSvg.appendChild(g)}
+}
+
+function updateViewUrl(){const url=new URL(location.href);if(activeView==='graph')url.searchParams.set('view','graph');else url.searchParams.delete('view');history.replaceState(null,'',url)}
+function setView(view){activeView=view==='graph'?'graph':'cards';cardsEl.hidden=activeView!=='cards';graphSection.hidden=activeView!=='graph';cardsViewBtn.setAttribute('aria-pressed',String(activeView==='cards'));graphViewBtn.setAttribute('aria-pressed',String(activeView==='graph'));updateViewUrl();renderAll()}
+function renderAll(){const visible=visibleCards();statusEl.textContent=visible.length+' schede pubbliche trovate'+(all.length?' su '+all.length:'')+'.'+(activeView==='graph'?' Il grafo mostra relazioni basate solo sui dati pubblici.':'');renderCards(visible);if(activeView==='graph')renderGraph(visible)}
+
+async function load(){try{const response=await fetch('/api/knowledge-evidence/public',{cache:'no-store'});if(!response.ok)throw new Error('Catalogo temporaneamente non disponibile');const data=await response.json();all=data.cards||[];options(domainEl,all.map(x=>x.domain));options(ownerEl,all.map(x=>x.publisherName));const params=new URLSearchParams(location.search),requestedOwner=params.get('owner'),requestedDomain=params.get('domain');if(requestedOwner&&[...ownerEl.options].some(x=>x.value===requestedOwner))ownerEl.value=requestedOwner;if(requestedDomain&&[...domainEl.options].some(x=>x.value===requestedDomain))domainEl.value=requestedDomain;activeView=params.get('view')==='graph'?'graph':'cards';cardsEl.hidden=activeView!=='cards';graphSection.hidden=activeView!=='graph';cardsViewBtn.setAttribute('aria-pressed',String(activeView==='cards'));graphViewBtn.setAttribute('aria-pressed',String(activeView==='graph'));renderAll()}catch(error){statusEl.textContent=error.message}}
+for(const element of [searchEl,domainEl,ownerEl])element.addEventListener(element===searchEl?'input':'change',renderAll);
+cardsViewBtn.addEventListener('click',()=>setView('cards'));graphViewBtn.addEventListener('click',()=>setView('graph'));window.addEventListener('resize',()=>{if(activeView==='graph')renderGraph(visibleCards())});
+load();
 </script></body></html>
