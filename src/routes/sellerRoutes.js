@@ -2,6 +2,7 @@ const express = require('express');
 const crypto = require('crypto');
 const https = require('https');
 const SellerMembership = require('../models/SellerMembership');
+const MarketplaceListing = require('../models/MarketplaceListing');
 const { authenticate } = require('../middleware/auth');
 const { activateZorgaxInvoice } = require('../services/zorgaxStripeService');
 const { logConversionEvent } = require('../services/conversionFunnel');
@@ -153,12 +154,28 @@ router.get('/me', authenticate, async (req, res) => {
   try {
     const membership = await SellerMembership.findOne({ userId:req.userId }).lean();
     const active = membershipIsActive(membership);
+    const activeCommercialListings = await MarketplaceListing.countDocuments({
+      ownerId:req.userId,
+      status:'active',
+      $nor:[
+        { category:'kefir_culture_donation' },
+        { category:'seeds', currency:{ $in:['FREE','BARTER'] } }
+      ]
+    });
+    const activeListingLimit = freeSellerPlan().activeListingLimit;
+    const listingQuota = {
+      activeCommercialListings,
+      activeListingLimit,
+      remaining:membership?.plan === 'SELLER_MONTHLY' ? null : Math.max(0, activeListingLimit - activeCommercialListings),
+      limitReached:membership?.plan === 'SELLER_FREE' && activeCommercialListings >= activeListingLimit
+    };
     const sellerCanReceiveFunds = Boolean(membership?.paymentProvider === 'STRIPE' && membership?.verifiedAt);
     res.json({
       success:true,
       active,
       membership,
       plan:freeSellerPlan(),
+      listingQuota,
       stripeConfigured:stripeConfigured(),
       sellerCanReceiveFunds,
       paymentOnboarding:requiresPaymentOnboarding({ sellerCanReceiveFunds })

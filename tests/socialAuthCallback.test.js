@@ -49,6 +49,23 @@ describe('social OAuth callback safety', () => {
     expect(scopes.has('email')).toBe(false);
   });
 
+  test('rejects a GitHub client secret accidentally configured as the client ID', () => {
+    process.env.GITHUB_OAUTH_CLIENT_ID = 'a'.repeat(40);
+    process.env.GITHUB_OAUTH_CLIENT_SECRET = 'github-secret';
+    process.env.GITHUB_OAUTH_CALLBACK_URL = 'https://www.myzubster.com/api/auth/social/github/callback';
+    const req = { params: { provider: 'github' }, query: {} };
+    const res = { redirect: jest.fn(), status: jest.fn().mockReturnThis(), json: jest.fn() };
+
+    socialAuthController.start(req, res);
+
+    expect(res.redirect).not.toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(503);
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+      success: false,
+      message: expect.stringContaining('Client Secret')
+    }));
+  });
+
   test('logs safe Meta token-exchange diagnostics without OAuth code or access token', async () => {
     const state = jwt.sign(
       { purpose: 'social-login', provider: 'facebook', nonce: 'test' },

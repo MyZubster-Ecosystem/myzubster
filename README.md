@@ -1,5 +1,7 @@
 # MyZubster
 
+> **Canonical public GitHub repository:** [MyZubster-Ecosystem/myzubster](https://github.com/MyZubster-Ecosystem/myzubster). If another MyZubster link shows a GitHub 404, return to this repository; legacy/private repositories are not the public contribution entry point. To support the project, open this repository and use GitHub's **Star** or **Fork** controls.
+
 ## 🧭 Explore MyZubster — interactive links
 
 [🌐 **MyZubster**](https://www.myzubster.com/) · [🤖 **Zorgax**](https://www.myzubster.com/zorgax) · [🧠 **Knowledge Profile Builder**](https://www.myzubster.com/zorgax-profile-builder.html) · [👤 **Profile Onboarding**](https://www.myzubster.com/zorgax-profile-onboarding.html) · [🛒 **Marketplace**](https://www.myzubster.com/community-marketplace.html) · [🧪 **Marketplace demos**](https://www.myzubster.com/marketplace-demos) · [🔬 **University & Research**](https://github.com/DanielIoni-creator/myzubster-university-research) · [🔊 **Sound System**](https://github.com/DanielIoni-creator/Myzubster-soundsystem) · [🧑‍🔬 **Nicola pilot**](https://github.com/DanielIoni-creator/Nicola) · [🧩 **Yassen pilot**](https://github.com/DanielIoni-creator/Yassen) · [💻 **Core repository**](https://github.com/MyZubster-Ecosystem/myzubster)
@@ -956,3 +958,29 @@ See [`docs/PUBLIC-COMMUNITY-ACTIVITY.md`](docs/PUBLIC-COMMUNITY-ACTIVITY.md) and
 Passive visitors must not be deanonymized or correlated with GitHub identities without an explicit legitimate privacy-respecting basis.
 
 **Transparency note:** Proposed features are not released features; discussions are not partnerships; merges are not payments; and external settlement is not `PAID` until independently verified.
+
+## GitHub community network
+
+MyZubster maintains a transparent map of project-linked and autonomous contributor profiles. Operator-controlled accounts are separated from independent contributors so community size is not overstated.
+
+[Explore the GitHub community network →](docs/GITHUB-COMMUNITY-NETWORK.md)
+
+
+
+## 🎨 Recent visual archive — 21–27 Sep 2026
+
+The latest visual assets found in the project Drive archive are catalogued here so the documentation and MyZubster narrative stay synchronized. The binary originals remain in the Drive archive; until a public GitHub mirror is available, the links below point to the source files.
+
+| Date | Visual | Topic | Source |
+|---|---|---|---|
+| 24 Sep 2026 | `MyZubster-ecosistema-facebook.png` | Facebook / community entry point | [Drive source](https://drive.google.com/file/d/1Pp-ZG7f-WRBPO5hgNBEs0rd3aHzO7_Fp/view?usp=drivesdk) |
+| 27 Sep 2026 | `MyZubster_Sepolia_ETH_E2E_Payment_Flow.png` | Base Sepolia / ETH E2E payment-flow visual | [Drive source](https://drive.google.com/file/d/1573x9yWlbFS9u3EmKacpQf6EwZchQyE7/view?usp=drivesdk) |
+| 21 Sep 2026 | `MyZubster_University_Living_Lab_LIFE_Visual.png` | University / Living Lab / LIFE | [Drive source](https://drive.google.com/file/d/1nC1qYon10ia6H8KoE32kyA1efMtm0FIy/view?usp=drivesdk) |
+| 21 Sep 2026 | `MyZubster_Nicola_Software_Cyberpunk.png` | Nicola / software / technical narrative | [Drive source](https://drive.google.com/file/d/1QpTKRkPAXUqekf_I4C09zI0vJ54KFFM4/view?usp=drivesdk) |
+| 21 Sep 2026 | `MyZubster_Story_Kefir_Zorgax_Google_GitHub_Tor_Metaverso.png` | Kefir → Zorgax → Google/GitHub/Tor/Metaverse story | [Drive source](https://drive.google.com/file/d/1bl1kd44CWUHwqgeVNdpSg-dlYxl9l3hH/view?usp=drivesdk) |
+| 26 Sep 2026 | `Come funziona MyZubster per i donatori di kefir.png` | Kefir donor workflow | [Drive source](https://drive.google.com/file/d/139JyeGqKpQforoyK9nReFIyxl7U_TV9w/view?usp=drivesdk) |
+| 26 Sep 2026 | `Donatore di Kefir a Rimini e Riccione.png` | Local kefir donor / Rimini / Riccione | [Drive source](https://drive.google.com/file/d/1uY6PbLv-TxL5buXaTccEJMzrLoquRjzu/view?usp=drivesdk) |
+
+**Publication boundary:** these are visual communication assets. A visual does not by itself prove a completed pilot, partnership, payment, authorization, identity, adoption or scientific result; those claims remain tied to their corresponding evidence and status documentation.
+
+**Public mirror TODO:** copy the binary originals into the appropriate GitHub visual repository before using raw.githubusercontent.com image URLs in public pages.

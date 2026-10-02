@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import PlantMap from '../components/Map/PlantMap';
 import { getPlants } from '../api/plants';
 
@@ -12,7 +12,11 @@ const MapPage = () => {
     status: 'verified'
   });
 
-  const fetchPlants = useCallback(async () => {
+  useEffect(() => {
+    fetchPlants();
+  }, [filters]);
+
+  const fetchPlants = async () => {
     setLoading(true);
     try {
       const data = await getPlants(filters);
@@ -24,11 +28,7 @@ const MapPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [filters]);
-
-  useEffect(() => {
-    fetchPlants();
-  }, [fetchPlants]);
+  };
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));

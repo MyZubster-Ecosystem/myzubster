@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://www.myzubster.com/schemas/contributor-pilot-node.v1.json",
+  "title": "MyZubster Contributor Pilot Node",
+  "type": "object",
+  "required": ["schema", "pilotNodeId", "status", "contributor", "entryEvidence", "project", "rewardPolicy", "reviewState"],
+  "properties": {
+    "schema": {"const": "myzubster.contributor-pilot-node.v1"},
+    "pilotNodeId": {"type": "string", "pattern": "^CPN-[A-Za-z0-9._-]+$"},
+    "status": {"enum": ["CANDIDATE", "VERIFIED_CONTRIBUTOR", "PASSPORT_ACTIVE", "PILOT_ACTIVE", "PAUSED", "CLOSED"]},
+    "contributor": {
+      "type": "object",
+      "required": ["publicId", "consent"],
+      "properties": {
+        "publicId": {"type": "string", "minLength": 1},
+        "consent": {"enum": ["OPT_IN", "WITHDRAWN", "UNKNOWN"]}
+      },
+      "additionalProperties": false
+    },
+    "entryEvidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type", "url"],
+        "properties": {
+          "type": {"type": "string"},
+          "url": {"type": "string", "format": "uri"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "knowledgeCards": {"type": "array", "items": {"type": "string"}},
+    "project": {
+      "type": "object",
+      "required": ["title", "scope"],
+      "properties": {
+        "title": {"type": "string"},
+        "repository": {"type": ["string", "null"]},
+        "scope": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "milestones": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "status"],
+        "properties": {
+          "id": {"type": "string"},
+          "title": {"type": "string"},
+          "status": {"enum": ["PROPOSED", "ACTIVE", "SUBMITTED", "ACCEPTED", "REJECTED", "CLOSED"]},
+          "evidence": {"type": "array", "items": {"type": "string"}}
+        },
+        "additionalProperties": false
+      }
+    },
+    "rewardPolicy": {
+      "type": "object",
+      "required": ["fundingState", "settlementAssets"],
+      "properties": {
+        "fundingState": {"enum": ["PROPOSED", "UNFUNDED", "RESERVED", "FUNDED", "PAID"]},
+        "settlementAssets": {"type": "array", "items": {"enum": ["XMR", "BTC", "ETH"]}, "uniqueItems": true}
+      },
+      "additionalProperties": false
+    },
+    "reviewState": {"enum": ["UNREVIEWED", "PROJECT_REVIEWED", "EXTERNALLY_REVIEWED"]},
+    "limitations": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": false
+}

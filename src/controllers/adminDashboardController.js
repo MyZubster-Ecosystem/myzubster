@@ -2,6 +2,11 @@ const mongoose = require('mongoose');
 const User = require('../models/User');
 const SellerMembership = require('../models/SellerMembership');
 const Dashboard = require('../models/dashboardModel');
+const MarketplaceListing = require('../models/MarketplaceListing');
+const PaymentIntent = require('../models/PaymentIntent');
+const PaymentDashboardTransaction = require('../models/PaymentDashboardTransaction');
+const { stripeFundingInputsProvider } = require('../services/paymentDashboardStripeProvider');
+const settlementDashboard = require('../services/settlementDashboardService');
 
 // #218: Admin Dashboard - Monitoraggio Lavori e Pagamenti
 // Dashboard remains the legacy XMR/operations model. Canonical MYZ accounting lives in myzLedgerApiService.
@@ -16,7 +21,8 @@ exports.getOverview = async (req, res) => {
       totalUsers, totalSellers, activeSellers, totalWallets,
       users24h, users7d, users30d,
       sellers24h, sellers7d, sellers30d,
-      activeSellers24h, activeSellers7d, activeSellers30d
+      activeSellers24h, activeSellers7d, activeSellers30d,
+      totalListings, activeListings, confirmedCryptoPurchases, stripePaidTransactions, stripeRevenue
     ] = await Promise.all([
       User.countDocuments(),
       SellerMembership.countDocuments(),
@@ -30,9 +36,32 @@ exports.getOverview = async (req, res) => {
       SellerMembership.countDocuments({ createdAt: { $gte: d30 } }),
       SellerMembership.countDocuments({ status: 'ACTIVE', createdAt: { $gte: d1 } }),
       SellerMembership.countDocuments({ status: 'ACTIVE', createdAt: { $gte: d7 } }),
-      SellerMembership.countDocuments({ status: 'ACTIVE', createdAt: { $gte: d30 } })
+      SellerMembership.countDocuments({ status: 'ACTIVE', createdAt: { $gte: d30 } }),
+      MarketplaceListing.countDocuments(),
+      MarketplaceListing.countDocuments({ status: 'active' }),
+      PaymentIntent.countDocuments({ status: 'CONFIRMED' }),
+      PaymentDashboardTransaction.countDocuments({ paymentStatus: 'paid', livemode: true }),
+      PaymentDashboardTransaction.aggregate([{ $match: { paymentStatus: 'paid', livemode: true } }, { $group: { _id: '$currency', amountCents: { $sum: '$amountCents' }, count: { $sum: 1 } } }])
     ]);
     const dashboard = await Dashboard.aggregate([{$group: {_id: null, totalXMR: {$sum: '$balanceXMR'}}}]);
+    let stripeLive = { configured: false, items: [], error: null };
+    try { stripeLive = await stripeFundingInputsProvider(); }
+    catch (error) { stripeLive = { configured: true, items: [], error: error.message }; }
+    const settledStripe = (stripeLive.items || []).filter(item => item.livemode === true && (item.status === 'SETTLED' || item.status === 'CONFIRMED'));
+    const stripeLiveRevenueByAsset = Object.values(settledStripe.reduce((acc, item) => { const asset = item.asset || 'UNKNOWN'; if (!acc[asset]) acc[asset] = { currency: asset, amount: 0, transactions: 0 }; acc[asset].amount += Number(item.amount || 0); acc[asset].transactions += 1; return acc; }, {}));
+    const stripeMongoRevenue = stripeRevenue.map(row => ({ currency: row._id, amountMinor: row.amountCents, amount: row.amountCents / 100, transactions: row.count }));
+    const stripeEffectiveCount = stripeLive.configured && !stripeLive.error ? settledStripe.length : stripePaidTransactions;
+    const stripeEffectiveRevenue = stripeLive.configured && !stripeLive.error ? stripeLiveRevenueByAsset : stripeMongoRevenue;
+    const treasury = settlementDashboard.buildDashboard();
+    const settledFunding = treasury.layers?.funding_inputs?.items || [];
+    const settledByAsset = asset => settledFunding.filter(item => item.status === 'SETTLED' && item.asset === asset).reduce((sum,item) => sum + Number(item.amount || 0), 0);
+    const btcSettled = settledFunding.filter(item => item.status === 'SETTLED' && item.asset === 'BTC');
+    const btcBalance = btcSettled.length ? settledByAsset('BTC') : null;
+    const adminGithub = String(req.user?.github?.login || req.user?.github || req.user?.login || req.user?.username || '').trim();
+    const adminMyzAccountId = adminGithub ? `contributor:github:${adminGithub}` : null;
+    const adminMyz = adminMyzAccountId ? settlementDashboard.buildDashboard({ accountId: adminMyzAccountId }) : null;
+    const adminMyzEntries = (adminMyz?.layers?.bounty_rewards?.items || []).filter(item => item.accountId === adminMyzAccountId && item.status === 'RECORDED' && !item.neutralized && item.entryType !== 'REVERSAL');
+    const adminMyzBalance = adminMyz?.balances?.myz?.amount ?? null;
     res.json({
       totalUsers,
       totalSellers,
@@ -45,7 +74,28 @@ exports.getOverview = async (req, res) => {
       totalWallets,
       totalMYZInCirculation: null,
       totalMYZAccountingSource: 'canonical-ledger',
-      totalXMRInCirculation: dashboard[0]?.totalXMR || 0
+      totalXMRInCirculation: dashboard[0]?.totalXMR || 0,
+      myzBalance: { amount: adminMyzBalance, accountId: adminMyzAccountId, verifiedEntries: adminMyzEntries.length, source: 'canonical-ledger', assetType: 'internal-reward-accounting-unit' },
+      cryptoBalances: {
+        BTC: { amount: btcBalance, source: 'settled-funding-inputs', verified: btcBalance !== null, reason: btcBalance === null ? (treasury.layers?.funding_inputs?.reason || 'No settled BTC funding input available') : null },
+        XMR: { amount: treasury.balances?.xmr?.amount ?? null, source: treasury.balances?.xmr?.source ?? null, verified: false, reason: treasury.balances?.xmr?.reason || 'Monero wallet RPC balance unavailable' },
+        ETH: { amount: null, source: null, verified: false, reason: 'No verified Ethereum treasury balance provider is configured' }
+      },
+      commerce: {
+        listings: { total: totalListings, active: activeListings },
+        purchases: { stripePaid: stripeEffectiveCount, cryptoConfirmed: confirmedCryptoPurchases, total: stripeEffectiveCount + confirmedCryptoPurchases },
+        stripeRevenue: stripeEffectiveRevenue,
+        stripeSource: stripeLive.configured && !stripeLive.error ? 'stripe-live-readonly' : 'verified-mongodb',
+        stripeWindowLimit: stripeLive.configured && !stripeLive.error ? Number(process.env.PAYMENT_DASHBOARD_STRIPE_LIMIT || 25) : null,
+        stripeError: stripeLive.error || null
+      },
+      funnel: {
+        visitors: null,
+        visitorsSource: 'vercel-analytics-external',
+        registeredUsers: totalUsers,
+        sellers: totalSellers,
+        purchasers: stripeEffectiveCount + confirmedCryptoPurchases
+      }
     });
   } catch (e) { res.status(500).json({ error: e.message }); }
 };

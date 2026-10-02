@@ -14,25 +14,17 @@ You can contribute with code, documentation, testing, translation, design, acces
 
 Repository: https://github.com/MyZubster-Ecosystem/myzubster
 
+New contributor journey (site login, Neon Plaza/metaverse, profile and optional GitHub character): [docs/CONTRIBUTOR-JOURNEY.md](docs/CONTRIBUTOR-JOURNEY.md).
+
 Contributor registry: [`docs/CONTRIBUTORS.md`](docs/CONTRIBUTORS.md)
 
 Interactive public story: https://www.myzubster.com/fumetto
 
 Character Registry: https://github.com/MyZubster-Ecosystem/myzubster/issues/617
 
-## Start here — newcomer-friendly issues
+## Start here — find a current task
 
-If this is your first MyZubster contribution, start with one of these deliberately small, stable tasks. They are labelled `good first issue` and `help wanted` so they remain easy to discover:
-
-- [#1080 — Verify public links and report broken routes](https://github.com/MyZubster-Ecosystem/myzubster/issues/1080)
-- [#1081 — Improve the contributor quickstart](https://github.com/MyZubster-Ecosystem/myzubster/issues/1081)
-- [#1082 — Add a smoke-test checklist for the public Zorgax flow](https://github.com/MyZubster-Ecosystem/myzubster/issues/1082)
-- [#1083 — Document a minimal metaverse health-check flow](https://github.com/MyZubster-Ecosystem/myzubster/issues/1083)
-- [#1084 — Create a contributor-friendly architecture map](https://github.com/MyZubster-Ecosystem/myzubster/issues/1084)
-
-Before starting, comment on the issue you want to take. This helps maintainers avoid editing the same files and gives you a clear place to ask questions or confirm scope.
-
-You can also browse all current newcomer tasks here: https://github.com/MyZubster-Ecosystem/myzubster/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22
+Browse [currently open issues](https://github.com/MyZubster-Ecosystem/myzubster/issues) and existing pull requests. If you have already contributed, continue in your issue or PR thread. For code or documentation improvements, fork this repository and submit a focused PR with a short explanation and test evidence. Creating new issues is currently restricted; older newcomer-issue lists may point to closed or unavailable tasks.
 
 ## Who can participate?
 

@@ -1,13 +1,12 @@
 'use strict';
 
-const fs = require('fs');
-const path = require('path');
-
-describe('Zorgax quote integrity', () => {
-  test('stores quoted crypto amount before returning checkout data', () => {
-    const source = fs.readFileSync(path.join(__dirname, '../src/services/zorgaxLegacyMonetizationService.js'), 'utf8');
-    expect(source).toContain('cryptoAmount: String(quote.cryptoAmount)');
-    expect(source).toContain('ownerId: String(ownerId)');
-    expect(source).toContain('expiresAt');
-  });
+const { PaymentIntent, quotePlan, checkout, reset } = require('./helpers/zorgaxCheckoutFixture');
+beforeEach(reset);
+test('binds server quote and integer satoshis regardless of caller coordinates', async () => {
+  const result = await checkout.createCheckoutIntent({ ownerId: 'owner-1', planId: 'pro', cryptoAmount: '10', priceEur: 0, destination: 'attacker' });
+  expect(quotePlan).toHaveBeenCalledWith({ asset: 'BTC', priceEur: 9.9 });
+  const stored = PaymentIntent.create.mock.calls[0][0];
+  expect(stored.amountMinor).toBe(10000);
+  expect(stored.metadata.zorgax.cryptoAmount).toBe(result.quote.cryptoAmount);
+  expect(stored.metadata.zorgax.destination).not.toBe('attacker');
 });

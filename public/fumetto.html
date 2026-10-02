@@ -11,6 +11,18 @@ html,body{height:100%;margin:0;background:#050713;color:#fff;font-family:Inter,s
 </head>
 <body>
 <nav class="evidence-nav" aria-label="MyZubster evidence navigation"><span>MYZUBSTER · COMIC → EVIDENCE</span><a class="kf006" href="/knowledge-kf-006.html">🥛 KF-006 Evidence</a><a href="/learn-with-zorgax.html">🧠 Learn / Share</a><a href="/#knowledge-pilot-visuals">🎨 Pilot Visuals</a><a href="/">Portale</a></nav>
-<iframe src="/fumetto-content.html" title="MyZubster Comic Universe"></iframe>
+<iframe id="comicFrame" src="/fumetto-content.html" title="MyZubster Comic Universe"></iframe>
+<script>
+(function(){
+  const frame=document.getElementById('comicFrame');
+  const sync=()=>{
+    const hash=window.location.hash||'';
+    const query=window.location.search||'';
+    frame.src='/fumetto-content.html'+query+hash;
+  };
+  sync();
+  window.addEventListener('hashchange',sync);
+})();
+</script>
 </body>
 </html>

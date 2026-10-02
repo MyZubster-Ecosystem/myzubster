@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Paid Bounties · MyZubster</title>
+<meta name="description" content="Registro pubblico delle bounty MyZubster: proposte, riservate e pagate, con stato di finanziamento e prove verificabili.">
+<style>
+*{box-sizing:border-box}body{margin:0;background:#07111f;color:#eef2ff;font:16px/1.5 Arial,sans-serif}.wrap{max-width:1100px;margin:auto;padding:24px}a{color:#7dd3fc}.hero,.panel{background:#0f1b2d;border:1px solid #334155;border-radius:18px;padding:20px;margin:16px 0}.hero h1{margin:0 0 8px}.muted{color:#cbd5e1}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}.tabs button{background:#111827;color:#fff;border:1px solid #475569;border-radius:999px;padding:8px 12px;cursor:pointer}.tabs button[aria-pressed="true"]{background:#4338ca}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}.card{background:#0b1524;border:1px solid #334155;border-radius:14px;padding:16px}.card h2{font-size:1.05rem;margin:8px 0}.pill{display:inline-block;border-radius:999px;padding:4px 8px;font-size:12px;font-weight:700}.open{background:#3f2d0c;color:#fde68a}.reserved{background:#0f3d2b;color:#bbf7d0}.paid{background:#12355b;color:#bfdbfe}.other{background:#2b2b38;color:#ddd6fe}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.money{font-weight:700}.note{font-size:13px;color:#cbd5e1}.empty{padding:18px;border:1px dashed #475569;border-radius:12px;color:#cbd5e1}.cta{display:inline-block;background:#4338ca;color:#fff;text-decoration:none;font-weight:700;border-radius:10px;padding:9px 12px;margin-top:10px}.legend{font-size:14px;color:#cbd5e1}
+</style>
+</head>
+<body><main class="wrap">
+<p><a href="/">← MyZubster</a> · <a href="/knowledge">Conoscenze</a></p>
+<section class="hero">
+<h1>💰 Paid Bounties</h1>
+<p class="muted">Registro pubblico delle opportunità e dei pagamenti MyZubster. Una bounty è un impegno esterno solo quando il suo stato di finanziamento è <strong>RESERVED</strong> o <strong>FUNDED</strong>. Le voci <strong>PROPOSED</strong> o <strong>UNFUNDED</strong> non sono promesse di pagamento.</p>
+<div class="legend">OPEN = proposta disponibile · RESERVED = fondi riservati · PAID = pagamento verificato.</div>
+</section>
+<section class="panel">
+<div class="tabs" role="group" aria-label="Filtro bounty">
+<button data-filter="all" aria-pressed="true">Tutte</button>
+<button data-filter="open" aria-pressed="false">OPEN</button>
+<button data-filter="reserved" aria-pressed="false">RESERVED</button>
+<button data-filter="paid" aria-pressed="false">PAID</button>
+</div>
+<p id="status" class="muted">Caricamento registro…</p>
+<div id="grid" class="grid"></div>
+</section>
+<section class="panel"><h2>Dal bounty al Pilot Node</h2>
+<p class="muted">Un primo contributo accettato può diventare, solo con consenso del contributor, l'inizio di un nodo pilota indipendente collegato a MyZubster: contributo verificato → Knowledge Card → Contributor Passport → Pilot Node → milestone → reward. Il pagamento non prova automaticamente competenza e un nodo non viene creato senza opt-in.</p>
+<p><a class="cta" href="https://github.com/MyZubster-Ecosystem/myzubster/blob/main/docs/CONTRIBUTOR-PILOT-NODES.md" target="_blank" rel="noopener noreferrer">Leggi il percorso Contributor Pilot Node</a></p></section>
+<section class="panel"><h2>Come funziona</h2>
+<p class="muted">Prima di iniziare, il contributor deve verificare scope, criteri di accettazione e stato dei fondi. XMR/BTC/ETH possono essere usati solo quando concordati esplicitamente. La pagina non effettua pagamenti e non converte automaticamente MYZ in crypto o fiat.</p></section>
+</main>
+<script>
+var grid=document.getElementById('grid'),status=document.getElementById('status'),entries=[],active='all';
+function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function state(entry){var states=(entry.rewards||[]).map(function(r){return String(r.funding_state||'').toUpperCase()});if(String(entry.settlement_state||'').toUpperCase()==='PAID')return'paid';if(states.indexOf('RESERVED')>=0||states.indexOf('FUNDED')>=0)return'reserved';if(states.indexOf('PROPOSED')>=0||states.indexOf('UNFUNDED')>=0)return'open';return'other'}
+function rewardText(entry){return (entry.rewards||[]).map(function(r){return String(r.amount)+' '+String(r.unit||r.asset||'')+(r.funding_state?' · '+r.funding_state:'')}).join(' + ')||'Reward non specificato'}
+function render(){var view=entries.filter(function(e){return active==='all'||state(e)===active});status.textContent=view.length+' bounty mostrate su '+entries.length+'.';grid.innerHTML='';if(!view.length){grid.innerHTML='<div class="empty">Nessuna bounty in questo stato.</div>';return}view.forEach(function(e){var s=state(e),card=document.createElement('article');card.className='card';card.innerHTML='<div class="row"><span class="pill '+s+'">'+s.toUpperCase()+'</span><span class="note">'+esc(e.work_state||'')+'</span></div><h2>'+esc(e.title||e.id)+'</h2><p class="money">'+esc(rewardText(e))+'</p><p class="note">Repo: '+esc(e.repository||'')+' · Issue #'+esc(e.issue_number||'')+'</p><p class="note">'+esc((e.notes||[]).join(' '))+'</p>';if(e.url){var a=document.createElement('a');a.className='cta';a.href=e.url;a.target='_blank';a.rel='noopener noreferrer';a.textContent='Apri issue';card.appendChild(a)}grid.appendChild(card)})}
+async function load(){try{var r=await fetch('/api/bounties?limit=200',{cache:'no-store'});if(!r.ok)throw new Error('Registro bounty non disponibile');var d=await r.json();entries=d.entries||[];render()}catch(e){status.textContent=e.message}}
+document.querySelectorAll('[data-filter]').forEach(function(b){b.onclick=function(){active=b.dataset.filter;document.querySelectorAll('[data-filter]').forEach(function(x){x.setAttribute('aria-pressed',String(x===b))});render()}});
+load();
+</script>
+</body></html>

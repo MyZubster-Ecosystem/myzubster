@@ -2,7 +2,7 @@ const request = require('supertest');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const { MongoMemoryServer } = require('mongodb-memory-server');
+const { MongoMemoryReplSet } = require('mongodb-memory-server');
 
 process.env.NODE_ENV = 'test';
 process.env.JWT_SECRET = 'seller-test-secret';
@@ -31,12 +31,12 @@ function stripeSignature(payload, timestamp = Math.floor(Date.now() / 1000)) {
 }
 
 beforeAll(async () => {
-  mongo = await MongoMemoryServer.create();
+  mongo = await MongoMemoryReplSet.create({ replSet: { count: 1 } });
   await mongoose.connect(mongo.getUri());
   seller = await User.create({ username:'free-seller', email:'seller-free@example.test', password:'test-password' });
 }, 30000);
 
-afterAll(async () => { await mongoose.disconnect(); await mongo.stop(); }, 30000);
+afterAll(async () => { await mongoose.disconnect(); if (mongo) await mongo.stop(); }, 30000);
 
 test('publishing is unlocked by free Seller activation with no payment method', async () => {
   const sellerToken = tokenFor(seller);

@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "generated_at": "2026-08-23T05:08:00+02:00",
+  "generated_at": "2026-10-02T00:00:00Z",
   "canonical_policy": {
     "bounties": "https://github.com/MyZubster-Ecosystem/myzubster/blob/main/BOUNTIES.md",
     "treasury": "https://github.com/MyZubster-Ecosystem/myzubster/blob/main/TREASURY.md",
@@ -17,11 +17,35 @@
       "work_state": "PROPOSED",
       "settlement_state": "NOT_STARTED",
       "rewards": [
-        {"asset":"MYZ","amount":2500,"unit":"MYZ","kind":"internal_accounting","funding_state":"PROPOSED","funding_source":null,"reservation_evidence":null},
-        {"asset":"XMR","amount":0.12,"unit":"XMR","kind":"historical_reference","funding_state":"HISTORICAL","funding_source":null,"reservation_evidence":null}
+        {
+          "asset": "MYZ",
+          "amount": 2500,
+          "unit": "MYZ",
+          "kind": "internal_accounting",
+          "funding_state": "PROPOSED",
+          "funding_source": null,
+          "reservation_evidence": null
+        },
+        {
+          "asset": "XMR",
+          "amount": 0.12,
+          "unit": "XMR",
+          "kind": "historical_reference",
+          "funding_state": "HISTORICAL",
+          "funding_source": null,
+          "reservation_evidence": null
+        }
       ],
-      "evidence": {"issue":"https://github.com/MyZubster-Ecosystem/MyZubster-Robot/issues/31","pull_requests":[],"verification":[],"settlement":[]},
-      "notes": ["2,500 MYZ is not a conversion from 0.12 XMR.","No verified external funding reservation is linked."],
+      "evidence": {
+        "issue": "https://github.com/MyZubster-Ecosystem/MyZubster-Robot/issues/31",
+        "pull_requests": [],
+        "verification": [],
+        "settlement": []
+      },
+      "notes": [
+        "2,500 MYZ is not a conversion from 0.12 XMR.",
+        "No verified external funding reservation is linked."
+      ],
       "updated_at": "2026-08-23T05:08:00+02:00"
     },
     {
@@ -33,9 +57,26 @@
       "classification": "EXTERNAL_UNFUNDED",
       "work_state": "PROPOSED",
       "settlement_state": "NOT_STARTED",
-      "rewards": [{"asset":"XMR","amount":0.08,"unit":"XMR","kind":"historical_reference","funding_state":"UNFUNDED","funding_source":null,"reservation_evidence":null}],
-      "evidence": {"issue":"https://github.com/MyZubster-Ecosystem/MyZubsterGateway/issues/144","pull_requests":[],"verification":[],"settlement":[]},
-      "notes": ["Legacy external reward reference only; not guaranteed."],
+      "rewards": [
+        {
+          "asset": "XMR",
+          "amount": 0.08,
+          "unit": "XMR",
+          "kind": "historical_reference",
+          "funding_state": "UNFUNDED",
+          "funding_source": null,
+          "reservation_evidence": null
+        }
+      ],
+      "evidence": {
+        "issue": "https://github.com/MyZubster-Ecosystem/MyZubsterGateway/issues/144",
+        "pull_requests": [],
+        "verification": [],
+        "settlement": []
+      },
+      "notes": [
+        "Legacy external reward reference only; not guaranteed."
+      ],
       "updated_at": "2026-08-23T05:08:00+02:00"
     },
     {
@@ -47,9 +88,26 @@
       "classification": "EXTERNAL_UNFUNDED",
       "work_state": "PROPOSED",
       "settlement_state": "NOT_STARTED",
-      "rewards": [{"asset":"XMR","amount":0.05,"unit":"XMR","kind":"historical_reference","funding_state":"UNFUNDED","funding_source":null,"reservation_evidence":null}],
-      "evidence": {"issue":"https://github.com/MyZubster-Ecosystem/MyZubsterGateway/issues/215","pull_requests":[],"verification":[],"settlement":[]},
-      "notes": ["Test fixture; not evidence of a funded XMR pool."],
+      "rewards": [
+        {
+          "asset": "XMR",
+          "amount": 0.05,
+          "unit": "XMR",
+          "kind": "historical_reference",
+          "funding_state": "UNFUNDED",
+          "funding_source": null,
+          "reservation_evidence": null
+        }
+      ],
+      "evidence": {
+        "issue": "https://github.com/MyZubster-Ecosystem/MyZubsterGateway/issues/215",
+        "pull_requests": [],
+        "verification": [],
+        "settlement": []
+      },
+      "notes": [
+        "Test fixture; not evidence of a funded XMR pool."
+      ],
       "updated_at": "2026-08-23T05:08:00+02:00"
     },
     {
@@ -61,9 +119,26 @@
       "classification": "EXTERNAL_UNFUNDED",
       "work_state": "PROPOSED",
       "settlement_state": "NOT_STARTED",
-      "rewards": [{"asset":"XMR","amount":0.5,"unit":"XMR","kind":"historical_reference","funding_state":"UNFUNDED","funding_source":null,"reservation_evidence":null}],
-      "evidence": {"issue":"https://github.com/MyZubster-Ecosystem/MyZubster-Photos/issues/3","pull_requests":[],"verification":[],"settlement":[]},
-      "notes": ["Milestone amounts are historical proposed values only."],
+      "rewards": [
+        {
+          "asset": "XMR",
+          "amount": 0.5,
+          "unit": "XMR",
+          "kind": "historical_reference",
+          "funding_state": "UNFUNDED",
+          "funding_source": null,
+          "reservation_evidence": null
+        }
+      ],
+      "evidence": {
+        "issue": "https://github.com/MyZubster-Ecosystem/MyZubster-Photos/issues/3",
+        "pull_requests": [],
+        "verification": [],
+        "settlement": []
+      },
+      "notes": [
+        "Milestone amounts are historical proposed values only."
+      ],
       "updated_at": "2026-08-23T05:08:00+02:00"
     },
     {
@@ -75,9 +150,27 @@
       "classification": "MYZ",
       "work_state": "PROPOSED",
       "settlement_state": "NOT_STARTED",
-      "rewards": [{"asset":"MYZ","amount":"severity-based","unit":"MYZ","kind":"internal_accounting","funding_state":"PROPOSED","funding_source":null,"reservation_evidence":null}],
-      "evidence": {"issue":"https://github.com/MyZubster-Ecosystem/myzubster/issues/489","pull_requests":[],"verification":[],"settlement":[]},
-      "notes": ["No automatic MYZ↔XMR conversion.","Any future XMR component must be separately funded and reserved."],
+      "rewards": [
+        {
+          "asset": "MYZ",
+          "amount": "severity-based",
+          "unit": "MYZ",
+          "kind": "internal_accounting",
+          "funding_state": "PROPOSED",
+          "funding_source": null,
+          "reservation_evidence": null
+        }
+      ],
+      "evidence": {
+        "issue": "https://github.com/MyZubster-Ecosystem/myzubster/issues/489",
+        "pull_requests": [],
+        "verification": [],
+        "settlement": []
+      },
+      "notes": [
+        "No automatic MYZ↔XMR conversion.",
+        "Any future XMR component must be separately funded and reserved."
+      ],
       "updated_at": "2026-08-23T05:08:00+02:00"
     },
     {
@@ -89,9 +182,26 @@
       "classification": "MYZ",
       "work_state": "PROPOSED",
       "settlement_state": "NOT_STARTED",
-      "rewards": [{"asset":"MYZ","amount":300,"unit":"MYZ","kind":"internal_accounting","funding_state":"PROPOSED","funding_source":null,"reservation_evidence":null}],
-      "evidence": {"issue":"https://github.com/MyZubster-Ecosystem/myzubster/issues/526","pull_requests":[],"verification":[],"settlement":[]},
-      "notes": ["Internal reward/accounting only until verification."],
+      "rewards": [
+        {
+          "asset": "MYZ",
+          "amount": 300,
+          "unit": "MYZ",
+          "kind": "internal_accounting",
+          "funding_state": "PROPOSED",
+          "funding_source": null,
+          "reservation_evidence": null
+        }
+      ],
+      "evidence": {
+        "issue": "https://github.com/MyZubster-Ecosystem/myzubster/issues/526",
+        "pull_requests": [],
+        "verification": [],
+        "settlement": []
+      },
+      "notes": [
+        "Internal reward/accounting only until verification."
+      ],
       "updated_at": "2026-08-23T05:08:00+02:00"
     },
     {
@@ -103,10 +213,227 @@
       "classification": "HISTORICAL",
       "work_state": "PROPOSED",
       "settlement_state": "NOT_APPLICABLE",
-      "rewards": [{"asset":"XMR","amount":"0.001/0.002 references","unit":"XMR","kind":"historical_reference","funding_state":"HISTORICAL","funding_source":null,"reservation_evidence":null}],
-      "evidence": {"issue":"https://github.com/MyZubster-Ecosystem/myzubster/issues/216","pull_requests":[],"verification":[],"settlement":[]},
-      "notes": ["Not a current payout table."],
+      "rewards": [
+        {
+          "asset": "XMR",
+          "amount": "0.001/0.002 references",
+          "unit": "XMR",
+          "kind": "historical_reference",
+          "funding_state": "HISTORICAL",
+          "funding_source": null,
+          "reservation_evidence": null
+        }
+      ],
+      "evidence": {
+        "issue": "https://github.com/MyZubster-Ecosystem/myzubster/issues/216",
+        "pull_requests": [],
+        "verification": [],
+        "settlement": []
+      },
+      "notes": [
+        "Not a current payout table."
+      ],
       "updated_at": "2026-08-23T05:08:00+02:00"
+    },
+    {
+      "id": "core-1439-paid-bounties-smoke",
+      "repository": "MyZubster-Ecosystem/myzubster",
+      "issue_number": 1439,
+      "title": "[GOOD FIRST ISSUE · PROPOSED REWARD] Add smoke test for /paid-bounties route",
+      "url": "https://github.com/MyZubster-Ecosystem/myzubster/issues/1439",
+      "classification": "EXTERNAL_RESERVED",
+      "work_state": "RESERVED",
+      "settlement_state": "NOT_STARTED",
+      "rewards": [
+        {
+          "asset": "FIAT",
+          "amount": 15,
+          "unit": "USD equivalent",
+          "kind": "proposed_external_reward",
+          "funding_state": "RESERVED",
+          "funding_source": null,
+          "reservation_evidence": "https://github.com/MyZubster-Ecosystem/myzubster/issues/1439"
+        }
+      ],
+      "evidence": {
+        "issue": "https://github.com/MyZubster-Ecosystem/myzubster/issues/1439",
+        "pull_requests": [],
+        "verification": [],
+        "settlement": []
+      },
+      "notes": [
+        "Reservation state synchronized with issue #1439.",
+        "RESERVED does not mean PAID."
+      ],
+      "updated_at": "2026-10-02T00:00:00Z"
+    },
+    {
+      "id": "core-1440-bounty-api-filter-tests",
+      "repository": "MyZubster-Ecosystem/myzubster",
+      "issue_number": 1440,
+      "title": "[GOOD FIRST ISSUE · PROPOSED REWARD] Add bounty API funding-state filter tests",
+      "url": "https://github.com/MyZubster-Ecosystem/myzubster/issues/1440",
+      "classification": "EXTERNAL_UNFUNDED",
+      "work_state": "PROPOSED",
+      "settlement_state": "NOT_STARTED",
+      "rewards": [
+        {
+          "asset": "FIAT",
+          "amount": 20,
+          "unit": "USD equivalent",
+          "kind": "proposed_external_reward",
+          "funding_state": "PROPOSED",
+          "funding_source": null,
+          "reservation_evidence": null
+        }
+      ],
+      "evidence": {
+        "issue": "https://github.com/MyZubster-Ecosystem/myzubster/issues/1440",
+        "pull_requests": [],
+        "verification": [],
+        "settlement": []
+      },
+      "notes": [
+        "Proposed reward only; not reserved or funded.",
+        "Do not treat this entry as a payment promise until funding_state is RESERVED or FUNDED.",
+        "Candidate settlement rails after explicit agreement: XMR, BTC or ETH."
+      ],
+      "updated_at": "2026-10-02T00:00:00Z"
+    },
+    {
+      "id": "core-1441-knowledge-graph-mobile-a11y",
+      "repository": "MyZubster-Ecosystem/myzubster",
+      "issue_number": 1441,
+      "title": "[GOOD FIRST ISSUE · PROPOSED REWARD] Improve mobile accessibility of the Knowledge Graph",
+      "url": "https://github.com/MyZubster-Ecosystem/myzubster/issues/1441",
+      "classification": "EXTERNAL_UNFUNDED",
+      "work_state": "PROPOSED",
+      "settlement_state": "NOT_STARTED",
+      "rewards": [
+        {
+          "asset": "FIAT",
+          "amount": 25,
+          "unit": "USD equivalent",
+          "kind": "proposed_external_reward",
+          "funding_state": "PROPOSED",
+          "funding_source": null,
+          "reservation_evidence": null
+        }
+      ],
+      "evidence": {
+        "issue": "https://github.com/MyZubster-Ecosystem/myzubster/issues/1441",
+        "pull_requests": [],
+        "verification": [],
+        "settlement": []
+      },
+      "notes": [
+        "Proposed reward only; not reserved or funded.",
+        "Do not treat this entry as a payment promise until funding_state is RESERVED or FUNDED.",
+        "Candidate settlement rails after explicit agreement: XMR, BTC or ETH."
+      ],
+      "updated_at": "2026-10-02T00:00:00Z"
+    },
+    {
+      "id": "core-1442-first-contribution-guide",
+      "repository": "MyZubster-Ecosystem/myzubster",
+      "issue_number": 1442,
+      "title": "[GOOD FIRST ISSUE · PROPOSED REWARD] Write a 10-minute first contribution guide",
+      "url": "https://github.com/MyZubster-Ecosystem/myzubster/issues/1442",
+      "classification": "EXTERNAL_UNFUNDED",
+      "work_state": "PROPOSED",
+      "settlement_state": "NOT_STARTED",
+      "rewards": [
+        {
+          "asset": "FIAT",
+          "amount": 20,
+          "unit": "USD equivalent",
+          "kind": "proposed_external_reward",
+          "funding_state": "PROPOSED",
+          "funding_source": null,
+          "reservation_evidence": null
+        }
+      ],
+      "evidence": {
+        "issue": "https://github.com/MyZubster-Ecosystem/myzubster/issues/1442",
+        "pull_requests": [],
+        "verification": [],
+        "settlement": []
+      },
+      "notes": [
+        "Proposed reward only; not reserved or funded.",
+        "Do not treat this entry as a payment promise until funding_state is RESERVED or FUNDED.",
+        "Candidate settlement rails after explicit agreement: XMR, BTC or ETH."
+      ],
+      "updated_at": "2026-10-02T00:00:00Z"
+    },
+    {
+      "id": "core-1443-paid-bounties-empty-states",
+      "repository": "MyZubster-Ecosystem/myzubster",
+      "issue_number": 1443,
+      "title": "[GOOD FIRST ISSUE · PROPOSED REWARD] Add empty/error states to Paid Bounties UI",
+      "url": "https://github.com/MyZubster-Ecosystem/myzubster/issues/1443",
+      "classification": "EXTERNAL_UNFUNDED",
+      "work_state": "PROPOSED",
+      "settlement_state": "NOT_STARTED",
+      "rewards": [
+        {
+          "asset": "FIAT",
+          "amount": 15,
+          "unit": "USD equivalent",
+          "kind": "proposed_external_reward",
+          "funding_state": "PROPOSED",
+          "funding_source": null,
+          "reservation_evidence": null
+        }
+      ],
+      "evidence": {
+        "issue": "https://github.com/MyZubster-Ecosystem/myzubster/issues/1443",
+        "pull_requests": [],
+        "verification": [],
+        "settlement": []
+      },
+      "notes": [
+        "Proposed reward only; not reserved or funded.",
+        "Do not treat this entry as a payment promise until funding_state is RESERVED or FUNDED.",
+        "Candidate settlement rails after explicit agreement: XMR, BTC or ETH."
+      ],
+      "updated_at": "2026-10-02T00:00:00Z"
+    },
+    {
+      "id": "core-1447-henderson-passport-onboarding",
+      "repository": "MyZubster-Ecosystem/myzubster",
+      "issue_number": 1447,
+      "title": "[PAID BOUNTY · RESERVED] Complete Henderson Contributor Passport onboarding — 25 USD equivalent",
+      "url": "https://github.com/MyZubster-Ecosystem/myzubster/issues/1447",
+      "classification": "EXTERNAL_RESERVED",
+      "work_state": "RESERVED",
+      "settlement_state": "NOT_STARTED",
+      "rewards": [
+        {
+          "asset": "FIAT",
+          "amount": 25,
+          "unit": "USD equivalent",
+          "kind": "reserved_external_reward",
+          "funding_state": "RESERVED",
+          "funding_source": null,
+          "reservation_evidence": "https://github.com/MyZubster-Ecosystem/myzubster/issues/1447"
+        }
+      ],
+      "evidence": {
+        "issue": "https://github.com/MyZubster-Ecosystem/myzubster/issues/1447",
+        "pull_requests": [
+          "https://github.com/MyZubster-Ecosystem/MyZubsterGateway/pull/83"
+        ],
+        "verification": [],
+        "settlement": []
+      },
+      "notes": [
+        "Private onboarding is allowed.",
+        "Public profile publication requires explicit contributor consent.",
+        "Pilot Node opt-in is optional.",
+        "RESERVED does not mean PAID."
+      ],
+      "updated_at": "2026-10-02T00:00:00Z"
     }
   ]
 }

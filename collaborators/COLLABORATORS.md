@@ -41,13 +41,13 @@
 - **Impact:** Real environmental impact
 
 ## 🚀 How to Join
-1. Visit: https://github.com/DanielIoni-creator/myzubster
+1. Visit: https://github.com/MyZubster-Ecosystem/myzubster
 2. Find an issue with 💰 label
 3. Claim it and contribute
 4. Receive your XMR reward
 
 ## 📞 Contact
-- **GitHub:** https://github.com/DanielIoni-creator/myzubster
+- **GitHub:** https://github.com/MyZubster-Ecosystem/myzubster
 - **Discord:** [link]
 - **Telegram:** [link]
 

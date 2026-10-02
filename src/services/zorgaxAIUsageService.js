@@ -1,5 +1,6 @@
 'use strict';
 
+const mongoose = require('mongoose');
 const ZorgaxAIUsage = require('../models/ZorgaxAIUsage');
 const ZorgaxAIBudget = require('../models/ZorgaxAIBudget');
 const { estimateAstraCost } = require('./aiModelRouter');
@@ -24,6 +25,7 @@ async function reserveAstraBudget({ amountUsd, budgetUsd, date = new Date() }) {
   const amount = Math.max(0, Number(amountUsd) || 0);
   const cap = Math.max(0, Number(budgetUsd) || 0);
   if (!amount || !cap || amount > cap) return null;
+  if (mongoose.connection.readyState !== 1) return { untracked: true, reason: 'budget_db_unavailable' };
   const key = budgetKey(date);
   await ZorgaxAIBudget.updateOne({ key }, { $setOnInsert: { key, reservedUsd: 0, spentUsd: 0 } }, { upsert: true });
   return ZorgaxAIBudget.findOneAndUpdate(
@@ -34,18 +36,21 @@ async function reserveAstraBudget({ amountUsd, budgetUsd, date = new Date() }) {
 }
 
 async function settleAstraBudget({ reservedUsd, actualUsd, date = new Date() }) {
+  if (mongoose.connection.readyState !== 1) return null;
   const reserved = Math.max(0, Number(reservedUsd) || 0);
   const actual = Math.max(0, Number(actualUsd) || 0);
   return ZorgaxAIBudget.findOneAndUpdate({ key: budgetKey(date), reservedUsd: { $gte: reserved } }, { $inc: { reservedUsd: -reserved, spentUsd: actual }, $set: { updatedAt: new Date() } }, { new: true });
 }
 
 async function releaseAstraBudget({ reservedUsd, date = new Date() }) {
+  if (mongoose.connection.readyState !== 1) return null;
   const reserved = Math.max(0, Number(reservedUsd) || 0);
   if (!reserved) return null;
   return ZorgaxAIBudget.findOneAndUpdate({ key: budgetKey(date), reservedUsd: { $gte: reserved } }, { $inc: { reservedUsd: -reserved }, $set: { updatedAt: new Date() } }, { new: true });
 }
 
 async function recordAstraUsage({ inputTokens = 0, outputTokens = 0, requestId, model } = {}) {
+  if (mongoose.connection.readyState !== 1) return null;
   const modelId = model || process.env.ZORGAX_ASTRA_MODEL || 'gpt-5.6-sol';
   const costUsd = estimateAstraCost({ inputTokens, outputTokens, model: modelId });
   return ZorgaxAIUsage.create({

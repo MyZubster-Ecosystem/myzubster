@@ -4,6 +4,11 @@ Choose the profile closest to your real activity, fork it, replace the demonstra
 
 > These repositories are onboarding templates and demonstrations. A fork, profile, proposal or repository does not by itself prove employment, certification, institutional partnership, LIFE participation, commercial availability or verified results.
 
+
+## Circular project workflow
+
+- **Reusable circular project** — [Circular Project Workflow](CIRCULAR-PROJECT-WORKFLOW.md) — one structure for gardens/permaculture, water, kefir, compost, reuse/repair, materials, circular care, events and other evidence-first projects, including photos, community-help issues, GitHub and Metaverse/Comics links.
+
 ## Education & research
 
 - **Student Profile** — https://github.com/DanielIoni-creator/Myzubster-student-profile — students, trainees, portfolios, coursework and public contributions.

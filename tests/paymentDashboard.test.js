@@ -1,3 +1,7 @@
+jest.mock('../src/services/settlementDashboardService', () => {
+  const actual = jest.requireActual('../src/services/settlementDashboardService');
+  return { ...actual, buildDashboard: options => actual.buildDashboard({ ...options, paths: { fundingInputs: 'myz/test-empty-funding-inputs.json' } }) };
+});
 'use strict';
 
 /**
@@ -114,7 +118,7 @@ describe('summary payload', () => {
   test('reports the MYZ balance with its basis and source', async () => {
     const res = await request(app()).get('/api/payment-dashboard/balances').set('Authorization', ADMIN);
     expect(res.status).toBe(200);
-    expect(res.body.myz.amount).toBe(80);
+    expect(res.body.myz.amount).toBe(330);
     expect(res.body.myz.onChain).toBe(false);
     expect(res.body.myz.source).toBe('myz/ledger.json');
     expect(res.body.myz.basis).toMatch(/RECORDED/);

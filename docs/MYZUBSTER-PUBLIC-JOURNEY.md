@@ -155,3 +155,38 @@ MyZubster deliberately keeps these layers separate:
 `VISUAL ≠ LISTING ≠ PAYMENT ≠ HANDOVER ≠ RECEIPT ≠ RECORDED APP STATE ≠ ON-CHAIN COMMITMENT ≠ KNOWLEDGE RECORD ≠ LEARNING INTERACTION ≠ DEMONSTRATED COMPETENCE ≠ KNOWLEDGE VALIDATION ≠ SCIENTIFIC VALIDATION`.
 
 They can be connected by identifiers and provenance, but one state never silently proves the next.
+
+
+## 🎨 Recent visual archive — 21–27 Sep 2026
+
+The latest visual assets found in the project Drive archive are catalogued here so the documentation and MyZubster narrative stay synchronized. The binary originals remain in the Drive archive; until a public GitHub mirror is available, the links below point to the source files.
+
+| Date | Visual | Topic | Source |
+|---|---|---|---|
+| 24 Sep 2026 | `MyZubster-ecosistema-facebook.png` | Facebook / community entry point | [Drive source](https://drive.google.com/file/d/1Pp-ZG7f-WRBPO5hgNBEs0rd3aHzO7_Fp/view?usp=drivesdk) |
+| 27 Sep 2026 | `MyZubster_Sepolia_ETH_E2E_Payment_Flow.png` | Base Sepolia / ETH E2E payment-flow visual | [Drive source](https://drive.google.com/file/d/1573x9yWlbFS9u3EmKacpQf6EwZchQyE7/view?usp=drivesdk) |
+| 21 Sep 2026 | `MyZubster_University_Living_Lab_LIFE_Visual.png` | University / Living Lab / LIFE | [Drive source](https://drive.google.com/file/d/1nC1qYon10ia6H8KoE32kyA1efMtm0FIy/view?usp=drivesdk) |
+| 21 Sep 2026 | `MyZubster_Nicola_Software_Cyberpunk.png` | Nicola / software / technical narrative | [Drive source](https://drive.google.com/file/d/1QpTKRkPAXUqekf_I4C09zI0vJ54KFFM4/view?usp=drivesdk) |
+| 21 Sep 2026 | `MyZubster_Story_Kefir_Zorgax_Google_GitHub_Tor_Metaverso.png` | Kefir → Zorgax → Google/GitHub/Tor/Metaverse story | [Drive source](https://drive.google.com/file/d/1bl1kd44CWUHwqgeVNdpSg-dlYxl9l3hH/view?usp=drivesdk) |
+| 26 Sep 2026 | `Come funziona MyZubster per i donatori di kefir.png` | Kefir donor workflow | [Drive source](https://drive.google.com/file/d/139JyeGqKpQforoyK9nReFIyxl7U_TV9w/view?usp=drivesdk) |
+| 26 Sep 2026 | `Donatore di Kefir a Rimini e Riccione.png` | Local kefir donor / Rimini / Riccione | [Drive source](https://drive.google.com/file/d/1uY6PbLv-TxL5buXaTccEJMzrLoquRjzu/view?usp=drivesdk) |
+
+**Publication boundary:** these are visual communication assets. A visual does not by itself prove a completed pilot, partnership, payment, authorization, identity, adoption or scientific result; those claims remain tied to their corresponding evidence and status documentation.
+
+**Public mirror TODO:** copy the binary originals into the appropriate GitHub visual repository before using raw.githubusercontent.com image URLs in public pages.
+
+## 🖼️ Interactive visual gallery
+
+The latest visual set is mirrored in the main MyZubster repository. **Click a thumbnail to open the full-resolution asset.**
+
+<a href="https://raw.githubusercontent.com/MyZubster-Ecosystem/myzubster/feat/nft-system-mvp-2026-08-22/docs/visuals/2026-09-27/Come%20funziona%20MyZubster%20per%20i%20donatori%20di%20kefir.png"><img src="https://raw.githubusercontent.com/MyZubster-Ecosystem/myzubster/feat/nft-system-mvp-2026-08-22/docs/visuals/2026-09-27/Come%20funziona%20MyZubster%20per%20i%20donatori%20di%20kefir.png" alt="Kefir donor workflow" width="420"></a>
+<a href="https://raw.githubusercontent.com/MyZubster-Ecosystem/myzubster/feat/nft-system-mvp-2026-08-22/docs/visuals/2026-09-27/Donatore%20di%20Kefir%20a%20Rimini%20e%20Riccione.png"><img src="https://raw.githubusercontent.com/MyZubster-Ecosystem/myzubster/feat/nft-system-mvp-2026-08-22/docs/visuals/2026-09-27/Donatore%20di%20Kefir%20a%20Rimini%20e%20Riccione.png" alt="Kefir donor / Rimini / Riccione" width="420"></a>
+<a href="https://raw.githubusercontent.com/MyZubster-Ecosystem/myzubster/feat/nft-system-mvp-2026-08-22/docs/visuals/2026-09-27/MyZubster-ecosistema-facebook.jpg"><img src="https://raw.githubusercontent.com/MyZubster-Ecosystem/myzubster/feat/nft-system-mvp-2026-08-22/docs/visuals/2026-09-27/MyZubster-ecosistema-facebook.jpg" alt="Facebook / community" width="420"></a>
+<a href="https://raw.githubusercontent.com/MyZubster-Ecosystem/myzubster/feat/nft-system-mvp-2026-08-22/docs/visuals/2026-09-27/MyZubster_Nicola_Software_Cyberpunk%281%29.png"><img src="https://raw.githubusercontent.com/MyZubster-Ecosystem/myzubster/feat/nft-system-mvp-2026-08-22/docs/visuals/2026-09-27/MyZubster_Nicola_Software_Cyberpunk%281%29.png" alt="Nicola / software / Knowledge" width="420"></a>
+<a href="https://raw.githubusercontent.com/MyZubster-Ecosystem/myzubster/feat/nft-system-mvp-2026-08-22/docs/visuals/2026-09-27/MyZubster_Sepolia_ETH_E2E_Payment_Flow.png"><img src="https://raw.githubusercontent.com/MyZubster-Ecosystem/myzubster/feat/nft-system-mvp-2026-08-22/docs/visuals/2026-09-27/MyZubster_Sepolia_ETH_E2E_Payment_Flow.png" alt="Base Sepolia / ETH E2E payment flow" width="420"></a>
+<a href="https://raw.githubusercontent.com/MyZubster-Ecosystem/myzubster/feat/nft-system-mvp-2026-08-22/docs/visuals/2026-09-27/MyZubster_Story_Kefir_Zorgax_Google_GitHub_Tor_Metaverso%281%29.png"><img src="https://raw.githubusercontent.com/MyZubster-Ecosystem/myzubster/feat/nft-system-mvp-2026-08-22/docs/visuals/2026-09-27/MyZubster_Story_Kefir_Zorgax_Google_GitHub_Tor_Metaverso%281%29.png" alt="Kefir → Zorgax → Google/GitHub/Tor/Metaverse" width="420"></a>
+<a href="https://raw.githubusercontent.com/MyZubster-Ecosystem/myzubster/feat/nft-system-mvp-2026-08-22/docs/visuals/2026-09-27/MyZubster_University_Living_Lab_LIFE_Visual%281%29.png"><img src="https://raw.githubusercontent.com/MyZubster-Ecosystem/myzubster/feat/nft-system-mvp-2026-08-22/docs/visuals/2026-09-27/MyZubster_University_Living_Lab_LIFE_Visual%281%29.png" alt="University / Living Lab / LIFE" width="420"></a>
+
+> **Evidence boundary:** these are documentation and narrative visuals. They do not independently establish a partnership, scientific validation, production deployment, payment, identity or completed pilot.
+
+Source collection: [docs/visuals/2026-09-27](https://github.com/MyZubster-Ecosystem/myzubster/tree/feat/nft-system-mvp-2026-08-22/docs/visuals/2026-09-27).

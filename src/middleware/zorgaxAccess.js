@@ -1,5 +1,6 @@
 'use strict';
 
+const mongoose = require('mongoose');
 const {
   getAccess,
   getAccessPolicy,
@@ -28,12 +29,30 @@ function publicAccess(access) {
 function createZorgaxAccessMiddleware({ getAccessFn = getAccess } = {}) {
   async function loadZorgaxAccess(req, res, next) {
     try {
+      if (req.userId && mongoose.connection.readyState !== 1) {
+        const access = {
+          ...guestAccess(),
+          source: 'AUTHENTICATED_FREE_FALLBACK',
+          billingRequired: true
+        };
+        req.zorgaxAccess = access;
+        req.zorgaxPolicy = getAccessPolicy(access, { authenticated: true });
+        return next();
+      }
       const access = req.userId ? await getAccessFn(req.userId) : guestAccess();
       req.zorgaxAccess = access;
       req.zorgaxPolicy = getAccessPolicy(access, { authenticated: Boolean(req.userId) });
       next();
     } catch (error) {
-      res.status(503).json({ ok: false, error: 'Controllo accesso Zorgax non disponibile' });
+      console.warn('[zorgax-access-fallback]', error.message);
+      const access = {
+        ...guestAccess(),
+        source: req.userId ? 'AUTHENTICATED_FREE_FALLBACK' : 'GUEST',
+        billingRequired: Boolean(req.userId)
+      };
+      req.zorgaxAccess = access;
+      req.zorgaxPolicy = getAccessPolicy(access, { authenticated: Boolean(req.userId) });
+      next();
     }
   }
 

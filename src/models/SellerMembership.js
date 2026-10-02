@@ -13,6 +13,7 @@ const sellerMembershipSchema = new mongoose.Schema({
   acceptedCryptoCurrencies: { type: [{ type:String, enum:['XMR','BTC','ETH'] }], default: ['XMR'] },
   preferredSettlementCurrency: { type:String, enum:['XMR','BTC','ETH'], default:'XMR' },
   cryptoConversionEnabled: { type:Boolean, default:false },
+  listingQuotaVersion: { type:Number, min:0, default:0, select:false },
   stripeCustomerId: { type: String, trim: true, maxlength: 255, index: true, sparse: true },
   stripeSubscriptionId: { type: String, trim: true, maxlength: 255, index: true, sparse: true },
   stripeCheckoutSessionId: { type: String, trim: true, maxlength: 255, index: true, sparse: true },

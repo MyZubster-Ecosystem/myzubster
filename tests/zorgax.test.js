@@ -109,7 +109,7 @@ describe('ZORGAX-001', () => {
     const payload = JSON.parse(options.body);
     expect(payload.messages[0].role).toBe('system');
     expect(payload.messages[0].content).toContain('ZORGAX-001');
-    expect(payload.messages[0].content).toMatch(/virtual\/fictional/i);
+    expect(payload.messages[0].content).toMatch(/virtual extraterrestrial persona/i);
     expect(payload.messages[payload.messages.length - 1]).toEqual({ role: 'user', content: 'Chi sei?' });
   });
 

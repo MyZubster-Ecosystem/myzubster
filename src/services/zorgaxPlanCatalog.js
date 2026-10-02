@@ -1,5 +1,7 @@
 'use strict';
 
+const SUPPORTED_ASSETS = Object.freeze(['BTC']);
+
 const PLANS = Object.freeze({
   free: Object.freeze({ id: 'free', name: 'Zorgax Free', priceEur: 0, billing: 'free', features: ['assistant-base', 'limited-research'] }),
   pro: Object.freeze({ id: 'pro', name: 'Zorgax Pro', priceEur: 9.90, billing: 'monthly-equivalent', features: ['assistant-advanced', 'web-research', 'workspace', 'priority-usage'] }),
@@ -25,4 +27,4 @@ function entitlementForPlan(planId) {
   };
 }
 
-module.exports = { PLANS, entitlementForPlan, productIdForPlan, requirePaidPlan };
+module.exports = { SUPPORTED_ASSETS, PLANS, entitlementForPlan, productIdForPlan, requirePaidPlan };
