@@ -12,6 +12,7 @@ const { normalizeKnowledgeDraft } = require('../services/knowledgeDraftService')
 const mongoose = require('mongoose');
 
 const router = express.Router();
+router.use('/links', require('./knowledgeLinkRoutes'));
 
 // Only explicitly published cards are returned, and only their intended public fields.
 router.get('/public', async (_req, res) => {
