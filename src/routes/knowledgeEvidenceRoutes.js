@@ -98,6 +98,26 @@ router.post('/drafts/:id/unpublish', authenticate, async (req, res) => {
   } catch (_) { return res.status(500).json({ success: false, error: 'Impossibile ritirare la scheda' }); }
 });
 
+// Existing published cards may predate automatic verification-note updates.
+// The owner can explicitly repair a stale note without withdrawing their card.
+router.post('/drafts/:id/refresh-github-note', authenticate, async (req, res) => {
+  if (!mongoose.isValidObjectId(req.params.id)) return res.status(400).json({ success:false, error:'Scheda non valida' });
+  if (req.body?.confirm !== true) return res.status(400).json({ success:false, error:'Conferma esplicita richiesta' });
+  try {
+    const card = await KnowledgeDraft.findOne({ _id:req.params.id, ownerId:req.userId }).lean();
+    if (!card) return res.status(404).json({ success:false, error:'Scheda non trovata' });
+    const sources = (card.evidence || []).filter(item => githubEvidenceTarget(item.url));
+    if (!sources.length) return res.status(409).json({ success:false, error:'Nessuna fonte GitHub collegata alla scheda' });
+    const updatedNote = noteAfterGithubEvidence(card.verificationNote).slice(0,1000);
+    if (updatedNote === (card.verificationNote || '').trim()) return res.json({ success:true, unchanged:true, card });
+    const updated = await KnowledgeDraft.findOneAndUpdate(
+      { _id:req.params.id, ownerId:req.userId, verificationNote:card.verificationNote || '' },
+      { $set:{ verificationNote:updatedNote } }, { new:true, runValidators:true }
+    );
+    return updated ? res.json({ success:true, card:updated }) : res.status(409).json({ success:false, error:'La scheda è cambiata; ricarica e riprova' });
+  } catch (_) { return res.status(500).json({ success:false, error:'Impossibile aggiornare la nota di verifica' }); }
+});
+
 // A public GitHub PR/commit can document work, but cannot certify a skill.
 function githubEvidenceTarget(raw) {
   let url;
@@ -125,7 +145,7 @@ function noteAfterGithubEvidence(existing) {
   }
   // Preserve personalized verification notes, removing only the obsolete standard sentence.
   const retained = previous.replace(DEFAULT_PENDING_GITHUB_NOTE, '').trim().replace(/[;,.\s]+$/, '');
-  return (retained ? retained + '\n' : '') + GITHUB_LINKED_NOTE;
+  return (retained ? retained.slice(0, 1000 - GITHUB_LINKED_NOTE.length - 2) + '\n' : '') + GITHUB_LINKED_NOTE;
 }
 
 router.post('/drafts/:id/github-evidence', authenticate, async (req, res) => {
