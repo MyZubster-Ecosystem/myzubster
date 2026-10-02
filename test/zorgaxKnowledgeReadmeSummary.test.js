@@ -20,6 +20,6 @@ describe('Zorgax Knowledge Card README summaries',()=>{
  test('keeps the existing managed README block instead of appending duplicates',()=>{
   expect(source).toContain('current.slice(0,start)+section+current.slice(end+KNOWLEDGE_BLOCK_END.length)');
   expect(source).toContain('MYZUBSTER-KNOWLEDGE-CARDS:START');
-  expect(source).toContain('completeSummary(e.note,420');
+  expect(source).toContain("completeSummary(e&&e.note,420,'Dettagli completi nella Knowledge Card.')");
  });
 });
