@@ -74,3 +74,11 @@ Never trust a client-supplied `nodeId` alone: bind node authorization to server-
 5. Only after approval, connect local outbound agent to staging and record a reproducible read-only request/response.
 
 **Documentation principle:** This file is an architecture proposal and acceptance checklist. No operational interconnection, remote access, independent node deployment, Tor routing or public Zorgax end-to-end verification has been asserted yet.
+
+## Implementation progress — VPS staging prototype (2026-10-02)
+
+A separate portable Docker staging prototype was prepared during this session (archive delivered to Daniel through the conversation): a Python-standard-library single-process broker, a future opt-in outbound-only agent for Nicola, Dockerfile, loopback-bound Docker Compose, private environment template, README and local tests. The prototype is **not yet deployed to Daniel's VPS**, **not yet committed to an enduring GitHub implementation branch**, and **not connected to Nicola's computer**. Docker Engine was unavailable in the test workspace; container build and runtime remain untested.
+
+Three local Python tests passed: admin/node credential separation; rejection of prohibited actions, invalid inputs and duplicate results; queued read-only request/result exchange; future agent output restricted to sanitized catalog titles. These results do not certify Internet security, TLS proxy, production readiness or distributed availability. Queue state is ephemeral and single-replica, and the two random bearer tokens require a secured TLS proxy, restricted operator access, rate limits and further security review before Internet-facing staging.
+
+**Deployment gate:** upload and review the archive as a separate source branch, then obtain authorized VPS access for a separate staging host; generate two unrelated random secrets outside Git, bind container host-side to 127.0.0.1:8092, configure TLS proxy/access policy/firewall and run the actual Docker health and negative tests. Nicola's machine stays disconnected until he explicitly consents to the local-agent pilot.
