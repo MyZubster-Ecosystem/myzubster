@@ -62,7 +62,14 @@ body{margin:0;font-family:system-ui,-apple-system,sans-serif;background:#070b16;
    const data=await r.json();
    const published=(Array.isArray(data.cards)?data.cards:[]).filter(c=>c.publisherName===authenticatedMyzUsername&&/^[0-9a-f]{24}$/i.test(String(c._id||'')));
    if(!published.length){message.textContent='Non trovo Knowledge Card pubbliche di '+authenticatedMyzUsername+'. Pubblica prima almeno una scheda.';return}
-   const lines=published.map(c=>'- ['+String(c.title||'Conoscenza pubblicata').replace(/[\r\n\[\]]/g,' ').trim()+'](https://www.myzubster.com/knowledge-card?id='+c._id+')'+(c.domain?' — '+String(c.domain).replace(/[\r\n]/g,' ').trim():''));
+   const clean=value=>String(value||'').replace(/[\r\n\[\]<>]/g,' ').replace(/\s+/g,' ').trim();
+   const lines=published.map(c=>{
+    const title=clean(c.title||'Conoscenza pubblicata');
+    const domain=clean(c.domain);
+    const description=clean(c.description).slice(0,220);
+    const note=clean(c.verificationNote).slice(0,180);
+    return '- **['+title+'](https://www.myzubster.com/knowledge-card?id='+c._id+')**'+(domain?' — '+domain:'')+(description?'\n  - Attività dichiarate: '+description:'')+(note?'\n  - Stato verifica: '+note:'');
+   });
    const section=KNOWLEDGE_BLOCK_START+'\n## Knowledge Card MyZubster\n\nSchede pubblicate e dichiarate dal titolare; le competenze non sono automaticamente certificate.\n\n'+lines.join('\n')+'\n'+KNOWLEDGE_BLOCK_END;
    const current=githubFinalReadme.value.trim()||githubSnapshot.profileReadme;
    const start=current.indexOf(KNOWLEDGE_BLOCK_START),end=current.indexOf(KNOWLEDGE_BLOCK_END);
