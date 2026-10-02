@@ -15,6 +15,15 @@
 5. **Monero documentation:** [Daniel's Monero Docs dossier](https://github.com/MyZubster-Ecosystem/myzubster/blob/main/docs/contributions/daniel-ioni-monero-docs-wallet-rpc.md) documents a `get_transfers.pending` wording proposal; upstream PR #389 was closed **without merge**. This is documentation experience, not evidence of a deployed or independently approved Monero payment integration.
 6. **Local test platform:** Nicola's [Docker Compose](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/blob/main/docker-compose.yml), [Nicola Comics local report](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/blob/main/docs/nicola-comics/TEST-REPORT-2026-09-15.md), and [MyZubster onion service documentation](https://github.com/MyZubster-Ecosystem/myzubster/blob/main/onion/README.md) provide a starting point. No onion end-to-end deployment on Nicola's PC, live public Zorgax integration or NFT mint is established by those references.
 
+
+## Local setup status update — Daniel's firsthand report (pending Nicola confirmation)
+
+Daniel reports that he has already guided Nicola through **installing MyZubster locally**, and that Nicola is now using **ChatGPT to help configure his own computer**. This is a new reported baseline for the R0/R2 workflow, not yet an independently inspected machine setup. ChatGPT assistance is distinct from Zorgax usage and does not by itself establish technical competence or successful installation of every subsystem.
+
+**Next R2 test session:** Nicola should run the existing non-destructive checks on his own machine, sharing only sanitized output: operating system/version and non-sensitive Docker/Compose versions, `docker compose config` after masking environment secrets, container health, local API smoke tests, and available automated test results. Record what works, what required ChatGPT guidance, and what remains blocked. Do not share ChatGPT transcripts containing passwords, API tokens, wallet addresses that Nicola wishes to keep private, or personal device details. No external machine access, public local endpoints, wallet signing, or network transactions are necessary.
+
+Nicola's explicit confirmation of the installation, current software revision, and learning outcomes is still pending.
+
 ## Roadmap: gates, owners to confirm, and acceptance evidence
 
 | Stage | Proposed work | Required tests/evidence | Completion gate |
