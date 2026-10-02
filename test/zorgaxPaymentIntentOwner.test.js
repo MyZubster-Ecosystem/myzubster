@@ -1,14 +1,25 @@
 'use strict';
 
-jest.mock('../src/models/ZorgaxPaymentIntent');
+jest.mock('../src/models/PaymentIntent');
 
-const ZorgaxPaymentIntent = require('../src/models/ZorgaxPaymentIntent');
-const { getPaymentIntent } = require('../src/services/zorgaxMonetizationService');
+const PaymentIntent = require('../src/models/PaymentIntent');
+const { getPaymentIntent } = require('../src/services/zorgaxUnifiedCheckoutService');
 
 describe('Zorgax payment intent ownership', () => {
   test('queries intents by both intentId and authenticated owner', async () => {
-    ZorgaxPaymentIntent.findOne.mockReturnValue({ lean: jest.fn().mockResolvedValue(null) });
-    await expect(getPaymentIntent({ ownerId: 'owner-1', intentId: 'zorgax_test' })).rejects.toThrow('Payment intent non trovato');
-    expect(ZorgaxPaymentIntent.findOne).toHaveBeenCalledWith({ intentId: 'zorgax_test', ownerId: 'owner-1' });
+    PaymentIntent.findOne.mockResolvedValue(null);
+
+    await expect(
+      getPaymentIntent({ ownerId: 'owner-1', intentId: 'zorgax_test' })
+    ).rejects.toThrow('Payment intent non trovato');
+
+    expect(PaymentIntent.findOne).toHaveBeenCalledWith(
+      expect.objectContaining({
+        ownerId: 'owner-1',
+        intentId: 'zorgax_test',
+        purpose: expect.any(RegExp)
+      })
+    );
+    expect(PaymentIntent.findOne.mock.calls[0][0].purpose.source).toBe('^zorgax:');
   });
 });
