@@ -1,5 +1,5 @@
 const express = require('express');
-const { authenticate, optionalAuthenticate } = require('../../../src/middleware/auth');
+const { authenticate, optionalAuthenticate } = require('../middleware/auth');
 const {
   createRoom,
   listDiscoverableRooms,

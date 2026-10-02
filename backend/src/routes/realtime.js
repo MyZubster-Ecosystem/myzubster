@@ -1,6 +1,6 @@
 const express = require("express");
 const crypto = require("crypto");
-const { authenticate, isAdmin } = require("../../../src/middleware/auth");
+const { authenticate, isAdmin } = require("../middleware/auth");
 const {
   mintSocketToken,
   TOKEN_TTL_SECONDS,
