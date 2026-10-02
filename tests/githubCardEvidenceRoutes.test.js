@@ -78,6 +78,22 @@ describe('owner-approved GitHub evidence',()=>{
   expect(note).toContain('Revisione manuale in corso');
   expect(note).toContain('non sono verificati indipendentemente');
  });
+ test('repairs missing punctuation on an already published verification note',async()=>{
+  const linked='Almeno una fonte GitHub pubblica è stata collegata e ne è stata controllata la disponibilità. Contenuto, attribuzione e competenze non sono verificati indipendentemente.';
+  const old='Attività dichiarate dal titolare. Il commit documenta modifiche ai moduli di identità e privacy. La disponibilità non certifica le competenze '+linked;
+  const route='/api/knowledge-evidence/drafts/'+cardId+'/refresh-github-note';
+  KnowledgeDraft.findOne.mockReturnValue({lean:async()=>({evidence:[{url}],verificationNote:old})});
+  KnowledgeDraft.findOneAndUpdate.mockResolvedValue({_id:cardId,status:'published'});
+  await request(app).post(route).set('Authorization',auth(alice)).send({confirm:true}).expect(200);
+  const normalized=KnowledgeDraft.findOneAndUpdate.mock.calls[0][1].$set.verificationNote;
+  expect(normalized).toContain('competenze. Almeno una fonte');
+  expect(normalized.split(linked)).toHaveLength(2);
+  KnowledgeDraft.findOne.mockReturnValue({lean:async()=>({evidence:[{url}],verificationNote:normalized})});
+  KnowledgeDraft.findOneAndUpdate.mockClear();
+  const repeat=await request(app).post(route).set('Authorization',auth(alice)).send({confirm:true}).expect(200);
+  expect(repeat.body.unchanged).toBe(true);
+  expect(KnowledgeDraft.findOneAndUpdate).not.toHaveBeenCalled();
+ });
  test('does not duplicate an existing public evidence URL',async()=>{
   KnowledgeDraft.findOne.mockReturnValue({lean:async()=>({evidence:[{url}]})});
   const response=await request(app).post(endpoint).set('Authorization',auth(alice)).send({url,confirm:true}).expect(200);
