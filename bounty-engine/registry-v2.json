@@ -241,8 +241,8 @@
       "issue_number": 1439,
       "title": "[GOOD FIRST ISSUE · PROPOSED REWARD] Add smoke test for /paid-bounties route",
       "url": "https://github.com/MyZubster-Ecosystem/myzubster/issues/1439",
-      "classification": "EXTERNAL_UNFUNDED",
-      "work_state": "PROPOSED",
+      "classification": "EXTERNAL_RESERVED",
+      "work_state": "RESERVED",
       "settlement_state": "NOT_STARTED",
       "rewards": [
         {
@@ -250,9 +250,9 @@
           "amount": 15,
           "unit": "USD equivalent",
           "kind": "proposed_external_reward",
-          "funding_state": "PROPOSED",
+          "funding_state": "RESERVED",
           "funding_source": null,
-          "reservation_evidence": null
+          "reservation_evidence": "https://github.com/MyZubster-Ecosystem/myzubster/issues/1439"
         }
       ],
       "evidence": {
@@ -262,9 +262,8 @@
         "settlement": []
       },
       "notes": [
-        "Proposed reward only; not reserved or funded.",
-        "Do not treat this entry as a payment promise until funding_state is RESERVED or FUNDED.",
-        "Candidate settlement rails after explicit agreement: XMR, BTC or ETH."
+        "Reservation state synchronized with issue #1439.",
+        "RESERVED does not mean PAID."
       ],
       "updated_at": "2026-10-02T00:00:00Z"
     },
@@ -397,6 +396,42 @@
         "Proposed reward only; not reserved or funded.",
         "Do not treat this entry as a payment promise until funding_state is RESERVED or FUNDED.",
         "Candidate settlement rails after explicit agreement: XMR, BTC or ETH."
+      ],
+      "updated_at": "2026-10-02T00:00:00Z"
+    },
+    {
+      "id": "core-1447-henderson-passport-onboarding",
+      "repository": "MyZubster-Ecosystem/myzubster",
+      "issue_number": 1447,
+      "title": "[PAID BOUNTY · RESERVED] Complete Henderson Contributor Passport onboarding — 25 USD equivalent",
+      "url": "https://github.com/MyZubster-Ecosystem/myzubster/issues/1447",
+      "classification": "EXTERNAL_RESERVED",
+      "work_state": "RESERVED",
+      "settlement_state": "NOT_STARTED",
+      "rewards": [
+        {
+          "asset": "FIAT",
+          "amount": 25,
+          "unit": "USD equivalent",
+          "kind": "reserved_external_reward",
+          "funding_state": "RESERVED",
+          "funding_source": null,
+          "reservation_evidence": "https://github.com/MyZubster-Ecosystem/myzubster/issues/1447"
+        }
+      ],
+      "evidence": {
+        "issue": "https://github.com/MyZubster-Ecosystem/myzubster/issues/1447",
+        "pull_requests": [
+          "https://github.com/MyZubster-Ecosystem/MyZubsterGateway/pull/83"
+        ],
+        "verification": [],
+        "settlement": []
+      },
+      "notes": [
+        "Private onboarding is allowed.",
+        "Public profile publication requires explicit contributor consent.",
+        "Pilot Node opt-in is optional.",
+        "RESERVED does not mean PAID."
       ],
       "updated_at": "2026-10-02T00:00:00Z"
     }
