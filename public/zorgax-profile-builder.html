@@ -89,7 +89,7 @@ async function addGithubEvidence(){
  if(!id||!url){box.textContent='Seleziona una Knowledge Card e incolla un link GitHub.';return}
  let parsed;
  try{parsed=new URL(url)}catch(_){box.textContent='URL GitHub non valido.';return}
- if(parsed.protocol!=='https:'||parsed.hostname!=='github.com'||!/^\\/[a-z\\d_.-]+\\/[a-z\\d_.-]+\\/(pull\\/[1-9]\\d*|commit\\/[a-f\\d]{40})\\/?$/i.test(parsed.pathname)){
+ if(parsed.protocol!=='https:'||parsed.hostname!=='github.com'||!/^\/[a-z\d_.-]+\/[a-z\d_.-]+\/(pull\/[1-9]\d*|commit\/[a-f\d]{40})\/?$/i.test(parsed.pathname)){
   box.textContent='Usa il link completo a una pull request o commit pubblico GitHub.';return
  }
  if(!confirm('Controllare questa fonte GitHub pubblica e collegarla alla Knowledge Card selezionata? La fonte sarà visibile se la scheda è pubblicata. L’esistenza della fonte non certifica la competenza.'))return;
