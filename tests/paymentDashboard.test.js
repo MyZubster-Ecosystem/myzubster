@@ -1,3 +1,7 @@
+jest.mock('../src/services/settlementDashboardService', () => {
+  const actual = jest.requireActual('../src/services/settlementDashboardService');
+  return { ...actual, buildDashboard: options => actual.buildDashboard({ ...options, paths: { fundingInputs: 'myz/test-empty-funding-inputs.json' } }) };
+});
 'use strict';
 
 /**

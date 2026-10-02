@@ -15,7 +15,7 @@ exports.createEvent = async (req, res) => {
 
 exports.getPublicEvent = async (req, res) => {
   try {
-    const event = await CulturalEvent.findById(req.params.eventId).select('-location.restrictedText').lean();
+    const event = await CulturalEvent.findById(req.params.eventId).select('-ownerId -location.restrictedText').lean();
     if (!event || ['DRAFT', 'ORGANIZER_REVIEW'].includes(event.status)) return res.status(404).json({ success: false, message: 'Event not found' });
     if (event.location && (event.location.mode === 'PRIVATE' || (event.location.mode === 'AUTHORIZED_RELEASE' && !event.location.released))) event.location.publicText = '';
     return res.json({ success: true, data: event });

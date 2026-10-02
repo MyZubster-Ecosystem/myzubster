@@ -7,7 +7,7 @@ describe('Zorgax Stripe card checkout wiring', () => {
   const ui = fs.readFileSync(path.join(root, 'public', 'zorgax-card.js'), 'utf8');
   const route = fs.readFileSync(path.join(root, 'src', 'routes', 'zorgaxStripeRoutes.js'), 'utf8');
   const seller = fs.readFileSync(path.join(root, 'src', 'routes', 'sellerRoutes.js'), 'utf8');
-  const subscription = fs.readFileSync(path.join(root, 'src', 'models', 'ZorgaxSubscription.js'), 'utf8');
+  const subscription = fs.readFileSync(path.join(root, 'src', 'services', 'zorgaxSubscriptionService.js'), 'utf8');
 
   test('mounts a dedicated authenticated Zorgax Stripe checkout', () => {
     expect(server).toContain("app.use('/api/zorgax/stripe',zorgaxStripeRoutes)");
@@ -23,7 +23,7 @@ describe('Zorgax Stripe card checkout wiring', () => {
   });
 
   test('keeps Zorgax and Seller Stripe subscriptions separated', () => {
-    expect(seller).toContain("object.metadata?.product==='zorgax'");
+    expect(seller.replace(/\s/g, '')).toContain("object.metadata?.product==='zorgax'");
     expect(seller).toContain('activateZorgaxInvoice(object)');
     expect(subscription).toContain("'STRIPE'");
   });
@@ -32,7 +32,7 @@ describe('Zorgax Stripe card checkout wiring', () => {
     expect(ui).toContain("/api/marketplace/seller/me");
     expect(ui).toContain("sellerState.id = 'sellerAccountState'");
     expect(ui).toContain('Marketplace: Seller attivo');
-    expect(ui).toContain('Zorgax e Marketplace Seller sono abbonamenti separati');
+    expect(ui).toContain('Zorgax e Marketplace Seller sono servizi separati');
     expect(ui).toContain("link.textContent = active ? '💼 Seller attivo' : '💼 Diventa Seller'");
   });
 });

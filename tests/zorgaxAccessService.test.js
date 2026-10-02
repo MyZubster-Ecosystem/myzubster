@@ -10,7 +10,7 @@ const {
 const noSponsor = jest.fn().mockResolvedValue(null);
 
 describe('Zorgax unified access service', () => {
-  test('selects a legacy subscription when it outranks the entitlement', async () => {
+  test('does not grant paid access from the deprecated subscription store', async () => {
     const access = await getAccess('user-1', {
       subscriptionAccessFn: jest.fn().mockResolvedValue({
         plan: 'pro',
@@ -27,9 +27,9 @@ describe('Zorgax unified access service', () => {
 
     expect(access).toMatchObject({
       ownerId: 'user-1',
-      plan: 'pro',
-      tier: 'PRO',
-      source: 'SUBSCRIPTION'
+      plan: 'free',
+      tier: 'FREE',
+      source: 'ENTITLEMENT'
     });
   });
 
@@ -69,13 +69,12 @@ describe('Zorgax unified access service', () => {
 
   test('keeps a verified paid source when the other access store is unavailable', async () => {
     const access = await getAccess('user-1', {
-      subscriptionAccessFn: jest.fn().mockResolvedValue({ plan: 'pro', status: 'ACTIVE' }),
-      entitlementAccessFn: jest.fn().mockRejectedValue(new Error('entitlement store unavailable')),
-      sponsoredAccessFn: noSponsor
+      entitlementAccessFn: jest.fn().mockResolvedValue({ tier: 'PRO', active: true }),
+      sponsoredAccessFn: jest.fn().mockRejectedValue(new Error('sponsor store unavailable'))
     });
 
     expect(access.plan).toBe('pro');
-    expect(access.sourcesChecked).toEqual(['SUBSCRIPTION']);
+    expect(access.sourcesChecked).toEqual(['ENTITLEMENT']);
   });
 
   test('fails closed when no access source can be checked', async () => {
@@ -83,7 +82,7 @@ describe('Zorgax unified access service', () => {
       subscriptionAccessFn: jest.fn().mockRejectedValue(new Error('subscription store unavailable')),
       entitlementAccessFn: jest.fn().mockRejectedValue(new Error('entitlement store unavailable')),
       sponsoredAccessFn: jest.fn().mockRejectedValue(new Error('sponsor store unavailable'))
-    })).rejects.toThrow('subscription store unavailable');
+    })).rejects.toThrow('entitlement store unavailable');
   });
 
   test('applies guest, Free, Pro and Developer feature limits', () => {

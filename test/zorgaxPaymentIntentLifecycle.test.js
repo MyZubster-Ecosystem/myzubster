@@ -1,11 +1,5 @@
-'use strict';
-
-const fs = require('fs');
-const path = require('path');
-
-describe('Zorgax payment intent lifecycle', () => {
-  test('defines pending, verified, expired and rejected settlement states', () => {
-    const source = fs.readFileSync(path.join(__dirname, '../src/models/ZorgaxPaymentIntent.js'), 'utf8');
-    for (const state of ['PENDING', 'VERIFIED', 'EXPIRED', 'REJECTED']) expect(source).toContain(`'${state}'`);
-  });
+const PaymentIntent = require('../src/models/PaymentIntent');
+test('rejects states outside the unified intent lifecycle', () => {
+  expect(PaymentIntent.schema.path('status').enumValues).toEqual(['PENDING', 'AWAITING_PAYMENT', 'SUBMITTED', 'CONFIRMED', 'EXPIRED', 'FAILED', 'CANCELLED']);
+  expect(new PaymentIntent({ status: 'VERIFIED' }).validateSync().errors.status).toBeDefined();
 });

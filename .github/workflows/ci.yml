@@ -47,7 +47,7 @@ jobs:
         run: npm run lint --if-present
 
       - name: Unit test backend
-        run: npm test -- --testPathIgnorePatterns=/frontend/
+        run: npm test -- --runInBand --testPathIgnorePatterns=/frontend/
 
       - name: Unit test frontend
         working-directory: frontend

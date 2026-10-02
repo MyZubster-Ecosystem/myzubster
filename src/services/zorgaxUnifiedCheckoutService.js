@@ -128,6 +128,7 @@ async function listPaymentIntents({ ownerId, limit = 20 }) {
 }
 
 async function activate(intent, verification) {
+  if (verification?.verified !== true) throw new Error('Pagamento non verificato');
   const purchase = await ZorgaxPurchase.findOne({ ownerId:String(intent.ownerId), paymentIntentId:intent.intentId });
   if (!purchase) throw new Error('Acquisto Zorgax associato non trovato');
   const z = intent.metadata?.zorgax || {};

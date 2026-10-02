@@ -1,12 +1,13 @@
 'use strict';
 
-const fs = require('fs');
-const path = require('path');
-
-describe('Zorgax verifier failure behavior', () => {
-  test('activates only after trusted verifier returns successfully', () => {
-    const source = fs.readFileSync(path.join(__dirname, '../src/services/zorgaxPaymentIntentService.js'), 'utf8');
-    expect(source.indexOf('await verifySettlement')).toBeLessThan(source.indexOf('await recordVerifiedPayment'));
-    expect(source.indexOf("intent.settlement.status = 'VERIFIED'")).toBeGreaterThan(source.indexOf('await recordVerifiedPayment'));
-  });
+const { PaymentIntent, verifySettlement, grantPurchaseEntitlement, checkout, paymentIntent, reset } = require('./helpers/zorgaxCheckoutFixture');
+beforeEach(reset);
+test.each(['rejected', 'unverified'])('never activates on %s verification', async mode => {
+  const intent = paymentIntent();
+  PaymentIntent.findOne.mockResolvedValue(intent);
+  if (mode === 'rejected') verifySettlement.mockRejectedValue(new Error('Importo insufficiente'));
+  else verifySettlement.mockResolvedValue({ verified: false });
+  await expect(checkout.verifyAndActivatePaymentIntent({ ownerId: 'owner-1', intentId: intent.intentId, paymentReference: 'a'.repeat(64) })).rejects.toThrow();
+  expect(grantPurchaseEntitlement).not.toHaveBeenCalled();
+  expect(intent.status).not.toBe('CONFIRMED');
 });
