@@ -34,7 +34,7 @@
 <div class="field"><label for="githubCustomRepo">Altro repository pubblico (owner/repo)</label><input id="githubCustomRepo" placeholder="owner/repository" maxlength="200"></div>
 <div class="field"><label for="githubRepoAuthor">Filtra commit per account GitHub (facoltativo)</label><input id="githubRepoAuthor" value="DanielIoni-creator" maxlength="39" placeholder="account GitHub; lascia vuoto per tutti"></div>
 <div class="row"><button class="secondary" id="exploreGithubRepo" type="button">Mostra commit pubblici</button><a href="https://github.com/MyZubster-Ecosystem/myzubster" target="_blank" rel="noopener noreferrer" class="btn secondary">Repository principale</a></div>
-<div id="githubRepoStatus" class="status muted" role="status">La ricerca è in sola lettura: nessuna fonte sarà collegata automaticamente.</div>
+<div id="githubRepoStatus" class="status muted" role="status">La ricerca è in sola lettura: nessuna fonte sarà collegata automaticamente.</div><p class="muted">Se il fork personale non è accessibile pubblicamente, puoi esaminare <a href="https://github.com/monero-project/monero-docs/pull/389" target="_blank" rel="noopener noreferrer">Monero Docs PR #389</a>, presentata da DanielIoni-creator e chiusa senza merge. Non è una prova di contributo accettato a monte. Per collegarla, seleziona prima la Knowledge Card e incolla il link PR nel campo GitHub precedente, poi conferma.</p>
 <div id="githubRepoResults" aria-live="polite"></div>
 </div></section>
 <section class="card"><h2>🧠 Esempi di Conoscenze verificabili</h2><p class="muted">Queste schede dimostrano come distinguere dichiarazioni ed evidenze. Non sono le tue bozze private.</p><div id="knowledgeCards"></div></section>
@@ -137,7 +137,7 @@ document.getElementById('exploreGithubRepo').onclick=async()=>{
  try{
   const base='https://api.github.com/repos/'+repo.split('/').map(encodeURIComponent).join('/');
   const metaResponse=await fetch(base,{headers:{Accept:'application/vnd.github+json'}});
-  if(!metaResponse.ok)throw Error(metaResponse.status===404?'Repository pubblico non trovato.':'GitHub non disponibile o limite richieste raggiunto.');
+  if(!metaResponse.ok)throw Error(metaResponse.status===404?'Repository non accessibile tramite API pubblica GitHub. Può essere stato rinominato, reso privato o limitato da GitHub. Prova ad aprirlo direttamente sul sito GitHub oppure usa una PR pubblica del progetto originale.':'GitHub non disponibile o limite richieste raggiunto.');
   const meta=await metaResponse.json();
   const params=new URLSearchParams({per_page:'15'});
   if(author)params.set('author',author);
