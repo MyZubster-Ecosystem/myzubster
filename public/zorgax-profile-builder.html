@@ -11,6 +11,7 @@
 <div class="wrap">
 <section class="card"><h1>👽 Zorgax · Profile Builder</h1><p class="muted">Completa in modo guidato il profilo di un ente, di un donatore di kefir o di un soundsystem. Gmail viene usato solo se autorizzato; Facebook serve come identità social collegata. Zorgax propone una bozza e distingue sempre dati dichiarati, dati collegati e informazioni ancora da confermare.</p><div class="row"><a class="btn secondary" href="/zorgax">← Zorgax</a><a class="btn secondary" href="/zorgax-email-profile.html">📧 Configura Gmail</a><a class="btn secondary" href="/api/auth/social/facebook/start">📘 Collega Facebook</a></div></section>
 <section class="card"><h2>Le tue schede Conoscenze</h2><p class="muted">Inserisci una scheda alla volta. Salvala come bozza privata, controlla l’anteprima e decidi se pubblicarla. Le fonti indicate non sono verificate automaticamente e GitHub non viene modificato.</p>
+<div id="knowledgeHandoffPanel" class="out" hidden><strong>Bozza preparata con Zorgax</strong><p>Controlla la descrizione e le fonti prima di salvarla. Il collegamento GitHub identifica il profilo verificato, non certifica automaticamente le competenze. Nulla è stato ancora salvato o pubblicato.</p><button id="importKnowledgeHandoff" class="secondary" type="button">Carica la bozza nel modulo</button><button id="discardKnowledgeHandoff" class="secondary" type="button">Scarta il trasferimento</button></div>
 <div class="field"><label for="draftList">Bozze già salvate</label><select id="draftList"><option value="">Nuova scheda</option></select></div>
 <div class="field"><label for="draftTitle">Titolo *</label><input id="draftTitle" maxlength="180" placeholder="Es. Autista di camion e organizzazione dei trasporti"></div>
 <div class="field"><label for="draftDomain">Ambito *</label><input id="draftDomain" maxlength="120" placeholder="Es. Trasporti, Docker, collaborazione"></div>
@@ -76,6 +77,39 @@ function collectDraft(){const evidence=draftField('draftEvidence').split('\n').m
 async function loadDrafts(selected){if(!token()){showDraftLogin();return}try{const r=await fetch('/api/knowledge-evidence/drafts',{headers:{Authorization:'Bearer '+token()}});if(r.status===401){showDraftLogin();return}const d=await r.json();if(!r.ok||!d.success)throw new Error(d.error||'Lettura non riuscita');knowledgeDrafts=d.drafts||[];draftList.replaceChildren(new Option('Nuova scheda',''),...knowledgeDrafts.map(x=>new Option(x.title+(x.status==='published'?' · pubblica':' · privata'),String(x._id))));if(selected){draftList.value=selected;selectDraft()}else draftStatus.textContent=knowledgeDrafts.length?knowledgeDrafts.length+' schede disponibili. Selezionane una per controllarla.':'Nessuna bozza salvata.'}catch(e){draftStatus.className='status warn';draftStatus.textContent='Impossibile caricare le schede: '+e.message}}
 async function saveDraft(){if(!token()){showDraftLogin();return}const payload=collectDraft();if(!payload.title||!payload.domain||!payload.description){draftStatus.className='status warn';draftStatus.textContent='Compila titolo, ambito e attività.';return}const button=document.getElementById('saveDraft');button.disabled=true;draftStatus.className='status muted';draftStatus.textContent='Salvataggio privato…';try{const id=draftList.value;const r=await fetch('/api/knowledge-evidence/drafts'+(id?'/'+encodeURIComponent(id):''),{method:id?'PUT':'POST',headers:headers(),body:JSON.stringify(payload)});if(r.status===401){showDraftLogin();return}const d=await r.json();if(!r.ok||!d.success)throw new Error(d.error||'Salvataggio non riuscito');await loadDrafts(String(d.draft._id));draftStatus.className='status ok';draftStatus.textContent='Bozza salvata privatamente su MyZubster. Nessuna pubblicazione o modifica GitHub.'}catch(e){draftStatus.className='status warn';draftStatus.textContent='Impossibile salvare: '+e.message}finally{button.disabled=false}}
 async function changePublication(action){const item=knowledgeDrafts.find(d=>String(d._id)===draftList.value);if(!item)return;const publish=action==='publish';if(publish&&!confirm('Pubblicare la versione salvata di “'+item.title+'”? Il nome account, le dichiarazioni, le fonti e la nota di verifica saranno leggibili da chiunque abbia il link.'))return;if(!publish&&!confirm('Ritirare “'+item.title+'” dalla vista pubblica? I link già condivisi potrebbero restare in copie o archivi esterni.'))return;const button=document.getElementById(publish?'publishCard':'unpublishCard');button.disabled=true;try{const r=await fetch('/api/knowledge-evidence/drafts/'+encodeURIComponent(item._id)+'/'+action,{method:'POST',headers:headers(),body:JSON.stringify(publish?{confirm:true}:{})});if(r.status===401){showDraftLogin();return}const d=await r.json();if(!r.ok||!d.success)throw new Error(d.error||'Operazione non riuscita');await loadDrafts(String(item._id));draftStatus.className='status ok';draftStatus.textContent=publish?'Scheda pubblicata. Copia il link dalla scheda pubblica.':'Scheda ritirata e tornata privata. Ora puoi modificarla.'}catch(e){draftStatus.className='status warn';draftStatus.textContent='Operazione non riuscita: '+e.message}finally{button.disabled=false}}
+// Profile onboarding handoff is an editable client-side draft. Ownership is assigned
+// only by the authenticated Knowledge Evidence API when the user saves it.
+const KNOWLEDGE_HANDOFF_KEY='myzubster-knowledge-onboarding-handoff-v1';
+const handoffPanel=document.getElementById('knowledgeHandoffPanel');
+function showKnowledgeHandoff(){
+ const stored=sessionStorage.getItem(KNOWLEDGE_HANDOFF_KEY);
+ if(!stored)return;
+ let draft;
+ try{draft=JSON.parse(stored)}catch(_){sessionStorage.removeItem(KNOWLEDGE_HANDOFF_KEY);return}
+ if(!draft||!draft.title||!draft.domain||!draft.description)return;
+ handoffPanel.hidden=false;
+}
+document.getElementById('importKnowledgeHandoff').onclick=()=>{
+ if(!token()){showDraftLogin();return}
+ const stored=sessionStorage.getItem(KNOWLEDGE_HANDOFF_KEY);
+ let data;
+ try{data=JSON.parse(stored||'null')}catch(_){draftStatus.textContent='La bozza non è più disponibile.';return}
+ if(!data||!data.title||!data.domain||!data.description)return;
+ if(draftList.value||['draftTitle','draftDomain','draftDescription','draftEvidence'].some(id=>document.getElementById(id).value.trim())){
+  if(!confirm('Sostituire il contenuto attuale del modulo con la bozza di Zorgax? Le schede già salvate non saranno modificate.'))return;
+ }
+ clearDraft();
+ document.getElementById('draftTitle').value=String(data.title).slice(0,180);
+ document.getElementById('draftDomain').value=String(data.domain).slice(0,120);
+ document.getElementById('draftDescription').value=String(data.description).slice(0,3000);
+ document.getElementById('draftEvidence').value=(Array.isArray(data.evidence)?data.evidence:[]).map(e=>[e.label||'',e.url||'',e.note||''].join(' | ')).join('\n');
+ document.getElementById('draftVerification').value=String(data.verificationNote||'').slice(0,1000);
+ sessionStorage.removeItem(KNOWLEDGE_HANDOFF_KEY);handoffPanel.hidden=true;
+ draftStatus.className='status muted';draftStatus.textContent='Bozza caricata e modificabile, NON salvata. Controlla le fonti, poi premi “Salva bozza privata”.';
+ document.getElementById('draftTitle').focus();
+};
+document.getElementById('discardKnowledgeHandoff').onclick=()=>{sessionStorage.removeItem(KNOWLEDGE_HANDOFF_KEY);handoffPanel.hidden=true;};
+showKnowledgeHandoff();
 draftList.addEventListener('change',selectDraft);document.getElementById('newDraft').onclick=clearDraft;document.getElementById('saveDraft').onclick=saveDraft;document.getElementById('publishCard').onclick=()=>changePublication('publish');document.getElementById('unpublishCard').onclick=()=>changePublication('unpublish');
 track('profile_builder_open',type.value);if(token())loadProfile();loadDrafts();
 </script>
