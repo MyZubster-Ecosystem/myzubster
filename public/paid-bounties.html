@@ -31,14 +31,43 @@
 <section class="panel"><h2>Come funziona</h2>
 <p class="muted">Prima di iniziare, il contributor deve verificare scope, criteri di accettazione e stato dei fondi. XMR/BTC/ETH possono essere usati solo quando concordati esplicitamente. La pagina non effettua pagamenti e non converte automaticamente MYZ in crypto o fiat.</p></section>
 </main>
+<script src="/paid-bounties-state.js"></script>
 <script>
-var grid=document.getElementById('grid'),status=document.getElementById('status'),entries=[],active='all';
+var PB=window.PaidBountiesState,grid=document.getElementById('grid'),status=document.getElementById('status'),model=PB.loading(),active='all';
 function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
-function state(entry){var states=(entry.rewards||[]).map(function(r){return String(r.funding_state||'').toUpperCase()});if(String(entry.settlement_state||'').toUpperCase()==='PAID')return'paid';if(states.indexOf('RESERVED')>=0||states.indexOf('FUNDED')>=0)return'reserved';if(states.indexOf('PROPOSED')>=0||states.indexOf('UNFUNDED')>=0)return'open';return'other'}
-function rewardText(entry){return (entry.rewards||[]).map(function(r){return String(r.amount)+' '+String(r.unit||r.asset||'')+(r.funding_state?' · '+r.funding_state:'')}).join(' + ')||'Reward non specificato'}
-function render(){var view=entries.filter(function(e){return active==='all'||state(e)===active});status.textContent=view.length+' bounty mostrate su '+entries.length+'.';grid.innerHTML='';if(!view.length){grid.innerHTML='<div class="empty">Nessuna bounty in questo stato.</div>';return}view.forEach(function(e){var s=state(e),card=document.createElement('article');card.className='card';card.innerHTML='<div class="row"><span class="pill '+s+'">'+s.toUpperCase()+'</span><span class="note">'+esc(e.work_state||'')+'</span></div><h2>'+esc(e.title||e.id)+'</h2><p class="money">'+esc(rewardText(e))+'</p><p class="note">Repo: '+esc(e.repository||'')+' · Issue #'+esc(e.issue_number||'')+'</p><p class="note">'+esc((e.notes||[]).join(' '))+'</p>';if(e.url){var a=document.createElement('a');a.className='cta';a.href=e.url;a.target='_blank';a.rel='noopener noreferrer';a.textContent='Apri issue';card.appendChild(a)}grid.appendChild(card)})}
-async function load(){try{var r=await fetch('/api/bounties?limit=200',{cache:'no-store'});if(!r.ok)throw new Error('Registro bounty non disponibile');var d=await r.json();entries=d.entries||[];render()}catch(e){status.textContent=e.message}}
-document.querySelectorAll('[data-filter]').forEach(function(b){b.onclick=function(){active=b.dataset.filter;document.querySelectorAll('[data-filter]').forEach(function(x){x.setAttribute('aria-pressed',String(x===b))});render()}});
+function render(){
+  var view=PB.filtered(model.entries,active),message=PB.statusText(model,active);
+  status.textContent=message;
+  grid.innerHTML='';
+  if(model.phase==='error'){
+    grid.innerHTML='<div class="empty" role="alert">'+esc(message)+' Riprova più tardi; nessuno stato di pagamento viene dedotto da un errore del registro.</div>';
+    return;
+  }
+  if(model.phase==='loading')return;
+  if(!model.entries.length){
+    grid.innerHTML='<div class="empty">Nessuna bounty è attualmente presente nel registro.</div>';
+    return;
+  }
+  if(!view.length){
+    grid.innerHTML='<div class="empty">Nessuna bounty corrisponde al filtro '+esc(active.toUpperCase())+'.</div>';
+    return;
+  }
+  view.forEach(function(e){
+    var s=PB.state(e),card=document.createElement('article');
+    card.className='card';
+    card.innerHTML='<div class="row"><span class="pill '+s+'">'+s.toUpperCase()+'</span><span class="note">'+esc(e.work_state||'')+'</span></div><h2>'+esc(e.title||e.id)+'</h2><p class="money">'+esc(PB.rewardText(e))+'</p><p class="note">Repo: '+esc(e.repository||'')+' · Issue #'+esc(e.issue_number||'')+'</p><p class="note">'+esc((e.notes||[]).join(' '))+'</p>';
+    if(e.url){var a=document.createElement('a');a.className='cta';a.href=e.url;a.target='_blank';a.rel='noopener noreferrer';a.textContent='Apri issue';card.appendChild(a)}
+    grid.appendChild(card);
+  });
+}
+async function load(){model=PB.loading();render();model=await PB.loadRegistry(fetch);render()}
+document.querySelectorAll('[data-filter]').forEach(function(b){
+  b.onclick=function(){
+    active=b.dataset.filter;
+    document.querySelectorAll('[data-filter]').forEach(function(x){x.setAttribute('aria-pressed',String(x===b))});
+    render();
+  }
+});
 load();
 </script>
 </body></html>
