@@ -87,16 +87,20 @@ Three local Python tests passed: admin/node credential separation; rejection of 
 
 Nicola reports that Git, Docker and Docker Compose work on his Windows PC. He repeated the unauthenticated request to `https://bridge.myzubster.com/node/next` and received the expected HTTP 401. These are participant-reported workstation and runtime results; exact tool versions and sanitized command output remain to be captured.
 
-Nicola identified the local main-repository revision as branch `pilot/n4k48-local-node-clean` at commit `ba026ffd9c87f15f0cd8eca63827f43c35f64a8c`, and reported uncommitted modifications in his local MVP repository. The commit exists, is attributed to `nicolaususnicola-lgtm`, and changes documentation only; it does not contain the Node Bridge connector. The named branch was not found in either remotely connected repository, and searches of the current default branch found no connector source for `BRIDGE_NODE_TOKEN` or `/node/next`.
+The latest local inspection supersedes the earlier provisional working-tree note:
+
+- Windows main-repository baseline: branch `pilot/n4k48-local-node-clean`, commit `ba026ffd9c87f15f0cd8eca63827f43c35f64a8c`, working tree reported clean, zero commits behind and two ahead of `upstream/main`.
+- Ubuntu WSL MVP baseline: branch `main`, commit `e57261a325625057350aa059ca142f1eb84b30c2`, working tree reported clean.
+
+Both commits exist on GitHub. Commit `ba026ffd` is attributed to `nicolaususnicola-lgtm` and changes documentation only; it does not contain the Node Bridge connector. Commit `e57261a` exists in `nicolaususnicola-lgtm/myzubster-mvp` and finalizes Proof v3 evidence sources; it also does not establish the connector. The named Windows branch was not found in the remotely connected main repository, so the local two-commit divergence cannot yet be independently reviewed.
 
 Connector source location, version and startup procedure therefore remain **BLOCKED_SOURCE_NOT_PUBLISHED**. Before authenticated testing:
 
 1. identify the exact source currently deployed on the VPS;
 2. publish and review it in a scoped branch without secrets, or provide a verified immutable source archive;
 3. record its exact commit/version and startup instructions;
-4. preserve Nicola's uncommitted MVP changes;
+4. publish or otherwise review the two local commits ahead of `upstream/main` without overwriting either clean baseline;
 5. rotate the VPS token and configure it privately outside Git and email;
 6. run authenticated and end-to-end tests with sanitized output.
 
 No connector installation on Nicola's PC, authenticated success or end-to-end completion is claimed.
-
