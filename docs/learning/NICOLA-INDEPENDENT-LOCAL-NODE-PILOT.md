@@ -162,3 +162,26 @@ Evidence labels must remain precise:
 - **Mint state:** no mint claimed; no `token_id` or `transaction_hash` asserted
 
 This publication advances the reproducibility of the local N1/N4 evidence. It does **not** change the Bridge status: the authenticated Node Bridge test remains paused until the exact VPS-deployed connector source/version is identified and reviewed.
+
+## Public Zorgax → Nicola Comics baseline confirmation (2026-10-03)
+
+The direct public Zorgax → Nicola Comics path is now implemented in upstream `main` and is separate from the outbound local-node/VPS connector proposed earlier in this document:
+
+- [PR #1460](https://github.com/MyZubster-Ecosystem/myzubster/pull/1460), merged as [`ee8c15d`](https://github.com/MyZubster-Ecosystem/myzubster/commit/ee8c15d4b26824b75345c2eebc62ac034058b84a), adds a read-only service that calls the public pilot HTTPS endpoint and allowlists only `gallery`, `detail`, `candidate` and `next_steps`;
+- [PR #1461](https://github.com/MyZubster-Ecosystem/myzubster/pull/1461), merged as [`39fb429`](https://github.com/MyZubster-Ecosystem/myzubster/commit/39fb429277ac8d88ae589a0c7b8eed0c3e0fe54a), maps public Zorgax natural-language requests that explicitly mention “Nicola Comics” to that service;
+- GitHub reports successful Vercel statuses for both merge commits.
+
+Daniel reports a successful production end-to-end check using the prompt “Ciao Zorgax, mostrami la galleria di Nicola Comics”; Nicola then accepted the public Zorgax → Nicola Comics → pilot-evidence flow as the verified baseline. This review independently verified the merged source and deployment status records, but did not replay the production browser interaction.
+
+This supersedes the earlier **public Zorgax connection PENDING** statement only for the direct hosted Comics path. It does **not** prove that Nicola's PC is connected to the earlier outbound Node Bridge design, and it does not complete that design's N2/N3 authenticated local-node round trip. `BLOCKED_SOURCE_NOT_PUBLISHED` therefore remains applicable only to that separate local-node/VPS connector.
+
+The evidence boundary remains unchanged: `rights_status: TO_VERIFY`; `n4k48-comic-001` remains `NFT_CANDIDATE / PROPOSED_FOR_REVIEW` and not selected; no mint, token ID, transaction hash, on-chain registration, ownership or commercial-rights claim is established.
+
+Nicola's confirmed next sequence is:
+
+1. consolidate and publicly review rights/provenance evidence for `n4k48-comic-001`;
+2. define explicit human-review criteria before any transition from candidate/proposed to selected;
+3. only after verifiable evidence and separate approval, evaluate a possible on-chain path.
+
+No automatic status promotion, mint, wallet action, payment or blockchain transaction is authorized by this confirmation.
+
