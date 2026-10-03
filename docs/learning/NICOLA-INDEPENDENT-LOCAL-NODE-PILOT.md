@@ -104,3 +104,18 @@ Connector source location, version and startup procedure therefore remain **BLOC
 6. run authenticated and end-to-end tests with sanitized output.
 
 No connector installation on Nicola's PC, authenticated success or end-to-end completion is claimed.
+
+
+## Participant-reported local acceptance evidence (2026-10-03)
+
+Nicola reports completing an additional local, credential-free acceptance run on the Ubuntu WSL MVP baseline. The Docker stack and API were healthy; the Nicola Comics catalog returned three items; and `POST /api/zorgax/ask` succeeded for the four documented read-only actions `gallery`, `detail`, `candidate` and `next_steps`. He also reports a negative allowlist test in which the unsupported `delete` action was rejected and the response exposed only the supported actions.
+
+Nicola further reports restarting only the API container and observing that the service returned healthy, the same three **local test events** remained in the local ledger, and the Comics catalog stayed available. Repository inspection at commit [`e57261a`](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/commit/e57261a325625057350aa059ca142f1eb84b30c2) confirms that Docker Compose mounts the named volume `observations-data` at `/data` and points the observation and ledger files there. The documented Comics contract independently confirms the three-item catalog, the four-action allowlist and read-only boundary. The reported runtime outputs and restart result have not been independently reproduced or backed by sanitized logs in this PR.
+
+Evidence boundaries remain explicit:
+
+- the three retained ledger entries are synthetic/local test events, not a real balance, revenue, payment or substitute for the canonical MYZ ledger;
+- `n4k48-comic-001` remains `NFT_CANDIDATE / PROPOSED_FOR_REVIEW`, with `rights_status: TO_VERIFY` and no verified `token_id` or `transaction_hash`; no mint is claimed;
+- no local service was exposed to the Internet, no onion configuration was changed, no `BRIDGE_NODE_TOKEN` was used and no authenticated or public end-to-end bridge test was run.
+
+This advances the local N1/N4 evidence only. The bridge remains `BLOCKED_SOURCE_NOT_PUBLISHED` until the exact VPS-deployed source/version and startup procedure are identified and reviewed; credentials must then be rotated and configured privately before authenticated and end-to-end tests with sanitized evidence.
