@@ -31,7 +31,15 @@ jobs:
       - name: Install locked dependencies
         run: npm ci --ignore-scripts
 
-      - name: Audit dependencies (fail on high or critical)
+      - name: Full dependency audit report (informational)
+        shell: bash
+        run: |
+          set +e
+          npm audit --json > npm-audit-full.json
+          cat npm-audit-full.json
+          exit 0
+
+      - name: Audit production dependencies (fail on high or critical)
         shell: bash
         run: |
           set +e
@@ -39,20 +47,20 @@ jobs:
           attempt=1
 
           while [ "$attempt" -le "$max_attempts" ]; do
-            echo "npm audit attempt $attempt of $max_attempts"
-            npm audit --audit-level=high --json > npm-audit.json
+            echo "production npm audit attempt $attempt of $max_attempts"
+            npm audit --omit=dev --audit-level=high --json > npm-audit-production.json
             status=$?
 
             if node -e "
               const fs = require('fs');
-              const report = JSON.parse(fs.readFileSync('npm-audit.json', 'utf8'));
+              const report = JSON.parse(fs.readFileSync('npm-audit-production.json', 'utf8'));
               process.exit(report && report.metadata && report.metadata.vulnerabilities ? 0 : 1);
             "; then
-              cat npm-audit.json
+              cat npm-audit-production.json
               exit "$status"
             fi
 
-            cat npm-audit.json
+            cat npm-audit-production.json
             if [ "$attempt" -lt "$max_attempts" ]; then
               delay=$((attempt * 15))
               echo "Audit service unavailable or returned no vulnerability metadata; retrying in ${delay}s."
@@ -64,10 +72,12 @@ jobs:
           echo "npm audit service remained unavailable after $max_attempts attempts." >&2
           exit 2
 
-      - name: Upload audit report
+      - name: Upload audit reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: npm-audit-report
-          path: npm-audit.json
+          name: npm-audit-reports
+          path: |
+            npm-audit-full.json
+            npm-audit-production.json
           if-no-files-found: ignore

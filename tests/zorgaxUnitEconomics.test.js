@@ -18,10 +18,10 @@ describe('Zorgax unit economics', () => {
       stripeFixedEur: 0.25
     });
 
-    expect(report.grossRevenueEur).toBe(39.8);
+    expect(report.grossRevenueEur).toBe(34.8);
     expect(report.costsEur.providerTotal).toBe(15);
-    expect(report.costsEur.estimatedStripeFees).toBe(0.45);
-    expect(report.netMarginEur).toBe(24.35);
+    expect(report.costsEur.estimatedStripeFees).toBe(0.35);
+    expect(report.netMarginEur).toBe(19.45);
     expect(report.sustainable).toBe(true);
   });
 
@@ -70,6 +70,6 @@ describe('Zorgax unit economics', () => {
         $lt: new Date('2026-10-01T00:00:00.000Z')
       }
     });
-    expect(report.netMarginEur).toBe(4.9);
+    expect(report.netMarginEur).toBe(-0.1);
   });
 });

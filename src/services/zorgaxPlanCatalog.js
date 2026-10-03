@@ -4,7 +4,7 @@ const SUPPORTED_ASSETS = Object.freeze(['BTC']);
 
 const PLANS = Object.freeze({
   free: Object.freeze({ id: 'free', name: 'Zorgax Free', priceEur: 0, billing: 'free', features: ['assistant-base', 'limited-research'] }),
-  pro: Object.freeze({ id: 'pro', name: 'Zorgax Pro', priceEur: 9.90, billing: 'monthly-equivalent', features: ['assistant-advanced', 'web-research', 'workspace', 'priority-usage'] }),
+  pro: Object.freeze({ id: 'pro', name: 'Zorgax Pro', priceEur: 4.90, billing: 'monthly-equivalent', features: ['assistant-advanced', 'web-research', 'workspace', 'priority-usage', 'contributor-passport', 'knowledge-cards', 'github-history'] }),
   developer: Object.freeze({ id: 'developer', name: 'Zorgax Developer', priceEur: 29.90, billing: 'monthly-equivalent', features: ['pro', 'api-access', 'automation', 'higher-limits'] })
 });
 

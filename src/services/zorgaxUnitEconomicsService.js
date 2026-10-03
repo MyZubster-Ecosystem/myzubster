@@ -4,7 +4,7 @@ const DEFAULT_PROVIDERS = Object.freeze([
   'openai_api','chatgpt','chatgpt_credits','vercel','aruba','canva','database','storage','monitoring','email','other'
 ]);
 
-const PLAN_PRICES_EUR = Object.freeze({ pro:9.90, developer:29.90 });
+const PLAN_PRICES_EUR = Object.freeze({ pro:4.90, developer:29.90 });
 
 function roundMoney(value) {
   return Math.round((Number(value) + Number.EPSILON) * 100) / 100;
