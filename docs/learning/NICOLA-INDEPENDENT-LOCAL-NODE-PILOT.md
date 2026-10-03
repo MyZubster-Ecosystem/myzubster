@@ -185,3 +185,13 @@ Nicola's confirmed next sequence is:
 
 No automatic status promotion, mint, wallet action, payment or blockchain transaction is authorized by this confirmation.
 
+## Comic 001 rights-review dossier prepared (2026-10-03)
+
+Nicola opened [PR #20 in `nicolaususnicola-lgtm/myzubster-mvp`](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/pull/20) from branch `docs/n4k48-comic-001-rights-review` onto the public checkpoint branch. The PR adds one file: [the rights and provenance review for `n4k48-comic-001`](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/blob/docs/n4k48-comic-001-rights-review/docs/nicola-comics/evidence/n4k48-comic-001-rights-review.md).
+
+Repository inspection confirms that the dossier is consistent with the existing card, manifest and provenance record: publication commit `f853710e24c305cb292b271c0d37696147e35239`, Git blob SHA-1 `bf90e43ba1c1524a5c955e6e0446fe774f83a2e7`, AI-assisted project provenance, and the current statuses `rights_status: TO_VERIFY`, `NFT_CANDIDATE`, and `PROPOSED_FOR_REVIEW`. The catalog's network, contract, token, transaction and metadata fields remain empty/null.
+
+The dossier correctly separates Git/file provenance and participant project provenance from legal rights or usage authorization. It defines prerequisites for a future selection and for any later on-chain claim without promoting any state. PR #20 is open and mergeable; no CI workflow or commit status is attached, and it is not yet merged.
+
+The remaining human evidence gate is authoritative, dated authorization covering the intended publication/commercial/NFT use and any MyZubster-controlled names, characters, logos or visual elements. A commit, hash, AI-generation note or candidate label is not sufficient. Until that evidence is linked and reviewed, no selection, mint or on-chain status change is justified.
+
