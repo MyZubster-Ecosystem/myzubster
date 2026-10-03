@@ -119,3 +119,22 @@ Evidence boundaries remain explicit:
 - no local service was exposed to the Internet, no onion configuration was changed, no `BRIDGE_NODE_TOKEN` was used and no authenticated or public end-to-end bridge test was run.
 
 This advances the local N1/N4 evidence only. The bridge remains `BLOCKED_SOURCE_NOT_PUBLISHED` until the exact VPS-deployed source/version and startup procedure are identified and reviewed; credentials must then be rotated and configured privately before authenticated and end-to-end tests with sanitized evidence.
+
+
+## Participant-reported tested checkpoint and Comics provenance (2026-10-03)
+
+Nicola reports creating the **local-only** branch `pilot/n4k48-tested-checkpoint` and a clean checkpoint at `305d89ee6444210d52a1af27cbce54fc844ad51b`. On that checkpoint he reports **54/54 Python tests passing**, **7/7 Pilot Node automated checks passing**, valid Docker Compose configuration and an API bound to local loopback. Neither the branch nor checkpoint is visible in the connected GitHub repositories, so the code, test selection, commands and outputs remain participant-reported until the branch or a sanitized immutable evidence bundle is made reviewable.
+
+For `n4k48-comic-001`, Nicola reports the following provenance values:
+
+- PNG SHA-256: `37df6a259cf93f796c0b0700f8c5829ecd8162d6fa103dd7a99b89a2b91261e3`;
+- Git blob: `bf90e43ba1c1524a5c955e6e0446fe774f83a2e7`;
+- public source commit: [`f853710`](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/commit/f853710e24c305cb292b271c0d37696147e35239);
+- local evidence commit: `aeb4955`;
+- evidence SHA-256: `8cad1e6c02f9a4c056e6611cdbd5b9042364fa5f98e90e3ff4d7753137eb2c7a`.
+
+The public source commit exists, is attributed to `nicolaususnicola-lgtm` and introduced the three Comics images. GitHub metadata for `docs/n4k48-comics/01-dall-idea-al-metaverso.png` at that commit independently matches the reported Git blob. The PNG SHA-256, evidence digest and local evidence commit cannot yet be independently reproduced because the new branch/evidence bundle has not been pushed.
+
+The evidence classification therefore remains mixed: **public-source verified** for the source commit and Git blob; **participant-reported, pending review** for the checkpoint, test counts, PNG SHA-256 and evidence digest. The candidate remains `NFT_CANDIDATE / PROPOSED_FOR_REVIEW` with `rights_status: TO_VERIFY`; no mint, token, transaction or commercial-rights claim follows from these hashes.
+
+No new service exposure or Bridge progress is claimed. The authenticated Bridge test remains paused and status remains `BLOCKED_SOURCE_NOT_PUBLISHED` pending identification and review of the deployed VPS connector source.
