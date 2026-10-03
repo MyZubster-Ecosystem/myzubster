@@ -82,3 +82,21 @@ A separate portable Docker staging prototype was prepared during this session (a
 Three local Python tests passed: admin/node credential separation; rejection of prohibited actions, invalid inputs and duplicate results; queued read-only request/result exchange; future agent output restricted to sanitized catalog titles. These results do not certify Internet security, TLS proxy, production readiness or distributed availability. Queue state is ephemeral and single-replica, and the two random bearer tokens require a secured TLS proxy, restricted operator access, rate limits and further security review before Internet-facing staging.
 
 **Deployment gate:** upload and review the archive as a separate source branch, then obtain authorized VPS access for a separate staging host; generate two unrelated random secrets outside Git, bind container host-side to 127.0.0.1:8092, configure TLS proxy/access policy/firewall and run the actual Docker health and negative tests. Nicola's machine stays disconnected until he explicitly consents to the local-agent pilot.
+
+## Workstation and connector-source discovery (2026-10-03)
+
+Nicola reports that Git, Docker and Docker Compose work on his Windows PC. He repeated the unauthenticated request to `https://bridge.myzubster.com/node/next` and received the expected HTTP 401. These are participant-reported workstation and runtime results; exact tool versions and sanitized command output remain to be captured.
+
+Nicola identified the local main-repository revision as branch `pilot/n4k48-local-node-clean` at commit `ba026ffd9c87f15f0cd8eca63827f43c35f64a8c`, and reported uncommitted modifications in his local MVP repository. The commit exists, is attributed to `nicolaususnicola-lgtm`, and changes documentation only; it does not contain the Node Bridge connector. The named branch was not found in either remotely connected repository, and searches of the current default branch found no connector source for `BRIDGE_NODE_TOKEN` or `/node/next`.
+
+Connector source location, version and startup procedure therefore remain **BLOCKED_SOURCE_NOT_PUBLISHED**. Before authenticated testing:
+
+1. identify the exact source currently deployed on the VPS;
+2. publish and review it in a scoped branch without secrets, or provide a verified immutable source archive;
+3. record its exact commit/version and startup instructions;
+4. preserve Nicola's uncommitted MVP changes;
+5. rotate the VPS token and configure it privately outside Git and email;
+6. run authenticated and end-to-end tests with sanitized output.
+
+No connector installation on Nicola's PC, authenticated success or end-to-end completion is claimed.
+
