@@ -117,6 +117,21 @@ Labels: {labels}
 
         // Sistema di caching per i prompt
         this.promptCache = new Map();
+
+        // Stato del servizio
+        this.running = false;
+    }
+
+    async start() {
+        this.running = true;
+    }
+
+    async stop() {
+        this.running = false;
+    }
+
+    isRunning() {
+        return this.running;
     }
 
     /**

@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const MetaverseCharacter = require('../models/MetaverseCharacter');
 const MetaversePresence = require('../models/MetaversePresence');
 const MetaverseChatMessage = require('../models/MetaverseChatMessage');
-const { authenticate, optionalAuthenticate } = require('../../../src/middleware/auth');
+const { authenticate, optionalAuthenticate } = require('../middleware/auth');
 
 const router = express.Router();
 
