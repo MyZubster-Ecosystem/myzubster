@@ -35,3 +35,19 @@ The privacy-safe tracking endpoint also accepts a compact cross-product journey:
 - `journey_marketplace_open`
 
 When a valid MyZubster token is available, the backend uses the internal user id as the PostHog `distinct_id` (`user:<id>`). Email addresses are not sent as analytics properties. Anonymous activity continues to use the short-lived funnel session id.
+
+## Zorgax paid conversion funnel
+
+Recommended funnel for the Pro experiment:
+
+1. `zorgax_first_message`
+2. `pro_page_viewed`
+3. `checkout_started`
+4. `checkout_completed`
+
+Supporting product events reserved for the next quota/profile steps:
+
+- `free_limit_reached`
+- `knowledge_card_created`
+
+The server allowlist accepts these names, but `free_limit_reached` must only be emitted when a real server-side quota is enforced; do not infer it from UI state.
