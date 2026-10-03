@@ -12,6 +12,7 @@ const { refreshPaymentIntent, verifyAndActivatePaymentIntent } = require('../ser
 const { getPaymentReceipt } = require('../services/zorgaxBillingService');
 const zorgaxMyzCheckoutService = require('../services/zorgaxMyzCheckoutService');
 const { captureFunnelEvent } = require('../services/posthogAnalyticsService');
+const { askNicolaComics } = require('../services/nicolaComicsService');
 
 const router = express.Router();
 const { loadZorgaxAccess, requireZorgaxPlan } = createZorgaxAccessMiddleware();
@@ -290,6 +291,29 @@ router.post('/chat', optionalAuthenticate, loadZorgaxAccess, async (req, res) =>
     const safeRequestedLimit = Number.isFinite(requestedLimit) && requestedLimit > 0 ? requestedLimit : 5;
     const limit = policy.maxWebResults > 0 ? Math.min(safeRequestedLimit, policy.maxWebResults) : 1;
     const useWeb = requestedWeb && policy.webResearch;
+    const nicola = req.body?.nicolaComics;
+    if (nicola && typeof nicola === 'object') {
+      const pilot = await askNicolaComics({
+        action: nicola.action || 'gallery',
+        comicId: nicola.comicId || null,
+        question: req.body?.message || req.body?.prompt || 'Nicola Comics pilot'
+      });
+      logFunnelEvent('zorgax_message_sent', req, {
+        webResearch: false,
+        sourceCount: Array.isArray(pilot.sources) ? pilot.sources.length : 0,
+        integration: 'nicola-comics'
+      });
+      return res.json({
+        ok: true,
+        entity: 'ZORGAX-001',
+        response: pilot.answer,
+        ...pilot,
+        external_sources: [],
+        access: publicAccess(req.zorgaxAccess),
+        featureAccess: policy,
+        accessNotice: null
+      });
+    }
     const userContext = await authenticatedAssistantContext(req);
     const result = await answer({ message: req.body?.message || req.body?.prompt, useWeb, history: req.body?.history || [], limit, userContext });
     const accessNotice = requestedWeb && !policy.webResearch
