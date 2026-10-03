@@ -120,6 +120,48 @@ The participant profile, automation documentation and prior validation artifacts
 
 The next technical change for the selected Project Planner pilot is being prepared through a dedicated branch and pull request. A branch or PR is evidence of implementation work only; it is not evidence that the MVP has been pilot-tested or commercially validated.
 
+## Zorgax and knowledge contribution
+
+Nicola also contributes to the MyZubster knowledge and Zorgax technical flows under the public identity `nicolaususnicola-lgtm` and the N4K48 contributor identity.
+
+### Zorgax
+
+Current evidenced contribution areas include:
+
+- local Zorgax / AI automation integration and testing;
+- participant-controlled automation workflows;
+- Nicola Comics integration paths for `gallery`, `detail`, `candidate` and `next_steps`;
+- local Docker-based validation of MyZubster services;
+- human-controlled workflows where publication, payments, wallet actions and other sensitive external actions remain approval-gated.
+
+The local AI automation service has been technically exercised in mock mode without requiring real Telegram or GitHub tokens. This establishes local technical operation only; it does not claim production deployment or autonomous authority.
+
+### Knowledge and contributor graph
+
+Current repository evidence links N4K48/Nicola to MyZubster knowledge flows including:
+
+- public Knowledge Cards and contributor knowledge links;
+- knowledge-transfer evidence stored in the repository;
+- the N4K48 public knowledge anchor;
+- public GitHub contribution linkage;
+- knowledge provenance and evidence-oriented contribution flows.
+
+These records represent contribution and knowledge provenance. They must not be interpreted as credentials, professional certification or independent proof of expertise beyond the underlying evidence.
+
+### N4K48 local pilot node
+
+A local N4K48 pilot-node implementation has been prepared and tested against the current MyZubster codebase.
+
+Verified local technical scope includes:
+
+- MyZubster backend and MongoDB connectivity;
+- read-only N4K48 Ledger API;
+- N4K48 Economics simulation API;
+- Zorgax / AI automation startup in mock mode;
+- local frontend;
+- Tor Onion service reaching healthy state.
+
+This local verification does not claim public deployment, commercial validation, Bridge authorization or blockchain publication. Bridge credentials and other secrets must not be stored in this profile or in the repository.
 ## Human-control rules
 
 This pilot is advisory-first. Zorgax must not autonomously:
