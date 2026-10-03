@@ -123,18 +123,19 @@ This advances the local N1/N4 evidence only. The bridge remains `BLOCKED_SOURCE_
 
 ## Participant-reported tested checkpoint and Comics provenance (2026-10-03)
 
-Nicola reports creating the **local-only** branch `pilot/n4k48-tested-checkpoint` and a clean checkpoint at `305d89ee6444210d52a1af27cbce54fc844ad51b`. On that checkpoint he reports **54/54 Python tests passing**, **7/7 Pilot Node automated checks passing**, valid Docker Compose configuration and an API bound to local loopback. Neither the branch nor checkpoint is visible in the connected GitHub repositories, so the code, test selection, commands and outputs remain participant-reported until the branch or a sanitized immutable evidence bundle is made reviewable.
+Nicola has now published the evidence branch [`pilot/n4k48-tested-checkpoint`](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/tree/pilot/n4k48-tested-checkpoint), superseding the earlier local-only availability note. The public [checkpoint `305d89e`](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/commit/305d89ee6444210d52a1af27cbce54fc844ad51b) includes the loopback API binding `127.0.0.1:5000:5000`, a versioned PowerShell Pilot Node test script, its [sanitized evidence record](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/blob/pilot/n4k48-tested-checkpoint/pilot-tests/N4K48-PILOT-NODE-EVIDENCE.md) and the tested application changes.
 
-For `n4k48-comic-001`, Nicola reports the following provenance values:
+The evidence record reports **7/7 Pilot Node checks passing**, including healthy API, three-item Comics catalog, candidate/detail/next-steps queries, HTTP 400 for a forbidden action, three readable local ledger events and persistence after API restart. Nicola separately reports **54/54 Python tests passing**, valid Compose configuration and a clean working tree after checkpointing. The source artifacts and test definitions are now publicly reviewable; the runtime PASS counts and clean local state remain participant-produced results because no matching GitHub Actions run or independent rerun is attached.
 
-- PNG SHA-256: `37df6a259cf93f796c0b0700f8c5829ecd8162d6fa103dd7a99b89a2b91261e3`;
-- Git blob: `bf90e43ba1c1524a5c955e6e0446fe774f83a2e7`;
-- public source commit: [`f853710`](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/commit/f853710e24c305cb292b271c0d37696147e35239);
-- local evidence commit: `aeb4955`;
-- evidence SHA-256: `8cad1e6c02f9a4c056e6611cdbd5b9042364fa5f98e90e3ff4d7753137eb2c7a`.
+For `n4k48-comic-001`, the following public chain is available:
 
-The public source commit exists, is attributed to `nicolaususnicola-lgtm` and introduced the three Comics images. GitHub metadata for `docs/n4k48-comics/01-dall-idea-al-metaverso.png` at that commit independently matches the reported Git blob. The PNG SHA-256, evidence digest and local evidence commit cannot yet be independently reproduced because the new branch/evidence bundle has not been pushed.
+- [source commit `f853710`](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/commit/f853710e24c305cb292b271c0d37696147e35239), which introduced the three Comics images;
+- Git blob `bf90e43ba1c1524a5c955e6e0446fe774f83a2e7`, independently matched by GitHub metadata for `docs/n4k48-comics/01-dall-idea-al-metaverso.png` at that commit;
+- [provenance commit `aeb4955`](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/commit/aeb49554da678b9bc5ba80f25d1f8af06b2b5f25) and its [provenance evidence record](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/blob/pilot/n4k48-tested-checkpoint/pilot-tests/N4K48-COMIC-001-PROVENANCE.md);
+- reported PNG SHA-256 `37df6a259cf93f796c0b0700f8c5829ecd8162d6fa103dd7a99b89a2b91261e3`.
 
-The evidence classification therefore remains mixed: **public-source verified** for the source commit and Git blob; **participant-reported, pending review** for the checkpoint, test counts, PNG SHA-256 and evidence digest. The candidate remains `NFT_CANDIDATE / PROPOSED_FOR_REVIEW` with `rights_status: TO_VERIFY`; no mint, token, transaction or commercial-rights claim follows from these hashes.
+The commits, branch, evidence files and Git blob are independently accessible. The PNG SHA-256 is recorded in the published evidence but was not independently recomputed in this review. These references are prepared for owner-approved addition to the N4K48 Knowledge Card with the labels **Pilot Node verified locally** and **technical provenance documented/externally linked**—not third-party certification.
+
+The candidate remains `NFT_CANDIDATE / PROPOSED_FOR_REVIEW` with `rights_status: TO_VERIFY`. Hash and Git provenance do not establish copyright ownership, commercial rights, minting, token ownership, blockchain registration or financial value; no mint is claimed.
 
 No new service exposure or Bridge progress is claimed. The authenticated Bridge test remains paused and status remains `BLOCKED_SOURCE_NOT_PUBLISHED` pending identification and review of the deployed VPS connector source.
