@@ -195,3 +195,15 @@ The dossier correctly separates Git/file provenance and participant project prov
 
 The remaining human evidence gate is authoritative, dated authorization covering the intended publication/commercial/NFT use and any MyZubster-controlled names, characters, logos or visual elements. A commit, hash, AI-generation note or candidate label is not sufficient. Until that evidence is linked and reviewed, no selection, mint or on-chain status change is justified.
 
+## Explicit authorization template added (2026-10-03)
+
+Nicola added an [explicit authorization template](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/blob/docs/n4k48-comic-001-rights-review/docs/nicola-comics/evidence/n4k48-comic-001-authorization-template.md) to [pilot PR #20](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/pull/20) in commit [`71b95f5`](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/commit/71b95f59698248452dde387e8aab8993d961a157).
+
+The template is bound to the exact `n4k48-comic-001` asset version by publication commit `f853710e24c305cb292b271c0d37696147e35239` and Git blob SHA-1 `bf90e43ba1c1524a5c955e6e0446fe774f83a2e7`. It keeps identity, role/authority, date, evidence reference and every authorization decision at `PENDING`.
+
+Its scope matrix correctly requires separate decisions for pilot display, public Zorgax display, promotional/non-commercial communication, commercial use, NFT selection/preparation and mint/on-chain registration. It also requires separately identifying MyZubster-controlled or third-party elements. No permission in one scope is inferred into another, and a generic PR approval is explicitly insufficient.
+
+This is a useful evidence-control artifact, not an authorization. `PENDING_AUTHORIZATION`, `TO_VERIFY`, `NFT_CANDIDATE`, `PROPOSED_FOR_REVIEW` and empty on-chain fields remain the only supported states. PR #20 is open and mergeable with no attached CI/status.
+
+The next human step is for an attributable party to state their documented role and authority, complete each applicable scope with explicit conditions or exclusions, identify any separate rights holders, and link a dated verifiable reference. A new rights review is required before any status transition.
+
