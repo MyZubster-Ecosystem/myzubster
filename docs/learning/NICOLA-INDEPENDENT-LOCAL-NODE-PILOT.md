@@ -139,3 +139,26 @@ The commits, branch, evidence files and Git blob are independently accessible. T
 The candidate remains `NFT_CANDIDATE / PROPOSED_FOR_REVIEW` with `rights_status: TO_VERIFY`. Hash and Git provenance do not establish copyright ownership, commercial rights, minting, token ownership, blockchain registration or financial value; no mint is claimed.
 
 No new service exposure or Bridge progress is claimed. The authenticated Bridge test remains paused and status remains `BLOCKED_SOURCE_NOT_PUBLISHED` pending identification and review of the deployed VPS connector source.
+
+
+## Publicly reviewable checkpoint evidence (2026-10-03)
+
+Nicola has now published the previously local evidence branch, so the checkpoint and supporting evidence are reviewable on GitHub:
+
+- Evidence branch: [`pilot/n4k48-tested-checkpoint`](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/tree/pilot/n4k48-tested-checkpoint)
+- Pilot Node checkpoint: [`305d89ee6444210d52a1af27cbce54fc844ad51b`](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/commit/305d89ee6444210d52a1af27cbce54fc844ad51b)
+- Pilot Node evidence: [`pilot-tests/N4K48-PILOT-NODE-EVIDENCE.md`](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/blob/pilot/n4k48-tested-checkpoint/pilot-tests/N4K48-PILOT-NODE-EVIDENCE.md)
+- Comics provenance commit: [`aeb49554da678b9bc5ba80f25d1f8af06b2b5f25`](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/commit/aeb49554da678b9bc5ba80f25d1f8af06b2b5f25)
+- `n4k48-comic-001` provenance evidence: [`pilot-tests/N4K48-COMIC-001-PROVENANCE.md`](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/blob/pilot/n4k48-tested-checkpoint/pilot-tests/N4K48-COMIC-001-PROVENANCE.md)
+
+The published evidence records 54/54 Python tests passing, 7/7 Pilot Node automated checks passing, valid Docker Compose configuration and loopback-only API exposure for the tested checkpoint. These claims are now tied to a public immutable commit and evidence files rather than an unpublished local branch.
+
+Evidence labels must remain precise:
+
+- **Pilot Node:** locally tested / publicly reviewable evidence
+- **Technical provenance:** publicly reviewable
+- **`n4k48-comic-001` rights:** `TO_VERIFY`
+- **NFT state:** `NFT_CANDIDATE / PROPOSED_FOR_REVIEW`
+- **Mint state:** no mint claimed; no `token_id` or `transaction_hash` asserted
+
+This publication advances the reproducibility of the local N1/N4 evidence. It does **not** change the Bridge status: the authenticated Node Bridge test remains paused until the exact VPS-deployed connector source/version is identified and reviewed.
