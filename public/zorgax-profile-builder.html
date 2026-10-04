@@ -74,6 +74,7 @@ const professionalPanel=document.getElementById('developerProfilePanel');
 const professionalStatus=document.getElementById('professionalStatus');
 const professionalPreviewPanel=document.getElementById('professionalPreviewPanel');
 let professionalApprovedPreview=null;
+let professionalExistingDetails={experiences:[],interests:[]};
 function updateProfileType(){
   professionalPanel.hidden=type.value!=='developer';
   const gmailApproval=document.querySelector('a[href="/zorgax-email-profile.html"].btn.primary');
@@ -82,7 +83,7 @@ function updateProfileType(){
 type.addEventListener('change',updateProfileType);
 updateProfileType();
 const professionalIds=['professionalHeadline','professionalSummary','professionalSkills','professionalGoals','professionalAvailability','professionalEvidence'];
-function professionalLines(id){return document.getElementById(id).value.split('\\n').map(s=>s.trim()).filter(Boolean)}
+function professionalLines(id){return document.getElementById(id).value.split('\n').map(s=>s.trim()).filter(Boolean)}
 function collectProfessionalProfile(){
   const evidence=professionalLines('professionalEvidence').map(line=>{
     const [source,url='',...description]=line.split('|').map(s=>s.trim());
@@ -92,7 +93,7 @@ function collectProfessionalProfile(){
     headline:document.getElementById('professionalHeadline').value.trim(),
     summary:document.getElementById('professionalSummary').value.trim(),
     skills:professionalLines('professionalSkills').map(name=>({name})),
-    experiences:[],interests:[],
+    experiences:professionalExistingDetails.experiences,interests:professionalExistingDetails.interests,
     goals:professionalLines('professionalGoals'),
     collaborationAvailability:document.getElementById('professionalAvailability').value.trim(),
     evidence
@@ -128,7 +129,7 @@ document.getElementById('professionalPreviewButton').onclick=()=>{
     'Collaborazione: '+(p.collaborationAvailability||'Non specificata'),'',
     'Fonti indicate:',...p.evidence.map(e=>'• '+e.source+' — '+e.url+(e.description?' — '+e.description:'')),
     '','Le competenze sono dichiarate; le fonti non equivalgono a certificazioni.'
-  ].join('\\n');
+  ].join('\n');
   professionalPreviewPanel.hidden=false;
   professionalMessage('Controlla attentamente: la pubblicazione richiede un secondo clic esplicito.');
 };
@@ -141,12 +142,13 @@ async function loadSavedProfessional(){
     if(!response.ok||!data.success)throw Error(data.message||'Lettura non riuscita');
     const p=data.data?.profile;
     if(!p)return professionalMessage('Nessun profilo professionale salvato: compila il nuovo modulo.');
+    professionalExistingDetails={experiences:p.experiences||[],interests:p.interests||[]};
     document.getElementById('professionalHeadline').value=p.headline||'';
     document.getElementById('professionalSummary').value=p.summary||'';
-    document.getElementById('professionalSkills').value=(p.skills||[]).map(s=>s.name).filter(Boolean).join('\\n');
-    document.getElementById('professionalGoals').value=(p.goals||[]).join('\\n');
+    document.getElementById('professionalSkills').value=(p.skills||[]).map(s=>s.name).filter(Boolean).join('\n');
+    document.getElementById('professionalGoals').value=(p.goals||[]).join('\n');
     document.getElementById('professionalAvailability').value=p.collaborationAvailability||'';
-    document.getElementById('professionalEvidence').value=(p.evidence||[]).map(e=>[e.source||'',e.url||'',e.description||''].join(' | ')).join('\\n');
+    document.getElementById('professionalEvidence').value=(p.evidence||[]).map(e=>[e.source||'',e.url||'',e.description||''].join(' | ')).join('\n');
     invalidateProfessionalPreview();
     professionalMessage(p.visibility==='public'?'Profilo pubblico caricato: puoi aggiornarlo dopo una nuova approvazione.':'Profilo privato caricato: puoi aggiornarlo o pubblicarlo.');
   } catch(e){professionalMessage('Impossibile caricare il profilo: '+e.message,true)}
