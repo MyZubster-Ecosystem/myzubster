@@ -4,7 +4,8 @@
 
 - Contributore di conoscenza: Daniel Ioni / H4X0R
 - Collaboratore e destinatario proposto: Nicola / N4K48
-- Stato: PROPOSTA IN REVISIONE
+- Stato: KNOWLEDGE CARD PUBBLICATA DAL TITOLARE; DOCUMENTO GITHUB ANCORA IN REVISIONE
+- Knowledge Card di Daniel (URL comunicato dal titolare; pagina non ispezionabile automaticamente in questa verifica): https://www.myzubster.com/knowledge-card?id=6ac2804f749cd67391d6583d
 - Conferma di Nicola sull'apprendimento: IN ATTESA
 - Test remoto autenticato VPS–PC di Nicola: IN ATTESA
 - Attestazione blockchain per questa nuova scheda: NON CREATA
@@ -49,6 +50,6 @@
 
 ## Collegamento al sito Conoscenze
 
-Daniel può creare e pubblicare una Knowledge Card a proprio nome nel [Profile Builder](https://www.myzubster.com/zorgax-profile-builder), usando questa fonte dopo la revisione. Nicola deve creare o confermare autonomamente la propria scheda. La relazione fra le due schede va proposta nella [sezione Collega conoscenze](https://www.myzubster.com/knowledge-links) e diventa pubblica soltanto dopo l'approvazione di entrambi.
+Daniel comunica di aver pubblicato [la propria Knowledge Card](https://www.myzubster.com/knowledge-card?id=6ac2804f749cd67391d6583d) tramite il [Profile Builder](https://www.myzubster.com/zorgax-profile-builder). Il documento GitHub è ancora in revisione e la pagina pubblica non è stata ispezionata automaticamente in questo aggiornamento. Nicola deve creare o confermare autonomamente la propria scheda. La relazione fra le due schede va proposta nella [sezione Collega conoscenze](https://www.myzubster.com/knowledge-links) e diventa pubblica soltanto dopo l'approvazione di entrambi.
 
 Questa proposta è una nuova evidenza editoriale. La precedente attestazione Base Sepolia del 18 settembre riguarda un altro snapshot e non prova automaticamente questo trasferimento, l'apprendimento individuale, i diritti d'autore o il collegamento remoto ancora in attesa.
