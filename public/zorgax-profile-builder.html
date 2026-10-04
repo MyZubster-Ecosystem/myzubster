@@ -74,7 +74,7 @@ const professionalPanel=document.getElementById('developerProfilePanel');
 const professionalStatus=document.getElementById('professionalStatus');
 const professionalPreviewPanel=document.getElementById('professionalPreviewPanel');
 let professionalApprovedPreview=null;
-let professionalExistingDetails={experiences:[],interests:[]};
+let professionalExistingDetails={experiences:[],interests:[],skills:[]};
 function updateProfileType(){
   professionalPanel.hidden=type.value!=='developer';
   const gmailApproval=document.querySelector('a[href="/zorgax-email-profile.html"].btn.primary');
@@ -92,7 +92,10 @@ function collectProfessionalProfile(){
   return {
     headline:document.getElementById('professionalHeadline').value.trim(),
     summary:document.getElementById('professionalSummary').value.trim(),
-    skills:professionalLines('professionalSkills').map(name=>({name})),
+    skills:professionalLines('professionalSkills').map(name=>{
+      const prior=professionalExistingDetails.skills.find(s=>s.name===name);
+      return prior?{...prior}: {name};
+    }),
     experiences:professionalExistingDetails.experiences,interests:professionalExistingDetails.interests,
     goals:professionalLines('professionalGoals'),
     collaborationAvailability:document.getElementById('professionalAvailability').value.trim(),
@@ -117,6 +120,8 @@ document.getElementById('professionalFromFields').onclick=()=>{
 document.getElementById('professionalPreviewButton').onclick=()=>{
   const p=collectProfessionalProfile();
   if(!p.headline||!p.summary)return professionalMessage('Inserisci almeno titolo e presentazione.',true);
+  if(p.skills.length>50||p.goals.length>20||p.evidence.length>30)return professionalMessage('Troppi elementi: massimo 50 competenze, 20 obiettivi e 30 fonti.',true);
+  if(p.skills.some(s=>s.name.length>120)||p.goals.some(g=>g.length>180))return professionalMessage('Accorcia competenze (120 caratteri) o obiettivi (180 caratteri).',true);
   for(const entry of p.evidence){
     if(!entry.source||!entry.url)return professionalMessage('Ogni fonte richiede etichetta e URL pubblico; elimina le righe incomplete.',true);
     try {const url=new URL(entry.url);if(url.protocol!=='https:')throw Error();}catch(_){return professionalMessage('Usa solo URL pubblici HTTPS nelle fonti.',true)}
@@ -124,7 +129,9 @@ document.getElementById('professionalPreviewButton').onclick=()=>{
   professionalApprovedPreview=p;
   document.getElementById('professionalPreview').textContent=[
     'Titolo: '+p.headline,'','Presentazione: '+p.summary,'',
-    'Competenze dichiarate:',...p.skills.map(s=>'• '+s.name),'',
+    'Competenze dichiarate:',...p.skills.map(s=>'• '+s.name+(s.level?' (livello: '+s.level+')':'')+(s.notes?' — '+s.notes:'')+(s.evidence?.length?' — evidenze: '+s.evidence.join(', '):'')),'',
+    ...(p.experiences.length?['Esperienze già salvate, mantenute:',...p.experiences.map(e=>'• '+e.title+(e.description?' — '+e.description:'')+(e.organization?' — '+e.organization:'')+(e.evidence?.length?' — '+e.evidence.join(', '):'')),'']:[]),
+    ...(p.interests.length?['Interessi già salvati, mantenuti:',...p.interests.map(i=>'• '+i),'']:[]),
     'Obiettivi:',...p.goals.map(g=>'• '+g),'',
     'Collaborazione: '+(p.collaborationAvailability||'Non specificata'),'',
     'Fonti indicate:',...p.evidence.map(e=>'• '+e.source+' — '+e.url+(e.description?' — '+e.description:'')),
@@ -142,7 +149,7 @@ async function loadSavedProfessional(){
     if(!response.ok||!data.success)throw Error(data.message||'Lettura non riuscita');
     const p=data.data?.profile;
     if(!p)return professionalMessage('Nessun profilo professionale salvato: compila il nuovo modulo.');
-    professionalExistingDetails={experiences:p.experiences||[],interests:p.interests||[]};
+    professionalExistingDetails={experiences:p.experiences||[],interests:p.interests||[],skills:p.skills||[]};
     document.getElementById('professionalHeadline').value=p.headline||'';
     document.getElementById('professionalSummary').value=p.summary||'';
     document.getElementById('professionalSkills').value=(p.skills||[]).map(s=>s.name).filter(Boolean).join('\n');
