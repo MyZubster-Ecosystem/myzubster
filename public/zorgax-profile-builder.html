@@ -75,6 +75,7 @@ const professionalStatus=document.getElementById('professionalStatus');
 const professionalPreviewPanel=document.getElementById('professionalPreviewPanel');
 let professionalApprovedPreview=null;
 let professionalExistingDetails={experiences:[],interests:[],skills:[]};
+let professionalExistingChecked=false;
 function updateProfileType(){
   professionalPanel.hidden=type.value!=='developer';
   const gmailApproval=document.querySelector('a[href="/zorgax-email-profile.html"].btn.primary');
@@ -148,6 +149,7 @@ async function loadSavedProfessional(){
     const data=await response.json();
     if(!response.ok||!data.success)throw Error(data.message||'Lettura non riuscita');
     const p=data.data?.profile;
+    professionalExistingChecked=true;
     if(!p)return professionalMessage('Nessun profilo professionale salvato: compila il nuovo modulo.');
     professionalExistingDetails={experiences:p.experiences||[],interests:p.interests||[],skills:p.skills||[]};
     document.getElementById('professionalHeadline').value=p.headline||'';
@@ -164,6 +166,16 @@ document.getElementById('professionalLoad').onclick=loadSavedProfessional;
 async function saveApprovedProfessional(visibility){
   if(!professionalApprovedPreview)return professionalMessage('Controlla prima l’anteprima aggiornata.',true);
   if(!token())return professionalMessage('Accedi a MyZubster prima di salvare.',true);
+  if(!professionalExistingChecked){
+    try {
+      const current=await fetch('/api/auth/profile/professional',{headers:{Authorization:'Bearer '+token()},cache:'no-store'});
+      if(!current.ok)throw Error('Verifica del profilo esistente non riuscita.');
+      const data=await current.json();
+      if(!data.success)throw Error('Verifica del profilo esistente non riuscita.');
+      if(data.data?.profile)return professionalMessage('Esiste già un profilo professionale. Premi «Carica profilo già salvato» prima di aggiornarlo, per non perdere informazioni.',true);
+      professionalExistingChecked=true;
+    }catch(e){return professionalMessage(e.message,true)}
+  }
   const p=collectProfessionalProfile();
   if(JSON.stringify(p)!==JSON.stringify(professionalApprovedPreview))return professionalMessage('Il testo è cambiato. Controlla nuovamente l’anteprima.',true);
   if(!confirm(visibility==='public'?'Confermi la pubblicazione di questo profilo personale MyZubster?':'Confermi il salvataggio di questa bozza come profilo privato?'))return;
@@ -174,6 +186,7 @@ async function saveApprovedProfessional(visibility){
     if(response.status===401)throw Error('Sessione scaduta: accedi nuovamente');
     const data=await response.json();
     if(!response.ok||!data.success)throw Error(data.message||'Salvataggio non riuscito');
+    professionalExistingChecked=true;
     invalidateProfessionalPreview();
     professionalMessage(visibility==='public'?'✓ Il server ha confermato la pubblicazione del profilo personale MyZubster.':'✓ Profilo personale approvato e salvato in modalità privata.');
     track('profile_builder_professional_'+visibility,'developer');
