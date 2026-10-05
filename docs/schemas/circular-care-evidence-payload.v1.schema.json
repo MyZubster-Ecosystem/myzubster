@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://myzubster.com/schemas/circular-care-evidence-payload.v1.schema.json",
   "title": "CircularCareEvidencePayloadV1",
-  "description": "Machine-readable Evidence Payload v1 connecting verified Open Period Care research to the MyZubster Circular Care pilot.",
+  "description": "Machine-readable Evidence Payload v1 connecting research documentation to the MyZubster Circular Care lifecycle milestones.",
   "type": "object",
   "required": [
     "schema",
@@ -97,7 +97,7 @@
         "TESTED",
         "VERIFIED"
       ],
-      "description": "Evidence maturity status"
+      "description": "Evidence maturity status. Research documentation without third-party physical/lab audit must use SUPPORTED."
     },
     "evidenceRefs": {
       "type": "array",
@@ -126,8 +126,13 @@
           "description": {
             "type": "string"
           },
+          "commitSha": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{40}$"
+          },
           "sha256": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
           }
         }
       },
@@ -135,7 +140,7 @@
     },
     "methodRef": {
       "type": "string",
-      "description": "Protocol or standard identifier"
+      "description": "Protocol or standard identifier, e.g. ISO-11948-1-REFERENCE"
     },
     "notes": {
       "type": "string",
@@ -157,14 +162,15 @@
     },
     "blockchainAnchor": {
       "type": "object",
-      "required": [
-        "network",
-        "chainId",
-        "txHash",
-        "anchoredAt",
-        "anchoredBy"
-      ],
       "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "EXAMPLE_UNVERIFIED",
+            "TESTNET_ANCHORED",
+            "MAINNET_ANCHORED"
+          ]
+        },
         "network": {
           "type": "string"
         },
