@@ -1,0 +1,9 @@
+﻿{
+  "name": "myzubster-opc-independent-verifier",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "verify": "node verify.mjs"
+  }
+}
