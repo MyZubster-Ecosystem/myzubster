@@ -968,7 +968,7 @@ MyZubster maintains a transparent map of project-linked and autonomous contribut
 | Contributor | Public project / evidence | Knowledge / competence link | Current status |
 |---|---|---|---|
 | **Nicola / N4K48** | [Independent pilot](https://github.com/nicolaususnicola-lgtm/myzubster-mvp) · [public pilot path](docs/learning/NICOLA-INDEPENDENT-LOCAL-NODE-PILOT.md) | Docker, independent local node, Node Bridge, reproducible testing, comic/provenance evidence | **Pilot reference · evidence-rich** |
-| **khongten124** | [PR #1451](https://github.com/MyZubster-Ecosystem/myzubster/pull/1451) · [contributor profile](https://github.com/khongten124/myzubster/blob/feat/open-period-care-research-1450/docs/contributions/khongten124-medical-research-profile.md) · commit `17cf7ca` | Medical & Scientific Research / Technical Documentation & Data Analysis | **APPROVED_BY_CONTRIBUTOR + EVIDENCE_VERIFIED**; public MyZubster Knowledge Card URL still pending account-side publication |
+| **khongten124** | **Open Period Care — Research & Knowledge Package** · [PR #1451](https://github.com/MyZubster-Ecosystem/myzubster/pull/1451) · [canonical project link](docs/contributions/khongten124-canonical-project-link.md) · [machine-readable registry](docs/contributions/khongten124-project-registry.json) · commit `17cf7ca` | Materials Science / Sustainable Health Technologies / Technical Documentation & Evidence Analysis · linked to Zorgax / Knowledge Card / Contributor Passport | **APPROVED_BY_CONTRIBUTOR + EVIDENCE_VERIFIED** · linked to Circular Care evidence pilot via [#1486](https://github.com/MyZubster-Ecosystem/myzubster/issues/1486); public account-side Knowledge Card URL still pending |
 | **hoicailon94** | [Issue #1463](https://github.com/MyZubster-Ecosystem/myzubster/issues/1463) · [Contributor workflow #1474](https://github.com/MyZubster-Ecosystem/myzubster/issues/1474) | Revenue split, deterministic allocation and reconciliation architecture | **IN VERIFICATION**; Knowledge Card publication/approval and production settlement evidence remain separate |
 | **Aming9303** | [PR #891](https://github.com/MyZubster-Ecosystem/myzubster/pull/891) · [PR #861](https://github.com/MyZubster-Ecosystem/myzubster/pull/861) · [PR #859](https://github.com/MyZubster-Ecosystem/myzubster/pull/859) · [MyZubsterGateway fork](https://github.com/Aming9303/MyZubsterGateway) | Signed payment webhooks, replication-package validation, environmental sensor adapters | **MERGED CONTRIBUTION EVIDENCE**; personal forks remain independent and may contain historical/non-canonical project text |
 | **wasim-builds** | [PR #860](https://github.com/MyZubster-Ecosystem/myzubster/pull/860) · [PR #637](https://github.com/MyZubster-Ecosystem/myzubster/pull/637) | Security testing / fail-closed admin-auth coverage; contributor-character work proposed separately | **MERGED SECURITY EVIDENCE** for #860; #637 remains open and is not treated as merged evidence |
@@ -977,6 +977,24 @@ MyZubster maintains a transparent map of project-linked and autonomous contribut
 | **Luzijano** | [MyZubsterGateway fork](https://github.com/Luzijano/MyZubsterGateway) | Public MyZubster-related fork discovered | **FORK DISCOVERED / EVIDENCE PENDING**; historical fork text may differ from current canonical MyZubster status |
 
 These rows document public contribution evidence and contributor-linked competence claims. They do **not** by themselves establish regulated professional credentials, employment, partnership, payment, wallet ownership, production settlement or independent third-party certification.
+
+#### Open Period Care → Circular Care research path
+
+The verified khongten124 contribution is connected to MyZubster as a reusable research/evidence source rather than copied into the core repository:
+
+```text
+khongten124 / Open Period Care
+→ PR #1451 + commit evidence + evidence matrix / Knowledge Cards
+→ MyZubster canonical project registry
+→ Zorgax evidence navigation / Knowledge Card / Contributor Passport
+→ Circular Care pilot
+→ Evidence Payload v1 (#1486)
+→ deterministic SHA-256
+→ optional Ethereum-compatible testnet attestation
+→ verifier / Knowledge Graph / KPI-MRV
+```
+
+The blockchain layer, when used, records an attestation/hash of a canonical evidence payload; it does **not** by itself prove that physical recycling, laboratory validation, medical certification, wallet settlement or any other real-world event occurred. Those claims require separate supporting evidence.
 
 **Canonical-status rule:** contributor forks are useful public evidence of participation, but their README text may be historical or diverge from the current project. Current MyZubster status, reward/payment state and production claims must be checked against this canonical repository and independently verified evidence.
 
