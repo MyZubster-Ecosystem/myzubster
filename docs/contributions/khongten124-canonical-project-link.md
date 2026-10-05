@@ -73,3 +73,40 @@ A public crypto receiving address may be declared separately, but an address alo
 The branch `feat/open-period-care-research-1450`, PR #1451 and commit `17cf7ca0a941d10e184771e574683785c1dbc8bf` contain the **Open Period Care** research package. They do not contain a sleep-apnea / CPAP dossier.
 
 The contributor-authored profile file currently uses a sleep-apnea project title, which is inconsistent with the verified branch/PR contents. Until separate public evidence is supplied for that sleep-apnea project, MyZubster treats **Open Period Care** as the canonical evidence-backed project for this linkage.
+
+
+## Circular Care / blockchain evidence integration
+
+MyZubster can connect the verified **Open Period Care** research package to the Circular Care pilot as the research-and-requirements layer for reusable menstrual-care products.
+
+```text
+OPEN PERIOD CARE RESEARCH
+(materials / safety / absorbency / durability / standards)
+        ↓
+MYZUBSTER CIRCULAR CARE PILOT
+(product / batch / collection / recovery / recycling milestones)
+        ↓
+EVIDENCE PACKAGE
+(test result / document hash / timestamp / actor / status)
+        ↓
+ETHEREUM-COMPATIBLE ATTESTATION LAYER
+(hash / attestation only; no sensitive participant data)
+        ↓
+KNOWLEDGE GRAPH / CONTRIBUTOR PASSPORT / KPI-MRV
+```
+
+### Initial integration scope
+1. Use Open Period Care requirements and evidence states as the research baseline for the Circular Care pilot.
+2. Map product/material requirements to lifecycle and recycling events.
+3. Define a canonical evidence payload for each pilot milestone.
+4. Hash the evidence payload and optionally anchor the hash on an Ethereum-compatible test network before any production use.
+5. Link the resulting public evidence back to the contributor, Knowledge Card/Passport and pilot record.
+
+### Privacy and verification boundary
+- Do not put health data, personal identifiers or sensitive participant information on-chain.
+- On-chain evidence should be limited to hashes/attestations and public non-sensitive metadata where appropriate.
+- A blockchain transaction proves that an attestation/hash was recorded; it does not by itself prove that recycling physically occurred.
+- Physical recycling or material-recovery claims require independent supporting evidence such as test records, operator evidence, laboratory results or other auditable documentation.
+
+### Contributor role
+khongten124's current verified role is the **research / technical documentation / evidence-analysis layer**. Any future claim that the contributor implemented recycling hardware, blockchain contracts or production settlement requires separate public evidence.
