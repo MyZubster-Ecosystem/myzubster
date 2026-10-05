@@ -975,6 +975,32 @@ These rows document public contribution evidence and contributor-linked competen
 
 [Explore the GitHub community network →](docs/GITHUB-COMMUNITY-NETWORK.md)
 
+### Contributor interoperability / VPS Bridge
+
+Independent contributor projects can remain autonomous while connecting to MyZubster through a controlled interoperability path:
+
+```text
+INDEPENDENT PROJECT / FORK / LOCAL NODE
+        ↓
+PUBLIC GITHUB EVIDENCE
+        ↓
+MYZUBSTER PROFILE / KNOWLEDGE CARD / PASSPORT
+        ↓
+ZORGAX NAVIGATION + EVIDENCE LOOKUP
+        ↓
+OPTIONAL CONTROLLED VPS BRIDGE
+        ↓
+READ-ONLY / HARMLESS TEST + SANITIZED EVIDENCE
+```
+
+This opportunity is open to contributors who want to propose a technical bridge from their own project to MyZubster, following the Nicola / N4K48 pilot pattern where appropriate.
+
+**The bridge is not direct VPS administration.** Contributors are not automatically given SSH access, server passwords, deployment credentials, API tokens, JWT secrets, wallet seeds, private keys or other infrastructure secrets. The first interoperability test should be harmless and preferably read-only, using only the minimum interface required for the test.
+
+A successful bridge test proves only the tested connectivity and request/response behavior. It does not by itself prove production readiness, payment, wallet ownership, professional credentials, settlement, endorsement or ownership transfer. The contributor's external project remains independently owned and maintained unless a separate agreement says otherwise.
+
+To propose a bridge pilot, use [Contributor workflow #1474](https://github.com/MyZubster-Ecosystem/myzubster/issues/1474) and provide the public repo/branch, component, environment, public evidence and a harmless first-test proposal.
+
 
 
 ## 🎨 Recent visual archive — 21–27 Sep 2026
