@@ -1047,3 +1047,27 @@ The latest visual assets found in the project Drive archive are catalogued here 
 **Publication boundary:** these are visual communication assets. A visual does not by itself prove a completed pilot, partnership, payment, authorization, identity, adoption or scientific result; those claims remain tied to their corresponding evidence and status documentation.
 
 **Public mirror TODO:** copy the binary originals into the appropriate GitHub visual repository before using raw.githubusercontent.com image URLs in public pages.
+
+## 🔗 Pilot Node Network — interoperable contributor pilots
+
+MyZubster is linking independently reproducible contributor work into a shared **Pilot Node Network**. The canonical coordination thread is [Issue #1505](https://github.com/MyZubster-Ecosystem/myzubster/issues/1505), connected to the public [@myzubster](https://github.com/myzubster) identity.
+
+| Pilot / contributor | Role in the network | Public evidence / path |
+|---|---|---|
+| **Nicola / N4K48 — @nicolaususnicola-lgtm** | Independent pilot-node and Docker interoperability reference | [N4K48 repository](https://github.com/nicolaususnicola-lgtm/myzubster-mvp) · [Issue #1474](https://github.com/MyZubster-Ecosystem/myzubster/issues/1474) |
+| **Open Period Care — @khongten124** | Research / evidence contributor | [Open Period Care package](docs/pilots/open-period-care/README.md) · [PR #1451](https://github.com/MyZubster-Ecosystem/myzubster/pull/1451) |
+| **Open Period Care — @Shweta-singh24** | Technical / verifier contributor | [Issue #1399](https://github.com/MyZubster-Ecosystem/myzubster/issues/1399) · [Pilot Node Network #1505](https://github.com/MyZubster-Ecosystem/myzubster/issues/1505) |
+
+```text
+@myzubster
+    ↓
+MyZubster-Ecosystem/myzubster
+    ↓
+Pilot Node Network (#1505)
+    ├── Nicola / N4K48 — independent node / reproducible evidence
+    └── Open Period Care
+         ├── khongten124 — research / evidence
+         └── Shweta-singh24 — technical / verification
+```
+
+The network is evidence-first: technical `TESTED` status applies only to the specific reproducible interoperability checks performed. It does not imply clinical, laboratory, regulatory, scientific, employment or institutional certification.
