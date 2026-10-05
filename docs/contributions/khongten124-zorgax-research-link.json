@@ -1,0 +1,43 @@
+{
+  "schema": "myzubster.contributor-research-link.v1",
+  "contributor": {
+    "github": "khongten124"
+  },
+  "project": {
+    "canonicalName": "Open Period Care — Research & Knowledge Package",
+    "repository": "https://github.com/khongten124/myzubster",
+    "branch": "feat/open-period-care-research-1450",
+    "pullRequest": "https://github.com/MyZubster-Ecosystem/myzubster/pull/1451",
+    "commit": "17cf7ca0a941d10e184771e574683785c1dbc8bf",
+    "researchPackage": "https://github.com/khongten124/myzubster/blob/feat/open-period-care-research-1450/docs/pilots/open-period-care/README.md",
+    "evidenceMatrix": "https://github.com/khongten124/myzubster/blob/feat/open-period-care-research-1450/docs/pilots/open-period-care/evidence-matrix.md",
+    "knowledgeCards": "https://github.com/khongten124/myzubster/blob/feat/open-period-care-research-1450/docs/pilots/open-period-care/knowledge-cards.md"
+  },
+  "knowledge": {
+    "domain": "Materials Science / Sustainable Health Technologies",
+    "role": "Research / Technical Documentation / Evidence Analysis",
+    "status": "EVIDENCE_VERIFIED_PROJECT_LINK",
+    "publicationBoundary": "Owner-published MyZubster Knowledge Card remains a separate account-side action"
+  },
+  "myzubster": {
+    "zorgaxUse": [
+      "research evidence lookup",
+      "scientific-source navigation",
+      "profile and bio assistance",
+      "Knowledge Card drafting",
+      "Contributor Passport linkage",
+      "Marketplace research-project routing",
+      "Circular Care evidence mapping"
+    ],
+    "circularCare": {
+      "status": "LINKED_AS_RESEARCH_LAYER",
+      "scope": "materials, safety, absorbency, durability, standards and evidence-to-requirements mapping"
+    }
+  },
+  "boundaries": [
+    "Repository and PR evidence do not establish a medical license or clinical qualification",
+    "Blockchain attestations prove recording of evidence hashes, not physical recycling",
+    "No sensitive health data should be placed on-chain",
+    "Payment, wallet ownership, production deployment and VPS interoperability require separate verification"
+  ]
+}
