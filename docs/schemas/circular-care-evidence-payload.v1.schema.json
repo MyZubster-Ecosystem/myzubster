@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://myzubster.com/schemas/circular-care-evidence-payload.v1.schema.json",
   "title": "CircularCareEvidencePayloadV1",
-  "description": "Evidence Payload v1 connecting verified Open Period Care research to the MyZubster Circular Care pilot.",
+  "description": "Machine-readable Evidence Payload v1 connecting verified Open Period Care research to the MyZubster Circular Care pilot.",
   "type": "object",
   "required": [
     "schema",
