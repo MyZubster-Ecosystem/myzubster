@@ -996,6 +996,8 @@ khongten124 / Open Period Care
 
 The blockchain layer, when used, records an attestation/hash of a canonical evidence payload; it does **not** by itself prove that physical recycling, laboratory validation, medical certification, wallet settlement or any other real-world event occurred. Those claims require separate supporting evidence.
 
+**Complementary contributor path:** @khongten124 is the current evidence-producing contributor for the Open Period Care package. @blucca has been invited in #1486 as an independent research/evidence reviewer to check source quality, provenance and the source → evidence → requirement mapping. The roles are intentionally separate so review evidence does not duplicate the original milestone. Any compensated follow-up remains separate and requires an explicit RESERVED/FUNDED task.
+
 **Canonical-status rule:** contributor forks are useful public evidence of participation, but their README text may be historical or diverge from the current project. Current MyZubster status, reward/payment state and production claims must be checked against this canonical repository and independently verified evidence.
 
 [Explore the GitHub community network →](docs/GITHUB-COMMUNITY-NETWORK.md)
