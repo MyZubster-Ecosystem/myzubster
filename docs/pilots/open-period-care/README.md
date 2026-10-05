@@ -78,7 +78,7 @@ properties:
     function: Complete aqueous barrier with vapor permeability
   fastening:
     material: Double OEKO-TEX POM polyacetal micro-snaps
-lifecycle_impact: >95% carbon and solid municipal waste reduction vs. single-use disposables over 3-year usage.
+lifecycle_impact_target: "Substantial waste reduction over reusable lifespan vs single-use disposables (subject to accredited full LCA)"
 ```
 
 ### Knowledge Card 02: Evidence-First Safety & Data Minimization Protocol
