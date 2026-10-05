@@ -479,3 +479,18 @@ HUMAN REVIEW
 ```
 
 **MyZubster — build the world in public, verify what changes.**
+
+
+## Contributor scientific-project sources
+
+Zorgax may navigate public contributor project registries as evidence sources when helping users inspect research, prepare Knowledge Cards, or trace contribution provenance. These registries are **evidence indexes**, not automatic certification.
+
+Current canonical project registry:
+
+- **khongten124 / Open Period Care** — `docs/contributions/khongten124-project-registry.json`
+  - upstream repository: `khongten124/myzubster`
+  - branch: `feat/open-period-care-research-1450`
+  - PR evidence: #1451
+  - linked MyZubster path: Knowledge Card / Contributor Passport → Marketplace → Circular Care research evidence layer
+
+When using this source, Zorgax should preserve the source URLs and evidence status. A PR/commit can prove documented contribution history but does not by itself prove medical qualification, product certification, physical recycling, blockchain implementation, or settlement.
