@@ -133,3 +133,33 @@ principles:
 ## 7. Privacy, Ethics & Governance Statement
 - **Zero Sensitive Data:** This package contains zero personally identifiable information (PII) or protected health information (PHI).
 - **Non-Clinical Boundary:** This research package serves open-source engineering, design, and educational purposes. It does not replace medical consultation, regulatory certifications (FDA, CE Medical Device), or laboratory hygiene verifications.
+
+## 8. Contributor & Pilot Node Network
+
+Open Period Care is connected to the wider MyZubster **Pilot Node Network** tracked in [Issue #1505](https://github.com/MyZubster-Ecosystem/myzubster/issues/1505).
+
+Current contributor roles:
+
+- [@khongten124](https://github.com/khongten124) — research/evidence contributor and source contributor for the Open Period Care Knowledge Cards.
+- [@Shweta-singh24](https://github.com/Shweta-singh24) — technical/verifier contributor for Docker, Node.js, HTTPS/read-only interoperability and reproducibility checks.
+- [@nicolaususnicola-lgtm](https://github.com/nicolaususnicola-lgtm) / **N4K48** — independent pilot-node reference used as a parallel reproducibility pattern for contributor-operated nodes and public evidence.
+
+Related network references:
+
+- [Open Period Care pilot #1399](https://github.com/MyZubster-Ecosystem/myzubster/issues/1399)
+- [Independent contributor-node path #1474](https://github.com/MyZubster-Ecosystem/myzubster/issues/1474)
+- [Circular Care Research Bridge #1488](https://github.com/MyZubster-Ecosystem/myzubster/issues/1488)
+- [Pilot Node Network #1505](https://github.com/MyZubster-Ecosystem/myzubster/issues/1505)
+
+```text
+N4K48 independent-node pattern
+              ↕
+      Pilot Node Network
+              ↕
+       Open Period Care
+        /            \
+khongten124       Shweta-singh24
+research/evidence technical/verifier
+```
+
+This relationship documents technical collaboration and reproducibility. The Open Period Care Knowledge Cards remain `SUPPORTED`; contributor-node interoperability does not upgrade them to laboratory, clinical or regulatory `VERIFIED` status.
