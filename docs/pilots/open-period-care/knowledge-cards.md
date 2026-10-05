@@ -17,29 +17,29 @@ cross_references:
   - issue: 1399
   - bounty: 1450
   - standards:
-      - ISO 10993-5 (In Vitro Cytotoxicity)
+      - ISO 10993-5 (In Vitro Cytotoxicity Reference)
       - GOTS 7.0 (Global Organic Textile Standard)
-      - AFNOR SPEC S30-018 (Reusable Menstrual Textiles)
+      - AFNOR SPEC S30-018 (Reusable Menstrual Textiles Guidelines)
 summary: >
   Specification of a hypoallergenic, 3-layer biomaterial composite engineered
-  for high-speed capillary absorption, leak protection, and 50+ wash durability.
+  for high-speed capillary absorption, leak protection, and wash durability.
 specifications:
   top_contact_layer:
     material: 100% GOTS-certified Organic Cotton Interlock (210 g/m²) or Eucalyptus Lyocell
-    purpose: Direct skin contact, ultra-fast fluid wicking, zero dioxins/bleaches.
-    fluid_wicking_rate: < 1.5 seconds per 5 ml aliquot.
+    purpose: Direct skin contact, rapid fluid wicking, unbleached fiber specification.
+    fluid_wicking_rate: "< 1.5 seconds per 5 ml aliquot (target benchtop standard)"
   absorbent_core:
     material: Double-layer 3D Bamboo/Cotton/Polyester Zorb or needle-punched Hemp Fleece
-    retention_capacity: >= 25 ml artificial menstrual simulant.
-    rewet_under_pressure: < 0.1 g at 2.0 kPa static load.
+    retention_capacity: ">= 25 ml artificial fluid simulant (design parameter)"
+    rewet_under_pressure: "< 0.1 g at 2.0 kPa static load (design guideline)"
   waterproof_barrier:
     material: Breathable Thermoplastic Polyurethane (TPU) membrane (25 µm)
-    moisture_vapor_transmission_rate: ">= 3000 g/m²/24h"
-    hydrostatic_resistance: ">= 5000 mm H2O"
+    moisture_vapor_transmission_rate: ">= 3000 g/m²/24h (spec target)"
+    hydrostatic_resistance: ">= 5000 mm H2O (spec target)"
   fasteners:
     material: Hypoallergenic OEKO-TEX Standard 100 Class 1 Polyacetal (POM) resin snaps.
 circular_economy_metrics:
-  lifecycle_carbon_reduction: "> 95% vs single-use disposable pads"
+  lifecycle_impact_target: "Substantial waste reduction over reusable lifespan vs single-use disposables (subject to accredited full LCA)"
   durability_target: ">= 50 domestic wash cycles at 40°C"
 ```
 
@@ -51,7 +51,7 @@ circular_economy_metrics:
 id: KC-OPC-002
 title: Contributor Privacy, Data Minimization & Clinical Claim Boundaries
 domain: Open Period Care / Ethics & Regulatory Governance
-status: VERIFIED
+status: SUPPORTED
 version: 1.0.0
 cross_references:
   - issue: 1399
@@ -72,10 +72,10 @@ governance_rules:
   epistemological_classification:
     anecdote: "Subjective user experience / qualitative comfort feedback"
     hypothesis: "Proposed engineering tolerance or vector pattern design"
-    source_evidence: "Verified peer-reviewed literature and published technical standards"
+    source_evidence: "Documented literature and published technical reference standards"
     verified_result: "Accredited laboratory measurements and certified assay data"
   claim_boundaries:
     medical_claims: "STRICTLY PROHIBITED (Not a medical device / no clinical claims)"
     antibacterial_claims: "PROHIBITED without certified ISO 20743 challenge assays"
-    scope_limitation: "Research, open-source hardware patterns, and educational LCA analysis only"
+    scope_limitation: "Research documentation, open-source material patterns, and educational LCA analysis only"
 ```
