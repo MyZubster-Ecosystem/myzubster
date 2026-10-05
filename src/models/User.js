@@ -28,6 +28,14 @@ const professionalEvidenceSchema = new mongoose.Schema({
   url: { type: String, trim: true, maxlength: 1000 }
 }, { _id: false });
 
+
+const contributorWalletEntrySchema = new mongoose.Schema({
+  address: { type: String, trim: true, maxlength: 300 },
+  status: { type: String, enum: ['unverified', 'tested', 'enabled'], default: 'unverified' },
+  verifiedAt: { type: Date, default: null },
+  testTxHash: { type: String, trim: true, maxlength: 200, default: '' }
+}, { _id: false });
+
 const professionalProfileSchema = new mongoose.Schema({
   headline: { type: String, trim: true, maxlength: 180 },
   summary: { type: String, trim: true, maxlength: 2000 },
@@ -53,6 +61,12 @@ const UserSchema = new mongoose.Schema({
   socialIdentities: { google: socialIdentitySchema, github: socialIdentitySchema, facebook: socialIdentitySchema },
   zorgaxProfile: { archetype: { type: String, enum: ['guardian', 'builder', 'explorer', 'caretaker'], default: 'explorer' }, traits: [{ type: String, trim: true, maxlength: 80 }], summary: { type: String, trim: true, maxlength: 800 }, source: { type: String, enum: ['gmail-derived', 'gmail-auto-sync', 'manual'], default: 'manual' }, approvedAt: { type: Date }, updatedAt: { type: Date } },
   professionalProfile: { type: professionalProfileSchema, default: undefined },
+  contributorWallets: {
+    BTC: { type: contributorWalletEntrySchema, default: () => ({}) },
+    XMR: { type: contributorWalletEntrySchema, default: () => ({}) },
+    ETH: { type: contributorWalletEntrySchema, default: () => ({}) },
+    updatedAt: { type: Date }
+  },
   gmailProfileSync: { enabled: { type: Boolean, default: false }, refreshTokenEncrypted: { type: String, select: false }, consentedAt: { type: Date }, lastSyncedAt: { type: Date }, revokedAt: { type: Date }, historyWindowDays: { type: Number, default: 180, min: 30, max: 365 }, sampleSize: { type: Number, default: 30, min: 5, max: 50 }, lastStatus: { type: String, enum: ['never', 'ready', 'success', 'error', 'revoked'], default: 'never' }, lastError: { type: String, trim: true, maxlength: 300 } },
   isVerified: { type: Boolean, default: false }, createdAt: { type: Date, default: Date.now }, lastLogin: { type: Date }
 });
