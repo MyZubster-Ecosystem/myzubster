@@ -982,6 +982,41 @@ These rows document public contribution evidence and contributor-linked competen
 
 [Explore the GitHub community network →](docs/GITHUB-COMMUNITY-NETWORK.md)
 
+### Contributor → Zorgax → Knowledge → Project path
+
+Verified GitHub work can be used as the evidence base for a contributor's MyZubster profile. The intended flow is:
+
+```text
+GITHUB IDENTITY
+      ↓
+MERGED / REVIEWABLE PR OR COMMIT
+      ↓
+ZORGAX PROFILE COMPLETION
+      ↓
+KNOWLEDGE CARD / CONTRIBUTOR PASSPORT
+      ↓
+PROJECT LINK
+      ↓
+MARKETPLACE / COMIC / METAVERSE
+      ↓
+OPTIONAL CONTROLLED VPS BRIDGE
+```
+
+Zorgax may help the contributor summarize public evidence, organize skills, prepare a bio, connect a project and propose Knowledge Cards. The contributor must review and approve what is published.
+
+Current evidence examples:
+- **Nicola / N4K48** — independent node, Docker, Node Bridge, reproducible tests and comic/provenance evidence.
+- **khongten124** — PR #1451 and contributor-profile evidence for research documentation / evidence organization.
+- **hoicailon94** — issue #1463 / workflow #1474 for revenue-split and reconciliation architecture; still in verification.
+- **Aming9303** — merged PRs #891, #861 and #859 for signed payment webhooks, replication-package validation and environmental sensor adapters.
+- **wasim-builds** — merged PR #860 for fail-closed admin-auth security testing; PR #637 remains separate/open evidence.
+- **foxxx009** — merged PRs #894 and #259 for KPI/evidence framework and automated bot testing.
+- **Shweta-singh24** and **Luzijano** — public MyZubsterGateway forks discovered; competence/project claims remain pending until a specific contribution or evidence package is provided.
+
+A GitHub commit or fork is evidence of work or participation, not automatic proof of professional qualification. Marketplace listings, comics, VPS connectivity and payout/settlement remain separate verification boundaries.
+
+Contributors can start from the [Zorgax profile onboarding](https://www.myzubster.com/zorgax-profile-onboarding.html), link their public GitHub evidence, create or update a Knowledge Card, then connect the resulting project to Marketplace, comics/visual provenance or the controlled VPS bridge when technically appropriate.
+
 ### Contributor interoperability / VPS Bridge
 
 Independent contributor projects can remain autonomous while connecting to MyZubster through a controlled interoperability path:
