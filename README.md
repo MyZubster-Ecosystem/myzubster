@@ -963,6 +963,16 @@ Passive visitors must not be deanonymized or correlated with GitHub identities w
 
 MyZubster maintains a transparent map of project-linked and autonomous contributor profiles. Operator-controlled accounts are separated from independent contributors so community size is not overstated.
 
+### Verified / in-verification contributor profiles
+
+| Contributor | Public project / evidence | Knowledge / competence link | Current status |
+|---|---|---|---|
+| **Nicola / N4K48** | [Independent pilot](https://github.com/nicolaususnicola-lgtm/myzubster-mvp) · [public pilot path](docs/learning/NICOLA-INDEPENDENT-LOCAL-NODE-PILOT.md) | Docker, independent local node, Node Bridge, reproducible testing, comic/provenance evidence | **Pilot reference · evidence-rich** |
+| **khongten124** | [PR #1451](https://github.com/MyZubster-Ecosystem/myzubster/pull/1451) · [contributor profile](https://github.com/khongten124/myzubster/blob/feat/open-period-care-research-1450/docs/contributions/khongten124-medical-research-profile.md) · commit `17cf7ca` | Medical & Scientific Research / Technical Documentation & Data Analysis | **APPROVED_BY_CONTRIBUTOR + EVIDENCE_VERIFIED**; public MyZubster Knowledge Card URL still pending account-side publication |
+| **hoicailon94** | [Issue #1463](https://github.com/MyZubster-Ecosystem/myzubster/issues/1463) · [Contributor workflow #1474](https://github.com/MyZubster-Ecosystem/myzubster/issues/1474) | Revenue split, deterministic allocation and reconciliation architecture | **IN VERIFICATION**; Knowledge Card publication/approval and production settlement evidence remain separate |
+
+These rows document public contribution evidence and contributor-linked competence claims. They do **not** by themselves establish regulated professional credentials, employment, partnership, payment, wallet ownership, production settlement or independent third-party certification.
+
 [Explore the GitHub community network →](docs/GITHUB-COMMUNITY-NETWORK.md)
 
 
