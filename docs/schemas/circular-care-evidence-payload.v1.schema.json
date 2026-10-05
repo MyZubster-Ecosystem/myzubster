@@ -1,0 +1,190 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://myzubster.com/schemas/circular-care-evidence-payload.v1.schema.json",
+  "title": "CircularCareEvidencePayloadV1",
+  "description": "Evidence Payload v1 connecting verified Open Period Care research to the MyZubster Circular Care pilot.",
+  "type": "object",
+  "required": [
+    "schema",
+    "pilotId",
+    "projectId",
+    "productOrBatchId",
+    "materialRefs",
+    "eventType",
+    "eventAt",
+    "actorRef",
+    "evidenceState",
+    "evidenceRefs",
+    "methodRef",
+    "notes",
+    "privacyClass",
+    "payloadSha256"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "type": "string",
+      "enum": [
+        "https://myzubster.com/schemas/circular-care-evidence-payload.v1.schema.json"
+      ]
+    },
+    "pilotId": {
+      "type": "string",
+      "description": "Canonical pilot identifier, e.g. PILOT-CIRCULAR-CARE-001"
+    },
+    "projectId": {
+      "type": "string",
+      "description": "Project identifier, e.g. open-period-care-research"
+    },
+    "productOrBatchId": {
+      "type": "string",
+      "description": "Batch or specification identifier, e.g. MZ-AHP-OS-002-SPEC-001"
+    },
+    "materialRefs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "description": "Open-source BOM material identifiers"
+    },
+    "eventType": {
+      "type": "string",
+      "enum": [
+        "DESIGN",
+        "TEST",
+        "COLLECTION",
+        "RECOVERY",
+        "RECYCLING"
+      ],
+      "description": "Lifecycle milestone category"
+    },
+    "eventAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 UTC timestamp of execution or documentation"
+    },
+    "actorRef": {
+      "type": "object",
+      "required": [
+        "identityType",
+        "identifier",
+        "role"
+      ],
+      "properties": {
+        "identityType": {
+          "type": "string",
+          "enum": [
+            "github",
+            "ethereum",
+            "organization",
+            "pilot-node"
+          ]
+        },
+        "identifier": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        }
+      }
+    },
+    "evidenceState": {
+      "type": "string",
+      "enum": [
+        "PROPOSED",
+        "SUPPORTED",
+        "TESTED",
+        "VERIFIED"
+      ],
+      "description": "Evidence maturity status"
+    },
+    "evidenceRefs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "refType",
+          "uri",
+          "description"
+        ],
+        "properties": {
+          "refType": {
+            "type": "string",
+            "enum": [
+              "pr",
+              "commit",
+              "issue",
+              "file",
+              "ipfs",
+              "test-report"
+            ]
+          },
+          "uri": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string"
+          }
+        }
+      },
+      "minItems": 1
+    },
+    "methodRef": {
+      "type": "string",
+      "description": "Protocol or standard identifier"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Technical notes and provenance summary"
+    },
+    "privacyClass": {
+      "type": "string",
+      "enum": [
+        "PUBLIC_SYNTHETIC",
+        "PUBLIC_AGGREGATE",
+        "AUDITED_NON_SENSITIVE"
+      ],
+      "description": "Privacy classification strictly preventing PII/health records"
+    },
+    "payloadSha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "Deterministic SHA-256 hash of canonical JSON"
+    },
+    "blockchainAnchor": {
+      "type": "object",
+      "required": [
+        "network",
+        "chainId",
+        "txHash",
+        "anchoredAt",
+        "anchoredBy"
+      ],
+      "properties": {
+        "network": {
+          "type": "string"
+        },
+        "chainId": {
+          "type": "integer"
+        },
+        "attestationContract": {
+          "type": "string"
+        },
+        "txHash": {
+          "type": "string"
+        },
+        "anchoredAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "anchoredBy": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
