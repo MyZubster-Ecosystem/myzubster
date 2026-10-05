@@ -15,18 +15,18 @@
     "identifier": "khongten124",
     "role": "Medical Research & Evidence Analysis Contributor"
   },
-  "evidenceState": "VERIFIED",
+  "evidenceState": "SUPPORTED",
   "evidenceRefs": [
     {
       "refType": "pr",
       "uri": "https://github.com/MyZubster-Ecosystem/myzubster/pull/1451",
-      "description": "Comprehensive Research Dossier & Open Period Care Knowledge Package (#1450)"
+      "description": "Research Dossier & Open Period Care Knowledge Package (#1450)"
     },
     {
       "refType": "commit",
       "uri": "https://github.com/khongten124/myzubster/commit/17cf7ca0a941d10e184771e574683785c1dbc8bf",
       "description": "Contributor profile and canonical verification document",
-      "sha256": "17cf7ca0a941d10e184771e574683785c1dbc8bf"
+      "commitSha": "17cf7ca0a941d10e184771e574683785c1dbc8bf"
     },
     {
       "refType": "file",
@@ -34,16 +34,8 @@
       "description": "Verified contributor profile and Knowledge Card link"
     }
   ],
-  "methodRef": "MZ-CIRCULAR-CARE-EVIDENCE-V1 / ISO-11948-1-COMPLIANT",
-  "notes": "Verified research baseline establishing absorbent core capacity, biocompatible barrier layer standards, and non-bleached organic fiber specification.",
+  "methodRef": "MZ-CIRCULAR-CARE-EVIDENCE-V1 / ISO-11948-1-REFERENCE",
+  "notes": "Research baseline establishing absorbent core capacity, biocompatible barrier layer guidelines, and non-bleached organic fiber specification.",
   "privacyClass": "AUDITED_NON_SENSITIVE",
-  "payloadSha256": "45ad37caf88fe5866f0c31d7a61ca1674e6a79c775c441cb9c148b852d58159b",
-  "blockchainAnchor": {
-    "network": "Ethereum Sepolia",
-    "chainId": 11155111,
-    "attestationContract": "0x0000000000000000000000000000000000000000",
-    "txHash": "0xd8823ff473e077fb540649f58e7dad8634d113361c8111c778533a61506bda37",
-    "anchoredAt": "2026-10-05T04:20:00Z",
-    "anchoredBy": "0x38F3dE1b5EEEd6d39280d36AfF3a4f2CE331A98D"
-  }
+  "payloadSha256": "df0dde40acbef8750dc8e025a922b1f8ea18118e0927f46519fc14c3afb6d89c"
 }
