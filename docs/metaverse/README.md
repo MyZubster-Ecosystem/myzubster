@@ -176,3 +176,15 @@ diagnostics.
 
 Still planned: private rooms, moderation controls, durable contribution badges,
 3D rendering, WebXR, spatial audio, live IoT digital twins and portable identity.
+
+## Pilot Node Network linkage
+
+N4K48's independent-node work is also used as a reproducibility reference for the broader [MyZubster Pilot Node Network](https://github.com/MyZubster-Ecosystem/myzubster/issues/1505).
+
+The current network links:
+
+- **Nicola / N4K48** — independent pilot-node / Docker evidence path;
+- **@khongten124** — Open Period Care research/evidence contributor;
+- **@Shweta-singh24** — Open Period Care technical/verifier contributor.
+
+The cross-pilot relationship is about reusable technical patterns, provenance and independently inspectable evidence. It does not merge contributor identities, scientific claims or project-specific validation states.
