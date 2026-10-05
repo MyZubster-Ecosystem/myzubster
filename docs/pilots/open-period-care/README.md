@@ -86,7 +86,7 @@ lifecycle_impact: >95% carbon and solid municipal waste reduction vs. single-use
 id: KC-OPC-002
 title: Contributor Privacy, Data Minimization & Clinical Claim Boundaries
 domain: Open Period Care / Ethics & Compliance
-status: VERIFIED
+status: SUPPORTED
 cross_references:
   - issue: 1399
   - bounty: 1450
