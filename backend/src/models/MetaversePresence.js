@@ -7,15 +7,17 @@ const metaversePresenceSchema = new mongoose.Schema({
   characterName: { type: String, required: true, trim: true, maxlength: 30 },
   archetype: { type: String, enum: ['guardian', 'explorer', 'maker', 'chronicler', 'scientist'], default: 'explorer' },
   myzId: { type: String, trim: true, default: null },
+  visualKey: { type: String, default: null },
   identityStatus: { type: String, enum: ['guest', 'account-linked'], default: 'guest' },
   accountUserId: { type: String, trim: true, default: null },
   github: {
+    id: { type: String, trim: true },
     login: { type: String, trim: true },
     profileUrl: { type: String, trim: true }
   },
   x: { type: Number, required: true },
   y: { type: Number, required: true },
-  emote: { type: String, enum: ['wave', 'spark', 'idea', 'leaf'], default: null },
+  emote: { type: String, enum: ['wave', 'spark', 'idea', 'leaf', null], default: null },
   emoteExpiresAt: { type: Date, default: null },
   joinedAt: { type: Date, required: true, default: Date.now },
   lastSeenAt: { type: Date, required: true, default: Date.now, index: true },
