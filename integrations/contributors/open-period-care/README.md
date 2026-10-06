@@ -49,3 +49,7 @@ A later live run against the public upstream artifacts can be recorded as:
 `TESTED — Open Period Care public evidence successfully fetched and normalized through the MyZubster contributor bridge`
 
 That status would apply only to the bridge behavior, not to the underlying scientific or product claims.
+
+## Repository security baseline
+
+The repository-wide npm audit blockers were resolved separately in PR #1510 and merged to `main` at `aa5aa8883a993c99b50e233bea29c5da2f3497f0`. This contributor bridge does not own dependency-security claims; its CI should be evaluated against that shared baseline.
