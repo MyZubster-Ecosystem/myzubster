@@ -1,34 +1,26 @@
 #!/usr/bin/env python3
-"""Independent current-main verifier for foxxx009 KPI/evidence framework.
+"""Zero-dependency independent verifier for foxxx009 KPI/evidence framework.
 
 Canonical contribution:
 - PR #894
 - contributor commit 70cb32c6500525df4056859525fe215b95188a02
 - merge commit 50f70aab6dc9a909f65b81cb70d932706143afec
 
-TESTED, when emitted by this script, applies only to independent reproduction
-of the bounded KPI/evidence/report behavior on the checked-out MyZubster code.
+This verifier intentionally avoids pip/pytest so it can run on a minimal VPS
+with only Python 3 and the checked-out repository.
 """
 
 from __future__ import annotations
 
 import json
-import shutil
 import subprocess
+import sys
 import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
 CONTRIBUTOR_COMMIT = "70cb32c6500525df4056859525fe215b95188a02"
 MERGE_COMMIT = "50f70aab6dc9a909f65b81cb70d932706143afec"
-
-TARGET_TESTS = [
-    "test_report_includes_disclaimers",
-    "test_report_distinguishes_baseline_and_pilot",
-    "test_report_writes_json_and_markdown",
-    "test_report_includes_no_fabricated_claims",
-    "test_report_flags_missing_data_not_fabricates",
-]
 
 REQUIRED_SOURCE_SNIPPETS = {
     "synthetic_disclaimer": "This report is generated from synthetic sample data",
@@ -50,62 +42,54 @@ def run(cmd: list[str]) -> subprocess.CompletedProcess:
 
 
 def main() -> int:
-    if shutil.which("python3") is None:
-        raise SystemExit("FAIL: python3 is required")
+    sys.path.insert(0, str(ROOT))
+
+    from myzpkpi.baseline import load_records_csv
+    from myzpkpi.evidence import load_evidence_records
+    from myzpkpi.kpi_schema import default_kpis
+    from myzpkpi.report import build_report, write_report_json, write_report_markdown
 
     report_file = ROOT / "myzpkpi/report.py"
-    if not report_file.exists():
-        raise SystemExit("FAIL: myzpkpi/report.py is missing")
-
     source = report_file.read_text(encoding="utf-8")
     source_checks = {k: v in source for k, v in REQUIRED_SOURCE_SNIPPETS.items()}
     head = run(["git", "rev-parse", "HEAD"]).stdout.strip()
 
-    install = run(["python3", "-m", "pip", "install", "-q", "pytest"])
-    if install.returncode != 0:
-        print(json.dumps({
-            "status": "FAILED",
-            "stage": "pytest_install",
-            "repository_head": head,
-            "output_tail": install.stdout[-4000:],
-        }, indent=2))
-        return 2
-
-    expr = " or ".join(TARGET_TESTS)
-    test = run([
-        "python3", "-m", "pytest", "-q",
-        "tests/test_report.py",
-        "-k", expr,
-    ])
+    records = load_records_csv(ROOT / "data/samples/records.csv")
+    evidence = load_evidence_records(ROOT / "data/samples/evidence.json")
+    kpis = default_kpis()
+    report = build_report(records, kpis, evidence=evidence)
 
     with tempfile.TemporaryDirectory(prefix="foxxx-kpi-") as tmp:
         out = Path(tmp)
-        cli = run([
-            "python3", "-m", "myzpkpi",
-            "--records", "data/samples/records.csv",
-            "--evidence", "data/samples/evidence.json",
-            "--catalog", "data/config/kpi_catalog.json",
-            "--out-dir", str(out),
-        ])
-        report_json = out / "report.json"
-        report_md = out / "report.md"
-        cli_ok = cli.returncode == 0 and report_json.exists() and report_md.exists()
-        report_data = json.loads(report_json.read_text(encoding="utf-8")) if report_json.exists() else {}
-        md = report_md.read_text(encoding="utf-8") if report_md.exists() else ""
+        json_path = out / "report.json"
+        md_path = out / "report.md"
+        write_report_json(report, json_path)
+        write_report_markdown(report, md_path)
+        report_data = json.loads(json_path.read_text(encoding="utf-8"))
+        md = md_path.read_text(encoding="utf-8")
 
-    semantic_checks = {
-        "baseline_count_3": report_data.get("baseline_count") == 3,
-        "pilot_count_2": report_data.get("pilot_count") == 2,
-        "synthetic_disclaimer_present": "synthetic" in " ".join(report_data.get("disclaimers", [])).lower(),
+    water = next(c for c in report.comparisons if c.kpi_id == "water.use.l_per_kg_yield")
+    expected_baseline = ((3222.5 / 9.95) + (3098.7 / 9.51)) / 2
+
+    behavioral_checks = {
+        "baseline_count_3": report.baseline_count == 3,
+        "pilot_count_2": report.pilot_count == 2,
+        "all_default_kpis_present": len(report.comparisons) == len(kpis),
+        "synthetic_disclaimer_present": "synthetic" in " ".join(report.disclaimers).lower(),
+        "report_json_roundtrip": report_data.get("framework_version") == report.framework_version,
+        "evidence_section_present": "Evidence Referenced" in md,
+        "missing_data_not_fabricated": (
+            water.baseline_value is not None
+            and abs(water.baseline_value - expected_baseline) < 1e-3
+        ),
         "no_eu_funding_claim": "eu funding" not in md.lower(),
         "no_official_approval_claim": "officially approved" not in md.lower(),
-        "evidence_section_present": "Evidence Referenced" in md,
+        "eu_life_disclaimer_present": "eu life" in md.lower(),
     }
 
-    tests_ok = test.returncode == 0
     source_ok = all(source_checks.values())
-    semantic_ok = all(semantic_checks.values())
-    status = "TESTED" if tests_ok and source_ok and cli_ok and semantic_ok else "FAILED"
+    behavioral_ok = all(behavioral_checks.values())
+    status = "TESTED" if source_ok and behavioral_ok else "FAILED"
 
     print(json.dumps({
         "status": status,
@@ -115,22 +99,21 @@ def main() -> int:
         "contributor_commit": CONTRIBUTOR_COMMIT,
         "merge_commit": MERGE_COMMIT,
         "repository_head": head,
+        "runtime": "python3 standard library + repository modules; no pip/pytest required",
         "source_checks": source_checks,
-        "semantic_checks": semantic_checks,
-        "pytest": {
-            "passed": tests_ok,
-            "targeted_tests": TARGET_TESTS,
-            "output_tail": test.stdout[-5000:],
-        },
-        "cli_report_generation": {
-            "passed": cli_ok,
-            "output_tail": cli.stdout[-3000:],
+        "behavioral_checks": behavioral_checks,
+        "observed": {
+            "baseline_count": report.baseline_count,
+            "pilot_count": report.pilot_count,
+            "kpi_count": len(report.comparisons),
+            "water_baseline_value": water.baseline_value,
+            "expected_water_baseline_value": expected_baseline,
         },
         "boundary": (
             "TESTED applies only to independent reproduction of the bounded KPI/evidence/report "
-            "behavior using the repository's synthetic sample data. It does not validate real-world "
-            "pilot measurements, scientific impact, environmental claims, EU LIFE participation, "
-            "funding, endorsement, certification, or production deployment."
+            "behavior using repository synthetic sample data. It does not validate real-world pilot "
+            "measurements, scientific impact, environmental claims, EU LIFE participation, funding, "
+            "endorsement, certification, or production deployment."
         ),
     }, indent=2, sort_keys=True))
 
