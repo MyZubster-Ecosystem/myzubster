@@ -33,3 +33,7 @@ The script prints a JSON evidence record and exits non-zero if any check fails.
 A `TESTED` result means only that MyZubster independently reproduced the technical behavior of the exact contributor checkpoint.
 
 It does not mean the PR was merged or deployed, and it is not a legal-compliance or security certification.
+
+## Repository security baseline
+
+The repository-wide npm audit blockers were resolved separately in PR #1510 and merged to `main` at `aa5aa8883a993c99b50e233bea29c5da2f3497f0`. This verifier does not own dependency-security claims; its CI should be evaluated against that shared baseline.
