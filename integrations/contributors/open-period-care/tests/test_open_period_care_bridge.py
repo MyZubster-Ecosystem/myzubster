@@ -1,17 +1,17 @@
 import hashlib
 import importlib.util
-import json
+import sys
 import unittest
 from pathlib import Path
 
-MODULE_PATH = (
-    Path(__file__).resolve().parents[1]
-    / "open_period_care_bridge.py"
-)
+MODULE_PATH = Path(__file__).resolve().parents[1] / "open_period_care_bridge.py"
 
 spec = importlib.util.spec_from_file_location("open_period_care_bridge", MODULE_PATH)
+if spec is None or spec.loader is None:
+    raise RuntimeError(f"Unable to load bridge module from {MODULE_PATH}")
+
 bridge = importlib.util.module_from_spec(spec)
-assert spec.loader is not None
+sys.modules[spec.name] = bridge
 spec.loader.exec_module(bridge)
 
 
