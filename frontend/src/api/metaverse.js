@@ -244,6 +244,14 @@ export function getMetaverseProfile() {
   });
 }
 
+export function selectMetaverseCharacter(characterKey) {
+  return jsonRequest('/api/metaverse/character', {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify({ characterKey })
+  });
+}
+
 export function recordMetaverseLandmark(landmarkId) {
   return jsonRequest('/api/metaverse/progress/landmarks', {
     method: 'POST',
