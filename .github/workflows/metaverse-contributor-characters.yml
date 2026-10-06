@@ -1,0 +1,23 @@
+name: Metaverse contributor characters
+on:
+  pull_request:
+    paths:
+      - 'backend/src/routes/metaverse.js'
+      - 'backend/src/services/contributorCharacters.js'
+      - 'backend/src/models/Metaverse*.js'
+      - 'frontend/src/pages/MetaversePage*'
+      - 'frontend/src/api/metaverse.js'
+      - 'tests/metaverseContributorCharacters.node.cjs'
+      - '.github/workflows/metaverse-contributor-characters.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  contributor-avatar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node --test tests/metaverseContributorCharacters.node.cjs
