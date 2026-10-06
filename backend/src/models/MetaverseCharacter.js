@@ -5,6 +5,7 @@ const metaverseCharacterSchema = new mongoose.Schema({
   displayName: { type: String, required: true, trim: true, maxlength: 30 },
   characterName: { type: String, required: true, trim: true, maxlength: 30, index: true },
   archetype: { type: String, enum: ['guardian', 'explorer', 'maker', 'chronicler', 'scientist'], default: 'explorer' },
+  visualKey: { type: String, default: null },
   identityStatus: { type: String, enum: ['guest', 'account-linked'], default: 'guest' },
   worldId: { type: String, default: 'neon-plaza', index: true },
   createdFrom: { type: String, enum: ['public-web', 'account-github', 'account-social'], default: 'public-web' },
