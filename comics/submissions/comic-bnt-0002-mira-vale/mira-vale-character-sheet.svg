@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="1600" height="1200" viewBox="0 0 1600 1200">
+  <title>Mira Vale character sheet</title>
+  <desc>Editable presentation layout for COMIC-BNT-0002.</desc>
+  <rect width="1600" height="1200" fill="#f5f4f1"/>
+
+  <g id="header" font-family="Arial, Helvetica, sans-serif" fill="#17191b">
+    <text x="48" y="58" font-size="34" font-weight="700">Mira Vale</text>
+    <text x="48" y="91" font-size="18" fill="#55585a">Field archivist | Character model sheet | COMIC-BNT-0002</text>
+    <line x1="48" y1="112" x2="1552" y2="112" stroke="#c9c8c4" stroke-width="2"/>
+  </g>
+
+  <g id="artwork">
+    <image x="60" y="120" width="1480" height="987"
+           preserveAspectRatio="xMidYMid meet"
+           href="mira-vale-character-sheet.png"
+           xlink:href="mira-vale-character-sheet.png"/>
+  </g>
+
+  <g id="view-labels" font-family="Arial, Helvetica, sans-serif" font-size="16"
+     font-weight="700" fill="#383b3d" text-anchor="middle">
+    <text x="202" y="1132">FRONT</text>
+    <text x="510" y="1132">SIDE</text>
+    <text x="792" y="1132">THREE-QUARTER</text>
+    <text x="1240" y="1132">EXPRESSION REFERENCES</text>
+  </g>
+
+  <g id="palette" transform="translate(48 1160)">
+    <rect x="0" y="0" width="82" height="18" rx="2" fill="#b97819"/>
+    <rect x="92" y="0" width="82" height="18" rx="2" fill="#176a70"/>
+    <rect x="184" y="0" width="82" height="18" rx="2" fill="#292b2d"/>
+    <rect x="276" y="0" width="82" height="18" rx="2" fill="#f1ede4" stroke="#c9c8c4"/>
+    <rect x="368" y="0" width="82" height="18" rx="2" fill="#b96f42"/>
+    <rect x="460" y="0" width="82" height="18" rx="2" fill="#17191b"/>
+  </g>
+  <text x="1552" y="1177" text-anchor="end" font-family="Arial, Helvetica, sans-serif"
+        font-size="14" fill="#66686a">Original AI-assisted artwork; see README for disclosure and redraw rules.</text>
+</svg>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Conoscenza · Assorbenti open source · MyZubster</title>
+<meta name="description" content="Crea una bozza di Knowledge Card su esperienza d'uso, problemi e proposte per assorbenti open source, da rivedere e pubblicare consapevolmente su MyZubster.">
+<style>
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#35214f,#0b1020 60%);color:#f8fafc;font:16px/1.55 Arial,sans-serif}.wrap{max-width:820px;margin:auto;padding:24px}a{color:#7dd3fc}.panel{background:#15172b;border:1px solid #475569;border-radius:18px;padding:20px;margin:16px 0}.muted{color:#cbd5e1}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}label{display:block;font-weight:700;margin-top:12px}textarea,input,select{width:100%;padding:11px;margin-top:6px;background:#0a1020;color:#fff;border:1px solid #64748b;border-radius:10px;font:inherit}textarea{min-height:110px;resize:vertical}.button,button{display:inline-block;border:0;border-radius:11px;padding:11px 14px;background:#6d28d9;color:#fff;font-weight:700;text-decoration:none;cursor:pointer}.secondary{background:#253047}.notice{border-left:4px solid #f59e0b;padding:12px;background:#251c0a;border-radius:10px}.ok{color:#86efac}@media(max-width:720px){.grid{grid-template-columns:1fr}}</style>
+</head>
+<body><main class="wrap">
+<p><a href="/knowledge">← Conoscenze</a> · <a href="/">MyZubster</a></p>
+<h1>🩸 Contribuisci alla conoscenza sugli assorbenti open source</h1>
+<p class="muted">Raccogli un'esperienza reale, un problema osservato o una proposta di miglioramento e trasformala in una bozza di Knowledge Card. La bozza resta sotto il tuo controllo e non viene pubblicata automaticamente.</p>
+
+<section class="panel notice">
+<strong>Confine importante</strong>
+<p>Questa scheda serve a documentare esperienza d'uso, requisiti e idee di design. Non costituisce diagnosi, consiglio medico, certificazione, prova di sicurezza o validazione di un prodotto. Materiali, igiene, prestazioni e conformità richiedono test e revisione appropriati.</p>
+</section>
+
+<section class="panel">
+<h2>1. La tua esperienza o osservazione</h2>
+<label for="problem">Problema o limite osservato</label>
+<textarea id="problem" maxlength="900" placeholder="Es. irritazione percepita, scarsa aderenza, eccesso di plastica, difficoltà di smaltimento, imballaggio eccessivo..."></textarea>
+<label for="context">Contesto d'uso</label>
+<textarea id="context" maxlength="700" placeholder="Descrivi quando si presenta il problema e cosa hai osservato. Evita dati sanitari che non vuoi rendere pubblici."></textarea>
+</section>
+
+<section class="panel">
+<h2>2. Proposta di miglioramento</h2>
+<div class="grid">
+<label>Area principale
+<select id="area"><option>Comfort e vestibilità</option><option>Materiali</option><option>Assorbenza e prestazioni</option><option>Riduzione rifiuti</option><option>Imballaggio</option><option>Fine vita e recupero</option><option>Accessibilità e costo</option><option>Altro</option></select>
+</label>
+<label>Priorità
+<select id="priority"><option>Da esplorare</option><option>Importante per me</option><option>Problema ricorrente</option></select>
+</label>
+</div>
+<label for="proposal">Come lo miglioreresti?</label>
+<textarea id="proposal" maxlength="1200" placeholder="Descrivi il cambiamento che vorresti vedere, senza presentarlo come già sicuro o validato."></textarea>
+<label for="materials">Materiali o caratteristiche da studiare</label>
+<textarea id="materials" maxlength="700" placeholder="Es. fibre naturali documentate, strati più sottili, adesivi alternativi, packaging ridotto..."></textarea>
+<label for="circularity">Aspetti di sostenibilità / fine vita</label>
+<textarea id="circularity" maxlength="700" placeholder="Es. riduzione materiale vergine, separabilità, riciclo, compostabilità da verificare, riuso dove appropriato..."></textarea>
+</section>
+
+<section class="panel">
+<h2>3. Evidenze e limiti</h2>
+<label for="evidence">Eventuali fonti o prove da aggiungere dopo</label>
+<textarea id="evidence" maxlength="700" placeholder="Es. articolo, standard, test, foto del prototipo, issue GitHub. Potrai aggiungere i link nel Builder."></textarea>
+<label for="limits">Cosa non sappiamo ancora?</label>
+<textarea id="limits" maxlength="700" placeholder="Es. sicurezza del materiale non testata, prestazioni non misurate, nessuna validazione indipendente..."></textarea>
+<p class="muted">Il Builder ti permetterà di rivedere il testo, aggiungere evidenze e scegliere se pubblicare.</p>
+<button id="prepare" type="button">Prepara la Knowledge Card</button>
+<p id="status" class="muted" role="status"></p>
+</section>
+
+<section class="panel">
+<h2>Cosa succede dopo</h2>
+<p>MyZubster porta la bozza nel Builder Conoscenze. Da lì puoi aggiungere fonti, distinguere ciò che è dichiarato da ciò che è verificato e pubblicare solo quando sei soddisfatta del contenuto.</p>
+<p><a class="button secondary" href="/zorgax-profile-builder">Apri direttamente il Builder</a></p>
+</section>
+</main>
+<script>
+(()=>{
+const $=id=>document.getElementById(id);
+$('prepare').addEventListener('click',()=>{
+ const problem=$('problem').value.trim(),context=$('context').value.trim(),proposal=$('proposal').value.trim();
+ if(!problem||!proposal){$('status').textContent='Compila almeno il problema osservato e la proposta di miglioramento.';return;}
+ const parts=[
+  'Problema o limite osservato: '+problem,
+  context?'Contesto d\'uso: '+context:'',
+  'Area: '+$('area').value+' · Priorità: '+$('priority').value,
+  'Proposta di miglioramento: '+proposal,
+  $('materials').value.trim()?'Materiali o caratteristiche da studiare: '+$('materials').value.trim():'',
+  $('circularity').value.trim()?'Sostenibilità / fine vita: '+$('circularity').value.trim():'',
+  $('evidence').value.trim()?'Fonti o prove da aggiungere: '+$('evidence').value.trim():'',
+  $('limits').value.trim()?'Limiti e aspetti ancora da verificare: '+$('limits').value.trim():'',
+  'Questa scheda documenta un contributo di conoscenza e design. Non costituisce validazione medica, certificazione di sicurezza o conformità del prodotto.'
+ ].filter(Boolean);
+ const draft={
+  title:'Contributo open source per migliorare prodotti assorbenti',
+  domain:'Assorbenti open source',
+  description:parts.join('\n\n'),
+  evidence:[],
+  verificationNote:'Contributo dichiarato dalla titolare. Materiali, sicurezza, igiene, prestazioni e conformità richiedono verifiche indipendenti appropriate.'
+ };
+ try{
+   sessionStorage.setItem('myzubster-knowledge-onboarding-handoff-v1',JSON.stringify(draft));
+   $('status').className='ok';
+   $('status').textContent='Bozza pronta. Apertura del Builder Conoscenze…';
+   location.assign('/zorgax-profile-builder?from=absorbent-knowledge');
+ }catch(e){$('status').textContent='Non riesco a preparare la bozza in questa sessione: '+e.message;}
+});
+})();
+</script>
+</body></html>

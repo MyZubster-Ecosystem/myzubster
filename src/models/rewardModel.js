@@ -3,10 +3,10 @@ const mongoose = require('mongoose');
 const rewardSchema = new mongoose.Schema({
   rewardId: {type: String, required: true, unique: true, index: true},
   userId: {type: String, required: true},
-  rewardType: {type: String, enum: ['qa_bug','robot_bonus','referral','education','governance_vote','governance_delegation'], required: true},
+  rewardType: {type: String, enum: ['qa_bug','robot_bonus','referral','education','governance_vote','governance_delegation','knowledge_contribution'], required: true},
   amount: {type: Number, required: true},
   currency: {type: String, default: 'MYZ'},
-  status: {type: String, enum: ['pending','approved','rejected','paid'], default: 'pending'},
+  status: {type: String, enum: ['pending','approved','claimable','rejected','paid'], default: 'pending'},
   metadata: {
     bugSeverity: {type: String, enum: ['normal','critical','security',null], default: null},
     jobId: {type: String, default: null},
@@ -17,12 +17,20 @@ const rewardSchema = new mongoose.Schema({
     proposalId: {type: String, default: null},
     voteDirection: {type: String, default: null},
     delegationAmount: {type: Number, default: null},
-    daysStaked: {type: Number, default: null}
+    daysStaked: {type: Number, default: null},
+    contributionId: {type: String, default: null},
+    pilotId: {type: String, default: null},
+    ledgerReference: {type: String, default: null}
   },
   reviewedBy: {type: String, default: null},
   paidAt: {type: Date, default: null},
   createdAt: {type: Date, default: Date.now}
 });
+
+rewardSchema.index(
+  { 'metadata.contributionId': 1 },
+  { unique: true, partialFilterExpression: { rewardType: 'knowledge_contribution', 'metadata.contributionId': { $type: 'string' } } }
+);
 
 rewardSchema.statics.calculateQA = function(severity) {
   if (severity === 'critical') return 20;

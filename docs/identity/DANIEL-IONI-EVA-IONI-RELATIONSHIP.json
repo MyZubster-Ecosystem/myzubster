@@ -1,0 +1,35 @@
+{
+  "schema": "myzubster.identity.relationship.v1",
+  "recordId": "daniel-ioni__eva-ioni__project-stewardship",
+  "effectiveDate": "2026-08-31",
+  "status": "ACTIVE_PROJECT_RELATIONSHIP",
+  "subject": {
+    "id": "github:DanielIoni-creator",
+    "name": "Daniel Ioni",
+    "type": "HUMAN_PERSON",
+    "role": "MYZUBSTER_FOUNDER_LEAD_BUILDER",
+    "url": "https://github.com/DanielIoni-creator"
+  },
+  "relationship": {
+    "type": "PROJECT_STEWARD_OF",
+    "aliases": [
+      "ASSOCIATED_WITH"
+    ]
+  },
+  "object": {
+    "id": "github-repo:MyZubster-Ecosystem/EVA-IONI",
+    "name": "EVA IONI",
+    "type": "DIGITAL_ROBOTICS_AUTOMATION_PROJECT_IDENTITY",
+    "url": "https://github.com/MyZubster-Ecosystem/EVA-IONI"
+  },
+  "authorityBoundary": {
+    "humanFinalAuthority": true,
+    "evaIsHumanPerson": false,
+    "independentLegalPersonalityClaimed": false,
+    "autonomousContractAuthority": false,
+    "autonomousFinancialAuthority": false,
+    "autonomousPhysicalControlAuthority": false
+  },
+  "interpretation": "Daniel Ioni is the project-level human steward associated with EVA IONI inside MyZubster. The record is a MyZubster governance/identity declaration and is not a claim of separate legal ownership, employment, personhood or autonomous authority.",
+  "canonicalDocument": "docs/identity/DANIEL-IONI-EVA-IONI-RELATIONSHIP.md"
+}

@@ -24,5 +24,10 @@ else
   echo "Creating Onion service identity..."
 fi
 
+# Telemetry is strictly opt-in and is non-fatal. It never reads the Tor identity.
+if [ "${ONION_TELEMETRY_ENABLED:-false}" = "true" ]; then
+  /usr/local/bin/myzubster-onion-telemetry &
+fi
+
 echo "Starting Tor Onion Service..."
 exec tor -f "$TORRC"

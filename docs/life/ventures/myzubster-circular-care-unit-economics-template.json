@@ -1,0 +1,28 @@
+{
+  "ventureId": "MZ-VENTURE-AHP-001",
+  "status": "TEMPLATE_NO_REAL_COMMERCIAL_DATA",
+  "currency": "EUR",
+  "productFamily": null,
+  "inputs": {
+    "unitPurchaseCost": null,
+    "packagingCostPerUnit": null,
+    "inboundLogisticsPerUnit": null,
+    "storageFulfillmentPerUnit": null,
+    "salesChannelFeePerUnit": null,
+    "collectionCostPerUnit": null,
+    "treatmentCostPerKg": null,
+    "evidenceOpsCostPerUnit": null,
+    "sellingPricePerUnit": null,
+    "unitsPerKgCollected": null
+  },
+  "derivedMetrics": {
+    "grossMarginPerUnit": null,
+    "grossMarginPercent": null,
+    "circularServiceCostPerUnit": null,
+    "contributionMarginPerUnit": null,
+    "contributionMarginPercent": null,
+    "breakEvenUnitsPerMonth": null
+  },
+  "evidenceRefs": [],
+  "claimBoundary": "Do not populate or publish commercial metrics without supplier quotes, contracts, invoices, verified orders or other traceable evidence."
+}

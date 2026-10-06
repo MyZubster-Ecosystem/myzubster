@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Payment Dashboard — MyZubster</title>
+<meta name="description" content="Payments dashboard exposing the MyZubster funding flow as separate, auditable layers: incoming funding, settlement, available balance, conversion, bounty approval and XMR payout.">
+<style>
+:root{
+  --bg:#f6f7f9; --surface:#ffffff; --border:#e2e5ea; --border-strong:#cfd5dd;
+  --text:#1b2027; --muted:#68717d; --faint:#8b939f;
+  --accent:#185fa5; --accent-soft:#e6f1fb;
+  --ok:#3b6d11; --ok-soft:#eaf3de;
+  --warn:#854f0b; --warn-soft:#faeeda;
+  --bad:#a32d2d; --bad-soft:#fcebeb;
+  --idle:#5f5e5a; --idle-soft:#f1efe8;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:22px 24px}
+.wrap{max-width:1240px;margin:0 auto}
+header h1{margin:0 0 4px;font-size:1.35rem;font-weight:600}
+header p{margin:0;color:var(--muted);font-size:.9rem}
+main{max-width:1240px;margin:0 auto;padding:22px 24px 60px}
+section{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:18px}
+section h2{margin:0 0 4px;font-size:1rem;font-weight:600}
+section .hint{margin:0 0 14px;color:var(--muted);font-size:.85rem}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.bar label{display:flex;flex-direction:column;gap:4px;font-size:.78rem;color:var(--muted)}
+input,select{font:inherit;padding:8px 10px;border:1px solid var(--border-strong);border-radius:8px;background:#fff;color:var(--text)}
+input[type=text]{min-width:200px}
+button{font:inherit;padding:8px 14px;border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:8px;cursor:pointer}
+button.ghost{background:#fff;color:var(--accent)}
+button:disabled{opacity:.55;cursor:default}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.card{border:1px solid var(--border);border-radius:10px;padding:14px;background:#fcfcfd}
+.card .label{font-size:.74rem;text-transform:uppercase;letter-spacing:.05em;color:var(--faint)}
+.card .value{font-size:1.7rem;font-weight:600;margin:6px 0 2px}
+.card .value.unknown{font-size:1.05rem;font-weight:500;color:var(--muted)}
+.card .basis{font-size:.8rem;color:var(--muted)}
+.card .src{font-size:.75rem;color:var(--faint);margin-top:6px;word-break:break-all}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+th{color:var(--faint);font-weight:500;font-size:.76rem;text-transform:uppercase;letter-spacing:.04em}
+tbody tr:last-child td{border-bottom:none}
+td.num{white-space:nowrap}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.8rem}
+.pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:.74rem;font-weight:500;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.pill.idle{background:var(--idle-soft);color:var(--idle)}
+.pill.info{background:var(--accent-soft);color:var(--accent)}
+.empty{padding:16px;border:1px dashed var(--border-strong);border-radius:10px;color:var(--muted);background:#fcfcfd}
+.empty strong{display:block;color:var(--text);margin-bottom:3px;font-weight:600}
+.notice{border-left:3px solid var(--warn);background:var(--warn-soft);padding:10px 12px;border-radius:6px;margin-bottom:12px;font-size:.85rem}
+.notice.bad{border-color:var(--bad);background:var(--bad-soft)}
+.notice ul{margin:6px 0 0;padding-left:18px}
+.stack{display:flex;flex-direction:column;gap:8px}
+.flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:.78rem;color:var(--muted)}
+.flow .step{padding:4px 9px;border:1px solid var(--border-strong);border-radius:999px;background:#fff}
+.flow .arrow{color:var(--faint)}
+details{margin-top:10px}
+summary{cursor:pointer;color:var(--accent);font-size:.85rem}
+.meta{font-size:.8rem;color:var(--faint);margin-top:10px}
+a{color:var(--accent)}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>Payment Dashboard</h1>
+    <p>Funding flow exposed as separate, auditable layers. Unknown values are shown as <em>Unknown</em> &mdash; never as zero.</p>
+  </div>
+</header>
+
+<main>
+  <section>
+    <h2>Connection</h2>
+    <p class="hint">Endpoints require a Bearer JWT. Treasury layers (funding inputs, available balance, conversion) additionally require an admin role.</p>
+    <div class="bar">
+      <label>API base
+        <input type="text" id="apiBase" value="/api/payment-dashboard" size="34">
+      </label>
+      <label>Bearer token
+        <input type="text" id="token" placeholder="eyJhbGciOi..." size="44">
+      </label>
+      <button id="load">Load</button>
+      <button class="ghost" id="clear">Clear</button>
+    </div>
+    <div class="meta" id="status"></div>
+  </section>
+
+  <section id="warnings" hidden>
+    <h2>Source warnings</h2>
+    <div id="warningList"></div>
+  </section>
+
+  <section>
+    <h2>Balances</h2>
+    <p class="hint">MYZ is an internal reward accounting unit, not an on-chain balance. XMR treasury balance lives in the Monero wallet RPC and is reported as unknown when it is not configured.</p>
+    <div class="cards" id="balances"></div>
+  </section>
+
+  <section>
+    <h2>Funding flow</h2>
+    <p class="hint">States are independent. Receiving BTC or a Stripe payment never approves a bounty.</p>
+    <div class="flow" id="flow"></div>
+  </section>
+
+  <section>
+    <h2>Filters</h2>
+    <div class="bar">
+      <label>Search<input type="text" id="fq" placeholder="entry id, bounty, account, txid"></label>
+      <label>Status<select id="fstatus"><option value="">All</option></select></label>
+      <label>Program<select id="fprogram"><option value="">All</option></select></label>
+      <label>From<input type="date" id="ffrom"></label>
+      <label>To<input type="date" id="fto"></label>
+      <button id="apply">Apply</button>
+      <button class="ghost" id="reset">Reset</button>
+    </div>
+  </section>
+
+  <section>
+    <h2>1 &middot; Incoming funding</h2>
+    <p class="hint">BTC receipts and Stripe settlements. Funding inputs only &mdash; they are not bounty approvals.</p>
+    <div id="funding"></div>
+  </section>
+
+  <section>
+    <h2>2 &middot; Available balance</h2>
+    <p class="hint">Counts settled funding inputs only. Unconfirmed and failed inputs are excluded.</p>
+    <div id="available"></div>
+  </section>
+
+  <section>
+    <h2>3 &middot; Conversion</h2>
+    <p class="hint">BTC/fiat &rarr; XMR conversion is a separate backend integration. Stripe does not convert to XMR.</p>
+    <div id="conversion"></div>
+  </section>
+
+  <section>
+    <h2>4 &middot; Escrow</h2>
+    <p class="hint">Escrow is tracked separately from payout status.</p>
+    <div id="escrow"></div>
+  </section>
+
+  <section>
+    <h2>5 &middot; Bounty rewards (MYZ ledger)</h2>
+    <p class="hint">Internal MYZ accounting entries. A bounty moves to payable only after review and approval.</p>
+    <div id="bounties"></div>
+  </section>
+
+  <section>
+    <h2>6 &middot; XMR payouts</h2>
+    <p class="hint">External settlement. Idempotency keys and retry posture are shown per item.</p>
+    <div id="payouts"></div>
+  </section>
+
+  <section>
+    <h2>Provenance</h2>
+    <div id="sources"></div>
+  </section>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  var state = { data: null };
+  var $ = function (id) { return document.getElementById(id); };
+
+  function esc(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function pill(value) {
+    if (value == null) return '<span class="pill idle">Unknown</span>';
+    var s = String(value).toUpperCase();
+    var cls = 'info';
+    if (/PAID|SETTLED|CONFIRMED|COMPLETED|RECORDED/.test(s)) cls = 'ok';
+    else if (/PENDING|INCOMING|PROPOSED|APPROVED/.test(s)) cls = 'warn';
+    else if (/FAILED|REVERSED|CANCELLED/.test(s)) cls = 'bad';
+    return '<span class="pill ' + cls + '">' + esc(value) + '</span>';
+  }
+
+  function emptyBox(title, reason) {
+    return '<div class="empty"><strong>' + esc(title) + '</strong>' + esc(reason || '') + '</div>';
+  }
+
+  function fmtAmount(value, asset) {
+    if (value == null) return 'Unknown';
+    var n = Number(value);
+    if (!isFinite(n)) return 'Unknown';
+    var text = (Math.round(n * 1e6) / 1e6).toLocaleString();
+    return asset ? text + ' ' + esc(asset) : text;
+  }
+
+  function shortStamp(value) {
+    if (!value) return '—';
+    var d = new Date(value);
+    return isNaN(d.getTime()) ? esc(value) : d.toISOString().replace('T', ' ').slice(0, 16) + 'Z';
+  }
+
+  function queryString() {
+    var params = [];
+    var q = $('fq').value.trim();
+    var st = $('fstatus').value;
+    var pg = $('fprogram').value;
+    var from = $('ffrom').value;
+    var to = $('fto').value;
+    if (q) params.push('q=' + encodeURIComponent(q));
+    if (st) params.push('status=' + encodeURIComponent(st));
+    if (pg) params.push('program=' + encodeURIComponent(pg));
+    if (from) params.push('from=' + encodeURIComponent(from));
+    if (to) params.push('to=' + encodeURIComponent(to));
+    return params.length ? '?' + params.join('&') : '';
+  }
+
+  function headers() {
+    var h = { Accept: 'application/json' };
+    var t = $('token').value.trim();
+    if (t) h.Authorization = 'Bearer ' + t;
+    return h;
+  }
+
+  function api(path) {
+    var base = $('apiBase').value.trim().replace(/\/$/, '');
+    return fetch(base + path, { headers: headers(), cache: 'no-store' })
+      .then(function (res) {
+        return res.json().catch(function () { return {}; }).then(function (body) {
+          if (!res.ok) {
+            var err = new Error(body.error || ('HTTP ' + res.status));
+            err.status = res.status;
+            throw err;
+          }
+          return body;
+        });
+      });
+  }
+
+  function renderWarnings(data) {
+    var box = $('warnings');
+    var list = $('warningList');
+    var warnings = data.warnings || [];
+    if (!warnings.length) { box.hidden = true; list.innerHTML = ''; return; }
+    box.hidden = false;
+    list.innerHTML = warnings.map(function (w) {
+      return '<div class="notice">' + esc(w) + '</div>';
+    }).join('');
+  }
+
+  function renderBalances(data) {
+    var cards = [];
+    var myz = data.balances && data.balances.myz;
+    var xmr = data.balances && data.balances.xmr;
+
+    cards.push(
+      '<div class="card"><div class="label">MYZ balance</div>' +
+      '<div class="value' + (myz && myz.amount != null ? '' : ' unknown') + '">' +
+      (myz && myz.amount != null ? esc(fmtAmount(myz.amount, myz.asset)) : 'Unknown') + '</div>' +
+      '<div class="basis">' + esc((myz && myz.basis) || '') + '</div>' +
+      '<div class="src">asset type: ' + esc((myz && myz.assetType) || 'unknown') +
+      ' · on-chain: ' + esc(String(myz && myz.onChain === true)) +
+      '<br>source: ' + esc((myz && myz.source) || 'none') + '</div></div>'
+    );
+
+    cards.push(
+      '<div class="card"><div class="label">XMR treasury balance</div>' +
+      '<div class="value unknown">Unknown</div>' +
+      '<div class="basis">' + esc((xmr && xmr.reason) || '') + '</div>' +
+      '<div class="src">source: ' + esc((xmr && xmr.source) || 'not configured') + '</div></div>'
+    );
+
+    var avail = data.layers && data.layers.available_balance;
+    cards.push(
+      '<div class="card"><div class="label">Available balance (settled)</div>' +
+      '<div class="value' + (avail && avail.amount != null ? '' : ' unknown') + '">' +
+      (avail && avail.amount != null ? esc(fmtAmount(avail.amount, avail.currency)) : 'Unknown') + '</div>' +
+      '<div class="basis">' + esc((avail && (avail.reason || avail.basis)) || '') + '</div>' +
+      '<div class="src">counts ' + esc(String((avail && avail.countsSettledInputs) || 0)) + ' settled inputs</div></div>'
+    );
+
+    $('balances').innerHTML = cards.join('');
+  }
+
+  function renderFlow(data) {
+    var states = (data.policy && data.policy.states) || [];
+    if (!states.length) {
+      $('flow').innerHTML = '<span class="pill idle">policy not loaded</span>';
+      return;
+    }
+    $('flow').innerHTML = states.map(function (s, i) {
+      return '<span class="step">' + esc(s) + '</span>' +
+        (i < states.length - 1 ? '<span class="arrow">&rarr;</span>' : '');
+    }).join('');
+  }
+
+  function renderLayer(el, items, columns, emptyTitle, emptyReason) {
+    if (!items.length) {
+      el.innerHTML = emptyBox(emptyTitle, emptyReason);
+      return;
+    }
+    var head = columns.map(function (c) { return '<th>' + esc(c.title) + '</th>'; }).join('');
+    var rows = items.map(function (item) {
+      return '<tr>' + columns.map(function (c) {
+        return '<td' + (c.num ? ' class="num"' : '') + '>' + c.render(item) + '</td>';
+      }).join('') + '</tr>';
+    }).join('');
+    el.innerHTML = '<table><thead><tr>' + head + '</tr></thead><tbody>' + rows + '</tbody></table>';
+  }
+
+  function evidenceList(items) {
+    if (!items || !items.length) return '—';
+    return items.map(function (u) {
+      return '<a href="' + esc(u) + '" target="_blank" rel="noopener">' + esc(String(u).split('/').pop() || u) + '</a>';
+    }).join('<br>');
+  }
+
+  function auditCell(item) {
+    var a = item.audit || {};
+    return '<span class="mono">' + esc(a.reference || '—') + '</span>' +
+      (a.source ? '<br><span class="mono" style="color:var(--faint)">' + esc(a.source) + '</span>' : '');
+  }
+
+  function renderFunding(data) {
+    var layer = data.layers.funding_inputs;
+    var el = $('funding');
+    var note = layer.configured
+      ? ''
+      : '<div class="notice"><strong>Not configured.</strong> ' + esc(layer.reason || '') + '</div>';
+    renderLayer(el, layer.items || [], [
+      { title: 'Rail', render: function (i) { return esc(i.rail || i.asset || '—'); } },
+      { title: 'Status', render: function (i) { return pill(i.status) + (i.approvesBounty === false ? '<br><span style="color:var(--faint);font-size:.75rem">does not approve bounty</span>' : ''); } },
+      { title: 'Amount', num: true, render: function (i) { return esc(fmtAmount(i.amount, i.currency)); } },
+      { title: 'Confirmations', num: true, render: function (i) { return esc(i.confirmations == null ? '—' : i.confirmations); } },
+      { title: 'When', render: function (i) { return esc(shortStamp(i.timestamp)); } },
+      { title: 'Audit reference', render: auditCell }
+    ], 'No funding inputs recorded', 'No BTC receipt or Stripe settlement has been recorded yet.');
+    el.innerHTML = note + el.innerHTML;
+  }
+
+  function renderAvailable(data) {
+    var a = data.layers.available_balance;
+    $('available').innerHTML = a.amount == null
+      ? '<div class="notice"><strong>Unknown.</strong> ' + esc(a.reason || 'Available balance cannot be derived.') + '</div>'
+      : '<div class="card"><div class="value">' + esc(fmtAmount(a.amount, a.currency)) + '</div>' +
+        '<div class="basis">' + esc(a.basis) + '</div>' +
+        '<div class="src">counts ' + esc(String(a.countsSettledInputs)) + ' settled funding inputs</div></div>';
+  }
+
+  function renderConversion(data) {
+    var layer = data.layers.conversion;
+    var el = $('conversion');
+    var note = layer.configured
+      ? ''
+      : '<div class="notice"><strong>Not configured.</strong> ' + esc(layer.reason || '') + '</div>';
+    renderLayer(el, layer.items || [], [
+      { title: 'Reference', render: auditCell },
+      { title: 'Status', render: function (i) { return pill(i.status); } },
+      { title: 'From', num: true, render: function (i) { return esc(fmtAmount(i.fromAmount, i.fromAsset)); } },
+      { title: 'To', num: true, render: function (i) { return esc(fmtAmount(i.toAmount, i.toAsset)); } },
+      { title: 'Provider', render: function (i) { return esc(i.provider || '—'); } }
+    ], 'No conversions recorded', 'Conversion runs in a separate backend service; no provider is wired.');
+    el.innerHTML = note + el.innerHTML;
+  }
+
+  function renderEscrow(data) {
+    var layer = data.layers.escrow;
+    var el = $('escrow');
+    var note = layer.configured
+      ? ''
+      : '<div class="notice"><strong>Not configured.</strong> ' + esc(layer.reason || '') + '</div>';
+    renderLayer(el, layer.items || [], [
+      { title: 'Reference', render: auditCell },
+      { title: 'Status', render: function (i) { return pill(i.status); } },
+      { title: 'Amount', num: true, render: function (i) { return esc(fmtAmount(i.amount, i.asset)); } }
+    ], 'No escrow records', 'Escrow state is not derived from payout status.');
+    el.innerHTML = note + el.innerHTML;
+  }
+
+  function renderBounties(data) {
+    renderLayer($('bounties'), (data.layers.bounty_rewards.items || []), [
+      { title: 'Bounty', render: function (i) { return '<span class="mono">' + esc(i.bountyId || '—') + '</span>'; } },
+      { title: 'Account', render: function (i) { return '<span class="mono">' + esc(i.accountId || '—') + '</span>'; } },
+      { title: 'Amount', num: true, render: function (i) { return esc(fmtAmount(i.amount, i.asset)); } },
+      { title: 'Ledger status', render: function (i) { return pill(i.status) + (i.neutralized ? ' <span class="pill bad">reversed</span>' : ''); } },
+      { title: 'Program', render: function (i) { return esc(i.program || '—'); } },
+      { title: 'When', render: function (i) { return esc(shortStamp(i.timestamp)); } },
+      { title: 'Evidence', render: function (i) { return evidenceList(i.evidence); } },
+      { title: 'Audit reference', render: auditCell }
+    ], 'No bounty rewards recorded', 'No MYZ ledger entries match the current filters.');
+  }
+
+  function renderPayouts(data) {
+    renderLayer($('payouts'), (data.layers.xmr_payouts.items || []), [
+      { title: 'Bounty', render: function (i) { return '<span class="mono">' + esc(i.bountyId || i.entryId || '—') + '</span>'; } },
+      { title: 'Status', render: function (i) { return pill(i.status); } },
+      { title: 'Amount', num: true, render: function (i) { return esc(fmtAmount(i.amountXmr, i.asset)); } },
+      { title: 'Address', render: function (i) { return '<span class="mono">' + esc(i.xmrAddress ? i.xmrAddress.slice(0, 12) + '…' : '—') + '</span>'; } },
+      { title: 'Tx', render: function (i) { return i.txHash ? '<span class="mono">' + esc(i.txHash.slice(0, 16)) + '…</span>' : '—'; } },
+      { title: 'Retry', render: function (i) {
+          var r = i.retry || {};
+          return (r.eligible ? '<span class="pill warn">retryable</span>' : '<span class="pill idle">not retryable</span>') +
+            (r.reason ? '<br><span style="color:var(--faint);font-size:.75rem">' + esc(r.reason) + '</span>' : '') +
+            ((r.blockingReasons || []).length ? '<br><span style="font-size:.75rem">' + esc(r.blockingReasons.join('; ')) + '</span>' : '');
+        } },
+      { title: 'Idempotency', render: function (i) { return '<span class="mono">' + esc(i.idempotencyKey ? i.idempotencyKey.slice(0, 16) + '…' : 'not generated') + '</span>'; } },
+      { title: 'Audit reference', render: auditCell }
+    ], 'No XMR payouts recorded', 'The settlement queue contains no items.');
+  }
+
+  function renderSources(data) {
+    var rows = (data.sources || []).map(function (s) {
+      return '<tr><td><span class="mono">' + esc(s.name) + '</span></td>' +
+        '<td>' + (s.ok ? '<span class="pill ok">read</span>' : '<span class="pill bad">unavailable</span>') + '</td>' +
+        '<td class="num">' + esc(String(s.recordCount)) + '</td>' +
+        '<td>' + esc(s.error || '') + '</td></tr>';
+    }).join('');
+    var integrity = data.integrity || {};
+    $('sources').innerHTML =
+      '<table><thead><tr><th>Source</th><th>State</th><th>Records</th><th>Error</th></tr></thead><tbody>' +
+      (rows || '<tr><td colspan="4">No sources.</td></tr>') + '</tbody></table>' +
+      '<div class="meta">ledger sha256: <span class="mono">' + esc(integrity.ledgerSha256 || 'not published') +
+      '</span> · signature: <span class="mono">' + esc(integrity.signature || 'not published') + '</span></div>';
+  }
+
+  function buildFilterOptions(data) {
+    var statuses = {};
+    var programs = {};
+    var collect = function (items) {
+      (items || []).forEach(function (i) {
+        if (i.status) statuses[i.status] = true;
+        if (i.program) programs[i.program] = true;
+      });
+    };
+    collect(data.layers.funding_inputs.items);
+    collect(data.layers.bounty_rewards.items);
+    collect(data.layers.xmr_payouts.items);
+    collect(data.layers.conversion.items);
+
+    $('fstatus').innerHTML = '<option value="">All</option>' +
+      Object.keys(statuses).sort().map(function (s) { return '<option>' + esc(s) + '</option>'; }).join('');
+    $('fprogram').innerHTML = '<option value="">All</option>' +
+      Object.keys(programs).sort().map(function (p) { return '<option>' + esc(p) + '</option>'; }).join('');
+  }
+
+  function render(data) {
+    state.data = data;
+    renderWarnings(data);
+    renderBalances(data);
+    renderFlow(data);
+    renderFunding(data);
+    renderAvailable(data);
+    renderConversion(data);
+    renderEscrow(data);
+    renderBounties(data);
+    renderPayouts(data);
+    renderSources(data);
+    buildFilterOptions(data);
+    $('status').textContent = 'Loaded ' + new Date(data.generatedAt).toISOString() +
+      ' · live settlement: ' + String(data.live === true) +
+      ' · scope: ' + (data.scope && data.scope.accountId ? data.scope.accountId : 'all accounts (admin)');
+  }
+
+  function load() {
+    var btn = $('load');
+    btn.disabled = true;
+    $('status').textContent = 'Loading…';
+    api('/summary' + queryString())
+      .then(function (data) {
+        render(data);
+        btn.disabled = false;
+      })
+      .catch(function (err) {
+        btn.disabled = false;
+        $('status').innerHTML = '<span style="color:var(--bad)">' + esc(err.message) + '</span>';
+        if (err.status === 401) $('status').innerHTML += ' — a Bearer token is required.';
+        if (err.status === 403) $('status').innerHTML += ' — this endpoint requires an admin role.';
+        if (err.status === 503) $('status').innerHTML += ' — JWT_SECRET is not configured on the server.';
+      });
+  }
+
+  $('load').addEventListener('click', load);
+  $('apply').addEventListener('click', load);
+  $('reset').addEventListener('click', function () {
+    $('fq').value = '';
+    $('fstatus').value = '';
+    $('fprogram').value = '';
+    $('ffrom').value = '';
+    $('fto').value = '';
+    load();
+  });
+  $('clear').addEventListener('click', function () {
+    $('token').value = '';
+    $('status').textContent = 'Token cleared.';
+  });
+
+  load();
+})();
+</script>
+</body>
+</html>

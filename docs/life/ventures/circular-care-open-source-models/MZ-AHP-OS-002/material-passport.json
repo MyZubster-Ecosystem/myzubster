@@ -1,0 +1,67 @@
+{
+  "modelId": "MZ-AHP-OS-002",
+  "name": "Circular Menstrual Pad Reference Model",
+  "version": "0.2-draft",
+  "status": "DESIGN_REFERENCE",
+  "useCase": "regular/day disposable menstrual pad with optional wings",
+  "productionValidated": false,
+  "certifiedProduct": false,
+  "validatedEnvironmentalOutcome": false,
+  "nominalGeometry": {
+    "status": "DRAFT_ENVELOPE_NOT_VALIDATED",
+    "overallLength_mm": 240,
+    "bodyWidth_mm": 80,
+    "wingSpan_mm": 150,
+    "nominalCoreLength_mm": 205,
+    "nominalCoreWidth_mm": 65,
+    "note": "Prototype envelope only. Comfort, fit, leakage protection, tolerances and manufacturing feasibility require qualified validation."
+  },
+  "designIntent": [
+    "open BOM and versioned material declarations",
+    "fragrance-free baseline",
+    "include wings, release liner, individual wrapper and outer packaging in material accounting",
+    "simplify non-core polymer families where feasible",
+    "minimize adhesive mass while preserving validated positioning performance",
+    "evaluate design against a confirmed AHP collection and treatment route before any circularity claim"
+  ],
+  "components": [
+    {"componentId":"MP-TS-001","function":"topsheet","candidateMaterialFamily":"hydrophilic polypropylene nonwoven or validated fibre topsheet","skinContact":true,"massPerUnit_g":null,"supplier":null,"supplierEvidenceRef":null,"recoveryRoute":"NOT_VERIFIED","treatmentEvidenceRef":null,"status":"DESIGN_CANDIDATE"},
+    {"componentId":"MP-ADL-001","function":"acquisition_distribution_layer","candidateMaterialFamily":"cellulose-based or polyolefin acquisition layer","skinContact":false,"massPerUnit_g":null,"supplier":null,"supplierEvidenceRef":null,"recoveryRoute":"NOT_VERIFIED","treatmentEvidenceRef":null,"status":"DESIGN_CANDIDATE"},
+    {"componentId":"MP-CW-001","function":"core_wrap_upper","candidateMaterialFamily":"cellulose tissue or declared nonwoven","skinContact":false,"massPerUnit_g":null,"supplier":null,"supplierEvidenceRef":null,"recoveryRoute":"NOT_VERIFIED","treatmentEvidenceRef":null,"status":"DESIGN_CANDIDATE"},
+    {"componentId":"MP-CORE-001","function":"absorbent_core","candidateMaterialFamily":"cellulose fluff/pulp + optional superabsorbent polymer","skinContact":false,"massPerUnit_g":null,"supplier":null,"supplierEvidenceRef":null,"recoveryRoute":"NOT_VERIFIED","treatmentEvidenceRef":null,"status":"DESIGN_CANDIDATE"},
+    {"componentId":"MP-CW-002","function":"core_wrap_lower","candidateMaterialFamily":"cellulose tissue or declared nonwoven","skinContact":false,"massPerUnit_g":null,"supplier":null,"supplierEvidenceRef":null,"recoveryRoute":"NOT_VERIFIED","treatmentEvidenceRef":null,"status":"DESIGN_CANDIDATE"},
+    {"componentId":"MP-BF-001","function":"barrier_backsheet","candidateMaterialFamily":"polyethylene film or declared polyolefin laminate","skinContact":false,"massPerUnit_g":null,"supplier":null,"supplierEvidenceRef":null,"recoveryRoute":"NOT_VERIFIED","treatmentEvidenceRef":null,"status":"DESIGN_CANDIDATE"},
+    {"componentId":"MP-ADH-001","function":"garment_adhesive","candidateMaterialFamily":"hot-melt pressure-sensitive adhesive","skinContact":false,"massPerUnit_g":null,"supplier":null,"supplierEvidenceRef":null,"recoveryRoute":"NOT_VERIFIED","treatmentEvidenceRef":null,"status":"DESIGN_CANDIDATE"},
+    {"componentId":"MP-WING-001","function":"wings","candidateMaterialFamily":"polyolefin extension with adhesive","skinContact":false,"massPerUnit_g":null,"supplier":null,"supplierEvidenceRef":null,"recoveryRoute":"NOT_VERIFIED","treatmentEvidenceRef":null,"status":"DESIGN_CANDIDATE"},
+    {"componentId":"MP-RL-001","function":"release_liner","candidateMaterialFamily":"siliconized paper or separable polyolefin film","skinContact":false,"massPerUnit_g":null,"supplier":null,"supplierEvidenceRef":null,"recoveryRoute":"NOT_VERIFIED","treatmentEvidenceRef":null,"status":"DESIGN_CANDIDATE"},
+    {"componentId":"MP-WRP-001","function":"individual_wrapper","candidateMaterialFamily":"polyethylene or polypropylene film","skinContact":false,"massPerUnit_g":null,"supplier":null,"supplierEvidenceRef":null,"recoveryRoute":"NOT_VERIFIED","treatmentEvidenceRef":null,"status":"DESIGN_CANDIDATE"},
+    {"componentId":"MP-PKG-001","function":"outer_packaging","candidateMaterialFamily":"polyethylene or polypropylene flexible packaging","skinContact":false,"massPerUnit_g":null,"supplier":null,"supplierEvidenceRef":null,"recoveryRoute":"NOT_VERIFIED","treatmentEvidenceRef":null,"status":"DESIGN_CANDIDATE"}
+  ],
+  "performanceEvidenceGates": [
+    "dimensional-and-mass-consistency",
+    "absorbency-capacity",
+    "acquisition-speed",
+    "rewet-surface-dryness",
+    "leakage-protection",
+    "adhesive-positioning-integrity",
+    "wing-integrity-if-used",
+    "wet-and-dry-structural-integrity",
+    "skin-contact-and-restricted-substance-review",
+    "wrapper-and-packaging-integrity",
+    "lot-traceability"
+  ],
+  "circularityEvidenceGates": [
+    "confirmed-collection-route",
+    "confirmed-treatment-acceptance",
+    "traceable-treated-mass",
+    "recovered-fraction-measurement",
+    "residual-fraction-measurement",
+    "verified-destination-or-reuse-evidence"
+  ],
+  "licenseProposal": {
+    "hardwareDesign": "CERN-OHL-P-2.0",
+    "documentationAndDiagrams": "CC-BY-SA-4.0",
+    "status": "PROPOSED_NOT_LEGAL_REVIEWED"
+  },
+  "claimBoundary": "This passport records design intent and unknowns. Null values must not be interpreted as zero, compliant, safe, recyclable or validated."
+}

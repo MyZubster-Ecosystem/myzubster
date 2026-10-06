@@ -1,0 +1,709 @@
+import React, { useEffect, useMemo, useState } from 'react';
+import {
+  getMetaverseProfile,
+  getMetaverseRooms,
+  getMetaverseWorld,
+  joinMetaverse,
+  leaveMetaverse,
+  moveMetaversePlayer,
+  recordMetaverseLandmark,
+  sendMetaverseChat,
+  sendMetaverseEmote,
+  selectMetaverseCharacter,
+  syncMetaverse
+} from '../api/metaverse';
+import MetaverseExperiencePanel from '../components/MetaverseExperiencePanel';
+import { conversionContext, trackConversionOnce } from '../analytics/conversionAnalytics';
+import './MetaversePage.css';
+
+const STORAGE_KEY = 'myz-metaverse-profile-v1';
+const SYNC_INTERVAL_MS = 1800;
+const MISSION_PROGRESS_PREFIX = 'myz-metaverse-mission-v1:';
+
+const ARCHETYPES = {
+  guardian: { label: 'Guardian', glyph: '🛡️' },
+  explorer: { label: 'Explorer', glyph: '🧭' },
+  maker: { label: 'Maker', glyph: '🛠️' },
+  chronicler: { label: 'Chronicler', glyph: '📖' },
+  scientist: { label: 'Scientist', glyph: '🔬' }
+};
+
+const EMOTES = {
+  wave: '👋',
+  spark: '✨',
+  idea: '💡',
+  leaf: '🌱'
+};
+
+const LANDMARKS = [
+  { id: 'identity', label: 'Identity Hall', icon: '🪪', x: 10, y: 15, href: '/social-login' },
+  { id: 'marketplace', label: 'Marketplace', icon: '🛒', x: 34, y: 14, href: '/marketplace' },
+  { id: 'projects', label: 'LIFE Projects', icon: '🌱', x: 56, y: 14, href: '/life-pilot' },
+  { id: 'visual', label: 'Visual Gallery', icon: '🎨', x: 78, y: 14, href: '/fumetto' },
+  { id: 'zorgax', label: 'Zorgax Observatory', icon: '👁️', x: 70, y: 62, href: '/zorgax' },
+  { id: 'creator', label: 'Creator Lab', icon: '⚙️', x: 15, y: 62, href: '/come-funziona' }
+];
+
+const LANDMARK_IDS = new Set(LANDMARKS.map((landmark) => landmark.id));
+
+function sanitizeVisitedLandmarks(value) {
+  if (!Array.isArray(value)) return [];
+  return [...new Set(value.filter((id) => typeof id === 'string' && LANDMARK_IDS.has(id)))];
+}
+
+function missionProgressKey(characterName) {
+  return `${MISSION_PROGRESS_PREFIX}${encodeURIComponent(characterName)}`;
+}
+
+function savedMissionProgress(characterName) {
+  if (!characterName) return [];
+  try {
+    return sanitizeVisitedLandmarks(JSON.parse(localStorage.getItem(missionProgressKey(characterName))));
+  } catch (_error) {
+    return [];
+  }
+}
+
+function savedProfile() {
+  try {
+    const value = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (value && value.displayName && value.characterName) return value;
+  } catch (_error) {}
+  return null;
+}
+
+function guestCharacterName(displayName) {
+  const base = displayName
+    .normalize('NFKD')
+    .replace(/[^a-zA-Z0-9]/g, '')
+    .slice(0, 10)
+    .toUpperCase() || 'EXPLORER';
+
+  let suffix = Math.floor(Math.random() * 900) + 100;
+  if (window.crypto?.getRandomValues) {
+    const random = new Uint16Array(1);
+    window.crypto.getRandomValues(random);
+    suffix = 100 + (random[0] % 900);
+  }
+
+  return `${base}-${suffix}`;
+}
+
+function formatCharacterCount(totalCharacters) {
+  if (!Number.isInteger(totalCharacters)) return null;
+  return totalCharacters.toLocaleString('it-IT');
+}
+
+function isAccountLinked(identityStatus) {
+  return identityStatus === 'account-linked' || identityStatus === 'verified';
+}
+
+function CharacterVisual({ character }) {
+  const [failed, setFailed] = useState(false);
+  useEffect(() => { setFailed(false); }, [character?.avatarUrl]);
+  const glyph = ARCHETYPES[character?.archetype]?.glyph || '🧭';
+  return character?.avatarUrl && !failed
+    ? <img className="metaverse-character-image" src={character.avatarUrl} alt={`Avatar ${character.characterName}`} onError={() => setFailed(true)} />
+    : <span>{glyph}</span>;
+}
+
+function VerifiedCharacterList({ characters }) {
+  return (
+    <div className="metaverse-featured-list">
+      {characters.map((character) => {
+        const githubLogin = character.github?.login;
+        return (
+          <article className="metaverse-featured-character" key={`${githubLogin || character.characterName}-${character.characterName}`}>
+            <span className="metaverse-featured-glyph"><CharacterVisual character={character} /></span>
+            <div>
+              <strong>{character.characterName}</strong>
+              <small>{character.displayName}</small>
+              {githubLogin && (
+                <a href={character.github.profileUrl || `https://github.com/${githubLogin}`} target="_blank" rel="noreferrer">
+                  @{githubLogin} ↗
+                </a>
+              )}
+            </div>
+            <span className="metaverse-verified-badge">VERIFICATO</span>
+          </article>
+        );
+      })}
+    </div>
+  );
+}
+
+function AvatarCreator({ initialProfile, authenticated, busy, error, totalCharacters, featuredCharacters, characterChoices, onChooseCharacter, onEnter }) {
+  const [displayName, setDisplayName] = useState(initialProfile?.displayName || '');
+  useEffect(() => { setDisplayName(initialProfile?.displayName || ''); }, [initialProfile?.displayName]);
+  const formattedTotal = formatCharacterCount(totalCharacters);
+
+  useEffect(() => {
+    setDisplayName(initialProfile?.displayName || '');
+  }, [initialProfile?.displayName]);
+
+  const submit = (event) => {
+    event.preventDefault();
+    const cleanName = displayName.trim();
+    if (!cleanName) return;
+
+    onEnter({
+      displayName: cleanName,
+      characterName: initialProfile?.characterName || guestCharacterName(cleanName),
+      archetype: initialProfile?.archetype || 'explorer',
+      myzId: initialProfile?.myzId || ''
+    });
+  };
+
+  return (
+    <div className="metaverse-entry-shell">
+      <a href="/" style={{ position: 'fixed', top: 18, left: 18, color: '#eaf7ff', textDecoration: 'none', fontWeight: 800 }}>← Home MyZubster</a>
+      <section className="metaverse-entry-card">
+        <div className="metaverse-kicker">MYZUBSTER WORLD</div>
+        <h2>Entra nel mondo</h2>
+        {formattedTotal && (
+          <p className="metaverse-muted">
+            🌍 <strong>{formattedTotal}</strong> {totalCharacters === 1 ? 'personaggio creato' : 'personaggi creati'}
+          </p>
+        )}
+        <p>
+          {authenticated
+            ? 'Il tuo account MyZubster è attivo. Entrando verrà usato automaticamente il personaggio verificato collegato al tuo account.'
+            : 'Scegli un nome e inizia subito. Il personaggio viene creato automaticamente; potrai personalizzarlo più avanti.'}
+        </p>
+
+        {authenticated && characterChoices.length > 0 && (
+          <section className="metaverse-character-choice" aria-label="Il tuo avatar">
+            <h3>Il tuo avatar contributore</h3>
+            {characterChoices.map(choice => (
+              <div key={choice.key}>
+                <CharacterVisual character={{ ...choice, archetype: initialProfile?.archetype }} />
+                <button type="button" className="metaverse-primary" disabled={busy} onClick={() => onChooseCharacter(choice.key)}>
+                  Usa {choice.characterName}
+                </button>
+                <a href={choice.sourceUrl} target="_blank" rel="noreferrer">Personaggio proposto · revisione aperta ↗</a>
+              </div>
+            ))}
+          </section>
+        )}
+
+        <form onSubmit={submit} className="metaverse-form">
+          <label>
+            Il tuo nome pubblico
+            <input
+              autoFocus
+              autoComplete="nickname"
+              maxLength={30}
+              minLength={2}
+              required
+              value={displayName}
+              onChange={(event) => setDisplayName(event.target.value)}
+              placeholder="Come vuoi farti chiamare?"
+            />
+          </label>
+
+          {error && <div className="metaverse-error">{error}</div>}
+
+          <button className="metaverse-primary" type="submit" disabled={busy}>
+            {busy ? 'Ingresso…' : authenticated ? 'Entra con il tuo account' : 'Entra come ospite'}
+          </button>
+        </form>
+
+        {authenticated ? (
+          <small className="metaverse-muted">Il personaggio e l’avatar selezionati sono collegati al tuo account verificato.</small>
+        ) : (
+          <small className="metaverse-muted">
+            Nessun wallet, documento o account GitHub richiesto per esplorare come ospite.{' '}
+            <a href="/social-login">Accedi per usare un personaggio verificato.</a>
+          </small>
+        )}
+
+        {featuredCharacters.length > 0 && (
+          <section className="metaverse-featured-entry">
+            <div className="metaverse-kicker">ESPLORATORI VERIFICATI</div>
+            <VerifiedCharacterList characters={featuredCharacters} />
+          </section>
+        )}
+      </section>
+    </div>
+  );
+}
+
+function MetaversePage() {
+  const initialProfile = useMemo(savedProfile, []);
+  const [authenticated, setAuthenticated] = useState(() => Boolean(localStorage.getItem('myzubster-token')));
+  const [profile, setProfile] = useState(initialProfile);
+  const [sessionId, setSessionId] = useState(null);
+  const [players, setPlayers] = useState({});
+  const [messages, setMessages] = useState([]);
+  const [chatText, setChatText] = useState('');
+  const [status, setStatus] = useState('offline');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const [lastLandmark, setLastLandmark] = useState('Neon Plaza');
+  const [totalCharacters, setTotalCharacters] = useState(null);
+  const [featuredCharacters, setFeaturedCharacters] = useState([]);
+  const [characterChoices, setCharacterChoices] = useState([]);
+  const [discoverableRooms, setDiscoverableRooms] = useState([]);
+  const [visitedLandmarks, setVisitedLandmarks] = useState([]);
+
+  useEffect(() => {
+    trackConversionOnce('metaverse_loaded', conversionContext({ surface: 'neon_plaza' }));
+  }, []);
+
+  useEffect(() => {
+    if (!authenticated) return undefined;
+    let active = true;
+
+    getMetaverseProfile()
+      .then((result) => {
+        if (!active || !result.character) return;
+        const canonicalProfile = {
+          avatarUrl: result.character.avatarUrl || null,
+          characterSourceUrl: result.character.characterSourceUrl || null,
+          characterReviewStatus: result.character.characterReviewStatus || null,
+          displayName: result.character.displayName,
+          characterName: result.character.characterName,
+          archetype: result.character.archetype,
+          myzId: result.character.myzId || '',
+          identityStatus: result.character.identityStatus,
+          github: result.character.github || null
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(canonicalProfile));
+        setProfile(canonicalProfile);
+        setCharacterChoices(result.characterChoices || []);
+        setVisitedLandmarks(sanitizeVisitedLandmarks(result.missionProgress?.visitedLandmarks));
+      })
+      .catch((profileError) => {
+        if (!active) return;
+        if (profileError.status === 401) {
+          localStorage.removeItem('myzubster-token');
+          localStorage.removeItem(STORAGE_KEY);
+          setProfile(null);
+          setCharacterChoices([]);
+          setAuthenticated(false);
+          setError('Sessione scaduta. Accedi di nuovo per usare il tuo personaggio verificato.');
+          return;
+        }
+        if (profileError.status === 404) setError(profileError.message);
+      });
+
+    return () => { active = false; };
+  }, [authenticated]);
+
+  useEffect(() => {
+    let active = true;
+    getMetaverseRooms()
+      .then((result) => {
+        if (active && Array.isArray(result.rooms)) setDiscoverableRooms(result.rooms);
+      })
+      .catch(() => {});
+    return () => { active = false; };
+  }, [authenticated]);
+
+  useEffect(() => {
+    let active = true;
+    getMetaverseWorld()
+      .then((result) => {
+        if (!active) return;
+        if (Number.isInteger(result.totalCharacters)) {
+          setTotalCharacters(result.totalCharacters);
+        }
+        if (Array.isArray(result.featuredCharacters)) {
+          setFeaturedCharacters(result.featuredCharacters);
+        }
+      })
+      .catch(() => {});
+    return () => { active = false; };
+  }, []);
+
+  const chooseCharacter = async (characterKey) => {
+    setBusy(true);
+    setError('');
+    try {
+      const result = await selectMetaverseCharacter(characterKey);
+      setProfile(result.character);
+      setCharacterChoices(result.characterChoices || []);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(result.character));
+    } catch (selectionError) {
+      setError(selectionError.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const enter = async (nextProfile) => {
+    trackConversionOnce('first_interaction', conversionContext({ surface: 'avatar_creator', action: 'enter_world' }));
+    setBusy(true);
+    setError('');
+    try {
+      const result = await joinMetaverse(nextProfile);
+      const joinedProfile = {
+        ...nextProfile,
+        avatarUrl: result.player.avatarUrl || null,
+        characterSourceUrl: result.player.characterSourceUrl || null,
+        characterReviewStatus: result.player.characterReviewStatus || null,
+        displayName: result.player.displayName,
+        characterName: result.player.characterName,
+        archetype: result.player.archetype,
+        myzId: result.player.myzId || '',
+        identityStatus: result.player.identityStatus,
+        github: result.player.github || null
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(joinedProfile));
+      if (isAccountLinked(joinedProfile.identityStatus)) {
+        trackConversionOnce('character_verification_completed', conversionContext({ surface: 'neon_plaza', method: 'account_linked' }));
+      }
+      setProfile(joinedProfile);
+      const restoredProgress = isAccountLinked(joinedProfile.identityStatus)
+        ? result.missionProgress?.visitedLandmarks
+        : savedMissionProgress(joinedProfile.characterName);
+      setVisitedLandmarks(sanitizeVisitedLandmarks(restoredProgress));
+      setSessionId(result.sessionId);
+      setPlayers(Object.fromEntries(result.players.map((player) => [player.id, player])));
+      if (Number.isInteger(result.totalCharacters)) setTotalCharacters(result.totalCharacters);
+      trackConversionOnce('mission_started', conversionContext({ surface: 'neon_plaza', mission: 'visit_first_portal', mode: authenticated ? 'account' : 'guest' }));
+      setStatus('online');
+    } catch (joinError) {
+      setError(joinError.message);
+      setStatus('offline');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!profile?.characterName) return;
+    try {
+      localStorage.setItem(
+        missionProgressKey(profile.characterName),
+        JSON.stringify(sanitizeVisitedLandmarks(visitedLandmarks))
+      );
+    } catch (_error) {}
+  }, [profile?.characterName, visitedLandmarks]);
+
+  useEffect(() => {
+    if (!sessionId) return undefined;
+
+    let active = true;
+    let cursor = null;
+    let timer = null;
+
+    const schedule = (delay) => {
+      if (!active) return;
+      timer = window.setTimeout(runSync, delay);
+    };
+
+    const mergeMessages = (incoming) => {
+      if (!Array.isArray(incoming) || incoming.length === 0) return;
+      setMessages((current) => {
+        const merged = new Map(current.map((message) => [message.id, message]));
+        incoming.forEach((message) => merged.set(message.id, message));
+        return Array.from(merged.values())
+          .sort((left, right) => new Date(left.at) - new Date(right.at))
+          .slice(-40);
+      });
+    };
+
+    const runSync = async () => {
+      try {
+        const result = await syncMetaverse(sessionId, cursor);
+        if (!active) return;
+        cursor = result.cursor || cursor;
+        setPlayers(Object.fromEntries(result.players.map((player) => [player.id, player])));
+        mergeMessages(result.messages);
+        setStatus('online');
+        schedule(SYNC_INTERVAL_MS);
+      } catch (syncError) {
+        if (!active) return;
+        setStatus('reconnecting');
+
+        // A long offline/background period can let the short-lived presence
+        // expire. Rejoin with the server-owned profile instead of leaving the
+        // interface permanently stuck in RECONNECTING.
+        if (syncError.status === 404 && profile) {
+          try {
+            const result = await joinMetaverse(profile);
+            if (!active) return;
+            setSessionId(result.sessionId);
+            setPlayers(Object.fromEntries(result.players.map((player) => [player.id, player])));
+            setStatus('online');
+            return;
+          } catch (_rejoinError) {}
+        }
+
+        schedule(3000);
+      }
+    };
+
+    runSync();
+    return () => {
+      active = false;
+      if (timer) window.clearTimeout(timer);
+    };
+  }, [profile, sessionId]);
+
+  const moveBy = (dx, dy) => {
+    if (!sessionId) return;
+
+    let target = null;
+    setPlayers((current) => {
+      const me = current[sessionId];
+      if (!me) return current;
+      const x = Math.min(96, Math.max(4, me.x + dx));
+      const y = Math.min(88, Math.max(8, me.y + dy));
+      target = { x, y };
+      return { ...current, [sessionId]: { ...me, x, y } };
+    });
+
+    if (target) moveMetaversePlayer(sessionId, target.x, target.y).catch(() => {});
+  };
+
+  useEffect(() => {
+    if (!sessionId) return undefined;
+    const keydown = (event) => {
+      const tag = document.activeElement?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+      const movement = {
+        ArrowUp: [0, -2.5], w: [0, -2.5], W: [0, -2.5],
+        ArrowDown: [0, 2.5], s: [0, 2.5], S: [0, 2.5],
+        ArrowLeft: [-2.5, 0], a: [-2.5, 0], A: [-2.5, 0],
+        ArrowRight: [2.5, 0], d: [2.5, 0], D: [2.5, 0]
+      }[event.key];
+      if (!movement) return;
+      event.preventDefault();
+      moveBy(...movement);
+    };
+    window.addEventListener('keydown', keydown);
+    return () => window.removeEventListener('keydown', keydown);
+  });
+
+  const me = sessionId ? players[sessionId] : null;
+  const nearby = useMemo(() => {
+    if (!me) return [];
+    return Object.values(players).filter((player) => {
+      if (player.id === me.id) return false;
+      const distance = Math.hypot(player.x - me.x, player.y - me.y);
+      return distance < 13;
+    });
+  }, [me, players]);
+
+  useEffect(() => {
+    if (!me) return;
+    const landmark = LANDMARKS.find((item) => Math.hypot(item.x - me.x, item.y - me.y) < 14);
+    setLastLandmark(landmark ? landmark.label : 'Neon Plaza');
+    if (landmark) {
+      setVisitedLandmarks((current) => {
+        if (current.includes(landmark.id)) return current;
+        if (current.length === 0) {
+          trackConversionOnce('mission_completed', conversionContext({ surface: 'neon_plaza', mission: 'visit_first_portal', landmark: landmark.id }));
+        }
+        const next = [...current, landmark.id];
+        if (isAccountLinked(me.identityStatus)) {
+          recordMetaverseLandmark(landmark.id)
+            .then((result) => {
+              const serverProgress = result.missionProgress?.visitedLandmarks || [];
+              setVisitedLandmarks((latest) => sanitizeVisitedLandmarks([...latest, ...serverProgress]));
+            })
+            .catch(() => {});
+        }
+        return next;
+      });
+    }
+  }, [me]);
+
+  const submitChat = async (event) => {
+    event.preventDefault();
+    const value = chatText.trim();
+    if (!value || !sessionId) return;
+    setChatText('');
+    try {
+      await sendMetaverseChat(sessionId, value);
+    } catch (chatError) {
+      setError(chatError.message);
+    }
+  };
+
+  const emote = (name) => {
+    if (!sessionId) return;
+    sendMetaverseEmote(sessionId, name).catch(() => {});
+  };
+
+  const resetProfile = async () => {
+    if (sessionId) await leaveMetaverse(sessionId).catch(() => {});
+    localStorage.removeItem(STORAGE_KEY);
+    setSessionId(null);
+    setPlayers({});
+    setMessages([]);
+    setVisitedLandmarks([]);
+    setProfile(null);
+    setStatus('offline');
+  };
+
+  if (!sessionId) {
+    return (
+      <AvatarCreator
+        initialProfile={profile}
+        authenticated={authenticated}
+        busy={busy}
+        error={error}
+        totalCharacters={totalCharacters}
+        featuredCharacters={featuredCharacters}
+        characterChoices={characterChoices}
+        onChooseCharacter={chooseCharacter}
+        onEnter={enter}
+      />
+    );
+  }
+
+  const formattedTotal = formatCharacterCount(totalCharacters);
+
+  return (
+    <div className="metaverse-page">
+      <header className="metaverse-topbar">
+        <div>
+          <strong>🪐 MyZubster World</strong>
+          <span className={`metaverse-status status-${status}`}>{status}</span>
+        </div>
+        <div className="metaverse-topbar-meta">
+          {formattedTotal && (
+            <span>{formattedTotal} {totalCharacters === 1 ? 'personaggio creato' : 'personaggi creati'}</span>
+          )}
+          <span>{Object.keys(players).length} online</span>
+          <span>{lastLandmark}</span>
+          <a href="/" style={{ color: '#cfe5ef', textDecoration: 'none', fontWeight: 800 }}>← Home</a>
+          <button onClick={resetProfile}>Cambia personaggio</button>
+        </div>
+      </header>
+
+      <main className="metaverse-layout">
+        <section className="metaverse-world" aria-label="MyZubster Neon Plaza interactive world">
+          <div className="metaverse-grid" />
+          <div className="metaverse-core">MYZ<br /><small>NEON PLAZA</small></div>
+
+          {LANDMARKS.map((landmark) => (
+            <a
+              key={landmark.id}
+              className="metaverse-landmark"
+              style={{ left: `${landmark.x}%`, top: `${landmark.y}%` }}
+              href={landmark.href}
+              title={`Apri ${landmark.label}`}
+            >
+              <span>{landmark.icon}</span>
+              <strong>{landmark.label}</strong>
+              <small>PORTALE</small>
+            </a>
+          ))}
+
+          {Object.values(players).map((player) => {
+            const isMe = player.id === sessionId;
+            return (
+              <div
+                key={player.id}
+                className={`metaverse-avatar archetype-${player.archetype} ${isMe ? 'is-me' : ''}`}
+                style={{ left: `${player.x}%`, top: `${player.y}%` }}
+                title={`${player.characterName} — ${player.displayName}`}
+              >
+                {player.emote && <div className="metaverse-emote">{EMOTES[player.emote] || '✨'}</div>}
+                <div className="metaverse-avatar-body"><CharacterVisual character={player} /></div>
+                <strong>{player.characterName}</strong>
+                <small>{isMe ? 'TU · ' : ''}{isAccountLinked(player.identityStatus) ? 'MYZ VERIFIED' : 'OSPITE'}</small>
+              </div>
+            );
+          })}
+
+          <div className="metaverse-controls" aria-label="Movement controls">
+            <button onClick={() => moveBy(0, -2.5)}>▲</button>
+            <div>
+              <button onClick={() => moveBy(-2.5, 0)}>◀</button>
+              <button onClick={() => moveBy(0, 2.5)}>▼</button>
+              <button onClick={() => moveBy(2.5, 0)}>▶</button>
+            </div>
+            <small>WASD / frecce</small>
+          </div>
+        </section>
+
+        <aside className="metaverse-sidebar">
+          <section className="metaverse-panel">
+            <h3>Il tuo personaggio</h3>
+            <div className="metaverse-profile-line">
+              <span className="metaverse-profile-glyph"><CharacterVisual character={me} /></span>
+              <div>
+                <strong>{me?.characterName}</strong>
+                <small>{me?.displayName || profile?.displayName}</small>
+                {me?.github?.login && (
+                  <a href={me.github.profileUrl || `https://github.com/${me.github.login}`} target="_blank" rel="noreferrer">
+                    @{me.github.login} ↗
+                  </a>
+                )}
+              </div>
+            </div>
+            <div className="metaverse-identity-badge">
+              {isAccountLinked(me?.identityStatus) ? 'MYZ VERIFIED' : 'Ospite'}
+            </div>
+            {me?.characterSourceUrl && (
+              <a href={me.characterSourceUrl} target="_blank" rel="noreferrer">
+                Personaggio proposto · revisione aperta ↗
+              </a>
+            )}
+          </section>
+
+          <MetaverseExperiencePanel
+            identityStatus={me?.identityStatus}
+            online={Object.keys(players).length}
+            nearby={nearby.length}
+            messages={messages}
+            sessionId={sessionId}
+            visitedLandmarks={visitedLandmarks}
+            rooms={discoverableRooms}
+          />
+
+          <section className="metaverse-panel">
+            <h3>Esploratori verificati</h3>
+            {featuredCharacters.length === 0
+              ? <p className="metaverse-muted">Nessun profilo verificato pubblicato.</p>
+              : <VerifiedCharacterList characters={featuredCharacters} />}
+          </section>
+
+          <section className="metaverse-panel">
+            <h3>Persone vicine</h3>
+            {nearby.length === 0 ? <p className="metaverse-muted">Muoviti nella Plaza per incontrare qualcuno.</p> : nearby.map((player) => (
+              <div className="metaverse-nearby" key={player.id}>
+                <CharacterVisual character={player} />
+                <div><strong>{player.characterName}</strong><small>{player.displayName}</small></div>
+              </div>
+            ))}
+          </section>
+
+          <section className="metaverse-panel">
+            <h3>Emote</h3>
+            <div className="metaverse-emote-row">
+              {Object.entries(EMOTES).map(([name, glyph]) => <button key={name} onClick={() => emote(name)} title={name}>{glyph}</button>)}
+            </div>
+          </section>
+
+          <section className="metaverse-panel metaverse-chat-panel">
+            <h3>Chat</h3>
+            <div className="metaverse-chat-log">
+              {messages.length === 0 && <p className="metaverse-muted">Nessun messaggio.</p>}
+              {messages.map((message) => (
+                <div key={message.id} className="metaverse-chat-message">
+                  <strong>{message.characterName}</strong>
+                  <span>{message.text}</span>
+                </div>
+              ))}
+            </div>
+            <form onSubmit={submitChat} className="metaverse-chat-form">
+              <input maxLength={280} value={chatText} onChange={(event) => setChatText(event.target.value)} placeholder="Scrivi un messaggio…" />
+              <button type="submit">Invia</button>
+            </form>
+          </section>
+        </aside>
+      </main>
+
+      {error && <div className="metaverse-toast" onClick={() => setError('')}>{error}</div>}
+    </div>
+  );
+}
+
+export { LANDMARKS, sanitizeVisitedLandmarks };
+export default MetaversePage;

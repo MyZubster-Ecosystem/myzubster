@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="MyZubster Space Station: stato operativo, robot, missioni e spazi del metaverso.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+  <title>MyZubster Space Station</title>
+  <style>
+    :root{color-scheme:dark;--bg:#050812;--panel:#0c1324;--line:#233657;--cyan:#38d9ff;--green:#44f1a6;--muted:#9fb0ca}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#12233e 0,#050812 52%);color:#f7fbff;font:16px/1.55 system-ui,sans-serif;min-height:100vh}
+    main{width:min(1120px,calc(100% - 32px));margin:auto;padding:56px 0 72px}
+    nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:54px}nav a{color:var(--muted);text-decoration:none}.brand{color:#fff;font-weight:800;letter-spacing:.08em}
+    .eyebrow{color:var(--cyan);font-weight:750;letter-spacing:.14em;text-transform:uppercase;font-size:.78rem}
+    h1{font-size:clamp(2.6rem,8vw,5.8rem);line-height:.92;margin:.3em 0;max-width:900px}h1 span{color:var(--cyan)}
+    .lead{max-width:720px;color:var(--muted);font-size:1.15rem}.status{display:inline-flex;gap:10px;align-items:center;border:1px solid var(--line);background:#07101fcc;padding:10px 14px;border-radius:999px;margin-top:18px}
+    .dot{width:10px;height:10px;border-radius:50%;background:#ffc857}.dot.online{background:var(--green);box-shadow:0 0 16px var(--green)}.dot.error{background:#ff668a}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:48px}.card{background:linear-gradient(145deg,#0f1a30dd,#09101ddd);border:1px solid var(--line);border-radius:20px;padding:24px;min-height:170px}
+    .card h2{margin:0 0 18px;font-size:.82rem;color:var(--muted);text-transform:uppercase;letter-spacing:.12em}.metric{font-size:2.25rem;font-weight:800}.detail{color:var(--muted);margin-top:8px}
+    .wide{grid-column:span 3;min-height:auto}.links{display:flex;gap:12px;flex-wrap:wrap}.button{display:inline-block;color:#041018;background:var(--cyan);font-weight:800;text-decoration:none;padding:11px 16px;border-radius:10px}.button.secondary{background:transparent;color:#dff7ff;border:1px solid var(--line)}
+    footer{margin-top:42px;color:var(--muted);font-size:.9rem}@media(max-width:760px){main{padding-top:28px}.grid{grid-template-columns:1fr}.wide{grid-column:auto}nav{margin-bottom:42px}}
+  </style>
+</head>
+<body>
+<main>
+  <nav><a class="brand" href="/">MYZUBSTER</a><a href="/">Torna al sito</a></nav>
+  <section>
+    <div class="eyebrow">Software MVP · Mission Control</div>
+    <h1>Space Station <span>online.</span></h1>
+    <p class="lead">Monitoraggio operativo di robot, missioni e spazi del metaverso MyZubster. I dati mostrati provengono dall'API Space Station in tempo reale.</p>
+    <div class="status"><span id="dot" class="dot"></span><span id="status">Connessione in corso…</span></div>
+  </section>
+  <section class="grid" aria-live="polite">
+    <article class="card"><h2>Stazione</h2><div id="station" class="metric">—</div><div id="version" class="detail">Caricamento…</div></article>
+    <article class="card"><h2>Robot registrati</h2><div id="robots" class="metric">—</div><div class="detail">Unità disponibili</div></article>
+    <article class="card"><h2>Missioni</h2><div id="missions" class="metric">—</div><div class="detail">Missioni correnti</div></article>
+    <article class="card wide"><h2>Accesso rapido</h2><div class="links"><a class="button" href="/api/space-station/health">Stato API</a><a class="button secondary" href="/api/space-station/robots">Robot</a><a class="button secondary" href="/api/space-station/metaverse/spaces">Spazi metaverso</a></div></article>
+  </section>
+  <footer>MyZubster Space Station è un ambiente software e di simulazione; non rappresenta una stazione fisica o orbitale.</footer>
+</main>
+<script>
+  const setText=(id,value)=>{document.getElementById(id).textContent=String(value)};
+  async function get(path){const response=await fetch('/api/space-station/'+path,{headers:{accept:'application/json'}});if(!response.ok)throw new Error('HTTP '+response.status);return response.json()}
+  async function boot(){
+    try{
+      const [health,robots,missions]=await Promise.all([get('health'),get('robots'),get('missions')]);
+      document.getElementById('dot').className='dot online';
+      setText('status','Sistema operativo');
+      setText('station',health.status||'online');
+      setText('version','Versione '+(health.version||'—'));
+      setText('robots',Array.isArray(robots)?robots.length:0);
+      setText('missions',Array.isArray(missions)?missions.length:0);
+    }catch(error){
+      document.getElementById('dot').className='dot error';
+      setText('status','API temporaneamente non disponibile');
+      setText('version',error.message);
+    }
+  }
+  boot();
+</script>
+</body>
+</html>

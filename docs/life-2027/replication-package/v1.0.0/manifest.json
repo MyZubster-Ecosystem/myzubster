@@ -1,0 +1,62 @@
+{
+  "schemaVersion": "1.0.0",
+  "packageId": "myzubster-pilot-replication",
+  "packageVersion": "1.0.0",
+  "status": "milestone-1",
+  "publicBoundary": "fictional-and-reusable-only",
+  "excludedInputs": [
+    "partner identities and agreements",
+    "precise sensitive locations",
+    "credentials, access tokens and network secrets",
+    "non-public operational data",
+    "unverified funding or deployment claims"
+  ],
+  "artifacts": [
+    {
+      "id": "site-readiness-template",
+      "path": "docs/life-2027/replication-package/v1.0.0/site-readiness-template.md",
+      "version": "1.0.0",
+      "requiredMarkers": [
+        "## Site and authority",
+        "## Sensors, connectivity and data",
+        "## KPI and evidence readiness",
+        "## Governance, security and privacy",
+        "## Human validation and automation safety",
+        "## Blockers and readiness decision"
+      ]
+    },
+    {
+      "id": "replication-decision-matrix",
+      "path": "docs/life-2027/replication-package/v1.0.0/replication-decision-matrix.md",
+      "version": "1.0.0",
+      "requiredMarkers": [
+        "| Capability | Reuse | Localize | Block | Evidence required | Decision owner |",
+        "REUSE",
+        "LOCALIZE",
+        "BLOCK"
+      ]
+    }
+  ],
+  "auditReferences": [
+    {
+      "id": "environmental-evidence-schema",
+      "path": "docs/life-2026/ENVIRONMENTAL_DATA_MODEL.md",
+      "boundary": "Schema compatibility does not prove measurement validity."
+    },
+    {
+      "id": "iot-adapter-boundary",
+      "path": "docs/life-2026/TECHNICAL_ARCHITECTURE.md",
+      "boundary": "IoT architecture and normalized readings do not prove measurement validity."
+    },
+    {
+      "id": "human-validation",
+      "path": "docs/life-2027/ZORGAX_LIFE_AUTOMATION_V1.md",
+      "boundary": "Automation cannot replace technical or scientific approval."
+    },
+    {
+      "id": "operational-readiness",
+      "path": "docs/OPERATIONAL-READINESS.md",
+      "boundary": "Production readiness remains a human decision."
+    }
+  ]
+}

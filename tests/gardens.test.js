@@ -1,28 +1,24 @@
 const request = require('supertest');
 const app = require('../backend/src/index');
 
-describe('Garden Routes', () => {
-  test('POST /api/gardens without name returns 404 (da correggere a 400)', async () => {
-    const response = await request(app).post('/api/gardens').send({ address: 'Via Roma' });
-    expect(response.status).toBe(400);
+describe('legacy garden API privacy gate', () => {
+  test.each([
+    ['get', '/api/gardens'],
+    ['get', '/api/gardens/search?q=Rimini'],
+    ['get', '/api/gardens/nearby?lat=44&lng=12'],
+    ['post', '/api/gardens']
+  ])('%s %s is disabled', async (method, path) => {
+    const response = await request(app)[method](path).send({
+      name: 'Private garden',
+      latitude: 44.0637,
+      longitude: 12.5678
+    });
+    expect(response.status).toBe(410);
+    expect(response.body.code).toBe('LEGACY_GARDEN_API_DISABLED');
+    expect(JSON.stringify(response.body)).not.toContain('44.0637');
   });
 
-  test('POST /api/gardens without address returns 404 (da correggere a 400)', async () => {
-    const response = await request(app).post('/api/gardens').send({ name: 'Orto' });
-    expect(response.status).toBe(400);
-  });
-
-  test('POST /api/gardens/reverse-geocode without coords returns 404 (da correggere a 400)', async () => {
-    const response = await request(app).post('/api/gardens/reverse-geocode').send({});
-    expect(response.status).toBe(404);
-  });
-
-  test('GET /api/gardens/search without params returns 404 (da correggere a 400)', async () => {
-    const response = await request(app).get('/api/gardens/search');
-    expect(response.status).toBe(400);
-  });
-
-  test('placeholder - routes module loads', () => {
+  test('routes module still loads', () => {
     const routes = require('../backend/src/routes/gardens');
     expect(typeof routes).toBe('function');
   });

@@ -20,15 +20,16 @@ describe('ZORGAX-001', () => {
     expect(response.body.disclosure).toMatch(/virtual\/fictional/i);
   });
 
-  test('GET /zorgax serves the dedicated chat UI with opt-in memory', async () => {
+  test('GET /zorgax serves the dedicated chat UI with live external sources', async () => {
     const response = await request(app).get('/zorgax');
 
     expect(response.status).toBe(200);
     expect(response.headers['content-type']).toMatch(/text\/html/);
     expect(response.text).toContain('ZORGAX-001');
     expect(response.text).toMatch(/virtual/i);
-    expect(response.text).toMatch(/Ricorda questo messaggio/i);
-    expect(response.text).toMatch(/Cancella memoria/i);
+    expect(response.text).toMatch(/Web live \+ fonti esterne/i);
+    expect(response.text).toMatch(/Fonti esterne consultate/i);
+    expect(response.text).toContain('useWeb:webSearch.checked');
   });
 
   test('POST /api/zorgax/chat rejects an empty message', async () => {
@@ -108,7 +109,7 @@ describe('ZORGAX-001', () => {
     const payload = JSON.parse(options.body);
     expect(payload.messages[0].role).toBe('system');
     expect(payload.messages[0].content).toContain('ZORGAX-001');
-    expect(payload.messages[0].content).toMatch(/virtual\/fictional/i);
+    expect(payload.messages[0].content).toMatch(/virtual extraterrestrial persona/i);
     expect(payload.messages[payload.messages.length - 1]).toEqual({ role: 'user', content: 'Chi sei?' });
   });
 

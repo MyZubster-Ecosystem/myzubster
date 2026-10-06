@@ -1,0 +1,38 @@
+{
+  "schema": "myzubster.ecosystem.v1",
+  "updatedAt": "2026-09-17",
+  "website": "https://www.myzubster.com/",
+  "journey": "PERSON / COMMUNITY -> ZORGAX -> MARKETPLACE -> FREE OR VERIFIED PAYMENT -> HANDOVER -> RECEIVED -> RECORDED -> SHA-256 -> OPTIONAL BLOCKCHAIN -> VERIFIER -> KNOWLEDGE -> RESEARCH / REPRODUCTION -> SHARE AGAIN",
+  "nodes": [
+    {"id":"core","status":"operational","url":"https://github.com/MyZubster-Ecosystem/myzubster","docs":"docs/MYZUBSTER-PUBLIC-JOURNEY.md"},
+    {"id":"marketplace","status":"mvp","url":"https://github.com/DanielIoni-creator/MyZubster-Marketplace"},
+    {"id":"kefir-knowledge","status":"pilot","url":"https://github.com/DanielIoni-creator/Myzubster-fermentation-kefir","case":"KF-006"},
+    {"id":"nicola","status":"pilot","url":"https://github.com/DanielIoni-creator/Nicola"},
+    {"id":"university-research","status":"research-pathway","url":"https://github.com/DanielIoni-creator/myzubster-university-research"},
+    {"id":"research-lab","status":"template","url":"https://github.com/DanielIoni-creator/Myzubster-research-lab"},
+    {"id":"student-profile","status":"template","url":"https://github.com/DanielIoni-creator/Myzubster-student-profile"},
+    {"id":"agriculture","status":"template","url":"https://github.com/DanielIoni-creator/Myzubster-agriculture"},
+    {"id":"community-dao","status":"navigation-template","url":"https://github.com/DanielIoni-creator/Myzubster-community-dao"},
+    {"id":"life-pilot","status":"candidate-template","url":"https://github.com/DanielIoni-creator/Myzubster-life-pilot"},
+    {"id":"developer-support","status":"template","url":"https://github.com/DanielIoni-creator/Myzubster-developer-support"},
+    {"id":"visual-comic","status":"public-documentation","url":"https://github.com/MyZubster-Ecosystem/MyZubster-Visual"}
+  ],
+  "verifiedExample": {
+    "case":"KF-006 / Nicola kefir handover",
+    "payment":false,
+    "handoverState":"RECORDED",
+    "onchainRecorded":true,
+    "network":"base-sepolia",
+    "chainId":84532,
+    "txId":"0x998a98b1733312e248f74a1387319dae30aab8123a6115c517e4ffe0ef9584bf",
+    "blockNumber":46933575,
+    "commitment":"ba9973f08ce86d16a3611c3cccbb9cc2cc779b9ea1cb6fd87a2e5864e557b6b9",
+    "verifierResult":"MATCH"
+  },
+  "boundaries":[
+    "Blockchain evidence proves commitment integrity/timestamp, not physical truth.",
+    "It does not establish food safety, identity, learning, health outcomes or scientific validation.",
+    "Repository links do not establish university partnership, funding or institutional endorsement.",
+    "MYZ internal accounting and external cryptocurrency settlement are separate systems."
+  ]
+}

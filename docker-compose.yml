@@ -84,10 +84,15 @@ services:
     environment:
       - ONION_TARGET_HOST=frontend
       - ONION_TARGET_PORT=3000
+      - ONION_TELEMETRY_ENABLED=${ONION_TELEMETRY_ENABLED:-false}
+      - ONION_TELEMETRY_ENDPOINT=${ONION_TELEMETRY_ENDPOINT:-https://myzubster.com/api/telemetry/onion/heartbeat}
+      - ONION_TELEMETRY_INTERVAL_SECONDS=${ONION_TELEMETRY_INTERVAL_SECONDS:-3600}
+      - MYZUBSTER_RELEASE=${MYZUBSTER_RELEASE:-unknown}
     depends_on:
       - frontend
     volumes:
       - onion_data:/var/lib/tor/myzubster
+      - onion_telemetry_data:/var/lib/myzubster-telemetry
     networks:
       - myzubster-network
     healthcheck:
@@ -100,6 +105,7 @@ services:
 volumes:
   mongodb_data:
   onion_data:
+  onion_telemetry_data:
 
 networks:
   myzubster-network:

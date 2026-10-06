@@ -6,8 +6,10 @@ const jwt = require('jsonwebtoken');
 const auth = (req, res, next) => {
   const token = req.header('Authorization')?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'No token provided' });
+  const secret = process.env.JWT_SECRET;
+  if (!secret) return res.status(503).json({ error: 'Authentication is not configured' });
   try {
-    req.user = jwt.verify(token, process.env.JWT_SECRET || 'secret');
+    req.user = jwt.verify(token, secret);
     next();
   } catch (e) {
     return res.status(401).json({ error: 'Invalid token' });
@@ -24,7 +26,7 @@ router.get('/robot/:robotId', auth, dashboardController.getRobotDashboard);
 router.post('/transfer', auth, dashboardController.createP2PTransfer);
 router.post('/checkout', auth, dashboardController.addCheckoutPayment);
 router.post('/monero-webhook', dashboardController.handleMoneroWebhook);
-router.get('/transactions', dashboardController.listTransactions);
+router.get('/transactions', auth, dashboardController.listTransactions);
 router.get('/stats', auth, admin, dashboardController.getStats);
 
 module.exports = router;

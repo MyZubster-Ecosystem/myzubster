@@ -1,0 +1,86 @@
+'use strict';
+
+const fs = require('fs');
+const path = require('path');
+
+describe('Zorgax assistant paid access contract', () => {
+  const routeSource = fs.readFileSync(
+    path.join(__dirname, '../src/routes/zorgaxAssistantRoutes.js'),
+    'utf8'
+  );
+  const uiSource = fs.readFileSync(
+    path.join(__dirname, '../public/zorgax.html'),
+    'utf8'
+  );
+
+  test('keeps guest chat while enforcing server-side web limits', () => {
+    expect(routeSource).toContain("router.post('/chat', optionalAuthenticate, loadZorgaxAccess");
+    expect(routeSource).toContain('const useWeb = requestedWeb && policy.webResearch');
+    expect(routeSource).toContain('Math.min(safeRequestedLimit, policy.maxWebResults)');
+  });
+
+  test('injects verified signed-in GitHub identity into assistant context', () => {
+    expect(routeSource).toContain("const User = require('../models/User')");
+    expect(routeSource).toContain('async function authenticatedAssistantContext(req)');
+    expect(routeSource).toContain('githubVerified: verifiedGithub');
+    expect(routeSource).toContain('const userContext = await authenticatedAssistantContext(req)');
+    expect(routeSource).toContain('userContext });');
+  });
+
+  test('falls back to Free chat when access lookup is temporarily unavailable', () => {
+    const accessSource = fs.readFileSync(
+      path.join(__dirname, '../src/middleware/zorgaxAccess.js'),
+      'utf8'
+    );
+    expect(accessSource).toContain("source: req.userId ? 'AUTHENTICATED_FREE_FALLBACK' : 'GUEST'");
+    expect(accessSource).toContain('req.zorgaxPolicy = getAccessPolicy(access, { authenticated: Boolean(req.userId) })');
+    expect(accessSource).toContain('next();');
+  });
+
+  test('requires Developer for the direct research API', () => {
+    expect(routeSource).toContain("router.get('/research', authenticate, requireZorgaxPlan('developer')");
+  });
+
+  test('requires Pro for persistent workspace reads and writes', () => {
+    expect(routeSource).toContain("router.post('/data/commit', authenticate, requireZorgaxPlan('pro')");
+    expect(routeSource).toContain("router.get('/data', authenticate, requireZorgaxPlan('pro')");
+  });
+
+  test('sends the signed-in token with assistant chat requests', () => {
+    expect(uiSource).toContain("fetch('/api/zorgax/assistant/chat',{method:'POST',headers:authHeaders()");
+  });
+
+  test('exposes privacy-safe funnel tracking and records successful chat use', () => {
+    expect(routeSource).toContain("router.post('/track', optionalAuthenticate");
+    expect(routeSource).toContain("'zorgax_to_marketplace'");
+    expect(routeSource).toContain("'zorgax_to_seller'");
+    expect(routeSource).toContain("'zorgax_to_metaverse'");
+    expect(routeSource).toContain("'zorgax_to_life'");
+    expect(routeSource).toContain("logFunnelEvent('zorgax_message_sent'");
+    expect(routeSource).not.toContain('req.body?.message || req.body?.prompt, authenticated');
+  });
+
+  test('exposes the selected AI provider/model without hiding fallback state', () => {
+    expect(routeSource).toContain('aiProvider: result.ai_provider || null');
+    expect(routeSource).toContain('aiModel: result.ai_model || null');
+    expect(routeSource).toContain('aiFallbackReason: result.ai_fallback_reason || null');
+    expect(uiSource).toContain('function renderAiMeta(data)');
+    expect(uiSource).toContain("renderAiMeta(d)");
+  });
+
+  test('offers guided intents with dedicated privacy-safe tracking', () => {
+    expect(routeSource).toContain("'zorgax_intent_seller'");
+    expect(routeSource).toContain("'zorgax_intent_marketplace'");
+    expect(routeSource).toContain("'zorgax_intent_metaverse'");
+    expect(routeSource).toContain("'zorgax_intent_life'");
+    expect(routeSource).toContain("'zorgax_intent_party'");
+    expect(uiSource).toContain('data-guided-event="zorgax_intent_seller"');
+    expect(uiSource).toContain('data-guided-event="zorgax_intent_marketplace"');
+    expect(uiSource).toContain('data-guided-event="zorgax_intent_metaverse"');
+    expect(uiSource).toContain('data-guided-event="zorgax_intent_life"');
+    expect(uiSource).toContain('data-guided-event="zorgax_intent_party"');
+    expect(uiSource).toContain('Organizzare un party');
+    expect(uiSource).toContain('legale e autorizzato');
+    expect(uiSource).toContain('function startGuidedIntent(button)');
+  });
+});

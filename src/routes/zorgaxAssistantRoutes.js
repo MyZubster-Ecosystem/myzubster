@@ -1,0 +1,368 @@
+const express = require('express');
+const mongoose = require('mongoose');
+const crypto = require('crypto');
+const { authenticate, optionalAuthenticate } = require('../middleware/auth');
+const { createZorgaxAccessMiddleware, publicAccess } = require('../middleware/zorgaxAccess');
+const ZorgaxDataEntry = require('../models/ZorgaxDataEntry');
+const User = require('../models/User');
+const { answer, searchWeb, previewData, digestPreview } = require('../services/zorgaxAssistantService');
+const { catalog, createCheckoutIntent, getPaymentIntent, listPaymentIntents } = require('../services/zorgaxLegacyMonetizationService');
+const { getAccess } = require('../services/zorgaxAccessService');
+const { refreshPaymentIntent, verifyAndActivatePaymentIntent } = require('../services/zorgaxPaymentIntentService');
+const { getPaymentReceipt } = require('../services/zorgaxBillingService');
+const zorgaxMyzCheckoutService = require('../services/zorgaxMyzCheckoutService');
+const { captureFunnelEvent } = require('../services/posthogAnalyticsService');
+const { askNicolaComics } = require('../services/nicolaComicsService');
+
+const router = express.Router();
+const { loadZorgaxAccess, requireZorgaxPlan } = createZorgaxAccessMiddleware();
+const FUNNEL_COOKIE = 'myz_funnel_session';
+const FUNNEL_MAX_AGE_MS = 30 * 60 * 1000;
+
+const ZORGAX_FUNNEL_EVENTS = new Set([
+  'zorgax_open',
+  'zorgax_chat_opened',
+  'zorgax_first_message',
+  'zorgax_message_sent',
+  'pro_page_viewed',
+  'checkout_started',
+  'checkout_completed',
+  'free_limit_reached',
+  'knowledge_card_created',
+  'zorgax_intent_seller',
+  'zorgax_intent_marketplace',
+  'zorgax_intent_metaverse',
+  'zorgax_intent_life',
+  'zorgax_intent_party',
+  'zorgax_to_home',
+  'zorgax_to_marketplace',
+  'zorgax_to_seller',
+  'zorgax_to_metaverse',
+  'zorgax_to_life',
+  'zorgax_to_profile_builder',
+  'profile_builder_open',
+  'profile_builder_profile_loaded',
+  'profile_builder_draft_generated',
+  'profile_onboarding_open',
+  'profile_onboarding_profile_loaded',
+  'profile_onboarding_github_connected',
+  'profile_onboarding_connect_github_click',
+  'profile_onboarding_gmail_click',
+  'profile_onboarding_zorgax_start',
+  'profile_onboarding_zorgax_message',
+  'profile_onboarding_continue_partial',
+  'profile_onboarding_bio_generated',
+  'profile_onboarding_completed',
+  'profile_onboarding_enter_metaverse_click',
+  'marketplace_demo_open',
+  'marketplace_demo_category_selected',
+  'seller_checkout_started',
+  'seller_checkout_succeeded',
+  'journey_login_authenticated',
+  'journey_profile_open',
+  'journey_profile_completed',
+  'journey_zorgax_open',
+  'journey_metaverse_open',
+  'journey_marketplace_open'
+]);
+
+function readCookie(req, name) {
+  const raw = String(req.headers.cookie || '');
+  for (const part of raw.split(';')) {
+    const index = part.indexOf('=');
+    if (index === -1) continue;
+    if (part.slice(0, index).trim() === name) return decodeURIComponent(part.slice(index + 1).trim());
+  }
+  return null;
+}
+
+function funnelSession(req, res) {
+  const existing = readCookie(req, FUNNEL_COOKIE);
+  const safeExisting = existing && /^[a-f0-9-]{16,64}$/i.test(existing) ? existing : null;
+  const id = safeExisting || crypto.randomUUID();
+  res.cookie(FUNNEL_COOKIE, id, {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: FUNNEL_MAX_AGE_MS,
+    path: '/'
+  });
+  return id;
+}
+
+function acquisitionContext(req) {
+  const referer = String(req.get('referer') || '').slice(0, 500);
+  if (!referer) return {};
+  try {
+    const url = new URL(referer);
+    const context = {
+      referrerHost: url.hostname.slice(0, 120),
+      referrerPath: url.pathname.slice(0, 160)
+    };
+    for (const key of ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content']) {
+      const value = url.searchParams.get(key);
+      if (value) context[key] = value.slice(0, 120);
+    }
+    return context;
+  } catch (_error) {
+    return {};
+  }
+}
+
+
+async function authenticatedAssistantContext(req) {
+  if (!req.userId) return '';
+  if (mongoose.connection.readyState !== 1) {
+    console.warn('[zorgax-auth-context] database unavailable, skipping identity enrichment');
+    return '';
+  }
+  try {
+    const user = await User.findById(req.userId)
+      .select('username role github.id github.login github.profileUrl github.verifiedAt github.publicSnapshot communityProfile.displayLocation communityProfile.bio')
+      .lean();
+    if (!user) return '';
+    const github = user.github || {};
+    const verifiedGithub = Boolean(github.id && github.login);
+    const snapshot = github.publicSnapshot || {};
+    const repos = Array.isArray(snapshot.repositories) ? snapshot.repositories.slice(0, 6) : [];
+    const context = {
+      myzubsterUsername: user.username || '',
+      role: user.role || 'user',
+      githubVerified: verifiedGithub,
+      githubLogin: verifiedGithub ? github.login : '',
+      githubProfileUrl: verifiedGithub ? (github.profileUrl || `https://github.com/${github.login}`) : '',
+      githubPublic: verifiedGithub ? {
+        name: snapshot.name || '',
+        bio: snapshot.bio || '',
+        company: snapshot.company || '',
+        location: snapshot.location || '',
+        blog: snapshot.blog || '',
+        publicRepos: Number(snapshot.publicRepos || 0),
+        repositories: repos.map(repo => ({
+          name: repo.name || '',
+          description: repo.description || '',
+          language: repo.language || '',
+          url: repo.url || ''
+        }))
+      } : null,
+      communityProfile: {
+        displayLocation: user.communityProfile?.displayLocation || '',
+        bio: user.communityProfile?.bio || ''
+      }
+    };
+    return `AUTHENTICATED MYZUBSTER CONTEXT — trusted first-party session data. Use it only to avoid asking the signed-in user to repeat already-linked identity information. Do not expose internal field names or claim facts beyond the values present. A verified GitHub identity means the account link was verified by MyZubster; it does not independently prove skills, employment, affiliations or repository ownership beyond GitHub's returned identity. Never publish or modify GitHub data without explicit user approval.\n${JSON.stringify(context)}`;
+  } catch (error) {
+    console.warn('[zorgax-auth-context]', error.message);
+    return '';
+  }
+}
+
+function logFunnelEvent(event, req, metadata = {}) {
+  console.info('[zorgax-funnel]', JSON.stringify({
+    event,
+    sessionId: req.zorgaxFunnelSession || null,
+    authenticated: Boolean(req.userId),
+    plan: req.zorgaxAccess?.plan || req.zorgaxPolicy?.plan || null,
+    path: req.originalUrl,
+    ...acquisitionContext(req),
+    ...metadata
+  }));
+}
+
+router.post('/track', optionalAuthenticate, async (req, res) => {
+  const event = String(req.body?.event || '').trim();
+  if (!ZORGAX_FUNNEL_EVENTS.has(event)) {
+    return res.status(400).json({ ok: false, error: 'Evento funnel non valido' });
+  }
+
+  req.zorgaxFunnelSession = funnelSession(req, res);
+  const target = typeof req.body?.target === 'string' ? req.body.target.slice(0, 80) : null;
+  const metadata = target ? { target } : {};
+  logFunnelEvent(event, req, metadata);
+
+  try {
+    await captureFunnelEvent({
+      distinctId: req.userId ? `user:${req.userId}` : `session:${req.zorgaxFunnelSession}`,
+      event,
+      properties: {
+        authenticated: Boolean(req.userId),
+        path: req.originalUrl,
+        ...acquisitionContext(req),
+        ...metadata
+      }
+    });
+  } catch (error) {
+    console.warn('[posthog-funnel]', error.message);
+  }
+
+  return res.status(202).json({ ok: true, accepted: true, event });
+});
+
+router.get('/status', (_req, res) => {
+  const openaiConfigured = Boolean(String(process.env.OPENAI_API_KEY || '').trim());
+  const astraKillSwitch = String(process.env.ZORGAX_ASTRA_KILL_SWITCH || '').toLowerCase() === 'true';
+  res.json({ ok: true, entity: 'ZORGAX-001', capability: 'general-assistant-v1', chat: true, web_research: true, data_entry: true, monetization: true, paid_access_lifecycle: true, paid_access_enforced: true, payment_intents_persisted: true, automatic_payment_monitoring: true, payment_history: true, payment_receipts: true, renewal_stacking: true, automatic_recurring_charges: false, payment_activation_requires_trusted_verifier: true, crypto_quotes_require_trusted_provider: true, guest_chat: true, guest_web_research: false, free_web_research_limit: 2, pro_workspace_required: true, developer_api_required: true, data_write_requires_auth: true, data_write_requires_confirmation: true, autonomous_persistent_writes: false, ai: { openai_configured: openaiConfigured, astra_enabled: openaiConfigured && !astraKillSwitch, astra_kill_switch: astraKillSwitch, astra_model: process.env.ZORGAX_ASTRA_MODEL || 'gpt-5.6-sol' }, providers: { brave_search: Boolean(process.env.BRAVE_SEARCH_API_KEY), tavily: Boolean(process.env.TAVILY_API_KEY), google_news: true, wikipedia: true, general_ai_gateway: true } });
+});
+
+router.get('/pricing', (_req, res) => res.json({ ok: true, entity: 'ZORGAX-001', ...catalog(), myz: zorgaxMyzCheckoutService.catalog() }));
+
+router.post('/checkout/myz', authenticate, async (req, res) => {
+  try {
+    const result = await zorgaxMyzCheckoutService.purchase({
+      ownerId:req.userId,
+      planId:req.body?.plan,
+      idempotencyKey:req.headers['idempotency-key']
+    });
+    res.status(result.receipt.duplicate ? 200 : 201).json({
+      ok:true,
+      entity:'ZORGAX-001',
+      payment:'MYZ_INTERNAL_CREDIT',
+      ...result
+    });
+  } catch (error) {
+    const code = error?.code || 'ZORGAX_MYZ_CHECKOUT_FAILED';
+    if (['ZORGAX_MYZ_PRICE_NOT_CONFIGURED','ZORGAX_MYZ_PRICE_INVALID'].includes(code)) return res.status(503).json({ ok:false, code, error:error.message });
+    if (['INSUFFICIENT_MYZ_BALANCE','MYZ_LEDGER_IDEMPOTENCY_CONFLICT','MYZ_LEDGER_TRANSFER_CONFLICT'].includes(code)) return res.status(409).json({ ok:false, code, error:error.message });
+    if (['IDEMPOTENCY_KEY_REQUIRED','INVALID_MYZ_ACCOUNT','INVALID_MYZ_AMOUNT','MYZ_SELF_TRANSFER_FORBIDDEN'].includes(code)) return res.status(400).json({ ok:false, code, error:error.message });
+    return res.status(400).json({ ok:false, code, error:error.message });
+  }
+});
+
+router.post('/checkout/intent', authenticate, async (req, res) => {
+  try {
+    const intent = await createCheckoutIntent({ ownerId: req.userId, planId: req.body?.plan, asset: req.body?.asset, renew: req.body?.renew === true });
+    res.status(201).json({ ok: true, entity: 'ZORGAX-001', intent, warning: 'Il checkout non firma né invia fondi. L’accesso resta inattivo finché il pagamento non è verificato indipendentemente.' });
+  } catch (error) { res.status(400).json({ ok: false, error: error.message }); }
+});
+
+router.get('/checkout/intent/:intentId', authenticate, async (req, res) => {
+  try { res.json({ ok: true, entity: 'ZORGAX-001', intent: await getPaymentIntent({ ownerId: req.userId, intentId: req.params.intentId }) }); }
+  catch (error) { res.status(404).json({ ok: false, error: error.message }); }
+});
+
+router.post('/checkout/intent/:intentId/verify', authenticate, async (req, res) => {
+  try {
+    const result = await verifyAndActivatePaymentIntent({ ownerId: req.userId, intentId: req.params.intentId, paymentReference: req.body?.paymentReference });
+    res.status(result.pending ? 202 : 200).json({ ok: true, entity: 'ZORGAX-001', ...result });
+  } catch (error) {
+    const status = /non trovato/i.test(error.message) ? 404 : /scaduto|insufficienti|non verificato|non verificabile/i.test(error.message) ? 422 : 400;
+    res.status(status).json({ ok: false, error: error.message });
+  }
+});
+
+router.post('/checkout/intent/:intentId/refresh', authenticate, async (req, res) => {
+  try {
+    const result = await refreshPaymentIntent({ ownerId: req.userId, intentId: req.params.intentId });
+    res.status(result.pending ? 202 : 200).json({ ok: true, entity: 'ZORGAX-001', ...result });
+  } catch (error) {
+    const status = /non trovat[oa]/i.test(error.message) ? 404 : /scaduto|non verificabile/i.test(error.message) ? 422 : 400;
+    res.status(status).json({ ok: false, error: error.message });
+  }
+});
+
+router.get('/checkout/history', authenticate, async (req, res) => {
+  try {
+    const intents = await listPaymentIntents({ ownerId: req.userId, limit: req.query.limit });
+    res.json({ ok: true, entity: 'ZORGAX-001', intents });
+  } catch (error) { res.status(500).json({ ok: false, error: 'Storico pagamenti temporaneamente non disponibile' }); }
+});
+
+router.get('/checkout/intent/:intentId/receipt', authenticate, async (req, res) => {
+  try {
+    const receipt = await getPaymentReceipt({ ownerId: req.userId, intentId: req.params.intentId });
+    res.json({ ok: true, entity: 'ZORGAX-001', receipt });
+  } catch (error) {
+    const status = /non trovat[oa]/i.test(error.message) ? 404 : 400;
+    res.status(status).json({ ok: false, error: error.message });
+  }
+});
+
+router.get('/access', authenticate, async (req, res) => {
+  try { res.json({ ok: true, entity: 'ZORGAX-001', access: publicAccess(await getAccess(req.userId)) }); }
+  catch (error) { res.status(500).json({ ok: false, error: error.message }); }
+});
+
+router.post('/chat', optionalAuthenticate, loadZorgaxAccess, async (req, res) => {
+  try {
+    req.zorgaxFunnelSession = funnelSession(req, res);
+    const requestedWeb = req.body?.useWeb !== false;
+    const policy = req.zorgaxPolicy;
+    const requestedLimit = Number(req.body?.limit);
+    const safeRequestedLimit = Number.isFinite(requestedLimit) && requestedLimit > 0 ? requestedLimit : 5;
+    const limit = policy.maxWebResults > 0 ? Math.min(safeRequestedLimit, policy.maxWebResults) : 1;
+    const useWeb = requestedWeb && policy.webResearch;
+    const nicola = req.body?.nicolaComics;
+    if (nicola && typeof nicola === 'object') {
+      const pilot = await askNicolaComics({
+        action: nicola.action || 'gallery',
+        comicId: nicola.comicId || null,
+        question: req.body?.message || req.body?.prompt || 'Nicola Comics pilot'
+      });
+      logFunnelEvent('zorgax_message_sent', req, {
+        webResearch: false,
+        sourceCount: Array.isArray(pilot.sources) ? pilot.sources.length : 0,
+        integration: 'nicola-comics'
+      });
+      return res.json({
+        ok: true,
+        entity: 'ZORGAX-001',
+        response: pilot.answer,
+        ...pilot,
+        external_sources: [],
+        access: publicAccess(req.zorgaxAccess),
+        featureAccess: policy,
+        accessNotice: null
+      });
+    }
+    const userContext = await authenticatedAssistantContext(req);
+    const result = await answer({ message: req.body?.message || req.body?.prompt, useWeb, history: req.body?.history || [], limit, userContext });
+    const accessNotice = requestedWeb && !policy.webResearch
+      ? 'Accedi a MyZubster per abilitare la ricerca web. La risposta corrente usa solo l’assistente base.'
+      : policy.researchMode === 'LIMITED' && requestedWeb
+        ? `Ricerca Free limitata a ${policy.maxWebResults} fonti per richiesta.`
+        : null;
+    logFunnelEvent('zorgax_message_sent', req, {
+      webResearch: useWeb,
+      sourceCount: Array.isArray(result.sources) ? result.sources.length : 0,
+      aiProvider: result.ai_provider || null,
+      aiModel: result.ai_model || null,
+      aiFallbackReason: result.ai_fallback_reason || null
+    });
+    res.json({ ok: true, entity: 'ZORGAX-001', ...result, external_sources: result.sources, access: publicAccess(req.zorgaxAccess), featureAccess: policy, accessNotice });
+  }
+  catch (error) { res.status(502).json({ ok: false, error: error.message }); }
+});
+
+router.get('/research', authenticate, requireZorgaxPlan('developer'), async (req, res) => {
+  try {
+    const requestedLimit = Number(req.query.limit);
+    const limit = Number.isFinite(requestedLimit) && requestedLimit > 0 ? Math.min(requestedLimit, req.zorgaxPolicy.maxWebResults) : req.zorgaxPolicy.maxWebResults;
+    const result = await searchWeb(req.query.q, limit);
+    res.json({ ok: true, entity: 'ZORGAX-001', ...result, read_only: true, access: publicAccess(req.zorgaxAccess) });
+  }
+  catch (error) { res.status(502).json({ ok: false, error: error.message }); }
+});
+
+router.post('/data/preview', (req, res) => {
+  try { const input = typeof req.body?.input === 'string' ? req.body.input : JSON.stringify(req.body?.data || req.body || {}); res.json({ ok: true, entity: 'ZORGAX-001', ...previewData(input) }); }
+  catch (error) { res.status(400).json({ ok: false, error: error.message }); }
+});
+
+router.post('/data/commit', authenticate, requireZorgaxPlan('pro'), async (req, res) => {
+  try {
+    const { preview, digest, confirmation } = req.body || {};
+    if (!preview || !digest || !confirmation) return res.status(400).json({ ok: false, error: 'preview, digest e confirmation sono obbligatori' });
+    const expected = digestPreview(preview);
+    if (expected !== digest) return res.status(409).json({ ok: false, error: 'Anteprima modificata: rigenerare la conferma' });
+    if (confirmation !== `CONFERMA ${digest.slice(0, 8)}`) return res.status(400).json({ ok: false, error: 'Conferma esplicita non valida' });
+    const entry = await ZorgaxDataEntry.create({ ownerId: String(req.userId), category: String(preview.category || 'general').slice(0, 80), title: String(preview.title || 'Dato Zorgax').slice(0, 180), data: preview.data, source: 'zorgax_user_confirmed', confirmationDigest: digest, createdBy: req.username || null });
+    return res.status(201).json({ ok: true, id: String(entry._id), persisted: true, category: entry.category, title: entry.title, createdAt: entry.createdAt });
+  } catch (error) { res.status(500).json({ ok: false, error: error.message }); }
+});
+
+router.get('/data', authenticate, requireZorgaxPlan('pro'), async (req, res) => {
+  try { const rows = await ZorgaxDataEntry.find({ ownerId: String(req.userId) }).sort({ createdAt: -1 }).limit(100).lean(); res.json({ ok: true, count: rows.length, entries: rows.map(row => ({ id: String(row._id), category: row.category, title: row.title, data: row.data, source: row.source, createdAt: row.createdAt })) }); }
+  catch (error) { res.status(500).json({ ok: false, error: error.message }); }
+});
+
+module.exports = router;

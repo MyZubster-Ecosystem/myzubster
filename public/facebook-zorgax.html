@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MyZubster · Apri Zorgax</title>
+<meta name="robots" content="noindex,nofollow">
+<style>
+body{margin:0;min-height:100vh;display:grid;place-items:center;background:#090b16;color:#fff;font-family:Arial,Helvetica,sans-serif;padding:24px}.card{max-width:620px;padding:28px;border:1px solid #29324d;border-radius:22px;background:#11162a;text-align:center}h1{margin-top:0}.btn{display:inline-block;margin-top:16px;padding:14px 20px;border-radius:12px;background:#6d5dfc;color:#fff;text-decoration:none;font-weight:800}.muted{color:#aab3ca;font-size:14px}
+</style>
+</head>
+<body>
+<main class="card">
+<h1>👽 Prova Zorgax su MyZubster</h1>
+<p>Chiedi a Zorgax come usare MyZubster, entrare nel Marketplace o diventare Seller.</p>
+<p class="muted">Questo link serve anche a misurare quante visite arrivano dai post Facebook.</p>
+<a class="btn" id="go" href="/zorgax?from=facebook&utm_source=facebook&utm_medium=social&utm_campaign=zorgax_growth">Apri Zorgax →</a>
+</main>
+<script>
+(function(){
+  try{
+    fetch('/api/zorgax/assistant/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({event:'facebook_zorgax_landing'}),keepalive:true}).catch(function(){});
+  }catch(e){}
+  document.getElementById('go').addEventListener('click',function(){
+    try{
+      fetch('/api/zorgax/assistant/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({event:'facebook_zorgax_continue'}),keepalive:true}).catch(function(){});
+    }catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

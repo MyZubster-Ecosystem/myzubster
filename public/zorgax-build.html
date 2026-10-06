@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Zorgax Costruisci · MyZubster</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#07111f;color:#eef6ff;min-height:100vh}.wrap{max-width:1100px;margin:auto;padding:28px}.hero{padding:28px;border:1px solid #24425f;border-radius:22px;background:linear-gradient(135deg,#0b1f35,#161333)}h1{margin:0 0 8px;font-size:34px}.lead{color:#b8cbe0;line-height:1.55}.box{margin-top:18px;padding:18px;background:#0d1a2b;border:1px solid #213650;border-radius:16px}.row{display:flex;gap:10px;flex-wrap:wrap}textarea{width:100%;min-height:100px;background:#07111f;border:1px solid #31516e;color:white;border-radius:12px;padding:14px;font-size:16px}button{border:0;border-radius:12px;padding:12px 18px;background:#22c55e;color:#05120a;font-weight:800;cursor:pointer}button.secondary{background:#38bdf8;color:#04131c}.muted{color:#91a8be;font-size:13px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:14px}.card{background:#0a1625;border:1px solid #203a55;border-radius:14px;padding:15px}.card h3{margin:0 0 8px}.tag{display:inline-block;padding:4px 8px;border-radius:999px;background:#17324a;color:#8fd8ff;font-size:11px;margin-right:5px}.warn{color:#fbbf24}.links a{display:block;color:#7dd3fc;text-decoration:none;margin:6px 0;overflow-wrap:anywhere}.links a:hover{text-decoration:underline}.steps li{margin:8px 0;line-height:1.4}#status{margin-left:8px;color:#9fb3c8}@media(max-width:640px){.wrap{padding:14px}h1{font-size:28px}}
+</style>
+</head>
+<body><div class="wrap">
+<div class="hero">
+<h1>🛠️ Zorgax · Costruisci + Trova pezzi</h1>
+<div class="lead">Descrivi cosa vuoi costruire. Zorgax prepara architettura, distinta componenti, controlli di compatibilità e collegamenti di ricerca su Amazon e sul web. Nessun acquisto o pagamento viene eseguito automaticamente.</div>
+</div>
+<div class="box">
+<textarea id="request">Voglio costruire un monopattino elettrico affidabile per uso privato, con buona autonomia.</textarea>
+<div class="row" style="margin-top:10px"><button id="go">Genera progetto e cerca pezzi</button><button class="secondary" id="robot">Esempio robot</button><button class="secondary" id="scooter">Esempio monopattino</button><span id="status"></span></div>
+<div class="muted" style="margin-top:10px">Provider live opzionali: Brave Search API e Tavily se configurati. In assenza di chiavi, Zorgax genera ricerche dirette su Amazon, eBay, AliExpress, Mouser, DigiKey, Google, Bing e DuckDuckGo.</div>
+</div>
+<div id="result"></div>
+</div>
+<script>
+const req=document.getElementById('request'), result=document.getElementById('result'), status=document.getElementById('status'), go=document.getElementById('go');
+document.getElementById('robot').onclick=()=>{req.value='Voglio costruire un robot mobile con sensori, ruote e autonomia di circa due ore.'};
+document.getElementById('scooter').onclick=()=>{req.value='Voglio costruire un monopattino elettrico affidabile per uso privato, con buona autonomia.'};
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function render(data){const p=data.plan,s=data.sourcing;let html=`<div class="box"><span class="tag">${esc(p.type)}</span><span class="tag">${esc(p.generated_by)}</span><h2>${esc(p.title)}</h2><div class="muted">${esc(p.safety_boundary)}</div><h3>Architettura</h3><ul class="steps">${p.architecture.map(x=>`<li>${esc(x)}</li>`).join('')}</ul><h3>Passi</h3><ol class="steps">${p.steps.map(x=>`<li>${esc(x)}</li>`).join('')}</ol></div>`;
+html+=`<div class="box"><h2>Distinta componenti e sourcing</h2><div class="grid">${s.components.map(c=>`<div class="card"><h3>${esc(c.component)}</h3><div class="muted">${esc(c.compatibility)}</div>${c.safety?`<p class="warn">⚠ ${esc(c.safety)}</p>`:''}<div class="links">${c.results.map(r=>`<a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer">${esc(r.title)} · ${esc(r.provider)}</a>`).join('')}</div></div>`).join('')}</div></div>`;
+result.innerHTML=html;
+}
+go.onclick=async()=>{const text=req.value.trim();if(!text)return;go.disabled=true;status.textContent='Zorgax sta progettando e cercando…';result.innerHTML='';try{const r=await fetch('/api/zorgax/build/plan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({request:text,live:true,limit:5})});const d=await r.json();if(!r.ok||!d.ok)throw new Error(d.error||'Errore');render(d);status.textContent='Pronto'}catch(e){status.textContent='Errore: '+e.message}finally{go.disabled=false}};
+</script></body></html>

@@ -5,14 +5,23 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const bountyPaymentRoutes = require('./routes/bounty-payments');
-const bountyRoutes = require('./routes/bounties');
 const mongoose = require('mongoose');
 const gatewayRoutes = require('./routes/gateway');
 const daoRoutes = require('./routes/dao');
 const zorgaxDaoRoutes = require('./routes/zorgax-dao');
+const lifeDaoRoutes = require('./routes/dao-life');
+const { lifeDaoBindingGuard } = require('./services/lifeDaoPolicy');
+const { attachRealtimeServer } = require('./realtime/socketServer');
 
 const gardenRoutes = require('./routes/gardens');
 const telemetryRoutes = require('./routes/telemetry');
+const metaverseRoutes = require('./routes/metaverse');
+const virtualRoomRoutes = require('./routes/virtual-rooms');
+const realtimeModerationRoutes = require('./routes/realtime-moderation');
+const realtimeRoutes = require('./routes/realtime');
+const chatRoutes = require('./routes/chat');
+const notificationRoutes = require('./routes/notifications');
+const zorgaxPartyRoutes = require('./routes/zorgax-party');
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3009;
@@ -49,10 +58,18 @@ app.get('/health', (_req, res) => {
 
 app.use('/api/gardens', gardenRoutes);
 app.use('/api/telemetry', telemetryRoutes);
+app.use('/api/metaverse', metaverseRoutes);
+app.use('/api/metaverse', virtualRoomRoutes);
+app.use('/api/moderation', realtimeModerationRoutes);
+app.use('/api/realtime', realtimeRoutes);
+app.use('/api/chat', chatRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/zorgax', zorgaxPartyRoutes);
 app.use('/api/gateway', gatewayRoutes);
 app.use('/api/dao/zorgax', zorgaxDaoRoutes);
+app.use('/api/dao/life', lifeDaoRoutes);
+app.use('/api/dao', lifeDaoBindingGuard);
 app.use('/api/dao', daoRoutes);
-app.use('/api/bounties', bountyRoutes);
 
 app.get('/api/dashboard', (_req, res) => {
   res.json({
@@ -66,7 +83,19 @@ app.get('/api/dashboard', (_req, res) => {
       },
       dao: { status: 'online', endpoint: '/api/dao' },
       zorgaxGovernance: { status: 'advisory', endpoint: '/api/dao/zorgax', binding: false },
-      bounties: { status: 'online', endpoint: '/api/bounties', source: 'bounty-engine/registry-v2.json' }
+      lifeGovernance: {
+        status: 'advisory',
+        endpoint: '/api/dao/life/status',
+        binding: false,
+        consentRequired: true
+      },
+      metaverse: { status: 'prototype', endpoint: '/api/metaverse/world', identityMode: 'guest-unverified' },
+      virtualRoomLifecycle: { status: 'experimental', endpoint: '/api/metaverse/rooms', authority: 'server' },
+      realtime: { status: 'experimental', endpoint: '/realtime', tokenEndpoint: '/api/realtime/token', metricsEndpoint: '/api/realtime/metrics', authority: 'server', metricsAccess: 'admin' },
+      chat: { status: 'experimental', endpoint: '/api/chat', delivery: 'persisted-before-realtime' },
+      notifications: { status: 'experimental', endpoint: '/api/notifications', delivery: 'persisted-before-realtime' },
+      moderation: { status: 'foundation', endpoint: '/api/moderation', realtimeDelivery: 'integrated-with-chat' },
+      zorgaxPartyMode: { status: 'experimental', endpoint: '/api/zorgax/party-context', binding: false }
     },
     stats: {
       totalIssues: 0,
@@ -144,10 +173,17 @@ app.get('/dashboard', (_req, res) => {
     <strong>Backend:</strong> online<br>
     <strong>Health:</strong> <a href="/health"><code>/health</code></a><br>
     <strong>Dashboard API:</strong> <a href="/api/dashboard"><code>/api/dashboard</code></a><br>
-    <strong>Bounty Registry API:</strong> <a href="/api/bounties"><code>/api/bounties</code></a><br>
     <strong>Gardens API:</strong> <a href="/api/gardens"><code>/api/gardens</code></a><br>
+    <strong>Metaverse API:</strong> <a href="/api/metaverse/world"><code>/api/metaverse/world</code></a> (prototype)<br>
+    <strong>Virtual rooms:</strong> <code>/api/metaverse/rooms</code> (experimental, server-authoritative)<br>
+    <strong>Realtime:</strong> <code>/realtime</code> with token <code>/api/realtime/token</code> and admin metrics <code>/api/realtime/metrics</code> (experimental)<br>
+    <strong>Chat:</strong> <code>/api/chat</code> (persisted DM/community channels)<br>
+    <strong>Notifications:</strong> <code>/api/notifications</code> (durable + realtime delivery)<br>
+    <strong>Moderation API:</strong> <code>/api/moderation</code> (delivery policy integrated with chat)<br>
+    <strong>ZORGAX Party Mode:</strong> <a href="/api/zorgax/party-context"><code>/api/zorgax/party-context</code></a> (experimental, read-only)<br>
     <strong>DAO API:</strong> <a href="/api/dao/proposals"><code>/api/dao/proposals</code></a><br>
-    <strong>Zorgax DAO:</strong> <a href="/api/dao/zorgax/status"><code>/api/dao/zorgax/status</code></a> (advisory, non-binding)
+    <strong>Zorgax DAO:</strong> <a href="/api/dao/zorgax/status"><code>/api/dao/zorgax/status</code></a> (advisory, non-binding)<br>
+    <strong>LIFE DAO lane:</strong> <a href="/api/dao/life/status"><code>/api/dao/life/status</code></a> (consent-gated, advisory, non-binding)
   </div>
 </body>
 </html>`);
@@ -174,9 +210,15 @@ async function startServer() {
       console.log(`✅ MyZubster backend listening on port ${PORT}`);
       console.log(`📍 Health check: http://localhost:${PORT}/health`);
       console.log(`📍 Dashboard: http://localhost:${PORT}/dashboard`);
-      console.log(`📍 Bounties: http://localhost:${PORT}/api/bounties`);
-      resolve(server);
+      console.log(`🪐 Metaverse world: http://localhost:${PORT}/api/metaverse/world`);
+      console.log(`⚡ Realtime gateway: ws://localhost:${PORT}/realtime`);
+      console.log(`💬 Chat API: http://localhost:${PORT}/api/chat`);
+      console.log(`🔔 Notifications API: http://localhost:${PORT}/api/notifications`);
+      console.log(`🎉 ZORGAX Party Mode: http://localhost:${PORT}/api/zorgax/party-context`);
     });
+    const io = attachRealtimeServer(server);
+    server.realtime = io;
+    resolve(server);
   });
 }
 
@@ -187,8 +229,6 @@ if (require.main === module) {
   });
 }
 
-// Export the Express app directly so Supertest/Jest can require() it.
-// Keep lifecycle helpers attached for callers that need explicit DB/server control.
 app.startServer = startServer;
 app.connectDatabase = connectDatabase;
 app.disconnectDatabase = disconnectDatabase;

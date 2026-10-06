@@ -1,0 +1,35 @@
+name: Operational Smoke
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 * * * *'
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: package.json
+
+      - name: Run read-only production smoke
+        env:
+          SMOKE_BASE_URL: ${{ secrets.APP_URL }}
+          SMOKE_PATHS: ${{ vars.SMOKE_PATHS }}
+        run: |
+          if [ -z "${SMOKE_BASE_URL:-}" ]; then
+            export SMOKE_BASE_URL="https://www.myzubster.com"
+          fi
+          if [ -z "${SMOKE_PATHS:-}" ]; then
+            export SMOKE_PATHS="/"
+          fi
+          node scripts/production-smoke.js

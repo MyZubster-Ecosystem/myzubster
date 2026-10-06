@@ -1,0 +1,35 @@
+{
+  "schema": "myzubster.contributor-verifier-link.v1",
+  "contributor": {
+    "github": "Shweta-singh24"
+  },
+  "project": {
+    "canonicalName": "MyZubsterGateway jurisdiction capability enforcement",
+    "repository": "https://github.com/Shweta-singh24/MyZubsterGateway",
+    "upstreamPullRequest": "https://github.com/MyZubster-Ecosystem/MyZubsterGateway/pull/1385",
+    "commit": "82461433e0c5bfee9aa369b4a71e9331261cf803"
+  },
+  "checkpoint": {
+    "classification": "CLOSED_UNMERGED_PR_CHECKPOINT",
+    "expectedBehavior": [
+      "GLOBAL explicitly allows known capabilities",
+      "HK explicitly allows known capabilities",
+      "CN_MAINLAND denies restricted capabilities",
+      "unknown jurisdictions fail closed",
+      "unknown capabilities fail closed",
+      "Tari and XMR protected routes are wired through jurisdictionGate"
+    ]
+  },
+  "evidence": {
+    "adoptionRecord": "ADOPTION.md",
+    "pullRequestNumber": 1385,
+    "reportedOriginalValidation": "8/8 capability policy checks passed plus node --check and git diff --check",
+    "independentMyZubsterVerifierRun": "PENDING"
+  },
+  "boundaries": {
+    "mergedIntoUpstream": false,
+    "productionDeploymentEstablished": false,
+    "legalComplianceCertificationEstablished": false,
+    "securityCertificationEstablished": false
+  }
+}

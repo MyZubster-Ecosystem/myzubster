@@ -55,7 +55,7 @@ Public author `@wasim-builds` contributed [PR #1513](https://github.com/MyZubste
 
 This evidence establishes acceptance of the one-line workflow correction. It does not establish end-to-end onboarding execution, acceptance of character PR #637, verified competencies, or payment. PR #637 remains open with [changes requested](https://github.com/MyZubster-Ecosystem/myzubster/pull/637#pullrequestreview-5426431671) for its knowledge-node target and explicit evidence states. This checkpoint updates the public contribution source; it does not assert a live Contributor Passport or Knowledge Graph refresh. Other contributor rows retain their earlier checkpoint dates and have not been reverified here.
 
-### Contributor node — @wasim-builds <a id="wasim-builds"></a>
+### Contributor node — @wasim-builds <a id="wasim-builds" name="wasim-builds"></a>
 
 - **Canonical Contributor Anchor:** `#wasim-builds`
 - **Contributor Alias:** `@wasim-builds` (public GitHub alias opt-in only)

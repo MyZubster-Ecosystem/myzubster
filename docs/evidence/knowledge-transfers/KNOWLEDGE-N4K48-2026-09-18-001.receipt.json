@@ -1,0 +1,44 @@
+{
+  "schema": "myzubster.knowledge-anchor-receipt.v1",
+  "transfer_id": "KNOWLEDGE-N4K48-2026-09-18-001",
+  "manifest_schema": "myzubster.knowledge-transfer.v1",
+  "manifest_sha256": "39ab3a177734b5e3e254657cfe6015100644bcda2fb008cf2561d000669b9e14",
+  "payload": "MZ-KNOWLEDGE-V1:39ab3a177734b5e3e254657cfe6015100644bcda2fb008cf2561d000669b9e14",
+  "status": "CONFIRMED",
+  "verification": {
+    "result": "MATCH",
+    "verified_at": "2026-09-18",
+    "verifier_endpoint": "https://www.myzubster.com/api/knowledge-anchor/n4k48/0xff3c108275625673ad22a886da2df7120ae81b8f0106ec833613513b03c7bc31",
+    "checks": {
+      "chain_id": true,
+      "receipt_success": true,
+      "zero_top_level_value": true,
+      "anchor_execution": true,
+      "target_match": true,
+      "execution_value_zero": true,
+      "calldata_match": true,
+      "mode_match": true
+    }
+  },
+  "blockchain": {
+    "network": "base-sepolia",
+    "chain_id": 84532,
+    "transaction_hash": "0xff3c108275625673ad22a886da2df7120ae81b8f0106ec833613513b03c7bc31",
+    "block_number": 47000958,
+    "confirmed_at": "2026-09-18T22:23:24.000Z",
+    "transaction_type": 4,
+    "from": "0xB42F812A44c22cc6b861478900401ee759EbEAD6",
+    "top_level_to": "0xdb9B1e94B5b69Df7e401DDbedE43491141047dB3",
+    "top_level_value_wei": "0",
+    "explorer": "https://sepolia.basescan.org/tx/0xff3c108275625673ad22a886da2df7120ae81b8f0106ec833613513b03c7bc31"
+  },
+  "delegated_execution": {
+    "recognized": true,
+    "function": "redeemDelegations",
+    "mode": "0x0000000000000000000000000000000000000000000000000000000000000000",
+    "target": "0x000000000000000000000000000000000000dEaD",
+    "value_wei": "0",
+    "payload_hex": "0x4d5a2d4b4e4f574c454447452d56313a33396162336131373737333462356533653235343635376366653630313531303036343462636461326662303038636632353631643030303636396239653134"
+  },
+  "boundary": "This receipt proves integrity/timestamp evidence for the anchored manifest commitment. It does not independently prove authorship of every underlying idea, learning or mastery, scientific validity, commercial value or legal ownership."
+}

@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "2.0",
+  "name": "ChatGPT-Zorgax-Orchestrator",
+  "principles": ["evidence-first", "retrieve-before-claim", "material-change-only", "human-gated-consequential-actions", "privacy-by-default"],
+  "searchProfiles": [
+    {"id":"life_official","sources":["EC","CINEA","Funding & Tenders","MASE/NCP"],"freshness":"high","notifyOn":"material_change"},
+    {"id":"consortium_evidence","sources":["authorized_project_sources","official_public_sources"],"freshness":"high","notifyOn":"role_or_commitment_change"},
+    {"id":"technical_research","sources":["official_docs","standards","papers","reproducible_sources"],"freshness":"contextual","notifyOn":"actionable_change"},
+    {"id":"ecosystem_adoption","sources":["GitHub","independent_public_sources"],"freshness":"medium","notifyOn":"contribution_or_higher"},
+    {"id":"github_health","sources":["GitHub"],"freshness":"high","notifyOn":"actionable_failure_or_regression"}
+  ],
+  "resultContract":["query_id","profile","query","retrieved_at","source_type","source_reference","claim","evidence","confidence","independence","freshness","dedupe_key","material_change","recommended_next_action"],
+  "routing": {
+    "private_project_state":"connected_authorized_sources_first",
+    "changing_public_fact":"fresh_public_search_first",
+    "repository_state":"github_first",
+    "partner_data":"zorgax_life_pipeline"
+  },
+  "humanGates":["partner_confirmation","external_message","funding_submission","budget_or_contract","scientific_claim","restricted_data_publication","material_production_change","risky_merge"],
+  "scheduledProfiles":["life_official","ecosystem_adoption","github_health","partner_followups"],
+  "quietWhenNoMaterialChange": true,
+  "lifePipeline":"docs/life-2027/zorgax-life-automation-v1.json"
+}

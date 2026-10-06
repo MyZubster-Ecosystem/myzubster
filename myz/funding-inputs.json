@@ -1,0 +1,37 @@
+{
+  "schema": "myzubster-funding-inputs/v1",
+  "generated_at": "2026-09-19T05:03:00Z",
+  "notes": [
+    "BTC and Stripe receipts are treasury funding inputs only; they do not approve a bounty.",
+    "CONFIRMED means the blockchain transaction has at least one independently visible confirmation. It is not automatically treated as spendable/SETTLED by the dashboard.",
+    "Gross sender-side amounts and exchange fees are not substituted for the independently visible on-chain output received by the MyZubster address."
+  ],
+  "items": [
+    {
+      "funding_id": "FUND-BTC-20260919-001",
+      "asset": "BTC",
+      "rail": "bitcoin",
+      "network": "bitcoin-mainnet",
+      "status": "SETTLED",
+      "amount": 0.00134846,
+      "currency": "BTC",
+      "confirmations_observed": 1,
+      "destination": "bc1ql0d4hxdqt9cvawx635rwfykxap8juaz94nujl2",
+      "tx_id": "0fa044178ff6f37416f7992621d913c2ef22d9f8acdb29534a194705b4bd862c",
+      "block_height": 967663,
+      "broadcast_at": "2026-09-19T04:51:39Z",
+      "purpose": "MyZubster bounty treasury funding",
+      "source_category": "voluntary-project-contribution",
+      "source_reference": "https://www.blockchain.com/explorer/transactions/btc/0fa044178ff6f37416f7992621d913c2ef22d9f8acdb29534a194705b4bd862c",
+      "evidence": [
+        "https://www.blockchain.com/explorer/transactions/btc/0fa044178ff6f37416f7992621d913c2ef22d9f8acdb29534a194705b4bd862c"
+      ],
+      "approves_bounty": false,
+      "note": "Independently visible output #20 to the MyZubster public BTC receiving address. On-chain received amount is 0.00134846 BTC. Funding input is marked SETTLED for treasury accounting after confirmed on-chain receipt; this does not approve or pay any bounty.",
+      "settled_at": "2026-09-19T05:03:00Z",
+      "settlement_evidence": [
+        "https://www.blockchain.com/explorer/transactions/btc/0fa044178ff6f37416f7992621d913c2ef22d9f8acdb29534a194705b4bd862c"
+      ]
+    }
+  ]
+}

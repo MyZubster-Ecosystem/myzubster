@@ -1,17 +1,23 @@
 const Dashboard = require('../models/dashboardModel');
+const myzLedgerApiService = require('../services/myzLedgerApiService');
+const { myzAccountForUser } = require('../services/marketplaceMyzPaymentService');
 
 // #242: User dashboard - balance and transaction history
 exports.getUserDashboard = async (req, res) => {
   try {
     const userId = req.params.userId || req.user?.userId;
     if (!userId) return res.status(400).json({ error: 'userId is required' });
+    if (String(req.user?.userId || '') !== String(userId) && req.user?.role !== 'admin') return res.status(403).json({ error: 'Forbidden' });
     const d = await Dashboard.getOrCreate(userId);
+    const myz = myzLedgerApiService.getHistory({ accountId:myzAccountForUser(userId), limit:20 });
     res.json({
       userId: d.userId,
-      balanceMYZ: d.balanceMYZ,
+      balanceMYZ: myz.balanceMyz,
+      balanceMYZSource: 'canonical-ledger',
       balanceXMR: d.balanceXMR,
-      transactionCount: d.transactions.length,
-      transactions: d.transactions.slice(-20).reverse(),
+      transactionCount: myz.entries.length + d.transactions.filter(tx => tx.currency !== 'MYZ').length,
+      myzTransactions: myz.entries,
+      transactions: d.transactions.filter(tx => tx.currency !== 'MYZ').slice(-20).reverse(),
       createdAt: d.createdAt,
       updatedAt: d.updatedAt
     });
@@ -30,7 +36,8 @@ exports.getRobotDashboard = async (req, res) => {
       robotId: d.robotId,
       totalEarnings: d.totalEarnings,
       jobsCompleted: d.jobsCompleted,
-      balanceMYZ: d.balanceMYZ,
+      balanceMYZ: null,
+      balanceMYZSource: 'canonical-ledger-unmapped-robot-account',
       balanceXMR: d.balanceXMR,
       earningsHistory: earnings.slice(-20).reverse(),
       allTransactions: d.transactions.slice(-20).reverse()
@@ -47,16 +54,35 @@ exports.createP2PTransfer = async (req, res) => {
     if (senderId === receiverId) return res.status(400).json({ error: 'Cannot transfer to self' });
     if (amount <= 0) return res.status(400).json({ error: 'Amount must be positive' });
 
+    if (currency === 'MYZ') {
+      if (String(req.user?.userId || '') !== String(senderId) && req.user?.role !== 'admin') return res.status(403).json({ error: 'Sender must match authenticated user' });
+      const idempotencyKey = String(req.headers['idempotency-key'] || '').trim();
+      if (!idempotencyKey) return res.status(400).json({ error: 'Idempotency-Key is required' });
+      const transfer = myzLedgerApiService.transfer({
+        from_account_id:myzAccountForUser(senderId),
+        to_account_id:myzAccountForUser(receiverId),
+        amount_myz:String(amount),
+        idempotency_key:`dashboard-p2p:${senderId}:${idempotencyKey}`,
+        reference:{ type:'DASHBOARD_P2P', client_idempotency_key:idempotencyKey },
+        note:description || `P2P transfer to ${receiverId}`
+      });
+      return res.json({
+        message:'P2P MYZ transfer recorded in canonical ledger',
+        senderId, receiverId, amount:String(amount), currency:'MYZ',
+        transferId:transfer.transferId,
+        debitEntryId:transfer.debitEntry.entry_id,
+        creditEntryId:transfer.creditEntry.entry_id,
+        senderBalance:transfer.fromBalanceMyz,
+        receiverBalance:transfer.toBalanceMyz,
+        duplicate:transfer.duplicate
+      });
+    }
+
     const sender = await Dashboard.getOrCreate(senderId);
     const receiver = await Dashboard.getOrCreate(receiverId);
-
-    // Check balance
-    if (currency === 'MYZ' && sender.balanceMYZ < amount)
-      return res.status(400).json({ error: 'Insufficient MYZ balance' });
     if (currency === 'XMR' && sender.balanceXMR < amount)
       return res.status(400).json({ error: 'Insufficient XMR balance' });
 
-    // Execute transfer
     sender.addTransaction('transfer_out', amount, currency, receiverId, description || `P2P transfer to ${receiverId}`);
     receiver.addTransaction('transfer_in', amount, currency, senderId, description || `P2P transfer from ${senderId}`);
     await sender.save();
@@ -65,8 +91,8 @@ exports.createP2PTransfer = async (req, res) => {
     res.json({
       message: 'P2P transfer successful',
       senderId, receiverId, amount, currency,
-      senderBalance: currency === 'MYZ' ? sender.balanceMYZ : sender.balanceXMR,
-      receiverBalance: currency === 'MYZ' ? receiver.balanceMYZ : receiver.balanceXMR
+      senderBalance: sender.balanceXMR,
+      receiverBalance: receiver.balanceXMR
     });
   } catch (e) { res.status(500).json({ error: e.message }); }
 };
@@ -81,10 +107,16 @@ exports.addCheckoutPayment = async (req, res) => {
     if (!['MYZ', 'XMR'].includes(method))
       return res.status(400).json({ error: 'Payment method must be MYZ or XMR' });
 
+    if (method === 'MYZ') {
+      return res.status(410).json({
+        error:'Legacy MYZ checkout is disabled',
+        code:'MYZ_CHECKOUT_MOVED',
+        next:'/api/marketplace/orders/:id/payment/myz',
+        message:'Usa il pagamento MYZ dell’ordine Marketplace: il dashboard legacy non è una fonte contabile MYZ.'
+      });
+    }
+
     const d = await Dashboard.getOrCreate(userId);
-    // Check balance
-    if (method === 'MYZ' && d.balanceMYZ < amount)
-      return res.status(400).json({ error: 'Insufficient MYZ balance for checkout' });
     if (method === 'XMR' && d.balanceXMR < amount)
       return res.status(400).json({ error: 'Insufficient XMR balance for checkout' });
 
@@ -94,7 +126,7 @@ exports.addCheckoutPayment = async (req, res) => {
     res.json({
       message: 'Payment processed for marketplace checkout',
       orderId, amount, currency: method,
-      remainingBalance: method === 'MYZ' ? d.balanceMYZ : d.balanceXMR
+      remainingBalance: d.balanceXMR
     });
   } catch (e) { res.status(500).json({ error: e.message }); }
 };
@@ -130,8 +162,13 @@ exports.listTransactions = async (req, res) => {
   try {
     const { userId, type, currency } = req.query;
     if (!userId) return res.status(400).json({ error: 'userId is required' });
+    if (String(req.user?.userId || '') !== String(userId) && req.user?.role !== 'admin') return res.status(403).json({ error: 'Forbidden' });
+    if (String(currency || '').toUpperCase() === 'MYZ') {
+      const history = myzLedgerApiService.getHistory({ accountId:myzAccountForUser(userId), limit:100 });
+      return res.json({ count:history.entries.length, asset:'MYZ', source:'canonical-ledger', balanceMYZ:history.balanceMyz, transactions:history.entries });
+    }
     const d = await Dashboard.getOrCreate(userId);
-    let txs = d.transactions;
+    let txs = d.transactions.filter(t => t.currency !== 'MYZ');
     if (type) txs = txs.filter(t => t.type === type);
     if (currency) txs = txs.filter(t => t.currency === currency);
     res.json({
@@ -145,9 +182,6 @@ exports.listTransactions = async (req, res) => {
 exports.getStats = async (req, res) => {
   try {
     const totalUsers = await Dashboard.countDocuments();
-    const totalMYZ = await Dashboard.aggregate([
-      { $group: { _id: null, total: { $sum: '$balanceMYZ' } } }
-    ]);
     const totalXMR = await Dashboard.aggregate([
       { $group: { _id: null, total: { $sum: '$balanceXMR' } } }
     ]);
@@ -157,7 +191,8 @@ exports.getStats = async (req, res) => {
     ]);
     res.json({
       totalUsers,
-      totalMYZInCirculation: totalMYZ[0]?.total || 0,
+      totalMYZInCirculation: null,
+      totalMYZAccountingSource: 'canonical-ledger',
       totalXMRInCirculation: totalXMR[0]?.total || 0,
       totalTransactions: totalTransactions[0]?.total || 0
     });

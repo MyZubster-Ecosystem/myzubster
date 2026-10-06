@@ -89,7 +89,8 @@ exports.processMerge = async (req, res) => {
     const pr = req.body.pull_request;
     const repository = req.body.repository?.full_name;
     const contributor = pr.user?.login;
-    const closingIssuesRef = pr.body?.match(/(?:closes|fixes|resolves)\s+#(\d+)/gi) || [];
+    const prBody = String(pr.body || '').slice(0, 50000);
+    const closingIssuesRef = prBody.match(/(?:closes|fixes|resolves)\s+#(\d+)/gi) || [];
     const issueNumbers = closingIssuesRef.map(m => parseInt(m.match(/\d+/)[0]));
     const processed = [];
     for (const issueNumber of issueNumbers) {

@@ -31,6 +31,14 @@ exports.authenticate = async (req, res, next) => {
   }
 };
 
+// Anonymous requests remain guests. If a caller supplies a token, validate it
+// exactly like a protected route so an invalid token never downgrades silently.
+exports.optionalAuthenticate = async (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return next();
+  return exports.authenticate(req, res, next);
+};
+
 // Middleware per verificare il ruolo admin
 exports.isAdmin = (req, res, next) => {
   if (req.userRole !== 'admin') {
@@ -41,3 +49,4 @@ exports.isAdmin = (req, res, next) => {
   }
   next();
 };
+

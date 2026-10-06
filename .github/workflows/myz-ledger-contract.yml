@@ -1,0 +1,72 @@
+# manual trigger marker: 2026-09-18T16:07Z
+name: MYZ canonical ledger contract
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/services/myzLedgerApiService.js'
+      - 'src/routes/myzLedgerApiRoutes.js'
+      - 'src/routes/myzWalletRoutes.js'
+      - 'src/services/marketplaceMyzPaymentService.js'
+      - 'src/services/zorgaxMyzCheckoutService.js'
+      - 'src/middleware/myzLedgerServiceAuth.js'
+      - 'myz/**'
+      - 'scripts/myz-ledger-ci-smoke.js'
+      - 'tests/myzLedgerApiService.test.js'
+      - 'tests/myzLedgerApiRoutes.test.js'
+      - 'tests/myzInternalPayments.test.js'
+      - '.github/workflows/myz-ledger-contract.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/services/myzLedgerApiService.js'
+      - 'src/routes/myzLedgerApiRoutes.js'
+      - 'src/routes/myzWalletRoutes.js'
+      - 'src/services/marketplaceMyzPaymentService.js'
+      - 'src/services/zorgaxMyzCheckoutService.js'
+      - 'src/middleware/myzLedgerServiceAuth.js'
+      - 'myz/**'
+      - 'scripts/myz-ledger-ci-smoke.js'
+      - 'tests/myzLedgerApiService.test.js'
+      - 'tests/myzLedgerApiRoutes.test.js'
+      - 'tests/myzInternalPayments.test.js'
+      - '.github/workflows/myz-ledger-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: myz-ledger-contract-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_ENV: test
+  CI: true
+
+jobs:
+  ledger-contract:
+    name: Canonical MYZ ledger contract
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout core
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify canonical ledger file
+        run: node myz/verify-ledger.mjs
+
+      - name: Run MYZ ledger service and route tests
+        run: npx jest tests/myzLedgerApiService.test.js tests/myzLedgerApiRoutes.test.js tests/myzInternalPayments.test.js --runInBand
+
+      - name: Run MYZ internal-accounting safety smoke marker
+        run: node scripts/myz-ledger-ci-smoke.js

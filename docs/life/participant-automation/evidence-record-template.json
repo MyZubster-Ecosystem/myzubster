@@ -1,0 +1,42 @@
+{
+  "version": "life_participant_evidence_v1",
+  "participantSlug": "replace-with-non-sensitive-slug",
+  "recordedAt": "YYYY-MM-DD",
+  "source": "participant_relayed_interviews",
+  "privacy": {
+    "sourceContainedPersonalNames": false,
+    "storedPersonalNames": false,
+    "directContactDataStored": false,
+    "reviewed": false
+  },
+  "scope": "SINGLE_CANDIDATE_OR_COMPARATIVE",
+  "verdict": "NEEDS_EVIDENCE",
+  "rankingImpact": "NONE",
+  "rankingImpactReason": "Complete after evidence review.",
+  "evidence": [
+    {
+      "participant": "Persona A",
+      "candidateId": "candidate-id",
+      "reportedPreference": null,
+      "problem": null,
+      "currentWorkaround": null,
+      "desiredOutcomeSevenDays": null,
+      "mustHave": null,
+      "wouldTest": null,
+      "wouldConsiderOffer": "NOT_ASKED",
+      "objectionOrRisk": null,
+      "completeness": "INCOMPLETE"
+    }
+  ],
+  "positiveSignals": [],
+  "negativeSignals": [],
+  "gaps": [],
+  "nextGate": "Collect four separate, anonymous and candidate-attributed responses.",
+  "review": {
+    "evidenceReviewer": "TBD",
+    "privacyReviewer": "TBD",
+    "reviewedAt": null,
+    "humanDecision": "PENDING"
+  }
+}
+

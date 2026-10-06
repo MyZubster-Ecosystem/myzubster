@@ -1,0 +1,84 @@
+name: Continuous Evidence Gate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  evidence-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install exact dependency tree
+        run: npm ci --ignore-scripts
+
+      - name: Run tests
+        run: npm test -- --runInBand
+
+      - name: Run vulnerability audit
+        run: |
+          npm audit --json > npm-audit.json || true
+          node - <<'NODE'
+          const fs = require('fs');
+          const audit = JSON.parse(fs.readFileSync('npm-audit.json','utf8'));
+          const v = audit.metadata?.vulnerabilities || {};
+          const result = {
+            generatedAt: new Date().toISOString(),
+            commit: process.env.GITHUB_SHA,
+            vulnerabilities: v,
+            gate: (v.critical || 0) > 0 ? 'NO-GO' : 'PASS-CRITICAL-GATE'
+          };
+          fs.writeFileSync('security-gate.json', JSON.stringify(result, null, 2));
+          console.log(result);
+          if ((v.critical || 0) > 0) process.exit(1);
+          NODE
+
+      - name: Generate CycloneDX SBOM
+        run: npx --yes @cyclonedx/cyclonedx-npm@4.1.1 --output-file evidence.cdx.json
+
+      - name: Build evidence manifest
+        if: always()
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const crypto = require('crypto');
+          const files = ['package-lock.json','npm-audit.json','security-gate.json','evidence.cdx.json'].filter(fs.existsSync);
+          const sha256 = p => crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
+          const manifest = {
+            schema: 'myzubster-evidence-manifest/v1',
+            repository: process.env.GITHUB_REPOSITORY,
+            commit: process.env.GITHUB_SHA,
+            ref: process.env.GITHUB_REF,
+            runId: process.env.GITHUB_RUN_ID,
+            generatedAt: new Date().toISOString(),
+            artifacts: files.map(path => ({path, sha256: sha256(path)}))
+          };
+          fs.writeFileSync('evidence-manifest.json', JSON.stringify(manifest, null, 2));
+          NODE
+
+      - name: Upload auditable evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: continuous-evidence-${{ github.sha }}
+          path: |
+            npm-audit.json
+            security-gate.json
+            evidence.cdx.json
+            evidence-manifest.json
+          if-no-files-found: warn
+          retention-days: 30

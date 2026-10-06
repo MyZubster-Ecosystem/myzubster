@@ -4,18 +4,25 @@ on:
   pull_request:
     branches: [main, develop]
   push:
-    branches: [main]
+    branches: [main, develop]
   workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_ENV: test
+  CI: true
+
+# Keep the full repository CI as the release gate; MYZ-164 also has a focused Seller Free regression workflow.
 jobs:
   test:
+    name: Test, lint and build
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [18.x, 20.x, 24.x]
     steps:
       - name: Checkout codice
         uses: actions/checkout@v4
@@ -23,17 +30,73 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version-file: package.json
           cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            frontend/package-lock.json
 
-      - name: Installa dipendenze
+      - name: Installa dipendenze backend
         run: npm ci
 
-      - name: Lint
+      - name: Installa dipendenze frontend
+        working-directory: frontend
+        run: npm ci
+
+      - name: Lint backend
         run: npm run lint --if-present
 
-      - name: Unit test
-        run: npm test
+      - name: Unit test backend
+        run: npm test -- --runInBand --testPathIgnorePatterns=/frontend/
 
-      - name: Build
+      - name: Unit test frontend
+        working-directory: frontend
+        run: npm test -- --watchAll=false
+
+      - name: Build backend
         run: npm run build --if-present
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ github.sha }}
+          path: |
+            coverage/
+            frontend/coverage/
+            *.log
+          retention-days: 7
+          if-no-files-found: ignore
+
+  notify:
+    name: Build notifications
+    needs: test
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Slack notification
+        continue-on-error: true
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          BUILD_STATUS: ${{ needs.test.result }}
+        run: |
+          if [ -z "$SLACK_WEBHOOK" ]; then exit 0; fi
+          curl -fsS -X POST -H 'Content-Type: application/json' \
+            --data "{\"text\":\"MyZubster CI: $BUILD_STATUS — $GITHUB_REPOSITORY@$GITHUB_SHA\"}" \
+            "$SLACK_WEBHOOK"
+
+      - name: Send Telegram notification
+        continue-on-error: true
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          BUILD_STATUS: ${{ needs.test.result }}
+        run: |
+          if [ -z "$TELEGRAM_BOT_TOKEN" ] || [ -z "$TELEGRAM_CHAT_ID" ]; then exit 0; fi
+          curl -fsS -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}" \
+            --data-urlencode "text=MyZubster CI: ${BUILD_STATUS} — ${GITHUB_REPOSITORY}@${GITHUB_SHA}"

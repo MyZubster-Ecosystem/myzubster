@@ -1,5 +1,10 @@
 const express = require('express');
 const router = express.Router();
+const myzLedgerApiRoutes = require('../routes/myzLedgerApiRoutes');
+
+// Canonical MYZ internal-ledger service API. This is internal accounting
+// infrastructure; it is not an on-chain or external settlement endpoint.
+router.use('/v1/myz', myzLedgerApiRoutes);
 
 // Health check
 router.get('/health', (req, res) => {

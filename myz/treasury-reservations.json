@@ -1,0 +1,31 @@
+{
+  "schema": "myzubster-treasury-reservations/v1",
+  "generated_at": "2026-09-19T05:03:00Z",
+  "notes": [
+    "Reservations are allocations of already-settled treasury funding and are not payment proof.",
+    "A reservation does not approve work or prove that a contributor has been paid.",
+    "Cancelled or released reservations must remain in history rather than being deleted."
+  ],
+  "items": [
+    {
+      "reservation_id": "TR-BTC-20260919-001",
+      "source_funding_id": "FUND-BTC-20260919-001",
+      "source": "ecosystem-treasury",
+      "asset": "BTC",
+      "amount": 0.00028,
+      "currency": "BTC",
+      "purpose": "bounty:myzubster#1315",
+      "bounty_url": "https://github.com/MyZubster-Ecosystem/myzubster/issues/1315",
+      "status": "RESERVED",
+      "created_at": "2026-09-19T05:03:00Z",
+      "approved_by": [
+        "DanielIoni-creator"
+      ],
+      "evidence": [
+        "https://github.com/MyZubster-Ecosystem/myzubster/issues/1315",
+        "https://www.blockchain.com/explorer/transactions/btc/0fa044178ff6f37416f7992621d913c2ef22d9f8acdb29534a194705b4bd862c"
+      ],
+      "note": "First real external bounty reserve. Maximum payout is 0.00028000 BTC. Payment remains conditional on accepted work and independently verified settlement."
+    }
+  ]
+}

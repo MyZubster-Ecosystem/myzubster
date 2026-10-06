@@ -1,0 +1,37 @@
+name: MYZ-164 Seller Free policy
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  seller-free-policy:
+    name: Seller Free backend + UI + E2E regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      NODE_ENV: test
+      CI: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: package.json
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run MYZ-164 backend, UI and E2E regression tests
+        run: npx jest tests/sellerMembership.test.js test/sellerMonetizationGuard.test.js test/marketplaceSellerCheckoutUi.test.js --runInBand

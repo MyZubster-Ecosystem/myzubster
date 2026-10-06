@@ -1,5 +1,13 @@
 const mongoose = require('mongoose');
 
+const PrivateLocationSchema = new mongoose.Schema({
+  algorithm: { type: String, required: true, enum: ['aes-256-gcm'] },
+  keyVersion: { type: String, required: true },
+  iv: { type: String, required: true },
+  authTag: { type: String, required: true },
+  ciphertext: { type: String, required: true }
+}, { _id: false });
+
 const PlantSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -47,7 +55,23 @@ const PlantSchema = new mongoose.Schema({
     lng: { type: Number },
     address: { type: String, trim: true },
     city: { type: String, trim: true },
-    country: { type: String, trim: true }
+    country: { type: String, trim: true },
+    visibility: {
+      type: String,
+      enum: ['private', 'approximate', 'public'],
+      default: 'private'
+    },
+    precision: {
+      type: String,
+      enum: ['hidden', 'approx-1km', 'exact'],
+      default: 'hidden'
+    },
+    consentVersion: { type: String, trim: true },
+    consentedAt: { type: Date }
+  },
+  privateLocation: {
+    type: PrivateLocationSchema,
+    select: false
   },
   verified: {
     type: Boolean,
@@ -103,7 +127,7 @@ PlantSchema.pre('save', function(next) {
 
 // Indici per ricerche rapide
 PlantSchema.index({ name: 'text', scientificName: 'text', species: 'text' });
-PlantSchema.index({ location: '2dsphere' });
+PlantSchema.index({ 'location.lat': 1, 'location.lng': 1 });
 PlantSchema.index({ species: 1 });
 PlantSchema.index({ family: 1 });
 PlantSchema.index({ verified: 1 });

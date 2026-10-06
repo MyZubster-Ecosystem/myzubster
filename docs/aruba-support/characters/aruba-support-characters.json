@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "1.0",
+  "scope": "ARUBA-SUPPORT",
+  "representationPolicy": "Role-based public characters only. These characters do not represent or impersonate specific Aruba S.p.A. employees and do not imply endorsement or an official partnership.",
+  "characters": [
+    {
+      "id": "aruba-cloud-support-engineer",
+      "name": "Cloud Support Engineer",
+      "type": "cloud_support",
+      "defaultStatus": "ROLE_DEFINED",
+      "missions": ["cloud troubleshooting", "service diagnostics", "availability checks", "incident triage", "technical escalation"],
+      "myZubsterActions": ["open_support_case", "attach_diagnostic_evidence", "check_service_status", "record_resolution", "escalate_incident"]
+    },
+    {
+      "id": "aruba-infrastructure-deployment-specialist",
+      "name": "Infrastructure & Deployment Specialist",
+      "type": "infrastructure_deployment",
+      "defaultStatus": "ROLE_DEFINED",
+      "missions": ["deployment review", "infrastructure configuration", "network and runtime checks", "release verification", "deployment evidence"],
+      "myZubsterActions": ["review_deployment", "register_environment", "validate_configuration", "record_deployment_check", "verify_release"]
+    },
+    {
+      "id": "aruba-customer-assistance-coordinator",
+      "name": "Customer Assistance Coordinator",
+      "type": "support_coordination",
+      "defaultStatus": "ROLE_DEFINED",
+      "missions": ["support intake", "case routing", "communication continuity", "follow-up", "closure tracking"],
+      "myZubsterActions": ["register_support_request", "route_case", "request_missing_information", "track_follow_up", "confirm_case_closure"]
+    }
+  ],
+  "allowedStatuses": ["ROLE_DEFINED", "CANDIDATE", "IN_DISCUSSION", "CONFIRMED", "INACTIVE"]
+}

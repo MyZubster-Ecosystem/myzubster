@@ -1,0 +1,61 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.7",
+  "version": 1,
+  "metadata": {
+    "component": {
+      "type": "application",
+      "name": "MyZubster Ecosystem",
+      "version": "2026-08-29"
+    },
+    "properties": [
+      {"name":"myzubster:scope","value":"Initial direct-dependency inventory derived from verified repository manifests; not yet a complete transitive SBOM."},
+      {"name":"myzubster:verification","value":"Manifest-derived; lockfile and vulnerability scanner reconciliation pending."}
+    ]
+  },
+  "components": [
+    {"type":"application","name":"myzubster","version":"1.0.0","bom-ref":"app:myzubster"},
+    {"type":"library","name":"axios","version":"^1.19.0","purl":"pkg:npm/axios","bom-ref":"pkg:npm/axios@%5E1.19.0"},
+    {"type":"library","name":"bcrypt","version":"^6.0.0","purl":"pkg:npm/bcrypt","bom-ref":"pkg:npm/bcrypt@%5E6.0.0"},
+    {"type":"library","name":"compression","version":"^1.7.4","purl":"pkg:npm/compression","bom-ref":"pkg:npm/compression@%5E1.7.4"},
+    {"type":"library","name":"cors","version":"^2.8.5","purl":"pkg:npm/cors","bom-ref":"pkg:npm/cors@%5E2.8.5"},
+    {"type":"library","name":"dotenv","version":"^16.3.1","purl":"pkg:npm/dotenv","bom-ref":"pkg:npm/dotenv@%5E16.3.1"},
+    {"type":"library","name":"express","version":"^4.18.2","purl":"pkg:npm/express","bom-ref":"pkg:npm/express@%5E4.18.2"},
+    {"type":"library","name":"express-rate-limit","version":"^6.10.0","purl":"pkg:npm/express-rate-limit","bom-ref":"pkg:npm/express-rate-limit@%5E6.10.0"},
+    {"type":"library","name":"express-validator","version":"^7.0.1","purl":"pkg:npm/express-validator","bom-ref":"pkg:npm/express-validator@%5E7.0.1"},
+    {"type":"library","name":"helmet","version":"^7.0.0","purl":"pkg:npm/helmet","bom-ref":"pkg:npm/helmet@%5E7.0.0"},
+    {"type":"library","name":"jsonwebtoken","version":"^9.0.3","purl":"pkg:npm/jsonwebtoken","bom-ref":"pkg:npm/jsonwebtoken@%5E9.0.3"},
+    {"type":"library","name":"mongoose","version":"^7.8.11","purl":"pkg:npm/mongoose","bom-ref":"pkg:npm/mongoose@%5E7.8.11"},
+    {"type":"library","name":"morgan","version":"^1.11.0","purl":"pkg:npm/morgan","bom-ref":"pkg:npm/morgan@%5E1.11.0"},
+    {"type":"library","name":"nodemailer","version":"^9.0.5","purl":"pkg:npm/nodemailer","bom-ref":"pkg:npm/nodemailer@%5E9.0.5"},
+    {"type":"library","name":"socket.io","version":"^4.7.2","purl":"pkg:npm/socket.io","bom-ref":"pkg:npm/socket.io@%5E4.7.2"},
+    {"type":"library","name":"uuid","version":"^14.0.1","purl":"pkg:npm/uuid","bom-ref":"pkg:npm/uuid@%5E14.0.1"},
+
+    {"type":"application","name":"MyZubsterGateway","version":"1.0.0","bom-ref":"app:gateway"},
+    {"type":"library","name":"body-parser","version":"^1.20.3","purl":"pkg:npm/body-parser","bom-ref":"pkg:npm/body-parser@%5E1.20.3"},
+    {"type":"library","name":"express","version":"^4.21.2","purl":"pkg:npm/express","bom-ref":"pkg:npm/express@%5E4.21.2"},
+    {"type":"library","name":"helmet","version":"^8.1.0","purl":"pkg:npm/helmet","bom-ref":"pkg:npm/helmet@%5E8.1.0"},
+    {"type":"library","name":"mongoose","version":"^8.18.0","purl":"pkg:npm/mongoose","bom-ref":"pkg:npm/mongoose@%5E8.18.0"},
+
+    {"type":"application","name":"MyZubster-Marketplace","version":"1.0.0","bom-ref":"app:marketplace"},
+    {"type":"library","name":"@serialport/parser-readline","version":"^13.0.0","purl":"pkg:npm/%40serialport/parser-readline","bom-ref":"pkg:npm/%40serialport/parser-readline@%5E13.0.0"},
+    {"type":"library","name":"@thirdweb-dev/sdk","version":"^4.0.99","purl":"pkg:npm/%40thirdweb-dev/sdk","bom-ref":"pkg:npm/%40thirdweb-dev/sdk@%5E4.0.99"},
+    {"type":"library","name":"bcryptjs","version":"^3.0.3","purl":"pkg:npm/bcryptjs","bom-ref":"pkg:npm/bcryptjs@%5E3.0.3"},
+    {"type":"library","name":"brain.js","version":"^2.0.0-beta.24","purl":"pkg:npm/brain.js","bom-ref":"pkg:npm/brain.js@%5E2.0.0-beta.24"},
+    {"type":"library","name":"ml-random-forest","version":"^2.1.0","purl":"pkg:npm/ml-random-forest","bom-ref":"pkg:npm/ml-random-forest@%5E2.1.0"},
+    {"type":"library","name":"ml-regression","version":"^6.3.0","purl":"pkg:npm/ml-regression","bom-ref":"pkg:npm/ml-regression@%5E6.3.0"},
+    {"type":"library","name":"node-fetch","version":"^3.3.2","purl":"pkg:npm/node-fetch","bom-ref":"pkg:npm/node-fetch@%5E3.3.2"},
+    {"type":"library","name":"serialport","version":"^13.0.0","purl":"pkg:npm/serialport","bom-ref":"pkg:npm/serialport@%5E13.0.0"},
+    {"type":"library","name":"simple-statistics","version":"^7.9.3","purl":"pkg:npm/simple-statistics","bom-ref":"pkg:npm/simple-statistics@%5E7.9.3"},
+    {"type":"library","name":"ws","version":"^8.21.2","purl":"pkg:npm/ws","bom-ref":"pkg:npm/ws@%5E8.21.2"},
+
+    {"type":"application","name":"MyZubster-App","version":"1.0.0","bom-ref":"app:mobile"},
+    {"type":"library","name":"expo","version":"~51.0.39","purl":"pkg:npm/expo","bom-ref":"pkg:npm/expo@~51.0.39"},
+    {"type":"library","name":"react","version":"18.2.0","purl":"pkg:npm/react@18.2.0","bom-ref":"pkg:npm/react@18.2.0"},
+    {"type":"library","name":"react-native","version":"0.74.5","purl":"pkg:npm/react-native@0.74.5","bom-ref":"pkg:npm/react-native@0.74.5"},
+    {"type":"library","name":"expo-location","version":"~17.0.1","purl":"pkg:npm/expo-location","bom-ref":"pkg:npm/expo-location@~17.0.1"},
+    {"type":"library","name":"expo-secure-store","version":"~13.0.2","purl":"pkg:npm/expo-secure-store","bom-ref":"pkg:npm/expo-secure-store@~13.0.2"},
+
+    {"type":"application","name":"myzubster-animal-registry","version":"0.1.0","bom-ref":"app:animal-registry"}
+  ]
+}

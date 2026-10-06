@@ -15,7 +15,8 @@
     "risk_level",
     "status",
     "evidence_requirements",
-    "acceptance_criteria"
+    "acceptance_criteria",
+    "legal_policy"
   ],
   "properties": {
     "schema_version": {"type": "string", "const": "1.0"},
@@ -61,11 +62,15 @@
   },
   "allOf": [
     {
-      "if": {"properties": {"risk_level": {"const": "high"}}},
+      "if": {
+        "properties": {"risk_level": {"const": "high"}},
+        "required": ["risk_level"]
+      },
       "then": {
+        "required": ["required_verifiers", "maintainer_approval_required"],
         "properties": {
-          "required_verifiers": {"minimum": 2},
-          "maintainer_approval_required": {"const": true}
+          "required_verifiers": {"type": "integer", "minimum": 2},
+          "maintainer_approval_required": {"type": "boolean", "const": true}
         }
       }
     }

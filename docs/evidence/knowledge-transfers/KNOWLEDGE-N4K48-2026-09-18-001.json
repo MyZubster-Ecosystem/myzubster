@@ -1,0 +1,65 @@
+{
+  "schema": "myzubster.knowledge-transfer.v1",
+  "transfer_id": "KNOWLEDGE-N4K48-2026-09-18-001",
+  "evidence_date": "2026-09-18",
+  "source": {
+    "public_id": "Daniel / H4X0R",
+    "role": "knowledge contributor"
+  },
+  "recipient": {
+    "public_id": "Nicola / N4K48",
+    "github_login": "nicolaususnicola-lgtm"
+  },
+  "assertion": {
+    "statement": "This public GitHub snapshot is recorded as evidence of technical knowledge and guidance shared during the 2026-09-18 MyZubster/N4K48 collaborative work.",
+    "source_attestation": "ASSERTED_BY_SOURCE",
+    "recipient_attestation": "PENDING"
+  },
+  "snapshot": {
+    "repository_id": 1352638665,
+    "repository": "nicolaususnicola-lgtm/myzubster-mvp",
+    "base_commit": "8da7435ddc1b9ae8b2f5c2eea5debd2df4bc5f47",
+    "head_commit": "b9ac4e8801d65b84ef882baf78fa09ce5b6b5059",
+    "commit_count": 30,
+    "changed_files": [
+      "README.md",
+      "ROADMAP.md",
+      "docker-compose.yml",
+      "index.html",
+      "persistence_helper.py",
+      "src/api/server.py",
+      "src/core/economics.py",
+      "tests/test_ai_api.py",
+      "tests/test_economics.py"
+    ],
+    "compare_url": "https://github.com/nicolaususnicola-lgtm/myzubster-mvp/compare/8da7435ddc1b9ae8b2f5c2eea5debd2df4bc5f47...b9ac4e8801d65b84ef882baf78fa09ce5b6b5059"
+  },
+  "knowledge_scope": [
+    "economic provenance primitives",
+    "persistent ledger storage and ledger API",
+    "derived participant balances",
+    "explicit revenue-source validation and balance breakdown",
+    "asset and revenue history views",
+    "UTC audit timestamps",
+    "interactive ledger/balance/assets UI",
+    "revenue simulation and public project documentation"
+  ],
+  "anchor_intent": {
+    "network": "base-sepolia",
+    "chain_id": 84532,
+    "payload_prefix": "MZ-KNOWLEDGE-V1:",
+    "transaction_value": "0 ETH"
+  },
+  "boundaries": [
+    "GitHub history proves the public repository state and commit history, not authorship of every underlying idea.",
+    "A blockchain anchor proves integrity and timestamp evidence for this manifest, not that learning occurred or that every claim is scientifically valid.",
+    "The recipient attestation is pending until Nicola explicitly confirms the transfer record.",
+    "No seed phrase, private key, personal secret or private source material is included."
+  ],
+  "canonicalization": {
+    "algorithm": "recursive-key-sort-json",
+    "encoding": "UTF-8",
+    "arrays": "preserve-order",
+    "whitespace": "none"
+  }
+}

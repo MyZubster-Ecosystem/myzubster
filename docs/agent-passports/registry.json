@@ -1,0 +1,62 @@
+{
+  "schema": "myzubster.agent-passport-registry.v1",
+  "agents": [
+    {
+      "agentId": "agent:github-monitor",
+      "name": "GitHubMonitor",
+      "agentType": "monitor",
+      "implementation": {
+        "repository": "MyZubster-Ecosystem/myzubster",
+        "path": "services/ai-automation/src/github/monitor.js",
+        "versionRef": null
+      },
+      "contributions": [
+        {
+          "task": "Monitor repository activity and emit structured issue events",
+          "trigger": "repository polling / automation",
+          "output": "repository activity events",
+          "timestamp": null,
+          "evidence": [
+            "https://github.com/MyZubster-Ecosystem/myzubster/pull/259"
+          ],
+          "reviewState": "TESTED",
+          "reviewer": null,
+          "limitations": [
+            "Evidence applies to the tested revision and scenarios represented by PR #259."
+          ]
+        }
+      ],
+      "knowledgeCards": [],
+      "reviewState": "TESTED",
+      "reward": null
+    },
+    {
+      "agentId": "agent:zorgax",
+      "name": "Zorgax",
+      "agentType": "ai-assistant",
+      "implementation": {
+        "repository": "MyZubster-Ecosystem/myzubster",
+        "path": null,
+        "versionRef": null
+      },
+      "contributions": [],
+      "knowledgeCards": [],
+      "reviewState": "UNREVIEWED",
+      "reward": null
+    },
+    {
+      "agentId": "agent:agricolobot",
+      "name": "AgricoloBot",
+      "agentType": "automation-bot",
+      "implementation": {
+        "repository": "MyZubster-Ecosystem/MyZubster-Marketplace",
+        "path": null,
+        "versionRef": null
+      },
+      "contributions": [],
+      "knowledgeCards": [],
+      "reviewState": "UNREVIEWED",
+      "reward": null
+    }
+  ]
+}

@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://www.myzubster.com/schemas/ahp-trace-event.schema.json",
+  "title": "MyZubster AHP Trace Event",
+  "description": "Privacy-preserving event envelope for absorbent hygiene product chain-of-custody evidence.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "eventId", "ventureId", "pilotId", "eventType", "occurredAt", "actor", "subjects", "evidence", "verification", "signature"],
+  "properties": {
+    "schemaVersion": {"const": "1.0.0"},
+    "eventId": {"type": "string", "pattern": "^MZ-AHP-EVT-[A-Za-z0-9_-]+$"},
+    "ventureId": {"const": "MZ-VENTURE-AHP-001"},
+    "pilotId": {"type": "string", "minLength": 3, "maxLength": 128},
+    "eventType": {
+      "enum": ["DESIGN_VERSION_PUBLISHED", "LOT_CREATED", "LOT_SUPPLIED", "COLLECTION_RECORDED", "TRANSPORT_TRANSFERRED", "TREATMENT_ACCEPTED", "TREATMENT_COMPLETED", "FRACTION_RECOVERED", "DESTINATION_CONFIRMED", "CORRECTION_ISSUED", "ANCHOR_PUBLISHED"]
+    },
+    "occurredAt": {"type": "string", "format": "date-time"},
+    "recordedAt": {"type": "string", "format": "date-time"},
+    "actor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["actorId", "role", "keyId"],
+      "properties": {
+        "actorId": {"type": "string", "minLength": 3, "maxLength": 128},
+        "role": {"enum": ["PRODUCER", "SUPPLIER", "COLLECTION_SITE", "TRANSPORTER", "TREATMENT_OPERATOR", "MATERIAL_RECIPIENT", "AUDITOR", "PILOT_ADMIN"]},
+        "keyId": {"type": "string", "minLength": 3, "maxLength": 256}
+      }
+    },
+    "subjects": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "designModelId": {"type": "string"},
+        "designVersion": {"type": "string"},
+        "productLotId": {"type": "string"},
+        "siteId": {"type": "string"},
+        "containerId": {"type": "string"},
+        "supersedesEventId": {"type": "string"}
+      }
+    },
+    "measurements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["metric", "value", "unit", "method"],
+        "properties": {
+          "metric": {"type": "string"},
+          "value": {"type": "number"},
+          "unit": {"enum": ["unit", "g", "kg", "t", "percent"]},
+          "method": {"type": "string"},
+          "uncertainty": {"type": ["number", "null"]}
+        }
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["evidenceId", "sha256", "mimeType", "byteLength", "access"],
+        "properties": {
+          "evidenceId": {"type": "string"},
+          "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+          "mimeType": {"type": "string"},
+          "byteLength": {"type": "integer", "minimum": 0},
+          "access": {"enum": ["PUBLIC", "AUTHORIZED", "RESTRICTED"]}
+        }
+      }
+    },
+    "previousEventIds": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+    "authorization": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "policyVersion": {"type": "string"},
+        "basisReferenceHash": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+      }
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state"],
+      "properties": {
+        "state": {"enum": ["DRAFT", "SUBMITTED", "SIGNED", "HUMAN_VERIFIED", "ANCHOR_PENDING", "ANCHORED", "DISPUTED", "SUPERSEDED", "REVOKED_KEY"]},
+        "verifiedByActorId": {"type": ["string", "null"]},
+        "verifiedAt": {"type": ["string", "null"], "format": "date-time"}
+      }
+    },
+    "signature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "keyId", "value"],
+      "properties": {
+        "algorithm": {"enum": ["Ed25519", "ES256"]},
+        "keyId": {"type": "string"},
+        "value": {"type": "string"}
+      }
+    },
+    "anchor": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["anchorBatchId", "network", "chainId", "merkleRoot", "transactionId", "confirmationState"],
+      "properties": {
+        "anchorBatchId": {"type": "string"},
+        "network": {"type": "string"},
+        "chainId": {"type": "string"},
+        "merkleRoot": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "transactionId": {"type": "string"},
+        "blockReference": {"type": ["string", "null"]},
+        "confirmationState": {"enum": ["PENDING", "CONFIRMED", "FAILED", "REORGED"]}
+      }
+    }
+  }
+}

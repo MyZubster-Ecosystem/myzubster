@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>N4K48 Knowledge Anchor · MyZubster</title>
+<style>
+:root{color-scheme:dark;--bg:#071018;--panel:#0e1924;--line:#263747;--ink:#eff8ff;--muted:#9fb0be;--accent:#63e6be;--warn:#ffd166}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif;line-height:1.55}
+main{width:min(900px,calc(100% - 28px));margin:36px auto 70px}h1{font-size:clamp(2rem,6vw,4rem);line-height:1;margin:0 0 14px}h2{margin-top:32px}
+p,li{color:var(--muted)}code{word-break:break-all;color:var(--accent)}.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px;margin:18px 0}
+.row{display:flex;gap:12px;flex-wrap:wrap}.btn{min-height:44px;border:0;border-radius:999px;padding:11px 18px;font-weight:800;cursor:pointer}.primary{background:var(--accent);color:#052017}.secondary{background:#172838;color:var(--ink);border:1px solid var(--line)}
+.btn:disabled{opacity:.5;cursor:not-allowed}.status{border-left:4px solid var(--accent);padding:10px 14px;background:#0a151e;color:var(--ink);margin:16px 0}.warn{border-left-color:var(--warn)}
+a{color:var(--accent)}dl{display:grid;grid-template-columns:minmax(120px,220px) 1fr;gap:8px 14px}dt{color:var(--muted)}dd{margin:0;min-width:0}
+@media(max-width:600px){dl{grid-template-columns:1fr}.row .btn{width:100%}}
+</style>
+</head>
+<body>
+<main>
+<p><strong>MYZUBSTER · PUBLIC EVIDENCE TOOL</strong></p>
+<h1>N4K48 Knowledge Anchor</h1>
+<p>This page prepares a zero-value Base Sepolia transaction that anchors the SHA-256 commitment for the public 18 September 2026 Daniel/H4X0R → Nicola/N4K48 knowledge-transfer snapshot.</p>
+
+<div class="card">
+<h2>Commitment</h2>
+<dl>
+<dt>Transfer ID</dt><dd><code>KNOWLEDGE-N4K48-2026-09-18-001</code></dd>
+<dt>Snapshot</dt><dd><code>8da7435d… → b9ac4e88…</code> · 30 commits</dd>
+<dt>SHA-256</dt><dd><code id="hash">39ab3a177734b5e3e254657cfe6015100644bcda2fb008cf2561d000669b9e14</code></dd>
+<dt>Payload</dt><dd><code id="payload">MZ-KNOWLEDGE-V1:39ab3a177734b5e3e254657cfe6015100644bcda2fb008cf2561d000669b9e14</code></dd>
+<dt>Network</dt><dd>Base Sepolia · chain ID 84532</dd>
+<dt>Evidence sink</dt><dd><code>0x000000000000000000000000000000000000dEaD</code></dd>
+<dt>Value</dt><dd>0 ETH (gas only)</dd>
+</dl>
+<p><a href="https://github.com/MyZubster-Ecosystem/myzubster/blob/main/docs/evidence/knowledge-transfers/KNOWLEDGE-N4K48-2026-09-18-001.json" target="_blank" rel="noopener">Inspect canonical manifest</a> · <a href="https://github.com/nicolaususnicola-lgtm/myzubster-mvp/compare/8da7435ddc1b9ae8b2f5c2eea5debd2df4bc5f47...b9ac4e8801d65b84ef882baf78fa09ce5b6b5059" target="_blank" rel="noopener">Inspect GitHub snapshot</a></p>
+</div>
+
+<div class="card">
+<h2>Confirmed on Base Sepolia</h2>
+<p>The knowledge commitment is now confirmed and independently verified. No additional wallet transaction is required.</p>
+<dl>
+<dt>Status</dt><dd><strong>CONFIRMED / MATCH</strong></dd>
+<dt>Block</dt><dd><code>47000958</code></dd>
+<dt>Confirmed</dt><dd><code>2026-09-18T22:23:24.000Z</code></dd>
+<dt>Transaction</dt><dd><code>0xff3c108275625673ad22a886da2df7120ae81b8f0106ec833613513b03c7bc31</code></dd>
+</dl>
+<div class="row">
+<a class="btn primary" href="https://sepolia.basescan.org/tx/0xff3c108275625673ad22a886da2df7120ae81b8f0106ec833613513b03c7bc31" target="_blank" rel="noopener">Open BaseScan receipt</a>
+<a class="btn secondary" href="/api/knowledge-anchor/n4k48/0xff3c108275625673ad22a886da2df7120ae81b8f0106ec833613513b03c7bc31" target="_blank" rel="noopener">Open verifier result</a>
+</div>
+<div class="status" role="status">Independent verifier result: MATCH. MetaMask submitted the anchor through a delegated smart-account execution; the nested zero-value execution contains the exact canonical payload.</div>
+</div>
+
+<div class="card">
+<h2>Evidence boundary</h2>
+<p>A confirmed transaction proves integrity/timestamp evidence for this manifest. It does not independently prove authorship of every idea, learning or mastery, scientific validity, commercial value or legal ownership. Nicola's explicit recipient attestation remains a separate evidence step.</p>
+<p><strong>Never paste a seed phrase or private key into this page, ChatGPT, GitHub, or any form.</strong></p>
+</div>
+</main>
+
+</body>
+</html>

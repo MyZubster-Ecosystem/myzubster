@@ -1,0 +1,15 @@
+{
+  "short_name": "MyZubster",
+  "name": "MyZubster — Open Source, Territorio e Comunità",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#071018",
+  "background_color": "#071018",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

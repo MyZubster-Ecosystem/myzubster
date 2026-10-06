@@ -1,9 +1,42 @@
 const Plant = require('../models/Plant');
+const {
+  LocationPrivacyError,
+  prepareLocation,
+  decryptExactLocation,
+  projectPublicLocation
+} = require('../services/locationPrivacyService');
 
-// Registra una pianta
+function isSensitivePlant(conservationStatus) {
+  return ['endangered', 'critically-endangered'].includes(conservationStatus);
+}
+
+function serializePublicPlant(plant) {
+  const data = typeof plant.toObject === 'function' ? plant.toObject() : { ...plant };
+  delete data.privateLocation;
+  data.location = projectPublicLocation(data.location);
+
+  if (data.registeredBy && typeof data.registeredBy === 'object') {
+    delete data.registeredBy.email;
+  }
+  if (data.verifiedBy && typeof data.verifiedBy === 'object') {
+    delete data.verifiedBy.email;
+  }
+
+  return data;
+}
+
+function sendControllerError(res, error, fallbackMessage) {
+  const status = error instanceof LocationPrivacyError ? 400 : 500;
+  return res.status(status).json({
+    success: false,
+    message: status === 400 ? error.message : fallbackMessage,
+    code: error.code
+  });
+}
+
 exports.register = async (req, res) => {
   try {
-    const { 
+    const {
       name, scientificName, species, family, genus, type,
       height, bloomSeason, location, imageUrl, notes,
       conservationStatus, isEdible, isMedicinal
@@ -16,6 +49,10 @@ exports.register = async (req, res) => {
       });
     }
 
+    const preparedLocation = prepareLocation(location, {
+      forcePrivate: isSensitivePlant(conservationStatus)
+    });
+
     const plant = new Plant({
       name,
       scientificName,
@@ -25,7 +62,8 @@ exports.register = async (req, res) => {
       type,
       height,
       bloomSeason,
-      location,
+      location: preparedLocation.publicLocation,
+      privateLocation: preparedLocation.privateLocation,
       imageUrl,
       notes,
       conservationStatus,
@@ -36,26 +74,20 @@ exports.register = async (req, res) => {
 
     await plant.save();
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: 'Pianta registrata con successo',
-      data: plant
+      data: serializePublicPlant(plant)
     });
-
   } catch (error) {
     console.error('Plant registration error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Errore durante la registrazione della pianta',
-      error: error.message
-    });
+    return sendControllerError(res, error, 'Errore durante la registrazione della pianta');
   }
 };
 
-// Lista tutte le piante
 exports.getAll = async (req, res) => {
   try {
-    const { 
+    const {
       species, family, type, verified,
       search, limit = 50, page = 1
     } = req.query;
@@ -65,46 +97,45 @@ exports.getAll = async (req, res) => {
     if (family) query.family = { $regex: family, $options: 'i' };
     if (type) query.type = type;
     if (verified !== undefined) query.verified = verified === 'true';
+    if (search) query.$text = { $search: search };
 
-    if (search) {
-      query.$text = { $search: search };
-    }
+    const safeLimit = Math.min(Math.max(parseInt(limit, 10) || 50, 1), 100);
+    const safePage = Math.max(parseInt(page, 10) || 1, 1);
+    const skip = (safePage - 1) * safeLimit;
 
-    const skip = (parseInt(page) - 1) * parseInt(limit);
     const plants = await Plant.find(query)
+      .select('-privateLocation')
       .sort(search ? { score: { $meta: 'textScore' } } : { createdAt: -1 })
       .skip(skip)
-      .limit(parseInt(limit))
-      .populate('registeredBy', 'username email')
-      .populate('verifiedBy', 'username email');
+      .limit(safeLimit)
+      .populate('registeredBy', 'username')
+      .populate('verifiedBy', 'username');
 
     const total = await Plant.countDocuments(query);
 
-    res.json({
+    return res.json({
       success: true,
       count: plants.length,
       total,
-      page: parseInt(page),
-      totalPages: Math.ceil(total / parseInt(limit)),
-      data: plants
+      page: safePage,
+      totalPages: Math.ceil(total / safeLimit),
+      data: plants.map(serializePublicPlant)
     });
-
   } catch (error) {
     console.error('Get plants error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
-      message: 'Errore durante il recupero delle piante',
-      error: error.message
+      message: 'Errore durante il recupero delle piante'
     });
   }
 };
 
-// Dettaglio pianta
 exports.getOne = async (req, res) => {
   try {
     const plant = await Plant.findById(req.params.id)
-      .populate('registeredBy', 'username email')
-      .populate('verifiedBy', 'username email');
+      .select('-privateLocation')
+      .populate('registeredBy', 'username')
+      .populate('verifiedBy', 'username');
 
     if (!plant) {
       return res.status(404).json({
@@ -113,29 +144,67 @@ exports.getOne = async (req, res) => {
       });
     }
 
-    res.json({
+    return res.json({
       success: true,
-      data: plant
+      data: serializePublicPlant(plant)
     });
-
   } catch (error) {
     console.error('Get plant error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
-      message: 'Errore durante il recupero della pianta',
-      error: error.message
+      message: 'Errore durante il recupero della pianta'
     });
   }
 };
 
-// Aggiorna pianta
+exports.getPrivateLocation = async (req, res) => {
+  try {
+    const plant = await Plant.findById(req.params.id).select('+privateLocation');
+    if (!plant) {
+      return res.status(404).json({ success: false, message: 'Pianta non trovata' });
+    }
+
+    const isOwner = plant.registeredBy && plant.registeredBy.toString() === req.userId;
+    if (!isOwner && req.userRole !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Non hai i permessi per leggere la posizione privata'
+      });
+    }
+
+    const exact = plant.privateLocation
+      ? decryptExactLocation(plant.privateLocation.toObject
+        ? plant.privateLocation.toObject()
+        : plant.privateLocation)
+      : null;
+
+    return res.json({
+      success: true,
+      data: {
+        location: exact,
+        visibility: plant.location && plant.location.visibility,
+        consentVersion: plant.location && plant.location.consentVersion,
+        consentedAt: plant.location && plant.location.consentedAt
+      }
+    });
+  } catch (error) {
+    console.error('Get private plant location error:', error);
+    return sendControllerError(res, error, 'Errore durante il recupero della posizione privata');
+  }
+};
+
 exports.update = async (req, res) => {
   try {
-    const updates = req.body;
+    const updates = { ...req.body };
     delete updates._id;
     delete updates.createdAt;
+    delete updates.registeredBy;
+    delete updates.verified;
+    delete updates.verifiedBy;
+    delete updates.verifiedAt;
+    delete updates.privateLocation;
 
-    const plant = await Plant.findById(req.params.id);
+    const plant = await Plant.findById(req.params.id).select('+privateLocation');
     if (!plant) {
       return res.status(404).json({
         success: false,
@@ -150,26 +219,28 @@ exports.update = async (req, res) => {
       });
     }
 
+    if (Object.prototype.hasOwnProperty.call(updates, 'location')) {
+      const preparedLocation = prepareLocation(updates.location, {
+        forcePrivate: isSensitivePlant(updates.conservationStatus || plant.conservationStatus)
+      });
+      updates.location = preparedLocation.publicLocation;
+      updates.privateLocation = preparedLocation.privateLocation;
+    }
+
     Object.assign(plant, updates);
     await plant.save();
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Pianta aggiornata con successo',
-      data: plant
+      data: serializePublicPlant(plant)
     });
-
   } catch (error) {
     console.error('Update plant error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Errore durante l\'aggiornamento della pianta',
-      error: error.message
-    });
+    return sendControllerError(res, error, 'Errore durante l\'aggiornamento della pianta');
   }
 };
 
-// Verifica pianta (solo admin)
 exports.verify = async (req, res) => {
   try {
     if (req.userRole !== 'admin') {
@@ -181,10 +252,7 @@ exports.verify = async (req, res) => {
 
     const plant = await Plant.findById(req.params.id);
     if (!plant) {
-      return res.status(404).json({
-        success: false,
-        message: 'Pianta non trovata'
-      });
+      return res.status(404).json({ success: false, message: 'Pianta non trovata' });
     }
 
     plant.verified = true;
@@ -192,31 +260,25 @@ exports.verify = async (req, res) => {
     plant.verifiedAt = new Date();
     await plant.save();
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Pianta verificata con successo',
-      data: plant
+      data: serializePublicPlant(plant)
     });
-
   } catch (error) {
     console.error('Verify plant error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
-      message: 'Errore durante la verifica della pianta',
-      error: error.message
+      message: 'Errore durante la verifica della pianta'
     });
   }
 };
 
-// Elimina pianta
 exports.delete = async (req, res) => {
   try {
     const plant = await Plant.findById(req.params.id);
     if (!plant) {
-      return res.status(404).json({
-        success: false,
-        message: 'Pianta non trovata'
-      });
+      return res.status(404).json({ success: false, message: 'Pianta non trovata' });
     }
 
     if (plant.registeredBy.toString() !== req.userId && req.userRole !== 'admin') {
@@ -227,43 +289,33 @@ exports.delete = async (req, res) => {
     }
 
     await plant.deleteOne();
-
-    res.json({
-      success: true,
-      message: 'Pianta eliminata con successo'
-    });
-
+    return res.json({ success: true, message: 'Pianta eliminata con successo' });
   } catch (error) {
     console.error('Delete plant error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
-      message: 'Errore durante l\'eliminazione della pianta',
-      error: error.message
+      message: 'Errore durante l\'eliminazione della pianta'
     });
   }
 };
 
-// Statistiche piante
 exports.getStats = async (req, res) => {
   try {
     const total = await Plant.countDocuments();
     const verified = await Plant.countDocuments({ verified: true });
-    
     const species = await Plant.aggregate([
       { $group: { _id: '$species', count: { $sum: 1 } } },
       { $sort: { count: -1 } },
       { $limit: 10 }
     ]);
-
     const types = await Plant.aggregate([
       { $group: { _id: '$type', count: { $sum: 1 } } }
     ]);
-
     const conservationStatus = await Plant.aggregate([
       { $group: { _id: '$conservationStatus', count: { $sum: 1 } } }
     ]);
 
-    res.json({
+    return res.json({
       success: true,
       data: {
         total,
@@ -274,13 +326,11 @@ exports.getStats = async (req, res) => {
         conservationStatus
       }
     });
-
   } catch (error) {
     console.error('Get stats error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
-      message: 'Errore durante il recupero delle statistiche',
-      error: error.message
+      message: 'Errore durante il recupero delle statistiche'
     });
   }
 };

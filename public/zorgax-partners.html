@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Zorgax Partner Copilot · MyZubster</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:radial-gradient(circle at top,#27215c 0%,#0e0c25 55%,#05050c 100%);color:#fff;min-height:100vh}.wrap{max-width:1040px;margin:auto;padding:24px}.hero,.card{background:rgba(15,14,34,.95);border:1px solid rgba(125,211,252,.24);border-radius:22px}.hero{padding:24px;margin-bottom:16px}.hero h1{margin:0 0 8px}.hero p{margin:0;color:#cbd5e1;line-height:1.55}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.card{padding:20px}.card h2{margin-top:0;font-size:18px}.field{margin:12px 0}.field label{display:block;margin-bottom:6px;color:#cbd5e1;font-size:13px}.field select,.field textarea{width:100%;border:1px solid #334155;background:#070b18;color:#fff;border-radius:12px;padding:12px;font-size:15px}.field textarea{min-height:100px;resize:vertical}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.actions button,.actions a{border:0;border-radius:12px;padding:11px 14px;font-weight:800;cursor:pointer;text-decoration:none}.primary{background:linear-gradient(135deg,#7c3aed,#0284c7);color:#fff}.secondary{background:#172033;color:#e2e8f0;border:1px solid #334155!important}.chips{display:flex;gap:8px;flex-wrap:wrap}.chip{border:1px solid rgba(196,181,253,.32);background:rgba(124,58,237,.12);color:#fff;border-radius:999px;padding:8px 11px;cursor:pointer}.out{min-height:280px;white-space:pre-wrap;line-height:1.55;color:#e2e8f0}.status{font-size:12px;color:#94a3b8;margin-top:8px}.steps{font-size:13px;color:#cbd5e1;line-height:1.55}.source{font-size:12px;color:#7dd3fc;word-break:break-all}.nav{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.nav a{color:#bae6fd;text-decoration:none;border:1px solid rgba(125,211,252,.22);padding:8px 11px;border-radius:10px;background:rgba(2,132,199,.08)}@media(max-width:800px){.grid{grid-template-columns:1fr}.wrap{padding:12px}.hero,.card{border-radius:16px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<section class="hero">
+<h1>🛰️ Zorgax Partner Copilot</h1>
+<p>Modalità interattiva per enti, università e partner LIFE. Seleziona il soggetto e l'obiettivo: Zorgax prepara il prossimo passo operativo senza inventare partnership, approvazioni, risultati o dati.</p>
+<div class="nav"><a href="/zorgax">← Zorgax</a><a href="/life-pilot">LIFE Pilot</a><a href="https://github.com/MyZubster-Ecosystem/myzubster">GitHub</a></div>
+</section>
+<div class="grid">
+<section class="card">
+<h2>1. Scegli ente e obiettivo</h2>
+<div class="field"><label for="partner">Ente / partner</label><select id="partner">
+<option value="ENEA">ENEA</option>
+<option value="Politecnico di Milano">Politecnico di Milano</option>
+<option value="Unicusano">Unicusano</option>
+<option value="IRSA-CNR">IRSA-CNR</option>
+<option value="CRPA">CRPA</option>
+<option value="Hera">Hera</option>
+<option value="UnitelmaSapienza">UnitelmaSapienza</option>
+<option value="Università di Brescia">Università di Brescia</option>
+<option value="Altro partner LIFE">Altro partner LIFE</option>
+</select></div>
+<div class="field"><label for="goal">Obiettivo</label><select id="goal">
+<option value="definire il possibile ruolo nel progetto LIFE 2027">Definire ruolo nel LIFE 2027</option>
+<option value="costruire un micro-pilot Circular Water misurabile">Costruire micro-pilot Circular Water</option>
+<option value="definire KPI, MRV, evidenze e dati necessari">Definire KPI / MRV / evidenze</option>
+<option value="preparare una call tecnica con domande concrete">Preparare una call tecnica</option>
+<option value="preparare un follow-up istituzionale sintetico">Preparare follow-up istituzionale</option>
+<option value="valutare cosa MyZubster può offrire al partner senza sovrastimare lo stato del progetto">Valutare proposta di valore</option>
+<option value="trasformare un'idea in un piano operativo con responsabilità, input, output e prossima decisione">Trasformare idea in piano operativo</option>
+</select></div>
+<div class="field"><label for="context">Contesto opzionale</label><textarea id="context" placeholder="Esempio: abbiamo già avuto una call; il partner può occuparsi di LCA; manca il sito pilota; serve chiarire quali dati raccogliere..."></textarea></div>
+<div class="chips">
+<button class="chip" data-add="Concentrati su Circular Water, riuso, monitoraggio e tracciabilità delle evidenze.">💧 Circular Water</button>
+<button class="chip" data-add="Concentrati su LCA/LCSA, indicatori ambientali e metodologia di valutazione.">📊 LCA/LCSA</button>
+<button class="chip" data-add="Concentrati su MRV: cosa misurare, come documentarlo e come distinguere dato riportato, osservato e verificato.">🧪 MRV</button>
+<button class="chip" data-add="Concentrati su ruoli, responsabilità, deliverable e prossima decisione del partner.">🤝 Ruoli</button>
+</div>
+<div class="actions"><button id="ask" class="primary">Chiedi a Zorgax</button><button id="copy" class="secondary">Copia prompt</button></div>
+<div class="status" id="status">Pronto.</div>
+</section>
+<section class="card">
+<h2>2. Risposta operativa</h2>
+<div class="out" id="output">Zorgax ti restituirà una risposta orientata all'azione: prossimo passo, cosa chiedere al partner, dati necessari, confini tra proposta e capacità già verificata, e criterio per decidere se procedere.</div>
+<div class="steps"><strong>Metodo:</strong> problema → ruolo del partner → input richiesti → attività → evidenze/KPI → rischio o dipendenza → prossima decisione.</div>
+<div class="source" id="utm"></div>
+</section>
+</div>
+</div>
+<script>
+const partner=document.getElementById('partner'),goal=document.getElementById('goal'),context=document.getElementById('context'),ask=document.getElementById('ask'),copy=document.getElementById('copy'),output=document.getElementById('output'),status=document.getElementById('status'),utm=document.getElementById('utm');
+const params=new URLSearchParams(location.search);const utmSource=params.get('utm_source')||'direct';const campaign=params.get('utm_campaign')||'institutional-copilot';utm.textContent='Sorgente sessione: '+utmSource+' · campagna: '+campaign;
+function authHeaders(){const t=localStorage.getItem('myzubster-token')||localStorage.getItem('token')||localStorage.getItem('accessToken')||sessionStorage.getItem('token')||'';return t?{'Content-Type':'application/json','Authorization':'Bearer '+t}:{'Content-Type':'application/json'};}
+function buildPrompt(){const extra=context.value.trim();return `Agisci come Zorgax Partner Copilot di MyZubster. Partner selezionato: ${partner.value}. Obiettivo: ${goal.value}.${extra?` Contesto fornito: ${extra}`:''}\n\nAiutami in modo interattivo e operativo. Non presumere che esista una partnership, un finanziamento, un'approvazione o un risultato se non è verificato. Distingui chiaramente: ciò che MyZubster può fare oggi, ciò che è proposta/pilot, ciò che deve fornire o validare il partner.\n\nRispondi con: 1) prossimo passo immediato; 2) ruolo possibile del partner; 3) 3-5 dati/domande da raccogliere; 4) KPI/evidenze minime; 5) rischio o dipendenza principale; 6) decisione concreta da prendere alla fine della prossima call. Se mancano informazioni essenziali, fammi una domanda alla volta invece di inventarle.`;}
+async function track(){try{await fetch('/api/zorgax/assistant/track',{method:'POST',headers:authHeaders(),body:JSON.stringify({event:'zorgax_intent_life',target:(partner.value+' | '+goal.value).slice(0,80)})});}catch(_){}}
+async function run(){ask.disabled=true;status.textContent='Zorgax sta preparando il prossimo passo…';output.textContent='';await track();try{const r=await fetch('/api/zorgax/assistant/chat',{method:'POST',headers:authHeaders(),body:JSON.stringify({message:buildPrompt(),useWeb:true,limit:5,history:[]})});const d=await r.json();if(!r.ok)throw new Error(d.error||('HTTP '+r.status));output.textContent=d.response||d.answer||'Nessuna risposta disponibile.';if(Array.isArray(d.external_sources)&&d.external_sources.length){output.textContent+='\n\nFonti recuperate:\n'+d.external_sources.map(s=>`- ${s.title||s.label}: ${s.url||''}`).join('\n');}status.textContent=d.accessNotice||'Risposta completata.';}catch(e){output.textContent='Zorgax non è riuscito a completare la richiesta: '+e.message;status.textContent='Errore temporaneo.';}finally{ask.disabled=false;}}
+ask.addEventListener('click',run);copy.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(buildPrompt());status.textContent='Prompt copiato.';}catch(_){status.textContent='Copia non disponibile nel browser.';}});document.querySelectorAll('.chip').forEach(b=>b.addEventListener('click',()=>{const add=b.dataset.add;context.value=(context.value.trim()?context.value.trim()+'\n':'')+add;}));
+</script>
+</body>
+</html>

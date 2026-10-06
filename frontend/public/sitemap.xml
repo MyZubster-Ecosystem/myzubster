@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://www.myzubster.com/</loc>
+    <xhtml:link rel="alternate" hreflang="it" href="https://www.myzubster.com/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.myzubster.com/en"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.myzubster.com/"/>
+  </url>
+  <url><loc>https://www.myzubster.com/en</loc></url>
+  <url><loc>https://www.myzubster.com/marketplace</loc></url>
+  <url><loc>https://www.myzubster.com/en/marketplace</loc></url>
+  <url><loc>https://www.myzubster.com/community</loc></url>
+  <url><loc>https://www.myzubster.com/en/research</loc></url>
+  <url><loc>https://www.myzubster.com/come-funziona</loc></url>
+  <url><loc>https://www.myzubster.com/onboarding</loc></url>
+  <url><loc>https://www.myzubster.com/repositories</loc></url>
+  <url><loc>https://www.myzubster.com/orti</loc></url>
+  <url><loc>https://www.myzubster.com/gardens</loc></url>
+  <url><loc>https://www.myzubster.com/pilot</loc></url>
+  <url><loc>https://www.myzubster.com/life</loc></url>
+  <url><loc>https://www.myzubster.com/life-pilot</loc></url>
+  <url><loc>https://www.myzubster.com/entities</loc></url>
+  <url><loc>https://www.myzubster.com/entity-bounties</loc></url>
+  <url><loc>https://www.myzubster.com/press</loc></url>
+  <url><loc>https://www.myzubster.com/zorgax</loc></url>
+  <url><loc>https://www.myzubster.com/metaverse</loc></url>
+  <url><loc>https://www.myzubster.com/fumetto</loc></url>
+  <url><loc>https://www.myzubster.com/darkode</loc></url>
+  <url><loc>https://www.myzubster.com/apps</loc></url>
+  <url><loc>https://www.myzubster.com/btc-xmr-research-pilot</loc></url>
+  <url><loc>https://www.myzubster.com/knowledge-kf-006.html</loc></url>
+  <url><loc>https://www.myzubster.com/learn-with-zorgax.html</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+</urlset>

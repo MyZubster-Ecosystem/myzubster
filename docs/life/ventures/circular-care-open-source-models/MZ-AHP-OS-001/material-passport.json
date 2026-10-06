@@ -1,0 +1,69 @@
+{
+  "modelId": "MZ-AHP-OS-001",
+  "name": "Circular Baby Diaper Reference Model",
+  "version": "0.2-draft",
+  "status": "DESIGN_REFERENCE",
+  "useCase": "baby diaper / nappy, medium reference envelope",
+  "productionValidated": false,
+  "certifiedProduct": false,
+  "validatedEnvironmentalOutcome": false,
+  "nominalGeometry": {
+    "status": "DRAFT_ENVELOPE_NOT_VALIDATED",
+    "overallLength_mm": 450,
+    "rearPanelWidth_mm": 320,
+    "frontPanelWidth_mm": 300,
+    "crotchWidth_mm": 150,
+    "nominalCoreLength_mm": 360,
+    "nominalCoreWidth_mm": 110,
+    "note": "Prototype envelope only. Fit, sizing and manufacturing tolerances require qualified validation before any production use."
+  },
+  "designIntent": [
+    "open BOM and versioned material declarations",
+    "fragrance-free and lotion-free baseline",
+    "simplify non-core material families where performance allows",
+    "quantify elastics, adhesives and fastening elements instead of hiding them in aggregate mass",
+    "link packaging to the same material accounting system",
+    "evaluate design against a confirmed AHP treatment route before any circularity claim"
+  ],
+  "components": [
+    {"componentId":"BD-TS-001","function":"topsheet","candidateMaterialFamily":"hydrophilic polypropylene nonwoven","skinContact":true,"massPerUnit_g":null,"supplier":null,"supplierEvidenceRef":null,"recoveryRoute":"NOT_VERIFIED","treatmentEvidenceRef":null,"status":"DESIGN_CANDIDATE"},
+    {"componentId":"BD-ADL-001","function":"acquisition_distribution_layer","candidateMaterialFamily":"polyolefin nonwoven or cellulose-based ADL","skinContact":false,"massPerUnit_g":null,"supplier":null,"supplierEvidenceRef":null,"recoveryRoute":"NOT_VERIFIED","treatmentEvidenceRef":null,"status":"DESIGN_CANDIDATE"},
+    {"componentId":"BD-CW-001","function":"core_wrap_upper","candidateMaterialFamily":"cellulose tissue or declared nonwoven","skinContact":false,"massPerUnit_g":null,"supplier":null,"supplierEvidenceRef":null,"recoveryRoute":"NOT_VERIFIED","treatmentEvidenceRef":null,"status":"DESIGN_CANDIDATE"},
+    {"componentId":"BD-CORE-001","function":"absorbent_core","candidateMaterialFamily":"fluff pulp + superabsorbent polymer","skinContact":false,"massPerUnit_g":null,"supplier":null,"supplierEvidenceRef":null,"recoveryRoute":"NOT_VERIFIED","treatmentEvidenceRef":null,"status":"DESIGN_CANDIDATE"},
+    {"componentId":"BD-CW-002","function":"core_wrap_lower","candidateMaterialFamily":"cellulose tissue or declared nonwoven","skinContact":false,"massPerUnit_g":null,"supplier":null,"supplierEvidenceRef":null,"recoveryRoute":"NOT_VERIFIED","treatmentEvidenceRef":null,"status":"DESIGN_CANDIDATE"},
+    {"componentId":"BD-BF-001","function":"barrier_film","candidateMaterialFamily":"breathable polyethylene film","skinContact":false,"massPerUnit_g":null,"supplier":null,"supplierEvidenceRef":null,"recoveryRoute":"NOT_VERIFIED","treatmentEvidenceRef":null,"status":"DESIGN_CANDIDATE"},
+    {"componentId":"BD-BNW-001","function":"backsheet_nonwoven","candidateMaterialFamily":"polypropylene nonwoven","skinContact":false,"massPerUnit_g":null,"supplier":null,"supplierEvidenceRef":null,"recoveryRoute":"NOT_VERIFIED","treatmentEvidenceRef":null,"status":"DESIGN_CANDIDATE"},
+    {"componentId":"BD-LEG-001","function":"leg_elastic","candidateMaterialFamily":"elastane/polyurethane elastic","skinContact":false,"massPerUnit_g":null,"supplier":null,"supplierEvidenceRef":null,"recoveryRoute":"NOT_VERIFIED","treatmentEvidenceRef":null,"status":"DESIGN_CANDIDATE"},
+    {"componentId":"BD-WAIST-001","function":"waist_elastic","candidateMaterialFamily":"elastane/polyurethane elastic","skinContact":false,"massPerUnit_g":null,"supplier":null,"supplierEvidenceRef":null,"recoveryRoute":"NOT_VERIFIED","treatmentEvidenceRef":null,"status":"DESIGN_CANDIDATE"},
+    {"componentId":"BD-TAB-001","function":"fastening_tabs","candidateMaterialFamily":"polyolefin carrier + hook system","skinContact":false,"massPerUnit_g":null,"supplier":null,"supplierEvidenceRef":null,"recoveryRoute":"NOT_VERIFIED","treatmentEvidenceRef":null,"status":"DESIGN_CANDIDATE"},
+    {"componentId":"BD-FLZ-001","function":"frontal_landing_zone","candidateMaterialFamily":"polyolefin loop or film","skinContact":false,"massPerUnit_g":null,"supplier":null,"supplierEvidenceRef":null,"recoveryRoute":"NOT_VERIFIED","treatmentEvidenceRef":null,"status":"DESIGN_CANDIDATE"},
+    {"componentId":"BD-ADH-001","function":"construction_adhesive","candidateMaterialFamily":"hot-melt adhesive","skinContact":false,"massPerUnit_g":null,"supplier":null,"supplierEvidenceRef":null,"recoveryRoute":"NOT_VERIFIED","treatmentEvidenceRef":null,"status":"DESIGN_CANDIDATE"},
+    {"componentId":"BD-PKG-001","function":"primary_packaging","candidateMaterialFamily":"polyethylene or polypropylene flexible packaging","skinContact":false,"massPerUnit_g":null,"supplier":null,"supplierEvidenceRef":null,"recoveryRoute":"NOT_VERIFIED","treatmentEvidenceRef":null,"status":"DESIGN_CANDIDATE"}
+  ],
+  "performanceEvidenceGates": [
+    "dimensional-and-mass-consistency",
+    "absorbency-capacity",
+    "acquisition-speed",
+    "rewet-surface-dryness",
+    "leakage-protection",
+    "fit-and-fastening-integrity",
+    "wet-and-dry-structural-integrity",
+    "skin-contact-and-restricted-substance-review",
+    "packaging-integrity",
+    "lot-traceability"
+  ],
+  "circularityEvidenceGates": [
+    "confirmed-collection-route",
+    "confirmed-treatment-acceptance",
+    "traceable-treated-mass",
+    "recovered-fraction-measurement",
+    "residual-fraction-measurement",
+    "verified-destination-or-reuse-evidence"
+  ],
+  "licenseProposal": {
+    "hardwareDesign": "CERN-OHL-P-2.0",
+    "documentationAndDiagrams": "CC-BY-SA-4.0",
+    "status": "PROPOSED_NOT_LEGAL_REVIEWED"
+  },
+  "claimBoundary": "This passport records design intent and unknowns. Null values must not be interpreted as zero, compliant, safe, recyclable or validated."
+}

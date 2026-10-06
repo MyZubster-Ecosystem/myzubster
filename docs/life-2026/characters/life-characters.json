@@ -1,0 +1,62 @@
+{
+  "schemaVersion": "1.0",
+  "scope": "LIFE-2026",
+  "representationPolicy": "Role-based public characters only. No real-person identity or likeness without explicit permission.",
+  "characters": [
+    {
+      "id": "life-scientific-coordinator",
+      "name": "Scientific Coordinator",
+      "type": "scientific_lead",
+      "defaultStatus": "ROLE_DEFINED",
+      "workPackages": ["WP1", "WP4"],
+      "missions": ["baseline", "KPI methodology", "QA/QC", "uncertainty", "scientific validation"],
+      "myZubsterActions": ["validate_kpi_methodology", "review_data_quality", "approve_evidence_rules", "review_technical_milestones"]
+    },
+    {
+      "id": "life-water-data-steward",
+      "name": "Water Data Steward",
+      "type": "data_owner_steward",
+      "defaultStatus": "ROLE_DEFINED",
+      "workPackages": ["WP2", "WP5"],
+      "missions": ["data access", "provenance", "privacy", "cybersecurity", "operational baseline"],
+      "myZubsterActions": ["register_data_source", "approve_schema", "define_access_policy", "validate_provenance"]
+    },
+    {
+      "id": "life-technical-data-validator",
+      "name": "Technical Data Validator",
+      "type": "technical_validation_partner",
+      "defaultStatus": "ROLE_DEFINED",
+      "workPackages": ["WP4", "WP5"],
+      "missions": ["technical values", "water", "sludge", "nutrients", "circular economy", "pilot KPI interpretation"],
+      "myZubsterActions": ["map_measurements", "validate_units", "annotate_anomalies", "review_pilot_outputs"]
+    },
+    {
+      "id": "life-replication-policy-lead",
+      "name": "Replication & Policy Lead",
+      "type": "replication_policy",
+      "defaultStatus": "ROLE_DEFINED",
+      "workPackages": ["WP6"],
+      "missions": ["replication", "policy uptake", "stakeholder engagement", "regional scaling", "post-project adoption"],
+      "myZubsterActions": ["create_replication_case", "maintain_stakeholder_map", "track_uptake", "package_replication_guidance"]
+    },
+    {
+      "id": "life-pilot-operator",
+      "name": "Pilot Operator",
+      "type": "demonstration_operator",
+      "defaultStatus": "ROLE_DEFINED",
+      "workPackages": ["WP2", "WP5"],
+      "missions": ["field demonstration", "operational context", "asset access", "before-after evidence", "corrective actions"],
+      "myZubsterActions": ["register_asset", "log_observation", "attach_field_evidence", "confirm_operational_milestone"]
+    },
+    {
+      "id": "life-mediterranean-replication-partner",
+      "name": "Mediterranean Replication Partner",
+      "type": "transnational_replication",
+      "defaultStatus": "ROLE_DEFINED",
+      "workPackages": ["WP6"],
+      "missions": ["transferability", "Mediterranean adaptation", "stakeholder engagement", "exploitation", "replication evidence"],
+      "myZubsterActions": ["create_replication_workspace", "compare_kpi_models", "document_adaptation", "validate_transferability"]
+    }
+  ],
+  "allowedStatuses": ["ROLE_DEFINED", "CANDIDATE", "IN_DISCUSSION", "CONFIRMED", "INACTIVE"]
+}

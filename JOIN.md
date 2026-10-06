@@ -10,6 +10,7 @@ If this is your first time here, open the intuitive workflow first:
 
 - Website: https://www.myzubster.com/come-funziona
 - Repository guide: [`docs/COME_FUNZIONA.md`](docs/COME_FUNZIONA.md)
+- Contributor registry: [`docs/CONTRIBUTORS.md`](docs/CONTRIBUTORS.md)
 - Slack + Notion guide: [`docs/SLACK_NOTION.md`](docs/SLACK_NOTION.md)
 - Join Slack: https://join.slack.com/t/nuovaareadila-ml19359/shared_invite/zt-47dxpvwio-ZIkNdYv5Uk_glAilUiVnkg
 
@@ -32,8 +33,29 @@ Improve documentation, translations, tutorials, onboarding or public explanation
 ### I am a researcher / student
 Review architecture, datasets, methods, assumptions and evidence. Clearly distinguish proposals from verified results.
 
+### I am a journalist / reporter / media researcher
+Use the public Press Kit and repository as primary project sources, inspect evidence, ask questions, reproduce public workflows, submit factual corrections or link independent reporting. You may optionally create a `MEDIA / JOURNALIST` character. A character does not by itself verify professional credentials or imply endorsement by a media organization. See [`docs/MEDIA_JOURNALIST_PROGRAM.md`](docs/MEDIA_JOURNALIST_PROGRAM.md) and https://www.myzubster.com/press.
+
 ### I am interested in privacy / Monero / settlement
 Review or contribute to the documented external-settlement boundary. XMR settlement is separate from the internal MYZ accounting/reward layer and must be independently verified where applicable.
+
+### I am interested in LIFE-aligned environmental work
+MyZubster maintains preparatory open-source technical lanes for IoT/sensing, KPI/evidence dashboards, human-in-the-loop AI, automation safety, replication and Zorgax evidence automation.
+
+Start with [`docs/life-2027/CONTRIBUTOR_POOL.md`](docs/life-2027/CONTRIBUTOR_POOL.md) and the existing LIFE issues #534–#538 and #713.
+
+If you want to opt in, comment on the relevant issue or contributor thread with:
+
+```text
+LIFE INTEREST
+GitHub username:
+Preferred lane:
+Relevant public contribution:
+What I would like to help with:
+Availability / first proposed task:
+```
+
+A LIFE-aligned contribution is an open-source technical contribution. It does **not** by itself make a contributor a LIFE partner, consortium member, university/company representative or funded participant.
 
 ### I am completely new to open source
 Start small: ask a question on an issue, fix a typo, reproduce a bug, improve a link or propose a character with `status: proposed`.
@@ -42,12 +64,29 @@ Start small: ask a question on an issue, fix a typo, reproduce a bug, improve a 
 
 1. Open https://www.myzubster.com/come-funziona
 2. Read [`CONTRIBUTING.md`](CONTRIBUTING.md).
-3. Join Slack and introduce yourself in `#myzubster-community`.
-4. Explore the public issues: https://github.com/MyZubster-Ecosystem/myzubster/issues
-5. Comment on a task or ask a question before starting if anything is unclear.
-6. Fork or branch the repository.
-7. Submit a focused pull request with tests/evidence appropriate to the change.
-8. Respond to public review.
+3. Review [`docs/CONTRIBUTORS.md`](docs/CONTRIBUTORS.md) and contributor onboarding issue #742.
+4. Join Slack and introduce yourself in `#myzubster-community`.
+5. Explore the public issues: https://github.com/MyZubster-Ecosystem/myzubster/issues
+6. Comment on a task or ask a question before starting if anything is unclear.
+7. Fork or branch the repository.
+8. Submit a focused pull request with tests/evidence appropriate to the change.
+9. Respond to public review.
+
+## Contributor onboarding flow
+
+```text
+DISCOVER
+→ CHOOSE A BOUNDED ISSUE
+→ CLAIM / LIFE INTEREST
+→ MAINTAINER SCOPE CHECK
+→ FORK / BRANCH
+→ IMPLEMENT + TEST
+→ PR + EVIDENCE
+→ CI + HUMAN REVIEW
+→ VERIFIED PUBLIC CONTRIBUTION
+```
+
+Issue #742 is the public source of truth for the onboarding system. `docs/CONTRIBUTORS.md` records attributable public evidence without requiring legal identity.
 
 ## Create your character
 
@@ -56,6 +95,8 @@ Optional Character Registry:
 https://github.com/MyZubster-Ecosystem/myzubster/issues/617
 
 Your character may represent your public contributor alias and role. It is optional and does not represent KYC, employment, partnership, payment or ownership.
+
+Journalists and media contributors can use the `MEDIA / JOURNALIST` character type documented in [`docs/MEDIA_JOURNALIST_PROGRAM.md`](docs/MEDIA_JOURNALIST_PROGRAM.md). A claimed media affiliation remains unverified unless appropriate evidence is reviewed, and verification does not imply endorsement by the employer/publication.
 
 ### Automatic Zorgax draft
 
@@ -88,9 +129,10 @@ Useful evidence can include, depending on the task:
 - authorized observation records;
 - sanitized photos/media;
 - public datasets;
-- review results.
+- review results;
+- independent articles, interviews, fact-checks or corrections from media contributors.
 
-A PR, image or issue by itself does not automatically prove deployment, payment, adoption or partnership.
+A PR, image, issue or article by itself does not automatically prove deployment, payment, adoption, partnership or endorsement.
 
 ## Privacy and safety
 

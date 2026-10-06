@@ -1,54 +1,44 @@
-# MyZubster — LIFE 2026 document registry
+# MyZubster — LIFE 2026 public technical track
 
-> **Status:** exploration / pre-candidature. This registry does not imply LIFE funding, approval, endorsement, partnership or an official relationship with the European Commission, CINEA, MASE or any organization mentioned in working documents.
+> **Status:** exploration / pre-candidature. This directory does not imply LIFE funding, approval, endorsement, partnership, or an official relationship with the European Commission, CINEA, MASE, or any external organisation.
 
-This directory is the canonical public registry for the MyZubster LIFE 2026 working track. Source working documents currently live in Google Drive. Before promoting any working draft to a public submission artifact, verify facts, partner status, eligibility, call requirements, deadlines, budget, baseline and KPI methodology against official sources.
+This directory contains only public, non-confidential technical material supporting the MyZubster LIFE 2026 workstream.
 
-## Core project documents
+## Technical scope
 
-- [LIFE 2026 / MASE Concept Note & Institutional Roadmap](https://docs.google.com/document/d/1YK_ICFH8FxAdfLZHvMQUaAWAFbDGLXf_uH8puoXDeik/edit)
-- [Concept Note v0.2](https://docs.google.com/document/d/1UQowDrUPFliV2gzRFYgF9WgKcbaN8pEdXbYQSRJEtyI/edit)
-- [Roadmap Operativa](https://docs.google.com/document/d/1NwphfVC8PcToQEgOiQtixmtHH0BvD9U9_OKZjlGCEso/edit)
-- [Pilot Ambientale v0.1](https://docs.google.com/document/d/1q9nvuSpevwY4UTosX8qqtVUO6byX1Z3AfjOnzwsqgyc/edit)
-- [Baseline & MRV v0.1](https://docs.google.com/document/d/1D0D3ydYAfSvtJxfu4nW9WXoR-JjLyE_e-LmbIe3IuLE/edit)
-- [Application Matrix v0.1](https://docs.google.com/spreadsheets/d/1qJgaJegsTWlgu7LEz0mF4_vdKNHsIiA_wAo85y2NQ1Q/edit)
-- [Partner Pack](https://docs.google.com/document/d/1PgxuQc-GrN03Euk8DaV4lwAJXhaB1Bn93Uuwsv2ne8I/edit)
-- [Pacchetto NCP MASE](https://docs.google.com/document/d/11H83QnEZlqZuX-p-d68CHUgdvWUqtDfm5q1UmePwxpw/edit)
-- [Strategia Applicant & Piano B](https://docs.google.com/document/d/1LUb77IQnADTIzuv-GM2xLdc55X4qBAn1mB8FmtU2bD0/edit)
+MyZubster is being prepared as a digital environmental MRV layer for circular-water and environmental-monitoring use cases. The technical goal is to connect heterogeneous operational datasets without replacing existing SCADA, laboratory, monitoring, or infrastructure systems.
 
-## Partner-facing concept material
+The public scope covers:
 
-- [LIFE MyZubster — Architettura preliminare del progetto](https://docs.google.com/document/d/1iVNglK3ic2wwqQqbdYpB9oXEZXZlrjq4dkX2qGb5E-I/edit)
-- [LIFE MyZubster — 2-Page Partner Concept Note](https://docs.google.com/document/d/15g8pDNOiP-hurHuFuChq_kA5jCRdEHJjZRdfJRkFOcA/edit)
+- interoperable environmental data ingestion;
+- provenance and validation status;
+- auditable evidence references and hashes;
+- environmental MRV workflows;
+- dashboards and KPI-ready outputs;
+- replication-ready interfaces and documentation;
+- privacy, data-governance, and cybersecurity boundaries.
 
-## Futura Ambiente / Futura working material
+## Documents
 
-- [MyZubster × Futura — Proposta preliminare LIFE 2026 / MASE](https://docs.google.com/document/d/1GIdqMg0CV2XwCfTrtjh2bb7Q-hdTkkEDgFtNoRr1SQ4/edit)
-- [MyZubster × Futura — Richiesta incontro LIFE 2026](https://docs.google.com/document/d/1olv6SHtV07X70Am1iLPhT59xp20ndTmfLae1V3JvirU/edit)
-- [MyZubster LIFE 2026 — Invito al Responsabile Futura](https://docs.google.com/document/d/1yyawfq3oBJ1Kho8rWt6d5jRDXmFwl-VDpqVT3yzFxRk/edit)
-- [MyZubster × Futura Ambiente — proposta di confronto e micro-pilota](https://docs.google.com/document/d/1FyhohBynzX--2v5X86oq1RCRIf7LZTU8btcCQ0vTIAg/edit)
-- Internal preparation: [`../meetings/FUTURA_AMBIENTE_BRIEFING.md`](../meetings/FUTURA_AMBIENTE_BRIEFING.md)
-- Public/institutional one-pager: [`../meetings/FUTURA_AMBIENTE_ONE_PAGER.md`](../meetings/FUTURA_AMBIENTE_ONE_PAGER.md)
+- [`TECHNICAL_ARCHITECTURE.md`](TECHNICAL_ARCHITECTURE.md) — logical architecture, boundaries, and integration principles.
+- [`ENVIRONMENTAL_DATA_MODEL.md`](ENVIRONMENTAL_DATA_MODEL.md) — public schema for traceable environmental evidence records.
+- [`IMPLEMENTATION_ROADMAP.md`](IMPLEMENTATION_ROADMAP.md) — technical delivery sequence for a demonstrator.
+- [`../ARCHITECTURE.md`](../ARCHITECTURE.md) — broader MyZubster architecture and auditability principles.
 
-## Herambiente working material
+## Public/private boundary
 
-- [MyZubster × Herambiente — Proposta strategica LIFE 2026](https://docs.google.com/document/d/1yULCamQdVai-TIBVOuMzb5YUuNiRl7oev1T912fszMc/edit)
-- [MyZubster × Herambiente — Executive One-Page LIFE 2026](https://docs.google.com/document/d/1M0mUA-jbTWawyupXjYSz8QkOgpLi6zIn5PmPDkJvPa0/edit)
-- [MyZubster × Herambiente — Messaggio primo contatto](https://docs.google.com/document/d/1q8Dscu0-Ckgh1GNjoo2kW3HdrKfPASiv9EeafDPHLzU/edit)
+The following must **not** be stored in this public directory:
 
-## Document governance
+- consortium negotiations or partner-status tracking;
+- budgets, co-financing assumptions, or beneficiary cost allocations;
+- Letters of Intent or signed documents;
+- personal contact details or private correspondence;
+- non-public operational datasets;
+- credentials, access tokens, API secrets, or infrastructure keys;
+- contractual, administrative, due-diligence, or identity documents.
 
-Documents in this track may contain hypotheses, candidate partners, preliminary calls/topics, estimated timelines and draft technical approaches. Treat them as working material unless explicitly marked otherwise.
+Those materials belong in controlled project storage and should be shared only under appropriate permissions and agreements.
 
-For external communication:
+## Publication rule
 
-1. say **exploration / pre-candidature** until a formal submission exists;
-2. do not call an organization a partner without documented agreement;
-3. do not claim LIFE/MASE/EU approval or funding without the corresponding formal act;
-4. verify current call text and deadlines against official LIFE/CINEA sources before relying on a working draft;
-5. keep personal data, private correspondence, credentials and confidential business information out of the public repository;
-6. keep technology subordinate to measurable environmental outcomes, baseline, KPI and MRV methodology.
-
-## Source folders
-
-The working set was catalogued from the Google Drive folders **MyZubster — LIFE 2026 MASE** and **LIFE MyZubster**, plus related Futura Ambiente meeting material.
+Before adding any LIFE-related file to this public repository, verify that it is technical, non-confidential, contains no personal or partner-negotiation data, and does not claim an organisation is a partner unless that status is formally public and documented.

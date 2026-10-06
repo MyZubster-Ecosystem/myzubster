@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Zorgax Profile Builder · MyZubster</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:radial-gradient(circle at top,#27215c 0%,#0e0c25 55%,#05050c 100%);color:#fff;min-height:100vh}.wrap{max-width:980px;margin:auto;padding:24px}.card{background:rgba(15,14,34,.96);border:1px solid rgba(125,211,252,.24);border-radius:20px;padding:20px;margin:14px 0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.btn,button{display:inline-block;border:0;border-radius:12px;padding:11px 14px;font-weight:800;cursor:pointer;text-decoration:none}.primary{background:linear-gradient(135deg,#7c3aed,#0284c7);color:#fff}.secondary{background:#172033;color:#e2e8f0;border:1px solid #334155}.muted{color:#94a3b8;line-height:1.55}.ok{color:#86efac}.warn{color:#fde68a}.field{margin:12px 0}.field label{display:block;margin-bottom:6px;color:#cbd5e1;font-size:13px}.field select,.field textarea,.field input{width:100%;background:#070b18;color:#fff;border:1px solid #334155;border-radius:12px;padding:12px;font-size:15px}.field textarea{min-height:100px;resize:vertical}.out{white-space:pre-wrap;line-height:1.55;min-height:250px}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.pill{display:inline-block;padding:7px 10px;border:1px solid #334155;border-radius:999px;margin:3px;background:#111827}.status{font-size:13px;margin-top:8px}@media(max-width:800px){.grid{grid-template-columns:1fr}.wrap{padding:12px}}
+</style>
+<script defer src="/knowledge-cards.js"></script>
+</head>
+<body>
+<div class="wrap">
+<section class="card"><h1>👽 Zorgax · Profile Builder</h1><p class="muted">Completa in modo guidato il profilo di un ente, di un donatore di kefir o di un soundsystem. Gmail viene usato solo se autorizzato; Facebook serve come identità social collegata. Zorgax propone una bozza e distingue sempre dati dichiarati, dati collegati e informazioni ancora da confermare.</p><div class="row"><a class="btn secondary" href="/zorgax">← Zorgax</a><a class="btn secondary" href="/zorgax-email-profile.html">📧 Configura Gmail</a><a class="btn secondary" href="/api/auth/social/facebook/start">📘 Collega Facebook</a></div></section>
+<section class="card"><h2>Le tue schede Conoscenze</h2><p class="muted">Inserisci una scheda alla volta. Salvala come bozza privata, controlla l’anteprima e decidi se pubblicarla. Le fonti indicate non sono verificate automaticamente e GitHub non viene modificato.</p>
+<div id="knowledgeHandoffPanel" class="out" hidden><strong>Bozza preparata con Zorgax</strong><p>Controlla la descrizione e le fonti prima di salvarla. Il collegamento GitHub identifica il profilo verificato, non certifica automaticamente le competenze. Nulla è stato ancora salvato o pubblicato.</p><button id="importKnowledgeHandoff" class="secondary" type="button">Carica la bozza nel modulo</button><button id="discardKnowledgeHandoff" class="secondary" type="button">Scarta il trasferimento</button></div>
+<div class="field"><label for="draftList">Bozze già salvate</label><select id="draftList"><option value="">Nuova scheda</option></select></div>
+<div class="field"><label for="draftTitle">Titolo *</label><input id="draftTitle" maxlength="180" placeholder="Es. Autista di camion e organizzazione dei trasporti"></div>
+<div class="field"><label for="draftDomain">Ambito *</label><input id="draftDomain" maxlength="120" placeholder="Es. Trasporti, Docker, collaborazione"></div>
+<div class="field"><label for="draftDescription">Attività e conoscenze dichiarate *</label><textarea id="draftDescription" maxlength="3000" placeholder="Racconta solo attività svolte e conoscenze che vuoi registrare."></textarea></div>
+<div class="field"><label for="draftEvidence">Fonti (una per riga: nome | URL | nota; URL facoltativo)</label><textarea id="draftEvidence" placeholder="Repository myzubster-mvp | https://github.com/utente/myzubster-mvp | Prove Docker documentate"></textarea></div>
+<div class="field"><label for="draftVerification">Stato della verifica / cosa resta da controllare</label><textarea id="draftVerification" maxlength="1000" placeholder="Es. Attività dichiarata; il repository è consultabile, i risultati delle prove richiedono revisione."></textarea></div>
+<div class="row"><button id="saveDraft" class="primary">Salva bozza privata</button><button id="newDraft" class="secondary">Nuova scheda</button><a id="draftLogin" class="btn secondary" href="/social-login?returnTo=%2Fzorgax-profile-builder" hidden>Accedi per salvare</a></div><div id="draftStatus" class="status muted" role="status"></div>
+<div id="publishPanel" hidden><h3>Anteprima della scheda salvata</h3><p class="muted">Questa è la versione che diventerà pubblica. Eventuali modifiche nel modulo sopra vanno prima salvate. Nome account, descrizione, fonti e note di verifica saranno visibili a chiunque abbia il link.</p><div id="publishPreview" class="out" style="min-height:80px"></div><div class="row"><button id="publishCard" class="primary">Pubblica questa scheda</button><button id="unpublishCard" class="secondary" hidden>Ritira e torna a bozza</button><a id="publicCardLink" class="btn secondary" target="_blank" rel="noopener noreferrer" hidden>Apri scheda pubblica</a></div></div></section>
+<section class="card"><h2>🔗 Connetti le conoscenze con altri contributori</h2><p class="muted">Proponi una relazione tra la tua scheda pubblica e quella di un altro titolare. Comparirà nel Knowledge Graph solo dopo la sua approvazione e sarà revocabile. Non è una certificazione delle competenze.</p><a href="/knowledge-links" class="btn primary">Proponi o approva collegamenti</a></section>
+<section class="card" id="githubCardEvidencePanel"><h2>🔗 Collega contributi GitHub alle tue competenze</h2><p class="muted">Scegli una tua Knowledge Card, anche se è già pubblicata, poi incolla il link a una pull request o a un commit pubblico. Zorgax controllerà che la fonte esista prima di aggiungerla. Un contributo pubblico non certifica automaticamente la competenza o la tua autoria.</p><div class="field"><label for="githubEvidenceCard">La mia Knowledge Card</label><select id="githubEvidenceCard"><option value="">Seleziona una scheda già salvata</option></select></div><div class="field"><label for="githubEvidenceUrl">Link GitHub pubblico (PR o commit)</label><input id="githubEvidenceUrl" type="url" placeholder="https://github.com/owner/repo/pull/123"></div><div class="row"><button class="primary" id="addGithubEvidence" type="button">Controlla e collega la fonte</button><button class="secondary" id="refreshGithubNote" type="button">Aggiorna nota di verifica</button><a class="btn secondary" href="/zorgax-profile-onboarding#knowledgeOnboardingCard">Aggiorna anche il README GitHub</a></div><div id="githubEvidenceStatus" class="status muted" role="status">Prima salva una Knowledge Card oppure seleziona una di quelle esistenti.</div>
+<div class="card" id="githubRepoDiscovery"><h3>🔎 Esplora i repository pubblici e scegli contributi documentati</h3>
+<p class="muted">Questa ricerca usa soltanto l’API pubblica di GitHub. Seleziona un repository Monero, Tari o MyZubster, oppure inseriscine un altro. Solo una PR o un commit specifico che scegli e confermi può diventare una fonte della Knowledge Card. Un fork non dimostra di per sé la creazione del codice originale.</p>
+<div class="field"><label for="githubSuggestedRepo">Repository da esplorare</label><select id="githubSuggestedRepo">
+<option value="DanielIoni-creator/monero-docs">Monero · documentazione (DanielIoni-creator/monero-docs)</option>
+<option value="DanielIoni-creator/my-monero-bounty">Monero · bounty (DanielIoni-creator/my-monero-bounty)</option>
+<option value="DanielIoni-creator/tari">Tari · repository pubblico (DanielIoni-creator/tari)</option>
+<option value="MyZubster-Ecosystem/myzubster-space-station">Metaverso · space station (MyZubster-Ecosystem/myzubster-space-station)</option>
+<option value="MyZubster-Ecosystem/myzubster">MyZubster · repository principale</option>
+<option value="nicolaususnicola-lgtm/myzubster-mvp">Nicola / N4K48 · repository contributor (nicolaususnicola-lgtm/myzubster-mvp)</option>
+<option value="custom">Altro repository pubblico…</option>
+</select></div>
+<div class="field"><label for="githubCustomRepo">Altro repository pubblico (owner/repo)</label><input id="githubCustomRepo" placeholder="owner/repository" maxlength="200"></div>
+<div class="field"><label for="githubRepoAuthor">Filtra commit per account GitHub (facoltativo)</label><input id="githubRepoAuthor" value="DanielIoni-creator" maxlength="39" placeholder="account GitHub; lascia vuoto per tutti"></div>
+<div class="row"><button class="secondary" id="exploreGithubRepo" type="button">Mostra commit pubblici</button><a href="https://github.com/MyZubster-Ecosystem/myzubster" target="_blank" rel="noopener noreferrer" class="btn secondary">Repository principale</a></div>
+<div id="githubRepoStatus" class="status muted" role="status">La ricerca è in sola lettura: nessuna fonte sarà collegata automaticamente.</div><p class="muted">Se il fork o una PR non è accessibile senza autenticazione, Zorgax non può usarla come fonte pubblica. Verifica che il link si apra in una finestra anonima; in alternativa scegli commit o PR realmente pubblici di altri repository. Non riproporre una PR con errore 404: potrebbe essere limitata da GitHub.</p>
+<div id="githubRepoResults" aria-live="polite"></div>
+</div></section>
+<section class="card"><h2>🧠 Esempi di Conoscenze verificabili</h2><p class="muted">Queste schede dimostrano come distinguere dichiarazioni ed evidenze. Non sono le tue bozze private.</p><div id="knowledgeCards"></div></section>
+<section class="card"><h2>💻 GitHub Work Evidence</h2><p class="muted">Crea uno snapshot verificabile della tua attività GitHub. Inserisci commit pubblici nel formato <code>SHA | repository | URL | timestamp ISO</code>, uno per riga. Le metriche descrivono attività e continuità, non certificano automaticamente competenza o dedizione.</p><div class="field"><label for="ghAccount">Account GitHub</label><input id="ghAccount" placeholder="DanielIoni-creator"></div><div class="field"><label for="ghCommits">Commit verificabili</label><textarea id="ghCommits" placeholder="abcdef1 | MyZubster-Ecosystem/myzubster | https://github.com/.../commit/abcdef1 | 2026-09-19T02:00:00Z"></textarea></div><div class="row"><button id="ghSnapshot" class="secondary">Calcola snapshot</button><button id="ghAnchor" class="primary">⛓ Ancora su blockchain</button></div><div id="ghResult" class="out" style="min-height:100px">Nessuno snapshot calcolato.</div></section><div class="grid">
+<section class="card"><h2>1. Tipo di profilo</h2><div class="field"><label for="type">Profilo</label><select id="type"><option value="institution">🏛️ Ente / università / partner pubblico</option><option value="kefir">🥛 Donatore di kefir</option><option value="soundsystem">🔊 Soundsystem / crew</option></select></div><div class="field"><label for="name">Nome pubblico</label><input id="name" placeholder="Nome ente, donatore o soundsystem"></div><div class="field"><label for="location">Località / area</label><input id="location" placeholder="Città, regione o area operativa"></div><div class="field"><label for="notes">Cosa fai / cosa offri</label><textarea id="notes" placeholder="Ente: competenze, pilot, LCA/MRV... Kefir: latte/acqua, disponibilità grani, scambio/donazione... Soundsystem: genere, crew, area, eventi, servizi, sostenibilità..."></textarea></div><div class="row"><button id="load" class="secondary">Leggi profilo collegato</button><button id="ask" class="primary">Fai completare a Zorgax</button></div><div id="sourceStatus" class="status muted">Accedi per usare Gmail e identità Facebook collegate.</div></section>
+<section class="card"><h2>2. Bozza suggerita</h2><div id="out" class="out">Zorgax userà solo i dati disponibili e ti farà una domanda alla volta sui campi mancanti.</div><div class="row"><button id="copy" class="secondary">Copia bozza</button><a class="btn primary" href="/zorgax-email-profile.html">Approva profilo Gmail →</a></div><p class="muted">La bozza non prova automaticamente affiliazioni, proprietà, disponibilità di kefir, titolarità di un soundsystem o partnership istituzionali. Questi elementi devono essere confermati dal titolare o da evidenze verificabili.</p></section>
+</div>
+</div>
+<script>
+const type=document.getElementById('type'),nameEl=document.getElementById('name'),locationEl=document.getElementById('location'),notes=document.getElementById('notes'),out=document.getElementById('out'),status=document.getElementById('sourceStatus');let account=null,gmail=null;
+function token(){return localStorage.getItem('myzubster-token')||localStorage.getItem('token')||localStorage.getItem('accessToken')||sessionStorage.getItem('token')||''}
+function headers(){const t=token();return t?{'Content-Type':'application/json','Authorization':'Bearer '+t}:{'Content-Type':'application/json'}}
+function track(event,target){try{fetch('/api/zorgax/assistant/track',{method:'POST',headers:headers(),body:JSON.stringify(target?{event,target}:{event}),keepalive:true}).catch(()=>{})}catch(_e){}}
+async function loadProfile(){const t=token();if(!t){status.textContent='Devi prima accedere a MyZubster.';return}status.textContent='Lettura fonti autorizzate…';try{const [p,g]=await Promise.all([fetch('/api/auth/profile',{headers:{Authorization:'Bearer '+t}}),fetch('/api/auth/gmail/auto-sync/status',{headers:{Authorization:'Bearer '+t}})]);const pd=await p.json(),gd=await g.json();if(p.ok&&pd.success)account=pd.data?.user||null;if(g.ok&&gd.success)gmail=gd.data||null;const fb=account?.socialIdentities?.facebook;const gp=gmail?.profile;if(!nameEl.value)nameEl.value=fb?.name||account?.github?.publicSnapshot?.name||account?.username||'';if(!locationEl.value)locationEl.value=account?.communityProfile?.displayLocation||account?.github?.publicSnapshot?.location||'';status.innerHTML=`Gmail: <span class="${gmail?.sync?.enabled?'ok':'warn'}">${gmail?.sync?.enabled?'collegato':'non collegato'}</span> · Facebook: <span class="${fb?.id?'ok':'warn'}">${fb?.id?'collegato':'non collegato'}</span> · GitHub: <span class="${account?.github?.id?'ok':'warn'}">${account?.github?.id?'collegato':'non collegato'}</span>`;if(gp?.summary&&!notes.value)notes.value=gp.summary;track('profile_builder_profile_loaded',type.value)}catch(e){status.textContent='Impossibile leggere il profilo: '+e.message}}
+function roleGuide(){if(type.value==='institution')return 'Profilo istituzionale. Richiedi: nome ente, ruolo del referente, area di competenza, progetti/pilot, KPI o MRV pertinenti, link ufficiale, cosa può validare o fornire. Non dichiarare partnership o incarichi senza prova.';if(type.value==='kefir')return 'Profilo donatore kefir. Richiedi: tipo di kefir (latte/acqua), disponibilità grani, modalità donazione/scambio, area, esperienza, eventuali allergeni o condizioni di conservazione. Non dare consigli medici e non inventare sicurezza alimentare.';return 'Profilo soundsystem. Richiedi: nome soundsystem/crew, città/area, generi, configurazione o servizi descritti dal titolare, disponibilità eventi, pratiche di sicurezza/sostenibilità, link social. Non presumere proprietà di attrezzature o autorizzazioni.'}
+function prompt(){const gp=gmail?.profile;const fb=account?.socialIdentities?.facebook;return `Agisci come Zorgax Profile Builder. ${roleGuide()}\n\nDATI DISPONIBILI E AUTORIZZATI:\n- nome inserito: ${nameEl.value.trim()||'mancante'}\n- località inserita: ${locationEl.value.trim()||'mancante'}\n- note dichiarate: ${notes.value.trim()||'mancanti'}\n- profilo Gmail privato approvato: ${gp?`archetipo=${gp.archetype}; interessi=${(gp.traits||[]).join(', ')}; sintesi=${gp.summary||''}`:'non disponibile'}\n- Facebook collegato: ${fb?.id?'sì':'no'}${fb?.name?`; nome=${fb.name}`:''}\n- GitHub collegato: ${account?.github?.login||'no'}\n\nPrepara una bozza di profilo MyZubster con: Titolo, Descrizione breve, Attività/competenze, Cosa offre alla community, Cosa cerca, Località, Evidenze/link da aggiungere, Campi ancora da confermare. Etichetta ogni informazione come [dichiarato], [collegato] oppure [da confermare]. Non inferire affiliazioni, proprietà o partnership. Alla fine fai UNA sola domanda, la più importante, per completare il profilo.`}
+async function ask(){out.textContent='Zorgax sta preparando la bozza…';try{const r=await fetch('/api/zorgax/assistant/chat',{method:'POST',headers:headers(),body:JSON.stringify({message:prompt(),useWeb:false,history:[]})});const d=await r.json();if(!r.ok)throw new Error(d.error||'Zorgax non disponibile');out.textContent=d.response||d.answer||'Nessuna risposta.';track('profile_builder_draft_generated',type.value)}catch(e){out.textContent='Errore: '+e.message}}
+document.getElementById('load').onclick=loadProfile;document.getElementById('ask').onclick=ask;document.getElementById('copy').onclick=async()=>{try{await navigator.clipboard.writeText(out.textContent);status.textContent='Bozza copiata.'}catch(_){status.textContent='Copia non disponibile.'}};
+const knowledgeClaims=[
+ {domain:'Bitcoin / blockchain',title:'Esperienza pratica e provenienza storica',description:'Conoscenza pratica dichiarata collegabile a evidenze blockchain. La cronologia pubblica non prova da sola proprietà o competenza.',evidenceLevel:'self-declared',ownershipProof:'unverified',evidence:[{label:'Modello di provenienza MyZubster',url:'https://github.com/MyZubster-Ecosystem/myzubster/blob/main/docs/KNOWLEDGE-PROVENANCE-DANIEL.md'}],transfers:[{recipient:'Nicola',status:'percorso di trasferimento documentato · repository contributor disponibile',url:'https://github.com/nicolaususnicola-lgtm/myzubster-mvp'}]},
+ {domain:'GitHub / open source',title:'Collaborazione e conoscenza documentabile',description:'Commit, PR, issue, review e fork possono elevare singole conoscenze a evidenza esterna quando verificati.',evidenceLevel:'externally-evidenced',evidence:[{label:'MyZubster repository',url:'https://github.com/MyZubster-Ecosystem/myzubster'}]},
+ {domain:'MyZubster / Zorgax',title:'Knowledge mentorship',description:'Percorso learn → try → document → share → evidence, applicato ai pilot e al trasferimento di conoscenza.',evidenceLevel:'project-demonstrated',evidence:[{label:'Knowledge mentorship pilots',url:'https://github.com/MyZubster-Ecosystem/myzubster/blob/main/docs/KNOWLEDGE-MENTORSHIP-PILOTS.md'}],transfers:[{recipient:'Nicola',status:'anchor confermato; attestazione del destinatario separata · repository contributor',url:'https://github.com/nicolaususnicola-lgtm/myzubster-mvp'}],blockchain:{status:'confirmed',network:'Base Sepolia',chainId:84532,txId:'0xff3c108275625673ad22a886da2df7120ae81b8f0106ec833613513b03c7bc31',blockNumber:47000958,verifier:'/api/knowledge-anchor/n4k48/0xff3c108275625673ad22a886da2df7120ae81b8f0106ec833613513b03c7bc31'}}
+];
+if(window.MyZubsterKnowledgeCards) window.MyZubsterKnowledgeCards.render('#knowledgeCards',knowledgeClaims);
+else window.addEventListener('DOMContentLoaded',()=>window.MyZubsterKnowledgeCards?.render('#knowledgeCards',knowledgeClaims));
+
+function githubCommits(){
+  return document.getElementById('ghCommits').value.split('\n').map(x=>x.trim()).filter(Boolean).map(line=>{
+    const p=line.split('|').map(x=>x.trim());
+    return {sha:p[0]||'',repository:p[1]||'',url:p[2]||'',committedAt:p[3]||''};
+  });
+}
+async function githubWorkEvidence(anchor){
+  const box=document.getElementById('ghResult'), account=document.getElementById('ghAccount').value.trim();
+  if(!account){box.textContent='Inserisci l’account GitHub.';return}
+  const commits=githubCommits(); if(!commits.length){box.textContent='Inserisci almeno un commit verificabile.';return}
+  if(anchor&&!confirm('Creare una transazione Base Sepolia con il solo hash SHA-256 dello snapshot GitHub?'))return;
+  box.textContent=anchor?'Creazione snapshot e anchor blockchain…':'Calcolo snapshot verificabile…';
+  try{
+    const r=await fetch('/api/knowledge-evidence/github-work',{method:'POST',headers:headers(),body:JSON.stringify({account,commits,anchor})});
+    const d=await r.json(); if(!r.ok)throw new Error(d.error||d.anchor?.error||'Operazione fallita');
+    const m=d.payload?.metrics||{};
+    box.innerHTML='<strong>GitHub Work Evidence</strong><br>Commit: '+escHtml(m.commits)+' · Repository: '+escHtml(m.repositories)+' · Giorni attivi: '+escHtml(m.activeDays)+'<br>Periodo: '+escHtml(m.firstCommitAt)+' → '+escHtml(m.lastCommitAt)+'<br>SHA-256: <code>'+escHtml(d.evidenceHash)+'</code><br>Commitment: <code>'+escHtml(d.commitment)+'</code>'+(d.anchor?.status?'<br>Blockchain: <strong>'+escHtml(d.anchor.status)+'</strong>':'')+(d.anchor?.explorerUrl?'<br><a href="'+escHtml(d.anchor.explorerUrl)+'" target="_blank" rel="noopener noreferrer">Apri transazione BaseScan</a>':'');
+  }catch(e){box.textContent='Errore: '+e.message}
+}
+function escHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+document.getElementById('ghSnapshot').onclick=()=>githubWorkEvidence(false);
+document.getElementById('ghAnchor').onclick=()=>githubWorkEvidence(true);
+
+const draftList=document.getElementById('draftList'),draftStatus=document.getElementById('draftStatus');
+let knowledgeDrafts=[];
+function draftField(id){return document.getElementById(id).value.trim()}
+function showDraftLogin(){document.getElementById('draftLogin').hidden=false;draftStatus.className='status warn';draftStatus.textContent='Accedi di nuovo a MyZubster per salvare o leggere le bozze. Il testo inserito resta qui finché non chiudi la pagina.'}
+function clearDraft(){draftList.value='';for(const id of ['draftTitle','draftDomain','draftDescription','draftEvidence','draftVerification'])document.getElementById(id).value='';document.getElementById('publishPanel').hidden=true;document.getElementById('saveDraft').disabled=false;draftStatus.textContent='Nuova scheda pronta da compilare.'}
+function selectDraft(){const item=knowledgeDrafts.find(d=>String(d._id)===draftList.value);if(!item){clearDraft();return}document.getElementById('draftTitle').value=item.title||'';document.getElementById('draftDomain').value=item.domain||'';document.getElementById('draftDescription').value=item.description||'';document.getElementById('draftEvidence').value=(item.evidence||[]).map(e=>[e.label,e.url||'',e.note||''].join(' | ')).join('\n');document.getElementById('draftVerification').value=item.verificationNote||'';const published=item.status==='published'&&item.visibility==='public';document.getElementById('saveDraft').disabled=published;document.getElementById('publishPanel').hidden=false;document.getElementById('publishCard').hidden=published;document.getElementById('unpublishCard').hidden=!published;const link=document.getElementById('publicCardLink');link.hidden=!published;link.href='/knowledge-card?id='+encodeURIComponent(item._id);document.getElementById('publishPreview').textContent=[item.title,'Ambito: '+item.domain,'Dichiarato: '+item.description,'Fonti indicate dal titolare:',...(item.evidence||[]).map(e=>'• '+e.label+(e.url?' — '+e.url:'')+(e.note?' — '+e.note:'')),'Stato della verifica: '+(item.verificationNote||'Nessuna verifica indipendente dichiarata.'),'Le fonti non sono verificate automaticamente.'].join('\n');draftStatus.textContent=published?'Scheda pubblica. Ritirala per modificarla.':'Bozza privata caricata. Salva eventuali modifiche prima di pubblicare.'}
+function collectDraft(){const evidence=draftField('draftEvidence').split('\n').map(line=>line.trim()).filter(Boolean).map(line=>{const [label,url='',...note]=line.split('|').map(x=>x.trim());return {label,url,note:note.join(' | ')}});return {title:draftField('draftTitle'),domain:draftField('draftDomain'),description:draftField('draftDescription'),evidence,verificationNote:draftField('draftVerification')}}
+const githubEvidenceCard=document.getElementById('githubEvidenceCard');
+function refreshGithubEvidenceCardOptions(){
+ const previous=githubEvidenceCard.value;
+ githubEvidenceCard.replaceChildren(new Option('Seleziona una scheda già salvata',''),...knowledgeDrafts.map(d=>new Option(d.title+(d.status==='published'?' · pubblica':' · privata'),String(d._id))));
+ if(knowledgeDrafts.some(d=>String(d._id)===previous))githubEvidenceCard.value=previous;
+ else if(draftList.value&&knowledgeDrafts.some(d=>String(d._id)===draftList.value))githubEvidenceCard.value=draftList.value;
+}
+async function addGithubEvidence(){
+ const box=document.getElementById('githubEvidenceStatus');
+ if(!token()){showDraftLogin();box.textContent='Accedi prima di aggiungere una fonte.';return}
+ const id=githubEvidenceCard.value,url=document.getElementById('githubEvidenceUrl').value.trim();
+ if(!id||!url){box.textContent='Seleziona una Knowledge Card e incolla un link GitHub.';return}
+ let parsed;
+ try{parsed=new URL(url)}catch(_){box.textContent='URL GitHub non valido.';return}
+ if(parsed.protocol!=='https:'||parsed.hostname!=='github.com'||!/^\/[a-z\d_.-]+\/[a-z\d_.-]+\/(pull\/[1-9]\d*|commit\/[a-f\d]{40})\/?$/i.test(parsed.pathname)){
+  box.textContent='Usa il link completo a una pull request o commit pubblico GitHub.';return
+ }
+ if(!confirm('Controllare questa fonte GitHub pubblica e collegarla alla Knowledge Card selezionata? La fonte sarà visibile se la scheda è pubblicata. L’esistenza della fonte non certifica la competenza.'))return;
+ const button=document.getElementById('addGithubEvidence');button.disabled=true;box.className='status muted';box.textContent='Controllo fonte pubblica su GitHub…';
+ try{
+  const response=await fetch('/api/knowledge-evidence/drafts/'+encodeURIComponent(id)+'/github-evidence',{method:'POST',headers:headers(),body:JSON.stringify({url,confirm:true})});
+  if(response.status===401){showDraftLogin();return}
+  const data=await response.json();
+  if(!response.ok||!data.success)throw Error(data.error||'Impossibile aggiungere la fonte');
+  await loadDrafts(id);
+  box.className='status ok';box.textContent=data.duplicate?'Fonte già presente: non è stata duplicata.':'Fonte GitHub pubblica accessibile e collegata. Non equivale a certificazione o prova automatica di paternità. Per aggiornare il README usa Zorgax → Le mie conoscenze.';
+ }catch(error){box.className='status warn';box.textContent=error.message}
+ finally{button.disabled=false}
+}
+document.getElementById('addGithubEvidence').onclick=addGithubEvidence;
+const githubSuggestedRepo=document.getElementById('githubSuggestedRepo');
+const githubCustomRepo=document.getElementById('githubCustomRepo');
+githubSuggestedRepo.addEventListener('change',()=>{githubCustomRepo.disabled=githubSuggestedRepo.value!=='custom';});
+githubCustomRepo.disabled=true;
+document.getElementById('exploreGithubRepo').onclick=async()=>{
+ const status=document.getElementById('githubRepoStatus'),results=document.getElementById('githubRepoResults');
+ const repo=githubSuggestedRepo.value==='custom'?githubCustomRepo.value.trim():githubSuggestedRepo.value;
+ const author=document.getElementById('githubRepoAuthor').value.trim();
+ results.replaceChildren();
+ if(!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repo)||repo.split('/').some(x=>x==='.'||x==='..')){status.textContent='Inserisci un repository nel formato owner/repo.';return}
+ if(author&&!/^[a-z\d](?:[a-z\d-]{0,37}[a-z\d])?$/i.test(author)){status.textContent='Inserisci un account GitHub valido o lascia vuoto il filtro.';return}
+ const button=document.getElementById('exploreGithubRepo');button.disabled=true;
+ status.className='status muted';status.textContent='Consulto esclusivamente i dati pubblici GitHub…';
+ try{
+  const base='https://api.github.com/repos/'+repo.split('/').map(encodeURIComponent).join('/');
+  const metaResponse=await fetch(base,{headers:{Accept:'application/vnd.github+json'}});
+  if(!metaResponse.ok)throw Error(metaResponse.status===404?'Repository non accessibile tramite API pubblica GitHub. Può essere stato rinominato, reso privato o limitato da GitHub. Prova ad aprirlo direttamente sul sito GitHub oppure usa una PR pubblica del progetto originale.':'GitHub non disponibile o limite richieste raggiunto.');
+  const meta=await metaResponse.json();
+  const params=new URLSearchParams({per_page:'15'});
+  if(author)params.set('author',author);
+  const commitsResponse=await fetch(base+'/commits?'+params,{headers:{Accept:'application/vnd.github+json'}});
+  if(!commitsResponse.ok)throw Error(commitsResponse.status===409?'Questo repository non ha ancora commit pubblici.':'Impossibile leggere i commit pubblici.');
+  const commits=await commitsResponse.json();
+  if(!Array.isArray(commits))throw Error('Risposta GitHub inattesa.');
+  const info=document.createElement('p');info.className='muted';
+  info.textContent=(meta.fork?'Fork pubblico':'Repository pubblico')+' · '+meta.full_name+(meta.fork&&meta.parent?.full_name?' · progetto originale: '+meta.parent.full_name:'')+'. L’identità dell’autore e il contenuto delle modifiche devono essere esaminati prima di attribuire contributi.';
+  results.appendChild(info);
+  if(!commits.length){status.textContent='Nessun commit pubblico trovato con questo filtro. Puoi modificarlo o eliminarlo.';return}
+  for(const item of commits){
+   if(!/^[a-f\d]{40}$/i.test(item.sha||''))continue;
+   const row=document.createElement('div');row.className='card';
+   const label=document.createElement('p');const authorLogin=item.author?.login||item.commit?.author?.name||'autore non associato';
+   label.textContent=String(item.commit?.message||'Commit GitHub').split('\n')[0].slice(0,180)+' · '+authorLogin+' · '+item.sha.slice(0,12);
+   const link=document.createElement('a');link.textContent='Apri e controlla il commit su GitHub';link.href='https://github.com/'+repo+'/commit/'+item.sha;link.target='_blank';link.rel='noopener noreferrer';
+   const choose=document.createElement('button');choose.type='button';choose.className='secondary';choose.textContent='Usa questo commit come fonte';
+   choose.onclick=()=>{
+    if(!githubEvidenceCard.value){status.className='status warn';status.textContent='Prima seleziona la Knowledge Card nella sezione precedente.';return}
+    document.getElementById('githubEvidenceUrl').value='https://github.com/'+repo+'/commit/'+item.sha;
+    status.className='status ok';status.textContent='Link copiato nel campo della Knowledge Card selezionata. Apri prima il commit e controlla le modifiche; poi premi «Controlla e collega la fonte» e conferma. Non viene attribuito automaticamente.';
+    document.getElementById('githubCardEvidencePanel').scrollIntoView({behavior:'smooth',block:'start'});
+   };
+   row.append(label,link,document.createTextNode(' '),choose);results.appendChild(row);
+  }
+  status.className='status muted';status.textContent='Risultati GitHub in sola lettura: controlla il contenuto e l’identità dell’autore prima di selezionare le fonti.';
+ }catch(error){status.className='status warn';status.textContent=error.message}
+ finally{button.disabled=false}
+};
+
+document.getElementById('refreshGithubNote').onclick=async()=>{
+ const box=document.getElementById('githubEvidenceStatus');
+ if(!token()){showDraftLogin();return}
+ const id=githubEvidenceCard.value;
+ if(!id){box.textContent='Seleziona prima la tua Knowledge Card.';return}
+ if(!confirm('Aggiornare la nota di verifica sulla tua Knowledge Card per indicare che una fonte GitHub è già collegata? La nota sarà visibile anche sul catalogo se la scheda è pubblicata; le competenze non saranno certificate.'))return;
+ const button=document.getElementById('refreshGithubNote');button.disabled=true;
+ box.className='status muted';box.textContent='Aggiornamento nota di verifica…';
+ try{
+  const response=await fetch('/api/knowledge-evidence/drafts/'+encodeURIComponent(id)+'/refresh-github-note',{method:'POST',headers:headers(),body:JSON.stringify({confirm:true})});
+  if(response.status===401){showDraftLogin();return}
+  const data=await response.json();
+  if(!response.ok||!data.success)throw Error(data.error||'Aggiornamento non riuscito');
+  await loadDrafts(id);
+  box.className='status ok';box.textContent=data.unchanged?'La nota di verifica è già aggiornata.':'Nota di verifica aggiornata. Torna a Zorgax e prepara nuovamente il README per sincronizzarla su GitHub.';
+ }catch(error){box.className='status warn';box.textContent=error.message}
+ finally{button.disabled=false}
+};
+
+async function loadDrafts(selected){if(!token()){showDraftLogin();return}try{const r=await fetch('/api/knowledge-evidence/drafts',{headers:{Authorization:'Bearer '+token()}});if(r.status===401){showDraftLogin();return}const d=await r.json();if(!r.ok||!d.success)throw new Error(d.error||'Lettura non riuscita');knowledgeDrafts=d.drafts||[];refreshGithubEvidenceCardOptions();draftList.replaceChildren(new Option('Nuova scheda',''),...knowledgeDrafts.map(x=>new Option(x.title+(x.status==='published'?' · pubblica':' · privata'),String(x._id))));if(selected){draftList.value=selected;selectDraft();githubEvidenceCard.value=selected}else draftStatus.textContent=knowledgeDrafts.length?knowledgeDrafts.length+' schede disponibili. Selezionane una per controllarla.':'Nessuna bozza salvata.'}catch(e){draftStatus.className='status warn';draftStatus.textContent='Impossibile caricare le schede: '+e.message}}
+async function saveDraft(){if(!token()){showDraftLogin();return}const payload=collectDraft();if(!payload.title||!payload.domain||!payload.description){draftStatus.className='status warn';draftStatus.textContent='Compila titolo, ambito e attività.';return}const button=document.getElementById('saveDraft');button.disabled=true;draftStatus.className='status muted';draftStatus.textContent='Salvataggio privato…';try{const id=draftList.value;const r=await fetch('/api/knowledge-evidence/drafts'+(id?'/'+encodeURIComponent(id):''),{method:id?'PUT':'POST',headers:headers(),body:JSON.stringify(payload)});if(r.status===401){showDraftLogin();return}const d=await r.json();if(!r.ok||!d.success)throw new Error(d.error||'Salvataggio non riuscito');await loadDrafts(String(d.draft._id));draftStatus.className='status ok';draftStatus.textContent='Bozza salvata privatamente su MyZubster. Nessuna pubblicazione o modifica GitHub.'}catch(e){draftStatus.className='status warn';draftStatus.textContent='Impossibile salvare: '+e.message}finally{button.disabled=false}}
+async function changePublication(action){const item=knowledgeDrafts.find(d=>String(d._id)===draftList.value);if(!item)return;const publish=action==='publish';if(publish&&!confirm('Pubblicare la versione salvata di “'+item.title+'”? Il nome account, le dichiarazioni, le fonti e la nota di verifica saranno leggibili da chiunque abbia il link.'))return;if(!publish&&!confirm('Ritirare “'+item.title+'” dalla vista pubblica? I link già condivisi potrebbero restare in copie o archivi esterni.'))return;const button=document.getElementById(publish?'publishCard':'unpublishCard');button.disabled=true;try{const r=await fetch('/api/knowledge-evidence/drafts/'+encodeURIComponent(item._id)+'/'+action,{method:'POST',headers:headers(),body:JSON.stringify(publish?{confirm:true}:{})});if(r.status===401){showDraftLogin();return}const d=await r.json();if(!r.ok||!d.success)throw new Error(d.error||'Operazione non riuscita');await loadDrafts(String(item._id));draftStatus.className='status ok';draftStatus.textContent=publish?'Scheda pubblicata. Copia il link dalla scheda pubblica.':'Scheda ritirata e tornata privata. Ora puoi modificarla.'}catch(e){draftStatus.className='status warn';draftStatus.textContent='Operazione non riuscita: '+e.message}finally{button.disabled=false}}
+// Profile onboarding handoff is an editable client-side draft. Ownership is assigned
+// only by the authenticated Knowledge Evidence API when the user saves it.
+const KNOWLEDGE_HANDOFF_KEY='myzubster-knowledge-onboarding-handoff-v1';
+const handoffPanel=document.getElementById('knowledgeHandoffPanel');
+function showKnowledgeHandoff(){
+ const stored=sessionStorage.getItem(KNOWLEDGE_HANDOFF_KEY);
+ if(!stored)return;
+ let draft;
+ try{draft=JSON.parse(stored)}catch(_){sessionStorage.removeItem(KNOWLEDGE_HANDOFF_KEY);return}
+ if(!draft||!draft.title||!draft.domain||!draft.description)return;
+ handoffPanel.hidden=false;
+}
+document.getElementById('importKnowledgeHandoff').onclick=()=>{
+ if(!token()){showDraftLogin();return}
+ const stored=sessionStorage.getItem(KNOWLEDGE_HANDOFF_KEY);
+ let data;
+ try{data=JSON.parse(stored||'null')}catch(_){draftStatus.textContent='La bozza non è più disponibile.';return}
+ if(!data||!data.title||!data.domain||!data.description)return;
+ if(draftList.value||['draftTitle','draftDomain','draftDescription','draftEvidence'].some(id=>document.getElementById(id).value.trim())){
+  if(!confirm('Sostituire il contenuto attuale del modulo con la bozza di Zorgax? Le schede già salvate non saranno modificate.'))return;
+ }
+ clearDraft();
+ document.getElementById('draftTitle').value=String(data.title).slice(0,180);
+ document.getElementById('draftDomain').value=String(data.domain).slice(0,120);
+ document.getElementById('draftDescription').value=String(data.description).slice(0,3000);
+ document.getElementById('draftEvidence').value=(Array.isArray(data.evidence)?data.evidence:[]).map(e=>[e.label||'',e.url||'',e.note||''].join(' | ')).join('\n');
+ document.getElementById('draftVerification').value=String(data.verificationNote||'').slice(0,1000);
+ sessionStorage.removeItem(KNOWLEDGE_HANDOFF_KEY);handoffPanel.hidden=true;
+ draftStatus.className='status muted';draftStatus.textContent='Bozza caricata e modificabile, NON salvata. Controlla le fonti, poi premi “Salva bozza privata”.';
+ document.getElementById('draftTitle').focus();
+};
+document.getElementById('discardKnowledgeHandoff').onclick=()=>{sessionStorage.removeItem(KNOWLEDGE_HANDOFF_KEY);handoffPanel.hidden=true;};
+showKnowledgeHandoff();
+draftList.addEventListener('change',selectDraft);document.getElementById('newDraft').onclick=clearDraft;document.getElementById('saveDraft').onclick=saveDraft;document.getElementById('publishCard').onclick=()=>changePublication('publish');document.getElementById('unpublishCard').onclick=()=>changePublication('unpublish');
+track('profile_builder_open',type.value);if(token())loadProfile();loadDrafts();
+</script>
+</body>
+</html>

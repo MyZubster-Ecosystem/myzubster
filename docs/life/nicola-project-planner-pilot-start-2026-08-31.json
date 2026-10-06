@@ -1,0 +1,23 @@
+{
+  "version": "nicola_project_planner_pilot_start_v1",
+  "recordedAt": "2026-08-31",
+  "participantPublicId": "nicolaususnicola-lgtm",
+  "source": "participant_direct_email_confirmation",
+  "privacy": {
+    "publicContactStored": false,
+    "rawEmailBodyStored": false,
+    "projectObjectiveStored": false,
+    "note": "Only the minimum pilot-start confirmation is stored; no contact details, credentials, or private planner data are included."
+  },
+  "pilotStart": {
+    "participantReportedStarted": true,
+    "state": "PARTICIPANT_REPORTED_STARTED",
+    "technicalVerification": "NOT_PERFORMED",
+    "testResult": "NOT_YET_COMPLETED"
+  },
+  "evidenceBoundaries": [
+    "This record confirms the participant's statement that the test was started.",
+    "It does not independently verify the planner button press, browser-local state, project objective, daily use, completion, usefulness, or pilot outcome.",
+    "GO, CHANGE, or STOP must be evaluated only from participant-provided evidence after the test or an explicit early end."
+  ]
+}

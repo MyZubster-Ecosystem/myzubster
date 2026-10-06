@@ -3,172 +3,34 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const { createMongoConnector } = require('./src/services/mongoConnection');
 require('dotenv').config();
 
 const app = express();
-
 app.use(cors());
-app.use('/api/github-bounties/webhook', express.json({
-  verify: (req, res, buf) => { req.rawBody = Buffer.from(buf); }
-}));
+app.use('/api/github-bounties/webhook', express.json({ verify: (req, res, buf) => { req.rawBody = Buffer.from(buf); } }));
+app.use('/api/meta/messenger/webhook', express.json({ verify: (req, res, buf) => { req.rawBody = Buffer.from(buf); } }));
+app.use('/api/marketplace/seller/webhook', express.raw({ type:'application/json', limit:'256kb' }));
 app.use(express.json());
 
-// Inject Vercel Web Analytics into public HTML pages served by Express.
 const publicRoot = path.resolve(__dirname, 'public');
-const htmlAliases = new Map([
-  ['/', 'index.html'],
-  ['/fumetto', 'fumetto.html'],
-  ['/fumetto.html', 'fumetto.html'],
-  ['/comic', 'fumetto.html'],
-  ['/comic.html', 'fumetto.html'],
-  ['/fumetto/sentinel', 'fumetto-sentinel.html'],
-  ['/comic/sentinel', 'fumetto-sentinel.html'],
-  ['/come-funziona', 'come-funziona.html'],
-  ['/how-it-works', 'come-funziona.html'],
-  ['/grok', 'grok.html'],
-  ['/zorgax', 'zorgax.html'],
-  ['/research-search', 'research-search.html'],
-]);
-const vercelAnalyticsSnippet = `
-<script>
-  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
-</script>
-<script defer src="https://cdn.vercel-insights.com/v1/script.debug.js"></script>
-`;
+const htmlAliases = new Map([['/', 'index.html'],['/press', 'press.html'],['/press.html', 'press.html'],['/media', 'press.html'],['/media-kit', 'press.html'],['/fumetto', 'fumetto.html'],['/fumetto.html', 'fumetto.html'],['/comic', 'fumetto.html'],['/comic.html', 'fumetto.html'],['/fumetto/sentinel', 'fumetto-sentinel.html'],['/comic/sentinel', 'fumetto-sentinel.html'],['/come-funziona', 'come-funziona.html'],['/how-it-works', 'come-funziona.html'],['/grok', 'grok.html'],['/zorgax', 'zorgax.html'],['/zorgax-build', 'zorgax-build.html'],['/zorgax-email-profile', 'zorgax-email-profile.html'],['/zorgax-email-profile.html', 'zorgax-email-profile.html'],['/research-search', 'research-search.html'],['/payment-dashboard', 'payment-dashboard.html']]);
+const canonicalHtmlRedirects = new Map([['/press.html', '/press'],['/media', '/press'],['/media-kit', '/press'],['/social-login.html', '/social-login'],['/zorgax-email-profile.html', '/zorgax-email-profile']]);
+const bundledHtmlPaths = new Map([['press.html', require.resolve('./public/press.html')],['zorgax-email-profile.html', require.resolve('./public/zorgax-email-profile.html')]]);
+const vercelAnalyticsSnippet = `\n<script>\n  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };\n</script>\n<script defer src="/_vercel/insights/script.js"></script>\n`;
+app.use((req,res,next)=>{ if(req.method!=='GET') return next(); const destination=canonicalHtmlRedirects.get(req.path); return destination?res.redirect(308,destination):next(); });
+app.use((req,res,next)=>{ if(req.method!=='GET') return next(); const alias=htmlAliases.get(req.path); const relativePath=alias||(req.path.endsWith('.html')?req.path.replace(/^\/+/, ''):null); if(!relativePath)return next(); const filePath=bundledHtmlPaths.get(relativePath)||path.resolve(publicRoot,relativePath); if(filePath!==publicRoot&&!filePath.startsWith(`${publicRoot}${path.sep}`))return next(); fs.readFile(filePath,'utf8',(error,html)=>{ if(error)return next(); const zorgaxCardSnippet=relativePath==='zorgax.html'?'<script defer src="/zorgax-card.js"></script>':''; const instrumentation=`${vercelAnalyticsSnippet}${zorgaxCardSnippet}`; const instrumented=html.includes('/_vercel/insights/script.js')?(zorgaxCardSnippet&& !html.includes('/zorgax-card.js')?html.replace('</head>',`${zorgaxCardSnippet}</head>`):html):html.includes('</head>')?html.replace('</head>',`${instrumentation}</head>`):`${instrumentation}${html}`; res.type('html').status(200).send(instrumented); }); });
+app.use(express.static('public')); app.use('/data', express.static('data'));
+const mongoUri=process.env.MONGODB_URI||process.env.MONGO_URI; const connectMongoRuntime=createMongoConnector({mongoose,mongoUri});
+function connectMongo(){ if(process.env.NODE_ENV==='test')return Promise.resolve(); return connectMongoRuntime(); }
+if(process.env.NODE_ENV!=='test' && !process.env.VERCEL) connectMongo().catch(()=>{});
 
-app.use((req, res, next) => {
-  if (req.method !== 'GET') return next();
-
-  const alias = htmlAliases.get(req.path);
-  const relativePath = alias || (req.path.endsWith('.html') ? req.path.replace(/^\/+/, '') : null);
-  if (!relativePath) return next();
-
-  const filePath = path.resolve(publicRoot, relativePath);
-  if (filePath !== publicRoot && !filePath.startsWith(`${publicRoot}${path.sep}`)) return next();
-
-  fs.readFile(filePath, 'utf8', (error, html) => {
-    if (error) return next();
-    const instrumented = html.includes('</head>')
-      ? html.replace('</head>', `${vercelAnalyticsSnippet}</head>`)
-      : `${vercelAnalyticsSnippet}${html}`;
-    res.type('html').status(200).send(instrumented);
-  });
-});
-
-app.use(express.static('public'));
-app.use('/data', express.static('data'));
-
-const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URI;
-let mongoConnectionPromise = null;
-
-function connectMongo() {
-  if (process.env.NODE_ENV === 'test') return Promise.resolve();
-  if (mongoose.connection.readyState === 1) return Promise.resolve();
-  if (mongoConnectionPromise) return mongoConnectionPromise;
-
-  if (!mongoUri) {
-    const error = new Error('MongoDB non configurato: impostare MONGODB_URI (o MONGO_URI)');
-    console.error(`❌ ${error.message}`);
-    return Promise.reject(error);
-  }
-
-  mongoConnectionPromise = mongoose.connect(mongoUri, {
-    serverSelectionTimeoutMS: 10000
-  })
-    .then(() => {
-      console.log('✅ Connected to MongoDB');
-    })
-    .catch((err) => {
-      mongoConnectionPromise = null;
-      console.error('❌ MongoDB connection error:', err);
-      throw err;
-    });
-
-  return mongoConnectionPromise;
-}
-
-if (process.env.NODE_ENV !== 'test') {
-  connectMongo().catch(() => {});
-}
-
-const authRoutes = require('./src/routes/authRoutes');
-const userRoutes = require('./src/routes/userRoutes');
-const bountyRoutes = require('./src/routes/bountyRoutes');
-const rewardRoutes = require('./src/routes/rewardRoutes');
-const referralRoutes = require('./src/routes/referralRoutes');
-const listingRoutes = require('./src/routes/listingRoutes');
-const tripRoutes = require('./src/routes/tripRoutes');
-const couponRoutes = require('./src/routes/couponRoutes');
-const plantRoutes = require('./src/routes/plantRoutes');
-const searchRoutes = require('./src/routes/searchRoutes');
-const nearbyRoutes = require('./src/routes/nearbyRoutes');
-const aiForwardRoutes = require('./src/routes/aiForwardRoutes');
-const gardenRoutes = require('./src/routes/urbanGardenRoutes');
-const geocodeRoutes = require('./src/routes/mapRoutes');
-const healthRoutes = require('./src/api/routes');
-const grokRoutes = require('./src/routes/grokRoutes');
-const zorgaxRoutes = require('./src/routes/zorgaxRoutes');
-const githubBountySyncRoutes = require('./src/routes/githubBountySyncRoutes');
-const researchRoutes = require('./src/routes/researchRoutes');
-const municipalityRoutes = require('./src/routes/municipalityRoutes');
-
-app.post('/api/auth/register', async (_req, res, next) => {
-  try {
-    await connectMongo();
-    next();
-  } catch (error) {
-    res.status(503).json({
-      success: false,
-      message: 'Database temporaneamente non disponibile'
-    });
-  }
-});
-
-app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/bounties', bountyRoutes);
-app.use('/api/rewards', rewardRoutes);
-app.use('/api/referrals', referralRoutes);
-app.use('/api/listings', listingRoutes);
-app.use('/api/trips', tripRoutes);
-app.use('/api/coupons', couponRoutes);
-app.use('/api/plants', plantRoutes);
-app.use('/api/search', searchRoutes);
-app.use('/api/nearby', nearbyRoutes);
-app.use('/api/ai-forward', aiForwardRoutes);
-app.use('/api/gardens', gardenRoutes);
-app.use('/api/municipalities', municipalityRoutes);
-app.use('/api/geocode', geocodeRoutes);
-app.use('/api', healthRoutes);
-app.use('/api/grok', grokRoutes);
-app.use('/api/zorgax', zorgaxRoutes);
-app.use('/api/github-bounties', githubBountySyncRoutes);
-app.use('/api/research', researchRoutes);
-
-app.get('/', (req, res) => {
-  res.status(200).json({
-    ok: true,
-    service: 'MyZubster Gateway',
-    status: 'online',
-    version: '1.1.0-life',
-    port: process.env.PORT || 5003,
-    api: '/api',
-    life: {
-      municipalities: '/api/municipalities',
-      gardens: '/api/gardens',
-      zorgax: '/api/zorgax'
-    }
-  });
-});
-
-app.get('/grok', (req, res) => res.sendFile(path.join(__dirname, 'public', 'grok.html')));
-app.get('/zorgax', (req, res) => res.sendFile(path.join(__dirname, 'public', 'zorgax.html')));
-app.get('/research-search', (req, res) => res.sendFile(path.join(__dirname, 'public', 'research-search.html')));
-app.get(['/fumetto', '/comic'], (req, res) => res.sendFile(path.join(__dirname, 'public', 'fumetto.html')));
-
-module.exports = app;
-
-const PORT = process.env.PORT || 5003;
-if (require.main === module && process.env.NODE_ENV !== 'test') {
-  app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
-}
+const knowledgeAnchorVerificationRoutes=require('./src/routes/knowledgeAnchorVerificationRoutes'); const knowledgeEvidenceRoutes=require('./src/routes/knowledgeEvidenceRoutes'); const myzWalletRoutes=require('./src/routes/myzWalletRoutes'); const authRoutes=require('./src/routes/authRoutes'); const userRoutes=require('./src/routes/userRoutes'); const bountyRoutes=require('./src/routes/bountyRoutes'); const rewardRoutes=require('./src/routes/rewardRoutes'); const referralRoutes=require('./src/routes/referralRoutes'); const listingRoutes=require('./src/routes/listingRoutes'); const marketplaceTrustRoutes=require('./src/routes/marketplaceTrustRoutes'); const sellerRoutes=require('./src/routes/sellerRoutes'); const marketplaceCryptoRoutes=require('./src/routes/marketplaceCryptoRoutes'); const marketplaceCryptoCheckoutRoutes=require('./src/routes/marketplaceCryptoCheckoutRoutes'); const marketplaceChainVerificationRoutes=require('./src/routes/marketplaceChainVerificationRoutes'); const marketplaceOrderPaymentRoutes=require('./src/routes/marketplaceOrderPaymentRoutes'); const tripRoutes=require('./src/routes/tripRoutes'); const couponRoutes=require('./src/routes/couponRoutes'); const plantRoutes=require('./src/routes/plantRoutes'); const searchRoutes=require('./src/routes/searchRoutes'); const nearbyRoutes=require('./src/routes/nearbyRoutes'); const aiForwardRoutes=require('./src/routes/aiForwardRoutes'); const gardenRoutes=require('./src/routes/urbanGardenRoutes'); const geocodeRoutes=require('./src/routes/mapRoutes'); const healthRoutes=require('./src/api/routes'); const grokRoutes=require('./src/routes/grokRoutes'); const zorgaxRoutes=require('./src/routes/zorgaxRoutes'); const zorgaxBuildRoutes=require('./src/routes/zorgaxBuildRoutes'); const zorgaxAssistantRoutes=require('./src/routes/zorgaxAssistantRoutes'); const nicolaComicsRoutes=require('./src/routes/nicolaComicsBridgeRoutes'); const zorgaxLifeRoutes=require('./src/routes/zorgaxLifeRoutes'); const zorgaxEmailRoutes=require('./src/routes/zorgaxEmailRoutes'); const zorgaxStripeRoutes=require('./src/routes/zorgaxStripeRoutes'); const paymentRoutes=require('./src/routes/paymentRoutes'); const paymentDashboardRoutes=require('./src/routes/paymentDashboardRoutes'); const adminDashboardRoutes=require('./src/routes/adminDashboardRoutes'); const zorgaxMonetizationRoutes=require('./src/routes/zorgaxMonetizationRoutes'); const zorgaxCapitalRoutes=require('./src/routes/zorgaxCapitalRoutes'); const zorgaxDigitalBusinessRoutes=require('./src/routes/zorgaxDigitalBusinessRoutes'); const zorgaxCulturalRoutes=require('./src/routes/zorgaxCulturalRoutes'); const githubBountySyncRoutes=require('./src/routes/githubBountySyncRoutes'); const researchRoutes=require('./src/routes/researchRoutes'); const municipalityRoutes=require('./src/routes/municipalityRoutes'); const entityRoutes=require('./src/routes/entityRoutes'); const metaverseRoutes=require('./backend/src/routes/metaverse'); const realtimeRoutes=require('./backend/src/routes/realtime'); const lifeDaoRoutes=require('./backend/src/routes/dao-life'); const onionTelemetryRoutes=require('./src/routes/onionTelemetryRoutes'); const flytekTelegramRoutes=require('./src/routes/flytekTelegramRoutes'); const myzubsterTelegramRoutes=require('./src/routes/myzubsterTelegramRoutes'); const metaMessengerRoutes=require('./src/routes/metaMessengerRoutes'); const knowledgeRewardRoutes=require('./src/routes/knowledgeRewardRoutes'); const {lifeDaoBindingGuard}=require('./backend/src/services/lifeDaoPolicy');
+const requireDatabase=async(req,res,next)=>{const started=process.hrtime.bigint();try{await connectMongo();return next();}catch(error){const durationMs=Number(process.hrtime.bigint()-started)/1e6;console.warn(JSON.stringify({event:'database_gate',method:req.method,path:req.originalUrl,statusCode:503,durationMs:Math.round(durationMs),error:error?.name||'MongoConnectionError'}));return res.status(503).json({success:false,message:'Database temporaneamente non disponibile'});}};
+app.post('/api/auth/register',requireDatabase); app.post('/api/auth/login',requireDatabase); app.use('/api/auth/profile',requireDatabase); app.use('/api/users',requireDatabase); app.use('/api/auth/social/:provider/callback',requireDatabase); app.use('/api/auth/gmail',requireDatabase); app.use('/api/zorgax/assistant/checkout',requireDatabase); app.use('/api/zorgax/assistant/access',requireDatabase); app.use('/api/knowledge-evidence/drafts',requireDatabase); app.use('/api/knowledge-evidence/public',requireDatabase); app.use('/api/listings',requireDatabase); app.use('/api/marketplace/seller',requireDatabase); app.use('/api/marketplace/crypto',requireDatabase); app.use('/api/marketplace',requireDatabase); app.use('/api/admin/dashboard',requireDatabase);
+app.use('/api/metaverse',async(req,res,next)=>{if(process.env.NODE_ENV==='test')return next();const started=process.hrtime.bigint();try{await connectMongo();return next();}catch(_error){if(req.path==='/health')return next();const durationMs=Number(process.hrtime.bigint()-started)/1e6;console.warn(JSON.stringify({event:'metaverse_request',method:req.method,path:req.path,statusCode:503,durationMs:Math.round(durationMs),slow:durationMs>=1500,failure:'storage_gate'}));return res.status(503).json({success:false,error:'Metaverse storage is temporarily unavailable'});}});
+app.use('/api/knowledge-anchor',knowledgeAnchorVerificationRoutes); app.use('/api/knowledge-evidence',knowledgeEvidenceRoutes); app.use('/api/myz',myzWalletRoutes); app.use('/api/auth',authRoutes); app.use('/api/users',userRoutes); app.use('/api/bounties',bountyRoutes); app.use('/api/rewards',rewardRoutes); app.use('/api/referrals',referralRoutes); app.use('/api/listings',listingRoutes); app.use('/api/marketplace/seller',sellerRoutes); app.use('/api/marketplace/crypto',marketplaceCryptoRoutes); app.use('/api/marketplace/crypto',marketplaceCryptoCheckoutRoutes); app.use('/api/marketplace/crypto/verify',marketplaceChainVerificationRoutes); app.use('/api/marketplace',marketplaceOrderPaymentRoutes); app.use('/api/marketplace',marketplaceTrustRoutes); app.use('/api/trips',tripRoutes); app.use('/api/coupons',couponRoutes); app.use('/api/plants',plantRoutes); app.use('/api/search',searchRoutes); app.use('/api/nearby',nearbyRoutes); app.use('/api/ai-forward',aiForwardRoutes); app.use('/api/gardens',gardenRoutes); app.use('/api/municipalities',municipalityRoutes); app.use('/api/geocode',geocodeRoutes); app.use('/api',healthRoutes); app.use('/api/grok',grokRoutes); app.use('/api/payments',paymentRoutes); app.use('/api/payment-dashboard',paymentDashboardRoutes); app.use('/api/admin/dashboard',adminDashboardRoutes); app.use('/api/zorgax/stripe',zorgaxStripeRoutes); app.use('/api/zorgax/monetization',zorgaxMonetizationRoutes); app.use('/api/zorgax/capital',zorgaxCapitalRoutes); app.use('/api/zorgax/digital-business',zorgaxDigitalBusinessRoutes); app.use('/api/zorgax/assistant',zorgaxAssistantRoutes); app.use('/api/zorgax/nicola-comics',nicolaComicsRoutes); app.use('/api/zorgax/build',zorgaxBuildRoutes); app.use('/api/zorgax/life',zorgaxLifeRoutes); app.use('/api/zorgax/email',zorgaxEmailRoutes); app.use('/api/zorgax/culture',zorgaxCulturalRoutes); app.use('/api/zorgax',zorgaxRoutes); app.use('/api/github-bounties',githubBountySyncRoutes); app.use('/api/research',researchRoutes); app.use('/api/entities',entityRoutes); app.use('/api/metaverse',metaverseRoutes); app.use('/api/realtime',realtimeRoutes); app.use('/api/dao/life',lifeDaoRoutes); app.use('/api/dao',lifeDaoBindingGuard); app.use('/api/telemetry',onionTelemetryRoutes); app.use('/api/telegram/flytek',flytekTelegramRoutes); app.use('/api/telegram/myzubster',myzubsterTelegramRoutes); app.use('/api/meta/messenger',metaMessengerRoutes); app.use('/api/knowledge-rewards',knowledgeRewardRoutes);
+app.get('/',(_req,res)=>res.status(200).json({ok:true,service:'MyZubster Gateway',status:'online',version:'1.1.0-life',port:process.env.PORT||5003,api:'/api',life:{municipalities:'/api/municipalities',gardens:'/api/gardens',zorgax:'/api/zorgax',zorgax_culture:'/api/zorgax/culture',zorgax_assistant:'/api/zorgax/assistant',zorgax_nicola_comics:'/api/zorgax/nicola-comics',zorgax_build:'/api/zorgax/build',zorgax_life:'/api/zorgax/life/status',zorgax_email:'/api/zorgax/email/preferences',dao_advisory:'/api/dao/life/status',knowledge_rewards:'/api/knowledge-rewards/kefir-kf-006'}}));
+app.get('/grok',(req,res)=>res.sendFile(path.join(__dirname,'public','grok.html'))); app.get('/zorgax',(req,res)=>res.sendFile(path.join(__dirname,'public','zorgax.html'))); app.get('/zorgax-build',(req,res)=>res.sendFile(path.join(__dirname,'public','zorgax-build.html'))); app.get('/research-search',(req,res)=>res.sendFile(path.join(__dirname,'public','research-search.html'))); app.get('/payment-dashboard',(req,res)=>res.sendFile(path.join(__dirname,'public','payment-dashboard.html'))); app.get(['/fumetto','/comic'],(req,res)=>res.sendFile(path.join(__dirname,'public','fumetto.html')));
+const ahpTraceRoutes=require('./src/routes/ahpTraceRoutes'); const kefirPilotRoutes=require('./src/routes/kefirPilotRoutes'); app.use('/api/ahp-trace',ahpTraceRoutes); app.use('/api/kefir-pilot',kefirPilotRoutes);
+module.exports=app;

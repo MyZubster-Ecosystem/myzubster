@@ -1,0 +1,148 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://www.myzubster.com/schemas/kefir-trace-event.schema.json",
+  "title": "MyZubster Kefir Pilot Trace Event",
+  "description": "Public-safe signed event envelope for the synthetic kefir circular pilot.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "eventId",
+    "ventureId",
+    "pilotId",
+    "eventType",
+    "occurredAt",
+    "actor",
+    "subjects",
+    "evidence",
+    "verification",
+    "signature"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "eventId": {
+      "type": "string",
+      "pattern": "^MZ-KEFIR-EVT-[A-Za-z0-9_-]+$"
+    },
+    "ventureId": {
+      "const": "MZ-VENTURE-KEFIR-001"
+    },
+    "pilotId": {
+      "const": "MZ-KEFIR-PILOT-001"
+    },
+    "eventType": {
+      "enum": [
+        "KEFIR_PROCESS_VERSION_PUBLISHED",
+        "KEFIR_CULTURE_REGISTERED",
+        "KEFIR_BATCH_CREATED",
+        "FERMENTATION_RECORDED",
+        "QUALITY_CHECK_RECORDED",
+        "BATCH_RELEASED",
+        "CONTAINER_DISTRIBUTED",
+        "CONTAINER_RETURNED",
+        "CONTAINER_SANITIZED",
+        "CONTAINER_REUSED",
+        "SURPLUS_DESTINATION_RECORDED",
+        "CORRECTION_ISSUED",
+        "ANCHOR_PUBLISHED"
+      ]
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "actor": {
+      "type": "object",
+      "required": [
+        "actorId",
+        "role",
+        "keyId"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "actorId": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        },
+        "keyId": {
+          "type": "string"
+        }
+      }
+    },
+    "subjects": {
+      "type": "object",
+      "required": [
+        "productLotId"
+      ],
+      "properties": {
+        "productLotId": {
+          "type": "string"
+        },
+        "cultureId": {
+          "type": "string"
+        },
+        "containerId": {
+          "type": "string"
+        },
+        "processVersion": {
+          "type": "string"
+        }
+      }
+    },
+    "measurements": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "previousEventIds": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "verification": {
+      "type": "object",
+      "required": [
+        "state"
+      ],
+      "properties": {
+        "state": {
+          "type": "string"
+        },
+        "synthetic": {
+          "type": "boolean"
+        }
+      }
+    },
+    "signature": {
+      "type": "object",
+      "required": [
+        "algorithm",
+        "keyId",
+        "value"
+      ],
+      "properties": {
+        "algorithm": {
+          "const": "Ed25519"
+        },
+        "keyId": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
