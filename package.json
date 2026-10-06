@@ -23,7 +23,7 @@
     "@vercel/functions": "^3.9.5",
     "axios": "^1.20.0",
     "bcrypt": "^6.0.0",
-    "compression": "^1.7.4",
+    "compression": "^1.8.2",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "ethers": "6.17.0",
