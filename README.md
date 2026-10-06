@@ -110,6 +110,24 @@ Nicola's independent MyZubster MVP is a **public, interactive pilot** showing ho
 
 > A learning or mentoring interaction does not by itself prove competence, safety, scientific validity or institutional endorsement.
 
+### Wasim — contributor character
+
+<p align="center">
+  <a href="https://github.com/MyZubster-Ecosystem/myzubster/pull/637">
+    <img src="assets/readme/wasim-avatar.svg" alt="Original Wasim contributor avatar, cyan and blue geometric design with the name WASIM" width="200" height="200">
+  </a>
+</p>
+
+<p align="center"><em>Original avatar submitted by <a href="https://github.com/wasim-builds">@wasim-builds</a> · character proposal under review.</em></p>
+
+**Public contributor path:** Wasim → original avatar / character proposal → consent-based Knowledge Network → public contribution evidence.
+
+**Explore:** [Character proposal #637](https://github.com/MyZubster-Ecosystem/myzubster/pull/637) · [Character Registry #1512](https://github.com/MyZubster-Ecosystem/myzubster/issues/1512#issuecomment-6014255144) · [Merged onboarding fix #1513](https://github.com/MyZubster-Ecosystem/myzubster/pull/1513) · [Contributor interoperability matrix](docs/contributors/CONTRIBUTOR-INTEROPERABILITY-MATRIX.md)
+
+**Status:** `PROPOSED / UNDER REVIEW`. The avatar is displayed here with attribution; #637 is still open. Its Knowledge Node reference requires the corrections requested in review. This README preview does not activate a Metaverse character or establish a published Contributor Passport.
+
+**Source:** unchanged SVG from [wasim-builds/myzubster at commit 3de8e2b](https://github.com/wasim-builds/myzubster/blob/3de8e2b1505a9a3d45a4c9e0f1a9a17f9d13ca26/assets/characters/wasim.svg), submitted in #637. Visual identity and self-described character roles remain distinct from the evidence and verification state of each technical contribution.
+
 ## 🧩 Start contributing in 10 minutes
 
 Want to help without learning the whole ecosystem first? Start with one small, reviewable change.
@@ -971,7 +989,7 @@ MyZubster maintains a transparent map of project-linked and autonomous contribut
 | **khongten124** | **Open Period Care — Research & Knowledge Package** · [PR #1451](https://github.com/MyZubster-Ecosystem/myzubster/pull/1451) · [canonical project link](docs/contributions/khongten124-canonical-project-link.md) · [machine-readable registry](docs/contributions/khongten124-project-registry.json) · commit `17cf7ca` | Materials Science / Sustainable Health Technologies / Technical Documentation & Evidence Analysis · linked to Zorgax / Knowledge Card / Contributor Passport | **APPROVED_BY_CONTRIBUTOR + EVIDENCE_VERIFIED** · linked to Circular Care evidence pilot via [#1486](https://github.com/MyZubster-Ecosystem/myzubster/issues/1486); public account-side Knowledge Card URL still pending |
 | **hoicailon94** | [Issue #1463](https://github.com/MyZubster-Ecosystem/myzubster/issues/1463) · [Contributor workflow #1474](https://github.com/MyZubster-Ecosystem/myzubster/issues/1474) | Revenue split, deterministic allocation and reconciliation architecture | **IN VERIFICATION**; Knowledge Card publication/approval and production settlement evidence remain separate |
 | **Aming9303** | [PR #891](https://github.com/MyZubster-Ecosystem/myzubster/pull/891) · [PR #861](https://github.com/MyZubster-Ecosystem/myzubster/pull/861) · [PR #859](https://github.com/MyZubster-Ecosystem/myzubster/pull/859) · [MyZubsterGateway fork](https://github.com/Aming9303/MyZubsterGateway) | Signed payment webhooks, replication-package validation, environmental sensor adapters | **MERGED CONTRIBUTION EVIDENCE**; personal forks remain independent and may contain historical/non-canonical project text |
-| **wasim-builds** | [PR #860](https://github.com/MyZubster-Ecosystem/myzubster/pull/860) · [PR #637](https://github.com/MyZubster-Ecosystem/myzubster/pull/637) | Security testing / fail-closed admin-auth coverage; contributor-character work proposed separately | **MERGED SECURITY EVIDENCE** for #860; #637 remains open and is not treated as merged evidence |
+| **wasim-builds** | [PR #860](https://github.com/MyZubster-Ecosystem/myzubster/pull/860) · [PR #1513](https://github.com/MyZubster-Ecosystem/myzubster/pull/1513) · [avatar / character #637](https://github.com/MyZubster-Ecosystem/myzubster/pull/637) | Security testing / fail-closed admin-auth coverage; contributor-character work proposed separately | **MERGED SECURITY EVIDENCE** for #860; #637 remains open and is not treated as merged evidence |
 | **foxxx009** | [PR #894](https://github.com/MyZubster-Ecosystem/myzubster/pull/894) · [PR #259](https://github.com/MyZubster-Ecosystem/myzubster/pull/259) · [myzubster-docs fork](https://github.com/foxxx009/myzubster-docs) · [Marketplace fork](https://github.com/foxxx009/MyZubster-Marketplace) | KPI/evidence framework, automated bot testing, MyZubster documentation/Marketplace forks | **MERGED CONTRIBUTION EVIDENCE**; fork README claims are not automatically canonical |
 | **Shweta-singh24** | [MyZubsterGateway fork](https://github.com/Shweta-singh24/MyZubsterGateway) | Public MyZubster-related fork discovered | **FORK DISCOVERED / EVIDENCE PENDING**; no contributor competence claim inferred from the fork alone |
 | **Luzijano** | [MyZubsterGateway fork](https://github.com/Luzijano/MyZubsterGateway) | Public MyZubster-related fork discovered | **FORK DISCOVERED / EVIDENCE PENDING**; historical fork text may differ from current canonical MyZubster status |
