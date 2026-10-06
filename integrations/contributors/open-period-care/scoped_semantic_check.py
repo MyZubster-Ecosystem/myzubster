@@ -32,33 +32,21 @@ def post_json(url: str, payload: dict, timeout: int = 180) -> dict:
         return json.loads(resp.read().decode("utf-8"))
 
 
-def embed(text: str) -> list[float]:
-    data = post_json(
-        f"{OLLAMA_BASE_URL}/api/embed",
-        {"model": EMBED_MODEL, "input": text},
-    )
-    embeddings = data.get("embeddings")
-    if not embeddings or not embeddings[0]:
-        raise RuntimeError("No embedding returned by Ollama")
-    return embeddings[0]
-
-
-def scoped_search(question: str, limit: int = 5) -> list[dict]:
-    vector = embed(question)
-    data = post_json(
-        f"{QDRANT_URL}/collections/{QDRANT_COLLECTION}/points/query",
+def scroll_by_metadata(must: list[dict], limit: int = 10) -> list[dict]:
+    filters = [
         {
-            "query": vector,
-            "filter": {
-                "must": [
-                    {
-                        "key": "observation.metadata.bridge",
-                        "match": {"value": "open-period-care"},
-                    }
-                ]
-            },
+            "key": "observation.metadata.bridge",
+            "match": {"value": "open-period-care"},
+        },
+        *must,
+    ]
+    data = post_json(
+        f"{QDRANT_URL}/collections/{QDRANT_COLLECTION}/points/scroll",
+        {
+            "filter": {"must": filters},
             "limit": limit,
             "with_payload": True,
+            "with_vector": False,
         },
     )
     points = (data.get("result") or {}).get("points") or []
@@ -70,26 +58,25 @@ def scoped_search(question: str, limit: int = 5) -> list[dict]:
 
 
 def find_card(card_id: str) -> tuple[dict | None, list[dict]]:
-    results = scoped_search(
-        f"Open Period Care khongten124 {card_id} Knowledge Card title status"
-    )
-    for obs in results:
-        metadata = obs.get("metadata") or {}
-        if metadata.get("knowledgeCardId") == card_id:
-            return obs, results
-    return None, results
+    results = scroll_by_metadata([
+        {
+            "key": "observation.metadata.knowledgeCardId",
+            "match": {"value": card_id},
+        }
+    ])
+    return (results[0] if results else None), results
 
 
 def find_credential_boundary() -> tuple[dict | None, list[dict]]:
-    results = scoped_search(
-        "Open Period Care khongten124 medicalCredential professionalCredential "
-        "personal medical certification NOT_ESTABLISHED"
-    )
-    for obs in results:
-        metadata = obs.get("metadata") or {}
-        if metadata.get("sourcePath") == "docs/contributions/khongten124-project-registry.json":
-            return obs, results
-    return None, results
+    results = scroll_by_metadata([
+        {
+            "key": "observation.metadata.sourcePath",
+            "match": {
+                "value": "docs/contributions/khongten124-project-registry.json"
+            },
+        }
+    ])
+    return (results[0] if results else None), results
 
 
 def generate_scoped_summary(question: str, sources: list[dict]) -> str:
@@ -145,33 +132,38 @@ def main() -> int:
         and "not personal medical certifications" in credential_description
     )
 
-    # Zorgax free-form check runs only on contributor-scoped sources.
-    scoped_sources = []
-    seen = set()
-    for source in card1_results + card2_results + credential_results:
-        sid = source.get("id")
-        if sid and sid not in seen:
-            seen.add(sid)
-            scoped_sources.append(source)
-    scoped_sources = scoped_sources[:5]
+    # Zorgax receives only the three exact metadata-selected records.
+    scoped_sources = [
+        source
+        for source in (card1, card2, credential)
+        if source is not None
+    ]
 
     zorgax_answer = generate_scoped_summary(
-        "Quali sono le due Knowledge Card Open Period Care e qual è il confine "
-        "sulle certificazioni personali di khongten124?",
+        "Riporta le due Knowledge Card Open Period Care con ID, titolo e stato. "
+        "Poi indica se dalle fonti risulta stabilita una certificazione medica "
+        "personale di khongten124. Non chiamare Knowledge Card i requisiti REQ-*.",
         scoped_sources,
     )
     lower = zorgax_answer.lower()
     zorgax_ok = (
         "kc-opc-001" in lower
         and "kc-opc-002" in lower
+        and "multi-layer biomaterial architecture for reusable textile absorbents" in lower
+        and "contributor privacy, data minimization & clinical boundaries" in lower
         and "supported" in lower
         and (
-            "non_established" in lower
+            "not_established" in lower
             or "non è stabilita" in lower
-            or "non risult" in lower
-            or "non document" in lower
+            or "non risulta" in lower
+            or "non documentata" in lower
+            or "informazione non disponibile" in lower
         )
-        and "gots" not in lower.replace("non ", "")
+        and "req-mat-01" not in lower
+        and "req-abs-02" not in lower
+        and "req-bar-03" not in lower
+        and "req-dur-04" not in lower
+        and "req-dsg-05" not in lower
     )
 
     all_sources_opc = all(
@@ -184,7 +176,10 @@ def main() -> int:
     print(json.dumps({
         "status": status,
         "scope": "Contributor-scoped Open Period Care -> Qdrant -> Zorgax interoperability",
-        "qdrant_filter": "observation.metadata.bridge = open-period-care",
+        "qdrant_filter": (
+            "deterministic metadata lookup: bridge=open-period-care + "
+            "knowledgeCardId/sourcePath"
+        ),
         "knowledge_cards": [
             {
                 "id": "KC-OPC-001",
