@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Zorgax Profile Builder · MyZubster</title>
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:radial-gradient(circle at top,#27215c 0%,#0e0c25 55%,#05050c 100%);color:#fff;min-height:100vh}.wrap{max-width:980px;margin:auto;padding:24px}.card{background:rgba(15,14,34,.96);border:1px solid rgba(125,211,252,.24);border-radius:20px;padding:20px;margin:14px 0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.btn,button{display:inline-block;border:0;border-radius:12px;padding:11px 14px;font-weight:800;cursor:pointer;text-decoration:none}.primary{background:linear-gradient(135deg,#7c3aed,#0284c7);color:#fff}.secondary{background:#172033;color:#e2e8f0;border:1px solid #334155}.muted{color:#94a3b8;line-height:1.55}.ok{color:#86efac}.warn{color:#fde68a}.field{margin:12px 0}.field label{display:block;margin-bottom:6px;color:#cbd5e1;font-size:13px}.field select,.field textarea,.field input{width:100%;background:#070b18;color:#fff;border:1px solid #334155;border-radius:12px;padding:12px;font-size:15px}.field textarea{min-height:100px;resize:vertical}.out{white-space:pre-wrap;line-height:1.55;min-height:250px}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.pill{display:inline-block;padding:7px 10px;border:1px solid #334155;border-radius:999px;margin:3px;background:#111827}.status{font-size:13px;margin-top:8px}@media(max-width:800px){.grid{grid-template-columns:1fr}.wrap{padding:12px}}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:radial-gradient(circle at top,#27215c 0%,#0e0c25 55%,#05050c 100%);color:#fff;min-height:100vh}.wrap{max-width:980px;margin:auto;padding:24px}.card{background:rgba(15,14,34,.96);border:1px solid rgba(125,211,252,.24);border-radius:20px;padding:20px;margin:14px 0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.btn,button{display:inline-block;border:0;border-radius:12px;padding:11px 14px;font-weight:800;cursor:pointer;text-decoration:none}.primary{background:linear-gradient(135deg,#7c3aed,#0284c7);color:#fff}.btn[hidden],button[hidden]{display:none}.secondary{background:#172033;color:#e2e8f0;border:1px solid #334155}.muted{color:#94a3b8;line-height:1.55}.ok{color:#86efac}.warn{color:#fde68a}.field{margin:12px 0}.field label{display:block;margin-bottom:6px;color:#cbd5e1;font-size:13px}.field select,.field textarea,.field input{width:100%;background:#070b18;color:#fff;border:1px solid #334155;border-radius:12px;padding:12px;font-size:15px}.field textarea{min-height:100px;resize:vertical}.out{white-space:pre-wrap;line-height:1.55;min-height:250px}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.pill{display:inline-block;padding:7px 10px;border:1px solid #334155;border-radius:999px;margin:3px;background:#111827}.status{font-size:13px;margin-top:8px}@media(max-width:800px){.grid{grid-template-columns:1fr}.wrap{padding:12px}}
 </style>
 <script defer src="/knowledge-cards.js"></script>
 </head>
 <body>
 <div class="wrap">
-<section class="card"><h1>👽 Zorgax · Profile Builder</h1><p class="muted">Completa in modo guidato il profilo di un ente, di un donatore di kefir o di un soundsystem. Gmail viene usato solo se autorizzato; Facebook serve come identità social collegata. Zorgax propone una bozza e distingue sempre dati dichiarati, dati collegati e informazioni ancora da confermare.</p><div class="row"><a class="btn secondary" href="/zorgax">← Zorgax</a><a class="btn secondary" href="/zorgax-email-profile.html">📧 Configura Gmail</a><a class="btn secondary" href="/api/auth/social/facebook/start">📘 Collega Facebook</a></div></section>
+<section class="card"><h1>👽 Zorgax · Profile Builder</h1><p class="muted">Completa il profilo personale di sviluppatore oppure quello di un ente, di un donatore di kefir o di un soundsystem. Gmail viene usato solo se autorizzato; Facebook serve come identità social collegata. Zorgax propone una bozza e distingue sempre dati dichiarati, dati collegati e informazioni ancora da confermare.</p><div class="row"><a class="btn secondary" href="/zorgax">← Zorgax</a><a class="btn secondary" href="/zorgax-email-profile.html">📧 Configura Gmail</a><a class="btn secondary" href="/api/auth/social/facebook/start">📘 Collega Facebook</a></div></section>
 <section class="card"><h2>Le tue schede Conoscenze</h2><p class="muted">Inserisci una scheda alla volta. Salvala come bozza privata, controlla l’anteprima e decidi se pubblicarla. Le fonti indicate non sono verificate automaticamente e GitHub non viene modificato.</p>
 <div id="knowledgeHandoffPanel" class="out" hidden><strong>Bozza preparata con Zorgax</strong><p>Controlla la descrizione e le fonti prima di salvarla. Il collegamento GitHub identifica il profilo verificato, non certifica automaticamente le competenze. Nulla è stato ancora salvato o pubblicato.</p><button id="importKnowledgeHandoff" class="secondary" type="button">Carica la bozza nel modulo</button><button id="discardKnowledgeHandoff" class="secondary" type="button">Scarta il trasferimento</button></div>
 <div class="field"><label for="draftList">Bozze già salvate</label><select id="draftList"><option value="">Nuova scheda</option></select></div>
@@ -41,9 +41,24 @@
 </div></section>
 <section class="card"><h2>🧠 Esempi di Conoscenze verificabili</h2><p class="muted">Queste schede dimostrano come distinguere dichiarazioni ed evidenze. Non sono le tue bozze private.</p><div id="knowledgeCards"></div></section>
 <section class="card"><h2>💻 GitHub Work Evidence</h2><p class="muted">Crea uno snapshot verificabile della tua attività GitHub. Inserisci commit pubblici nel formato <code>SHA | repository | URL | timestamp ISO</code>, uno per riga. Le metriche descrivono attività e continuità, non certificano automaticamente competenza o dedizione.</p><div class="field"><label for="ghAccount">Account GitHub</label><input id="ghAccount" placeholder="DanielIoni-creator"></div><div class="field"><label for="ghCommits">Commit verificabili</label><textarea id="ghCommits" placeholder="abcdef1 | MyZubster-Ecosystem/myzubster | https://github.com/.../commit/abcdef1 | 2026-09-19T02:00:00Z"></textarea></div><div class="row"><button id="ghSnapshot" class="secondary">Calcola snapshot</button><button id="ghAnchor" class="primary">⛓ Ancora su blockchain</button></div><div id="ghResult" class="out" style="min-height:100px">Nessuno snapshot calcolato.</div></section><div class="grid">
-<section class="card"><h2>1. Tipo di profilo</h2><div class="field"><label for="type">Profilo</label><select id="type"><option value="institution">🏛️ Ente / università / partner pubblico</option><option value="kefir">🥛 Donatore di kefir</option><option value="soundsystem">🔊 Soundsystem / crew</option></select></div><div class="field"><label for="name">Nome pubblico</label><input id="name" placeholder="Nome ente, donatore o soundsystem"></div><div class="field"><label for="location">Località / area</label><input id="location" placeholder="Città, regione o area operativa"></div><div class="field"><label for="notes">Cosa fai / cosa offri</label><textarea id="notes" placeholder="Ente: competenze, pilot, LCA/MRV... Kefir: latte/acqua, disponibilità grani, scambio/donazione... Soundsystem: genere, crew, area, eventi, servizi, sostenibilità..."></textarea></div><div class="row"><button id="load" class="secondary">Leggi profilo collegato</button><button id="ask" class="primary">Fai completare a Zorgax</button></div><div id="sourceStatus" class="status muted">Accedi per usare Gmail e identità Facebook collegate.</div></section>
+<section class="card"><h2>1. Tipo di profilo</h2><div class="field"><label for="type">Profilo</label><select id="type"><option value="developer">💻 Sviluppatore / Open Source / Contributore</option><option value="institution">🏛️ Ente / università / partner pubblico</option><option value="kefir">🥛 Donatore di kefir</option><option value="soundsystem">🔊 Soundsystem / crew</option></select></div><div class="field"><label for="name">Nome pubblico</label><input id="name" placeholder="Nome pubblico del titolare o del progetto"></div><div class="field"><label for="location">Località / area</label><input id="location" placeholder="Città, regione o area operativa"></div><div class="field"><label for="notes">Cosa fai / cosa offri</label><textarea id="notes" placeholder="Ente: competenze, pilot, LCA/MRV... Kefir: latte/acqua, disponibilità grani, scambio/donazione... Soundsystem: genere, crew, area, eventi, servizi, sostenibilità..."></textarea></div><div class="row"><button id="load" class="secondary">Leggi profilo collegato</button><button id="ask" class="primary">Fai completare a Zorgax</button></div><div id="sourceStatus" class="status muted">Accedi per usare Gmail e identità Facebook collegate.</div></section>
 <section class="card"><h2>2. Bozza suggerita</h2><div id="out" class="out">Zorgax userà solo i dati disponibili e ti farà una domanda alla volta sui campi mancanti.</div><div class="row"><button id="copy" class="secondary">Copia bozza</button><a class="btn primary" href="/zorgax-email-profile.html">Approva profilo Gmail →</a></div><p class="muted">La bozza non prova automaticamente affiliazioni, proprietà, disponibilità di kefir, titolarità di un soundsystem o partnership istituzionali. Questi elementi devono essere confermati dal titolare o da evidenze verificabili.</p></section>
 </div>
+
+<section class="card" id="developerProfilePanel" hidden>
+<h2>💻 Profilo personale MyZubster</h2>
+<p class="muted">Questo profilo è separato dalle Knowledge Card: non modifica schede già pubblicate, GitHub o Gmail. Compila i campi sottostanti con contenuti che approvi personalmente. La bozza generata da Zorgax è un suggerimento: non viene pubblicata automaticamente.</p>
+<div class="field"><label for="professionalHeadline">Titolo pubblico *</label><input id="professionalHeadline" maxlength="180" placeholder="Nome — Sviluppatore open source"></div>
+<div class="field"><label for="professionalSummary">Presentazione personale *</label><textarea id="professionalSummary" maxlength="2000" placeholder="Descrivi il tuo lavoro, le collaborazioni e lo stato effettivo dei progetti. Evita informazioni private."></textarea></div>
+<div class="field"><label for="professionalSkills">Competenze dichiarate (una per riga)</label><textarea id="professionalSkills" placeholder="Linux\nDocker\nSistemi distribuiti"></textarea></div>
+<div class="field"><label for="professionalGoals">Cosa cerchi / obiettivi (uno per riga)</label><textarea id="professionalGoals" placeholder="Collaborare con sviluppatori open source\nTestare nuovi nodi indipendenti"></textarea></div>
+<div class="field"><label for="professionalAvailability">Modalità di collaborazione</label><textarea id="professionalAvailability" maxlength="800" placeholder="Per contatti pubblici, indica una issue GitHub. Non inserire indirizzi email privati."></textarea></div>
+<div class="field"><label for="professionalEvidence">Fonti pubbliche autorizzate (una per riga: etichetta | URL | descrizione)</label><textarea id="professionalEvidence" placeholder="GitHub | https://github.com/utente | Account collegato\nDocumentazione | https://github.com/owner/repo/pull/123 | PR in revisione"></textarea></div>
+<div class="row"><button type="button" id="professionalFromFields" class="secondary">Usa nome e descrizione inseriti sopra</button><button type="button" id="professionalPreviewButton" class="secondary">Controlla anteprima</button><button type="button" id="professionalLoad" class="secondary">Carica profilo già salvato</button></div>
+<div id="professionalPreviewPanel" hidden><h3>Anteprima e approvazione esplicita</h3><div id="professionalPreview" class="out" style="min-height:90px"></div><p class="muted">Premendo «Pubblica» rendi visibili titolo, presentazione, competenze, obiettivi, modalità di collaborazione e fonti. Non viene pubblicata la tua email. La versione precedente del profilo verrà aggiornata.</p><div class="row"><button type="button" id="professionalPrivate" class="secondary">Approva e salva privato</button><button type="button" id="professionalPublic" class="primary">Approva e pubblica profilo</button></div></div>
+<div id="professionalStatus" role="status" aria-live="polite" class="status muted">Accedi al tuo account per salvare il profilo personale.</div>
+<a class="btn secondary" href="/zorgax-profile-onboarding" rel="noopener">Apri anche l’onboarding del profilo professionale</a>
+</section>
 </div>
 <script>
 const type=document.getElementById('type'),nameEl=document.getElementById('name'),locationEl=document.getElementById('location'),notes=document.getElementById('notes'),out=document.getElementById('out'),status=document.getElementById('sourceStatus');let account=null,gmail=null;
@@ -51,9 +66,136 @@ function token(){return localStorage.getItem('myzubster-token')||localStorage.ge
 function headers(){const t=token();return t?{'Content-Type':'application/json','Authorization':'Bearer '+t}:{'Content-Type':'application/json'}}
 function track(event,target){try{fetch('/api/zorgax/assistant/track',{method:'POST',headers:headers(),body:JSON.stringify(target?{event,target}:{event}),keepalive:true}).catch(()=>{})}catch(_e){}}
 async function loadProfile(){const t=token();if(!t){status.textContent='Devi prima accedere a MyZubster.';return}status.textContent='Lettura fonti autorizzate…';try{const [p,g]=await Promise.all([fetch('/api/auth/profile',{headers:{Authorization:'Bearer '+t}}),fetch('/api/auth/gmail/auto-sync/status',{headers:{Authorization:'Bearer '+t}})]);const pd=await p.json(),gd=await g.json();if(p.ok&&pd.success)account=pd.data?.user||null;if(g.ok&&gd.success)gmail=gd.data||null;const fb=account?.socialIdentities?.facebook;const gp=gmail?.profile;if(!nameEl.value)nameEl.value=fb?.name||account?.github?.publicSnapshot?.name||account?.username||'';if(!locationEl.value)locationEl.value=account?.communityProfile?.displayLocation||account?.github?.publicSnapshot?.location||'';status.innerHTML=`Gmail: <span class="${gmail?.sync?.enabled?'ok':'warn'}">${gmail?.sync?.enabled?'collegato':'non collegato'}</span> · Facebook: <span class="${fb?.id?'ok':'warn'}">${fb?.id?'collegato':'non collegato'}</span> · GitHub: <span class="${account?.github?.id?'ok':'warn'}">${account?.github?.id?'collegato':'non collegato'}</span>`;if(gp?.summary&&!notes.value)notes.value=gp.summary;track('profile_builder_profile_loaded',type.value)}catch(e){status.textContent='Impossibile leggere il profilo: '+e.message}}
-function roleGuide(){if(type.value==='institution')return 'Profilo istituzionale. Richiedi: nome ente, ruolo del referente, area di competenza, progetti/pilot, KPI o MRV pertinenti, link ufficiale, cosa può validare o fornire. Non dichiarare partnership o incarichi senza prova.';if(type.value==='kefir')return 'Profilo donatore kefir. Richiedi: tipo di kefir (latte/acqua), disponibilità grani, modalità donazione/scambio, area, esperienza, eventuali allergeni o condizioni di conservazione. Non dare consigli medici e non inventare sicurezza alimentare.';return 'Profilo soundsystem. Richiedi: nome soundsystem/crew, città/area, generi, configurazione o servizi descritti dal titolare, disponibilità eventi, pratiche di sicurezza/sostenibilità, link social. Non presumere proprietà di attrezzature o autorizzazioni.'}
+function roleGuide(){if(type.value==='developer')return 'Profilo personale di sviluppatore o contributore open source. Chiedi competenze dichiarate, attività svolte, obiettivi di collaborazione e fonti pubbliche specifiche. Non chiedere ente rappresentato, KPI/MRV istituzionali, certificazioni o partnership non documentate. Non presentare una PR in bozza come codice già integrato o test ancora da svolgere come risultati raggiunti. Se tutti i dati necessari sono disponibili, non ripetere domande già risolte.';if(type.value==='institution')return 'Profilo istituzionale. Richiedi: nome ente, ruolo del referente, area di competenza, progetti/pilot, KPI o MRV pertinenti, link ufficiale, cosa può validare o fornire. Non dichiarare partnership o incarichi senza prova.';if(type.value==='kefir')return 'Profilo donatore kefir. Richiedi: tipo di kefir (latte/acqua), disponibilità grani, modalità donazione/scambio, area, esperienza, eventuali allergeni o condizioni di conservazione. Non dare consigli medici e non inventare sicurezza alimentare.';return 'Profilo soundsystem. Richiedi: nome soundsystem/crew, città/area, generi, configurazione o servizi descritti dal titolare, disponibilità eventi, pratiche di sicurezza/sostenibilità, link social. Non presumere proprietà di attrezzature o autorizzazioni.'}
 function prompt(){const gp=gmail?.profile;const fb=account?.socialIdentities?.facebook;return `Agisci come Zorgax Profile Builder. ${roleGuide()}\n\nDATI DISPONIBILI E AUTORIZZATI:\n- nome inserito: ${nameEl.value.trim()||'mancante'}\n- località inserita: ${locationEl.value.trim()||'mancante'}\n- note dichiarate: ${notes.value.trim()||'mancanti'}\n- profilo Gmail privato approvato: ${gp?`archetipo=${gp.archetype}; interessi=${(gp.traits||[]).join(', ')}; sintesi=${gp.summary||''}`:'non disponibile'}\n- Facebook collegato: ${fb?.id?'sì':'no'}${fb?.name?`; nome=${fb.name}`:''}\n- GitHub collegato: ${account?.github?.login||'no'}\n\nPrepara una bozza di profilo MyZubster con: Titolo, Descrizione breve, Attività/competenze, Cosa offre alla community, Cosa cerca, Località, Evidenze/link da aggiungere, Campi ancora da confermare. Etichetta ogni informazione come [dichiarato], [collegato] oppure [da confermare]. Non inferire affiliazioni, proprietà o partnership. Alla fine fai UNA sola domanda, la più importante, per completare il profilo.`}
 async function ask(){out.textContent='Zorgax sta preparando la bozza…';try{const r=await fetch('/api/zorgax/assistant/chat',{method:'POST',headers:headers(),body:JSON.stringify({message:prompt(),useWeb:false,history:[]})});const d=await r.json();if(!r.ok)throw new Error(d.error||'Zorgax non disponibile');out.textContent=d.response||d.answer||'Nessuna risposta.';track('profile_builder_draft_generated',type.value)}catch(e){out.textContent='Errore: '+e.message}}
+
+const professionalPanel=document.getElementById('developerProfilePanel');
+const professionalStatus=document.getElementById('professionalStatus');
+const professionalPreviewPanel=document.getElementById('professionalPreviewPanel');
+let professionalApprovedPreview=null;
+let professionalExistingDetails={experiences:[],interests:[],skills:[]};
+let professionalExistingChecked=false;
+function updateProfileType(){
+  professionalPanel.hidden=type.value!=='developer';
+  const gmailApproval=document.querySelector('a[href="/zorgax-email-profile.html"].btn.primary');
+  if(gmailApproval)gmailApproval.hidden=type.value==='developer';
+}
+type.addEventListener('change',updateProfileType);
+updateProfileType();
+const professionalIds=['professionalHeadline','professionalSummary','professionalSkills','professionalGoals','professionalAvailability','professionalEvidence'];
+function professionalLines(id){return document.getElementById(id).value.split('\n').map(s=>s.trim()).filter(Boolean)}
+function collectProfessionalProfile(){
+  const evidence=professionalLines('professionalEvidence').map(line=>{
+    const [source,url='',...description]=line.split('|').map(s=>s.trim());
+    return {source, url, description:description.join(' | ')};
+  });
+  return {
+    headline:document.getElementById('professionalHeadline').value.trim(),
+    summary:document.getElementById('professionalSummary').value.trim(),
+    skills:professionalLines('professionalSkills').map(name=>{
+      const prior=professionalExistingDetails.skills.find(s=>s.name===name);
+      return prior?{...prior}: {name};
+    }),
+    experiences:professionalExistingDetails.experiences,interests:professionalExistingDetails.interests,
+    goals:professionalLines('professionalGoals'),
+    collaborationAvailability:document.getElementById('professionalAvailability').value.trim(),
+    evidence
+  };
+}
+function professionalMessage(message,failed=false){
+  professionalStatus.className=failed?'status warn':'status ok';
+  professionalStatus.textContent=message;
+}
+function invalidateProfessionalPreview(){
+  professionalApprovedPreview=null;
+  professionalPreviewPanel.hidden=true;
+}
+for(const id of professionalIds)document.getElementById(id).addEventListener('input',invalidateProfessionalPreview);
+document.getElementById('professionalFromFields').onclick=()=>{
+  document.getElementById('professionalHeadline').value=nameEl.value.trim().slice(0,180);
+  document.getElementById('professionalSummary').value=notes.value.trim().slice(0,2000);
+  invalidateProfessionalPreview();
+  professionalMessage('Dati copiati: controlla e completa i campi prima di approvare. Se la descrizione superava 2000 caratteri, è stata abbreviata.');
+};
+document.getElementById('professionalPreviewButton').onclick=()=>{
+  const p=collectProfessionalProfile();
+  if(!p.headline||!p.summary)return professionalMessage('Inserisci almeno titolo e presentazione.',true);
+  if(p.skills.length>50||p.goals.length>20||p.evidence.length>30)return professionalMessage('Troppi elementi: massimo 50 competenze, 20 obiettivi e 30 fonti.',true);
+  if(p.skills.some(s=>s.name.length>120)||p.goals.some(g=>g.length>180))return professionalMessage('Accorcia competenze (120 caratteri) o obiettivi (180 caratteri).',true);
+  for(const entry of p.evidence){
+    if(!entry.source||!entry.url)return professionalMessage('Ogni fonte richiede etichetta e URL pubblico; elimina le righe incomplete.',true);
+    try {const url=new URL(entry.url);if(url.protocol!=='https:')throw Error();}catch(_){return professionalMessage('Usa solo URL pubblici HTTPS nelle fonti.',true)}
+  }
+  professionalApprovedPreview=p;
+  document.getElementById('professionalPreview').textContent=[
+    'Titolo: '+p.headline,'','Presentazione: '+p.summary,'',
+    'Competenze dichiarate:',...p.skills.map(s=>'• '+s.name+(s.level?' (livello: '+s.level+')':'')+(s.notes?' — '+s.notes:'')+(s.evidence?.length?' — evidenze: '+s.evidence.join(', '):'')),'',
+    ...(p.experiences.length?['Esperienze già salvate, mantenute:',...p.experiences.map(e=>'• '+e.title+(e.description?' — '+e.description:'')+(e.organization?' — '+e.organization:'')+(e.evidence?.length?' — '+e.evidence.join(', '):'')),'']:[]),
+    ...(p.interests.length?['Interessi già salvati, mantenuti:',...p.interests.map(i=>'• '+i),'']:[]),
+    'Obiettivi:',...p.goals.map(g=>'• '+g),'',
+    'Collaborazione: '+(p.collaborationAvailability||'Non specificata'),'',
+    'Fonti indicate:',...p.evidence.map(e=>'• '+e.source+' — '+e.url+(e.description?' — '+e.description:'')),
+    '','Le competenze sono dichiarate; le fonti non equivalgono a certificazioni.'
+  ].join('\n');
+  professionalPreviewPanel.hidden=false;
+  professionalMessage('Controlla attentamente: la pubblicazione richiede un secondo clic esplicito.');
+};
+async function loadSavedProfessional(){
+  if(!token())return professionalMessage('Accedi a MyZubster prima di caricare il profilo.',true);
+  try {
+    const response=await fetch('/api/auth/profile/professional',{headers:{Authorization:'Bearer '+token()},cache:'no-store'});
+    if(response.status===401)return professionalMessage('Sessione scaduta: accedi nuovamente.',true);
+    const data=await response.json();
+    if(!response.ok||!data.success)throw Error(data.message||'Lettura non riuscita');
+    const p=data.data?.profile;
+    professionalExistingChecked=true;
+    if(!p)return professionalMessage('Nessun profilo professionale salvato: compila il nuovo modulo.');
+    professionalExistingDetails={experiences:p.experiences||[],interests:p.interests||[],skills:p.skills||[]};
+    document.getElementById('professionalHeadline').value=p.headline||'';
+    document.getElementById('professionalSummary').value=p.summary||'';
+    document.getElementById('professionalSkills').value=(p.skills||[]).map(s=>s.name).filter(Boolean).join('\n');
+    document.getElementById('professionalGoals').value=(p.goals||[]).join('\n');
+    document.getElementById('professionalAvailability').value=p.collaborationAvailability||'';
+    document.getElementById('professionalEvidence').value=(p.evidence||[]).map(e=>[e.source||'',e.url||'',e.description||''].join(' | ')).join('\n');
+    invalidateProfessionalPreview();
+    professionalMessage(p.visibility==='public'?'Profilo pubblico caricato: puoi aggiornarlo dopo una nuova approvazione.':'Profilo privato caricato: puoi aggiornarlo o pubblicarlo.');
+  } catch(e){professionalMessage('Impossibile caricare il profilo: '+e.message,true)}
+}
+document.getElementById('professionalLoad').onclick=loadSavedProfessional;
+async function saveApprovedProfessional(visibility){
+  if(!professionalApprovedPreview)return professionalMessage('Controlla prima l’anteprima aggiornata.',true);
+  if(!token())return professionalMessage('Accedi a MyZubster prima di salvare.',true);
+  if(!professionalExistingChecked){
+    try {
+      const current=await fetch('/api/auth/profile/professional',{headers:{Authorization:'Bearer '+token()},cache:'no-store'});
+      if(!current.ok)throw Error('Verifica del profilo esistente non riuscita.');
+      const data=await current.json();
+      if(!data.success)throw Error('Verifica del profilo esistente non riuscita.');
+      if(data.data?.profile)return professionalMessage('Esiste già un profilo professionale. Premi «Carica profilo già salvato» prima di aggiornarlo, per non perdere informazioni.',true);
+      professionalExistingChecked=true;
+    }catch(e){return professionalMessage(e.message,true)}
+  }
+  const p=collectProfessionalProfile();
+  if(JSON.stringify(p)!==JSON.stringify(professionalApprovedPreview))return professionalMessage('Il testo è cambiato. Controlla nuovamente l’anteprima.',true);
+  if(!confirm(visibility==='public'?'Confermi la pubblicazione di questo profilo personale MyZubster?':'Confermi il salvataggio di questa bozza come profilo privato?'))return;
+  const buttons=['professionalPrivate','professionalPublic'].map(id=>document.getElementById(id));
+  buttons.forEach(b=>b.disabled=true);
+  try {
+    const response=await fetch('/api/auth/profile/professional',{method:'PUT',headers:headers(),body:JSON.stringify({approved:true,visibility,profile:p})});
+    if(response.status===401)throw Error('Sessione scaduta: accedi nuovamente');
+    const data=await response.json();
+    if(!response.ok||!data.success)throw Error(data.message||'Salvataggio non riuscito');
+    professionalExistingChecked=true;
+    invalidateProfessionalPreview();
+    professionalMessage(visibility==='public'?'✓ Il server ha confermato la pubblicazione del profilo personale MyZubster.':'✓ Profilo personale approvato e salvato in modalità privata.');
+    track('profile_builder_professional_'+visibility,'developer');
+  }catch(e){professionalMessage('Errore: '+e.message,true)}
+  finally{buttons.forEach(b=>b.disabled=false)}
+}
+document.getElementById('professionalPrivate').onclick=()=>saveApprovedProfessional('private');
+document.getElementById('professionalPublic').onclick=()=>saveApprovedProfessional('public');
+
 document.getElementById('load').onclick=loadProfile;document.getElementById('ask').onclick=ask;document.getElementById('copy').onclick=async()=>{try{await navigator.clipboard.writeText(out.textContent);status.textContent='Bozza copiata.'}catch(_){status.textContent='Copia non disponibile.'}};
 const knowledgeClaims=[
  {domain:'Bitcoin / blockchain',title:'Esperienza pratica e provenienza storica',description:'Conoscenza pratica dichiarata collegabile a evidenze blockchain. La cronologia pubblica non prova da sola proprietà o competenza.',evidenceLevel:'self-declared',ownershipProof:'unverified',evidence:[{label:'Modello di provenienza MyZubster',url:'https://github.com/MyZubster-Ecosystem/myzubster/blob/main/docs/KNOWLEDGE-PROVENANCE-DANIEL.md'}],transfers:[{recipient:'Nicola',status:'percorso di trasferimento documentato · repository contributor disponibile',url:'https://github.com/nicolaususnicola-lgtm/myzubster-mvp'}]},
