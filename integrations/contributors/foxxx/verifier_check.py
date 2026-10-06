@@ -24,7 +24,7 @@ MERGE_COMMIT = "50f70aab6dc9a909f65b81cb70d932706143afec"
 
 REQUIRED_SOURCE_SNIPPETS = {
     "synthetic_disclaimer": "This report is generated from synthetic sample data",
-    "no_funder_endorsement": "does not assert any relationship with, or endorsement by",
+    "no_funder_endorsement": "endorsement by, the European Commission, EU LIFE programme",
     "missing_input_surface": "missing_input",
     "evidence_ids": "baseline_evidence_ids",
 }
@@ -69,7 +69,7 @@ def main() -> int:
         md = md_path.read_text(encoding="utf-8")
 
     water = next(c for c in report.comparisons if c.kpi_id == "water.use.l_per_kg_yield")
-    expected_baseline = ((3222.5 / 9.95) + (3098.7 / 9.51)) / 2
+    expected_baseline = (3222.5 + 3098.7) / (9.95 + 9.51)
 
     behavioral_checks = {
         "baseline_count_3": report.baseline_count == 3,
