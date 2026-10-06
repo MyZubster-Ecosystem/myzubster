@@ -5,6 +5,20 @@ const path = require('node:path');
 const vm = require('node:vm');
 const { eligibleChoices, publicVisual } = require('../backend/src/services/contributorCharacters');
 
+test('actual character and presence schemas preserve the avatar with no active emote', () => {
+  const Character = require('../backend/src/models/MetaverseCharacter');
+  const Presence = require('../backend/src/models/MetaversePresence');
+  const character = new Character(wasim({ visualKey: 'wasim' }));
+  assert.equal(character.validateSync(), undefined);
+  const presence = new Presence({
+    sessionId: 'schema-test', ...wasim({ visualKey: 'wasim' }),
+    x: 50, y: 50, expiresAt: new Date()
+  });
+  assert.equal(presence.emote, null);
+  assert.equal(presence.validateSync(), undefined);
+  assert.equal(publicVisual(Presence.hydrate(presence.toObject())).avatarUrl, '/images/characters/wasim.svg');
+});
+
 function wasim(overrides = {}) {
   return {
     characterId: 'account-user1', displayName: 'Wasim', characterName: 'Wasim',
