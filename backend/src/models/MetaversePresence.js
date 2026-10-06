@@ -17,7 +17,7 @@ const metaversePresenceSchema = new mongoose.Schema({
   },
   x: { type: Number, required: true },
   y: { type: Number, required: true },
-  emote: { type: String, enum: ['wave', 'spark', 'idea', 'leaf'], default: null },
+  emote: { type: String, enum: ['wave', 'spark', 'idea', 'leaf', null], default: null },
   emoteExpiresAt: { type: Date, default: null },
   joinedAt: { type: Date, required: true, default: Date.now },
   lastSeenAt: { type: Date, required: true, default: Date.now, index: true },
