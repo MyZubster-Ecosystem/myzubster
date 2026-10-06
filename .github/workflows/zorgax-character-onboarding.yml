@@ -90,7 +90,7 @@ jobs:
             const actor = context.payload.comment.user.login;
             const sourceIssue = context.payload.issue;
             const sourceUrl = context.payload.comment.html_url;
-            const registryIssue = 617;
+            const registryIssue = 1512;
             const marker = `<!-- zorgax-character-accepted:${actor}:source-comment-${context.payload.comment.id} -->`;
 
             const { data: registryComments } = await github.rest.issues.listComments({
