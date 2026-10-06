@@ -234,8 +234,9 @@ def main() -> int:
     anchors = ensure_semantic_anchors()
 
     positive_question = (
-        "Secondo le fonti MyZubster, quali sono gli ID e i titoli delle Knowledge Card "
-        "documentate per Open Period Care e qual è il loro stato?"
+        "Secondo le fonti MyZubster, descrivi esclusivamente KC-OPC-001 e KC-OPC-002: "
+        "per ciascuna indica ID, titolo e stato. Non elencare i requisiti REQ-* perché "
+        "non sono Knowledge Card."
     )
     negative_question = (
         "Secondo le fonti MyZubster, è stabilita una certificazione medica personale "
@@ -253,7 +254,14 @@ def main() -> int:
     positive_ok = (
         "kc-opc-001" in p_lower
         and "kc-opc-002" in p_lower
+        and "multi-layer biomaterial architecture for reusable textile absorbents" in p_lower
+        and "contributor privacy, data minimization & clinical boundaries" in p_lower
         and "supported" in p_lower
+        and "req-mat-01" not in p_lower
+        and "req-abs-02" not in p_lower
+        and "req-bar-03" not in p_lower
+        and "req-dur-04" not in p_lower
+        and "req-dsg-05" not in p_lower
         and source_has_opc_provenance(positive)
         and source_has_anchor(positive, "docs/pilots/open-period-care/knowledge-cards.md")
     )
