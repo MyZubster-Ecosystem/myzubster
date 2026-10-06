@@ -20,4 +20,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
+      - name: Install project Mongoose version for schema tests
+        run: npm install --prefix "$RUNNER_TEMP/metaverse-schema-deps" --no-save --ignore-scripts --package-lock=false mongoose@7.8.11
       - run: node --test tests/metaverseContributorCharacters.node.cjs
+        env:
+          NODE_PATH: ${{ runner.temp }}/metaverse-schema-deps/node_modules
