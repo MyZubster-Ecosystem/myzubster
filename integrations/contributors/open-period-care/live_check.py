@@ -5,14 +5,18 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 MODULE = HERE / "open_period_care_bridge.py"
 
 spec = importlib.util.spec_from_file_location("open_period_care_bridge", MODULE)
+if spec is None or spec.loader is None:
+    raise RuntimeError(f"Unable to load bridge module from {MODULE}")
+
 bridge = importlib.util.module_from_spec(spec)
-assert spec.loader is not None
+sys.modules[spec.name] = bridge
 spec.loader.exec_module(bridge)
 
 
@@ -25,9 +29,7 @@ def main() -> int:
     expected_paths = {"README.md", "evidence-matrix.md", "knowledge-cards.md"}
     actual_paths = {record.source_path for record in records}
     if actual_paths != expected_paths:
-        raise SystemExit(
-            f"FAIL: unexpected source paths: {sorted(actual_paths)}"
-        )
+        raise SystemExit(f"FAIL: unexpected source paths: {sorted(actual_paths)}")
 
     for record in records:
         if record.contributor != "khongten124":
