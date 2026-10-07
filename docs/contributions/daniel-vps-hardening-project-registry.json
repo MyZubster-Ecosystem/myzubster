@@ -1,0 +1,68 @@
+{
+  "schema": "myzubster.contributor-project-link.v1",
+  "contributor": {
+    "github": "danieldirimini-myzubster",
+    "role": "creator-maintainer"
+  },
+  "project": {
+    "canonicalName": "MyZubster Contributor Verification VPS Hardening",
+    "repository": "https://github.com/MyZubster-Ecosystem/myzubster",
+    "pullRequest": "https://github.com/MyZubster-Ecosystem/myzubster/pull/1540",
+    "mergeCommit": "1da9f2df82c7b54d108d84d734de3ac1084ed072",
+    "evidenceFile": "https://github.com/MyZubster-Ecosystem/myzubster/blob/1da9f2df82c7b54d108d84d734de3ac1084ed072/docs/infrastructure/CONTRIBUTOR-VERIFICATION-VPS-HARDENING-2026-10-07.md",
+    "profileFile": "https://github.com/MyZubster-Ecosystem/myzubster/blob/1da9f2df82c7b54d108d84d734de3ac1084ed072/docs/DANIEL-IONI-CREATOR.md"
+  },
+  "knowledge": {
+    "status": "DOCUMENTED",
+    "domain": "Linux/VPS hardening / runtime boundaries / production-safe operations",
+    "topics": [
+      "localhost service binding",
+      "nginx reverse proxy",
+      "WebSocket and Socket.IO runtime verification",
+      "PM2 and systemd runtime mapping",
+      "firewall versus bind-address reasoning",
+      "P2P versus administrative listener classification",
+      "rollback-first production change discipline"
+    ],
+    "destinations": [
+      "Knowledge Graph",
+      "Contributor Passport",
+      "infrastructure documentation"
+    ]
+  },
+  "competenceEvidence": {
+    "status": "RECORDED",
+    "areas": [
+      "Linux/VPS service hardening",
+      "network exposure analysis",
+      "nginx reverse proxy configuration",
+      "WebSocket / Socket.IO verification",
+      "PM2 and systemd operations",
+      "staged production change and rollback",
+      "P2P versus administrative service classification"
+    ]
+  },
+  "verification": {
+    "technicalCheckpoint": "TESTED",
+    "evidenceType": "PUBLIC_MERGED_PR_AND_IMMUTABLE_COMMIT",
+    "scope": "bounded VPS hardening and runtime verification performed on 2026-10-07",
+    "securityCertification": "NOT_ESTABLISHED",
+    "penetrationTest": "NOT_ESTABLISHED",
+    "regulatoryApproval": "NOT_ESTABLISHED",
+    "employmentCredential": "NOT_ESTABLISHED",
+    "paymentOrBountyStatus": "NOT_INFERRED"
+  },
+  "graph": {
+    "person": "github:danieldirimini-myzubster",
+    "contribution": "contribution:vps-hardening-2026-10-07",
+    "project": "project:myzubster-contributor-verification-node",
+    "evidence": "git:1da9f2df82c7b54d108d84d734de3ac1084ed072",
+    "relations": [
+      "person->performed->contribution",
+      "contribution->produced->knowledge",
+      "contribution->supports->competenceEvidence",
+      "contribution->belongsTo->project",
+      "contribution->provenance->evidence"
+    ]
+  }
+}
