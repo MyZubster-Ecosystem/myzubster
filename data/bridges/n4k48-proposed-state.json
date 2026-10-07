@@ -1,0 +1,120 @@
+{
+  "bridgeId": "N4K48-CONTRIBUTOR-BRIDGE",
+  "issue": 1520,
+  "createdAt": "2025-01-01T00:00:00Z",
+  "globalState": "PROPOSED / CONSENT PENDING",
+  "referenceNode": {
+    "githubUsername": "nicolaususnicola-lgtm",
+    "description": "N4K48 independent Docker Pilot Node, read-only bridge work, reproducible evidence, and comics/provenance path."
+  },
+  "invitedContributors": [
+    "Aming9303",
+    "wasim-builds",
+    "foxxx009",
+    "ghzhost",
+    "laurentketterle-hub",
+    "leanworld7-netizen",
+    "rafaio1",
+    "Shweta-singh24",
+    "khongten124",
+    "blucca"
+  ],
+  "proposedBridges": [
+    "sensors, telemetry, adapters and webhooks ↔ N4K48 Pilot Node",
+    "security testing and fail-closed checks ↔ N4K48 environment",
+    "KPI and reproducible evidence ↔ N4K48 test outputs",
+    "Docker, CI/CD, observability and replication ↔ independent-node operation",
+    "Open Period Care evidence/review ↔ read-only contributor bridge",
+    "Marketplace seller services ↔ contributor-delivered pilot support"
+  ],
+  "participants": [
+    {
+      "githubUsername": "Aming9303",
+      "state": "PROPOSED / CONSENT PENDING",
+      "optIn": null,
+      "approvedByNicola": false
+    },
+    {
+      "githubUsername": "wasim-builds",
+      "state": "PROPOSED / CONSENT PENDING",
+      "optIn": null,
+      "approvedByNicola": false
+    },
+    {
+      "githubUsername": "foxxx009",
+      "state": "PROPOSED / CONSENT PENDING",
+      "optIn": null,
+      "approvedByNicola": false
+    },
+    {
+      "githubUsername": "ghzhost",
+      "state": "PROPOSED / CONSENT PENDING",
+      "optIn": null,
+      "approvedByNicola": false
+    },
+    {
+      "githubUsername": "laurentketterle-hub",
+      "state": "PROPOSED / CONSENT PENDING",
+      "optIn": null,
+      "approvedByNicola": false
+    },
+    {
+      "githubUsername": "leanworld7-netizen",
+      "state": "PROPOSED / CONSENT PENDING",
+      "optIn": null,
+      "approvedByNicola": false
+    },
+    {
+      "githubUsername": "rafaio1",
+      "state": "PROPOSED / CONSENT PENDING",
+      "optIn": null,
+      "approvedByNicola": false
+    },
+    {
+      "githubUsername": "Shweta-singh24",
+      "state": "PROPOSED / CONSENT PENDING",
+      "optIn": null,
+      "approvedByNicola": false
+    },
+    {
+      "githubUsername": "khongten124",
+      "state": "PROPOSED / CONSENT PENDING",
+      "optIn": null,
+      "approvedByNicola": false
+    },
+    {
+      "githubUsername": "blucca",
+      "state": "PROPOSED / CONSENT PENDING",
+      "optIn": null,
+      "approvedByNicola": false
+    }
+  ],
+  "stateMachine": [
+    "PROPOSED / CONSENT PENDING",
+    "OPTED IN BY CONTRIBUTOR",
+    "APPROVED BY BOTH SIDES",
+    "TEST PLAN AGREED",
+    "TESTED",
+    "VERIFIED"
+  ],
+  "minimumSharedTestEvidence": [
+    "exact repository, branch and commit",
+    "bounded test objective",
+    "commands and environment",
+    "synthetic or explicitly authorized data",
+    "expected and actual result",
+    "sanitized logs/report",
+    "failure and limitation notes",
+    "date and reviewers",
+    "no secrets or private infrastructure details"
+  ],
+  "boundaries": [
+    "A graph link is not employment, partnership, payment, certification or LIFE/EU endorsement.",
+    "Shared topic similarity alone is not collaboration.",
+    "No direct VPS access is automatic.",
+    "Do not publish credentials, keys, tokens, wallet seeds, personal data or private endpoints.",
+    "Bounties and payments require separate prior agreement and independently verified settlement evidence.",
+    "Until both sides opt in, graph links must remain visibly labeled PROPOSED / CONSENT PENDING."
+  ],
+  "relatedIssues": ["1518", "1519", "1474"]
+}
