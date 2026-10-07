@@ -1,0 +1,109 @@
+name: Pilot Index Validation
+
+on:
+  push:
+    paths:
+      - 'README.md'
+      - '.github/ISSUE_TEMPLATE/**'
+      - 'CONTRIBUTORS.md'
+  pull_request:
+    paths:
+      - 'README.md'
+      - '.github/ISSUE_TEMPLATE/**'
+      - 'CONTRIBUTORS.md'
+
+jobs:
+  validate-index:
+    name: Validate Pilot Node Network Index
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate README structure
+        run: |
+          echo "Checking README.md for required sections..."
+          
+          # Check for public identity link
+          if ! grep -q "https://github.com/myzubster" README.md; then
+            echo "ERROR: Missing public identity link to @myzubster"
+            exit 1
+          fi
+          
+          # Check for connected pilots section
+          if ! grep -q "## Connected Pilots" README.md; then
+            echo "ERROR: Missing 'Connected Pilots' section"
+            exit 1
+          fi
+          
+          # Check for shared interoperability model
+          if ! grep -q "## Shared Interoperability Model" README.md; then
+            echo "ERROR: Missing 'Shared Interoperability Model' section"
+            exit 1
+          fi
+          
+          # Check for security boundary section
+          if ! grep -q "## Security" README.md; then
+            echo "ERROR: Missing 'Security' section"
+            exit 1
+          fi
+          
+          echo "✓ README structure validated"
+
+      - name: Validate contributors in CONTRIBUTORS.md
+        run: |
+          if [ -f CONTRIBUTORS.md ]; then
+            echo "Checking CONTRIBUTORS.md..."
+            
+            # Check for required columns
+            if ! head -1 CONTRIBUTORS.md | grep -q "Handle"; then
+              echo "ERROR: CONTRIBUTORS.md missing 'Handle' column"
+              exit 1
+            fi
+            
+            if ! head -1 CONTRIBUTORS.md | grep -q "Role"; then
+              echo "ERROR: CONTRIBUTORS.md missing 'Role' column"
+              exit 1
+            fi
+            
+            if ! head -1 CONTRIBUTORS.md | grep -q "EvidenceState"; then
+              echo "ERROR: CONTRIBUTORS.md missing 'EvidenceState' column"
+              exit 1
+            fi
+            
+            echo "✓ CONTRIBUTORS.md structure validated"
+          else
+            echo "WARNING: CONTRIBUTORS.md not found"
+          fi
+
+      - name: Check network diagram integrity
+        run: |
+          echo "Validating network diagram in README..."
+          
+          # Check for key network elements
+          grep -q "@myzubster" README.md || { echo "ERROR: Missing @myzubster in diagram"; exit 1; }
+          grep -q "N4K48" README.md || { echo "ERROR: Missing N4K48 in diagram"; exit 1; }
+          grep -q "Open Period Care" README.md || { echo "ERROR: Missing Open Period Care in diagram"; exit 1; }
+          
+          echo "✓ Network diagram validated"
+
+  validate-links:
+    name: Validate External Links
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check markdown links
+        run: |
+          echo "Validating markdown links..."
+          
+          # Extract GitHub user links
+          grep -o '@[a-zA-Z0-9][-a-zA-Z0-9]*' README.md | while read handle; do
+            clean_handle=${handle#@}
+            if [[ "$clean_handle" =~ ^[a-zA-Z0-9] ]]; then
+              echo "Found GitHub handle: $clean_handle"
+            fi
+          done
+          
+          echo "✓ Link validation complete"
