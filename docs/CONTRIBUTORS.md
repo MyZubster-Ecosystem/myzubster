@@ -30,7 +30,7 @@ PROPOSED
 | GitHub alias | Contribution path | Public evidence | Current evidence status | LIFE-aligned candidate lane |
 |---|---|---|---|---|
 | `@Aming9303` | Frontend / dashboard / visual documentation / IoT sensing | PR #531; PR #634; PR #859 | all `OPEN / SUBMITTED`; #859 is a bounded contribution on LIFE-aligned issue #534 | #534 sensing adapter **active public LIFE contribution**; #537 dashboard & KPI evidence; evidence UX / visualization |
-| `@wasim-builds` | Security / QA / review / geolocation | PR #58; PR #636; PR #637; PR #1513 | #58 and #636 `CLOSED_NOT_MERGED`; #637 `OPEN / CHANGES_REQUESTED`; #1513 `MERGED` (2026-10-06 checkpoint) | #534 geospatial context; #536 safety/review; #713 evidence-integrity QA |
+| `@wasim-builds` | Security / QA / review / geolocation | PR #58; PR #636; PR #637; PR #1513 | #58 and #636 `CLOSED_NOT_MERGED`; #637 and #1513 `MERGED` (Wasim checkpoint 2026-10-07) | #534 geospatial context; #536 safety/review; #713 evidence-integrity QA |
 | `@ghzhost` | Backend / telemetry / sensing | PR #396 | `OPEN / SUBMITTED` | #534 sensing adapter; #713 ingest/provenance |
 | `@laurentketterle-hub` | Telemetry / dashboard / Gateway / robotics | PR #397; #398; #399; #400; #404 | #397/#399/#400 `MERGED`; #398 `CLOSED_NOT_MERGED`; #404 `OPEN` | #534 sensing; #536 device safety; #537 dashboard; #713 evidence automation |
 | `@foxxx009` | GIS / geolocation / garden mapping | PR #27 | `CLOSED_NOT_MERGED / REVIEWED` | #534 geospatial environmental data; #538 replication mapping |
@@ -53,17 +53,25 @@ Additional contributors should be added only after verifying the **actual public
 
 Public author `@wasim-builds` contributed [PR #1513](https://github.com/MyZubster-Ecosystem/myzubster/pull/1513), which changes the Zorgax onboarding registry destination from #617 to the existing open registry #1512. Reviewed head: `e74f74f105be046a0f59ccc20aa04c7b0d477e90`. CI Test/Lint, Security Audit, Continuous Evidence Gate and Seller Free policy passed. Merge commit: `65766912572ec9a28c9c52ecfde7662165950587`.
 
-This evidence establishes acceptance of the one-line workflow correction. It does not establish end-to-end onboarding execution, acceptance of character PR #637, verified competencies, or payment. PR #637 remains open with [changes requested](https://github.com/MyZubster-Ecosystem/myzubster/pull/637#pullrequestreview-5426431671) for its knowledge-node target and explicit evidence states. This checkpoint updates the public contribution source; it does not assert a live Contributor Passport or Knowledge Graph refresh. Other contributor rows retain their earlier checkpoint dates and have not been reverified here.
+This evidence establishes acceptance of the one-line workflow correction. It does not establish end-to-end onboarding execution, acceptance of character PR #637, verified competencies, or payment. At this 2026-10-06 checkpoint, PR #637 was open with [changes requested](https://github.com/MyZubster-Ecosystem/myzubster/pull/637#pullrequestreview-5426431671) for its knowledge-node target and explicit evidence states; this historical state is superseded by the 2026-10-07 merge checkpoint below. This checkpoint updates the public contribution source; it does not assert a live Contributor Passport or Knowledge Graph refresh. Other contributor rows retain their earlier checkpoint dates and have not been reverified here.
+
+### Character contribution merge checkpoint — 2026-10-07
+
+Public author `@wasim-builds` contributed [PR #637](https://github.com/MyZubster-Ecosystem/myzubster/pull/637), approved on 2026-10-07 at 01:09:41 UTC and merged at 2026-10-07T01:10:53Z. Reviewed head: `d045225849fc38af8c9f5d774104eec653b36a24`. Merge commit: [`040265ad109965b577901adb1fb5f1fa76b23f42`](https://github.com/MyZubster-Ecosystem/myzubster/commit/040265ad109965b577901adb1fb5f1fa76b23f42).
+
+The reviewed head passed CI Test/Lint, Security Audit, Continuous Evidence Gate and Seller Free policy. This records the reviewed and merged character-manifest contribution and its canonical contributor anchor. The manifest's top-level `status: proposed` remains as required by the approving review; the linked PR's integration state is `MERGED`. These are separate states.
+
+This checkpoint does not establish verified competencies, Contributor Passport publication, a live Knowledge Graph refresh, reward/payment, VPS activation, pilot participation or certification. Other contributor rows retain their earlier checkpoint dates and have not been reverified here.
 
 ### Contributor node — @wasim-builds <a id="wasim-builds" name="wasim-builds"></a>
 
 - **Canonical Contributor Anchor:** `#wasim-builds`
 - **Contributor Alias:** `@wasim-builds` (public GitHub alias opt-in only)
-- **Status:** Proposed character manifest (`#637` under review); contributor registry checkpoint verified (`#1513`)
+- **Status:** Proposed character manifest; character contribution `#637` reviewed and `MERGED` (2026-10-07); contributor registry correction `#1513` `MERGED`
 - **Linked Public Evidence:**
   - [PR #58](https://github.com/MyZubster-Ecosystem/myzubster/pull/58): `CLOSED_NOT_MERGED`
   - [PR #636](https://github.com/MyZubster-Ecosystem/myzubster/pull/636): `CLOSED_NOT_MERGED`
-  - [PR #637](https://github.com/MyZubster-Ecosystem/myzubster/pull/637): `OPEN / SUBMITTED` (proposed character under review until acceptance)
+  - [PR #637](https://github.com/MyZubster-Ecosystem/myzubster/pull/637): `MERGED` (2026-10-07; merge commit `040265ad109965b577901adb1fb5f1fa76b23f42`; manifest status remains `proposed`)
   - [PR #1513](https://github.com/MyZubster-Ecosystem/myzubster/pull/1513): `MERGED` (workflow registry issue ID update to #1512)
 - **What this character link proves:**
   - Links public GitHub alias `@wasim-builds` to the proposed Zorgax character manifest `WASIM-001` (`config/entities/wasim.json`) and avatar asset (`assets/characters/wasim.svg`).

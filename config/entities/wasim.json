@@ -68,7 +68,9 @@
       "id": "637",
       "title": "feat(character): add wasim contributor character",
       "url": "https://github.com/MyZubster-Ecosystem/myzubster/pull/637",
-      "status": "OPEN / SUBMITTED"
+      "status": "MERGED",
+      "merged_at": "2026-10-07T01:10:53Z",
+      "merge_commit_sha": "040265ad109965b577901adb1fb5f1fa76b23f42"
     },
     {
       "type": "pull_request",
