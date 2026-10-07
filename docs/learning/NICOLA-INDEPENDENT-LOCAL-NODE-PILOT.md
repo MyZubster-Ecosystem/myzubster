@@ -215,4 +215,15 @@ The email-delivered `myzubster-agent-nicola.zip` was inspected independently for
 
 A contract mismatch must be resolved before the authenticated run: the agent explicitly truncates all returned title lists to the first three entries with `[:3]`, while Nicola's current local catalog and `gallery` response contain four. Neither the source nor the accompanying email states whether this three-title cap is an intentional privacy/payload rule or an outdated assumption. The existing source-publication blocker is therefore narrowed only for the Nicola-side client artifact; this review still does not establish the exact deployed VPS broker source/version or independently validate the reported late-response security fix.
 
+### Offline characterization and failure-path review (2026-10-07)
+
+Nicola additionally reports **13/13 offline unit tests passing** with simulated requests/responses, no real token, no VPS connection and no agent polling loop. The test files and report remain local, so the count is participant-reported. Seven focused characterization tests were independently reproduced during this review against the hash-matched source; they confirm the three-title cap, support for `n4k48-comic-004` detail, forwarding of `id` and `lease_id`, and the following failure paths:
+
+- a catalog response of JSON `null` or a list raises an uncaught `AttributeError`;
+- a missing `lease_id` raises an uncaught `KeyError` after the catalog call, while rejected actions or identifiers raise `ValueError`; these exceptions are not handled by the polling loop and can terminate the agent;
+- a catalog object without `sources` is reported as a successful result with an empty title list;
+- a local `TimeoutError` escapes `run_once`; the outer loop resumes polling without submitting a result for that job, leaving broker-side expiry, recovery and reassignment unverified.
+
+These are characterization results for the current file, not evidence of authenticated success or production readiness. The agent should not receive a real credential until the expected gallery size, malformed-response handling, job validation and timeout/result semantics are defined, implemented and re-tested with a new immutable hash.
+
 **Next gate:** Daniel/maintainers must choose and document the expected gallery contract. If the bridge should receive the complete current gallery, publish a revised client artifact and a new immutable hash; if it should receive at most three titles, document that limit and its acceptance test. Separately review the deployed broker version, then agree a private credential channel and run the supervised authenticated round trip with sanitized request/result evidence. No secret belongs in email, Git, logs or this PR.
