@@ -1,4 +1,3 @@
-const { Octokit } = require('@octokit/rest');
 const axios = require('axios');
 const EventEmitter = require('events');
 
@@ -35,6 +34,7 @@ class GitHubMonitor extends EventEmitter {
         }
         
         try {
+            const { Octokit } = await import('@octokit/rest');
             this.octokit = new Octokit({
                 auth: this.token,
                 userAgent: 'MyZubster-AI-Automation'
