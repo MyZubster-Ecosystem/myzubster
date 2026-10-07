@@ -3,7 +3,9 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const crypto = require('crypto');
 const { createMongoConnector } = require('./src/services/mongoConnection');
+const { captureFunnelEvent } = require('./src/services/posthogAnalyticsService');
 require('dotenv').config();
 
 const app = express();
@@ -18,6 +20,71 @@ const htmlAliases = new Map([['/', 'index.html'],['/press', 'press.html'],['/pre
 const canonicalHtmlRedirects = new Map([['/press.html', '/press'],['/media', '/press'],['/media-kit', '/press'],['/social-login.html', '/social-login'],['/zorgax-email-profile.html', '/zorgax-email-profile']]);
 const bundledHtmlPaths = new Map([['press.html', require.resolve('./public/press.html')],['zorgax-email-profile.html', require.resolve('./public/zorgax-email-profile.html')]]);
 const vercelAnalyticsSnippet = `\n<script>\n  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };\n</script>\n<script defer src="/_vercel/insights/script.js"></script>\n`;
+const WEB_ANALYTICS_COOKIE = 'myz_web_session';
+const WEB_ANALYTICS_MAX_AGE_MS = 30 * 60 * 1000;
+
+function readWebAnalyticsCookie(req, name) {
+  const raw = String(req.headers.cookie || '');
+  for (const part of raw.split(';')) {
+    const index = part.indexOf('=');
+    if (index === -1) continue;
+    if (part.slice(0, index).trim() === name) return decodeURIComponent(part.slice(index + 1).trim());
+  }
+  return null;
+}
+
+function webAnalyticsSession(req, res) {
+  const existing = readWebAnalyticsCookie(req, WEB_ANALYTICS_COOKIE);
+  const safeExisting = existing && /^[a-f0-9-]{16,64}$/i.test(existing) ? existing : null;
+  const id = safeExisting || crypto.randomUUID();
+  res.cookie(WEB_ANALYTICS_COOKIE, id, {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: WEB_ANALYTICS_MAX_AGE_MS,
+    path: '/'
+  });
+  return id;
+}
+
+function safeReferrer(req) {
+  const raw = String(req.get('referer') || '').slice(0, 1000);
+  if (!raw) return '';
+  try {
+    const url = new URL(raw);
+    return (url.origin + url.pathname).slice(0, 500);
+  } catch (_error) {
+    return '';
+  }
+}
+
+app.use((req, res, next) => {
+  if (req.method !== 'GET' || req.path.startsWith('/api/')) return next();
+  const accept = String(req.headers.accept || '').toLowerCase();
+  if (!accept.includes('text/html')) return next();
+
+  const sessionId = webAnalyticsSession(req, res);
+  const forwardedProto = String(req.get('x-forwarded-proto') || '').split(',')[0].trim();
+  const protocol = forwardedProto || req.protocol || 'https';
+  const host = String(req.get('x-forwarded-host') || req.get('host') || 'www.myzubster.com').split(',')[0].trim().slice(0, 200);
+  const pathname = String(req.path || '/').slice(0, 500);
+  const currentUrl = `${protocol}://${host}${pathname}`.slice(0, 800);
+
+  captureFunnelEvent({
+    distinctId: `web-session:${sessionId}`,
+    event: '$pageview',
+    properties: {
+      $current_url: currentUrl,
+      $host: host,
+      $pathname: pathname,
+      $referrer: safeReferrer(req),
+      $session_id: sessionId,
+      analyticsScope: 'html-navigation'
+    }
+  }).catch(error => console.warn('[posthog-pageview]', error.message));
+
+  return next();
+});
 app.use((req,res,next)=>{ if(req.method!=='GET') return next(); const destination=canonicalHtmlRedirects.get(req.path); return destination?res.redirect(308,destination):next(); });
 app.use((req,res,next)=>{ if(req.method!=='GET') return next(); const alias=htmlAliases.get(req.path); const relativePath=alias||(req.path.endsWith('.html')?req.path.replace(/^\/+/, ''):null); if(!relativePath)return next(); const filePath=bundledHtmlPaths.get(relativePath)||path.resolve(publicRoot,relativePath); if(filePath!==publicRoot&&!filePath.startsWith(`${publicRoot}${path.sep}`))return next(); fs.readFile(filePath,'utf8',(error,html)=>{ if(error)return next(); const zorgaxCardSnippet=relativePath==='zorgax.html'?'<script defer src="/zorgax-card.js"></script>':''; const instrumentation=`${vercelAnalyticsSnippet}${zorgaxCardSnippet}`; const instrumented=html.includes('/_vercel/insights/script.js')?(zorgaxCardSnippet&& !html.includes('/zorgax-card.js')?html.replace('</head>',`${zorgaxCardSnippet}</head>`):html):html.includes('</head>')?html.replace('</head>',`${instrumentation}</head>`):`${instrumentation}${html}`; res.type('html').status(200).send(instrumented); }); });
 app.use(express.static('public')); app.use('/data', express.static('data'));
