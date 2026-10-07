@@ -1,0 +1,83 @@
+{
+  "schema": "myzubster.competence-evidence.v1",
+  "subject": {
+    "type": "github-account",
+    "id": "github:danieldirimini-myzubster"
+  },
+  "status": {
+    "knowledge": "DOCUMENTED",
+    "competenceEvidence": "RECORDED",
+    "technicalCheckpoint": "TESTED",
+    "certification": "NOT_ESTABLISHED"
+  },
+  "provenance": [
+    {
+      "type": "github-pr",
+      "url": "https://github.com/MyZubster-Ecosystem/myzubster/pull/1540",
+      "mergeCommit": "1da9f2df82c7b54d108d84d734de3ac1084ed072"
+    },
+    {
+      "type": "github-pr",
+      "url": "https://github.com/MyZubster-Ecosystem/myzubster/pull/1541",
+      "mergeCommit": "da6b73136c474fb071270a61e5841ad927825535"
+    }
+  ],
+  "competences": [
+    {
+      "id": "COMP-VPS-LINUX-001",
+      "name": "Linux / VPS Operations",
+      "status": "RECORDED",
+      "evidenceStatus": "TESTED"
+    },
+    {
+      "id": "COMP-NET-HARDENING-001",
+      "name": "Network Exposure & Service Hardening",
+      "status": "RECORDED",
+      "evidenceStatus": "TESTED"
+    },
+    {
+      "id": "COMP-NGINX-REALTIME-001",
+      "name": "Nginx, WebSocket & Socket.IO Integration",
+      "status": "RECORDED",
+      "evidenceStatus": "TESTED"
+    },
+    {
+      "id": "COMP-NODE-RUNTIME-001",
+      "name": "Node.js Production Runtime Integration",
+      "status": "RECORDED",
+      "evidenceStatus": "TESTED"
+    },
+    {
+      "id": "COMP-RUNTIME-ORCH-001",
+      "name": "PM2 / systemd / Docker Runtime Operations",
+      "status": "RECORDED",
+      "evidenceStatus": "TESTED"
+    },
+    {
+      "id": "COMP-AUTH-VERIFY-001",
+      "name": "Realtime Authentication Verification",
+      "status": "RECORDED",
+      "evidenceStatus": "TESTED"
+    },
+    {
+      "id": "COMP-P2P-INFRA-001",
+      "name": "P2P Infrastructure Boundary Analysis",
+      "status": "RECORDED",
+      "evidenceStatus": "TESTED"
+    },
+    {
+      "id": "COMP-EVIDENCE-DEVOPS-001",
+      "name": "Evidence-first Production DevOps",
+      "status": "RECORDED",
+      "evidenceStatus": "TESTED"
+    }
+  ],
+  "nonClaims": [
+    "professional certification",
+    "penetration-test completion",
+    "regulatory approval",
+    "employment credential",
+    "complete VPS security",
+    "payment or bounty status"
+  ]
+}
