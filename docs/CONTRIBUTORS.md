@@ -55,6 +55,27 @@ Public author `@wasim-builds` contributed [PR #1513](https://github.com/MyZubste
 
 This evidence establishes acceptance of the one-line workflow correction. It does not establish end-to-end onboarding execution, acceptance of character PR #637, verified competencies, or payment. PR #637 remains open with [changes requested](https://github.com/MyZubster-Ecosystem/myzubster/pull/637#pullrequestreview-5426431671) for its knowledge-node target and explicit evidence states. This checkpoint updates the public contribution source; it does not assert a live Contributor Passport or Knowledge Graph refresh. Other contributor rows retain their earlier checkpoint dates and have not been reverified here.
 
+### Contributor node — @wasim-builds <a id="wasim-builds" name="wasim-builds"></a>
+
+- **Canonical Contributor Anchor:** `#wasim-builds`
+- **Contributor Alias:** `@wasim-builds` (public GitHub alias opt-in only)
+- **Status:** Proposed character manifest (`#637` under review); contributor registry checkpoint verified (`#1513`)
+- **Linked Public Evidence:**
+  - [PR #58](https://github.com/MyZubster-Ecosystem/myzubster/pull/58): `CLOSED_NOT_MERGED`
+  - [PR #636](https://github.com/MyZubster-Ecosystem/myzubster/pull/636): `CLOSED_NOT_MERGED`
+  - [PR #637](https://github.com/MyZubster-Ecosystem/myzubster/pull/637): `OPEN / SUBMITTED` (proposed character under review until acceptance)
+  - [PR #1513](https://github.com/MyZubster-Ecosystem/myzubster/pull/1513): `MERGED` (workflow registry issue ID update to #1512)
+- **What this character link proves:**
+  - Links public GitHub alias `@wasim-builds` to the proposed Zorgax character manifest `WASIM-001` (`config/entities/wasim.json`) and avatar asset (`assets/characters/wasim.svg`).
+  - Correlates documented public pull requests and repository activity in this project.
+- **What this character link does NOT prove:**
+  - Roles and capabilities listed in `config/entities/wasim.json` are self-described contributor interests; they do not imply verified competencies or professional credentials.
+  - Does not establish employment, partnership, institutional affiliation, endorsement, or ownership.
+  - Does not establish Contributor Passport publication, DAO voting power, or treasury authority.
+  - Payment boundary remains unchanged: `VERIFIED CONTRIBUTION ≠ REWARD RECORDED ≠ EXTERNAL SETTLEMENT ≠ PAID`.
+- **Reproducible Verification:**
+  - Manifest validation: `node -e "const m = require('./config/entities/wasim.json'); console.log(m.id, m.status, m.knowledge_node);"`
+
 ## LIFE-aligned contributor work
 
 MyZubster contributors may opt into preparatory LIFE-aligned technical work when their existing skills match a bounded issue.
