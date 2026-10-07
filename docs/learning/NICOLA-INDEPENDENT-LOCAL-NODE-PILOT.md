@@ -207,3 +207,12 @@ This is a useful evidence-control artifact, not an authorization. `PENDING_AUTHO
 
 The next human step is for an attributable party to state their documented role and authority, complete each applicable scope with explicit conditions or exclusions, identify any separate rights holders, and link a dated verifiable reference. A new rights review is required before any status transition.
 
+## Client-agent archive review and local four-item check (2026-10-07)
+
+Nicola reports completing the requested credential-free preliminary checks at 15:25 CEST: the local `GET /api/comics` returned HTTP 200 with four entries, and local `POST /api/zorgax/ask` with action `gallery` returned HTTP 200 with four sources. He did **not** start the agent, configure or transmit a token, or run the authenticated VPS-to-PC round trip.
+
+The email-delivered `myzubster-agent-nicola.zip` was inspected independently for this review. The ZIP contains only `bridge/agent.py`, passes archive integrity testing, and the file's SHA-256 is exactly `79ae718b1b9aad714fe7521e77bd2b5c9c3c2ff0ce248f0d7b03b3db67f5ea34`, matching both Daniel's instruction and Nicola's report. No embedded token was found. The client source allowlists only `gallery` and `detail`, reads the token from `BRIDGE_NODE_TOKEN`, requires HTTPS outside an explicit loopback test, and returns sanitized title strings capped at 140 characters.
+
+A contract mismatch must be resolved before the authenticated run: the agent explicitly truncates all returned title lists to the first three entries with `[:3]`, while Nicola's current local catalog and `gallery` response contain four. Neither the source nor the accompanying email states whether this three-title cap is an intentional privacy/payload rule or an outdated assumption. The existing source-publication blocker is therefore narrowed only for the Nicola-side client artifact; this review still does not establish the exact deployed VPS broker source/version or independently validate the reported late-response security fix.
+
+**Next gate:** Daniel/maintainers must choose and document the expected gallery contract. If the bridge should receive the complete current gallery, publish a revised client artifact and a new immutable hash; if it should receive at most three titles, document that limit and its acceptance test. Separately review the deployed broker version, then agree a private credential channel and run the supervised authenticated round trip with sanitized request/result evidence. No secret belongs in email, Git, logs or this PR.
