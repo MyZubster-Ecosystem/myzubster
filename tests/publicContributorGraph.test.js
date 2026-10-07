@@ -27,7 +27,7 @@ describe('public contributor evidence graph', () => {
   });
 
   test('hardware evidence is explicit, bounded and separate from owner-published cards', () => {
-    const match = script.match(/const hardwareKnowledgeNodes=(\[[\s\S]*?\]);\nfunction visibleHardware/);
+    const match = script.match(/const hardwareKnowledgeNodes=(\[[\s\S]*?\]);\n(?:const hardwareKnowledgeLinks=[\s\S]*?;\n)?function visibleHardware/);
     expect(match).not.toBeNull();
     const items = JSON.parse(match[1]);
     expect(items.map(item => item.id)).toEqual(['hkc-hw-001','hkc-hw-002','hkc-hw-003']);
@@ -39,7 +39,7 @@ describe('public contributor evidence graph', () => {
   });
 
   test('hardware evidence stays separate from owner-published cards', () => {
-    const match = script.match(/const hardwareKnowledgeNodes=(\[[\s\S]*?\]);\nfunction visibleHardware/);
+    const match = script.match(/const hardwareKnowledgeNodes=(\[[\s\S]*?\]);\n(?:const hardwareKnowledgeLinks=[\s\S]*?;\n)?function visibleHardware/);
     expect(match).not.toBeNull();
     const items = JSON.parse(match[1]);
     expect(items.map(item => item.id)).toEqual(['hkc-hw-001','hkc-hw-002','hkc-hw-003']);
