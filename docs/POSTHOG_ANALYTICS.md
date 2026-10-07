@@ -51,3 +51,18 @@ Supporting product events reserved for the next quota/profile steps:
 - `knowledge_card_created`
 
 The server allowlist accepts these names, but `free_limit_reached` must only be emitted when a real server-side quota is enforced; do not infer it from UI state.
+
+
+## Web pageviews
+
+MyZubster also records privacy-safe HTML navigation requests as PostHog `$pageview` events.
+
+Properties sent:
+- `$current_url` — origin + path only; query strings are excluded.
+- `$host`
+- `$pathname`
+- `$referrer` — origin + path only; query strings are excluded.
+- `$session_id` — random short-lived first-party session id.
+- `analyticsScope=html-navigation`
+
+The adapter continues to set `$process_person_profile: false`. API requests and non-HTML asset requests are not counted as pageviews.
