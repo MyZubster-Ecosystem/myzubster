@@ -18,6 +18,8 @@ describe('public contributor evidence graph', () => {
     expect(html).toContain('work-node');
     expect(html).toContain('hardware-node');
     expect(html).toContain('Hardware evidence');
+    expect(html).toContain('hardware-node');
+    expect(html).toContain('Hardware evidence');
     expect(html).toContain('PR chiusa senza integrazione');
     expect(html).toContain('non certifica automaticamente una competenza');
     expect(html).not.toContain('localStorage');
@@ -25,6 +27,18 @@ describe('public contributor evidence graph', () => {
   });
 
   test('hardware evidence is explicit, bounded and separate from owner-published cards', () => {
+    const match = script.match(/const hardwareKnowledgeNodes=(\[[\s\S]*?\]);\nfunction visibleHardware/);
+    expect(match).not.toBeNull();
+    const items = JSON.parse(match[1]);
+    expect(items.map(item => item.id)).toEqual(['hkc-hw-001','hkc-hw-002','hkc-hw-003']);
+    expect(items.every(item => item.status === 'DOCUMENTED')).toBe(true);
+    expect(items.find(item => item.account === 'foxxx009').label).toMatch(/Arduino/i);
+    expect(items.find(item => item.account === 'Aming9303').label).toMatch(/sensor/i);
+    expect(html).toContain('non una Knowledge Card personale pubblicata dal titolare');
+    expect(html).toContain('HARDWARE-KNOWLEDGE-CARDS.md');
+  });
+
+  test('hardware evidence stays separate from owner-published cards', () => {
     const match = script.match(/const hardwareKnowledgeNodes=(\[[\s\S]*?\]);\nfunction visibleHardware/);
     expect(match).not.toBeNull();
     const items = JSON.parse(match[1]);
