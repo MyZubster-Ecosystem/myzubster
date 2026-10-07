@@ -14,6 +14,7 @@ const EVENT_TYPES = new Set([
   'KEFIR_CULTURE_REGISTERED',
   'KEFIR_BATCH_CREATED',
   'FERMENTATION_RECORDED',
+  'SENSOR_READING_RECORDED',
   'QUALITY_CHECK_RECORDED',
   'BATCH_RELEASED',
   'CONTAINER_DISTRIBUTED',
@@ -50,6 +51,16 @@ function validateKefirEvent(event) {
   if (!event.actor?.actorId || !event.actor?.role || !event.actor?.keyId) errors.push('complete actor is required');
   if (!event.subjects?.productLotId) errors.push('productLotId is required');
   if (!Array.isArray(event.evidence)) errors.push('evidence must be an array');
+  if (event.eventType === 'SENSOR_READING_RECORDED') {
+    if (!event.subjects?.deviceId) errors.push('deviceId is required for sensor readings');
+    if (!Array.isArray(event.measurements) || event.measurements.length === 0) errors.push('measurements are required for sensor readings');
+    for (const measurement of event.measurements || []) {
+      if (!measurement?.metric || typeof measurement.value !== 'number' || !Number.isFinite(measurement.value) || !measurement?.unit) {
+        errors.push('each sensor measurement requires metric, finite numeric value and unit');
+        break;
+      }
+    }
+  }
   if (!event.verification?.state) errors.push('verification state is required');
   if (!event.signature?.algorithm || !event.signature?.keyId || !event.signature?.value) errors.push('signature is required');
   const forbidden = findForbiddenKey(event);
@@ -116,7 +127,7 @@ function createSyntheticKefirDemo() {
   const ledger = new KefirPilotLedger({ resolvePublicKey: keyId => keyId === actor.keyId ? keys.publicKey : null });
   const types = [
     'KEFIR_PROCESS_VERSION_PUBLISHED', 'KEFIR_CULTURE_REGISTERED', 'KEFIR_BATCH_CREATED',
-    'FERMENTATION_RECORDED', 'QUALITY_CHECK_RECORDED', 'BATCH_RELEASED',
+    'FERMENTATION_RECORDED', 'SENSOR_READING_RECORDED', 'QUALITY_CHECK_RECORDED', 'BATCH_RELEASED',
     'CONTAINER_DISTRIBUTED', 'CONTAINER_RETURNED', 'CONTAINER_SANITIZED', 'CONTAINER_REUSED',
   ];
   let previousEventIds = [];
@@ -133,9 +144,12 @@ function createSyntheticKefirDemo() {
         processVersion: '0.1-synthetic',
         cultureId: 'MZ-KEFIR-CULTURE-SYNTHETIC-001',
         productLotId: 'MZ-KEFIR-LOT-SYNTHETIC-001',
-        containerId: index >= 6 ? 'MZ-KEFIR-CONTAINER-SYNTHETIC-001' : undefined,
+        deviceId: eventType === 'SENSOR_READING_RECORDED' ? 'MZ-KEFIR-DEVICE-SYNTHETIC-001' : undefined,
+        containerId: index >= 7 ? 'MZ-KEFIR-CONTAINER-SYNTHETIC-001' : undefined,
       },
-      measurements: [{ metric: 'quantity', value: 1, unit: 'synthetic-unit', method: 'demo-only' }],
+      measurements: eventType === 'SENSOR_READING_RECORDED'
+        ? [{ metric: 'temperature', value: 22.4, unit: 'C', method: 'synthetic-demo' }, { metric: 'ph', value: 4.5, unit: 'pH', method: 'synthetic-demo' }]
+        : [{ metric: 'quantity', value: 1, unit: 'synthetic-unit', method: 'demo-only' }],
       evidence: [],
       previousEventIds,
       verification: { state: 'SIGNED', synthetic: true },

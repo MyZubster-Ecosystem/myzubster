@@ -31,7 +31,7 @@ describe('Kefir circular pilot', () => {
       ok: true,
       synthetic: true,
       foodDistributed: false,
-      eventCount: 10,
+      eventCount: 11,
       finalEventProofValid: true,
       containerState: 'REUSED',
     });
@@ -43,6 +43,30 @@ describe('Kefir circular pilot', () => {
       consumer: { email: 'private@example.test' },
     }, privateKey, actor.keyId);
     expect(validateKefirEvent(unsafe).join(' ')).toMatch(/forbidden/);
+  });
+
+  test('accepts a signed sensor reading linked to a kefir lot', () => {
+    const ledger = new KefirPilotLedger({ resolvePublicKey: () => publicKey });
+    const reading = signEvent({
+      ...event('MZ-KEFIR-EVT-SENSOR-001', 'SENSOR_READING_RECORDED', actor, {
+        cultureId: 'MZ-KEFIR-CULTURE-TEST-001',
+        deviceId: 'MZ-KEFIR-DEVICE-ESP32-001',
+      }),
+      measurements: [
+        { metric: 'temperature', value: 22.4, unit: 'C', method: 'DHT22' },
+        { metric: 'ph', value: 4.5, unit: 'pH', method: 'analog-probe' },
+      ],
+    }, privateKey, actor.keyId);
+    expect(validateKefirEvent(reading)).toEqual([]);
+    expect(ledger.append(reading).sequence).toBe(1);
+  });
+
+  test('rejects malformed sensor readings', () => {
+    const invalid = signEvent({
+      ...event('MZ-KEFIR-EVT-SENSOR-BAD', 'SENSOR_READING_RECORDED', actor),
+      measurements: [{ metric: 'temperature', value: '22.4', unit: 'C' }],
+    }, privateKey, actor.keyId);
+    expect(validateKefirEvent(invalid).join(' ')).toMatch(/deviceId|finite numeric value/);
   });
 
   test('enforces container lifecycle ordering', () => {
