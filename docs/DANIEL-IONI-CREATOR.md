@@ -210,6 +210,22 @@ The two current social/creator visuals are versioned in the repository:
 
 They are project communication assets. Their presence in the repository does not change the evidence status of any real-world claim depicted symbolically in the artwork.
 
+## Infrastructure hardening evidence
+
+A bounded production-hardening checkpoint for the MyZubster Contributor Verification VPS is documented in:
+
+- [Contributor Verification VPS Hardening — Technical Evidence Checkpoint](infrastructure/CONTRIBUTOR-VERIFICATION-VPS-HARDENING-2026-10-07.md)
+
+The record covers localhost binding, nginx/realtime verification, PM2/systemd runtime mapping, removal of unnecessary SMTP exposure, and classification of P2P listeners versus administrative interfaces.
+
+Its evidence semantics are intentionally limited:
+
+- **Knowledge:** `DOCUMENTED`
+- **Competence evidence:** `RECORDED`
+- **Technical checkpoint:** `TESTED`
+
+`TESTED` is a technical checkpoint only. It is not a security certification, penetration-test result, regulatory approval, employment credential or third-party endorsement.
+
 ## Core principle
 
 ```text
