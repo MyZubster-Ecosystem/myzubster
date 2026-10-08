@@ -1,0 +1,49 @@
+{
+  "schema": "myzubster.contributor-project-link.v1",
+  "contributor": {
+    "github": "khongten124",
+    "profileThread": "https://github.com/MyZubster-Ecosystem/myzubster/issues/1474"
+  },
+  "project": {
+    "canonicalName": "Open Period Care — Research & Knowledge Package",
+    "repository": "https://github.com/khongten124/myzubster",
+    "branch": "feat/open-period-care-research-1450",
+    "pullRequest": "https://github.com/MyZubster-Ecosystem/myzubster/pull/1451",
+    "commit": "17cf7ca0a941d10e184771e574683785c1dbc8bf",
+    "evidenceFile": "https://github.com/khongten124/myzubster/blob/feat/open-period-care-research-1450/docs/pilots/open-period-care/README.md",
+    "evidenceMatrix": "https://github.com/khongten124/myzubster/blob/feat/open-period-care-research-1450/docs/pilots/open-period-care/evidence-matrix.md",
+    "knowledgeCards": "https://github.com/khongten124/myzubster/blob/feat/open-period-care-research-1450/docs/pilots/open-period-care/knowledge-cards.md"
+  },
+  "knowledge": {
+    "domain": "Materials Science / Sustainable Health Technologies / Technical Documentation & Evidence Analysis",
+    "zorgaxRole": [
+      "scientific evidence lookup",
+      "research documentation navigation",
+      "knowledge-card preparation assistance",
+      "contributor onboarding and provenance navigation"
+    ],
+    "destinations": [
+      "Knowledge Card / Contributor Passport",
+      "Marketplace",
+      "Circular Care pilot"
+    ]
+  },
+  "circularCare": {
+    "status": "LINKED_AS_RESEARCH_EVIDENCE_LAYER",
+    "evidenceFlow": [
+      "materials and product requirements",
+      "lifecycle / collection / recovery / recycling milestone evidence",
+      "canonical evidence payload",
+      "optional Ethereum-compatible hash/attestation",
+      "Knowledge Graph / Contributor Passport / KPI-MRV"
+    ]
+  },
+  "verification": {
+    "contributionEvidence": "PUBLIC_PR_AND_COMMIT",
+    "professionalCredential": "NOT_ESTABLISHED",
+    "medicalCredential": "NOT_ESTABLISHED",
+    "blockchainImplementation": "NOT_ESTABLISHED",
+    "physicalRecyclingProof": "NOT_ESTABLISHED",
+    "publicKnowledgeCardUrl": "PENDING_ACCOUNT_SIDE_PUBLICATION"
+  }
+}

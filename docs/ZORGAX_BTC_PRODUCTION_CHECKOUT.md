@@ -5,7 +5,7 @@
 Bitcoin is the first operational paid-access rail for Zorgax while preserving a non-custodial model.
 
 - Free remains free.
-- Pro is €9.90 monthly-equivalent.
+- Pro is €4.90 monthly-equivalent.
 - Developer is €29.90 monthly-equivalent.
 - BTC is enabled by default.
 - ETH/XMR/TARI remain unavailable unless their wallet, quote provider and trusted verifier are explicitly configured.

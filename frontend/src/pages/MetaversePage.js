@@ -9,6 +9,7 @@ import {
   recordMetaverseLandmark,
   sendMetaverseChat,
   sendMetaverseEmote,
+  selectMetaverseCharacter,
   syncMetaverse
 } from '../api/metaverse';
 import MetaverseExperiencePanel from '../components/MetaverseExperiencePanel';
@@ -97,15 +98,23 @@ function isAccountLinked(identityStatus) {
   return identityStatus === 'account-linked' || identityStatus === 'verified';
 }
 
+function CharacterVisual({ character }) {
+  const [failed, setFailed] = useState(false);
+  useEffect(() => { setFailed(false); }, [character?.avatarUrl]);
+  const glyph = ARCHETYPES[character?.archetype]?.glyph || '🧭';
+  return character?.avatarUrl && !failed
+    ? <img className="metaverse-character-image" src={character.avatarUrl} alt={`Avatar ${character.characterName}`} onError={() => setFailed(true)} />
+    : <span>{glyph}</span>;
+}
+
 function VerifiedCharacterList({ characters }) {
   return (
     <div className="metaverse-featured-list">
       {characters.map((character) => {
         const githubLogin = character.github?.login;
-        const archetype = ARCHETYPES[character.archetype] || ARCHETYPES.explorer;
         return (
           <article className="metaverse-featured-character" key={`${githubLogin || character.characterName}-${character.characterName}`}>
-            <span className="metaverse-featured-glyph">{archetype.glyph}</span>
+            <span className="metaverse-featured-glyph"><CharacterVisual character={character} /></span>
             <div>
               <strong>{character.characterName}</strong>
               <small>{character.displayName}</small>
@@ -123,8 +132,9 @@ function VerifiedCharacterList({ characters }) {
   );
 }
 
-function AvatarCreator({ initialProfile, authenticated, busy, error, totalCharacters, featuredCharacters, onEnter }) {
+function AvatarCreator({ initialProfile, authenticated, busy, error, totalCharacters, featuredCharacters, characterChoices, onChooseCharacter, onEnter }) {
   const [displayName, setDisplayName] = useState(initialProfile?.displayName || '');
+  useEffect(() => { setDisplayName(initialProfile?.displayName || ''); }, [initialProfile?.displayName]);
   const formattedTotal = formatCharacterCount(totalCharacters);
 
   useEffect(() => {
@@ -161,6 +171,21 @@ function AvatarCreator({ initialProfile, authenticated, busy, error, totalCharac
             : 'Scegli un nome e inizia subito. Il personaggio viene creato automaticamente; potrai personalizzarlo più avanti.'}
         </p>
 
+        {authenticated && characterChoices.length > 0 && (
+          <section className="metaverse-character-choice" aria-label="Il tuo avatar">
+            <h3>Il tuo avatar contributore</h3>
+            {characterChoices.map(choice => (
+              <div key={choice.key}>
+                <CharacterVisual character={{ ...choice, archetype: initialProfile?.archetype }} />
+                <button type="button" className="metaverse-primary" disabled={busy} onClick={() => onChooseCharacter(choice.key)}>
+                  Usa {choice.characterName}
+                </button>
+                <a href={choice.sourceUrl} target="_blank" rel="noreferrer">Personaggio proposto · revisione aperta ↗</a>
+              </div>
+            ))}
+          </section>
+        )}
+
         <form onSubmit={submit} className="metaverse-form">
           <label>
             Il tuo nome pubblico
@@ -184,7 +209,7 @@ function AvatarCreator({ initialProfile, authenticated, busy, error, totalCharac
         </form>
 
         {authenticated ? (
-          <small className="metaverse-muted">Il server ignora nomi e MYZ-ID forniti dal browser quando trova un personaggio account-linked.</small>
+          <small className="metaverse-muted">Il personaggio e l’avatar selezionati sono collegati al tuo account verificato.</small>
         ) : (
           <small className="metaverse-muted">
             Nessun wallet, documento o account GitHub richiesto per esplorare come ospite.{' '}
@@ -217,6 +242,7 @@ function MetaversePage() {
   const [lastLandmark, setLastLandmark] = useState('Neon Plaza');
   const [totalCharacters, setTotalCharacters] = useState(null);
   const [featuredCharacters, setFeaturedCharacters] = useState([]);
+  const [characterChoices, setCharacterChoices] = useState([]);
   const [discoverableRooms, setDiscoverableRooms] = useState([]);
   const [visitedLandmarks, setVisitedLandmarks] = useState([]);
 
@@ -232,6 +258,9 @@ function MetaversePage() {
       .then((result) => {
         if (!active || !result.character) return;
         const canonicalProfile = {
+          avatarUrl: result.character.avatarUrl || null,
+          characterSourceUrl: result.character.characterSourceUrl || null,
+          characterReviewStatus: result.character.characterReviewStatus || null,
           displayName: result.character.displayName,
           characterName: result.character.characterName,
           archetype: result.character.archetype,
@@ -241,6 +270,7 @@ function MetaversePage() {
         };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(canonicalProfile));
         setProfile(canonicalProfile);
+        setCharacterChoices(result.characterChoices || []);
         setVisitedLandmarks(sanitizeVisitedLandmarks(result.missionProgress?.visitedLandmarks));
       })
       .catch((profileError) => {
@@ -249,6 +279,7 @@ function MetaversePage() {
           localStorage.removeItem('myzubster-token');
           localStorage.removeItem(STORAGE_KEY);
           setProfile(null);
+          setCharacterChoices([]);
           setAuthenticated(false);
           setError('Sessione scaduta. Accedi di nuovo per usare il tuo personaggio verificato.');
           return;
@@ -285,6 +316,21 @@ function MetaversePage() {
     return () => { active = false; };
   }, []);
 
+  const chooseCharacter = async (characterKey) => {
+    setBusy(true);
+    setError('');
+    try {
+      const result = await selectMetaverseCharacter(characterKey);
+      setProfile(result.character);
+      setCharacterChoices(result.characterChoices || []);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(result.character));
+    } catch (selectionError) {
+      setError(selectionError.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const enter = async (nextProfile) => {
     trackConversionOnce('first_interaction', conversionContext({ surface: 'avatar_creator', action: 'enter_world' }));
     setBusy(true);
@@ -293,6 +339,9 @@ function MetaversePage() {
       const result = await joinMetaverse(nextProfile);
       const joinedProfile = {
         ...nextProfile,
+        avatarUrl: result.player.avatarUrl || null,
+        characterSourceUrl: result.player.characterSourceUrl || null,
+        characterReviewStatus: result.player.characterReviewStatus || null,
         displayName: result.player.displayName,
         characterName: result.player.characterName,
         archetype: result.player.archetype,
@@ -499,6 +548,8 @@ function MetaversePage() {
         error={error}
         totalCharacters={totalCharacters}
         featuredCharacters={featuredCharacters}
+        characterChoices={characterChoices}
+        onChooseCharacter={chooseCharacter}
         onEnter={enter}
       />
     );
@@ -544,7 +595,6 @@ function MetaversePage() {
           ))}
 
           {Object.values(players).map((player) => {
-            const archetype = ARCHETYPES[player.archetype] || ARCHETYPES.explorer;
             const isMe = player.id === sessionId;
             return (
               <div
@@ -554,7 +604,7 @@ function MetaversePage() {
                 title={`${player.characterName} — ${player.displayName}`}
               >
                 {player.emote && <div className="metaverse-emote">{EMOTES[player.emote] || '✨'}</div>}
-                <div className="metaverse-avatar-body">{archetype.glyph}</div>
+                <div className="metaverse-avatar-body"><CharacterVisual character={player} /></div>
                 <strong>{player.characterName}</strong>
                 <small>{isMe ? 'TU · ' : ''}{isAccountLinked(player.identityStatus) ? 'MYZ VERIFIED' : 'OSPITE'}</small>
               </div>
@@ -576,7 +626,7 @@ function MetaversePage() {
           <section className="metaverse-panel">
             <h3>Il tuo personaggio</h3>
             <div className="metaverse-profile-line">
-              <span className="metaverse-profile-glyph">{ARCHETYPES[me?.archetype]?.glyph || '🧭'}</span>
+              <span className="metaverse-profile-glyph"><CharacterVisual character={me} /></span>
               <div>
                 <strong>{me?.characterName}</strong>
                 <small>{me?.displayName || profile?.displayName}</small>
@@ -590,6 +640,11 @@ function MetaversePage() {
             <div className="metaverse-identity-badge">
               {isAccountLinked(me?.identityStatus) ? 'MYZ VERIFIED' : 'Ospite'}
             </div>
+            {me?.characterSourceUrl && (
+              <a href={me.characterSourceUrl} target="_blank" rel="noreferrer">
+                Personaggio proposto · revisione aperta ↗
+              </a>
+            )}
           </section>
 
           <MetaverseExperiencePanel
@@ -613,7 +668,7 @@ function MetaversePage() {
             <h3>Persone vicine</h3>
             {nearby.length === 0 ? <p className="metaverse-muted">Muoviti nella Plaza per incontrare qualcuno.</p> : nearby.map((player) => (
               <div className="metaverse-nearby" key={player.id}>
-                <span>{ARCHETYPES[player.archetype]?.glyph || '🧭'}</span>
+                <CharacterVisual character={player} />
                 <div><strong>{player.characterName}</strong><small>{player.displayName}</small></div>
               </div>
             ))}

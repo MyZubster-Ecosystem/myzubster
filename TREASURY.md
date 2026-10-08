@@ -129,22 +129,47 @@ At minimum each external reservation should record:
 
 The system should preserve append-only history for reserve, release, cancellation, retry, reconciliation and settlement operations.
 
-## 8. App / Marketplace revenue policy
+## 8. Ecosystem revenue and founder-profit policy
 
-Until App / Marketplace revenue rails are implemented, reviewed and auditable, no marketplace income should be assumed.
+Until real revenue rails are implemented, reviewed and auditable, no ecosystem income or founder profit should be assumed.
 
-When real revenue exists, a separate versioned revenue-allocation policy should define allocation categories such as:
+MyZubster distinguishes **revenue sources** from **profit allocation**.
 
-- operating/infrastructure costs;
-- ecosystem treasury;
-- bounty reserve;
-- contributor rewards;
+### 8.1 Revenue sources
+
+Revenue may come from Marketplace commissions, Zorgax paid services, Seller/premium services, licensing, digital assets/NFT activity where legally applicable, commercial integrations, grants/sponsorships that permit such use, or other documented ecosystem income.
+
+The existing Marketplace design targets a **2% platform commission on eligible real paid Marketplace transactions**. That commission is platform revenue; it is not automatically Daniel Ioni's personal 2%.
+
+### 8.2 Founder / operator profit allocation
+
+The canonical founder/operator policy is:
+
+```text
+REALIZED MYZUBSTER ECOSYSTEM PROFIT
+              |
+              +--> 2%  Daniel Ioni / H4X0R founder-operator allocation
+              |
+              +--> 98% retained by the MyZubster organization/ecosystem
+```
+
+The **2% founder/operator allocation applies to realized profit across the MyZubster ecosystem**, not merely to Marketplace transactions.
+
+The remaining **98% stays with the organization/ecosystem** and may be used, under treasury rules, for:
+
+- operating and infrastructure costs;
+- VPS, hosting, deployment, domains and essential software/services;
+- bounty reserve and funded bounty settlement;
+- contributor/maintainer rewards or compensation when explicitly approved;
 - maintenance and development;
+- DAO/pilot operating costs;
 - compliance, accounting and legal costs;
-- contingency/reserve funds;
-- other approved project purposes.
+- contingency and treasury reserves;
+- other approved ecosystem purposes.
 
-Any founder/maintainer allocation must be explicit, separately accounted for and legally/tax reviewed where applicable. It is **not** an automatic entitlement created by bounty activity and must not be described as guaranteed interest.
+This policy does not mean that every receipt is immediately distributable profit. Accounting must distinguish gross receipts, refunds/chargebacks, payment/network fees, taxes or legally required deductions, restricted funds, operating costs and realized profit. The exact accounting period and calculation method should be documented before automated settlement is enabled.
+
+No founder allocation is marked `PAID` unless the underlying profit calculation and settlement are recorded and independently auditable. The 2% allocation is separate from bounty rewards, MYZ internal accounting, DAO voting power and treasury authority.
 
 ## 9. Grants, sponsorships and donations
 

@@ -4,7 +4,8 @@ const mongoose = require('mongoose');
 const MetaverseCharacter = require('../models/MetaverseCharacter');
 const MetaversePresence = require('../models/MetaversePresence');
 const MetaverseChatMessage = require('../models/MetaverseChatMessage');
-const { authenticate, optionalAuthenticate } = require('../middleware/auth');
+const { eligibleChoices, publicVisual } = require('../services/contributorCharacters');
+const { authenticate, optionalAuthenticate } = require('../../../src/middleware/auth');
 
 const router = express.Router();
 
@@ -92,6 +93,7 @@ function publicPlayer(value) {
 
   return {
     id: session.id,
+    ...publicVisual(session),
     displayName: session.displayName,
     characterName: session.characterName,
     archetype: session.archetype,
@@ -166,6 +168,7 @@ async function persistPresence(value) {
           characterName: session.characterName,
           archetype: session.archetype,
           myzId: session.myzId || null,
+          visualKey: session.visualKey || null,
           identityStatus: session.identityStatus,
           accountUserId: session.accountUserId || null,
           github: session.github || null,
@@ -202,6 +205,7 @@ async function totalCharacterCount() {
 
 function publicFeaturedCharacter(character) {
   return {
+    ...publicVisual(character),
     displayName: character.displayName,
     characterName: character.characterName,
     archetype: character.archetype,
@@ -223,7 +227,7 @@ async function featuredCharacters() {
       identityStatus: 'account-linked',
       'github.id': { $exists: true, $ne: '' }
     })
-      .select('-_id displayName characterName archetype identityStatus worldId github.login github.profileUrl')
+      .select('-_id displayName characterName archetype visualKey identityStatus worldId github.id github.login github.profileUrl')
       .sort({ lastSeenAt: -1 })
       .limit(12)
       .lean();
@@ -532,6 +536,7 @@ router.get('/profile', authenticate, async (req, res) => {
     return res.json({
       success: true,
       character: {
+        ...publicVisual(character),
         displayName: character.displayName,
         characterName: character.characterName,
         archetype: character.archetype,
@@ -542,6 +547,7 @@ router.get('/profile', authenticate, async (req, res) => {
           profileUrl: character.github.profileUrl
         } : null
       },
+      characterChoices: eligibleChoices(character),
       missionProgress: {
         visitedLandmarks: character.missionProgress?.visitedLandmarks || []
       }
@@ -552,6 +558,31 @@ router.get('/profile', authenticate, async (req, res) => {
       success: false,
       error: 'Verified character storage is temporarily unavailable'
     });
+  }
+});
+
+// Selection is opt-in and resolved from the authenticated account's stored
+// GitHub identity, never from a browser-supplied login, name or image URL.
+router.post('/character', authenticate, async (req, res) => {
+  try {
+    const character = await linkedCharacterForUser(req.userId);
+    if (!character) return res.status(404).json({ success: false, error: 'No verified MyZubster character is linked to this account' });
+    const choice = eligibleChoices(character).find(item => item.key === req.body?.characterKey);
+    if (!choice) return res.status(403).json({ success: false, error: 'This character is not available for your verified GitHub account' });
+    character.visualKey = choice.key;
+    character.characterName = choice.characterName;
+    character.displayName = choice.characterName;
+    await character.save();
+    return res.json({
+      success: true,
+      character: {
+        ...publicFeaturedCharacter(character),
+        myzId: character.characterId
+      },
+      characterChoices: eligibleChoices(character)
+    });
+  } catch (_error) {
+    return res.status(503).json({ success: false, error: 'Character selection is temporarily unavailable' });
   }
 });
 
@@ -650,9 +681,11 @@ router.post('/join', optionalAuthenticate, async (req, res) => {
       ? linkedCharacter.archetype
       : guestArchetype,
     myzId: linkedCharacter ? cleanText(linkedCharacter.characterId, 64) : requestedMyzId,
+    visualKey: linkedCharacter?.visualKey || null,
     identityStatus: linkedCharacter ? 'account-linked' : 'guest',
     accountUserId: linkedCharacter ? String(req.userId) : null,
     github: linkedCharacter?.github?.login ? {
+      id: String(linkedCharacter.github.id || ''),
       login: cleanText(linkedCharacter.github.login, 40),
       profileUrl: String(linkedCharacter.github.profileUrl || '').slice(0, 240)
     } : null,

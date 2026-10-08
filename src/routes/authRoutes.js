@@ -12,6 +12,7 @@ const MetaverseCharacter = require('../../backend/src/models/MetaverseCharacter'
 const { authenticate } = require('../middleware/auth');
 const { decryptToken, updateProfile, updateBio, getProfileReadme, updateProfileReadme, deleteProfileReadme } = require('../services/githubProfileAutomation');
 const { normalizeProfessionalProfile, validateProfessionalProfile } = require('../services/professionalProfileService');
+const { normalizeContributorWallets } = require('../services/contributorWalletService');
 const { createMongoConnector } = require('../services/mongoConnection');
 
 const ensureAuthMongo = createMongoConnector({
@@ -204,6 +205,38 @@ router.put('/github/automation', authenticate, async (req, res) => {
   return res.json({ success: true, data: { linked: Boolean(user.github?.login), login: user.github?.login || null, enabled } });
 });
 router.put('/profile/bio', authenticate, async (req,res)=>{ try { const bio=typeof req.body?.bio==='string'?req.body.bio.trim():''; if(!bio)return res.status(400).json({success:false,message:'Inserisci una bio'}); if(bio.length>1000)return res.status(400).json({success:false,message:'Bio troppo lunga'}); const user=await User.findById(req.userId); if(!user)return res.status(404).json({success:false,message:'Utente non trovato'}); user.communityProfile=user.communityProfile||{}; user.communityProfile.bio=bio; user.communityProfile.updatedAt=new Date(); await user.save(); return res.json({success:true,data:{bio}}); } catch(error){ return res.status(500).json({success:false,message:'Impossibile salvare la bio MyZubster'}); }});
+
+
+router.get('/profile/wallets', authenticate, async (req, res) => {
+  try {
+    const user = await User.findById(req.userId).select('contributorWallets');
+    if (!user) return res.status(404).json({ success: false, message: 'Utente non trovato' });
+    const wallets = user.contributorWallets || {};
+    return res.json({ success: true, data: { wallets: {
+      BTC: wallets.BTC || { address: '', status: 'unverified' },
+      XMR: wallets.XMR || { address: '', status: 'unverified' },
+      ETH: wallets.ETH || { address: '', status: 'unverified' }
+    } } });
+  } catch (error) {
+    console.error('Contributor wallet read error:', error);
+    return res.status(500).json({ success: false, message: 'Impossibile leggere i wallet contributor' });
+  }
+});
+
+router.put('/profile/wallets', authenticate, async (req, res) => {
+  try {
+    const normalized = normalizeContributorWallets(req.body?.wallets);
+    const user = await User.findById(req.userId);
+    if (!user) return res.status(404).json({ success: false, message: 'Utente non trovato' });
+    user.contributorWallets = { ...normalized, updatedAt: new Date() };
+    await user.save();
+    return res.json({ success: true, data: { wallets: user.contributorWallets } });
+  } catch (error) {
+    if (error?.code === 'INVALID_CONTRIBUTOR_WALLET') return res.status(400).json({ success: false, message: error.message });
+    console.error('Contributor wallet save error:', error);
+    return res.status(500).json({ success: false, message: 'Impossibile salvare i wallet contributor' });
+  }
+});
 
 router.get('/profile/professional', authenticate, async (req, res) => {
   try {

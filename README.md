@@ -4,6 +4,8 @@
 
 ## 🧭 Explore MyZubster — interactive links
 
+**Contributor project index:** [Progetti e contributori](#progetti-e-contributori) — public repositories, accepted contributions and pending profile/Passport links.
+
 [🌐 **MyZubster**](https://www.myzubster.com/) · [🤖 **Zorgax**](https://www.myzubster.com/zorgax) · [🧠 **Knowledge Profile Builder**](https://www.myzubster.com/zorgax-profile-builder.html) · [👤 **Profile Onboarding**](https://www.myzubster.com/zorgax-profile-onboarding.html) · [🛒 **Marketplace**](https://www.myzubster.com/community-marketplace.html) · [🧪 **Marketplace demos**](https://www.myzubster.com/marketplace-demos) · [🔬 **University & Research**](https://github.com/DanielIoni-creator/myzubster-university-research) · [🔊 **Sound System**](https://github.com/DanielIoni-creator/Myzubster-soundsystem) · [🧑‍🔬 **Nicola pilot**](https://github.com/DanielIoni-creator/Nicola) · [🧩 **Yassen pilot**](https://github.com/DanielIoni-creator/Yassen) · [💻 **Core repository**](https://github.com/MyZubster-Ecosystem/myzubster)
 
 **Knowledge evidence path:** open the Profile Builder → inspect a Knowledge Card → **Registra evidenza** to create the canonical SHA-256 record without a blockchain transaction → **Ancora su blockchain** only when an explicit Base Sepolia anchor is wanted.
@@ -33,6 +35,74 @@ MyZubster turns authorized real-world observations — photos, places, environme
 
 > **New here?** You do not need blockchain or AI expertise. A reproducible bug report, documentation fix, test, translation or accessibility improvement is a valid first contribution.
 
+
+## 🌐 How to join the MyZubster network
+
+MyZubster is evolving from a single application into a network where **independent contributors, projects, pilot activities and software environments can stay independently operated and still interoperate through shared evidence and documented contracts**.
+
+```text
+CONTRIBUTOR / EXTERNAL PROJECT
+            ↓
+      PUBLIC EVIDENCE
+            ↓
+       KNOWLEDGE CARD
+            ↓
+   CONTRIBUTOR PASSPORT
+            ↓
+     PILOT / LIFE TRACK
+            ↓
+    INDEPENDENT NODE
+            ↓
+         DAO ROLE
+            ↓
+ MYZ / BOUNTY / PAYMENT ADAPTERS
+```
+
+The important boundary is that joining the network does **not** require moving all work onto one central server or giving MyZubster custody of a contributor's infrastructure. A participant can keep a separate repository, local machine, Docker environment, VPS or service and connect it through a bounded interoperability checkpoint.
+
+### Entry paths
+
+| You are... | Recommended path |
+|---|---|
+| **A developer or technical contributor** | Scoped contribution → reproducible evidence → optional Knowledge Card / Passport → optional independent node checkpoint |
+| **An independent project owner** | Keep your own repo/runtime → document a shared contract → run a canonical fixture → publish bounded interoperability evidence |
+| **A LIFE / real-world pilot participant** | Define objective + evidence + responsible roles → connect knowledge/provenance → optional Passport → pilot/node milestones |
+| **A knowledge contributor** | Publish/review evidence → Knowledge Card → Knowledge Graph links → optional Passport |
+| **A DAO participant** | Explicitly opt in to a bounded role → declare responsibilities/cost model → maintain evidence/runbooks → no automatic treasury or mint authority |
+| **A Marketplace / payment contributor** | Implement/test a bounded adapter or verifier → keep calculation, custody, settlement and verification separated |
+
+### What a successful connection means
+
+A connected project may prove only the exact checkpoint it reproduces, for example:
+
+```text
+own repo / own runtime
+        ↓
+canonical input / fixture
+        ↓
+documented interface
+        ↓
+independent reproduction
+        ↓
+TESTED_PASS / TESTED_FAIL
+        ↓
+public evidence + Passport / Knowledge link
+```
+
+A merged PR, a Passport link, a node test or a reward record does **not** by itself prove payment, certification, legal authority, production custody, complete decentralization or institutional endorsement.
+
+### Current coordination
+
+- [Contributor Pilot Nodes](docs/CONTRIBUTOR-PILOT-NODES.md)
+- [Contributor Interoperability Matrix](docs/contributors/CONTRIBUTOR-INTEROPERABILITY-MATRIX.md)
+- [Canonical Contributor Connections](docs/contributors/CONTRIBUTOR-CONNECTIONS-2026-10-08.md)
+- [Connected Evidence Network](CONNECTED-EVIDENCE-NETWORK.md)
+- [LIFE evidence index](docs/life/MEETING-2026-10-12-EVIDENCE-INDEX.md)
+- [Treasury policy](TREASURY.md)
+- [Bounty policy](BOUNTIES.md)
+- [MYZ reward/accounting boundaries](REWARDS_LEDGER.md)
+
+**Current architecture direction:** MyZubster core is one coordination/evidence layer among multiple contributor-owned environments. The long-term target is to remove founder/VPS single-point-of-failure dependencies while preserving explicit authorization, verifiable evidence and least-privilege access.
 
 ## 🔐 Start from GitHub — create or connect your MyZubster account
 
@@ -109,6 +179,24 @@ Nicola's independent MyZubster MVP is a **public, interactive pilot** showing ho
 **Explore:** [Learn / Share with Zorgax](https://www.myzubster.com/learn-with-zorgax.html) · [Knowledge Mentorship](docs/KNOWLEDGE-MENTORSHIP-PILOTS.md) · [Public Journey](docs/MYZUBSTER-PUBLIC-JOURNEY.md) · [KF-006](https://www.myzubster.com/knowledge-kf-006.html)
 
 > A learning or mentoring interaction does not by itself prove competence, safety, scientific validity or institutional endorsement.
+
+### Wasim — contributor character
+
+<p align="center">
+  <a href="https://github.com/MyZubster-Ecosystem/myzubster/pull/637">
+    <img src="assets/readme/wasim-avatar.svg" alt="Original Wasim contributor avatar, cyan and blue geometric design with the name WASIM" width="200" height="200">
+  </a>
+</p>
+
+<p align="center"><em>Original avatar submitted by <a href="https://github.com/wasim-builds">@wasim-builds</a> · character proposal under review.</em></p>
+
+**Public contributor path:** Wasim → original avatar / character proposal → consent-based Knowledge Network → public contribution evidence.
+
+**Explore:** [Character proposal #637](https://github.com/MyZubster-Ecosystem/myzubster/pull/637) · [Character Registry #1512](https://github.com/MyZubster-Ecosystem/myzubster/issues/1512#issuecomment-6014255144) · [Merged onboarding fix #1513](https://github.com/MyZubster-Ecosystem/myzubster/pull/1513) · [Contributor interoperability matrix](docs/contributors/CONTRIBUTOR-INTEROPERABILITY-MATRIX.md)
+
+**Status:** `PROPOSED / UNDER REVIEW`. The avatar is displayed here with attribution; #637 is still open. Its Knowledge Node reference requires the corrections requested in review. This README preview does not activate a Metaverse character or establish a published Contributor Passport.
+
+**Source:** unchanged SVG from [wasim-builds/myzubster at commit 3de8e2b](https://github.com/wasim-builds/myzubster/blob/3de8e2b1505a9a3d45a4c9e0f1a9a17f9d13ca26/assets/characters/wasim.svg), submitted in #637. Visual identity and self-described character roles remain distinct from the evidence and verification state of each technical contribution.
 
 ## 🧩 Start contributing in 10 minutes
 
@@ -963,7 +1051,74 @@ Passive visitors must not be deanonymized or correlated with GitHub identities w
 
 MyZubster maintains a transparent map of project-linked and autonomous contributor profiles. Operator-controlled accounts are separated from independent contributors so community size is not overstated.
 
+### Progetti e contributori
+
+| Contributor | Public project / evidence | Knowledge / competence link | Current status |
+|---|---|---|---|
+| **Nicola / N4K48** | [Independent pilot](https://github.com/nicolaususnicola-lgtm/myzubster-mvp) · [public pilot path](docs/learning/NICOLA-INDEPENDENT-LOCAL-NODE-PILOT.md) | Docker, independent local node, Node Bridge, reproducible testing, comic/provenance evidence | **Pilot reference · evidence-rich** |
+| **khongten124** | **Open Period Care — Research & Knowledge Package** · [PR #1451](https://github.com/MyZubster-Ecosystem/myzubster/pull/1451) · [canonical project link](docs/contributions/khongten124-canonical-project-link.md) · [machine-readable registry](docs/contributions/khongten124-project-registry.json) · commit `17cf7ca` | Materials Science / Sustainable Health Technologies / Technical Documentation & Evidence Analysis · linked to Zorgax / Knowledge Card / Contributor Passport | **APPROVED_BY_CONTRIBUTOR + EVIDENCE_VERIFIED** · linked to Circular Care evidence pilot via [#1486](https://github.com/MyZubster-Ecosystem/myzubster/issues/1486); public account-side Knowledge Card URL still pending |
+| **hoicailon94** | [Issue #1463](https://github.com/MyZubster-Ecosystem/myzubster/issues/1463) · [Contributor workflow #1474](https://github.com/MyZubster-Ecosystem/myzubster/issues/1474) | Revenue split, deterministic allocation and reconciliation architecture | **IN VERIFICATION**; Knowledge Card publication/approval and production settlement evidence remain separate |
+| **Aming9303** | [Gateway fork](https://github.com/Aming9303/MyZubsterGateway) · signed webhooks [#891](https://github.com/MyZubster-Ecosystem/myzubster/pull/891) · replication validator [#861](https://github.com/MyZubster-Ecosystem/myzubster/pull/861) · sensor adapter [#859](https://github.com/MyZubster-Ecosystem/myzubster/pull/859) | Public code/documentation evidence for these specific contributions; signed-webhook regression independently reproduced on the MyZubster VPS | **#891 TESTED independently on VPS (5/5 bounded webhook cases); #861 / #859 MERGED**. External receiver/settlement guarantees and Passport publication remain separate. |
+| **wasim-builds** | Security tests [#860](https://github.com/MyZubster-Ecosystem/myzubster/pull/860) · onboarding fix [#1513](https://github.com/MyZubster-Ecosystem/myzubster/pull/1513) · character proposal [#637](https://github.com/MyZubster-Ecosystem/myzubster/pull/637) | Fail-closed admin-auth security regression; accepted onboarding contribution; proposed character / Knowledge Node linkage | **#860 TESTED independently on VPS (4/4 bounded admin-auth cases); #1513 MERGED; #637 OPEN**. Broader security/onboarding/Knowledge Node claims remain separate. |
+| **foxxx009** | [Documentation fork](https://github.com/foxxx009/myzubster-docs) · [Marketplace fork](https://github.com/foxxx009/MyZubster-Marketplace) · KPI/evidence framework [#894](https://github.com/MyZubster-Ecosystem/myzubster/pull/894) · bot tests [#259](https://github.com/MyZubster-Ecosystem/myzubster/pull/259) · re-enable fix [#1526](https://github.com/MyZubster-Ecosystem/myzubster/pull/1526) | Public KPI/evidence-framework and automated-test contributions; #894 independently reproduced on the MyZubster VPS with synthetic repository data; #259's GitHubMonitor suite was historically merged, later disabled, then re-enabled by #1526 after the Octokit v22 CommonJS/ESM load defect was fixed | **#894 TESTED independently on VPS; #259 MERGED; #1526 MERGED with repository CI/security/evidence gates green**. This records public contribution evidence only; no public profile, Knowledge Card or Contributor Passport is created by this linkage. |
+| **Shweta-singh24** | [MyZubsterGateway fork](https://github.com/Shweta-singh24/MyZubsterGateway) | Public MyZubster-related fork discovered | **FORK DISCOVERED / EVIDENCE PENDING**; no contributor competence claim inferred from the fork alone |
+| **Luzijano** | [MyZubsterGateway fork](https://github.com/Luzijano/MyZubsterGateway) | Public MyZubster-related fork discovered | **FORK DISCOVERED / EVIDENCE PENDING**; historical fork text may differ from current canonical MyZubster status |
+
+**Project and Passport linkage:** the linked forks are independently maintained public repositories, not proof of a live MyZubster integration. Reuse an existing public profile, Knowledge Card or Contributor Passport only after verifying its canonical URL and the contributor's publication/linkage choice. No public Passport URL is confirmed here for Aming9303, wasim-builds or foxxx009; their confirmation requests are recorded in [#531](https://github.com/MyZubster-Ecosystem/myzubster/pull/531#issuecomment-6018380971), [#637](https://github.com/MyZubster-Ecosystem/myzubster/pull/637#issuecomment-6018384554) and [#1505](https://github.com/MyZubster-Ecosystem/myzubster/issues/1505#issuecomment-6018387561). Do not create duplicate profiles or infer ownership/skills from a fork alone.
+
+**Continue:** [Pilot Node Network #1505](https://github.com/MyZubster-Ecosystem/myzubster/issues/1505) · [Contributor interoperability matrix](docs/contributors/CONTRIBUTOR-INTEROPERABILITY-MATRIX.md) · [Profile onboarding](https://www.myzubster.com/zorgax-profile-onboarding.html).
+
+These rows document public contribution evidence and contributor-linked competence claims. They do **not** by themselves establish regulated professional credentials, employment, partnership, payment, wallet ownership, production settlement or independent third-party certification.
+
+#### Open Period Care → Circular Care research path
+
+The verified khongten124 contribution is connected to MyZubster as a reusable research/evidence source rather than copied into the core repository:
+
+```text
+khongten124 / Open Period Care
+→ PR #1451 + commit evidence + evidence matrix / Knowledge Cards
+→ MyZubster canonical project registry
+→ Zorgax evidence navigation / Knowledge Card / Contributor Passport
+→ Circular Care pilot
+→ Evidence Payload v1 (#1486)
+→ deterministic SHA-256
+→ optional Ethereum-compatible testnet attestation
+→ verifier / Knowledge Graph / KPI-MRV
+```
+
+The blockchain layer, when used, records an attestation/hash of a canonical evidence payload; it does **not** by itself prove that physical recycling, laboratory validation, medical certification, wallet settlement or any other real-world event occurred. Those claims require separate supporting evidence.
+
+**Complementary contributor path:** @khongten124 is the current evidence-producing contributor for the Open Period Care package. @blucca has been invited in #1486 as an independent research/evidence reviewer to check source quality, provenance and the source → evidence → requirement mapping. The roles are intentionally separate so review evidence does not duplicate the original milestone. Any compensated follow-up remains separate and requires an explicit RESERVED/FUNDED task.
+
+**Canonical-status rule:** contributor forks are useful public evidence of participation, but their README text may be historical or diverge from the current project. Current MyZubster status, reward/payment state and production claims must be checked against this canonical repository and independently verified evidence.
+
 [Explore the GitHub community network →](docs/GITHUB-COMMUNITY-NETWORK.md)
+
+### Contributor interoperability / VPS Bridge
+
+Independent contributor projects can remain autonomous while connecting to MyZubster through a controlled interoperability path:
+
+```text
+INDEPENDENT PROJECT / FORK / LOCAL NODE
+        ↓
+PUBLIC GITHUB EVIDENCE
+        ↓
+MYZUBSTER PROFILE / KNOWLEDGE CARD / PASSPORT
+        ↓
+ZORGAX NAVIGATION + EVIDENCE LOOKUP
+        ↓
+OPTIONAL CONTROLLED VPS BRIDGE
+        ↓
+READ-ONLY / HARMLESS TEST + SANITIZED EVIDENCE
+```
+
+This opportunity is open to contributors who want to propose a technical bridge from their own project to MyZubster, following the Nicola / N4K48 pilot pattern where appropriate.
+
+**The bridge is not direct VPS administration.** Contributors are not automatically given SSH access, server passwords, deployment credentials, API tokens, JWT secrets, wallet seeds, private keys or other infrastructure secrets. The first interoperability test should be harmless and preferably read-only, using only the minimum interface required for the test.
+
+A successful bridge test proves only the tested connectivity and request/response behavior. It does not by itself prove production readiness, payment, wallet ownership, professional credentials, settlement, endorsement or ownership transfer. The contributor's external project remains independently owned and maintained unless a separate agreement says otherwise.
+
+To propose a bridge pilot, use [Contributor workflow #1474](https://github.com/MyZubster-Ecosystem/myzubster/issues/1474) and provide the public repo/branch, component, environment, public evidence and a harmless first-test proposal.
 
 
 
@@ -984,3 +1139,27 @@ The latest visual assets found in the project Drive archive are catalogued here 
 **Publication boundary:** these are visual communication assets. A visual does not by itself prove a completed pilot, partnership, payment, authorization, identity, adoption or scientific result; those claims remain tied to their corresponding evidence and status documentation.
 
 **Public mirror TODO:** copy the binary originals into the appropriate GitHub visual repository before using raw.githubusercontent.com image URLs in public pages.
+
+## 🔗 Pilot Node Network — interoperable contributor pilots
+
+MyZubster is linking independently reproducible contributor work into a shared **Pilot Node Network**. The canonical coordination thread is [Issue #1505](https://github.com/MyZubster-Ecosystem/myzubster/issues/1505), connected to the public [@myzubster](https://github.com/myzubster) identity.
+
+| Pilot / contributor | Role in the network | Public evidence / path |
+|---|---|---|
+| **Nicola / N4K48 — @nicolaususnicola-lgtm** | Independent pilot-node and Docker interoperability reference | [N4K48 repository](https://github.com/nicolaususnicola-lgtm/myzubster-mvp) · [Issue #1474](https://github.com/MyZubster-Ecosystem/myzubster/issues/1474) |
+| **Open Period Care — @khongten124** | Research / evidence contributor | [Open Period Care package](docs/pilots/open-period-care/README.md) · [PR #1451](https://github.com/MyZubster-Ecosystem/myzubster/pull/1451) |
+| **Open Period Care — @Shweta-singh24** | Technical / verifier contributor | [Issue #1399](https://github.com/MyZubster-Ecosystem/myzubster/issues/1399) · [Pilot Node Network #1505](https://github.com/MyZubster-Ecosystem/myzubster/issues/1505) |
+
+```text
+@myzubster
+    ↓
+MyZubster-Ecosystem/myzubster
+    ↓
+Pilot Node Network (#1505)
+    ├── Nicola / N4K48 — independent node / reproducible evidence
+    └── Open Period Care
+         ├── khongten124 — research / evidence
+         └── Shweta-singh24 — technical / verification
+```
+
+The network is evidence-first: technical `TESTED` status applies only to the specific reproducible interoperability checks performed. It does not imply clinical, laboratory, regulatory, scientific, employment or institutional certification.

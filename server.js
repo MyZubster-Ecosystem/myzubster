@@ -3,7 +3,9 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const crypto = require('crypto');
 const { createMongoConnector } = require('./src/services/mongoConnection');
+const { captureFunnelEvent } = require('./src/services/posthogAnalyticsService');
 require('dotenv').config();
 
 const app = express();
@@ -18,6 +20,71 @@ const htmlAliases = new Map([['/', 'index.html'],['/press', 'press.html'],['/pre
 const canonicalHtmlRedirects = new Map([['/press.html', '/press'],['/media', '/press'],['/media-kit', '/press'],['/social-login.html', '/social-login'],['/zorgax-email-profile.html', '/zorgax-email-profile']]);
 const bundledHtmlPaths = new Map([['press.html', require.resolve('./public/press.html')],['zorgax-email-profile.html', require.resolve('./public/zorgax-email-profile.html')]]);
 const vercelAnalyticsSnippet = `\n<script>\n  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };\n</script>\n<script defer src="/_vercel/insights/script.js"></script>\n`;
+const WEB_ANALYTICS_COOKIE = 'myz_web_session';
+const WEB_ANALYTICS_MAX_AGE_MS = 30 * 60 * 1000;
+
+function readWebAnalyticsCookie(req, name) {
+  const raw = String(req.headers.cookie || '');
+  for (const part of raw.split(';')) {
+    const index = part.indexOf('=');
+    if (index === -1) continue;
+    if (part.slice(0, index).trim() === name) return decodeURIComponent(part.slice(index + 1).trim());
+  }
+  return null;
+}
+
+function webAnalyticsSession(req, res) {
+  const existing = readWebAnalyticsCookie(req, WEB_ANALYTICS_COOKIE);
+  const safeExisting = existing && /^[a-f0-9-]{16,64}$/i.test(existing) ? existing : null;
+  const id = safeExisting || crypto.randomUUID();
+  res.cookie(WEB_ANALYTICS_COOKIE, id, {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: WEB_ANALYTICS_MAX_AGE_MS,
+    path: '/'
+  });
+  return id;
+}
+
+function safeReferrer(req) {
+  const raw = String(req.get('referer') || '').slice(0, 1000);
+  if (!raw) return '';
+  try {
+    const url = new URL(raw);
+    return (url.origin + url.pathname).slice(0, 500);
+  } catch (_error) {
+    return '';
+  }
+}
+
+app.use((req, res, next) => {
+  if (req.method !== 'GET' || req.path.startsWith('/api/')) return next();
+  const accept = String(req.headers.accept || '').toLowerCase();
+  if (!accept.includes('text/html')) return next();
+
+  const sessionId = webAnalyticsSession(req, res);
+  const forwardedProto = String(req.get('x-forwarded-proto') || '').split(',')[0].trim();
+  const protocol = forwardedProto || req.protocol || 'https';
+  const host = String(req.get('x-forwarded-host') || req.get('host') || 'www.myzubster.com').split(',')[0].trim().slice(0, 200);
+  const pathname = String(req.path || '/').slice(0, 500);
+  const currentUrl = `${protocol}://${host}${pathname}`.slice(0, 800);
+
+  captureFunnelEvent({
+    distinctId: `web-session:${sessionId}`,
+    event: '$pageview',
+    properties: {
+      $current_url: currentUrl,
+      $host: host,
+      $pathname: pathname,
+      $referrer: safeReferrer(req),
+      $session_id: sessionId,
+      analyticsScope: 'html-navigation'
+    }
+  }).catch(error => console.warn('[posthog-pageview]', error.message));
+
+  return next();
+});
 app.use((req,res,next)=>{ if(req.method!=='GET') return next(); const destination=canonicalHtmlRedirects.get(req.path); return destination?res.redirect(308,destination):next(); });
 app.use((req,res,next)=>{ if(req.method!=='GET') return next(); const alias=htmlAliases.get(req.path); const relativePath=alias||(req.path.endsWith('.html')?req.path.replace(/^\/+/, ''):null); if(!relativePath)return next(); const filePath=bundledHtmlPaths.get(relativePath)||path.resolve(publicRoot,relativePath); if(filePath!==publicRoot&&!filePath.startsWith(`${publicRoot}${path.sep}`))return next(); fs.readFile(filePath,'utf8',(error,html)=>{ if(error)return next(); const zorgaxCardSnippet=relativePath==='zorgax.html'?'<script defer src="/zorgax-card.js"></script>':''; const instrumentation=`${vercelAnalyticsSnippet}${zorgaxCardSnippet}`; const instrumented=html.includes('/_vercel/insights/script.js')?(zorgaxCardSnippet&& !html.includes('/zorgax-card.js')?html.replace('</head>',`${zorgaxCardSnippet}</head>`):html):html.includes('</head>')?html.replace('</head>',`${instrumentation}</head>`):`${instrumentation}${html}`; res.type('html').status(200).send(instrumented); }); });
 app.use(express.static('public')); app.use('/data', express.static('data'));
@@ -32,5 +99,5 @@ app.use('/api/metaverse',async(req,res,next)=>{if(process.env.NODE_ENV==='test')
 app.use('/api/knowledge-anchor',knowledgeAnchorVerificationRoutes); app.use('/api/knowledge-evidence',knowledgeEvidenceRoutes); app.use('/api/myz',myzWalletRoutes); app.use('/api/auth',authRoutes); app.use('/api/users',userRoutes); app.use('/api/bounties',bountyRoutes); app.use('/api/rewards',rewardRoutes); app.use('/api/referrals',referralRoutes); app.use('/api/listings',listingRoutes); app.use('/api/marketplace/seller',sellerRoutes); app.use('/api/marketplace/crypto',marketplaceCryptoRoutes); app.use('/api/marketplace/crypto',marketplaceCryptoCheckoutRoutes); app.use('/api/marketplace/crypto/verify',marketplaceChainVerificationRoutes); app.use('/api/marketplace',marketplaceOrderPaymentRoutes); app.use('/api/marketplace',marketplaceTrustRoutes); app.use('/api/trips',tripRoutes); app.use('/api/coupons',couponRoutes); app.use('/api/plants',plantRoutes); app.use('/api/search',searchRoutes); app.use('/api/nearby',nearbyRoutes); app.use('/api/ai-forward',aiForwardRoutes); app.use('/api/gardens',gardenRoutes); app.use('/api/municipalities',municipalityRoutes); app.use('/api/geocode',geocodeRoutes); app.use('/api',healthRoutes); app.use('/api/grok',grokRoutes); app.use('/api/payments',paymentRoutes); app.use('/api/payment-dashboard',paymentDashboardRoutes); app.use('/api/admin/dashboard',adminDashboardRoutes); app.use('/api/zorgax/stripe',zorgaxStripeRoutes); app.use('/api/zorgax/monetization',zorgaxMonetizationRoutes); app.use('/api/zorgax/capital',zorgaxCapitalRoutes); app.use('/api/zorgax/digital-business',zorgaxDigitalBusinessRoutes); app.use('/api/zorgax/assistant',zorgaxAssistantRoutes); app.use('/api/zorgax/nicola-comics',nicolaComicsRoutes); app.use('/api/zorgax/build',zorgaxBuildRoutes); app.use('/api/zorgax/life',zorgaxLifeRoutes); app.use('/api/zorgax/email',zorgaxEmailRoutes); app.use('/api/zorgax/culture',zorgaxCulturalRoutes); app.use('/api/zorgax',zorgaxRoutes); app.use('/api/github-bounties',githubBountySyncRoutes); app.use('/api/research',researchRoutes); app.use('/api/entities',entityRoutes); app.use('/api/metaverse',metaverseRoutes); app.use('/api/realtime',realtimeRoutes); app.use('/api/dao/life',lifeDaoRoutes); app.use('/api/dao',lifeDaoBindingGuard); app.use('/api/telemetry',onionTelemetryRoutes); app.use('/api/telegram/flytek',flytekTelegramRoutes); app.use('/api/telegram/myzubster',myzubsterTelegramRoutes); app.use('/api/meta/messenger',metaMessengerRoutes); app.use('/api/knowledge-rewards',knowledgeRewardRoutes);
 app.get('/',(_req,res)=>res.status(200).json({ok:true,service:'MyZubster Gateway',status:'online',version:'1.1.0-life',port:process.env.PORT||5003,api:'/api',life:{municipalities:'/api/municipalities',gardens:'/api/gardens',zorgax:'/api/zorgax',zorgax_culture:'/api/zorgax/culture',zorgax_assistant:'/api/zorgax/assistant',zorgax_nicola_comics:'/api/zorgax/nicola-comics',zorgax_build:'/api/zorgax/build',zorgax_life:'/api/zorgax/life/status',zorgax_email:'/api/zorgax/email/preferences',dao_advisory:'/api/dao/life/status',knowledge_rewards:'/api/knowledge-rewards/kefir-kf-006'}}));
 app.get('/grok',(req,res)=>res.sendFile(path.join(__dirname,'public','grok.html'))); app.get('/zorgax',(req,res)=>res.sendFile(path.join(__dirname,'public','zorgax.html'))); app.get('/zorgax-build',(req,res)=>res.sendFile(path.join(__dirname,'public','zorgax-build.html'))); app.get('/research-search',(req,res)=>res.sendFile(path.join(__dirname,'public','research-search.html'))); app.get('/payment-dashboard',(req,res)=>res.sendFile(path.join(__dirname,'public','payment-dashboard.html'))); app.get(['/fumetto','/comic'],(req,res)=>res.sendFile(path.join(__dirname,'public','fumetto.html')));
-const ahpTraceRoutes=require('./src/routes/ahpTraceRoutes'); const kefirPilotRoutes=require('./src/routes/kefirPilotRoutes'); app.use('/api/ahp-trace',ahpTraceRoutes); app.use('/api/kefir-pilot',kefirPilotRoutes);
+const ahpTraceRoutes=require('./src/routes/ahpTraceRoutes'); const kefirPilotRoutes=require('./src/routes/kefirPilotRoutes'); const personalPilotRoutes=require('./src/routes/personalPilotRoutes'); app.use('/api/ahp-trace',ahpTraceRoutes); app.use('/api/kefir-pilot',kefirPilotRoutes); app.use('/api/my-pilots',requireDatabase,personalPilotRoutes);
 module.exports=app;

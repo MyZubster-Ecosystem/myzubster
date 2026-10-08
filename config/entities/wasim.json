@@ -1,0 +1,88 @@
+{
+  "id": "WASIM-001",
+  "name": "Wasim",
+  "version": "1.0",
+  "created": "2026-08-23",
+  "entity_type": "contributor_character",
+  "status": "proposed",
+  "canon": "myzubster-main",
+  "fictional_identity": false,
+  "github_alias": "wasim-builds",
+  "knowledge_node": "https://github.com/MyZubster-Ecosystem/myzubster/blob/main/docs/CONTRIBUTORS.md#wasim-builds",
+  "roles": [
+    "contributor",
+    "bug_hunter",
+    "code_reviewer",
+    "security_researcher"
+  ],
+  "mission": "Strengthen the MyZubster ecosystem through evidence-first code review, security hardening, and practical bug fixes.",
+  "personality": {
+    "traits": ["precise", "pragmatic", "thorough", "direct"],
+    "tone": "concise_technical",
+    "clarity_priority": true
+  },
+  "principles": [
+    "fix_concrete_issues",
+    "respect_evidence_boundaries",
+    "preserve_privacy",
+    "fail_closed_on_security"
+  ],
+  "capabilities": [
+    "code_triage",
+    "security_hardening",
+    "test_authoring",
+    "performance_optimization",
+    "documentation_improvement"
+  ],
+  "competency_disclaimer": "Roles and capabilities are self-described contributor interests; they do not imply verified competencies, employment, or institutional endorsement.",
+  "evidence_boundary": {
+    "public_alias_only": true,
+    "payment_boundary": "VERIFIED CONTRIBUTION != REWARD RECORDED != EXTERNAL SETTLEMENT != PAID",
+    "proves": [
+      "Association between public GitHub alias wasim-builds and proposed character manifest WASIM-001",
+      "Public contribution evidence recorded in repository history"
+    ],
+    "does_not_prove": [
+      "Verified technical competencies or professional credentials",
+      "Contributor Passport publication or DAO governance authority",
+      "Employment, partnership, or external settlement commitment"
+    ]
+  },
+  "linked_contributions": [
+    {
+      "type": "pull_request",
+      "id": "58",
+      "title": "security: initial security triage",
+      "url": "https://github.com/MyZubster-Ecosystem/myzubster/pull/58",
+      "status": "CLOSED_NOT_MERGED"
+    },
+    {
+      "type": "pull_request",
+      "id": "636",
+      "title": "fix: 20 concrete code issues triage",
+      "url": "https://github.com/MyZubster-Ecosystem/myzubster/pull/636",
+      "status": "CLOSED_NOT_MERGED"
+    },
+    {
+      "type": "pull_request",
+      "id": "637",
+      "title": "feat(character): add wasim contributor character",
+      "url": "https://github.com/MyZubster-Ecosystem/myzubster/pull/637",
+      "status": "MERGED",
+      "merged_at": "2026-10-07T01:10:53Z",
+      "merge_commit_sha": "040265ad109965b577901adb1fb5f1fa76b23f42"
+    },
+    {
+      "type": "pull_request",
+      "id": "1513",
+      "title": "fix: update Zorgax character registry issue ID to 1512",
+      "url": "https://github.com/MyZubster-Ecosystem/myzubster/pull/1513",
+      "status": "MERGED"
+    }
+  ],
+  "visual": {
+    "type": "original",
+    "path": "assets/characters/wasim.svg",
+    "style": "minimal_tech"
+  }
+}

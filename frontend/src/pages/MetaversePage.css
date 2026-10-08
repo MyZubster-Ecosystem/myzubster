@@ -5,6 +5,18 @@
   padding: 18px;
 }
 
+.metaverse-character-image {
+  display: block;
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+.metaverse-avatar-body .metaverse-character-image { width: 44px; height: 44px; }
+.metaverse-character-choice { padding: 12px 0; }
+.metaverse-character-choice > div { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.metaverse-character-choice a { color: #62e5da; }
+
 .metaverse-entry-shell {
   min-height: calc(100vh - 70px);
   display: grid;
