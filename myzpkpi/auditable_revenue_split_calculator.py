@@ -6,6 +6,7 @@ Guarantees:
   - Pure calculation without wallet private keys, blockchain writes, or settlement.
   - Sum of allocations strictly reconciles to gross settled amount (zero leak).
   - Explicit non-settlement boundaries maintained.
+  - Invariant holds strictly on quantized values: sum(allocations) == quantized_gross.
 """
 
 from decimal import Decimal, ROUND_HALF_EVEN, InvalidOperation
@@ -107,9 +108,12 @@ def calculate_revenue_split(
     if not (Decimal("0") <= treasury_pct <= Decimal("100")):
         raise InvalidInputError(f"Treasury share percent must be between 0 and 100: {treasury_pct}")
 
+    # Rounding quantum to 2 decimal places (cents) or 6 places if crypto
+    quantum = Decimal("0.000001") if curr_clean in {"ETH", "SOL"} else Decimal("0.01")
+
     # Handling zero gross proceeds edge-case
     if gross == Decimal("0"):
-        zero = Decimal("0.00")
+        zero = Decimal("0").quantize(quantum)
         return SplitResult(
             gross_amount=zero,
             currency=curr_clean,
@@ -122,43 +126,45 @@ def calculate_revenue_split(
             settlement_executed=False
         )
 
-    # High precision math
+    # Reconcile invariant on quantized gross amount upfront
+    gross_quantized = gross.quantize(quantum, rounding=ROUND_HALF_EVEN)
+
+    # High precision math based on quantized gross
     platform_fee_ratio = fee_pct / Decimal("100")
     treasury_ratio = treasury_pct / Decimal("100")
 
-    # Rounding quantum to 2 decimal places (cents) or 6 places if crypto
-    quantum = Decimal("0.000001") if curr_clean in {"ETH", "SOL"} else Decimal("0.01")
-
-    # 1. Platform Fee
-    raw_platform_fee = gross * platform_fee_ratio
+    # 1. Platform Fee (quantized)
+    raw_platform_fee = gross_quantized * platform_fee_ratio
     platform_fee = raw_platform_fee.quantize(quantum, rounding=ROUND_HALF_EVEN)
 
-    # 2. Creator proceeds (strictly gross - platform_fee)
-    creator_amount = gross - platform_fee
+    # 2. Creator proceeds (strictly gross_quantized - platform_fee)
+    creator_amount = gross_quantized - platform_fee
 
-    # 3. Treasury allocation from platform fee
+    # 3. Treasury allocation from platform fee (quantized)
     raw_treasury = platform_fee * treasury_ratio
     treasury_allocation = raw_treasury.quantize(quantum, rounding=ROUND_HALF_EVEN)
 
     # 4. Remaining MyZubster project revenue
     project_revenue = platform_fee - treasury_allocation
 
-    # Invariant Check: creator + treasury + project == gross
+    # Invariant Check: creator + treasury + project == gross_quantized
     reconciled_sum = creator_amount + treasury_allocation + project_revenue
-    rounding_delta = gross - reconciled_sum
+    rounding_delta = gross_quantized - reconciled_sum
 
     if rounding_delta != Decimal("0"):
         # Adjust project revenue by the rounding delta (safe absorbing)
         project_revenue += rounding_delta
-        rounding_delta = Decimal("0")
+        rounding_delta = Decimal("0").quantize(quantum)
+    else:
+        rounding_delta = Decimal("0").quantize(quantum)
 
     return SplitResult(
-        gross_amount=gross.quantize(quantum, rounding=ROUND_HALF_EVEN),
+        gross_amount=gross_quantized,
         currency=curr_clean,
-        creator_amount=creator_amount.quantize(quantum, rounding=ROUND_HALF_EVEN),
-        myzubster_gross_fee=platform_fee.quantize(quantum, rounding=ROUND_HALF_EVEN),
-        treasury_allocation=treasury_allocation.quantize(quantum, rounding=ROUND_HALF_EVEN),
-        myzubster_project_revenue=project_revenue.quantize(quantum, rounding=ROUND_HALF_EVEN),
+        creator_amount=creator_amount,
+        myzubster_gross_fee=platform_fee,
+        treasury_allocation=treasury_allocation,
+        myzubster_project_revenue=project_revenue,
         rounding_delta=rounding_delta,
         policy_version=policy_version,
         settlement_executed=False

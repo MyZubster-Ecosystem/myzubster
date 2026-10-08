@@ -146,3 +146,19 @@ def test_settlement_boundary_guarantee():
     assert "CALCULATION_ONLY" in result.audit_notice
     d = result.to_dict()
     assert d["settlement_executed"] is False
+
+def test_maintainer_quantization_reconciliation_case():
+    """Exact case flagged by @danieldirimini-myzubster in review: invariant must hold on quantized values."""
+    result = calculate_revenue_split(
+        gross_amount="2.345",
+        currency="EUR",
+        platform_fee_percent="10",
+        treasury_share_percent="50"
+    )
+    assert result.gross_amount == Decimal("2.34")
+    assert result.creator_amount == Decimal("2.11")
+    assert result.myzubster_gross_fee == Decimal("0.23")
+    assert result.treasury_allocation == Decimal("0.12")
+    assert result.myzubster_project_revenue == Decimal("0.11")
+    assert result.creator_amount + result.treasury_allocation + result.myzubster_project_revenue == result.gross_amount
+    assert result.rounding_delta == Decimal("0.00")
