@@ -26,6 +26,9 @@ jobs:
       - name: Install exact dependency tree
         run: npm ci --ignore-scripts
 
+      - name: Validate contributor interoperability checkpoints
+        run: npm run evidence:validate-interoperability
+
       - name: Run tests
         run: npm test -- --runInBand
 

@@ -1,0 +1,156 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://myzubster.com/schemas/interoperability-checkpoint.v1.json",
+  "title": "MyZubster Contributor Interoperability Checkpoint v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "contributor",
+    "source",
+    "bridge",
+    "environment",
+    "procedure",
+    "observation",
+    "evidenceState",
+    "limitations",
+    "provenance"
+  ],
+  "properties": {
+    "schema": {
+      "const": "myzubster.interoperability-checkpoint.v1"
+    },
+    "contributor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "displayName"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "displayName": { "type": "string", "minLength": 1 }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository", "commit"],
+      "properties": {
+        "repository": { "type": "string", "minLength": 1 },
+        "pullRequest": { "type": ["integer", "null"], "minimum": 1 },
+        "commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "artifactSha256": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "bridge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "scope"],
+      "properties": {
+        "type": {
+          "enum": [
+            "runtime",
+            "semantic-knowledge",
+            "security-regression",
+            "evidence-ingestion",
+            "deterministic-calculation",
+            "documentation-validation",
+            "other"
+          ]
+        },
+        "scope": { "type": "string", "minLength": 1 }
+      }
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["description"],
+      "properties": {
+        "description": { "type": "string", "minLength": 1 }
+      }
+    },
+    "procedure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["harmless", "steps"],
+      "properties": {
+        "harmless": { "const": true },
+        "steps": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["result", "summary"],
+      "properties": {
+        "result": { "enum": ["PASS", "FAIL", "PARTIAL"] },
+        "summary": { "type": "string", "minLength": 1 },
+        "outputs": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": []
+        }
+      }
+    },
+    "evidenceState": {
+      "enum": [
+        "TESTED",
+        "EVIDENCE_VERIFIED",
+        "MERGED_CONTRIBUTION_EVIDENCE",
+        "IN_VERIFICATION",
+        "PENDING"
+      ]
+    },
+    "limitations": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recordedAt", "recordedBy"],
+      "properties": {
+        "recordedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "recordedBy": {
+          "type": "string",
+          "minLength": 1
+        },
+        "canonicalMergeCommit": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{40}$"
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "evidenceState": { "const": "TESTED" }
+        },
+        "required": ["evidenceState"]
+      },
+      "then": {
+        "properties": {
+          "observation": {
+            "properties": {
+              "result": { "const": "PASS" }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

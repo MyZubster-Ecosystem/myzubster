@@ -1,0 +1,54 @@
+{
+  "schema": "myzubster.interoperability-checkpoint.v1",
+  "contributor": {
+    "id": "github:nicolaususnicola-lgtm",
+    "displayName": "Nicola / N4K48"
+  },
+  "source": {
+    "repository": "MyZubster-Ecosystem/myzubster",
+    "pullRequest": 1545,
+    "commit": "0be7a6e38d8266d1b29ac6367ad345c65a2d2490",
+    "artifactSha256": "75ab34d21f668fa48383ac7070c717b074c868694c3042928e4532b5ccd34fa1"
+  },
+  "bridge": {
+    "type": "runtime",
+    "scope": "VPS -> authenticated HTTPS broker -> contributor-controlled N4K48 agent -> local catalog -> result returned to Bridge"
+  },
+  "environment": {
+    "description": "MyZubster VPS bridge plus contributor-controlled Docker environment; outbound-only participant agent",
+    "brokerImageSha256": "8b12286214237c650d8f54edb96a49e635a70e8b9db87e47aec3ea912683a6c1",
+    "brokerSourceSha256": "57deb663ceb990c8ddd709f04ae646dd0dd87ff3fb33bbdfa0d28be0bddafca6"
+  },
+  "procedure": {
+    "harmless": true,
+    "steps": [
+      "Create a bounded gallery job on the broker.",
+      "Allow the authenticated contributor agent to lease the job.",
+      "Query the contributor-local catalog.",
+      "Return the bounded result to the broker.",
+      "Verify completed state during TTL and expected expiry afterwards."
+    ]
+  },
+  "observation": {
+    "result": "PASS",
+    "summary": "The contributor-controlled agent returned the expected four-title gallery result and the broker recorded state done.",
+    "outputs": [
+      "Dall’idea software al metaverso",
+      "Il software prende forma",
+      "Verso Neon Plaza",
+      "Il ponte da costruire"
+    ]
+  },
+  "evidenceState": "TESTED",
+  "limitations": [
+    "Does not establish complete decentralization.",
+    "Does not establish direct P2P networking.",
+    "Does not establish security certification or penetration-test coverage.",
+    "Does not infer payment, employment, ownership or governance authority."
+  ],
+  "provenance": {
+    "recordedAt": "2026-10-07T15:48:54Z",
+    "recordedBy": "github:danieldirimini-myzubster",
+    "canonicalMergeCommit": "0c00836a96b36d7c64de098dd26d39ac5ddaf98a"
+  }
+}

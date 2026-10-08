@@ -1,0 +1,52 @@
+{
+  "schema": "myzubster.interoperability-checkpoint.v1",
+  "contributor": {
+    "id": "github:Aming9303",
+    "displayName": "Aming9303"
+  },
+  "source": {
+    "repository": "MyZubster-Ecosystem/myzubster",
+    "pullRequest": 891,
+    "commit": "cee464b6a69e621442b30a57d2d56933988827e2",
+    "artifactSha256": null
+  },
+  "bridge": {
+    "type": "security-regression",
+    "scope": "Signed payment-webhook delivery and replay-protection regression"
+  },
+  "environment": {
+    "description": "Independent VPS rerun of the signed payment-webhook regression against the relevant MyZubster component"
+  },
+  "procedure": {
+    "harmless": true,
+    "steps": [
+      "Generate an HMAC-SHA256 signed webhook event.",
+      "Verify the delivery ID remains stable across retry.",
+      "Verify unsigned delivery is rejected.",
+      "Verify replay protection accepts a delivery claim only once.",
+      "Verify stale-event rejection."
+    ]
+  },
+  "observation": {
+    "result": "PASS",
+    "summary": "The independently reproduced signed payment-webhook regression passed all five targeted cases.",
+    "outputs": [
+      "HMAC-SHA256 signing verified",
+      "stable delivery ID on retry verified",
+      "unsigned endpoint rejection verified",
+      "one-time replay claim verified",
+      "stale-event rejection verified"
+    ]
+  },
+  "evidenceState": "TESTED",
+  "limitations": [
+    "This checkpoint is bounded to the signed webhook regression.",
+    "It does not establish external receiver deployment or end-to-end settlement.",
+    "It does not establish wallet security or broader platform security."
+  ],
+  "provenance": {
+    "recordedAt": "2026-10-08T13:40:00Z",
+    "recordedBy": "github:danieldirimini-myzubster",
+    "canonicalMergeCommit": "be78e0cf9081c3346aa0c61e022acd297d745619"
+  }
+}
