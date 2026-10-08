@@ -7,6 +7,9 @@
 - Repository: https://github.com/khongten124/myzubster
 - Branch: `feat/open-period-care-research-1450`
 - Main PR: https://github.com/MyZubster-Ecosystem/myzubster/pull/1451
+- Main PR canonical merge commit: `fc4a5cd30c854a242e6ed39e757c77f463c5d231`
+- Evidence Payload PR: https://github.com/MyZubster-Ecosystem/myzubster/pull/1489
+- Evidence Payload canonical merge commit: `6d88448821f25a252a79a777101ef904af8bbccb`
 - Evidence commit: https://github.com/khongten124/myzubster/commit/17cf7ca0a941d10e184771e574683785c1dbc8bf
 - Evidence/profile file: https://github.com/khongten124/myzubster/blob/feat/open-period-care-research-1450/docs/contributions/khongten124-medical-research-profile.md
 - Related issue: https://github.com/MyZubster-Ecosystem/myzubster/issues/1450
@@ -51,7 +54,7 @@ Publication remains contributor-reviewed and contributor-approved.
 Status:
 - Contributor approval for Knowledge Card: received
 - Canonical repository/branch: supplied
-- PR/commit evidence: supplied
+- PR/commit evidence: supplied and canonically anchored (#1451 `fc4a5cd30c854a242e6ed39e757c77f463c5d231`; #1489 `6d88448821f25a252a79a777101ef904af8bbccb`)
 - Public MyZubster Knowledge Card URL: pending account-side publication
 
 ### Marketplace
