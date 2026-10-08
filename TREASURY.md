@@ -1,234 +1,31 @@
 # MyZubster Treasury Policy
 
-This document defines the canonical funding and treasury rules for the MyZubster ecosystem.
+The MyZubster Treasury manages all external revenue received by the ecosystem. Revenue allocation follows a strict priority model to ensure operational continuity and decentralization.
 
-## 1. Core principle
+## Priority Allocation Model (Buckets)
 
-MyZubster bounties and project obligations are designed to be **ecosystem-funded, not personally funded**.
+All incoming revenue must be allocated according to the following hierarchy:
 
-No founder, maintainer or contributor is personally required to finance MyZubster bounties from salary, savings, employment income, benefits or unrelated private assets.
+1. **Operating & Infrastructure Costs**
+   - Hosting, VPS, domains, and deployment costs.
+   - Essential software integrations and compliance/legal costs.
 
-A private employment relationship, salary or employment benefit remains separate from MyZubster and must not be represented as project treasury, bounty collateral, guaranteed backing or a payment promise unless a separate documented contribution is explicitly made to the project and recorded under this policy.
+2. **Bounty Reserve**
+   - Funds specifically earmarked for approved and funded bounty obligations.
+   - *Note: Historical disputes (e.g., #1393) are handled via separate reconciliation processes.*
 
-## 2. Separation of funds
+3. **Contributor & Maintainer Compensation**
+   - Agreed external compensation for specific operational roles.
+   - This is never implied by mere participation; it requires explicit approval and funding.
 
-```text
-PERSONAL INCOME / SALARY / SAVINGS
-            |
-            X   no automatic transfer or obligation
-            |
-            v
-      MYZUBSTER TREASURY
-```
+4. **DAO & Ecosystem Treasury Reserve**
+   - Resilience funds for emergency maintenance.
+   - Future pilot projects and independently approved ecosystem spending.
 
-Project accounting and personal accounting must remain separate.
+5. **Founder/Operator Compensation**
+   - Subject to explicit canonical policy.
+   - Must define the revenue base and clarify if it is additive to or included within the platform commission.
 
-A personal contribution can become project funding only when all of the following are true:
-
-1. it is voluntary;
-2. it is explicitly designated to MyZubster;
-3. the amount/asset and purpose are recorded;
-4. the applicable governance/accounting process accepts it;
-5. it is not presented as recurring or guaranteed unless a binding project-level arrangement actually exists.
-
-## 3. MYZ during the pre-marketplace phase
-
-MYZ is currently an **internal reward/accounting unit**.
-
-A MYZ reward records verified contribution value inside the MyZubster ledger. It does not automatically represent:
-
-- fiat money;
-- XMR or another cryptocurrency;
-- an on-chain token;
-- a debt owed by a founder;
-- guaranteed redemption;
-- interest or guaranteed yield.
-
-MYZ rewards follow the canonical ledger rules in [`myz/LEDGER.md`](myz/LEDGER.md).
-
-## 4. Ecosystem funding sources
-
-An external bounty or project payment may be declared `FUNDED` only when a real funding source has been reserved and can be audited.
-
-Permitted ecosystem sources may include:
-
-- MyZubster App / Marketplace fees or revenues after those rails are actually live;
-- project treasury balances;
-- grants and public funding;
-- sponsorships;
-- donations explicitly made to MyZubster;
-- commercial project revenue;
-- licensing/service revenue where legally applicable;
-- other documented ecosystem income approved under the applicable governance policy.
-
-A source must not be counted before it actually exists.
-
-## 5. Funding states
-
-```text
-PROPOSED
-  -> APPROVED
-  -> RESERVED
-  -> FUNDED
-  -> COMMITTED
-  -> RELEASED / SETTLED
-```
-
-Suggested meanings:
-
-- `PROPOSED` — intended allocation only; no funds reserved.
-- `APPROVED` — governance/maintainer approval exists; still not necessarily funded.
-- `RESERVED` — a specific treasury amount is set aside.
-- `FUNDED` — the reserved source is available and verifiable.
-- `COMMITTED` — tied to a verified obligation awaiting settlement.
-- `RELEASED` — reservation removed/cancelled/reconciled.
-- `SETTLED` — external payment completed and independently verified.
-
-`FUNDED` must never be inferred solely from a GitHub issue, label, PR, merge, provider response or historical article.
-
-## 6. Bounty funding rule
-
-The bounty lifecycle remains:
-
-```text
-PROPOSED
-  -> VALIDATED
-  -> APPROVED
-  -> FUNDED          # only when external funding is required and actually reserved
-  -> ACTIVE
-  -> SUBMITTED
-  -> UNDER_REVIEW
-  -> VERIFIED | REJECTED
-  -> REWARD_RECORDED
-  -> SETTLEMENT_PENDING | SETTLED/PAID
-```
-
-Internal MYZ accounting and external settlement are separate.
-
-A bounty may be active with a proposed MYZ reward while an external payment rail remains unavailable. In that case the issue must not imply that fiat/XMR payment is guaranteed.
-
-## 7. Reservation and overspending controls
-
-Treasury implementations must prevent double allocation and overspending.
-
-At minimum each external reservation should record:
-
-```json
-{
-  "reservation_id": "TR-000001",
-  "source": "ecosystem-treasury",
-  "asset": "XMR",
-  "amount": "0.10",
-  "purpose": "bounty:<id>",
-  "status": "RESERVED",
-  "created_at": "...",
-  "approved_by": ["..."],
-  "evidence": []
-}
-```
-
-The system should preserve append-only history for reserve, release, cancellation, retry, reconciliation and settlement operations.
-
-## 8. Ecosystem revenue and founder-profit policy
-
-Until real revenue rails are implemented, reviewed and auditable, no ecosystem income or founder profit should be assumed.
-
-MyZubster distinguishes **revenue sources** from **profit allocation**.
-
-### 8.1 Revenue sources
-
-Revenue may come from Marketplace commissions, Zorgax paid services, Seller/premium services, licensing, digital assets/NFT activity where legally applicable, commercial integrations, grants/sponsorships that permit such use, or other documented ecosystem income.
-
-The existing Marketplace design targets a **2% platform commission on eligible real paid Marketplace transactions**. That commission is platform revenue; it is not automatically Daniel Ioni's personal 2%.
-
-### 8.2 Founder / operator profit allocation
-
-The canonical founder/operator policy is:
-
-```text
-REALIZED MYZUBSTER ECOSYSTEM PROFIT
-              |
-              +--> 2%  Daniel Ioni / H4X0R founder-operator allocation
-              |
-              +--> 98% retained by the MyZubster organization/ecosystem
-```
-
-The **2% founder/operator allocation applies to realized profit across the MyZubster ecosystem**, not merely to Marketplace transactions.
-
-The remaining **98% stays with the organization/ecosystem** and may be used, under treasury rules, for:
-
-- operating and infrastructure costs;
-- VPS, hosting, deployment, domains and essential software/services;
-- bounty reserve and funded bounty settlement;
-- contributor/maintainer rewards or compensation when explicitly approved;
-- maintenance and development;
-- DAO/pilot operating costs;
-- compliance, accounting and legal costs;
-- contingency and treasury reserves;
-- other approved ecosystem purposes.
-
-This policy does not mean that every receipt is immediately distributable profit. Accounting must distinguish gross receipts, refunds/chargebacks, payment/network fees, taxes or legally required deductions, restricted funds, operating costs and realized profit. The exact accounting period and calculation method should be documented before automated settlement is enabled.
-
-No founder allocation is marked `PAID` unless the underlying profit calculation and settlement are recorded and independently auditable. The 2% allocation is separate from bounty rewards, MYZ internal accounting, DAO voting power and treasury authority.
-
-## 9. Grants, sponsorships and donations
-
-Grant, sponsor or donor funds must preserve their restrictions.
-
-Restricted funding may only be used for the purpose for which it was provided. The treasury record should identify the source, restrictions, approved use and remaining balance.
-
-No institutional name, grant or sponsor may be represented as funding MyZubster until there is verifiable documentation supporting that claim.
-
-## 10. External settlement
-
-External settlement is separate from internal accounting:
-
-```text
-PENDING
-  -> RESERVED / ACCEPTED
-  -> SUBMITTED
-  -> CONFIRMED
-  -> PAID
-```
-
-`PAID` requires independent verification appropriate to the payment rail.
-
-For blockchain settlement this may include asset identity, network, amount, destination, transaction identifier and confirmation status.
-
-Never publish private keys, seed phrases, passwords or unnecessary financial/personal data.
-
-## 11. Public transparency
-
-MyZubster should progressively expose sanitized treasury status such as:
-
-- total internal MYZ rewards recorded;
-- external funds proposed;
-- external funds reserved/funded;
-- settlement pending;
-- settled/paid amounts;
-- released/cancelled reservations;
-- funding source categories.
-
-Public reporting must avoid unnecessary personal data and must distinguish accounting records from independently verified payments.
-
-## 12. Governance changes
-
-Treasury rules should be versioned. Material changes to funding sources, allocation rules, conversion/redemption mechanisms or external payment obligations should be documented before they are presented as active.
-
-A future MYZ exchange, redemption or on-chain migration requires its own explicit implementation, governance, legal/compliance review and verifiable settlement layer. No exchange rate is implied by this document.
-
-## 13. Canonical treasury records
-
-Current machine-readable treasury records live in:
-
-- `myz/funding-inputs.json` — externally verifiable funding inputs.
-- `myz/treasury-reservations.json` — append-only reservations against settled funding.
-
-A `SETTLED` funding input may be allocated, but a reservation still does not prove that a bounty has been completed or paid. Payment requires the separate bounty acceptance and settlement evidence defined above.
-
-## Related documents
-
-- [`BOUNTIES.md`](BOUNTIES.md) — canonical bounty lifecycle and settlement rules
-- [`myz/LEDGER.md`](myz/LEDGER.md) — MYZ internal accounting model
-- [`REWARDS_LEDGER.md`](REWARDS_LEDGER.md) — public reward/settlement status
-- [`docs/ECOSYSTEM.md`](docs/ECOSYSTEM.md) — ecosystem architecture and boundaries
+## Governance & Transparency
+- No treasury authority is granted to any individual without explicit DAO opt-in.
+- All withdrawals must be tied to an approved evidence/task record.
