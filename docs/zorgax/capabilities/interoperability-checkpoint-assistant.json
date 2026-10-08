@@ -1,0 +1,47 @@
+{
+  "schema": "myzubster.zorgax-capability.v1",
+  "id": "zorgax.interoperability-checkpoint-assistant",
+  "title": "Interoperability Checkpoint Assistant",
+  "status": "DOCUMENTED",
+  "purpose": "Help structure bounded contributor interoperability checks using canonical provenance, explicit observations and limitations.",
+  "allowedInputs": [
+    "public repository and commit references",
+    "approved test procedures",
+    "machine-readable interoperability checkpoints",
+    "observed PASS, FAIL or PARTIAL results"
+  ],
+  "allowedActions": [
+    "prepare a bounded test plan",
+    "map observed output to evidence state",
+    "record provenance and explicit limitations",
+    "detect unsupported claim promotion"
+  ],
+  "mustNot": [
+    "mark TESTED without an observed PASS",
+    "convert contributor verification into certification",
+    "infer complete decentralization from a bounded node path",
+    "infer direct P2P from central-broker interoperability",
+    "infer payment, employment or governance status from technical evidence"
+  ],
+  "evidenceRequirements": {
+    "minimumSourceState": "RECORDED",
+    "requiresBoundedTest": true,
+    "checkpointSchema": "myzubster.interoperability-checkpoint.v1"
+  },
+  "linkedEvidence": [
+    {
+      "kind": "registry",
+      "reference": "docs/contributors/interoperability-checkpoint.schema.json",
+      "state": "CANONICAL"
+    },
+    {
+      "kind": "checkpoint",
+      "reference": "docs/contributors/interoperability-checkpoints/n4k48-live-2026-10-07.json",
+      "state": "TESTED"
+    }
+  ],
+  "limitations": [
+    "This capability structures evidence but does not replace maintainer or contributor review.",
+    "Automation does not establish certification, legal status or payment entitlement."
+  ]
+}
