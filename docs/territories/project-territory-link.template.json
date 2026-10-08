@@ -1,0 +1,41 @@
+{
+  "schema": "myzubster.project-territory-link.v1",
+  "sourceProject": {
+    "id": "project:example-source",
+    "name": "Example Source Project",
+    "repositoryOrUrl": null,
+    "ownerOrAdmin": "public-handle-or-organization"
+  },
+  "sourceTerritory": {
+    "countryOrRegion": "EXPLICIT_OPT_IN_REQUIRED",
+    "cityOrArea": null,
+    "disclosureBasis": "PARTICIPANT_PUBLIC_OPT_IN"
+  },
+  "targetProject": {
+    "id": "project:example-target",
+    "name": "Example Target Project",
+    "repositoryOrUrl": null,
+    "ownerOrAdmin": "public-handle-or-organization"
+  },
+  "targetTerritory": {
+    "countryOrRegion": "EXPLICIT_OPT_IN_REQUIRED",
+    "cityOrArea": null,
+    "disclosureBasis": "PARTICIPANT_PUBLIC_OPT_IN"
+  },
+  "relationship": "interoperates_with",
+  "participants": [],
+  "evidence": [],
+  "status": "PROPOSED",
+  "consent": {
+    "sourceSide": "PENDING",
+    "targetSide": "PENDING"
+  },
+  "test": null,
+  "claimsBoundary": {
+    "legalPartnership": "NOT_INFERRED",
+    "employment": "NOT_INFERRED",
+    "paymentObligation": "NOT_INFERRED",
+    "ownershipTransfer": "NOT_INFERRED",
+    "residencyOrNationality": "NOT_INFERRED"
+  }
+}
