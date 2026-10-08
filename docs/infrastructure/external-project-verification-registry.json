@@ -15,7 +15,7 @@
     {
       "id": "khongten124-open-period-care.vps",
       "manifest": "docs/infrastructure/external-projects/khongten124-open-period-care.vps.json",
-      "status": "IN_VERIFICATION"
+      "status": "TESTED_FAIL"
     }
   ],
   "rules": [
