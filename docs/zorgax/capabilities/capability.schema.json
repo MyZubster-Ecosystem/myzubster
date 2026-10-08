@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://myzubster.com/schemas/zorgax-capability.v1.json",
+  "title": "MyZubster Zorgax Capability v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "id",
+    "title",
+    "status",
+    "purpose",
+    "allowedInputs",
+    "allowedActions",
+    "mustNot",
+    "evidenceRequirements",
+    "limitations"
+  ],
+  "properties": {
+    "schema": { "const": "myzubster.zorgax-capability.v1" },
+    "id": { "type": "string", "pattern": "^zorgax\\.[a-z0-9-]+$" },
+    "title": { "type": "string", "minLength": 1 },
+    "status": {
+      "enum": ["PROPOSED", "DOCUMENTED", "IN_VERIFICATION", "TESTED", "DISABLED"]
+    },
+    "purpose": { "type": "string", "minLength": 1 },
+    "allowedInputs": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "allowedActions": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "mustNot": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "evidenceRequirements": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["minimumSourceState", "requiresBoundedTest"],
+      "properties": {
+        "minimumSourceState": {
+          "enum": ["DOCUMENTED", "RECORDED", "SUPPORTED", "TESTED", "CANONICAL"]
+        },
+        "requiresBoundedTest": { "type": "boolean" },
+        "checkpointSchema": { "type": ["string", "null"] }
+      }
+    },
+    "linkedEvidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind", "reference", "state"],
+        "properties": {
+          "kind": {
+            "enum": ["repository", "commit", "pull-request", "knowledge-card", "checkpoint", "registry", "other"]
+          },
+          "reference": { "type": "string", "minLength": 1 },
+          "state": { "type": "string", "minLength": 1 }
+        }
+      },
+      "default": []
+    },
+    "limitations": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    }
+  }
+}
