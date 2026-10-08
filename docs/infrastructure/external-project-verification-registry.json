@@ -11,6 +11,11 @@
       "id": "example-project.pending",
       "manifest": "docs/infrastructure/external-projects/example-project.pending.json",
       "status": "PROPOSED"
+    },
+    {
+      "id": "khongten124-open-period-care.vps",
+      "manifest": "docs/infrastructure/external-projects/khongten124-open-period-care.vps.json",
+      "status": "PROPOSED"
     }
   ],
   "rules": [
