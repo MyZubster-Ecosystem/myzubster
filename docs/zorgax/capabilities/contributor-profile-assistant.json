@@ -1,0 +1,41 @@
+{
+  "schema": "myzubster.zorgax-capability.v1",
+  "id": "zorgax.contributor-profile-assistant",
+  "title": "Contributor Profile Assistant",
+  "status": "DOCUMENTED",
+  "purpose": "Prepare bounded contributor profile and onboarding drafts from explicitly authorized public evidence.",
+  "allowedInputs": [
+    "approved public contributor profile",
+    "canonical contribution evidence",
+    "explicit consent records"
+  ],
+  "allowedActions": [
+    "summarize declared professional interests",
+    "prepare a profile draft",
+    "identify evidence state and provenance",
+    "suggest bounded next steps for contributor onboarding"
+  ],
+  "mustNot": [
+    "invent qualifications or competence",
+    "infer employment or contractor status",
+    "infer professional certification",
+    "infer Contributor Passport, LIFE or DAO participation without separate consent",
+    "publish or send profile information to third parties without the required approval"
+  ],
+  "evidenceRequirements": {
+    "minimumSourceState": "DOCUMENTED",
+    "requiresBoundedTest": true,
+    "checkpointSchema": "myzubster.interoperability-checkpoint.v1"
+  },
+  "linkedEvidence": [
+    {
+      "kind": "repository",
+      "reference": "yassenmainardi/personaggio-yassen",
+      "state": "DOCUMENTED"
+    }
+  ],
+  "limitations": [
+    "Self-declared profile content is not verified professional competence.",
+    "This capability does not create employment, certification, payment, governance or institutional status."
+  ]
+}

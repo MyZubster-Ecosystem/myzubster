@@ -1,0 +1,27 @@
+{
+  "schema": "myzubster.zorgax-capability-registry.v1",
+  "generatedFrom": "feat/zorgax-capability-registry-v1",
+  "capabilities": [
+    {
+      "id": "zorgax.contributor-profile-assistant",
+      "path": "docs/zorgax/capabilities/contributor-profile-assistant.json",
+      "status": "DOCUMENTED"
+    },
+    {
+      "id": "zorgax.research-evidence-navigator",
+      "path": "docs/zorgax/capabilities/research-evidence-navigator.json",
+      "status": "TESTED"
+    },
+    {
+      "id": "zorgax.interoperability-checkpoint-assistant",
+      "path": "docs/zorgax/capabilities/interoperability-checkpoint-assistant.json",
+      "status": "DOCUMENTED"
+    }
+  ],
+  "rules": [
+    "Capabilities describe what Zorgax is allowed and evidenced to do; contributor competences remain separate records.",
+    "A capability cannot inherit a stronger evidence state than its source or bounded test supports.",
+    "TESTED requires a bounded observed checkpoint; documentation alone is insufficient.",
+    "Consent, publication, Passport, LIFE, DAO, payment, employment and certification remain separate dimensions."
+  ]
+}

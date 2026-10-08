@@ -29,6 +29,9 @@ jobs:
       - name: Validate contributor interoperability checkpoints
         run: npm run evidence:validate-interoperability
 
+      - name: Validate Zorgax capability registry
+        run: npm run evidence:validate-zorgax-capabilities
+
       - name: Run tests
         run: npm test -- --runInBand
 
