@@ -24,7 +24,17 @@
     "adoptionRecord": "ADOPTION.md",
     "pullRequestNumber": 1385,
     "reportedOriginalValidation": "8/8 capability policy checks passed plus node --check and git diff --check",
-    "independentMyZubsterVerifierRun": "PENDING"
+    "independentMyZubsterVerifierRun": "TESTED_PASS",
+    "vpsCheckpoint": {
+      "protocol": "myzubster.external-project-verification.v1",
+      "pullRequest": 1575,
+      "sourceCommit": "82461433e0c5bfee9aa369b4a71e9331261cf803",
+      "policyChecks": "14/14 PASS",
+      "syntaxChecks": "5/5 PASS",
+      "wiringChecks": "6/6 true",
+      "verifierStatus": "TESTED",
+      "sourcePrState": "CLOSED_UNMERGED"
+    }
   },
   "boundaries": {
     "mergedIntoUpstream": false,
