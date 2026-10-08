@@ -20,7 +20,7 @@
     {
       "id": "shweta-myzubstergateway-jurisdiction.vps",
       "manifest": "docs/infrastructure/external-projects/shweta-myzubstergateway-jurisdiction.vps.json",
-      "status": "READY"
+      "status": "TESTED_PASS"
     }
   ],
   "rules": [
