@@ -70,6 +70,17 @@ Eligible €100 sale     → target €2 platform commission
 
 This means MyZubster starts earning platform commission only when a qualifying paid transaction actually occurs and is successfully processed. Registration numbers, listings, clicks and test payments are not the same as earned Marketplace revenue.
 
+### Ecosystem-wide founder profit allocation
+
+The Marketplace 2% commission above is one possible **revenue source**. It must not be confused with the separate founder/operator profit policy.
+
+For **realized profit across the whole MyZubster ecosystem**, the canonical allocation policy is:
+
+- **2% → Daniel Ioni / H4X0R**, as founder/operator profit allocation;
+- **98% → MyZubster organization/ecosystem**, retained for infrastructure, operations, bounty reserves, contributor/maintainer costs, development, DAO/pilot costs, compliance and reserves.
+
+This rule applies to realized ecosystem profit rather than automatically taking 2% from every gross receipt. Gross revenue, pass-through funds, refunds, fees, taxes, restricted funds and operating expenses must remain distinguishable in the treasury records. No founder allocation is treated as paid until the underlying profit calculation and settlement are auditable.
+
 Stripe Connect onboarding is being implemented so seller payment onboarding can happen at the first real paid transaction/payout rather than being a barrier to free participation. Production payment behavior must be verified before being described as fully live.
 
 ## 5. MYZ
