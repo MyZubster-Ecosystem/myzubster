@@ -12,7 +12,10 @@
     "commit": "17cf7ca0a941d10e184771e574683785c1dbc8bf",
     "evidenceFile": "https://github.com/khongten124/myzubster/blob/feat/open-period-care-research-1450/docs/pilots/open-period-care/README.md",
     "evidenceMatrix": "https://github.com/khongten124/myzubster/blob/feat/open-period-care-research-1450/docs/pilots/open-period-care/evidence-matrix.md",
-    "knowledgeCards": "https://github.com/khongten124/myzubster/blob/feat/open-period-care-research-1450/docs/pilots/open-period-care/knowledge-cards.md"
+    "knowledgeCards": "https://github.com/khongten124/myzubster/blob/feat/open-period-care-research-1450/docs/pilots/open-period-care/knowledge-cards.md",
+    "pullRequestMergeCommit": "fc4a5cd30c854a242e6ed39e757c77f463c5d231",
+    "evidencePayloadPullRequest": "https://github.com/MyZubster-Ecosystem/myzubster/pull/1489",
+    "evidencePayloadMergeCommit": "6d88448821f25a252a79a777101ef904af8bbccb"
   },
   "knowledge": {
     "domain": "Materials Science / Sustainable Health Technologies / Technical Documentation & Evidence Analysis",
@@ -44,6 +47,11 @@
     "medicalCredential": "NOT_ESTABLISHED",
     "blockchainImplementation": "NOT_ESTABLISHED",
     "physicalRecyclingProof": "NOT_ESTABLISHED",
-    "publicKnowledgeCardUrl": "PENDING_ACCOUNT_SIDE_PUBLICATION"
+    "publicKnowledgeCardUrl": "PENDING_ACCOUNT_SIDE_PUBLICATION",
+    "semanticBridge": "TESTED",
+    "canonicalMergeAnchors": {
+      "1451": "fc4a5cd30c854a242e6ed39e757c77f463c5d231",
+      "1489": "6d88448821f25a252a79a777101ef904af8bbccb"
+    }
   }
 }
