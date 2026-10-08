@@ -1,0 +1,50 @@
+{
+  "schema": "myzubster.interoperability-checkpoint.v1",
+  "contributor": {
+    "id": "github:khongten124",
+    "displayName": "Open Period Care / khongten124"
+  },
+  "source": {
+    "repository": "MyZubster-Ecosystem/myzubster",
+    "pullRequest": 1489,
+    "commit": "fde3c3c20d23555f8480e2960b2a7559a2022863",
+    "artifactSha256": null
+  },
+  "bridge": {
+    "type": "semantic-knowledge",
+    "scope": "Contributor-scoped semantic ingestion and retrieval of Open Period Care Knowledge Cards with preserved evidence state"
+  },
+  "environment": {
+    "description": "MyZubster structured evidence and contributor-scoped semantic retrieval path"
+  },
+  "procedure": {
+    "harmless": true,
+    "steps": [
+      "Fetch and normalize the public Open Period Care evidence package.",
+      "Ingest contributor-scoped structured evidence into the semantic bridge.",
+      "Query for the contributor Knowledge Cards.",
+      "Verify KC-OPC-001 and KC-OPC-002 are returned with SUPPORTED state.",
+      "Verify the credential boundary prevents unsupported personal-certification claims."
+    ]
+  },
+  "observation": {
+    "result": "PASS",
+    "summary": "Contributor-scoped semantic retrieval returned the expected Open Period Care Knowledge Cards with their research evidence state preserved.",
+    "outputs": [
+      "KC-OPC-001 -> SUPPORTED",
+      "KC-OPC-002 -> SUPPORTED",
+      "unsupported personal-certification claim blocked"
+    ]
+  },
+  "evidenceState": "TESTED",
+  "limitations": [
+    "SUPPORTED research evidence is not promoted to TESTED scientific or clinical evidence.",
+    "This checkpoint does not establish medical or clinical certification.",
+    "Knowledge Card publication and Contributor Passport publication remain separate account-side actions."
+  ],
+  "provenance": {
+    "recordedAt": "2026-10-08T13:40:00Z",
+    "recordedBy": "github:danieldirimini-myzubster",
+    "canonicalMergeCommit": "6d88448821f25a252a79a777101ef904af8bbccb"
+  }
+}
