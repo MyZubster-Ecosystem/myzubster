@@ -14,7 +14,7 @@
   },
   "adapter": {
     "type": "semantic-evidence",
-    "scope": "Read-only VPS verification of the Open Period Care public research package through MyZubster/Zorgax evidence retrieval while preserving SUPPORTED evidence state and contributor credential boundaries.",
+    "scope": "Read-only VPS verification of the pinned Open Period Care public research package through MyZubster/Zorgax evidence retrieval, preserving the exact source evidence states and detecting semantic drift against previously recorded checkpoints.",
     "entrypoint": "docs/pilots/open-period-care/knowledge-cards.md"
   },
   "environment": {
@@ -27,12 +27,12 @@
   "procedure": {
     "harmless": true,
     "steps": [
-      "After explicit contributor opt-in, fetch the immutable public source commit into an isolated VPS verification directory.",
+      "Fetch the immutable public source commit into an isolated VPS verification directory.",
       "Verify the Open Period Care research package, evidence matrix and Knowledge Card files resolve from the pinned commit.",
-      "Normalize only public research evidence required for the bounded semantic check.",
-      "Run a read-only MyZubster/Zorgax retrieval query for the contributor-scoped Knowledge Cards.",
-      "Verify KC-OPC-001 and KC-OPC-002 remain SUPPORTED and are not promoted to TESTED scientific or clinical evidence.",
-      "Verify the response does not infer medical licensing, clinical qualification or professional certification.",
+      "Record the exact source evidence states for KC-OPC-001 and KC-OPC-002 without promotion or normalization.",
+      "Compare those source states with the previously recorded MyZubster semantic checkpoint and flag any mismatch as evidence-state drift.",
+      "Run a read-only MyZubster/Zorgax retrieval query for the contributor-scoped Knowledge Cards where the local research index is already authorized and populated.",
+      "Verify the response preserves the source/provenance state and does not infer medical licensing, clinical qualification or professional certification.",
       "Capture only sanitized provenance-bearing outputs; perform no crawl, publication or write-back."
     ],
     "cleanup": [
@@ -45,8 +45,9 @@
     "checks": [
       "Pinned public commit 17cf7ca0a941d10e184771e574683785c1dbc8bf is fetched successfully.",
       "Open Period Care evidence package is readable without credentials.",
-      "Contributor-scoped retrieval returns KC-OPC-001 and KC-OPC-002.",
-      "Both Knowledge Cards preserve evidence state SUPPORTED.",
+      "KC-OPC-001 source state is SUPPORTED.",
+      "KC-OPC-002 source state is VERIFIED in the pinned contributor source.",
+      "Any disagreement with an older checkpoint is reported as semantic drift rather than silently rewritten.",
       "Unsupported personal certification or clinical qualification claims are blocked.",
       "No crawling, publication, third-party send or production mutation occurs."
     ]
@@ -54,12 +55,13 @@
   "status": "PROPOSED",
   "result": {
     "outcome": "NOT_RUN",
-    "summary": "MyZubster and Zorgax linkage is already documented and a prior contributor-scoped semantic bridge is TESTED, but a separate VPS external-project run has not been authorized or executed.",
+    "summary": "Independent VPS verification has not yet been executed. Pre-run source inspection found KC-OPC-001=SUPPORTED and KC-OPC-002=VERIFIED at the pinned contributor commit, while an older MyZubster semantic checkpoint recorded both as SUPPORTED; the VPS run must surface this mismatch explicitly.",
     "outputs": []
   },
   "limitations": [
-    "Existing MyZubster/Zorgax linkage does not automatically authorize a separate VPS external-project run.",
-    "SUPPORTED research evidence must not be promoted to scientific, clinical or certification TESTED state.",
+    "This independent technical reproduction does not imply contributor participation or endorsement of the VPS run.",
+    "Source evidence states must be preserved exactly; a mismatch with prior MyZubster records must be reported, not normalized away.",
+    "VERIFIED in the contributor-authored source follows that source's own evidence taxonomy and must not be restated as MyZubster clinical/scientific certification.",
     "This verification does not establish medical licensing, clinical qualification, production readiness, payment, employment or partnership.",
     "Knowledge Card and Contributor Passport publication remain separate owner-controlled actions."
   ],
