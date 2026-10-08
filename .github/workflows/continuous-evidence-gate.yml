@@ -32,6 +32,9 @@ jobs:
       - name: Validate Zorgax capability registry
         run: npm run evidence:validate-zorgax-capabilities
 
+      - name: Validate external project verification manifests
+        run: npm run evidence:validate-external-projects
+
       - name: Run tests
         run: npm test -- --runInBand
 
