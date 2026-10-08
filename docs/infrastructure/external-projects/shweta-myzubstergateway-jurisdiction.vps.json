@@ -1,0 +1,88 @@
+{
+  "schema": "myzubster.external-project-verification.v1",
+  "id": "shweta-myzubstergateway-jurisdiction.vps",
+  "project": {
+    "name": "MyZubsterGateway jurisdiction capability enforcement",
+    "owner": "github:Shweta-singh24",
+    "public": true
+  },
+  "source": {
+    "repository": "https://github.com/Shweta-singh24/MyZubsterGateway",
+    "commit": "82461433e0c5bfee9aa369b4a71e9331261cf803",
+    "branch": null,
+    "pullRequest": "https://github.com/MyZubster-Ecosystem/MyZubsterGateway/pull/1385"
+  },
+  "adapter": {
+    "type": "security-regression",
+    "scope": "Independent reproduction of jurisdiction capability fail-closed behavior and Tari/XMR jurisdictionGate wiring at the exact closed/unmerged contributor commit.",
+    "entrypoint": "python3 integrations/contributors/shweta/verifier_check.py"
+  },
+  "environment": {
+    "target": "myzubster-vps-verification-node",
+    "isolation": "read-only-fetch",
+    "secretsPolicy": "no-secrets-in-evidence",
+    "inboundPortsRequired": false,
+    "productionMutationAllowed": false
+  },
+  "procedure": {
+    "harmless": true,
+    "steps": [
+      "Use the clean MyZubster verification checkout, not /root/myzubster.",
+      "Run the existing Shweta verifier, which clones the public fork into a temporary directory and checks out the exact pinned commit.",
+      "Verify JavaScript syntax for the five bounded files.",
+      "Execute deterministic policy checks for GLOBAL, HK, CN_MAINLAND, unknown jurisdiction and unknown capability.",
+      "Inspect bounded Tari/XMR jurisdictionGate wiring and the middleware 403/JURISDICTION_POLICY_DENIED deny path.",
+      "Capture the verifier JSON result without credentials, tokens or private data."
+    ],
+    "cleanup": [
+      "Allow the verifier TemporaryDirectory to remove the cloned fork automatically.",
+      "Do not modify, restart or reconfigure production services.",
+      "Retain only sanitized verifier output and canonical commit references."
+    ]
+  },
+  "expected": {
+    "checks": [
+      "Pinned source commit exactly matches 82461433e0c5bfee9aa369b4a71e9331261cf803.",
+      "All five JavaScript syntax checks pass.",
+      "Known capabilities are allowed in GLOBAL and HK.",
+      "Tested capabilities are denied in CN_MAINLAND.",
+      "Unknown jurisdiction fails closed.",
+      "Unknown capability fails closed.",
+      "Tari wallet transfer and external settlement routes are guarded by jurisdictionGate.",
+      "XMR wallet transfer and external settlement routes are guarded by jurisdictionGate.",
+      "Deny middleware contains HTTP 403 behavior and JURISDICTION_POLICY_DENIED.",
+      "Verifier exits zero and reports status TESTED."
+    ]
+  },
+  "status": "TESTED_PASS",
+  "result": {
+    "outcome": "PASS",
+    "summary": "Independent VPS verifier rerun passed for the exact Shweta-singh24 MyZubsterGateway jurisdiction-capability checkpoint. The pinned source commit matched, all deterministic policy checks passed, all five JavaScript syntax checks passed, all bounded Tari/XMR jurisdictionGate wiring checks were true, and the verifier reported TESTED. The upstream PR remains closed and unmerged.",
+    "outputs": [
+      "SOURCE_COMMIT=82461433e0c5bfee9aa369b4a71e9331261cf803",
+      "SOURCE_PR_STATE=CLOSED_UNMERGED",
+      "VERIFIER_STATUS=TESTED",
+      "POLICY_CHECKS_PASSED=14/14",
+      "SYNTAX_CHECKS_PASS=5/5",
+      "middleware_error_code_present=true",
+      "middleware_returns_403_on_deny=true",
+      "tari_external_settlement_gate=true",
+      "tari_wallet_transfer_gate=true",
+      "xmr_external_settlement_gate=true",
+      "xmr_wallet_transfer_gate=true",
+      "RESULT=PASS"
+    ]
+  },
+  "limitations": [
+    "The upstream pull request is closed and was not merged.",
+    "A passing checkpoint does not establish production deployment.",
+    "A passing checkpoint does not establish legal or regulatory compliance.",
+    "A passing checkpoint does not establish a security certification or audit.",
+    "The checkpoint is bounded to the exact pinned contributor commit and listed verifier behavior."
+  ],
+  "provenance": {
+    "recordedAt": "2026-10-08T19:51:45+02:00",
+    "recordedBy": "danieldirimini-myzubster",
+    "evidenceCommit": "33f9f9273755753ecd8bd1df5bf4a71e5233b8c9"
+  }
+}
