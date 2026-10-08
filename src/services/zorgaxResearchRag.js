@@ -32,6 +32,7 @@ function publicResearchSource(row, index) {
     score: row.score,
     crawledAt: row.crawledAt || null,
     contentHash: row.contentHash || null,
+    declaredEvidenceStates: Array.isArray(row.declaredEvidenceStates) ? row.declaredEvidenceStates : [],
   };
 }
 
@@ -50,6 +51,16 @@ function researchSourceLabels(sources) {
   )];
 }
 
+function referencedResearchLabels(answer) {
+  const text = String(answer || '');
+  return [...new Set([...text.matchAll(/\[(R\d+)\]/g)].map(match => match[1]))];
+}
+
+function unknownResearchLabels(answer, sources) {
+  const allowed = new Set(researchSourceLabels(sources));
+  return referencedResearchLabels(answer).filter(label => !allowed.has(label));
+}
+
 function citedResearchLabels(answer, sources) {
   const text = String(answer || '');
   return researchSourceLabels(sources).filter(label => text.includes(`[${label}]`));
@@ -59,11 +70,14 @@ function ensureResearchCitationContract(answer, sources) {
   const text = String(answer || '').trim();
   const labels = researchSourceLabels(sources);
   const citedLabels = citedResearchLabels(text, sources);
+  const unknownLabels = unknownResearchLabels(text, sources);
 
   if (labels.length === 0 || citedLabels.length > 0) {
     return {
       answer: text,
       citedLabels,
+      unknownLabels,
+      valid: unknownLabels.length === 0,
       enforced: false,
     };
   }
@@ -75,6 +89,8 @@ function ensureResearchCitationContract(answer, sources) {
   return {
     answer: text ? `${text}\n\n${provenanceFooter}` : provenanceFooter,
     citedLabels: [labels[0]],
+    unknownLabels: [],
+    valid: true,
     enforced: true,
   };
 }
@@ -90,6 +106,7 @@ function buildResearchContext(sources) {
       `url=${source.url}`,
       `crawled_at=${crawlTime}`,
       `content_hash=${source.contentHash || 'not recorded'}`,
+      `declared_evidence_states=${JSON.stringify(source.declaredEvidenceStates || [])}`,
       `excerpt=${JSON.stringify(source.snippet || '')}`,
     ].join('; ');
   });
@@ -102,6 +119,7 @@ function buildResearchContext(sources) {
     'The provenance metadata listed below (source label, URL, source type, crawl timestamp, content hash, and excerpt) is available to you for this response. Do not claim that provenance is unavailable when sources are present.',
     'A crawl timestamp records when MyZubster fetched the page; it does not prove the page publication date or that the content is still current.',
     'If you use retrieved evidence in the answer, the final answer must contain at least one exact supporting source label such as [R1]. Do not invent labels or sources.',
+    'When declared_evidence_states are present, preserve each exact id→status pair. Do not downgrade, upgrade, merge, or infer a different state. If another record conflicts, report the conflict explicitly.',
     'If retrieved sources conflict or are insufficient, say so. Onion content is not inherently more or less trustworthy than clearnet content.',
     ...lines,
   ].join('\n');
@@ -147,6 +165,8 @@ module.exports = {
   normalizeResearchQuery,
   normalizeScope,
   publicResearchSource,
+  referencedResearchLabels,
   researchSourceLabels,
+  unknownResearchLabels,
   safeIsoDate,
 };
