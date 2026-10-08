@@ -52,11 +52,20 @@
       "No crawling, publication, third-party send or production mutation occurs."
     ]
   },
-  "status": "PROPOSED",
+  "status": "IN_VERIFICATION",
   "result": {
-    "outcome": "NOT_RUN",
-    "summary": "Independent VPS verification has not yet been executed. Pre-run source inspection found KC-OPC-001=SUPPORTED and KC-OPC-002=VERIFIED at the pinned contributor commit, while an older MyZubster semantic checkpoint recorded both as SUPPORTED; the VPS run must surface this mismatch explicitly.",
-    "outputs": []
+    "outcome": "PARTIAL",
+    "summary": "Independent VPS source verification executed successfully on the MyZubster VPS. The pinned external commit was fetched, required files were present, SHA256 hashes were recorded, KC-OPC-001=SUPPORTED and KC-OPC-002=VERIFIED were observed, and semantic drift against the older MyZubster checkpoint was detected. The local Zorgax research smoke has not yet been executed.",
+    "outputs": [
+      "SOURCE_FETCH=PASS",
+      "README.md sha256=c2fd0c3f4377e45ebbc0f38cdf66d7b167da78ddb3893a4537b455c7ce95cacc",
+      "evidence-matrix.md sha256=d5d45e427da3ca6279b6c881fccca7d0244e1019b63a2890bcfe4c0353930f48",
+      "knowledge-cards.md sha256=a4d229b11914cc98c1664d192e192365e4ebfa8bfd303e3b6fa5b42561f66e3c",
+      "KC-OPC-001=SUPPORTED",
+      "KC-OPC-002=VERIFIED",
+      "SEMANTIC_DRIFT=DETECTED",
+      "ZORGAX_SMOKE=NOT_RUN"
+    ]
   },
   "limitations": [
     "This independent technical reproduction does not imply contributor participation or endorsement of the VPS run.",
@@ -66,7 +75,7 @@
     "Knowledge Card and Contributor Passport publication remain separate owner-controlled actions."
   ],
   "provenance": {
-    "recordedAt": "2026-10-08T17:10:00Z",
+    "recordedAt": "2026-10-08T17:12:00Z",
     "recordedBy": "github:danieldirimini-myzubster",
     "evidenceCommit": null
   }
