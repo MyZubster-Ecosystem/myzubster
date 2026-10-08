@@ -1,0 +1,95 @@
+{
+  "schema": "myzubster.external-project-verification.v1",
+  "id": "khongten124-open-period-care.vps",
+  "project": {
+    "name": "Open Period Care — Research & Knowledge Package",
+    "owner": "github:khongten124",
+    "public": true
+  },
+  "source": {
+    "repository": "https://github.com/khongten124/myzubster",
+    "commit": "17cf7ca0a941d10e184771e574683785c1dbc8bf",
+    "branch": "feat/open-period-care-research-1450",
+    "pullRequest": "https://github.com/MyZubster-Ecosystem/myzubster/pull/1451"
+  },
+  "adapter": {
+    "type": "semantic-evidence",
+    "scope": "Read-only VPS verification of the pinned Open Period Care public research package through MyZubster/Zorgax evidence retrieval, preserving the exact source evidence states and detecting semantic drift against previously recorded checkpoints.",
+    "entrypoint": "docs/pilots/open-period-care/knowledge-cards.md"
+  },
+  "environment": {
+    "target": "myzubster-vps-verification-node",
+    "isolation": "read-only-fetch",
+    "secretsPolicy": "no-secrets-in-evidence",
+    "inboundPortsRequired": false,
+    "productionMutationAllowed": false
+  },
+  "procedure": {
+    "harmless": true,
+    "steps": [
+      "Fetch the immutable public source commit into an isolated VPS verification directory.",
+      "Verify the Open Period Care research package, evidence matrix and Knowledge Card files resolve from the pinned commit.",
+      "Record the exact source evidence states for KC-OPC-001 and KC-OPC-002 without promotion or normalization.",
+      "Compare those source states with the previously recorded MyZubster semantic checkpoint and flag any mismatch as evidence-state drift.",
+      "Run a read-only MyZubster/Zorgax retrieval query for the contributor-scoped Knowledge Cards where the local research index is already authorized and populated.",
+      "Verify the response preserves the source/provenance state and does not infer medical licensing, clinical qualification or professional certification.",
+      "Capture only sanitized provenance-bearing outputs; perform no crawl, publication or write-back."
+    ],
+    "cleanup": [
+      "Remove the isolated fetched working copy unless retained as immutable test evidence.",
+      "Remove temporary normalized/index artifacts created only for this verification run.",
+      "Do not modify production MyZubster data, contributor repositories or account-side Knowledge Card state."
+    ]
+  },
+  "expected": {
+    "checks": [
+      "Pinned public commit 17cf7ca0a941d10e184771e574683785c1dbc8bf is fetched successfully.",
+      "Open Period Care evidence package is readable without credentials.",
+      "KC-OPC-001 source state is SUPPORTED.",
+      "KC-OPC-002 source state is VERIFIED in the pinned contributor source.",
+      "Any disagreement with an older checkpoint is reported as semantic drift rather than silently rewritten.",
+      "Unsupported personal certification or clinical qualification claims are blocked.",
+      "No crawling, publication, third-party send or production mutation occurs."
+    ]
+  },
+  "status": "TESTED_PASS",
+  "result": {
+    "outcome": "PASS",
+    "summary": "Independent VPS verification completed successfully after hardening the Zorgax semantic evidence path. The pinned external source was fetched and hashed, three Open Period Care documents were retrieved from the bounded local Mongo index, Ollama was available, declared evidence states were deterministically extracted and preserved, no unknown source labels were introduced, no crawl occurred, and the final grounded answer preserved KC-OPC-001=SUPPORTED and KC-OPC-002=VERIFIED.",
+    "outputs": [
+      "SOURCE_FETCH=PASS",
+      "FILES_PRESENT=PASS",
+      "README.md sha256=c2fd0c3f4377e45ebbc0f38cdf66d7b167da78ddb3893a4537b455c7ce95cacc",
+      "evidence-matrix.md sha256=d5d45e427da3ca6279b6c881fccca7d0244e1019b63a2890bcfe4c0353930f48",
+      "knowledge-cards.md sha256=a4d229b11914cc98c1664d192e192365e4ebfa8bfd303e3b6fa5b42561f66e3c",
+      "BOUNDED_RETRIEVAL_COUNT=3",
+      "R1 declared states: KC-OPC-001=SUPPORTED; KC-OPC-002=VERIFIED",
+      "R2 declared states: KC-OPC-001=SUPPORTED; KC-OPC-002=VERIFIED",
+      "R3 declared states: none",
+      "OLLAMA_STATUS_HTTP=200",
+      "MODEL=qwen2.5:3b",
+      "MODEL_AVAILABLE=true",
+      "CHAT_HTTP=200",
+      "ANSWER=[R1] [R2] KC-OPC-001: SUPPORTED; KC-OPC-002: VERIFIED",
+      "CITATION_VALID=true",
+      "UNKNOWN_LABELS=none",
+      "CITED_LABELS=R1,R2",
+      "CRAWL_PERFORMED=false",
+      "KC_OPC_001_PRESERVED=true",
+      "KC_OPC_002_PRESERVED=true",
+      "RESULT=PASS"
+    ]
+  },
+  "limitations": [
+    "This independent technical reproduction does not imply contributor participation or endorsement of the VPS run.",
+    "Source evidence states must be preserved exactly; a mismatch with prior MyZubster records must be reported, not normalized away.",
+    "VERIFIED in the contributor-authored source follows that source's own evidence taxonomy and must not be restated as MyZubster clinical/scientific certification.",
+    "This verification does not establish medical licensing, clinical qualification, production readiness, payment, employment or partnership.",
+    "Knowledge Card and Contributor Passport publication remain separate owner-controlled actions."
+  ],
+  "provenance": {
+    "recordedAt": "2026-10-08T17:45:00Z",
+    "recordedBy": "github:danieldirimini-myzubster",
+    "evidenceCommit": null
+  }
+}

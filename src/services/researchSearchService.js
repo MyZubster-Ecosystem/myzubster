@@ -12,6 +12,24 @@ function normalizeQuery(value) {
   return String(value || '').trim().replace(/\s+/g, ' ').slice(0, 200);
 }
 
+function extractDeclaredEvidenceStates(text) {
+  const body = String(text || '');
+  const states = [];
+  const seen = new Set();
+  const pattern = /\bid:\s*([A-Z0-9][A-Z0-9._-]{2,})\b[\s\S]{0,1200}?\bstatus:\s*([A-Z][A-Z0-9_-]*)\b/g;
+  let match;
+  while ((match = pattern.exec(body)) !== null) {
+    const id = match[1];
+    const status = match[2];
+    const key = `${id}\u0000${status}`;
+    if (!seen.has(key)) {
+      seen.add(key);
+      states.push({ id, status });
+    }
+  }
+  return states.slice(0, 50);
+}
+
 function makeSnippet(text, query, maxLength = 280) {
   const body = String(text || '').replace(/\s+/g, ' ').trim();
   if (!body) return '';
@@ -52,6 +70,7 @@ function createMongoResearchStore({ Model = ResearchDocument } = {}) {
         score: row.score,
         crawledAt: row.crawledAt,
         contentHash: row.contentHash,
+        declaredEvidenceStates: extractDeclaredEvidenceStates(row.text),
       }));
     },
 
@@ -68,4 +87,4 @@ function createMongoResearchStore({ Model = ResearchDocument } = {}) {
   };
 }
 
-module.exports = { clampLimit, createMongoResearchStore, makeSnippet, normalizeQuery };
+module.exports = { clampLimit, createMongoResearchStore, extractDeclaredEvidenceStates, makeSnippet, normalizeQuery };

@@ -1,0 +1,167 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://myzubster.com/schemas/external-project-verification.v1.json",
+  "title": "MyZubster External Project Verification v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "id",
+    "project",
+    "source",
+    "adapter",
+    "environment",
+    "procedure",
+    "expected",
+    "status",
+    "result",
+    "limitations",
+    "provenance"
+  ],
+  "properties": {
+    "schema": { "const": "myzubster.external-project-verification.v1" },
+    "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]+$" },
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "owner"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "owner": { "type": "string", "minLength": 1 },
+        "public": { "type": "boolean" }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository", "commit"],
+      "properties": {
+        "repository": { "type": "string", "minLength": 1 },
+        "commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "branch": { "type": ["string", "null"] },
+        "pullRequest": { "type": ["string", "null"] }
+      }
+    },
+    "adapter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "scope"],
+      "properties": {
+        "type": {
+          "enum": [
+            "runtime-http",
+            "runtime-cli",
+            "semantic-evidence",
+            "security-regression",
+            "deterministic-calculation",
+            "custom"
+          ]
+        },
+        "scope": { "type": "string", "minLength": 1 },
+        "entrypoint": { "type": ["string", "null"] }
+      }
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["target", "isolation", "secretsPolicy"],
+      "properties": {
+        "target": { "const": "myzubster-vps-verification-node" },
+        "isolation": { "enum": ["docker-compose-project", "container", "process-sandbox", "read-only-fetch"] },
+        "secretsPolicy": { "const": "no-secrets-in-evidence" },
+        "inboundPortsRequired": { "type": "boolean" },
+        "productionMutationAllowed": { "const": false }
+      }
+    },
+    "procedure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["harmless", "steps", "cleanup"],
+      "properties": {
+        "harmless": { "const": true },
+        "steps": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "cleanup": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "expected": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["checks"],
+      "properties": {
+        "checks": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "status": {
+      "enum": ["PROPOSED", "READY", "IN_VERIFICATION", "TESTED_PASS", "TESTED_FAIL", "DISABLED"]
+    },
+    "result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["outcome", "summary"],
+      "properties": {
+        "outcome": { "enum": ["NOT_RUN", "PASS", "FAIL", "PARTIAL"] },
+        "summary": { "type": "string", "minLength": 1 },
+        "outputs": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": []
+        }
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recordedAt", "recordedBy"],
+      "properties": {
+        "recordedAt": { "type": "string", "format": "date-time" },
+        "recordedBy": { "type": "string", "minLength": 1 },
+        "evidenceCommit": { "type": ["string", "null"], "pattern": "^[0-9a-f]{40}$" }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "status": { "const": "TESTED_PASS" } },
+        "required": ["status"]
+      },
+      "then": {
+        "properties": {
+          "result": {
+            "properties": { "outcome": { "const": "PASS" } }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "status": { "const": "TESTED_FAIL" } },
+        "required": ["status"]
+      },
+      "then": {
+        "properties": {
+          "result": {
+            "properties": { "outcome": { "const": "FAIL" } }
+          }
+        }
+      }
+    }
+  ]
+}

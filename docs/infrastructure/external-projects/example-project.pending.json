@@ -1,0 +1,60 @@
+{
+  "schema": "myzubster.external-project-verification.v1",
+  "id": "example-project.pending",
+  "project": {
+    "name": "Replace with external project name",
+    "owner": "github:replace-owner",
+    "public": true
+  },
+  "source": {
+    "repository": "https://github.com/owner/repository",
+    "commit": "0000000000000000000000000000000000000000",
+    "branch": null,
+    "pullRequest": null
+  },
+  "adapter": {
+    "type": "runtime-cli",
+    "scope": "Replace with one bounded, reproducible verification objective",
+    "entrypoint": null
+  },
+  "environment": {
+    "target": "myzubster-vps-verification-node",
+    "isolation": "process-sandbox",
+    "secretsPolicy": "no-secrets-in-evidence",
+    "inboundPortsRequired": false,
+    "productionMutationAllowed": false
+  },
+  "procedure": {
+    "harmless": true,
+    "steps": [
+      "Fetch the immutable source commit into an isolated verification directory.",
+      "Install or prepare only the dependencies required for the bounded check.",
+      "Run the frozen harmless verification command.",
+      "Capture sanitized output."
+    ],
+    "cleanup": [
+      "Stop isolated processes or containers.",
+      "Remove temporary verification artifacts that are not retained as evidence."
+    ]
+  },
+  "expected": {
+    "checks": [
+      "Replace with a deterministic expected check"
+    ]
+  },
+  "status": "PROPOSED",
+  "result": {
+    "outcome": "NOT_RUN",
+    "summary": "Template only. No verification has been executed.",
+    "outputs": []
+  },
+  "limitations": [
+    "No TESTED claim is established until the exact bounded run is executed and observed.",
+    "This verification does not establish production readiness, certification, payment, employment or partnership."
+  ],
+  "provenance": {
+    "recordedAt": "2026-10-08T17:00:00Z",
+    "recordedBy": "github:danieldirimini-myzubster",
+    "evidenceCommit": null
+  }
+}

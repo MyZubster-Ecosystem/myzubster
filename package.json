@@ -19,7 +19,8 @@
     "nft:deploy:base-sepolia": "hardhat run scripts/nft/deploy-comic-nft.js --network baseSepolia",
     "nft:mint:comic-001": "hardhat run scripts/nft/mint-comic-001.js --network baseSepolia",
     "evidence:validate-interoperability": "node scripts/validate-interoperability-checkpoints.js",
-    "evidence:validate-zorgax-capabilities": "node scripts/validate-zorgax-capabilities.js"
+    "evidence:validate-zorgax-capabilities": "node scripts/validate-zorgax-capabilities.js",
+    "evidence:validate-external-projects": "node scripts/validate-external-project-verifications.js"
   },
   "dependencies": {
     "@vercel/functions": "^3.9.5",
