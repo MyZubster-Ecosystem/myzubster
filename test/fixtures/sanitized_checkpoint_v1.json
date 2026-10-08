@@ -1,0 +1,21 @@
+{
+  "checkpoint_version": "v1",
+  "participant_n4k48": "nicolaususnicola-lgtm",
+  "participant_foxxx009": "foxxx009",
+  "input_payload": {
+    "type": "interoperability_check",
+    "seed": "deterministic_seed_for_pilot_test_only",
+    "messages": [
+      "VPS -> broker acknowledgment",
+      "broker -> agent delivery confirmation",
+      "agent -> local catalog registration",
+      "local catalog -> Bridge handshake"
+    ]
+  },
+  "expected_bridge_response": {
+    "status": "ok",
+    "checkpoint": "v1",
+    "hash": "__EXPECTED_HASH_PLACEHOLDER__"
+  },
+  "notes": "No credentials, keys, tokens, or private endpoints. Public-only reproducible test data."
+}
