@@ -16,6 +16,11 @@
       "id": "khongten124-open-period-care.vps",
       "manifest": "docs/infrastructure/external-projects/khongten124-open-period-care.vps.json",
       "status": "TESTED_PASS"
+    },
+    {
+      "id": "shweta-myzubstergateway-jurisdiction.vps",
+      "manifest": "docs/infrastructure/external-projects/shweta-myzubstergateway-jurisdiction.vps.json",
+      "status": "READY"
     }
   ],
   "rules": [
