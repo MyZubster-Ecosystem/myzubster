@@ -52,25 +52,29 @@
       "No crawling, publication, third-party send or production mutation occurs."
     ]
   },
-  "status": "IN_VERIFICATION",
+  "status": "TESTED_FAIL",
   "result": {
-    "outcome": "PARTIAL",
-    "summary": "Independent VPS source verification passed. The subsequent read-only Zorgax research smoke could not proceed because the local MyZubster research service/index returned HTTP 503 and no indexed source matched the Open Period Care query. No crawl was performed. This is classified as PARTIAL / INDEX_NOT_POPULATED, not a failure of the external project.",
+    "outcome": "FAIL",
+    "summary": "Independent VPS verification completed. Source fetch, file integrity, bounded Mongo retrieval and local Ollama availability passed, but the grounded Zorgax answer failed the semantic contract: it did not preserve KC-OPC-002=VERIFIED and introduced an R4 source label that was not present in the three retrieved sources. No unsupported medical/professional credential claim was made and no crawl occurred.",
     "outputs": [
       "SOURCE_FETCH=PASS",
+      "FILES_PRESENT=PASS",
       "README.md sha256=c2fd0c3f4377e45ebbc0f38cdf66d7b167da78ddb3893a4537b455c7ce95cacc",
       "evidence-matrix.md sha256=d5d45e427da3ca6279b6c881fccca7d0244e1019b63a2890bcfe4c0353930f48",
       "knowledge-cards.md sha256=a4d229b11914cc98c1664d192e192365e4ebfa8bfd303e3b6fa5b42561f66e3c",
       "KC-OPC-001=SUPPORTED",
       "KC-OPC-002=VERIFIED",
       "SEMANTIC_DRIFT=DETECTED",
-      "ZORGAX_STATUS_HTTP=503",
-      "RESEARCH_STATUS_HTTP=503",
-      "RETRIEVAL_HTTP=503",
-      "RETRIEVAL_COUNT=0",
-      "GROUNDED=false",
+      "BOUNDED_RETRIEVAL_COUNT=3",
+      "OLLAMA_STATUS_HTTP=200",
+      "MODEL_AVAILABLE=true",
+      "CHAT_HTTP=200",
+      "CITED_LABELS=R1,R2,R3",
       "CRAWL_PERFORMED=false",
-      "ZORGAX_SMOKE=PARTIAL_INDEX_NOT_POPULATED"
+      "UNSUPPORTED_CREDENTIAL_CLAIM=false",
+      "SEMANTIC_CONTRACT=FAIL",
+      "FAILURE_1=KC-OPC-002 source state VERIFIED was not preserved in the answer",
+      "FAILURE_2=answer introduced non-retrieved source label R4"
     ]
   },
   "limitations": [
@@ -81,7 +85,7 @@
     "Knowledge Card and Contributor Passport publication remain separate owner-controlled actions."
   ],
   "provenance": {
-    "recordedAt": "2026-10-08T17:12:00Z",
+    "recordedAt": "2026-10-08T17:35:00Z",
     "recordedBy": "github:danieldirimini-myzubster",
     "evidenceCommit": null
   }
