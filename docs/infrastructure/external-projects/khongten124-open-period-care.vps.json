@@ -55,7 +55,7 @@
   "status": "IN_VERIFICATION",
   "result": {
     "outcome": "PARTIAL",
-    "summary": "Independent VPS source verification executed successfully on the MyZubster VPS. The pinned external commit was fetched, required files were present, SHA256 hashes were recorded, KC-OPC-001=SUPPORTED and KC-OPC-002=VERIFIED were observed, and semantic drift against the older MyZubster checkpoint was detected. The local Zorgax research smoke has not yet been executed.",
+    "summary": "Independent VPS source verification passed. The subsequent read-only Zorgax research smoke could not proceed because the local MyZubster research service/index returned HTTP 503 and no indexed source matched the Open Period Care query. No crawl was performed. This is classified as PARTIAL / INDEX_NOT_POPULATED, not a failure of the external project.",
     "outputs": [
       "SOURCE_FETCH=PASS",
       "README.md sha256=c2fd0c3f4377e45ebbc0f38cdf66d7b167da78ddb3893a4537b455c7ce95cacc",
@@ -64,7 +64,13 @@
       "KC-OPC-001=SUPPORTED",
       "KC-OPC-002=VERIFIED",
       "SEMANTIC_DRIFT=DETECTED",
-      "ZORGAX_SMOKE=NOT_RUN"
+      "ZORGAX_STATUS_HTTP=503",
+      "RESEARCH_STATUS_HTTP=503",
+      "RETRIEVAL_HTTP=503",
+      "RETRIEVAL_COUNT=0",
+      "GROUNDED=false",
+      "CRAWL_PERFORMED=false",
+      "ZORGAX_SMOKE=PARTIAL_INDEX_NOT_POPULATED"
     ]
   },
   "limitations": [
