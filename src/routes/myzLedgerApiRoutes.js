@@ -2,10 +2,21 @@
 
 const express = require('express');
 const router = express.Router();
-const myzLedgerApiService = require('../services/myzLedgerApiService');
+const fileLedgerService = require('../services/myzLedgerApiService');
+const mongoLedgerService = require('../services/myzLedgerMongoService');
 const { requireMyzLedgerService } = require('../middleware/myzLedgerServiceAuth');
 
 router.use(requireMyzLedgerService);
+
+function useMongoBackend() {
+  const configured = String(process.env.MYZ_LEDGER_BACKEND || '').trim().toLowerCase();
+  if (configured) return configured === 'mongo';
+  return process.env.NODE_ENV === 'production';
+}
+
+function ledgerService() {
+  return useMongoBackend() ? mongoLedgerService : fileLedgerService;
+}
 
 function statusFor(error) {
   if (error.code === 'MYZ_LEDGER_ACCOUNT_FORBIDDEN') return 403;
@@ -14,17 +25,17 @@ function statusFor(error) {
   return 503;
 }
 
-router.get('/accounts/:accountId/balance', (req, res) => {
+router.get('/accounts/:accountId/balance', async (req, res) => {
   try {
-    return res.json(myzLedgerApiService.getBalance(req.params.accountId));
+    return res.json(await ledgerService().getBalance(req.params.accountId));
   } catch (error) {
     return res.status(statusFor(error)).json({ success: false, code: error.code || 'MYZ_LEDGER_READ_FAILED', error: error.message });
   }
 });
 
-router.get('/accounts/:accountId/history', (req, res) => {
+router.get('/accounts/:accountId/history', async (req, res) => {
   try {
-    return res.json(myzLedgerApiService.getHistory({ accountId: req.params.accountId, limit: req.query.limit }));
+    return res.json(await ledgerService().getHistory({ accountId: req.params.accountId, limit: req.query.limit }));
   } catch (error) {
     return res.status(statusFor(error)).json({
       success: false,
@@ -34,9 +45,9 @@ router.get('/accounts/:accountId/history', (req, res) => {
   }
 });
 
-router.get('/entries/lookup', (req, res) => {
+router.get('/entries/lookup', async (req, res) => {
   try {
-    return res.json(myzLedgerApiService.lookupEntries({
+    return res.json(await ledgerService().lookupEntries({
       accountId: req.query.accountId,
       entryId: req.query.entryId,
       idempotencyKey: req.query.idempotencyKey,
@@ -52,12 +63,12 @@ router.get('/entries/lookup', (req, res) => {
   }
 });
 
-router.post('/transfers', (req, res) => {
+router.post('/transfers', async (req, res) => {
   try {
     const headerKey = String(req.headers['idempotency-key'] || '').trim();
     const body = { ...(req.body || {}) };
     if (headerKey) body.idempotency_key = headerKey;
-    const result = myzLedgerApiService.transfer(body);
+    const result = await ledgerService().transfer(body);
     return res.status(result.duplicate ? 200 : 201).json({
       schema: 'myzubster-myz-ledger-transfer/v1',
       asset: 'MYZ',
@@ -80,12 +91,12 @@ router.post('/transfers', (req, res) => {
   }
 });
 
-router.post('/entries', (req, res) => {
+router.post('/entries', async (req, res) => {
   try {
     const headerKey = String(req.headers['idempotency-key'] || '').trim();
     const body = { ...(req.body || {}) };
     if (headerKey) body.idempotency_key = headerKey;
-    const result = myzLedgerApiService.appendDebit(body);
+    const result = await ledgerService().appendDebit(body);
     return res.status(result.duplicate ? 200 : 201).json({
       schema: 'myzubster-myz-ledger-entry/v1',
       asset: 'MYZ',
