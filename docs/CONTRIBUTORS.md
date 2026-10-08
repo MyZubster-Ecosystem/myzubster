@@ -29,6 +29,7 @@ PROPOSED
 
 | GitHub alias | Contribution path | Public evidence | Current evidence status | LIFE-aligned candidate lane |
 |---|---|---|---|---|
+| `@nicolaususnicola-lgtm` | Runtime / Docker node / Comics / interoperability | PR #1460; live N4K48 checkpoint via maintainer PR #1545 | #1460 `MERGED` at `ee8c15d4b26824b75345c2eebc62ac034058b84a`; bounded live interoperability checkpoint `TESTED` with canonical MyZubster evidence merge `0c00836a96b36d7c64de098dd26d39ac5ddaf98a` | Runtime/semantic bridge; peer-node work remains separately gated |
 | `@Aming9303` | Frontend / dashboard / visual documentation / IoT sensing / signed payment webhooks | PR #531; PR #634; PR #859; PR #891 | #891 `MERGED` at `be78e0cf9081c3346aa0c61e022acd297d745619` and independently `TESTED` for the bounded signed-webhook regression; #531/#634/#859 remain separate public contribution records | #534 sensing adapter **active public LIFE contribution**; #537 dashboard & KPI evidence; evidence UX / visualization |
 | `@wasim-builds` | Security / QA / review / geolocation | PR #58; PR #636; PR #637; PR #860; PR #1513 | #58 and #636 `CLOSED_NOT_MERGED`; #860 `MERGED` at `9c36d5be450e12345ff9251a40ab4df38839a7fe` and independently `TESTED` for fail-closed admin auth; #637 and #1513 `MERGED` | #534 geospatial context; #536 safety/review; #713 evidence-integrity QA |
 | `@khongten124` | Research / evidence package / Knowledge Cards | PR #1451; PR #1489 | #1451 `MERGED` at `fc4a5cd30c854a242e6ed39e757c77f463c5d231`; #1489 `MERGED` at `6d88448821f25a252a79a777101ef904af8bbccb`; contributor-scoped semantic bridge `TESTED` | Circular Care research/evidence layer; Knowledge Card / Contributor Passport linkage |
@@ -41,6 +42,7 @@ PROPOSED
 
 ### Evidence links
 
+- `@nicolaususnicola-lgtm`: https://github.com/MyZubster-Ecosystem/myzubster/pull/1460; live checkpoint evidence via maintainer PR #1545 and `docs/contributors/interoperability-checkpoints/n4k48-live-2026-10-07.json`
 - `@Aming9303`: https://github.com/MyZubster-Ecosystem/myzubster/pull/531, https://github.com/MyZubster-Ecosystem/myzubster/pull/634, https://github.com/MyZubster-Ecosystem/myzubster/pull/859, https://github.com/MyZubster-Ecosystem/myzubster/pull/891
 - `@wasim-builds`: https://github.com/MyZubster-Ecosystem/myzubster/pull/58, https://github.com/MyZubster-Ecosystem/myzubster/pull/636, https://github.com/MyZubster-Ecosystem/myzubster/pull/637, https://github.com/MyZubster-Ecosystem/myzubster/pull/860, https://github.com/MyZubster-Ecosystem/myzubster/pull/1513
 - `@khongten124`: https://github.com/MyZubster-Ecosystem/myzubster/pull/1451, https://github.com/MyZubster-Ecosystem/myzubster/pull/1489
