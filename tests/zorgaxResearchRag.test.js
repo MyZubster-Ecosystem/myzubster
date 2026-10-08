@@ -7,6 +7,7 @@ const {
   createZorgaxResearchRag,
   ensureResearchCitationContract,
   normalizeScope,
+  unknownResearchLabels,
 } = require('../src/services/zorgaxResearchRag');
 
 describe('Zorgax research RAG', () => {
@@ -111,6 +112,47 @@ describe('Zorgax research RAG', () => {
     expect(result.enforced).toBe(false);
     expect(result.citedLabels).toEqual([]);
     expect(result.answer).toBe('Plain answer.');
+  });
+
+  test('preserves declared evidence states in the research context', async () => {
+    const store = {
+      search: jest.fn().mockResolvedValue([
+        {
+          url: 'https://example.org/knowledge-cards',
+          sourceType: 'web',
+          host: 'example.org',
+          title: 'Knowledge Cards',
+          snippet: 'Open Period Care cards.',
+          score: 10,
+          crawledAt: new Date('2026-10-08T00:00:00Z'),
+          contentHash: 'd'.repeat(64),
+          declaredEvidenceStates: [
+            { id: 'KC-OPC-001', status: 'SUPPORTED' },
+            { id: 'KC-OPC-002', status: 'VERIFIED' },
+          ],
+        },
+      ]),
+    };
+    const rag = createZorgaxResearchRag({ store, enabled: true });
+    const result = await rag.retrieve({ query: 'Open Period Care' });
+
+    expect(result.sources[0].declaredEvidenceStates).toEqual([
+      { id: 'KC-OPC-001', status: 'SUPPORTED' },
+      { id: 'KC-OPC-002', status: 'VERIFIED' },
+    ]);
+    expect(result.context).toContain('KC-OPC-002');
+    expect(result.context).toContain('VERIFIED');
+    expect(result.context).toMatch(/preserve each exact id→status pair/i);
+  });
+
+  test('flags invented research labels as an invalid citation contract', () => {
+    const sources = [{ label: 'R1' }, { label: 'R2' }, { label: 'R3' }];
+    const answer = 'Supported by [R1], but another claim cites [R4].';
+    const result = ensureResearchCitationContract(answer, sources);
+
+    expect(unknownResearchLabels(answer, sources)).toEqual(['R4']);
+    expect(result.unknownLabels).toEqual(['R4']);
+    expect(result.valid).toBe(false);
   });
 
   test('scope and limits are bounded', () => {
