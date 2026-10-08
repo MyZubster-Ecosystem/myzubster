@@ -36,6 +36,74 @@ MyZubster turns authorized real-world observations — photos, places, environme
 > **New here?** You do not need blockchain or AI expertise. A reproducible bug report, documentation fix, test, translation or accessibility improvement is a valid first contribution.
 
 
+## 🌐 How to join the MyZubster network
+
+MyZubster is evolving from a single application into a network where **independent contributors, projects, pilot activities and software environments can stay independently operated and still interoperate through shared evidence and documented contracts**.
+
+```text
+CONTRIBUTOR / EXTERNAL PROJECT
+            ↓
+      PUBLIC EVIDENCE
+            ↓
+       KNOWLEDGE CARD
+            ↓
+   CONTRIBUTOR PASSPORT
+            ↓
+     PILOT / LIFE TRACK
+            ↓
+    INDEPENDENT NODE
+            ↓
+         DAO ROLE
+            ↓
+ MYZ / BOUNTY / PAYMENT ADAPTERS
+```
+
+The important boundary is that joining the network does **not** require moving all work onto one central server or giving MyZubster custody of a contributor's infrastructure. A participant can keep a separate repository, local machine, Docker environment, VPS or service and connect it through a bounded interoperability checkpoint.
+
+### Entry paths
+
+| You are... | Recommended path |
+|---|---|
+| **A developer or technical contributor** | Scoped contribution → reproducible evidence → optional Knowledge Card / Passport → optional independent node checkpoint |
+| **An independent project owner** | Keep your own repo/runtime → document a shared contract → run a canonical fixture → publish bounded interoperability evidence |
+| **A LIFE / real-world pilot participant** | Define objective + evidence + responsible roles → connect knowledge/provenance → optional Passport → pilot/node milestones |
+| **A knowledge contributor** | Publish/review evidence → Knowledge Card → Knowledge Graph links → optional Passport |
+| **A DAO participant** | Explicitly opt in to a bounded role → declare responsibilities/cost model → maintain evidence/runbooks → no automatic treasury or mint authority |
+| **A Marketplace / payment contributor** | Implement/test a bounded adapter or verifier → keep calculation, custody, settlement and verification separated |
+
+### What a successful connection means
+
+A connected project may prove only the exact checkpoint it reproduces, for example:
+
+```text
+own repo / own runtime
+        ↓
+canonical input / fixture
+        ↓
+documented interface
+        ↓
+independent reproduction
+        ↓
+TESTED_PASS / TESTED_FAIL
+        ↓
+public evidence + Passport / Knowledge link
+```
+
+A merged PR, a Passport link, a node test or a reward record does **not** by itself prove payment, certification, legal authority, production custody, complete decentralization or institutional endorsement.
+
+### Current coordination
+
+- [Contributor Pilot Nodes](docs/CONTRIBUTOR-PILOT-NODES.md)
+- [Contributor Interoperability Matrix](docs/contributors/CONTRIBUTOR-INTEROPERABILITY-MATRIX.md)
+- [Canonical Contributor Connections](docs/contributors/CONTRIBUTOR-CONNECTIONS-2026-10-08.md)
+- [Connected Evidence Network](CONNECTED-EVIDENCE-NETWORK.md)
+- [LIFE evidence index](docs/life/MEETING-2026-10-12-EVIDENCE-INDEX.md)
+- [Treasury policy](TREASURY.md)
+- [Bounty policy](BOUNTIES.md)
+- [MYZ reward/accounting boundaries](REWARDS_LEDGER.md)
+
+**Current architecture direction:** MyZubster core is one coordination/evidence layer among multiple contributor-owned environments. The long-term target is to remove founder/VPS single-point-of-failure dependencies while preserving explicit authorization, verifiable evidence and least-privilege access.
+
 ## 🔐 Start from GitHub — create or connect your MyZubster account
 
 You can now use GitHub as a public entry point into the MyZubster onboarding flow.
