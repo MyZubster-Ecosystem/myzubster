@@ -1,0 +1,51 @@
+{
+  "schema": "myzubster.interoperability-checkpoint.v1",
+  "contributor": {
+    "id": "github:wasim-builds",
+    "displayName": "wasim-builds"
+  },
+  "source": {
+    "repository": "MyZubster-Ecosystem/myzubster",
+    "pullRequest": 860,
+    "commit": "d378adbbd9690cfbac081758000bb95d64fe7fb1",
+    "artifactSha256": null
+  },
+  "bridge": {
+    "type": "security-regression",
+    "scope": "Fail-closed admin authentication regression for protected bounty-payment endpoints"
+  },
+  "environment": {
+    "description": "Independent VPS rerun against current MyZubster code using targeted Jest coverage"
+  },
+  "procedure": {
+    "harmless": true,
+    "steps": [
+      "Run the targeted admin-auth regression tests.",
+      "Verify unconfigured ADMIN_API_KEY rejects protected access.",
+      "Verify missing credentials are rejected.",
+      "Verify incorrect credentials are rejected.",
+      "Verify the correct configured credential is accepted."
+    ]
+  },
+  "observation": {
+    "result": "PASS",
+    "summary": "The independently reproduced fail-closed admin-auth checkpoint passed all four bounded authorization cases.",
+    "outputs": [
+      "unconfigured -> 503",
+      "missing -> 401",
+      "wrong -> 401",
+      "correct -> 200"
+    ]
+  },
+  "evidenceState": "TESTED",
+  "limitations": [
+    "This checkpoint is bounded to the tested admin-auth regression.",
+    "It does not establish whole-system security or penetration-test coverage.",
+    "It does not infer payment, employment, certification or governance authority."
+  ],
+  "provenance": {
+    "recordedAt": "2026-10-08T13:40:00Z",
+    "recordedBy": "github:danieldirimini-myzubster",
+    "canonicalMergeCommit": "9c36d5be450e12345ff9251a40ab4df38839a7fe"
+  }
+}
