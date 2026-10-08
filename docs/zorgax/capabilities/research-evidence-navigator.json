@@ -1,0 +1,45 @@
+{
+  "schema": "myzubster.zorgax-capability.v1",
+  "id": "zorgax.research-evidence-navigator",
+  "title": "Research Evidence Navigator",
+  "status": "TESTED",
+  "purpose": "Navigate contributor-scoped research evidence while preserving source provenance and the original evidence state.",
+  "allowedInputs": [
+    "public research evidence packages",
+    "structured contributor knowledge records",
+    "Knowledge Cards with explicit evidence state"
+  ],
+  "allowedActions": [
+    "retrieve contributor-scoped evidence",
+    "summarize research sources",
+    "navigate evidence-to-requirement relationships",
+    "draft Knowledge Card content without promoting evidence state"
+  ],
+  "mustNot": [
+    "promote SUPPORTED evidence to TESTED scientific or clinical evidence",
+    "infer medical or professional certification",
+    "invent source support",
+    "store sensitive health data in public or on-chain evidence"
+  ],
+  "evidenceRequirements": {
+    "minimumSourceState": "SUPPORTED",
+    "requiresBoundedTest": true,
+    "checkpointSchema": "myzubster.interoperability-checkpoint.v1"
+  },
+  "linkedEvidence": [
+    {
+      "kind": "registry",
+      "reference": "docs/contributions/khongten124-zorgax-research-link.json",
+      "state": "EVIDENCE_VERIFIED_PROJECT_LINK"
+    },
+    {
+      "kind": "checkpoint",
+      "reference": "docs/contributors/interoperability-checkpoints/khongten124-semantic-bridge.json",
+      "state": "TESTED"
+    }
+  ],
+  "limitations": [
+    "Research navigation does not establish clinical validity, medical licensing or scientific certification.",
+    "Account-side publication and Contributor Passport linkage remain separate consent-controlled actions."
+  ]
+}
