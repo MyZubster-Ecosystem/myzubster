@@ -54,11 +54,24 @@
       "Verifier exits zero and reports status TESTED."
     ]
   },
-  "status": "READY",
+  "status": "TESTED_PASS",
   "result": {
-    "outcome": "NOT_RUN",
-    "summary": "Frozen and ready for an independent VPS rerun of the existing Shweta MyZubsterGateway jurisdiction-capability verifier.",
-    "outputs": []
+    "outcome": "PASS",
+    "summary": "Independent VPS verifier rerun passed for the exact Shweta-singh24 MyZubsterGateway jurisdiction-capability checkpoint. The pinned source commit matched, all deterministic policy checks passed, all five JavaScript syntax checks passed, all bounded Tari/XMR jurisdictionGate wiring checks were true, and the verifier reported TESTED. The upstream PR remains closed and unmerged.",
+    "outputs": [
+      "SOURCE_COMMIT=82461433e0c5bfee9aa369b4a71e9331261cf803",
+      "SOURCE_PR_STATE=CLOSED_UNMERGED",
+      "VERIFIER_STATUS=TESTED",
+      "POLICY_CHECKS_PASSED=14/14",
+      "SYNTAX_CHECKS_PASS=5/5",
+      "middleware_error_code_present=true",
+      "middleware_returns_403_on_deny=true",
+      "tari_external_settlement_gate=true",
+      "tari_wallet_transfer_gate=true",
+      "xmr_external_settlement_gate=true",
+      "xmr_wallet_transfer_gate=true",
+      "RESULT=PASS"
+    ]
   },
   "limitations": [
     "The upstream pull request is closed and was not merged.",
