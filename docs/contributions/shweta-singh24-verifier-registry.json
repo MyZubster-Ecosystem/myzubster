@@ -33,7 +33,15 @@
       "syntaxChecks": "5/5 PASS",
       "wiringChecks": "6/6 true",
       "verifierStatus": "TESTED",
-      "sourcePrState": "CLOSED_UNMERGED"
+      "sourcePrState": "CLOSED_UNMERGED",
+      "myzubsterEvidencePrState": "MERGED",
+      "myzubsterCanonicalCommit": "dc4fb1e3c403f6e554c2402ec9fb4c5dfd93e593",
+      "requiredGates": {
+        "CI – Test e Lint": "success",
+        "Security Audit": "success",
+        "MYZ-164 Seller Free policy": "success",
+        "Continuous Evidence Gate": "success"
+      }
     }
   },
   "boundaries": {
