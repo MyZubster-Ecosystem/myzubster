@@ -1,0 +1,23 @@
+{
+  "schema": "myzubster.external-project-verification-registry.v1",
+  "referencePattern": {
+    "project": "Nicola / N4K48",
+    "status": "TESTED_PASS",
+    "canonicalMergeCommit": "0c00836a96b36d7c64de098dd26d39ac5ddaf98a",
+    "checkpoint": "bounded authenticated VPS-broker-agent-catalog interoperability"
+  },
+  "entries": [
+    {
+      "id": "example-project.pending",
+      "manifest": "docs/infrastructure/external-projects/example-project.pending.json",
+      "status": "PROPOSED"
+    }
+  ],
+  "rules": [
+    "Freeze immutable source and bounded procedure before READY.",
+    "Never mark TESTED_PASS without observed PASS.",
+    "Keep production deployment, certification, payment, employment and governance outside this technical state.",
+    "Prefer no-inbound and read-only verification paths for first contact.",
+    "Never include secrets in public evidence."
+  ]
+}
