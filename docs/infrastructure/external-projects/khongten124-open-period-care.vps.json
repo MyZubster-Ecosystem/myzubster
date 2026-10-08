@@ -1,0 +1,71 @@
+{
+  "schema": "myzubster.external-project-verification.v1",
+  "id": "khongten124-open-period-care.vps",
+  "project": {
+    "name": "Open Period Care — Research & Knowledge Package",
+    "owner": "github:khongten124",
+    "public": true
+  },
+  "source": {
+    "repository": "https://github.com/khongten124/myzubster",
+    "commit": "17cf7ca0a941d10e184771e574683785c1dbc8bf",
+    "branch": "feat/open-period-care-research-1450",
+    "pullRequest": "https://github.com/MyZubster-Ecosystem/myzubster/pull/1451"
+  },
+  "adapter": {
+    "type": "semantic-evidence",
+    "scope": "Read-only VPS verification of the Open Period Care public research package through MyZubster/Zorgax evidence retrieval while preserving SUPPORTED evidence state and contributor credential boundaries.",
+    "entrypoint": "docs/pilots/open-period-care/knowledge-cards.md"
+  },
+  "environment": {
+    "target": "myzubster-vps-verification-node",
+    "isolation": "read-only-fetch",
+    "secretsPolicy": "no-secrets-in-evidence",
+    "inboundPortsRequired": false,
+    "productionMutationAllowed": false
+  },
+  "procedure": {
+    "harmless": true,
+    "steps": [
+      "After explicit contributor opt-in, fetch the immutable public source commit into an isolated VPS verification directory.",
+      "Verify the Open Period Care research package, evidence matrix and Knowledge Card files resolve from the pinned commit.",
+      "Normalize only public research evidence required for the bounded semantic check.",
+      "Run a read-only MyZubster/Zorgax retrieval query for the contributor-scoped Knowledge Cards.",
+      "Verify KC-OPC-001 and KC-OPC-002 remain SUPPORTED and are not promoted to TESTED scientific or clinical evidence.",
+      "Verify the response does not infer medical licensing, clinical qualification or professional certification.",
+      "Capture only sanitized provenance-bearing outputs; perform no crawl, publication or write-back."
+    ],
+    "cleanup": [
+      "Remove the isolated fetched working copy unless retained as immutable test evidence.",
+      "Remove temporary normalized/index artifacts created only for this verification run.",
+      "Do not modify production MyZubster data, contributor repositories or account-side Knowledge Card state."
+    ]
+  },
+  "expected": {
+    "checks": [
+      "Pinned public commit 17cf7ca0a941d10e184771e574683785c1dbc8bf is fetched successfully.",
+      "Open Period Care evidence package is readable without credentials.",
+      "Contributor-scoped retrieval returns KC-OPC-001 and KC-OPC-002.",
+      "Both Knowledge Cards preserve evidence state SUPPORTED.",
+      "Unsupported personal certification or clinical qualification claims are blocked.",
+      "No crawling, publication, third-party send or production mutation occurs."
+    ]
+  },
+  "status": "PROPOSED",
+  "result": {
+    "outcome": "NOT_RUN",
+    "summary": "MyZubster and Zorgax linkage is already documented and a prior contributor-scoped semantic bridge is TESTED, but a separate VPS external-project run has not been authorized or executed.",
+    "outputs": []
+  },
+  "limitations": [
+    "Existing MyZubster/Zorgax linkage does not automatically authorize a separate VPS external-project run.",
+    "SUPPORTED research evidence must not be promoted to scientific, clinical or certification TESTED state.",
+    "This verification does not establish medical licensing, clinical qualification, production readiness, payment, employment or partnership.",
+    "Knowledge Card and Contributor Passport publication remain separate owner-controlled actions."
+  ],
+  "provenance": {
+    "recordedAt": "2026-10-08T17:10:00Z",
+    "recordedBy": "github:danieldirimini-myzubster",
+    "evidenceCommit": null
+  }
+}
