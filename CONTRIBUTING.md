@@ -214,3 +214,6 @@ If you are new, useful first contributions include:
 Open or comment on a relevant public GitHub issue and explain what you want to contribute. You may begin with a small proposal; there is no requirement to arrive with a finished implementation.
 
 **Welcome to MyZubster. Build in public, protect privacy, and keep evidence stronger than claims.**
+## ZORGAX tool-calling investigation — open contributor task
+
+Want to test local AI agents without accessing MyZubster infrastructure? Read the [ZORGAX reproducibility guide](docs/zorgax/TOOL-CALLING-INVESTIGATION-2026-10-09.md) and join [issue #1577](https://github.com/MyZubster-Ecosystem/myzubster/issues/1577). There are bounded tasks in independent reproduction, safe fixture testing, HTTP payload comparison, error-vs-empty-result handling, and privacy-safe observability. Use your own environment, document versions and share sanitized results or a focused PR. The cause of the original tool loop remains under investigation.
