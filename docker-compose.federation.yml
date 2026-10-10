@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  myzubster-node-pilot:
+    image: myzubster/core:latest # Substituir pela tag específica de staging/pilot
+    container_name: myzubster-federation-node
+    restart: unless-stopped
+    environment:
+      - NODE_ROLE=read-only
+      - FEDERATION_MODE=enabled
+      - LOG_LEVEL=info
+      - ALLOW_REMOTE_QUERIES=true
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data/federation:/app/data
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "/app/scripts/healthcheck.sh"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+networks:
+  federation-net:
+    driver: bridge
