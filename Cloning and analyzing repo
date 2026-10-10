@@ -1,0 +1,2 @@
+git clone --depth 1 https://github.com/MyZubster-Ecosystem/myzubster.git /tmp/myzubster
+cd /tmp/myzubster && find . -type f -name "*.js" -o -name "*.ts" -o -name "Dockerfile*" -o -name "docker-compose*" -o -name "*.yaml" -o -name "*.yml" | grep -v node_modules | grep -v .git | sort
