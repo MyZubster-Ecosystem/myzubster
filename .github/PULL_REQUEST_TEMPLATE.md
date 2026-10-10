@@ -11,7 +11,7 @@ Closes #...
 - [ ] Tests added
 
 ## 💰 Payment
-**Monero Address:** `4A2M4vB...` (starts with 4 or 8)
+**Monero Address:** (Optional: starts with 4 or 8)
 
 ## 📋 Review Checklist
 - [ ] Code compiles

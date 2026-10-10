@@ -30,4 +30,4 @@ if [ "${ONION_TELEMETRY_ENABLED:-false}" = "true" ]; then
 fi
 
 echo "Starting Tor Onion Service..."
-exec tor -f "$TORRC"
+exec su -s /bin/sh debian-tor -c "exec tor -f '$TORRC'"

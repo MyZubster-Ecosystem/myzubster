@@ -1,5 +1,5 @@
 const express = require('express');
-const { optionalAuthenticate, authenticate } = require('../../../src/middleware/auth');
+const { optionalAuthenticate, authenticate } = require('../middleware/auth');
 const {
   buildPartyContext,
   validatePartyContext

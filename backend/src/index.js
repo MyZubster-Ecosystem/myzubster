@@ -23,9 +23,14 @@ const chatRoutes = require('./routes/chat');
 const notificationRoutes = require('./routes/notifications');
 const zorgaxPartyRoutes = require('./routes/zorgax-party');
 
+/* N4K48 Local Pilot Node APIs */
+const ledgerRoutes = require('./routes/ledger');
+const economicsRoutes = require('./routes/economics');
+
 const app = express();
 const PORT = Number(process.env.PORT) || 3009;
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/myzubster';
+const MONGODB_URI =
+  process.env.MONGODB_URI || 'mongodb://localhost:27017/myzubster';
 
 app.disable('x-powered-by');
 app.use(helmet());
@@ -36,8 +41,9 @@ app.use(morgan(process.env.NODE_ENV === 'test' ? 'tiny' : 'dev'));
 
 async function connectDatabase() {
   if (mongoose.connection.readyState === 1) return;
+
   await mongoose.connect(MONGODB_URI);
-  console.log('✅ Connected to MongoDB');
+  console.log('Connected to MongoDB');
 }
 
 async function disconnectDatabase() {
@@ -52,7 +58,8 @@ app.get('/health', (_req, res) => {
     status: 'ok',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+    mongodb:
+      mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
   });
 });
 
@@ -66,37 +73,112 @@ app.use('/api/chat', chatRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/zorgax', zorgaxPartyRoutes);
 app.use('/api/gateway', gatewayRoutes);
+
 app.use('/api/dao/zorgax', zorgaxDaoRoutes);
 app.use('/api/dao/life', lifeDaoRoutes);
 app.use('/api/dao', lifeDaoBindingGuard);
 app.use('/api/dao', daoRoutes);
 
+/* N4K48 Local Pilot Node */
+app.use('/api/ledger', ledgerRoutes);
+app.use('/api/economics', economicsRoutes);
+
 app.get('/api/dashboard', (_req, res) => {
   res.json({
     success: true,
+
     services: {
-      github: { status: 'online', endpoint: 'https://api.github.com' },
-      geocoding: { status: 'online', endpoint: 'https://nominatim.openstreetmap.org' },
+      github: {
+        status: 'online',
+        endpoint: 'https://api.github.com'
+      },
+
+      geocoding: {
+        status: 'online',
+        endpoint: 'https://nominatim.openstreetmap.org'
+      },
+
       mongodb: {
-        status: mongoose.connection.readyState === 1 ? 'online' : 'offline',
+        status:
+          mongoose.connection.readyState === 1 ? 'online' : 'offline',
         endpoint: 'mongodb://localhost:27017'
       },
-      dao: { status: 'online', endpoint: '/api/dao' },
-      zorgaxGovernance: { status: 'advisory', endpoint: '/api/dao/zorgax', binding: false },
+
+      dao: {
+        status: 'online',
+        endpoint: '/api/dao'
+      },
+
+      zorgaxGovernance: {
+        status: 'advisory',
+        endpoint: '/api/dao/zorgax',
+        binding: false
+      },
+
       lifeGovernance: {
         status: 'advisory',
         endpoint: '/api/dao/life/status',
         binding: false,
         consentRequired: true
       },
-      metaverse: { status: 'prototype', endpoint: '/api/metaverse/world', identityMode: 'guest-unverified' },
-      virtualRoomLifecycle: { status: 'experimental', endpoint: '/api/metaverse/rooms', authority: 'server' },
-      realtime: { status: 'experimental', endpoint: '/realtime', tokenEndpoint: '/api/realtime/token', metricsEndpoint: '/api/realtime/metrics', authority: 'server', metricsAccess: 'admin' },
-      chat: { status: 'experimental', endpoint: '/api/chat', delivery: 'persisted-before-realtime' },
-      notifications: { status: 'experimental', endpoint: '/api/notifications', delivery: 'persisted-before-realtime' },
-      moderation: { status: 'foundation', endpoint: '/api/moderation', realtimeDelivery: 'integrated-with-chat' },
-      zorgaxPartyMode: { status: 'experimental', endpoint: '/api/zorgax/party-context', binding: false }
+
+      metaverse: {
+        status: 'prototype',
+        endpoint: '/api/metaverse/world',
+        identityMode: 'guest-unverified'
+      },
+
+      virtualRoomLifecycle: {
+        status: 'experimental',
+        endpoint: '/api/metaverse/rooms',
+        authority: 'server'
+      },
+
+      realtime: {
+        status: 'experimental',
+        endpoint: '/realtime',
+        tokenEndpoint: '/api/realtime/token',
+        metricsEndpoint: '/api/realtime/metrics',
+        authority: 'server',
+        metricsAccess: 'admin'
+      },
+
+      chat: {
+        status: 'experimental',
+        endpoint: '/api/chat',
+        delivery: 'persisted-before-realtime'
+      },
+
+      notifications: {
+        status: 'experimental',
+        endpoint: '/api/notifications',
+        delivery: 'persisted-before-realtime'
+      },
+
+      moderation: {
+        status: 'foundation',
+        endpoint: '/api/moderation',
+        realtimeDelivery: 'integrated-with-chat'
+      },
+
+      zorgaxPartyMode: {
+        status: 'experimental',
+        endpoint: '/api/zorgax/party-context',
+        binding: false
+      },
+
+      ledger: {
+        status: 'online',
+        endpoint: '/api/ledger',
+        readOnly: true
+      },
+
+      economics: {
+        status: 'simulation',
+        endpoint: '/api/economics/simulate'
+      }
     },
+
     stats: {
       totalIssues: 0,
       openIssues: 0,
@@ -112,11 +194,12 @@ app.use('/api/bounty-payments', bountyPaymentRoutes);
 
 app.get('/api/messages/:userId', (req, res) => {
   const { userId } = req.params;
+
   const messages = [
     {
       id: 'msg1',
       userId,
-      content: 'Benvenuto su MyZubster! 🌱',
+      content: 'Benvenuto su MyZubster!',
       timestamp: new Date().toISOString(),
       type: 'welcome',
       read: false
@@ -134,23 +217,54 @@ app.get('/api/messages/:userId', (req, res) => {
 
 app.post('/api/payments/record', (req, res) => {
   try {
-    const { issueId, bounty, contributor, txid, address } = req.body || {};
-    const { notifier } = require('../../services/notification/bot');
-    const payment = notifier.recordPayment(issueId, bounty, contributor, txid, address);
-    res.json({ success: true, data: payment });
+    const {
+      issueId,
+      bounty,
+      contributor,
+      txid,
+      address
+    } = req.body || {};
+
+    const {
+      notifier
+    } = require('../../services/notification/bot');
+
+    const payment = notifier.recordPayment(
+      issueId,
+      bounty,
+      contributor,
+      txid,
+      address
+    );
+
+    res.json({
+      success: true,
+      data: payment
+    });
   } catch (error) {
     console.error('Payment notification error:', error);
-    res.status(500).json({ success: false, error: 'Unable to record payment' });
+
+    res.status(500).json({
+      success: false,
+      error: 'Unable to record payment'
+    });
   }
 });
 
 app.get('/api/payments/status', (_req, res) => {
   try {
-    const { notifier } = require('../../services/notification/bot');
+    const {
+      notifier
+    } = require('../../services/notification/bot');
+
     res.json(notifier.getPaymentStatus());
   } catch (error) {
     console.error('Payment status error:', error);
-    res.status(500).json({ success: false, error: 'Unable to read payment status' });
+
+    res.status(500).json({
+      success: false,
+      error: 'Unable to read payment status'
+    });
   }
 });
 
@@ -161,44 +275,128 @@ app.get('/dashboard', (_req, res) => {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>MyZubster Dashboard</title>
+
   <style>
-    body { font-family: system-ui, sans-serif; max-width: 1000px; margin: 40px auto; padding: 0 20px; background: #f6f7f9; color: #172033; }
-    .card { background: white; border: 1px solid #e1e5ea; border-radius: 12px; padding: 20px; margin: 16px 0; }
-    code { background: #eef1f5; padding: 2px 6px; border-radius: 5px; }
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 0 20px;
+      background: #f6f7f9;
+      color: #172033;
+    }
+
+    .card {
+      background: white;
+      border: 1px solid #e1e5ea;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 16px 0;
+    }
+
+    code {
+      background: #eef1f5;
+      padding: 2px 6px;
+      border-radius: 5px;
+    }
   </style>
 </head>
+
 <body>
-  <h1>🚀 MyZubster Dashboard</h1>
+  <h1>MyZubster Dashboard</h1>
+
   <div class="card">
     <strong>Backend:</strong> online<br>
-    <strong>Health:</strong> <a href="/health"><code>/health</code></a><br>
-    <strong>Dashboard API:</strong> <a href="/api/dashboard"><code>/api/dashboard</code></a><br>
-    <strong>Gardens API:</strong> <a href="/api/gardens"><code>/api/gardens</code></a><br>
-    <strong>Metaverse API:</strong> <a href="/api/metaverse/world"><code>/api/metaverse/world</code></a> (prototype)<br>
-    <strong>Virtual rooms:</strong> <code>/api/metaverse/rooms</code> (experimental, server-authoritative)<br>
-    <strong>Realtime:</strong> <code>/realtime</code> with token <code>/api/realtime/token</code> and admin metrics <code>/api/realtime/metrics</code> (experimental)<br>
-    <strong>Chat:</strong> <code>/api/chat</code> (persisted DM/community channels)<br>
-    <strong>Notifications:</strong> <code>/api/notifications</code> (durable + realtime delivery)<br>
-    <strong>Moderation API:</strong> <code>/api/moderation</code> (delivery policy integrated with chat)<br>
-    <strong>ZORGAX Party Mode:</strong> <a href="/api/zorgax/party-context"><code>/api/zorgax/party-context</code></a> (experimental, read-only)<br>
-    <strong>DAO API:</strong> <a href="/api/dao/proposals"><code>/api/dao/proposals</code></a><br>
-    <strong>Zorgax DAO:</strong> <a href="/api/dao/zorgax/status"><code>/api/dao/zorgax/status</code></a> (advisory, non-binding)<br>
-    <strong>LIFE DAO lane:</strong> <a href="/api/dao/life/status"><code>/api/dao/life/status</code></a> (consent-gated, advisory, non-binding)
+
+    <strong>Health:</strong>
+    <a href="/health"><code>/health</code></a><br>
+
+    <strong>Dashboard API:</strong>
+    <a href="/api/dashboard"><code>/api/dashboard</code></a><br>
+
+    <strong>Gardens API:</strong>
+    <a href="/api/gardens"><code>/api/gardens</code></a><br>
+
+    <strong>Metaverse API:</strong>
+    <a href="/api/metaverse/world"><code>/api/metaverse/world</code></a>
+    (prototype)<br>
+
+    <strong>Virtual rooms:</strong>
+    <code>/api/metaverse/rooms</code>
+    (experimental, server-authoritative)<br>
+
+    <strong>Realtime:</strong>
+    <code>/realtime</code>
+    with token <code>/api/realtime/token</code>
+    and admin metrics <code>/api/realtime/metrics</code>
+    (experimental)<br>
+
+    <strong>Chat:</strong>
+    <code>/api/chat</code>
+    (persisted DM/community channels)<br>
+
+    <strong>Notifications:</strong>
+    <code>/api/notifications</code>
+    (durable + realtime delivery)<br>
+
+    <strong>Moderation API:</strong>
+    <code>/api/moderation</code>
+    (delivery policy integrated with chat)<br>
+
+    <strong>ZORGAX Party Mode:</strong>
+    <a href="/api/zorgax/party-context">
+      <code>/api/zorgax/party-context</code>
+    </a>
+    (experimental, read-only)<br>
+
+    <strong>DAO API:</strong>
+    <a href="/api/dao/proposals">
+      <code>/api/dao/proposals</code>
+    </a><br>
+
+    <strong>Zorgax DAO:</strong>
+    <a href="/api/dao/zorgax/status">
+      <code>/api/dao/zorgax/status</code>
+    </a>
+    (advisory, non-binding)<br>
+
+    <strong>LIFE DAO lane:</strong>
+    <a href="/api/dao/life/status">
+      <code>/api/dao/life/status</code>
+    </a>
+    (consent-gated, advisory, non-binding)<br>
+
+    <strong>N4K48 Ledger:</strong>
+    <a href="/api/ledger">
+      <code>/api/ledger</code>
+    </a>
+    (read-only)<br>
+
+    <strong>N4K48 Economics:</strong>
+    <code>/api/economics/simulate</code>
+    (simulation)
   </div>
 </body>
 </html>`);
 });
 
 app.use((_req, res) => {
-  res.status(404).json({ success: false, error: 'Route not found' });
+  res.status(404).json({
+    success: false,
+    error: 'Route not found'
+  });
 });
 
 app.use((err, _req, res, _next) => {
   console.error('Unhandled server error:', err);
+
   res.status(500).json({
     success: false,
     error: 'Internal Server Error',
-    message: process.env.NODE_ENV === 'production' ? undefined : err.message
+    message:
+      process.env.NODE_ENV === 'production'
+        ? undefined
+        : err.message
   });
 });
 
@@ -207,24 +405,52 @@ async function startServer() {
 
   return new Promise((resolve) => {
     const server = app.listen(PORT, () => {
-      console.log(`✅ MyZubster backend listening on port ${PORT}`);
-      console.log(`📍 Health check: http://localhost:${PORT}/health`);
-      console.log(`📍 Dashboard: http://localhost:${PORT}/dashboard`);
-      console.log(`🪐 Metaverse world: http://localhost:${PORT}/api/metaverse/world`);
-      console.log(`⚡ Realtime gateway: ws://localhost:${PORT}/realtime`);
-      console.log(`💬 Chat API: http://localhost:${PORT}/api/chat`);
-      console.log(`🔔 Notifications API: http://localhost:${PORT}/api/notifications`);
-      console.log(`🎉 ZORGAX Party Mode: http://localhost:${PORT}/api/zorgax/party-context`);
+      console.log(
+        `MyZubster backend listening on port ${PORT}`
+      );
+      console.log(
+        `Health check: http://localhost:${PORT}/health`
+      );
+      console.log(
+        `Dashboard: http://localhost:${PORT}/dashboard`
+      );
+      console.log(
+        `Metaverse world: http://localhost:${PORT}/api/metaverse/world`
+      );
+      console.log(
+        `Realtime gateway: ws://localhost:${PORT}/realtime`
+      );
+      console.log(
+        `Chat API: http://localhost:${PORT}/api/chat`
+      );
+      console.log(
+        `Notifications API: http://localhost:${PORT}/api/notifications`
+      );
+      console.log(
+        `ZORGAX Party Mode: http://localhost:${PORT}/api/zorgax/party-context`
+      );
+      console.log(
+        `N4K48 Ledger: http://localhost:${PORT}/api/ledger`
+      );
+      console.log(
+        `N4K48 Economics: http://localhost:${PORT}/api/economics/simulate`
+      );
     });
+
     const io = attachRealtimeServer(server);
     server.realtime = io;
+
     resolve(server);
   });
 }
 
 if (require.main === module) {
   startServer().catch((error) => {
-    console.error('❌ Failed to start MyZubster backend:', error);
+    console.error(
+      'Failed to start MyZubster backend:',
+      error
+    );
+
     process.exit(1);
   });
 }
