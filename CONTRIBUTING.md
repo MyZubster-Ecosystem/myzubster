@@ -14,6 +14,8 @@ You can contribute with code, documentation, testing, translation, design, acces
 
 Repository: https://github.com/MyZubster-Ecosystem/myzubster
 
+Short walkthrough for newcomers: [FIRST-CONTRIBUTION.md](FIRST-CONTRIBUTION.md)
+
 New contributor journey (site login, Neon Plaza/metaverse, profile and optional GitHub character): [docs/CONTRIBUTOR-JOURNEY.md](docs/CONTRIBUTOR-JOURNEY.md).
 
 Contributor registry: [`docs/CONTRIBUTORS.md`](docs/CONTRIBUTORS.md)
