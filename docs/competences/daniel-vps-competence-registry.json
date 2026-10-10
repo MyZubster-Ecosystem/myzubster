@@ -20,6 +20,11 @@
       "type": "github-pr",
       "url": "https://github.com/MyZubster-Ecosystem/myzubster/pull/1541",
       "mergeCommit": "da6b73136c474fb071270a61e5841ad927825535"
+    },
+    {
+      "type": "myzubster-knowledge-card",
+      "url": "https://www.myzubster.com/knowledge-card?id=6ac63a4602d4e4d509ee0be5",
+      "status": "PUBLISHED"
     }
   ],
   "competences": [
@@ -79,5 +84,11 @@
     "employment credential",
     "complete VPS security",
     "payment or bounty status"
-  ]
+  ],
+  "publicKnowledgeCard": {
+    "status": "PUBLISHED_BY_ACCOUNT_OWNER",
+    "url": "https://www.myzubster.com/knowledge-card?id=6ac63a4602d4e4d509ee0be5",
+    "cardId": "6ac63a4602d4e4d509ee0be5",
+    "note": "Public MyZubster Knowledge Card published by the authenticated account owner. Publication does not upgrade the evidence to professional certification."
+  }
 }
