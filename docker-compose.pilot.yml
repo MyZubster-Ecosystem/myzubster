@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  api:
+    image: myzubster/api:latest
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env.pilot
+    depends_on:
+      - db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: myzubster_pilot
+    volumes:
+      - pilot_db_data:/var/lib/postgresql/data
+
+volumes:
+  pilot_db_data:
