@@ -1,0 +1,25 @@
+# Prometheus scrape configuration for MyZubster (issue #99).
+# The app exposes metrics via src/middleware/performanceMetrics.js on /metrics.
+# Adjust targets to match your deployment (container service names / hosts).
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: myzubster-api
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['app:3000']
+        labels:
+          service: myzubster-api
+
+  - job_name: reward-backend
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['reward-backend:3001']
+        labels:
+          service: reward-backend
+
+  - job_name: prometheus
+    static_configs:
+      - targets: ['localhost:9090']
