@@ -406,7 +406,7 @@
       "title": "[PAID BOUNTY · RESERVED] Complete Henderson Contributor Passport onboarding — 25 USD equivalent",
       "url": "https://github.com/MyZubster-Ecosystem/myzubster/issues/1447",
       "classification": "EXTERNAL_RESERVED",
-      "work_state": "RESERVED",
+      "work_state": "OPEN",
       "settlement_state": "NOT_STARTED",
       "rewards": [
         {
@@ -415,7 +415,7 @@
           "unit": "USD equivalent",
           "kind": "reserved_external_reward",
           "funding_state": "RESERVED",
-          "funding_source": null,
+          "funding_source": "Sponsor commitment recorded in issue #1447",
           "reservation_evidence": "https://github.com/MyZubster-Ecosystem/myzubster/issues/1447"
         }
       ],
@@ -424,16 +424,22 @@
         "pull_requests": [
           "https://github.com/MyZubster-Ecosystem/MyZubsterGateway/pull/83"
         ],
-        "verification": [],
+        "verification": [
+          "https://github.com/MyZubster-Ecosystem/MyZubsterGateway/pull/83"
+        ],
         "settlement": []
       },
       "notes": [
+        "Reserved for completion of the privacy-preserving Contributor Passport onboarding criteria in issue #1447.",
         "Private onboarding is allowed.",
         "Public profile publication requires explicit contributor consent.",
-        "Pilot Node opt-in is optional.",
+        "Pilot Node opt-in is optional and not required for payment.",
+        "Wallet addresses and settlement transaction links do not need to be public.",
+        "Settlement rail XMR/BTC/ETH and conversion/fee terms must be agreed before payment.",
+        "Separate from Tari issue #1405; no $200 Tari commitment is created.",
         "RESERVED does not mean PAID."
       ],
-      "updated_at": "2026-10-02T00:00:00Z"
+      "updated_at": "2026-10-02T14:14:49Z"
     }
   ]
 }
