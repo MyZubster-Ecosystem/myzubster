@@ -64,7 +64,7 @@ function harness(character) {
     },
     '../models/MetaverseChatMessage': { find: () => query([]) },
     '../services/contributorCharacters': { eligibleChoices, publicVisual },
-    '../../../src/middleware/auth': { authenticate() {}, optionalAuthenticate() {} }
+    '../middleware/auth': { authenticate() {}, optionalAuthenticate() {} }
   };
   const filename = path.join(__dirname, '../backend/src/routes/metaverse.js');
   vm.runInNewContext(fs.readFileSync(filename, 'utf8'), {
