@@ -1,4 +1,5 @@
 const express = require('express');
+const publicPassportRoutes = require('./src/routes/publicPassportRoutes');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
@@ -9,6 +10,7 @@ const { captureFunnelEvent } = require('./src/services/posthogAnalyticsService')
 require('dotenv').config();
 
 const app = express();
+app.use('/api/passports', publicPassportRoutes);
 app.use(cors());
 app.use('/api/github-bounties/webhook', express.json({ verify: (req, res, buf) => { req.rawBody = Buffer.from(buf); } }));
 app.use('/api/meta/messenger/webhook', express.json({ verify: (req, res, buf) => { req.rawBody = Buffer.from(buf); } }));
