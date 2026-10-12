@@ -9,9 +9,10 @@ const STATUS_COPY = {
 };
 
 function MetaverseSceneStatus({ room }) {
+  const manifestKey = JSON.stringify(room?.sceneManifest || null);
   const prepared = useMemo(
-    () => prepareSceneManifest(room?.sceneManifest),
-    [room?.sceneManifest]
+    () => prepareSceneManifest(JSON.parse(manifestKey)),
+    [manifestKey]
   );
   const [result, setResult] = useState({ ...prepared, mode: 'checking', checked: false });
 
