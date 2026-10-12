@@ -32,6 +32,7 @@ import {
   unblockMetaverseRoomParticipant,
   updateMetaverseRoom
 } from '../api/metaverse';
+import MetaverseSceneStatus from '../components/MetaverseSceneStatus';
 import './MetaversePage.css';
 
 const ROOM_SYNC_INTERVAL_MS = 5000;
@@ -561,6 +562,7 @@ function MetaverseRoomPage({ roomKey }) {
         <p><strong>Capacità:</strong> {room.capacity}</p>
         <p><strong>Versione scena:</strong> {room.sceneManifestVersion}</p>
         <p><strong>Programmazione:</strong> {room.scheduledFor ? new Date(room.scheduledFor).toLocaleString('it-IT') : 'Avvio immediato'}</p>
+        <MetaverseSceneStatus room={room} />
         {canManage && (
           <div className="metaverse-panel">
             <h3>Controlli host</h3>
