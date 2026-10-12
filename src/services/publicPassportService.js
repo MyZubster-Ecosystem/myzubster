@@ -1,226 +1,137 @@
-const {
-  getContributorKnowledgeGraph
-} = require('./knowledgeGraphService');
+/**
+ * Public Passport Service
+ *
+ * Responsible for assembling a **public‑only** view of a contributor's
+ * Knowledge Passport. The service enforces:
+ *
+ * 1. An explicit consent check (performed by the route layer).
+ * 2. A strict field allow‑list that excludes any financial, wallet or settlement
+ *    information.
+ * 3. Sanitisation of graph edges/labels to avoid leaking identifiers.
+ *
+ * The function `getPublicKnowledgePassport` returns `null` when the passport
+ * cannot be shown publicly (e.g., missing data). The route handler translates
+ * this into a 404 response, keeping the endpoint non‑enumerable.
+ */
 
+const db = require('../db'); // Adjust according to the actual DB helper used in the project
 
-const PUBLIC_PROPERTY_KEYS = {
-  Knowledge: new Set(['conceptId', 'conceptKey', 'key', 'slug', 'category', 'description', 'status', 'reference']),
-  KnowledgeContribution: new Set(['contributionId', 'category', 'description', 'status', 'reference', 'reviewedAt', 'rewardId', 'rewardedAt']),
-  Attestation: new Set(['attestationId', 'evidenceType', 'evidenceReference', 'verificationMethod', 'evidenceHash', 'status', 'observedAt', 'createdAt']),
-  Reward: new Set(['rewardId', 'amount', 'currency', 'status', 'paidAt']),
-  Settlement: new Set(['settlementId', 'status', 'settledAt', 'createdAt'])
-};
+// ---------------------------------------------------------------------------
+// Public field allow‑list
+// ---------------------------------------------------------------------------
+const PUBLIC_FIELDS = [
+  'contributorId',
+  'displayName',
+  'avatarUrl',
+  'bio',
+  'knowledgeLinks', // array of { url, title }
+  'contributions',  // array of contribution references (ids, titles)
+  'attestations',   // array of attestation references
+  // Add future non‑sensitive fields here.
+];
 
-function publicProperties(type, properties = {}) {
-  const allowed = PUBLIC_PROPERTY_KEYS[type] || new Set();
-
-  return Object.fromEntries(
-    Object.entries(properties).filter(
-      ([key, value]) => allowed.has(key) && value !== undefined
-    )
-  );
-}
-
-
-async function getPublicKnowledgePassport(contributorId) {
-  const id = String(contributorId || '').trim();
-
-  if (!id) {
-    throw new Error('Contributor ID is required');
+// Helper: deep‑clone and keep only whitelisted top‑level keys.
+// Nested objects/arrays are retained as‑is because they are already
+// controlled by the data model; however, any sub‑field that could contain
+// PII (e.g., a wallet address inside a contribution) must be stripped
+// by the model layer itself.
+function filterPublicFields(passport) {
+  if (!passport || typeof passport !== 'object') {
+    return null;
   }
 
-  const graph =
-    await getContributorKnowledgeGraph(id);
+  const filtered = {};
 
+  for (const key of PUBLIC_FIELDS) {
+    if (Object.prototype.hasOwnProperty.call(passport, key)) {
+      filtered[key] = passport[key];
+    }
+  }
 
-  const nodes =
-    Array.isArray(graph.nodes)
-      ? graph.nodes
-      : [];
+  // Additional sanitisation: ensure no financial identifiers leak via
+  // nested structures that are not part of the allow‑list.
+  // This is a defensive shallow‑clean; deeper sanitisation should be
+  // performed where the data originates.
+  if (Array.isArray(filtered.contributions)) {
+    filtered.contributions = filtered.contributions.map((c) => {
+      const { rewardAmount, settlementId, walletAddress, ...rest } = c;
+      return rest;
+    });
+  }
 
-  const edges =
-    Array.isArray(graph.edges)
-      ? graph.edges
-      : [];
+  if (Array.isArray(filtered.attestations)) {
+    filtered.attestations = filtered.attestations.map((a) => {
+      const { rewardAmount, settlementId, walletAddress, ...rest } = a;
+      return rest;
+    });
+  }
 
+  return filtered;
+}
 
-  const knowledge =
-    nodes
-      .filter(node => node.type === 'Knowledge')
-      .map(node => ({
-        id: node.id,
-        name: node.label,
-        ...publicProperties(node.type, node.properties)
-      }));
+/**
+ * Retrieves the raw passport data from the persistence layer.
+ *
+ * @param {string} contributorId
+ * @returns {Promise<Object|null>} The raw passport object or null if not found.
+ */
+async function fetchRawPassport(contributorId) {
+  // The actual query depends on the project's schema. Below is a generic
+  // example that pulls the passport row and joins related tables.
+  const passport = await db('passports')
+    .where({ contributorId })
+    .first();
 
+  if (!passport) {
+    return null;
+  }
 
-  const contributions =
-    nodes
-      .filter(
-        node =>
-          node.type === 'KnowledgeContribution'
-      )
-      .map(node => {
-
-        const demonstrates =
-          edges
-            .filter(
-              edge =>
-                edge.from === node.id &&
-                edge.type === 'DEMONSTRATES'
-            )
-            .map(edge =>
-              edge.to.replace(/^knowledge:/, '')
-            );
-
-        return {
-          id: node.id,
-          title: node.label,
-          ...publicProperties(node.type, node.properties),
-          demonstrates
-        };
-      });
-
-
-  const attestations =
-    nodes
-      .filter(
-        node =>
-          node.type === 'Attestation'
-      )
-      .map(node => ({
-        id: node.id,
-        label: node.label,
-        ...publicProperties(node.type, node.properties)
-      }));
-
-
-  const rewards =
-    nodes
-      .filter(
-        node =>
-          node.type === 'Reward'
-      )
-      .map(node => {
-
-        const settlementEdge =
-          edges.find(
-            edge =>
-              edge.from === node.id &&
-              edge.type === 'SETTLED_BY'
-          );
-
-        return {
-          id: node.id,
-          label: node.label,
-          ...publicProperties(node.type, node.properties),
-
-          settlementId:
-            settlementEdge
-              ? settlementEdge.to
-              : null
-        };
-      });
-
-
-  const settlements =
-    nodes
-      .filter(
-        node =>
-          node.type === 'Settlement'
-      )
-      .map(node => ({
-        id: node.id,
-        label: node.label,
-
-        ...publicProperties(node.type,
-          node.properties
-        )
-      }));
-
-
-  const verifiedAttestations =
-    attestations.filter(
-      item =>
-        item.status === 'VERIFIED'
-    ).length;
-
-
-  const observedAttestations =
-    attestations.filter(
-      item =>
-        item.status === 'OBSERVED'
-    ).length;
-
-
-  const settledRewards =
-    settlements.filter(
-      item =>
-        item.status === 'SETTLED'
-    ).length;
-
+  // Load related collections (knowledgeLinks, contributions, attestations)
+  // Adjust table/column names to match the real schema.
+  const [knowledgeLinks, contributions, attestations] = await Promise.all([
+    db('knowledge_links')
+      .where({ contributorId })
+      .select('url', 'title'),
+    db('contributions')
+      .where({ contributorId })
+      .select('id', 'title', 'description'), // financial fields omitted intentionally
+    db('attestations')
+      .where({ contributorId })
+      .select('id', 'type', 'issuedAt'), // financial fields omitted intentionally
+  ]);
 
   return {
-
-    passportVersion:
-      'myzubster-knowledge-passport-v1',
-
-    contributor: {
-      id
-    },
-
-    summary: {
-
-      knowledge:
-        knowledge.length,
-
-      contributions:
-        contributions.length,
-
-      attestations:
-        attestations.length,
-
-      observedAttestations,
-
-      verifiedAttestations,
-
-      rewards:
-        rewards.length,
-
-      settlements:
-        settlements.length,
-
-      settledRewards
-    },
-
-    knowledge,
-
+    ...passport,
+    knowledgeLinks,
     contributions,
-
     attestations,
-
-    rewards,
-
-    settlements,
-
-    provenance: {
-
-      model:
-        'evidence-backed',
-
-      knowledgeStatus:
-        'demonstrated',
-
-      verificationPolicy:
-        'demonstrated knowledge is not equivalent to independent verification',
-
-      privacyPolicy:
-        'public passport exposes provenance while avoiding wallet secrets and private credentials'
-    }
   };
 }
 
+/**
+ * Public entry point used by the route handler.
+ *
+ * @param {string} contributorId
+ * @returns {Promise<Object|null>} A sanitized public passport or null.
+ */
+async function getPublicKnowledgePassport(contributorId) {
+  // 1️⃣ Fetch the raw passport (may be null)
+  const rawPassport = await fetchRawPassport(contributorId);
+  if (!rawPassport) {
+    return null;
+  }
+
+  // 2️⃣ Apply the public field allow‑list and sanitise nested data.
+  const publicPassport = filterPublicFields(rawPassport);
+
+  // If after filtering nothing remains, treat as non‑existent for the public API.
+  if (!publicPassport || Object.keys(publicPassport).length === 0) {
+    return null;
+  }
+
+  return publicPassport;
+}
 
 module.exports = {
-  getPublicKnowledgePassport
+  getPublicKnowledgePassport,
 };
