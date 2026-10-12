@@ -5,7 +5,7 @@ export const WEBXR_STATUS = Object.freeze({
   ERROR: 'error'
 });
 
-export function browserCapabilityBaseline(browser = globalThis) {
+export function browserCapabilityBaseline(browser = window) {
   return [
     { label: 'JavaScript', ok: true },
     { label: 'Fetch API', ok: typeof browser.fetch === 'function' },
@@ -15,7 +15,7 @@ export function browserCapabilityBaseline(browser = globalThis) {
   ];
 }
 
-export async function detectImmersiveVr(navigatorLike = globalThis.navigator) {
+export async function detectImmersiveVr(navigatorLike = navigator) {
   if (!navigatorLike?.xr?.isSessionSupported) {
     return { status: WEBXR_STATUS.UNSUPPORTED, reason: 'api-unavailable' };
   }
