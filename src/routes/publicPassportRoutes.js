@@ -1,43 +1,18 @@
 const express = require('express');
 
-const {
-  getPublicKnowledgePassport
-} = require('../services/publicPassportService');
-
+// SECURITY: Public knowledge passports must be opt-in. The knowledge graph
+// contains contributor-linked evidence and financial metadata, and no
+// authoritative, persisted publication-consent gate is wired here yet.
+// Fail closed until that gate, field-level consent, and revoke tests exist.
+// Do NOT replace this with an environment flag or an in-memory allowlist.
 const router = express.Router();
 
-
-router.get(
-  '/:contributorId',
-  async (req, res) => {
-
-    try {
-
-      const passport =
-        await getPublicKnowledgePassport(
-          req.params.contributorId
-        );
-
-      return res.json({
-        success: true,
-        passport
-      });
-
-    } catch (error) {
-
-      console.error(
-        '[PublicPassport]',
-        error
-      );
-
-      return res.status(500).json({
-        success: false,
-        error:
-          'Unable to build public knowledge passport'
-      });
-    }
-  }
-);
-
+router.get('/:contributorId', (_req, res) => {
+  res.set('Cache-Control', 'no-store, private');
+  return res.status(404).json({
+    success: false,
+    error: 'Not found'
+  });
+});
 
 module.exports = router;
