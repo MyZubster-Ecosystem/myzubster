@@ -90,7 +90,7 @@ Token #0
 
 The collection contract is:
 
-`contracts/MyZubsterComicNFT.sol`
+`nft-tools/contracts/MyZubsterComicNFT.sol`
 
 It uses:
 

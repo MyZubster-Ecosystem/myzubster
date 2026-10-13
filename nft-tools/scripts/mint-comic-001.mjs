@@ -1,4 +1,4 @@
-const hre = require("hardhat");
+import { network } from "hardhat";
 
 const CONTRACT_ADDRESS = "0x89f20a2697bc2e7746b5FC8dD5229Fb54C00Bb03";
 const METADATA_URI = "ipfs://QmRRQCJ5Lp9mxR3bG5FMZxj15CwSVw5oGRb1BFHs6UUSE3";
@@ -17,15 +17,15 @@ async function retry(fn, attempts = 20, delayMs = 1500) {
 }
 
 async function main() {
-  const [owner] = await hre.ethers.getSigners();
+  const { ethers } = await network.getOrCreate();
+  const [owner] = await ethers.getSigners();
   const recipient = process.env.NFT_RECIPIENT || owner.address;
 
-  console.log("Network:", hre.network.name);
   console.log("Contract:", CONTRACT_ADDRESS);
   console.log("Recipient:", recipient);
   console.log("Metadata:", METADATA_URI);
 
-  const nft = await hre.ethers.getContractAt("MyZubsterComicNFT", CONTRACT_ADDRESS);
+  const nft = await ethers.getContractAt("MyZubsterComicNFT", CONTRACT_ADDRESS);
   const tx = await nft.mintComic(recipient, METADATA_URI);
 
   console.log("Mint transaction:", tx.hash);
