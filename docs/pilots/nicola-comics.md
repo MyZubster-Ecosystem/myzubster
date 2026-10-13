@@ -32,3 +32,18 @@ without exposing local machines, private participant data, secrets, or unsupport
 Related: #1176
 
 Co-authored-by: N4K48 <nicolaususnicola@gmail.com>
+
+
+## Public checkpoint and provenance evidence
+
+The N4K48 pilot now has a public, reviewable evidence branch:
+
+- [Pilot evidence branch](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/tree/pilot/n4k48-tested-checkpoint)
+- [Tested checkpoint `305d89ee6444210d52a1af27cbce54fc844ad51b`](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/commit/305d89ee6444210d52a1af27cbce54fc844ad51b)
+- [Pilot Node evidence](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/blob/pilot/n4k48-tested-checkpoint/pilot-tests/N4K48-PILOT-NODE-EVIDENCE.md)
+- [Comics provenance commit `aeb49554da678b9bc5ba80f25d1f8af06b2b5f25`](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/commit/aeb49554da678b9bc5ba80f25d1f8af06b2b5f25)
+- [`n4k48-comic-001` provenance evidence](https://github.com/nicolaususnicola-lgtm/myzubster-mvp/blob/pilot/n4k48-tested-checkpoint/pilot-tests/N4K48-COMIC-001-PROVENANCE.md)
+
+For the tested checkpoint the published evidence records 54/54 Python tests passing and 7/7 Pilot Node automated checks passing. This supports the classification **locally tested / publicly reviewable evidence** for the local pilot implementation.
+
+The provenance evidence does not change the rights or NFT boundary: `rights_status` remains `TO_VERIFY`; `n4k48-comic-001` remains `NFT_CANDIDATE / PROPOSED_FOR_REVIEW`; no mint, token ID, transaction hash or commercial-rights claim is implied.
