@@ -956,6 +956,28 @@ The automation classifies relevant email input as `NO_ACTION`, `NEEDS_CLARIFICAT
 
 **Current evidence status:** the reusable workflow, templates, evidence schema, shared orchestrator and public-safe registry are implemented. Participant-specific consent, connector authorization, validation evidence and operational decisions remain separate per person. Nicola is the only currently registered participant with confirmed consent and enabled automation; invited candidates remain disabled until explicit opt-in. In this package, **LIFE** identifies an internal MyZubster/Zorgax digital-pilot track; it does not claim EU LIFE funding, approval, partnership or institutional endorsement.
 
+## 👥 Contributor, Passport and Pilot Status
+
+This is a short operational index. It distinguishes **current work**, historical public evidence and proposed participation. The detailed sources are the [Contributor Operations board (#1605)](https://github.com/MyZubster-Ecosystem/myzubster/issues/1605), the [contributor interoperability matrix](docs/contributors/CONTRIBUTOR-INTEROPERABILITY-MATRIX.md) and the linked issues/PRs below.
+
+| Person / project | DAO status | Public Passport | External project / evidence | Current MyZubster role | LIFE status |
+|---|---|---|---|---|---|
+| **Daniel Ioni / MyZubster** | Interim product and governance steward; not a substitute for participant-approved governance | N/A | Core coordination and evidence layer | Coordinates scope, privacy and acceptance decisions | Promoter of candidate cases; **not** an EU LIFE consortium |
+| **Nicola / N4K48** | Opted into the independent-node pilot | Link/publication only with confirmed contributor consent | [N4K48 independent node](https://github.com/nicolaususnicola-lgtm/myzubster-mvp) | Bounded authenticated N4K48 ↔ MyZubster interoperability checkpoint | Potentially connectable technical pilot; **not** a LIFE member |
+| **Wasim** | Opted into the local resilience pilot | Not confirmed as public | Security/onboarding evidence; proposed local Tor/HAProxy work | Local-only resilience design and draft-PR evidence; no deployment or funded work approved | Not a LIFE member |
+| **foxxx009** | No active DAO assignment | Not confirmed as public | Documentation/Marketplace forks and KPI/evidence work | Existing graph-link consent; no new pilot assignment | Not a LIFE member |
+| **khongten124 / Open Period Care** | No DAO role confirmed | Publication/link remains contributor-controlled | [Research/evidence package](docs/pilots/open-period-care/README.md) | Research/evidence contributor; bounded existing evidence only | Candidate research connection; **not** a LIFE member |
+| **Shweta-singh24** | No DAO role confirmed | Not confirmed as public | Public Gateway fork | Invited technical-verifier path; opt-in and shared test still required | Candidate only; **not** a LIFE member |
+| **laurentketterle-hub** | No active role | Not confirmed as public | Historical public contribution record | No new pilot work while earlier reward settlement lacks a verifiable reference | Not a LIFE member |
+
+### Reading the statuses
+
+- **DAO opt-in** is a voluntary, role-specific expression of interest. It does not grant treasury, production, merge or payment authority.
+- **Public Passport** means an explicitly published, consented profile only. A GitHub contribution, graph link or Passport-capable feature does not itself make a profile public.
+- **LIFE status** uses “candidate” only for an internal MyZubster/LIFE-oriented pilot track. It does **not** claim EU LIFE funding, consortium membership, institutional partnership or validation.
+- **Current role** is limited to the exact scope shown. Completed historical work is evidenced by the linked PRs/issues; it is not a continuing assignment.
+- Proposed rewards, reimbursements and bounties are not payments unless a separate record says `RESERVED`, `FUNDED` or `PAID_VERIFIED` with supporting evidence.
+
 ## 🏛️ DAO / governance
 
 MyZubster exposes a public DAO/governance area at [myzubster.com/dao](https://www.myzubster.com/dao).
