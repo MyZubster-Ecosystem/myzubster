@@ -119,21 +119,47 @@ Sanitized payloads are transformed into a compliant candidate record matching th
 
 ---
 
-## 5. Harmless Synthetic Test Walkthrough
+## 4.4 SSRF & Redirect Protection
 
-To verify this flow without contacting external network endpoints or incurring infrastructure spend:
-1. **Fixture creation**: Create a mock paste file `tests/fixtures/synthetic-paste-valid.txt` containing harmless Markdown project notes and a commit reference.
-2. **Scanner execution**: Run the standalone sanitizer script against the fixture.
-3. **Assertion checks**:
-   - Verify SHA-256 checksum matches computed digest.
-   - Verify zero secrets or disallowed links detected.
-   - Verify candidate output adheres to schema and is marked `PENDING_HUMAN_REVIEW`.
-4. **Negative testing**: Run the scanner against `tests/fixtures/synthetic-paste-malicious.txt` (containing dummy fake secret keys and phishing URLs) and verify 100% rejection.
+To prevent Server-Side Request Forgery (SSRF) and DNS rebinding attacks:
+1. **Protocol Constraint**: Strictly enforce `https://`. Reject `http://`, `file://`, `ftp://`, or any other scheme.
+2. **Strict Host Allowlist**: Host must match exactly `pastebin.com`. IP addresses or alternate hostnames are rejected.
+3. **No Redirect Following**: HTTP client configured with `redirect: 'manual'` (`maxRedirects: 0`). Any `301`, `302`, `307`, or `308` redirect triggers immediate rejection (`REJECT_REDIRECT_DISALLOWED`).
+4. **Private IP & DNS Pinning**: Resolution must reject RFC 1918 / loopback / link-local addresses (`127.0.0.0/8`, `10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`, `169.254.0.0/16`, `::1`, `fc00::/7`).
 
 ---
 
-## 6. Resource Impact & Boundaries
+## 5. Reproducible Negative Rejection Test Cases
 
-- **Compute & Storage**: Local Node script execution (< 100ms per paste).
+The test suite must implement and assert the following deterministic rejection cases:
+
+| Test ID | Input Scenario / Vector | Expected Rejection Code | Expected Behavior |
+|---|---|---|---|
+| **NEG-01** | Paste URL attempts HTTP 302 redirect to another domain | `REJECT_REDIRECT_DISALLOWED` | Immediate drop; 0 bytes fetched from redirected host. |
+| **NEG-02** | Payload size exceeds 65,536 bytes | `REJECT_PAYLOAD_TOO_LARGE` | Stream terminated; payload purged from memory. |
+| **NEG-03** | Contains fake private key (`BEGIN RSA PRIVATE KEY`) | `REJECT_SECRET_DETECTED` | Ingestion aborted; audit log records pattern match without printing secret. |
+| **NEG-04** | Contains BIP-39 12-word seed phrase format | `REJECT_SEED_DETECTED` | Ingestion aborted; rejected cleanly. |
+| **NEG-05** | Contains Bitcoin or Ethereum crypto payment addresses | `REJECT_UNAUTHORIZED_CRYPTO_ADDRESS` | Ingestion aborted; protects against exploit/scam links. |
+| **NEG-06** | Contains external URLs outside `github.com/MyZubster-Ecosystem/*` | `REJECT_DISALLOWED_LINK` | Ingestion aborted. |
+| **NEG-07** | Paste not declared in `data/pastebin_allowlist.json` | `REJECT_NOT_IN_ALLOWLIST` | Request refused prior to any network I/O. |
+| **NEG-08** | Declared GitHub user has no matching commit or signed issue | `REJECT_PROVENANCE_UNVERIFIED` | Ingestion aborted or marked unlinked. |
+
+---
+
+## 6. Formal Acceptance Criteria
+
+- [ ] **Read-Only Ingestion**: Script uses standard GET requests with zero state mutation on external services.
+- [ ] **SSRF & Redirect Defense**: Redirects (`3xx`) and non-allowlisted hosts are blocked with `REJECT_REDIRECT_DISALLOWED`.
+- [ ] **Payload Sanitization**: 100% of negative test fixtures (NEG-01 through NEG-08) fail closed and produce reproducible rejection codes.
+- [ ] **Candidate Conformity**: Valid synthetic paste produces a JSON candidate conforming to `myzubster.knowledge.evidence.v1` with `reviewStatus: "PENDING_HUMAN_REVIEW"`.
+- [ ] **Zero Automatic Promotion**: Candidates cannot be published to the Knowledge Graph or Contributor Passport without manual maintainer review.
+- [ ] **Zero Financial Cost**: Test execution runs entirely on local mock fixtures without VPS or third-party paid API requirements ($0.00).
+
+---
+
+## 7. Resource Impact & Boundaries
+
+- **Compute & Storage**: Local Node script execution (< 100ms per paste, < 1 MB memory).
 - **Financial Cost**: **$0.00**. No paid API tokens, VPS hosting, cloud buckets, or third-party gateways required.
 - **Governance Gate**: Does not confer contributor status, KYC, bounty payout, or DAO voting power.
+
