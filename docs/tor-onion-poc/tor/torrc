@@ -1,0 +1,7 @@
+DataDirectory /var/lib/tor
+HiddenServiceDir /var/lib/tor/hidden_service
+HiddenServicePort 80 haproxy:80
+HiddenServiceVersion 3
+SOCKSPort 0.0.0.0:9050
+Log notice stdout
+Log notice file /var/lib/tor/notices.log
