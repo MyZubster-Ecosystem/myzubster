@@ -1,0 +1,80 @@
+{
+  "schema": "myzubster.node.interop-verification.v1",
+  "testType": "INDEPENDENT_READ_ONLY_NODE_VERIFICATION",
+  "target": "https://bridge.myzubster.com/open-period-care",
+  "verifier": {
+    "implementation": "myzubster-opc-independent-verifier",
+    "version": "1.0.0",
+    "runtime": "v24.21.0",
+    "containerized": true
+  },
+  "remote": {
+    "nodeId": "open-period-care",
+    "serviceVersion": "0.9.0",
+    "manifestSha256": "a173b0c4253643b68f692fb35b0cf49ee60f41c9c4d741de389fc26ecc52c43d"
+  },
+  "result": "PASS",
+  "checks": [
+    {
+      "name": "service mode",
+      "passed": true,
+      "expected": "read-only",
+      "actual": "read-only"
+    },
+    {
+      "name": "manifest SHA-256",
+      "passed": true,
+      "expected": "a173b0c4253643b68f692fb35b0cf49ee60f41c9c4d741de389fc26ecc52c43d",
+      "actual": "a173b0c4253643b68f692fb35b0cf49ee60f41c9c4d741de389fc26ecc52c43d"
+    },
+    {
+      "name": "KC-OPC-001 card SHA-256",
+      "passed": true,
+      "expected": "360b98cce04f34f56f479dd51122c8e46abeacb1b467ff602cb5d7c51dc213b0",
+      "actual": "360b98cce04f34f56f479dd51122c8e46abeacb1b467ff602cb5d7c51dc213b0"
+    },
+    {
+      "name": "KC-OPC-001 payload internal SHA-256",
+      "passed": true,
+      "expected": "73d864cd49295408859f197bba7f170b3722a978909a27e90a82d04683eb3d85",
+      "actual": "73d864cd49295408859f197bba7f170b3722a978909a27e90a82d04683eb3d85"
+    },
+    {
+      "name": "KC-OPC-001 payload vs manifest",
+      "passed": true,
+      "expected": "73d864cd49295408859f197bba7f170b3722a978909a27e90a82d04683eb3d85",
+      "actual": "73d864cd49295408859f197bba7f170b3722a978909a27e90a82d04683eb3d85"
+    },
+    {
+      "name": "KC-OPC-001 evidence state",
+      "passed": true,
+      "expected": "SUPPORTED",
+      "actual": "SUPPORTED"
+    },
+    {
+      "name": "KC-OPC-002 card SHA-256",
+      "passed": true,
+      "expected": "6a3c346501205328a00f4aa3f5d01e8dc3753d4001a7c7869f58556c22b47e47",
+      "actual": "6a3c346501205328a00f4aa3f5d01e8dc3753d4001a7c7869f58556c22b47e47"
+    },
+    {
+      "name": "KC-OPC-002 payload internal SHA-256",
+      "passed": true,
+      "expected": "a576fc507109a2db4507d8abdafbce6dac151bb5b57cebccba8a331dcf1f5ae7",
+      "actual": "a576fc507109a2db4507d8abdafbce6dac151bb5b57cebccba8a331dcf1f5ae7"
+    },
+    {
+      "name": "KC-OPC-002 payload vs manifest",
+      "passed": true,
+      "expected": "a576fc507109a2db4507d8abdafbce6dac151bb5b57cebccba8a331dcf1f5ae7",
+      "actual": "a576fc507109a2db4507d8abdafbce6dac151bb5b57cebccba8a331dcf1f5ae7"
+    },
+    {
+      "name": "KC-OPC-002 evidence state",
+      "passed": true,
+      "expected": "SUPPORTED",
+      "actual": "SUPPORTED"
+    }
+  ],
+  "testedAt": "2026-10-05T10:30:00.863Z"
+}
