@@ -226,6 +226,13 @@ Its evidence semantics are intentionally limited:
 
 `TESTED` is a technical checkpoint only. It is not a security certification, penetration-test result, regulatory approval, employment credential or third-party endorsement.
 
+The corresponding public MyZubster Knowledge Card, published by the authenticated account owner, is:
+
+- [VPS & Infrastructure Operations — MyZubster Knowledge Card](https://www.myzubster.com/knowledge-card?id=6ac63a4602d4e4d509ee0be5)
+
+Publication makes the evidence-backed knowledge record publicly inspectable; it does not convert the record into a professional certification.
+
+
 ## Core principle
 
 ```text
