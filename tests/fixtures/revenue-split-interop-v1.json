@@ -1,0 +1,55 @@
+{
+  "schema": "myzubster.revenue-split.interop.v1",
+  "source_pr": 1550,
+  "source_issue": 1557,
+  "calculator_commit": "11bdbf58b708cdc5f423fd9a4ebaf63dabfa651d",
+  "vectors": [
+    {
+      "id": "EUR-ROUNDING-2.345",
+      "input": {
+        "gross_amount": "2.345",
+        "currency": "EUR",
+        "platform_fee_percent": "10",
+        "treasury_share_percent": "50"
+      },
+      "expected": {
+        "gross_amount": "2.34",
+        "creator_amount": "2.11",
+        "myzubster_gross_fee": "0.23",
+        "treasury_allocation": "0.12",
+        "myzubster_project_revenue": "0.11",
+        "rounding_delta": "0.00",
+        "settlement_executed": false
+      }
+    },
+    {
+      "id": "EUR-STANDARD-100",
+      "input": {
+        "gross_amount": "100.00",
+        "currency": "EUR",
+        "platform_fee_percent": "10",
+        "treasury_share_percent": "50"
+      },
+      "expected": {
+        "gross_amount": "100.00",
+        "creator_amount": "90.00",
+        "myzubster_gross_fee": "10.00",
+        "treasury_allocation": "5.00",
+        "myzubster_project_revenue": "5.00",
+        "rounding_delta": "0.00",
+        "settlement_executed": false
+      }
+    },
+    {
+      "id": "ETH-HIGH-PRECISION",
+      "input": {
+        "gross_amount": "1.543210",
+        "currency": "ETH",
+        "platform_fee_percent": "5",
+        "treasury_share_percent": "50"
+      },
+      "expected_invariant": "creator_amount + treasury_allocation + myzubster_project_revenue == gross_amount",
+      "expected_settlement_executed": false
+    }
+  ]
+}
