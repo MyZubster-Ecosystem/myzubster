@@ -1,0 +1,145 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://myzubster.com/schemas/project-territory-link.v1.schema.json",
+  "title": "MyZubster Project-Territory Link v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "sourceProject",
+    "sourceTerritory",
+    "targetProject",
+    "targetTerritory",
+    "relationship",
+    "participants",
+    "evidence",
+    "status",
+    "consent"
+  ],
+  "properties": {
+    "schema": {
+      "const": "myzubster.project-territory-link.v1"
+    },
+    "sourceProject": {
+      "$ref": "#/$defs/project"
+    },
+    "sourceTerritory": {
+      "$ref": "#/$defs/territory"
+    },
+    "targetProject": {
+      "$ref": "#/$defs/project"
+    },
+    "targetTerritory": {
+      "$ref": "#/$defs/territory"
+    },
+    "relationship": {
+      "enum": [
+        "interoperates_with",
+        "reuses_knowledge_from",
+        "tested_with",
+        "exchanges_data_with",
+        "shares_method_with",
+        "pilot_linked_to"
+      ]
+    },
+    "participants": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["publicHandle", "role"],
+        "properties": {
+          "publicHandle": { "type": "string", "minLength": 1 },
+          "role": { "type": "string", "minLength": 1 },
+          "passportRef": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["type", "reference"],
+        "properties": {
+          "type": {
+            "enum": [
+              "ISSUE",
+              "PULL_REQUEST",
+              "COMMIT",
+              "TEST_LOG",
+              "DATASET",
+              "EXTERNAL_PUBLIC_RECORD"
+            ]
+          },
+          "reference": { "type": "string", "minLength": 1 },
+          "commitSha": {
+            "type": ["string", "null"],
+            "pattern": "^[0-9a-f]{7,40}$"
+          },
+          "notes": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "status": {
+      "enum": ["PROPOSED", "ACTIVE", "TESTED", "VERIFIED"]
+    },
+    "consent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sourceSide", "targetSide"],
+      "properties": {
+        "sourceSide": { "enum": ["PENDING", "OPTED_IN"] },
+        "targetSide": { "enum": ["PENDING", "OPTED_IN"] }
+      }
+    },
+    "test": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["administrator", "environment", "command", "result"],
+      "properties": {
+        "administrator": { "type": "string", "minLength": 1 },
+        "environment": { "type": "string", "minLength": 1 },
+        "command": { "type": "string", "minLength": 1 },
+        "result": { "enum": ["PASS", "FAIL"] },
+        "evidenceRef": { "type": ["string", "null"] }
+      }
+    },
+    "claimsBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "legalPartnership": { "const": "NOT_INFERRED" },
+        "employment": { "const": "NOT_INFERRED" },
+        "paymentObligation": { "const": "NOT_INFERRED" },
+        "ownershipTransfer": { "const": "NOT_INFERRED" },
+        "residencyOrNationality": { "const": "NOT_INFERRED" }
+      }
+    }
+  },
+  "$defs": {
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "ownerOrAdmin"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 },
+        "repositoryOrUrl": { "type": ["string", "null"] },
+        "ownerOrAdmin": { "type": "string", "minLength": 1 }
+      }
+    },
+    "territory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["countryOrRegion", "disclosureBasis"],
+      "properties": {
+        "countryOrRegion": { "type": "string", "minLength": 1 },
+        "cityOrArea": { "type": ["string", "null"] },
+        "disclosureBasis": {
+          "enum": ["PARTICIPANT_PUBLIC_OPT_IN"]
+        }
+      }
+    }
+  }
+}
