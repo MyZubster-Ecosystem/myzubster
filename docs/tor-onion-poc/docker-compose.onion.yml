@@ -1,0 +1,64 @@
+services:
+  tor:
+    build:
+      context: ./tor
+      dockerfile: Dockerfile
+    container_name: myz_tor
+    restart: unless-stopped
+    volumes:
+      - tor_keys:/var/lib/tor/hidden_service
+      - ./tor/torrc:/etc/tor/torrc:ro
+    networks:
+      - myz_onion_net
+    healthcheck:
+      test: ["CMD-SHELL", "[ -s /var/lib/tor/hidden_service/hostname ] && grep -q 'Bootstrapped 100%' /var/lib/tor/notices.log"]
+      interval: 5s
+      timeout: 3s
+      retries: 25
+      start_period: 10s
+    depends_on:
+      haproxy:
+        condition: service_healthy
+
+  haproxy:
+    build:
+      context: ./haproxy
+      dockerfile: Dockerfile
+    container_name: myz_haproxy
+    restart: unless-stopped
+    volumes:
+      - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    networks:
+      - myz_onion_net
+    healthcheck:
+      test: ["CMD-SHELL", "haproxy -c -f /usr/local/etc/haproxy/haproxy.cfg"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 3s
+    depends_on:
+      upstream:
+        condition: service_healthy
+
+  upstream:
+    build:
+      context: ./upstream
+      dockerfile: Dockerfile
+    container_name: myz_upstream
+    restart: unless-stopped
+    networks:
+      - myz_onion_net
+    healthcheck:
+      test: ["CMD-SHELL", "python3 -c 'import urllib.request, sys; sys.exit(0 if urllib.request.urlopen(\"http://127.0.0.1:8080/healthz\").getcode() == 200 else 1)'"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 2s
+
+networks:
+  myz_onion_net:
+    driver: bridge
+
+volumes:
+  tor_keys:
+    driver: local
