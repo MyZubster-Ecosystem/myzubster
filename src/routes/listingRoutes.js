@@ -7,6 +7,8 @@ const SellerMembership = require('../models/SellerMembership');
 const MarketplaceCategoryProposal = require('../models/MarketplaceCategoryProposal');
 const { authenticate, isAdmin } = require('../middleware/auth');
 const { freeSellerPlan, canPublishCommercialListing } = require('../services/freeSellerPolicy');
+const { captureSellerEvent } = require('../services/sellerFunnelCapture');
+const { enqueuePublishedListing } = require('../services/sellerFunnelOutbox');
 
 const ALLOWED_CURRENCIES = new Set(['EUR', 'ETH', 'BTC', 'XMR', 'MYZ', 'TARI', 'BARTER', 'FREE']);
 const ALLOWED_CATEGORIES = new Set(['health_products','electronics','kefir_culture_donation','seeds','plants','produce','clothing','accessories','event_equipment','tools','services','development_services','event_support','agriculture_support','art','arts','wellness','knowledge','help_request','university_course','thesis_project','research_project','internship','volunteering','pet_adoption','pet_lost_found','pet_services']);
@@ -106,6 +108,21 @@ router.post('/create',authenticate,async(req,res)=>{try{
  if([description,JSON.stringify(contact||{})].some(containsPrivateKeyMaterial))return res.status(400).json({error:'Non pubblicare seed phrase o chiavi private.'});
  const listingData={ownerId:req.userId,ownerUsername:req.username||'',title:String(title).trim(),category,price:['FREE','BARTER'].includes(normalizedCurrency)?0:Number(price),currency:normalizedCurrency,exchangeMode:exchangeMode||(normalizedCurrency==='FREE'?'gift':normalizedCurrency==='BARTER'?'barter':'payment'),description:String(description||'').trim(),location:String(location||'').trim(),species:String(species||'').trim(),variety:String(variety||'').trim(),features:Array.isArray(features)?features.slice(0,20):[],contact:contact||{},pet:category.startsWith('pet_')?{name:String(pet?.name||'').trim(),species:String(pet?.species||'').trim(),age:String(pet?.age||'').trim(),adoptionOnly:category==='pet_adoption'}:null,kefir:category==='kefir_culture_donation'?{type:kefir.type,cultureAge:String(kefir.cultureAge||'').trim().slice(0,120),handlingNotes:String(kefir.handlingNotes||'').trim().slice(0,500),safetyAcknowledged:true,donationOnly:normalizedCurrency==='FREE'}:null,stock:Math.max(1,Number(stock)||1)};
  const listing=communityExchange?await MarketplaceListing.create(listingData):await createCommercialListingTransaction(req.userId,listingData);
+ // A new persisted listing is active by default. Capture is optional and must not block response.
+ // Not exactly-once: an outbox is needed before treating analytics as accounting evidence.
+ if(listing.status==='active') {
+  const sellerPlan=communityExchange?'COMMUNITY':'SELLER';
+  if(process.env.SELLER_FUNNEL_OUTBOX_ENABLED==='true') {
+   // Persist a retryable event. A queue write failure must not undo a published listing.
+   try { await enqueuePublishedListing({listing,userId:req.userId,plan:sellerPlan}); }
+   catch (_queueError) { console.warn('[seller-funnel] outbox enqueue failed'); }
+  } else {
+   // Legacy best-effort capture is opt-in via PostHog environment configuration.
+   void captureSellerEvent('marketplace_listing_published',req.userId,{
+    seller_plan:sellerPlan,listing_category:category,currency:normalizedCurrency,source:'api'
+   },{listingId:String(listing._id)}).catch(()=>{});
+  }
+ }
  res.status(201).json({success:true,listing:{...listing.toObject(),id:String(listing._id)}});
 }catch(error){
  if(error.code==='FREE_SELLER_ACTIVE_LISTING_LIMIT'){const decision=error.decision||{};return res.status(409).json({success:false,code:error.code,message:`Hai raggiunto il limite di ${decision.limit||freeSellerPlan().activeListingLimit} annunci commerciali attivi del piano Seller Free. Metti in pausa o chiudi un annuncio prima di pubblicarne un altro.`,sellerPlan:freeSellerPlan(),activeCommercialListings:decision.activeCommercialListings,paymentRequired:false,automaticCharge:false});}
