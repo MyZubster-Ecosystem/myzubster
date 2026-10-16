@@ -1,5 +1,5 @@
 'use strict';
-const { captureSellerEvent } = require('../src/services/sellerFunnelCapture');
+const { captureSellerEvent, publicationInsertId } = require('../src/services/sellerFunnelCapture');
 const baseEnv = {
   POSTHOG_PROJECT_API_KEY: 'test-public-project-key',
   SELLER_FUNNEL_PSEUDONYM_SECRET: 'testing-secret-that-is-longer-than-32-characters',
@@ -31,13 +31,20 @@ describe('seller PostHog capture', () => {
   });
   test('sends only pseudonymous allowlisted event fields to approved host', async () => {
     const recorded = {};
-    const result = await captureSellerEvent('marketplace_listing_published', 'user-1', { seller_plan:'SELLER', listing_category:'services', currency:'EUR', source:'api' }, { env:baseEnv, transport:fakeTransport(200,recorded) });
+    const result = await captureSellerEvent('marketplace_listing_published', 'user-1', { seller_plan:'SELLER', listing_category:'services', currency:'EUR', source:'api' }, { env:baseEnv, transport:fakeTransport(200,recorded), listingId:'507f1f77bcf86cd799439011' });
     expect(result).toEqual({ delivered:true });
     expect(recorded.options.hostname).toBe('eu.i.posthog.com');
     expect(recorded.data.event).toBe('marketplace_listing_published');
     expect(recorded.data.distinct_id).not.toContain('user-1');
     expect(recorded.data.properties.environment).toBe('staging');
+    expect(recorded.data.properties.$insert_id).toBe(publicationInsertId('marketplace_listing_published','507f1f77bcf86cd799439011'));
     expect(recorded.data.properties).not.toHaveProperty('email');
+  });
+  test('same listing retry gets same insert ID, distinct listing gets different ID', () => {
+    const a = publicationInsertId('marketplace_listing_published','507f1f77bcf86cd799439011');
+    expect(a).toBe(publicationInsertId('marketplace_listing_published','507f1f77bcf86cd799439011'));
+    expect(a).not.toBe(publicationInsertId('marketplace_listing_published','507f1f77bcf86cd799439012'));
+    expect(() => publicationInsertId('marketplace_listing_published','not-an-id')).toThrow();
   });
   test('invalid free-text fields never reach transport', async () => {
     const recorded = {};
