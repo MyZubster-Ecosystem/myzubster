@@ -112,7 +112,7 @@ router.post('/create',authenticate,async(req,res)=>{try{
  if(listing.status==='active')void captureSellerEvent('marketplace_listing_published',req.userId,{
   seller_plan:communityExchange?'COMMUNITY': 'SELLER',
   listing_category:category,currency:normalizedCurrency,source:'api'
- }).catch(()=>{});
+ },{listingId:String(listing._id)}).catch(()=>{});
  res.status(201).json({success:true,listing:{...listing.toObject(),id:String(listing._id)}});
 }catch(error){
  if(error.code==='FREE_SELLER_ACTIVE_LISTING_LIMIT'){const decision=error.decision||{};return res.status(409).json({success:false,code:error.code,message:`Hai raggiunto il limite di ${decision.limit||freeSellerPlan().activeListingLimit} annunci commerciali attivi del piano Seller Free. Metti in pausa o chiudi un annuncio prima di pubblicarne un altro.`,sellerPlan:freeSellerPlan(),activeCommercialListings:decision.activeCommercialListings,paymentRequired:false,automaticCharge:false});}
