@@ -9,8 +9,9 @@ const schema = new mongoose.Schema({
   category: { type:String, required:true },
   currency: { type:String, required:true },
   plan: { type:String, required:true },
-  state: { type:String, enum:['pending','delivered'], default:'pending', index:true },
+  state: { type:String, enum:['pending','processing','delivered'], default:'pending', index:true },
   attempts: { type:Number, default:0 },
+  leaseUntil: { type:Date, default:null },
   nextAttemptAt: { type:Date, default:Date.now, index:true },
   deliveredAt: { type:Date, default:null }
 }, {timestamps:true});
