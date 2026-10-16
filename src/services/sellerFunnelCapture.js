@@ -2,9 +2,15 @@
 // MYZ-1615: optional best-effort PostHog capture, disabled unless explicitly configured.
 // Delivery is not durable; a DB-backed outbox is required for exactly-once reporting.
 const https = require('https');
+const crypto = require('crypto');
 const { buildSellerEvent } = require('./sellerFunnelEvents');
 
-function captureSellerEvent(event, userId, properties = {}, { env = process.env, transport = https } = {}) {
+function publicationInsertId(event, listingId) {
+  if (event !== 'marketplace_listing_published' || !/^[a-f0-9]{24}$/i.test(String(listingId || ''))) throw new Error('Valid persisted listing ID required');
+  return crypto.createHash('sha256').update('myz:v1:' + event + ':' + String(listingId)).digest('hex');
+}
+
+function captureSellerEvent(event, userId, properties = {}, { env = process.env, transport = https, listingId } = {}) {
   const key = env.POSTHOG_PROJECT_API_KEY;
   const secret = env.SELLER_FUNNEL_PSEUDONYM_SECRET;
   const host = env.POSTHOG_CAPTURE_HOST;
@@ -20,6 +26,12 @@ function captureSellerEvent(event, userId, properties = {}, { env = process.env,
   try {
     payload = buildSellerEvent({ event, userId, secret, properties: { ...properties, environment: env.SELLER_FUNNEL_ENV || 'staging' } });
   } catch (_e) { return Promise.resolve({ skipped: true }); }
+  // PostHog can deduplicate repeated delivery of this publication event via $insert_id.
+  // This is not a durable outbox or an exactly-once guarantee.
+  if (event === 'marketplace_listing_published') {
+    try { payload.properties.$insert_id = publicationInsertId(event, listingId); }
+    catch (_e) { return Promise.resolve({ skipped: true }); }
+  }
   const data = JSON.stringify({ api_key: key, ...payload });
   return new Promise(resolve => {
     const request = transport.request({
@@ -35,4 +47,4 @@ function captureSellerEvent(event, userId, properties = {}, { env = process.env,
   });
 }
 
-module.exports = { captureSellerEvent };
+module.exports = { captureSellerEvent, publicationInsertId };
