@@ -19,9 +19,18 @@ async function enqueuePublishedListing({ listing, userId, plan }) {
 
 async function drainSellerFunnelOutbox({ limit = 20, now = new Date(), capture = captureSellerEvent } = {}) {
   const safeLimit = Math.max(1,Math.min(100,Number(limit)||20));
-  const pending = await SellerFunnelOutbox.find({ state:'pending', nextAttemptAt:{$lte:now} }).sort({createdAt:1}).limit(safeLimit).lean();
   const summary = { attempted:0, delivered:0, deferred:0 };
-  for (const entry of pending) {
+  for (let i=0; i<safeLimit; i++) {
+    // Claim one event atomically; expired leases can be reclaimed by another worker.
+    const entry = await SellerFunnelOutbox.findOneAndUpdate(
+      { $or:[
+        { state:'pending', nextAttemptAt:{$lte:now} },
+        { state:'processing', leaseUntil:{$lte:now} }
+      ]},
+      { $set:{state:'processing',leaseUntil:new Date(now.getTime()+60000)} },
+      {new:true,sort:{createdAt:1}}
+    ).lean();
+    if (!entry) break;
     summary.attempted++;
     let result;
     try {
@@ -30,13 +39,14 @@ async function drainSellerFunnelOutbox({ limit = 20, now = new Date(), capture =
       },{ listingId:String(entry.listingId) });
     } catch (_error) { result = {delivered:false}; }
     if (result?.delivered) {
-      await SellerFunnelOutbox.updateOne({_id:entry._id,state:'pending'},{$set:{state:'delivered',deliveredAt:new Date()}});
+      await SellerFunnelOutbox.updateOne({_id:entry._id,state:'processing',leaseUntil:entry.leaseUntil},
+        {$set:{state:'delivered',deliveredAt:new Date()},$unset:{leaseUntil:1}});
       summary.delivered++;
     } else {
-      // Exponential backoff with cap; skipped configuration remains pending.
       const attempts = (entry.attempts||0)+1;
       const delay = Math.min(3600,Math.pow(2,Math.min(attempts,10))*15);
-      await SellerFunnelOutbox.updateOne({_id:entry._id,state:'pending'},{$set:{nextAttemptAt:new Date(now.getTime()+delay*1000)},$inc:{attempts:1}});
+      await SellerFunnelOutbox.updateOne({_id:entry._id,state:'processing',leaseUntil:entry.leaseUntil},
+        {$set:{state:'pending',nextAttemptAt:new Date(now.getTime()+delay*1000)},$unset:{leaseUntil:1},$inc:{attempts:1}});
       summary.deferred++;
     }
   }
