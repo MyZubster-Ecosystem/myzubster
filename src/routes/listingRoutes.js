@@ -8,6 +8,7 @@ const MarketplaceCategoryProposal = require('../models/MarketplaceCategoryPropos
 const { authenticate, isAdmin } = require('../middleware/auth');
 const { freeSellerPlan, canPublishCommercialListing } = require('../services/freeSellerPolicy');
 const { captureSellerEvent } = require('../services/sellerFunnelCapture');
+const { enqueuePublishedListing } = require('../services/sellerFunnelOutbox');
 
 const ALLOWED_CURRENCIES = new Set(['EUR', 'ETH', 'BTC', 'XMR', 'MYZ', 'TARI', 'BARTER', 'FREE']);
 const ALLOWED_CATEGORIES = new Set(['health_products','electronics','kefir_culture_donation','seeds','plants','produce','clothing','accessories','event_equipment','tools','services','development_services','event_support','agriculture_support','art','arts','wellness','knowledge','help_request','university_course','thesis_project','research_project','internship','volunteering','pet_adoption','pet_lost_found','pet_services']);
@@ -109,10 +110,19 @@ router.post('/create',authenticate,async(req,res)=>{try{
  const listing=communityExchange?await MarketplaceListing.create(listingData):await createCommercialListingTransaction(req.userId,listingData);
  // A new persisted listing is active by default. Capture is optional and must not block response.
  // Not exactly-once: an outbox is needed before treating analytics as accounting evidence.
- if(listing.status==='active')void captureSellerEvent('marketplace_listing_published',req.userId,{
-  seller_plan:communityExchange?'COMMUNITY': 'SELLER',
-  listing_category:category,currency:normalizedCurrency,source:'api'
- },{listingId:String(listing._id)}).catch(()=>{});
+ if(listing.status==='active') {
+  const sellerPlan=communityExchange?'COMMUNITY':'SELLER';
+  if(process.env.SELLER_FUNNEL_OUTBOX_ENABLED==='true') {
+   // Persist a retryable event. A queue write failure must not undo a published listing.
+   try { await enqueuePublishedListing({listing,userId:req.userId,plan:sellerPlan}); }
+   catch (_queueError) { console.warn('[seller-funnel] outbox enqueue failed'); }
+  } else {
+   // Legacy best-effort capture is opt-in via PostHog environment configuration.
+   void captureSellerEvent('marketplace_listing_published',req.userId,{
+    seller_plan:sellerPlan,listing_category:category,currency:normalizedCurrency,source:'api'
+   },{listingId:String(listing._id)}).catch(()=>{});
+  }
+ }
  res.status(201).json({success:true,listing:{...listing.toObject(),id:String(listing._id)}});
 }catch(error){
  if(error.code==='FREE_SELLER_ACTIVE_LISTING_LIMIT'){const decision=error.decision||{};return res.status(409).json({success:false,code:error.code,message:`Hai raggiunto il limite di ${decision.limit||freeSellerPlan().activeListingLimit} annunci commerciali attivi del piano Seller Free. Metti in pausa o chiudi un annuncio prima di pubblicarne un altro.`,sellerPlan:freeSellerPlan(),activeCommercialListings:decision.activeCommercialListings,paymentRequired:false,automaticCharge:false});}
