@@ -30,3 +30,5 @@ Do not start before consent, scope agreement and review of the deployed broker c
 The response envelope retains id, lease_id and result, and endpoints remain /node/next and /node/result. The deployed broker still needs compatibility checks for four titles, generic job errors, lease expiry/reassignment and stale-result rejection. Result transport failure is not blindly retried. Offline success does not prove authenticated VPS–PC interoperability.
 
 Nicola should verify the new file hash and repeat offline tests before any authenticated session. Record the exact agent and local catalogue commits, expected/actual responses and sanitized timing/correlation evidence. No code here provisions credentials or alters the VPS.
+
+For formal audit matrices and independent verification criteria, see [INDEPENDENT_INTEROP_CHECKLIST.md](./INDEPENDENT_INTEROP_CHECKLIST.md).
