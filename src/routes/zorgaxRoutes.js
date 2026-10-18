@@ -383,6 +383,26 @@ router.delete('/memory/:id', async (req, res) => {
 
 router.post('/chat', async (req, res) => {
   try {
+    const gatewaySecret = process.env.ZORGAX_GATEWAY_SECRET;
+    if (gatewaySecret) {
+      const provided = req.get('x-zorgax-gateway-secret') || req.get('x-zorgax-internal-key');
+      const isLoopback = req.ip === '127.0.0.1' || req.ip === '::1' || req.ip === '::ffff:127.0.0.1';
+      if (!provided && !isLoopback) {
+        return res.status(401).json({
+          ok: false,
+          entity: 'ZORGAX-001',
+          error: 'Accesso non autorizzato: chiave gateway richiesta'
+        });
+      }
+      if (provided && provided !== gatewaySecret) {
+        return res.status(403).json({
+          ok: false,
+          entity: 'ZORGAX-001',
+          error: 'Accesso non autorizzato: chiave gateway non valida'
+        });
+      }
+    }
+
     const {
       message,
       prompt,
@@ -429,11 +449,22 @@ router.post('/chat', async (req, res) => {
     if (research.context) messages.push({ role: 'system', content: research.context });
     messages.push({ role: 'user', content: userMessage.trim() });
 
-    const response = await fetch(`${OLLAMA_URL}/api/chat`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model: OLLAMA_MODEL, stream: false, messages })
-    });
+    let response;
+    try {
+      response = await fetch(`${OLLAMA_URL}/api/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: OLLAMA_MODEL, stream: false, messages }),
+        signal: AbortSignal.timeout(Number(process.env.OLLAMA_TIMEOUT_MS) || 30000)
+      });
+    } catch (fetchErr) {
+      return res.status(503).json({
+        ok: false,
+        entity: 'ZORGAX-001',
+        code: 'OLLAMA_UNAVAILABLE',
+        error: `Inference engine non raggiungibile: ${fetchErr.message}`
+      });
+    }
 
     const data = await response.json();
     if (!response.ok) {

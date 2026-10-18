@@ -330,7 +330,18 @@ router.post('/chat', optionalAuthenticate, loadZorgaxAccess, async (req, res) =>
     });
     res.json({ ok: true, entity: 'ZORGAX-001', ...result, external_sources: result.sources, access: publicAccess(req.zorgaxAccess), featureAccess: policy, accessNotice });
   }
-  catch (error) { res.status(502).json({ ok: false, error: error.message }); }
+  catch (error) {
+    const isUpstreamUnavailable = /fetch failed|ECONNREFUSED|ETIMEDOUT|AI upstream|Inference engine|OLLAMA_UNAVAILABLE|AbortError/i.test(error.message);
+    const statusCode = isUpstreamUnavailable ? 503 : 502;
+    const userMessage = isUpstreamUnavailable
+      ? 'Il motore di intelligenza artificiale locale è temporaneamente non raggiungibile. Riprova tra qualche istante.'
+      : (error.message || 'Errore elaborazione assistente');
+    res.status(statusCode).json({
+      ok: false,
+      code: isUpstreamUnavailable ? 'AI_UPSTREAM_UNAVAILABLE' : 'ASSISTANT_ERROR',
+      error: userMessage
+    });
+  }
 });
 
 router.get('/research', authenticate, requireZorgaxPlan('developer'), async (req, res) => {
