@@ -54,6 +54,7 @@ tmp/
 temp/
 *.tmp
 .cache/
+data/uploads/
 
 # Coverage
 coverage/
