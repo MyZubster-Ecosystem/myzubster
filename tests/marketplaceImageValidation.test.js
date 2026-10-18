@@ -228,9 +228,29 @@ describe('Marketplace Photo Upload & Route Integration Tests', () => {
       expect(res.status).toBe(201);
       expect(res.body.success).toBe(true);
       expect(res.body.image).toBeDefined();
-      expect(res.body.image.url).toMatch(/^https:\/\//);
+      expect(res.body.image.url).toMatch(/^https?:\/\//);
       expect(res.body.image.format).toBe('jpeg');
       expect(res.body.image.mimeType).toBe('image/jpeg');
+    });
+
+    test('returns 503 STORAGE_CONFIGURATION_ERROR in production when Blob token is missing', async () => {
+      const prevEnv = process.env.NODE_ENV;
+      const prevToken = process.env.BLOB_READ_WRITE_TOKEN;
+      try {
+        process.env.NODE_ENV = 'production';
+        delete process.env.BLOB_READ_WRITE_TOKEN;
+
+        const res = await request(app)
+          .post('/api/listings/images/upload')
+          .set('Authorization', `Bearer ${tokenFor(sellerUser)}`)
+          .set('Content-Type', 'image/jpeg')
+          .send(SYNTHETIC_JPEG);
+        expect(res.status).toBe(503);
+        expect(res.body.code).toBe('STORAGE_CONFIGURATION_ERROR');
+      } finally {
+        process.env.NODE_ENV = prevEnv;
+        if (prevToken) process.env.BLOB_READ_WRITE_TOKEN = prevToken;
+      }
     });
 
     test('allows active sellers to upload valid PNG', async () => {

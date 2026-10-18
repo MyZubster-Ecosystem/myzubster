@@ -159,6 +159,17 @@ router.post('/images/upload', authenticate, express.raw({ type: ['image/jpeg', '
       );
       imageUrl = blob.url;
     } else {
+      // In production serverless environments, local filesystem is ephemeral.
+      // If Blob storage credentials are missing in production, fail fast with 503 instead of creating broken ephemeral links.
+      if (process.env.NODE_ENV === 'production') {
+        return res.status(503).json({
+          success: false,
+          code: 'STORAGE_CONFIGURATION_ERROR',
+          message: 'Lo storage persistente (@vercel/blob) non è configurato in ambiente di produzione.'
+        });
+      }
+
+      // Offline / local development / self-hosted persistence fallback
       const ext = validated.extension;
       const hash = crypto.createHash('sha256').update(req.body).digest('hex').slice(0, 16);
       const filename = `${Date.now()}-${hash}.${ext}`;
@@ -168,7 +179,9 @@ router.post('/images/upload', authenticate, express.raw({ type: ['image/jpeg', '
       await fs.promises.writeFile(filePath, req.body);
 
       const host = req.get('host') || '127.0.0.1';
-      imageUrl = `https://${host}/api/listings/images/${req.userId}/${filename}`;
+      const isSecure = req.secure || req.headers['x-forwarded-proto'] === 'https';
+      const protocol = isSecure ? 'https' : 'http';
+      imageUrl = `${protocol}://${host}/api/listings/images/${req.userId}/${filename}`;
     }
 
     res.status(201).json({

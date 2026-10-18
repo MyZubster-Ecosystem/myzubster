@@ -136,8 +136,11 @@ function normalizeListingImages(images, fallbackAlt = '') {
       const rawUrl = String(item?.url || '').trim();
       const rawAlt = String(item?.alt !== undefined ? item.alt : fallbackAlt).trim();
 
-      // Only allow safe HTTPS URLs within standard length limits
-      if (!/^https:\/\/[a-z0-9_.-]+/i.test(rawUrl) || rawUrl.length > MAX_URL_LENGTH) {
+      // Allow valid HTTPS URLs, or local/test endpoints (http://localhost, http://127.0.0.1, or /api/listings/images)
+      const isHttps = /^https:\/\/[a-z0-9_.-]+/i.test(rawUrl);
+      const isLocal = /^(https?:\/\/(localhost|127\.0\.0\.1)(:[0-9]+)?|\/api\/listings\/images\/[a-zA-Z0-9_\-\/.]+)/i.test(rawUrl);
+
+      if ((!isHttps && !isLocal) || rawUrl.length > MAX_URL_LENGTH) {
         return null;
       }
 
