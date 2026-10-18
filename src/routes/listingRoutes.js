@@ -90,6 +90,40 @@ router.get('/mine',authenticate,async(req,res)=>{try{const listings=await Market
 router.get('/profile/me',authenticate,async(req,res)=>{try{const user=await User.findById(req.userId).select('username moneroWallet communityProfile');if(!user)return res.status(404).json({success:false,message:'Utente non trovato'});res.json({success:true,profile:user});}catch(_error){res.status(500).json({success:false,message:'Errore nel recupero del profilo community'});}});
 router.patch('/profile/me',authenticate,async(req,res)=>{try{const{pgpPublicKey='',tariWallet='',myzWallet='',displayLocation='',bio='',seedExchangeEnabled=false,petCommunityEnabled=false,kefirDonorEnabled=false}=req.body||{};if([pgpPublicKey,tariWallet,myzWallet,bio].some(containsPrivateKeyMaterial))return res.status(400).json({success:false,message:'Inserisci solo chiavi PGP pubbliche e indirizzi wallet pubblici. Seed phrase e chiavi private sono vietati.'});if(pgpPublicKey&&!String(pgpPublicKey).includes('BEGIN PGP PUBLIC KEY BLOCK'))return res.status(400).json({success:false,message:'La chiave PGP deve essere una chiave pubblica ASCII-armored.'});const user=await User.findByIdAndUpdate(req.userId,{$set:{communityProfile:{pgpPublicKey:String(pgpPublicKey).trim(),tariWallet:String(tariWallet).trim(),myzWallet:String(myzWallet).trim(),displayLocation:String(displayLocation).trim(),bio:String(bio).trim(),seedExchangeEnabled:Boolean(seedExchangeEnabled),petCommunityEnabled:Boolean(petCommunityEnabled),kefirDonorEnabled:Boolean(kefirDonorEnabled),updatedAt:new Date()}}},{new:true,runValidators:true}).select('username moneroWallet communityProfile');if(!user)return res.status(404).json({success:false,message:'Utente non trovato'});res.json({success:true,profile:user});}catch(error){res.status(400).json({success:false,message:error.message||'Profilo community non aggiornato'});}});
 
+const fs = require('fs');
+const path = require('path');
+
+const LOCAL_STORAGE_DIR = process.env.MARKETPLACE_UPLOAD_DIR || path.join(__dirname, '../../data/uploads/marketplace');
+
+router.get('/images/:userId/:filename', (req, res) => {
+  try {
+    const { userId, filename } = req.params;
+    if (!/^[a-zA-Z0-9_-]+$/.test(userId) || !/^[a-zA-Z0-9_-]+\.(jpg|jpeg|png|webp)$/i.test(filename)) {
+      return res.status(400).json({ success: false, message: 'Parametri immagine non validi' });
+    }
+
+    const filePath = path.join(LOCAL_STORAGE_DIR, userId, filename);
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ success: false, message: 'Immagine non trovata' });
+    }
+
+    const ext = path.extname(filename).toLowerCase();
+    const mimeMap = {
+      '.jpg': 'image/jpeg',
+      '.jpeg': 'image/jpeg',
+      '.png': 'image/png',
+      '.webp': 'image/webp'
+    };
+
+    res.setHeader('Content-Type', mimeMap[ext] || 'application/octet-stream');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    fs.createReadStream(filePath).pipe(res);
+  } catch (_error) {
+    res.status(500).json({ success: false, message: 'Errore nel recupero dell\'immagine' });
+  }
+});
+
 let blobStorageClient = null;
 try {
   blobStorageClient = require('@vercel/blob');
@@ -125,8 +159,16 @@ router.post('/images/upload', authenticate, express.raw({ type: ['image/jpeg', '
       );
       imageUrl = blob.url;
     } else {
+      const ext = validated.extension;
       const hash = crypto.createHash('sha256').update(req.body).digest('hex').slice(0, 16);
-      imageUrl = `https://storage.myzubster.local/marketplace/${req.userId}/${hash}.${validated.extension}`;
+      const filename = `${Date.now()}-${hash}.${ext}`;
+      const userDir = path.join(LOCAL_STORAGE_DIR, String(req.userId));
+      await fs.promises.mkdir(userDir, { recursive: true });
+      const filePath = path.join(userDir, filename);
+      await fs.promises.writeFile(filePath, req.body);
+
+      const host = req.get('host') || '127.0.0.1';
+      imageUrl = `https://${host}/api/listings/images/${req.userId}/${filename}`;
     }
 
     res.status(201).json({

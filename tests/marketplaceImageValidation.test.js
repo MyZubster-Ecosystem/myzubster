@@ -192,6 +192,12 @@ describe('Marketplace Photo Upload & Route Integration Tests', () => {
   afterAll(async () => {
     await mongoose.disconnect();
     if (mongo) await mongo.stop();
+    const fs = require('fs');
+    const path = require('path');
+    const testUploadDir = path.join(__dirname, '../data/uploads');
+    if (fs.existsSync(testUploadDir)) {
+      fs.rmSync(testUploadDir, { recursive: true, force: true });
+    }
   }, 30000);
 
   describe('POST /api/listings/images/upload', () => {
@@ -268,6 +274,38 @@ describe('Marketplace Photo Upload & Route Integration Tests', () => {
         .send(SYNTHETIC_PNG); // Declared JPEG, but content is PNG
       expect(res.status).toBe(415);
       expect(res.body.code).toBe('MIME_TYPE_MISMATCH');
+    });
+
+    test('persists uploaded image and allows retrieval via GET /api/listings/images/:userId/:filename', async () => {
+      const uploadRes = await request(app)
+        .post('/api/listings/images/upload')
+        .set('Authorization', `Bearer ${tokenFor(sellerUser)}`)
+        .set('Content-Type', 'image/jpeg')
+        .send(SYNTHETIC_JPEG);
+      expect(uploadRes.status).toBe(201);
+      const imageUrl = uploadRes.body.image.url;
+
+      // Extract the relative path from the returned URL
+      const urlObj = new URL(imageUrl);
+      const fetchRes = await request(app).get(urlObj.pathname);
+      expect(fetchRes.status).toBe(200);
+      expect(fetchRes.headers['content-type']).toBe('image/jpeg');
+      expect(fetchRes.headers['x-content-type-options']).toBe('nosniff');
+      expect(Buffer.compare(fetchRes.body, SYNTHETIC_JPEG)).toBe(0);
+    });
+
+    test('rejects path traversal attempts on GET /api/listings/images/:userId/:filename', async () => {
+      const res = await request(app).get('/api/listings/images/../somefile.jpg');
+      expect([400, 404]).toContain(res.status);
+
+      const traversalParamRes = await request(app).get('/api/listings/images/seller123/../../etc/passwd.jpg');
+      expect([400, 404]).toContain(traversalParamRes.status);
+    });
+
+    test('returns 404 for non-existent image', async () => {
+      const res = await request(app).get(`/api/listings/images/${sellerUser._id}/missing-image.jpg`);
+      expect(res.status).toBe(404);
+      expect(res.body.success).toBe(false);
     });
   });
 
