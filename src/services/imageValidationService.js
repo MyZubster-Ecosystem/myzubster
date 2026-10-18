@@ -123,12 +123,18 @@ function validateImageBuffer(buffer, declaredMimeType = '', options = {}) {
  * Sanitizes and bounds the array of image descriptors for a marketplace listing.
  * @param {Array<object>} images - Array of { url, alt }
  * @param {string} [fallbackAlt] - Fallback alt text
+ * @param {object} [options] - Optional validation options
+ * @param {string} [options.ownerId] - Current seller ID for verifying local uploaded image ownership
+ * @param {boolean} [options.strictPlatformOnly] - When true, only allows uploaded platform storage URLs
  * @returns {Array<{ url: string, alt: string }>}
  */
-function normalizeListingImages(images, fallbackAlt = '') {
+function normalizeListingImages(images, fallbackAlt = '', options = {}) {
   if (!Array.isArray(images)) {
     return [];
   }
+
+  const expectedOwnerId = options.ownerId ? String(options.ownerId) : null;
+  const strictPlatformOnly = Boolean(options.strictPlatformOnly || process.env.MARKETPLACE_STRICT_IMAGE_ORIGIN === 'true');
 
   return images
     .slice(0, MAX_IMAGES_PER_LISTING)
@@ -136,18 +142,71 @@ function normalizeListingImages(images, fallbackAlt = '') {
       const rawUrl = String(item?.url || '').trim();
       const rawAlt = String(item?.alt !== undefined ? item.alt : fallbackAlt).trim();
 
-      // Allow valid HTTPS URLs, or local/test endpoints (http://localhost, http://127.0.0.1, or /api/listings/images)
-      const isHttps = /^https:\/\/[a-z0-9_.-]+/i.test(rawUrl);
-      const isLocal = /^(https?:\/\/(localhost|127\.0\.0\.1)(:[0-9]+)?|\/api\/listings\/images\/[a-zA-Z0-9_\-\/.]+)/i.test(rawUrl);
-
-      if ((!isHttps && !isLocal) || rawUrl.length > MAX_URL_LENGTH) {
+      if (!rawUrl || rawUrl.length > MAX_URL_LENGTH) {
         return null;
       }
 
-      return {
-        url: rawUrl,
-        alt: rawAlt.slice(0, MAX_ALT_LENGTH)
-      };
+      // Check if URL points to local/platform upload endpoint
+      const localMatch = rawUrl.match(/^(?:https?:\/\/[^\/]+)?\/api\/listings\/images\/([a-zA-Z0-9_-]+)\/([a-zA-Z0-9_-]+\.(?:jpg|jpeg|png|webp))$/i);
+      if (localMatch) {
+        const imageUserId = localMatch[1];
+        // Enforce ownership: prevent referencing another seller's uploaded images
+        if (expectedOwnerId && imageUserId !== expectedOwnerId) {
+          return null;
+        }
+        return {
+          url: rawUrl,
+          alt: rawAlt.slice(0, MAX_ALT_LENGTH)
+        };
+      }
+
+      // Check if URL points to Vercel Blob public storage
+      const isBlobStorage = /^https:\/\/[a-z0-9_-]+\.public\.blob\.vercel-storage\.com\/marketplace\//i.test(rawUrl);
+      if (isBlobStorage) {
+        // Enforce owner prefix if present in blob path: marketplace/:userId/...
+        if (expectedOwnerId) {
+          const blobUserMatch = rawUrl.match(/\/marketplace\/([a-zA-Z0-9_-]+)\//i);
+          if (blobUserMatch && blobUserMatch[1] !== expectedOwnerId) {
+            return null;
+          }
+        }
+        return {
+          url: rawUrl,
+          alt: rawAlt.slice(0, MAX_ALT_LENGTH)
+        };
+      }
+
+      // If strict platform-only mode is active, reject arbitrary external URLs
+      if (strictPlatformOnly) {
+        return null;
+      }
+
+      // Allow verified external HTTPS URLs, disallowing loopback/private/internal addresses
+      try {
+        const parsed = new URL(rawUrl);
+        if (parsed.protocol !== 'https:') {
+          return null;
+        }
+        const hostname = parsed.hostname.toLowerCase();
+        // Disallow private/internal addresses and localhost
+        if (
+          hostname === 'localhost' ||
+          hostname === '127.0.0.1' ||
+          hostname === '0.0.0.0' ||
+          hostname.endsWith('.local') ||
+          hostname.endsWith('.internal') ||
+          /^(10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[01])\.|169\.254\.)/.test(hostname)
+        ) {
+          return null;
+        }
+
+        return {
+          url: rawUrl,
+          alt: rawAlt.slice(0, MAX_ALT_LENGTH)
+        };
+      } catch (_) {
+        return null;
+      }
     })
     .filter(Boolean);
 }

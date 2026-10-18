@@ -146,6 +146,41 @@ describe('ImageValidationService Unit Tests', () => {
       expect(normalizeListingImages(undefined)).toEqual([]);
       expect(normalizeListingImages('not an array')).toEqual([]);
     });
+
+    test('enforces seller image ownership on local upload endpoints and prevents referencing others images', () => {
+      const sellerId = 'seller_12345';
+      const input = [
+        { url: `/api/listings/images/${sellerId}/my-seed.jpg`, alt: 'My Image' },
+        { url: '/api/listings/images/other_seller_999/stolen-seed.jpg', alt: 'Stolen Image' }
+      ];
+      const normalized = normalizeListingImages(input, 'Fallback', { ownerId: sellerId });
+      expect(normalized).toHaveLength(1);
+      expect(normalized[0].url).toBe(`/api/listings/images/${sellerId}/my-seed.jpg`);
+    });
+
+    test('rejects loopback and private IP addresses in external URLs', () => {
+      const input = [
+        { url: 'https://localhost/secret.png' },
+        { url: 'https://127.0.0.1/private.png' },
+        { url: 'https://192.168.1.1/router.png' },
+        { url: 'https://10.0.0.1/internal.png' },
+        { url: 'https://cdn.example.org/photo.webp', alt: 'Valid external' }
+      ];
+      const normalized = normalizeListingImages(input);
+      expect(normalized).toHaveLength(1);
+      expect(normalized[0].url).toBe('https://cdn.example.org/photo.webp');
+    });
+
+    test('rejects external URLs when strictPlatformOnly is enabled', () => {
+      const sellerId = 'seller_12345';
+      const input = [
+        { url: `/api/listings/images/${sellerId}/photo.jpg` },
+        { url: 'https://cdn.example.org/photo.webp' }
+      ];
+      const normalized = normalizeListingImages(input, 'Fallback', { ownerId: sellerId, strictPlatformOnly: true });
+      expect(normalized).toHaveLength(1);
+      expect(normalized[0].url).toBe(`/api/listings/images/${sellerId}/photo.jpg`);
+    });
   });
 });
 
@@ -231,6 +266,35 @@ describe('Marketplace Photo Upload & Route Integration Tests', () => {
       expect(res.body.image.url).toMatch(/^https?:\/\//);
       expect(res.body.image.format).toBe('jpeg');
       expect(res.body.image.mimeType).toBe('image/jpeg');
+    });
+
+    test('ignores untrusted x-forwarded-proto when trust proxy is not enabled', async () => {
+      app.set('trust proxy', false);
+      const res = await request(app)
+        .post('/api/listings/images/upload')
+        .set('Authorization', `Bearer ${tokenFor(sellerUser)}`)
+        .set('Content-Type', 'image/jpeg')
+        .set('X-Forwarded-Proto', 'https')
+        .send(SYNTHETIC_JPEG);
+      expect(res.status).toBe(201);
+      // Since connection is plain HTTP and trust proxy is false, protocol must remain http
+      expect(res.body.image.url).toMatch(/^http:\/\//);
+    });
+
+    test('honors x-forwarded-proto when trust proxy is enabled', async () => {
+      app.set('trust proxy', true);
+      try {
+        const res = await request(app)
+          .post('/api/listings/images/upload')
+          .set('Authorization', `Bearer ${tokenFor(sellerUser)}`)
+          .set('Content-Type', 'image/jpeg')
+          .set('X-Forwarded-Proto', 'https')
+          .send(SYNTHETIC_JPEG);
+        expect(res.status).toBe(201);
+        expect(res.body.image.url).toMatch(/^https:\/\//);
+      } finally {
+        app.set('trust proxy', false);
+      }
     });
 
     test('returns 503 STORAGE_CONFIGURATION_ERROR in production when Blob token is missing', async () => {

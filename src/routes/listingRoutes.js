@@ -179,7 +179,8 @@ router.post('/images/upload', authenticate, express.raw({ type: ['image/jpeg', '
       await fs.promises.writeFile(filePath, req.body);
 
       const host = req.get('host') || '127.0.0.1';
-      const isSecure = req.secure || req.headers['x-forwarded-proto'] === 'https';
+      const trustProxy = Boolean(req.app && typeof req.app.get === 'function' && req.app.get('trust proxy'));
+      const isSecure = req.secure || (trustProxy && req.headers['x-forwarded-proto'] === 'https');
       const protocol = isSecure ? 'https' : 'http';
       imageUrl = `${protocol}://${host}/api/listings/images/${req.userId}/${filename}`;
     }
@@ -213,7 +214,7 @@ router.post('/create',authenticate,async(req,res)=>{try{
  const communityExchange=isCommunityExchange(requestedCategory,requestedCurrency);
  const{title,category,price,currency,description,location,features,contact,stock,exchangeMode,species,variety,pet,kefir,images}=req.body||{};
  const normalizedCurrency=String(currency||(exchangeMode==='gift'?'FREE':exchangeMode==='barter'?'BARTER':'MYZ')).toUpperCase();
- const normalizedImages=normalizeListingImages(images, title);
+ const normalizedImages=normalizeListingImages(images, title, { ownerId: req.userId });
  if(!title||!category)return res.status(400).json({error:'Titolo e categoria sono obbligatori'});
  const usableCustomCategory=!ALLOWED_CATEGORIES.has(category)?await MarketplaceCategoryProposal.exists({slug:category,$or:[{status:'approved'},{status:'pending',proposerId:req.userId}]}):true;
  if(!usableCustomCategory)return res.status(400).json({error:'Categoria marketplace non supportata o non disponibile per questo account'});
@@ -251,7 +252,7 @@ router.patch('/:id',authenticate,async(req,res)=>{try{
  if([nextDescription,JSON.stringify(req.body?.contact!==undefined?req.body.contact:listing.contact||{})].some(containsPrivateKeyMaterial))return res.status(400).json({error:'Non pubblicare seed phrase o chiavi private.'});
  const set={title:nextTitle,category:nextCategory,currency:nextCurrency,exchangeMode:nextExchangeMode,description:nextDescription,price:['FREE','BARTER'].includes(nextCurrency)?0:nextPrice};
  for(const field of ['location','features','contact','stock'])if(req.body?.[field]!==undefined)set[field]=req.body[field];
- if(req.body?.images!==undefined)set.images=normalizeListingImages(req.body.images,nextTitle);
+ if(req.body?.images!==undefined)set.images=normalizeListingImages(req.body.images,nextTitle, { ownerId: req.userId });
  if(nextCategory==='kefir_culture_donation'&&req.body?.kefir!==undefined)set.kefir={type:req.body.kefir.type,cultureAge:String(req.body.kefir.cultureAge||'').trim().slice(0,120),handlingNotes:String(req.body.kefir.handlingNotes||'').trim().slice(0,500),safetyAcknowledged:req.body.kefir.safetyAcknowledged===true,donationOnly:nextCurrency==='FREE'};
  if(nextCategory!=='kefir_culture_donation')set.kefir=null;
  const updated=await MarketplaceListing.findOneAndUpdate({_id:req.params.id,ownerId:req.userId},{$set:set},{new:true,runValidators:true});
