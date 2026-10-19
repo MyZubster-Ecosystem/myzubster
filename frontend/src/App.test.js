@@ -1,13 +1,13 @@
-import React from 'react';
+import { LANGS, detectLang } from './App';
+
 jest.mock('react-leaflet', () => ({}));
 jest.mock('./pages/MapPage', () => () => null);
 jest.mock('./pages/GardensPage', () => () => null);
-import { LANGS, detectLang } from './App';
 
 describe('App navigation, localization & marketplace cleanups (PR #1627)', () => {
   const supportedLanguages = ['it', 'en', 'es', 'fr', 'de'];
 
-  test('declares all 5 languages with complete navigation labels', () => {
+  test('declares all 5 languages with complete navigation labels, free, and barter', () => {
     for (const lang of supportedLanguages) {
       const dict = LANGS[lang];
       expect(dict).toBeDefined();
@@ -16,9 +16,23 @@ describe('App navigation, localization & marketplace cleanups (PR #1627)', () =>
       expect(dict.metaverse).toBeTruthy();
       expect(dict.profileOrLogin).toBeTruthy();
       expect(dict.backToHome).toBeTruthy();
+      expect(dict.free).toBeTruthy();
+      expect(dict.barter).toBeTruthy();
       // Ensure metaverse label is explicit and not ambiguous "Entra"
       expect(dict.metaverse.toLowerCase()).toMatch(/m[eé]taver/);
     }
+
+    // Verify translations avoid Italian fallbacks
+    expect(LANGS.it.free).toBe('Gratis');
+    expect(LANGS.it.barter).toBe('Baratto');
+    expect(LANGS.en.free).toBe('Free');
+    expect(LANGS.en.barter).toBe('Barter');
+    expect(LANGS.es.free).toBe('Gratis');
+    expect(LANGS.es.barter).toBe('Trueque');
+    expect(LANGS.fr.free).toBe('Gratuit');
+    expect(LANGS.fr.barter).toBe('Troc');
+    expect(LANGS.de.free).toBe('Kostenlos');
+    expect(LANGS.de.barter).toBe('Tausch');
   });
 
   test('eliminates unverified marketing claims from hero and footer across all languages', () => {

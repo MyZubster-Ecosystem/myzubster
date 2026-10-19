@@ -39,7 +39,8 @@ const LANGS = {
     featuredTitle: 'Competenze e scambi condivisi tra persone',
     viewAllMarket: 'Vedi tutti i servizi nel Marketplace →',
     categorySample: 'Categoria di esempio',
-    exploreCategory: 'Esplora categoria →',
+    free: 'Gratis',
+    barter: 'Baratto',
     categories: [
       { icon: '🔧', title: 'Riparazioni & Assistenza Casa', desc: 'Piccoli interventi domestici, idraulica, infissi e manutenzione.', slug: 'services' },
       { icon: '💻', title: 'Informatica & Supporto Tecnico', desc: 'Configurazioni, assistenza PC, reti e strumenti digitali.', slug: 'development_services' },
@@ -99,6 +100,8 @@ const LANGS = {
     viewAllMarket: 'View all services in the Marketplace →',
     categorySample: 'Sample category',
     exploreCategory: 'Explore category →',
+    free: 'Free',
+    barter: 'Barter',
     categories: [
       { icon: '🔧', title: 'Home Repairs & Maintenance', desc: 'Household repairs, plumbing, fixtures and maintenance assistance.', slug: 'services' },
       { icon: '💻', title: 'IT & Technical Assistance', desc: 'Setup, PC repair, network troubleshooting and digital tools.', slug: 'development_services' },
@@ -158,6 +161,8 @@ const LANGS = {
     viewAllMarket: 'Ver todos los servicios en el Marketplace →',
     categorySample: 'Categoría de ejemplo',
     exploreCategory: 'Explorar categoría →',
+    free: 'Gratis',
+    barter: 'Trueque',
     categories: [
       { icon: '🔧', title: 'Reparaciones y Mantenimiento del Hogar', desc: 'Pequeñas reparaciones, fontanería y mantenimiento doméstico.', slug: 'services' },
       { icon: '💻', title: 'Informática y Soporte Técnico', desc: 'Configuraciones, ayuda informática, redes y herramientas digitales.', slug: 'development_services' },
@@ -217,6 +222,8 @@ const LANGS = {
     viewAllMarket: 'Voir tous les services du Marketplace →',
     categorySample: 'Catégorie d’exemple',
     exploreCategory: 'Explorer la catégorie →',
+    free: 'Gratuit',
+    barter: 'Troc',
     categories: [
       { icon: '🔧', title: 'Réparations & Entretien Maison', desc: 'Petits travaux, plomberie et maintenance du quotidien.', slug: 'services' },
       { icon: '💻', title: 'Informatique & Support Technique', desc: 'Dépannage PC, réseaux et outils numériques utiles.', slug: 'development_services' },
@@ -276,6 +283,8 @@ const LANGS = {
     viewAllMarket: 'Alle Angebote im Marketplace ansehen →',
     categorySample: 'Beispiel-Kategorie',
     exploreCategory: 'Kategorie erkunden →',
+    free: 'Kostenlos',
+    barter: 'Tausch',
     categories: [
       { icon: '🔧', title: 'Reparaturen & Haushaltshilfe', desc: 'Kleinreparaturen, Sanitär und praktische Hilfe im Haushalt.', slug: 'services' },
       { icon: '💻', title: 'IT & Technische Unterstützung', desc: 'PC-Hilfe, Router-Setup, Netzwerke und digitale Werkzeuge.', slug: 'development_services' },
@@ -404,7 +413,7 @@ function FeaturedServicesGrid({ t }) {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: 16 }}>
         {items.map((item, idx) => {
           if (hasReal) {
-            const priceLabel = item.currency === 'FREE' ? (t.free || 'Gratis') : (item.currency === 'BARTER' ? (t.barter || 'Baratto') : `${item.price || 0} ${item.currency || 'EUR'}`);
+            const priceLabel = item.currency === 'FREE' ? (t.free || 'Free') : (item.currency === 'BARTER' ? (t.barter || 'Barter') : `${item.price || 0} ${item.currency || 'EUR'}`);
             return (
               <a
                 key={item.id || item._id || idx}
