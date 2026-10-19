@@ -55,7 +55,7 @@
     "hardhat": "^3.19.0",
     "jest": "^30.5.2",
     "mongodb-memory-server": "^11.2.0",
-    "prettier": "^3.0.3",
+    "prettier": "^3.9.10",
     "socket.io-client": "^4.8.3",
     "supertest": "^6.3.4"
   },
