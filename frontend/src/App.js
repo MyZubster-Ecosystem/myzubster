@@ -30,6 +30,7 @@ const LANGS = {
     offerService: '➕ Offri un servizio',
     metaverse: '🪐 Metaverso',
     profileOrLogin: '👤 Accedi / Profilo',
+    backToHome: 'Torna alla Home',
     heroEyebrow: '🛒 MARKETPLACE DI SERVIZI E COMPETENZE',
     heroTitle: 'Trova o offri servizi e competenze nella tua comunità',
     heroDesc: 'Dalla riparazione all’assistenza tecnica, dall’artigianato locale ai servizi per la comunità. Contatto diretto tra persone, annunci dedicati e scambi peer-to-peer.',
@@ -88,6 +89,7 @@ const LANGS = {
     offerService: '➕ Offer a service',
     metaverse: '🪐 Metaverse',
     profileOrLogin: '👤 Sign in / Profile',
+    backToHome: 'Back to Home',
     heroEyebrow: '🛒 SERVICES & SKILLS MARKETPLACE',
     heroTitle: 'Find or offer services and skills in your community',
     heroDesc: 'From repairs to technical assistance, local crafts to community services. Direct person-to-person contact, dedicated listings, and peer-to-peer exchange.',
@@ -146,6 +148,7 @@ const LANGS = {
     offerService: '➕ Ofrecer un servicio',
     metaverse: '🪐 Metaverso',
     profileOrLogin: '👤 Iniciar sesión / Perfil',
+    backToHome: 'Volver al Inicio',
     heroEyebrow: '🛒 MERCADO DE SERVICIOS Y COMPETENCIAS',
     heroTitle: 'Encuentra u ofrece servicios y habilidades en tu comunidad',
     heroDesc: 'De reparaciones a asistencia técnica, artesanía local y servicios comunitarios. Contacto directo entre personas, anuncios dedicados e intercambio peer-to-peer.',
@@ -204,6 +207,7 @@ const LANGS = {
     offerService: '➕ Proposer un service',
     metaverse: '🪐 Métavers',
     profileOrLogin: '👤 Connexion / Profil',
+    backToHome: 'Retour à l’accueil',
     heroEyebrow: '🛒 MARCHÉ DE SERVICES ET COMPÉTENCES',
     heroTitle: 'Trouvez ou proposez des services et compétences dans votre communauté',
     heroDesc: 'Des réparations à l’assistance technique, de l’artisanat local aux services communautaires. Contact direct entre personnes, annonces dédiées et échanges de pair à pair.',
@@ -262,6 +266,7 @@ const LANGS = {
     offerService: '➕ Dienstleistung anbieten',
     metaverse: '🪐 Metaversum',
     profileOrLogin: '👤 Anmelden / Profil',
+    backToHome: 'Zurück zur Startseite',
     heroEyebrow: '🛒 MARKTPLATZ FÜR DIENSTE & FÄHIGKEITEN',
     heroTitle: 'Finde oder biete Dienstleistungen und Fähigkeiten in deiner Community an',
     heroDesc: 'Von Reparaturen bis zu technischer Hilfe, lokalem Handwerk und Community-Diensten. Direkter persönlicher Kontakt, dedizierte Angebote und Peer-to-Peer-Austausch.',
@@ -565,7 +570,7 @@ function EcosystemPage({ t, onChooseTab }) {
   return (
     <div style={{ maxWidth: 1200, margin: '0 auto', padding: '24px 20px', color: '#fff' }}>
       <header style={{ marginBottom: 24 }}>
-        <a href="/" style={{ color: '#38bdf8', textDecoration: 'none', fontSize: 14, fontWeight: 800 }}>← {t.searchServices || 'Torna alla Home'}</a>
+        <a href="/" style={{ color: '#38bdf8', textDecoration: 'none', fontSize: 14, fontWeight: 800 }}>← {t.backToHome || 'Torna alla Home'}</a>
         <h1 style={{ fontSize: 'clamp(26px, 4vw, 36px)', margin: '14px 0 8px' }}>{t.footerEcosystem || 'Ecosistema & Progetti MyZubster'}</h1>
         <p style={{ color: '#94a3b8', fontSize: 16, margin: 0, maxWidth: 800 }}>
           {t.intro || 'Spazi correlati, percorsi di community, progetti ambientali, ricerca e iniziative aperte.'}

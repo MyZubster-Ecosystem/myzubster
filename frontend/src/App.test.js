@@ -15,6 +15,7 @@ describe('App navigation, localization & marketplace cleanups (PR #1627)', () =>
       expect(dict.offerService).toBeTruthy();
       expect(dict.metaverse).toBeTruthy();
       expect(dict.profileOrLogin).toBeTruthy();
+      expect(dict.backToHome).toBeTruthy();
       // Ensure metaverse label is explicit and not ambiguous "Entra"
       expect(dict.metaverse.toLowerCase()).toMatch(/m[eé]taver/);
     }
