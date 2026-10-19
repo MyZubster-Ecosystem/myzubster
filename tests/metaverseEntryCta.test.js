@@ -7,10 +7,10 @@ test('the Metaverse direction card navigates to the implemented route', () => {
     'utf8'
   );
 
-  expect(source).toContain(
-    "if(choice==='world'){window.location.assign('/metaverse');return;}"
+  expect(source).toMatch(
+    /if\s*\(\s*choice\s*===\s*['"]world['"]\s*\)\s*\{\s*window\.location\.assign\(['"]\/metaverse['"]\);\s*return;\s*\}/
   );
-  expect(source).toContain(
-    "<button onClick={()=>window.location.assign('/metaverse')}>{t.enter}</button>"
+  expect(source).toMatch(
+    /onClick=\{\(\)\s*=>\s*window\.location\.assign\(['"]\/metaverse['"]\)\}[^>]*>\s*\{t\.(?:metaverse|enter)\}/
   );
 });
