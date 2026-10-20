@@ -5,7 +5,7 @@ const { authenticate, optionalAuthenticate } = require('../middleware/auth');
 const { createZorgaxAccessMiddleware, publicAccess } = require('../middleware/zorgaxAccess');
 const ZorgaxDataEntry = require('../models/ZorgaxDataEntry');
 const User = require('../models/User');
-const { answer, searchWeb, previewData, digestPreview } = require('../services/zorgaxAssistantService');
+const { answer, searchWeb, previewData, digestPreview, dataIntent } = require('../services/zorgaxAssistantService');
 const { catalog, createCheckoutIntent, getPaymentIntent, listPaymentIntents } = require('../services/zorgaxLegacyMonetizationService');
 const { getAccess } = require('../services/zorgaxAccessService');
 const { refreshPaymentIntent, verifyAndActivatePaymentIntent } = require('../services/zorgaxPaymentIntentService');
@@ -13,6 +13,7 @@ const { getPaymentReceipt } = require('../services/zorgaxBillingService');
 const zorgaxMyzCheckoutService = require('../services/zorgaxMyzCheckoutService');
 const { captureFunnelEvent } = require('../services/posthogAnalyticsService');
 const { askNicolaComics } = require('../services/nicolaComicsService');
+const { requestZorgaxGateway } = require('../services/zorgaxGatewayClient');
 
 const router = express.Router();
 const { loadZorgaxAccess, requireZorgaxPlan } = createZorgaxAccessMiddleware();
@@ -314,21 +315,45 @@ router.post('/chat', optionalAuthenticate, loadZorgaxAccess, async (req, res) =>
         accessNotice: null
       });
     }
-    const userContext = await authenticatedAssistantContext(req);
-    const result = await answer({ message: req.body?.message || req.body?.prompt, useWeb, history: req.body?.history || [], limit, userContext });
-    const accessNotice = requestedWeb && !policy.webResearch
-      ? 'Accedi a MyZubster per abilitare la ricerca web. La risposta corrente usa solo l’assistente base.'
-      : policy.researchMode === 'LIMITED' && requestedWeb
-        ? `Ricerca Free limitata a ${policy.maxWebResults} fonti per richiesta.`
-        : null;
+
+    const message = req.body?.message || req.body?.prompt;
+
+    if (typeof message === 'string' && dataIntent(message)) {
+      const preview = previewData(
+        message.replace(
+          /^.*?\b(?:salva|inserisci|registra|memorizza|immetti)\b\s*/i,
+          ''
+        )
+      );
+      return res.json({
+        ok: true,
+        entity: 'ZORGAX-001',
+        response: `Ho preparato l'anteprima dei dati. Non ho salvato nulla. Per renderli persistenti devi confermare esplicitamente con: ${preview.confirmation}`,
+        data_preview: preview,
+        action_required: 'human_confirmation',
+        sources: [],
+        external_sources: [],
+        access: publicAccess(req.zorgaxAccess),
+        featureAccess: policy,
+        accessNotice: null
+      });
+    }
+
+    const result = await requestZorgaxGateway({
+      message,
+      history: req.body?.history || []
+    });
+    const accessNotice = requestedWeb
+      ? 'La ricerca web integrata nella chat è temporaneamente non disponibile. La risposta usa Zorgax locale sulla VPS.'
+      : null;
     logFunnelEvent('zorgax_message_sent', req, {
-      webResearch: useWeb,
-      sourceCount: Array.isArray(result.sources) ? result.sources.length : 0,
+      webResearch: false,
+      sourceCount: 0,
       aiProvider: result.ai_provider || null,
       aiModel: result.ai_model || null,
       aiFallbackReason: result.ai_fallback_reason || null
     });
-    res.json({ ok: true, entity: 'ZORGAX-001', ...result, external_sources: result.sources, access: publicAccess(req.zorgaxAccess), featureAccess: policy, accessNotice });
+    res.json({ ok: true, entity: 'ZORGAX-001', ...result, external_sources: [], access: publicAccess(req.zorgaxAccess), featureAccess: policy, accessNotice });
   }
   catch (error) { res.status(502).json({ ok: false, error: error.message }); }
 });
