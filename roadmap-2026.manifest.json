@@ -1,0 +1,123 @@
+{
+  "id": "myzubster-roadmap-2026",
+  "version": "1.0.0",
+  "trackingIssue": 395,
+  "updatedAt": "2026-08-24",
+  "northStar": "Portare MyZubster da ecosistema di componenti in sviluppo a un prodotto verificabile, stabile e dimostrabile in un pilot reale, senza anticipare funzionalità regolamentate o integrare sistemi di terzi senza autorizzazione.",
+  "priorities": [
+    "Stabilità tecnica e CI verde",
+    "Security baseline + release gates",
+    "Space Station MVP end-to-end come vertical slice dimostrabile",
+    "AI Automation come layer operativo interno",
+    "Un pilot commerciale concreto con un solo workflow iniziale",
+    "Payment/crypto production e RWA solo dopo gate legali/compliance"
+  ],
+  "phases": [
+    {
+      "id": "phase-0",
+      "name": "Reset & Stabilization",
+      "objective": "Avere una baseline tecnica affidabile.",
+      "status": "pending",
+      "items": [
+        { "ref": "#374", "title": "Risolvere conflict markers in gardens.js", "kind": "blocker" },
+        { "ref": "#375", "title": "Ripristinare dipendenze/import mancanti", "kind": "blocker" },
+        { "ref": "#376", "title": "Correggere contract/routing Gardens e test 404", "kind": "blocker" },
+        { "ref": "#377", "title": "Audit e remediation vulnerabilità npm", "kind": "blocker" },
+        { "ref": "#378", "title": "Stabilizzare submodule TARI nella CI", "kind": "blocker" },
+        { "ref": null, "title": "Verificare CI pulita su Node supportati", "kind": "task" },
+        { "ref": null, "title": "Eliminare duplicazioni/issue legacy che contraddicono la roadmap", "kind": "task" }
+      ],
+      "definitionOfDone": [
+        "Installazione clean checkout riproducibile",
+        "Test principali verdi",
+        "Nessun conflict marker",
+        "Critical security findings risolti o formalmente mitigati",
+        "CI verde senza workaround locali"
+      ],
+      "gate": null
+    },
+    {
+      "id": "phase-1",
+      "name": "Platform Foundation",
+      "objective": "Definire le fondamenta comuni che tutti i moduli devono usare.",
+      "status": "pending",
+      "items": [
+        { "ref": null, "title": "Schema/versioning delle entità", "kind": "task" },
+        { "ref": null, "title": "API conventions e error contract", "kind": "task" },
+        { "ref": null, "title": "Authentication + RBAC", "kind": "task" },
+        { "ref": null, "title": "Audit trail/event model", "kind": "task" },
+        { "ref": null, "title": "Synthetic fixtures deterministiche", "kind": "task" },
+        { "ref": null, "title": "Logging sicuro e sanitizzato", "kind": "task" },
+        { "ref": null, "title": "Configuration/secrets management", "kind": "task" },
+        { "ref": null, "title": "Rate limiting", "kind": "task" },
+        { "ref": null, "title": "Backup/recovery baseline", "kind": "task" },
+        { "ref": null, "title": "Security checklist applicabile a ogni nuovo modulo", "kind": "task" }
+      ],
+      "definitionOfDone": [],
+      "gate": "Nessun nuovo modulo importante entra in roadmap senza test, audit, documentazione API e security baseline."
+    },
+    {
+      "id": "phase-2",
+      "name": "Space Station MVP",
+      "objective": "Costruire il primo vertical slice completo e dimostrabile.",
+      "status": "pending",
+      "items": [
+        { "ref": "#382", "title": "SpaceStation model", "kind": "task", "group": "core" },
+        { "ref": "#383", "title": "Mission model", "kind": "task", "group": "core" },
+        { "ref": "#384", "title": "Event + audit trail", "kind": "task", "group": "core" },
+        { "ref": "#385", "title": "CRUD/search API", "kind": "task", "group": "core" },
+        { "ref": "#386", "title": "Synthetic fixtures", "kind": "task", "group": "core" },
+        { "ref": "#387", "title": "Security/compliance baseline", "kind": "task", "group": "core" },
+        { "ref": "#388", "title": "Tests + CI", "kind": "task", "group": "core" },
+        { "ref": "#389", "title": "API contract + documentation", "kind": "task", "group": "core" },
+        { "ref": "#390", "title": "Eva Ioni simulator", "kind": "task", "group": "telemetry" },
+        { "ref": "#391", "title": "Telemetry ingestion/storage/API", "kind": "task", "group": "telemetry" },
+        { "ref": "#392", "title": "Telemetry dashboard", "kind": "task", "group": "telemetry" },
+        { "ref": "#393", "title": "Gateway API integration", "kind": "task", "group": "integration" }
+      ],
+      "definitionOfDone": [
+        "Vertical slice acceptance test: Eva simulator → telemetry API → persistence → dashboard → audit trail → Gateway",
+        "Il flusso è eseguibile localmente con dati sintetici, riproducibile da clean checkout e dimostrabile senza dipendenze da hardware reale."
+      ],
+      "gate": null
+    },
+    {
+      "id": "phase-3",
+      "name": "AI Automation",
+      "objective": "Usare l'automazione AI per ridurre il lavoro operativo e migliorare qualità/review.",
+      "status": "pending",
+      "items": [
+        { "ref": null, "title": "GitHub issue monitoring", "kind": "task" },
+        { "ref": null, "title": "Issue classification/triage", "kind": "task" },
+        { "ref": null, "title": "Automated PR review (euristiche + checklist automatiche di qualità/security)", "kind": "task" }
+      ],
+      "definitionOfDone": [],
+      "gate": "L'automazione propone e classifica: nessuna azione irreversibile (merge, deploy, chiusura issue) senza approvazione umana."
+    },
+    {
+      "id": "phase-4",
+      "name": "Pilot",
+      "objective": "Dimostrare il prodotto in un pilot commerciale concreto con un solo workflow iniziale.",
+      "status": "pending",
+      "items": [
+        { "ref": null, "title": "Selezionare UN workflow end-to-end concordato con il partner del pilot", "kind": "task" },
+        { "ref": null, "title": "Onboarding, runbook operativo e SLA di supporto", "kind": "task" },
+        { "ref": null, "title": "Metriche di adozione e report periodici", "kind": "task" }
+      ],
+      "definitionOfDone": [],
+      "gate": "Accordo scritto sul perimetro del pilot; nessuna integrazione di sistemi di terzi senza autorizzazione esplicita."
+    },
+    {
+      "id": "phase-5",
+      "name": "Payment/Crypto Production & RWA (condizionata)",
+      "objective": "Abilitare payment/crypto production e RWA solo dopo i gate legali/compliance.",
+      "status": "pending",
+      "items": [
+        { "ref": null, "title": "Payment/crypto production readiness", "kind": "task" },
+        { "ref": null, "title": "RWA: feasibility e perimetro regolamentato", "kind": "task" }
+      ],
+      "definitionOfDone": [],
+      "gate": "Gate legali/compliance superati e documentati prima di qualsiasi implementazione production."
+    }
+  ]
+}
