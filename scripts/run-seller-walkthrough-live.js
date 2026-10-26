@@ -5,7 +5,7 @@
  * End-to-End Live Runtime Verifier for MyZubster Seller-Free Walkthrough.
  *
  * Runs the real Express server against an isolated in-memory MongoMemoryReplSet,
- * executes the full 8-step user journey via live HTTP requests, and outputs
+ * executes the full 10-step user journey via live HTTP requests, and outputs
  * structured verification evidence with timings and HTTP responses.
  */
 
@@ -53,7 +53,7 @@ async function run() {
 
   try {
     // Step 1: Unauthenticated user attempt to publish
-    console.log('[Step 1/8] Verifying unauthenticated publish protection...');
+    console.log('[Step 1/10] Verifying unauthenticated publish protection...');
     const t0 = Date.now();
     const unauthRes = await fetchJson(`${BASE_URL}/api/listings/create`, {
       method: 'POST',
@@ -68,7 +68,7 @@ async function run() {
     }
 
     // Step 2: Register & authenticate seller
-    console.log('\n[Step 2/8] Registering & authenticating test seller (wasim-seller-dev)...');
+    console.log('\n[Step 2/10] Registering & authenticating test seller (wasim-seller-dev)...');
     const t1 = Date.now();
     const regRes = await fetchJson(`${BASE_URL}/api/auth/register`, {
       method: 'POST',
@@ -88,7 +88,7 @@ async function run() {
     }
 
     // Step 3: Activate Seller Free plan
-    console.log('\n[Step 3/8] Activating Seller Free plan...');
+    console.log('\n[Step 3/10] Activating Seller Free plan...');
     const t2 = Date.now();
     const subscribeRes = await fetchJson(`${BASE_URL}/api/marketplace/seller/subscribe`, {
       method: 'POST',
@@ -106,7 +106,7 @@ async function run() {
     }
 
     // Step 4: Publish text-only service listing in digital_services
-    console.log('\n[Step 4/8] Publishing service listing in digital_services...');
+    console.log('\n[Step 4/10] Publishing service listing in digital_services...');
     const t3 = Date.now();
     const listingPayload = {
       title: 'Consulenza Architettura Software, Docker & Hardening CI/CD',
@@ -133,7 +133,7 @@ async function run() {
     }
 
     // Step 5: Unauthenticated visitor retrieves catalog filtered by category
-    console.log('\n[Step 5/8] Unauthenticated visitor querying /api/listings?category=digital_services...');
+    console.log('\n[Step 5/10] Unauthenticated visitor querying /api/listings?category=digital_services...');
     const t4 = Date.now();
     const catalogRes = await fetchJson(`${BASE_URL}/api/listings?category=digital_services`);
     const d4 = Date.now() - t4;
@@ -147,7 +147,7 @@ async function run() {
     }
 
     // Step 6: Direct public listing retrieval
-    console.log(`\n[Step 6/8] Direct public access to /api/listings/${listingId}...`);
+    console.log(`\n[Step 6/10] Direct public access to /api/listings/${listingId}...`);
     const t5 = Date.now();
     const itemRes = await fetchJson(`${BASE_URL}/api/listings/${listingId}`);
     const d5 = Date.now() - t5;
@@ -159,9 +159,26 @@ async function run() {
       throw new Error(`Direct get failed: ${JSON.stringify(itemRes.data)}`);
     }
 
-    // Step 7: In-place owner modification (PATCH)
-    console.log('\n[Step 7/8] Owner in-place modification (PATCH /api/listings/:id)...');
+    // Step 7: Seller personal listings dashboard (GET /api/listings/mine)
+    console.log(`\n[Step 7/10] Seller dashboard access to /api/listings/mine...`);
     const t6 = Date.now();
+    const mineRes = await fetchJson(`${BASE_URL}/api/listings/mine`, {
+      method: 'GET',
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const d6 = Date.now() - t6;
+    const inMine = mineRes.data?.listings?.some(l => (l.id || l._id) === listingId);
+    if (mineRes.status === 200 && inMine) {
+      console.log(`  ✓ Verified seller personal listings dashboard with HTTP 200 (${d6}ms)`);
+      console.log(`    Total seller listings: ${mineRes.data.listings.length}`);
+      steps.push({ step: 7, name: 'Seller personal dashboard (GET /mine)', status: 'PASS', httpStatus: 200, timeMs: d6 });
+    } else {
+      throw new Error(`Dashboard query failed or listing not in mine: ${JSON.stringify(mineRes.data)}`);
+    }
+
+    // Step 8: In-place owner modification (PATCH)
+    console.log('\n[Step 8/10] Owner in-place modification (PATCH /api/listings/:id)...');
+    const t7 = Date.now();
     const updatedTitle = 'Consulenza Architettura Software, Docker & Hardening CI/CD (Aggiornato & Verificato)';
     const patchRes = await fetchJson(`${BASE_URL}/api/listings/${listingId}`, {
       method: 'PATCH',
@@ -171,14 +188,14 @@ async function run() {
         price: 0
       })
     });
-    const d6 = Date.now() - t6;
+    const d7 = Date.now() - t7;
     if (patchRes.status === 200) {
-      console.log(`  ✓ In-place edit confirmed with HTTP 200 (${d6}ms)`);
+      console.log(`  ✓ In-place edit confirmed with HTTP 200 (${d7}ms)`);
       // Verify updated title
       const verifyRes = await fetchJson(`${BASE_URL}/api/listings/${listingId}`);
       if (verifyRes.data?.listing?.title === updatedTitle) {
         console.log(`    Verified new title persisted: "${updatedTitle}"`);
-        steps.push({ step: 7, name: 'Owner in-place edit & verification', status: 'PASS', httpStatus: 200, timeMs: d6 });
+        steps.push({ step: 8, name: 'Owner in-place edit & verification', status: 'PASS', httpStatus: 200, timeMs: d7 });
       } else {
         throw new Error('Title update did not persist');
       }
@@ -186,9 +203,9 @@ async function run() {
       throw new Error(`Patch failed: ${JSON.stringify(patchRes.data)}`);
     }
 
-    // Step 8: Non-owner modification attempt (fail closed)
-    console.log('\n[Step 8/8] Testing non-owner modification protection...');
-    const t7 = Date.now();
+    // Step 9: Non-owner modification attempt (fail closed)
+    console.log('\n[Step 9/10] Testing non-owner modification protection...');
+    const t8 = Date.now();
     // Register another user
     const otherReg = await fetchJson(`${BASE_URL}/api/auth/register`, {
       method: 'POST',
@@ -204,18 +221,43 @@ async function run() {
       headers: { Authorization: `Bearer ${otherToken}` },
       body: JSON.stringify({ title: 'Hacked Title' })
     });
-    const d7 = Date.now() - t7;
+    const d8 = Date.now() - t8;
     if (illegalPatch.status === 404 || illegalPatch.status === 403) {
-      console.log(`  ✓ Unauthorized edit rejected with HTTP ${illegalPatch.status} (${d7}ms)`);
-      steps.push({ step: 8, name: 'Non-owner modification guard (fail-closed)', status: 'PASS', httpStatus: illegalPatch.status, timeMs: d7 });
+      console.log(`  ✓ Unauthorized edit rejected with HTTP ${illegalPatch.status} (${d8}ms)`);
+      steps.push({ step: 9, name: 'Non-owner modification guard (fail-closed)', status: 'PASS', httpStatus: illegalPatch.status, timeMs: d8 });
     } else {
       throw new Error(`Expected 403 or 404, got ${illegalPatch.status}`);
+    }
+
+    // Step 10: Direct peer-to-peer crypto agreement (BTC) without checkout fees
+    console.log('\n[Step 10/10] Direct crypto agreement (BTC) listing publication without checkout fees...');
+    const t9 = Date.now();
+    const cryptoPayload = {
+      title: 'Consulenza Architettura Distribuita & Privacy P2P',
+      category: 'digital_services',
+      currency: 'BTC',
+      price: 0.002,
+      location: 'Remoto',
+      description: 'Accordo diretto peer-to-peer senza commissioni di checkout.'
+    };
+    const cryptoRes = await fetchJson(`${BASE_URL}/api/listings/create`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify(cryptoPayload)
+    });
+    const d9 = Date.now() - t9;
+    if (cryptoRes.status === 201 && cryptoRes.data?.listing?.currency === 'BTC') {
+      console.log(`  ✓ Direct BTC listing created with HTTP 201 Created (${d9}ms)`);
+      console.log(`    Listing ID: ${cryptoRes.data.listing.id || cryptoRes.data.listing._id}, Currency: BTC, Price: 0.002`);
+      steps.push({ step: 10, name: 'Direct crypto agreement (BTC) listing', status: 'PASS', httpStatus: 201, timeMs: d9 });
+    } else {
+      throw new Error(`Crypto listing failed: ${JSON.stringify(cryptoRes.data)}`);
     }
 
     const totalElapsedSec = ((Date.now() - overallStart) / 1000).toFixed(2);
 
     console.log('\n================================================================');
-    console.log(`✨ ALL 8/8 LIFECYCLE CHECKS PASSED (Total runtime: ${totalElapsedSec}s)`);
+    console.log(`✨ ALL 10/10 LIFECYCLE CHECKS PASSED (Total runtime: ${totalElapsedSec}s)`);
     console.log('================================================================');
     console.table(steps);
 

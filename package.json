@@ -20,7 +20,8 @@
     "nft:mint:comic-001": "cd nft-tools && ../node_modules/.bin/hardhat run scripts/mint-comic-001.mjs --network baseSepolia",
     "evidence:validate-interoperability": "node scripts/validate-interoperability-checkpoints.js",
     "evidence:validate-zorgax-capabilities": "node scripts/validate-zorgax-capabilities.js",
-    "evidence:validate-external-projects": "node scripts/validate-external-project-verifications.js"
+    "evidence:validate-external-projects": "node scripts/validate-external-project-verifications.js",
+    "walkthrough:seller": "node scripts/run-seller-walkthrough-live.js"
   },
   "dependencies": {
     "@vercel/functions": "^3.6.1",
