@@ -86,6 +86,29 @@ In accordance with [Issue #1659](https://github.com/MyZubster-Ecosystem/myzubste
 | **Denial of Service** | Rogue test or infinite loop exhausts system memory or disk. | Medium | VM constrained to 24GB virtual disk; process memory bound to node heap limit; test harness enforces clean teardown hooks (`afterAll`). |
 | **Elevation of Privilege** | Container or process breakout attempting `sudo` execution. | Critical | `sudo: a password is required`. Sudoers policy forbids unauthenticated escalation; kernel namespaces active. |
 
+### 4.1 Mock Integrity vs. Sender Authenticity Boundary
+
+As highlighted in the maintainer review, an unkeyed SHA-256 digest (`integrity.digest`) only detects **accidental data corruption** (e.g. transmission bit flips or storage rot). An active adversary can modify payload contents and freely recompute the matching unkeyed SHA-256 digest. Therefore, the interop harness explicitly demarcates two operating boundaries:
+
+1. **Tier 1 (Isolated Lab Mock Only)**:
+   - Uses RFC 8785 (JCS) canonicalization and unkeyed SHA-256 digests.
+   - Tagged explicitly as `mode: 'unauthenticated-mock-integrity-only'`.
+   - Used solely for hermetic, single-process walkthroughs and offline unit tests.
+   - Emits an explicit security warning that sender authenticity is unverified.
+2. **Tier 2 (Cryptographically Authenticated Peer Interoperability)**:
+   - Enforced by `requireAuth: true` in `verifyBridgePayload()` and `InteropBridgeDispatcher`.
+   - Supports **HMAC-SHA256** (with pre-shared symmetric keys) and **Ed25519** digital signatures (with asymmetric public/private key pairs).
+   - Signatures are computed over the canonical RFC 8785 JSON representation, guaranteeing non-repudiation, sender authenticity, and active tamper detection.
+   - Any bridge payload without a verifiable cryptographic signature or using an unauthorized key is immediately rejected and fails closed.
+
+### 4.2 Strict Production Air-Gap Reaffirmation
+
+This isolated lab is strictly air-gapped from production environments:
+- **No Production Wallets**: Monero (`xmr`) and Tari (`tari`) production wallets, seed phrases, view keys, and spend keys are prohibited from the VM.
+- **No Onion Services**: Tor hidden services (`.onion`) and live Tor proxies are not bound.
+- **No Production Secrets**: Zero production database strings, API tokens, or admin passwords exist on the VM.
+- **No Real Peer Connections**: Peer bridging remains strictly within the mock loopback/test harness until Milestone M3 explicit maintainer authorization.
+
 ---
 
 ## 5. Isolated CI Runner Feasibility Assessment
