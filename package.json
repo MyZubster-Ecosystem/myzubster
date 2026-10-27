@@ -21,6 +21,7 @@
     "evidence:validate-interoperability": "node scripts/validate-interoperability-checkpoints.js",
     "evidence:validate-zorgax-capabilities": "node scripts/validate-zorgax-capabilities.js",
     "evidence:validate-external-projects": "node scripts/validate-external-project-verifications.js",
+    "evidence:screenshots": "node scripts/capture-staging-evidence.js",
     "walkthrough:seller": "node scripts/run-seller-walkthrough-live.js"
   },
   "dependencies": {
