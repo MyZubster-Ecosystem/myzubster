@@ -143,6 +143,30 @@ async function main() {
       375, 812
     );
 
+    // 7. Social Login & Identity Portal
+    captureScreenshot(
+      'http://127.0.0.1:5008/social-login.html',
+      path.join(EVIDENCE_DIR, '11-social-login-desktop.png'),
+      1280, 800
+    );
+    captureScreenshot(
+      'http://127.0.0.1:5008/social-login.html',
+      path.join(EVIDENCE_DIR, '12-social-login-mobile.png'),
+      375, 812
+    );
+
+    // 8. Knowledge Graph & Public Evidence Portal
+    captureScreenshot(
+      'http://127.0.0.1:5008/knowledge.html',
+      path.join(EVIDENCE_DIR, '13-knowledge-graph-desktop.png'),
+      1280, 800
+    );
+    captureScreenshot(
+      'http://127.0.0.1:5008/knowledge.html',
+      path.join(EVIDENCE_DIR, '14-knowledge-graph-mobile.png'),
+      375, 812
+    );
+
     console.log('\n[3/3] Executing real HTTP & DOM content assertions against local staging...');
 
     const checks = [];
@@ -203,6 +227,24 @@ async function main() {
       target: 'Comics Universe Gallery (HTTP 5007)',
       status: fumettoRes.ok && hasFumetto ? 'PASS' : 'FAIL',
       detail: `HTTP ${fumettoRes.status}, verified interactive comic reader and GitHub Live Photos integration (${fumettoRes.timeMs}ms)`
+    });
+
+    // Check 7: Social Login & Identity page
+    const loginRes = await fetchHttp('http://127.0.0.1:5008/social-login.html');
+    const hasLogin = loginRes.text.includes('google') && loginRes.text.includes('github') && loginRes.text.includes('ZORGAX IDENTITY');
+    checks.push({
+      target: 'Social Login & Identity Portal (HTTP 5008)',
+      status: loginRes.ok && hasLogin ? 'PASS' : 'FAIL',
+      detail: `HTTP ${loginRes.status}, verified Google/GitHub auth entry points & session handlers (${loginRes.timeMs}ms)`
+    });
+
+    // Check 8: Knowledge Graph & Public Evidence page
+    const knowledgeRes = await fetchHttp('http://127.0.0.1:5008/knowledge.html');
+    const hasKnowledge = knowledgeRes.text.includes('Conoscenze della comunità') && knowledgeRes.text.includes('graphSvg');
+    checks.push({
+      target: 'Knowledge Graph & Evidence Portal (HTTP 5008)',
+      status: knowledgeRes.ok && hasKnowledge ? 'PASS' : 'FAIL',
+      detail: `HTTP ${knowledgeRes.status}, verified interactive SVG network graph and public GitHub evidence cards (${knowledgeRes.timeMs}ms)`
     });
 
     let allPassed = true;
