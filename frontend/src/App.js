@@ -11,6 +11,7 @@ import SocialLoginPage from './pages/SocialLoginPage';
 import ZorgaxLifePilotPage from './pages/ZorgaxLifePilotPage';
 import AppsDownloadPage from './pages/AppsDownloadPage';
 import KnowledgeGraphPage from './pages/KnowledgeGraphPage';
+import ComicsPage from './pages/ComicsPage';
 import RobotPublicWalletPanel from './components/RobotPublicWalletPanel';
 import { conversionContext, trackConversion } from './analytics/conversionAnalytics';
 
@@ -31,14 +32,27 @@ const LANGS = {
     metaverse: '🪐 Metaverso',
     profileOrLogin: '👤 Accedi / Profilo',
     backToHome: 'Torna alla Home',
+    askZorgax: '👽 Chiedi a Zorgax',
     heroEyebrow: '🛒 MARKETPLACE DI SERVIZI E COMPETENZE',
     heroTitle: 'Trova o offri servizi e competenze nella tua comunità',
     heroDesc: 'Dalla riparazione all’assistenza tecnica, dall’artigianato locale ai servizi per la comunità. Contatto diretto tra persone, annunci dedicati e scambi peer-to-peer.',
     heroBadge: 'Piattaforma di mutuo aiuto open source · Registrazione gratuita · Assistente Zorgax integrato',
+    sixAreasEyebrow: '6 PUNTI DI INGRESSO CHIAVE',
+    sixAreasTitle: 'Esplora i percorsi principali di MyZubster',
+    sixAreasSubtitle: 'Sei aree chiare con Marketplace e Zorgax in evidenza per orientamento, scambi e contributi.',
+    sixAreas: [
+      { key: 'marketplace', icon: '🛒', title: 'Marketplace', desc: 'Cerca servizi reali tra pari o pubblica gratuitamente la tua offerta con Seller Free.', badge: 'ATTIVO · LIVE', href: '/marketplace', cta: 'Cerca servizi →', secondaryHref: '/marketplace?action=new', secondaryCta: '➕ Offri un servizio' },
+      { key: 'zorgax', icon: '👽', title: 'Zorgax Copilota', desc: 'Assistente per orientarsi nell’ecosistema, porre domande e trovare le sezioni giuste.', badge: 'ATTIVO · LIVE', isZorgax: true, href: '/zorgax', cta: 'Apri Zorgax →' },
+      { key: 'metaverse', icon: '🪐', title: 'Metaverso · Neon Plaza', desc: 'Spazio virtuale 3D interattivo e Space Station accessibili direttamente dal browser.', badge: 'ATTIVO · LIVE', href: '/metaverse', cta: 'Entra nel Metaverso →' },
+      { key: 'passport', icon: '🐙', title: 'GitHub & Contributor Passport', desc: 'Accedi con GitHub (Google preservato) e scopri il passaporto opt-in per competenze e offerte.', badge: 'LOGIN LIVE · PASSPORT PROPOSTO', badgeType: 'warning', href: '/social-login', cta: 'Accedi / Profilo →' },
+      { key: 'knowledge', icon: '🧠', title: 'Knowledge & Conoscenze', desc: 'Grafo delle conoscenze aperte, evidenze territoriali e documentazione verificata.', badge: 'ATTIVO · LIVE', href: '/conoscenze', cta: 'Esplora il Grafo →' },
+      { key: 'comics', icon: '📖', title: 'Fumetto & Narrazione', desc: 'Galleria visuale con le tavole di Daniel e Nicola, foto GitHub e provenienza trasparente.', badge: 'GALLERIA LIVE · TOKEN DISTINTI', href: '/fumetto', cta: 'Leggi il Fumetto →' }
+    ],
     featuredEyebrow: 'CATEGORIE E SERVIZI NELLA COMMUNITY',
     featuredTitle: 'Competenze e scambi condivisi tra persone',
     viewAllMarket: 'Vedi tutti i servizi nel Marketplace →',
     categorySample: 'Categoria di esempio',
+    exploreCategory: 'Esplora categoria →',
     free: 'Gratis',
     barter: 'Baratto',
     categories: [
@@ -91,10 +105,22 @@ const LANGS = {
     metaverse: '🪐 Metaverse',
     profileOrLogin: '👤 Sign in / Profile',
     backToHome: 'Back to Home',
+    askZorgax: '👽 Ask Zorgax',
     heroEyebrow: '🛒 SERVICES & SKILLS MARKETPLACE',
     heroTitle: 'Find or offer services and skills in your community',
     heroDesc: 'From repairs to technical assistance, local crafts to community services. Direct person-to-person contact, dedicated listings, and peer-to-peer exchange.',
     heroBadge: 'Open-source mutual aid platform · Free registration · Integrated Zorgax assistant',
+    sixAreasEyebrow: '6 KEY ENTRY POINTS',
+    sixAreasTitle: 'Explore MyZubster’s Core Pathways',
+    sixAreasSubtitle: 'Six distinct entry points with Marketplace and Zorgax prominent for orientation, exchange, and collaboration.',
+    sixAreas: [
+      { key: 'marketplace', icon: '🛒', title: 'Marketplace', desc: 'Search real community services or offer your skills freely through Seller Free.', badge: 'ACTIVE · LIVE', href: '/marketplace', cta: 'Search services →', secondaryHref: '/marketplace?action=new', secondaryCta: '➕ Offer a service' },
+      { key: 'zorgax', icon: '👽', title: 'Zorgax Copilot', desc: 'Assistant for navigation, questions, and guidance across ecosystem pathways.', badge: 'ACTIVE · LIVE', isZorgax: true, href: '/zorgax', cta: 'Open Zorgax →' },
+      { key: 'metaverse', icon: '🪐', title: 'Metaverse · Neon Plaza', desc: 'Interactive 3D virtual world and Space Station accessible in the browser without headset.', badge: 'ACTIVE · LIVE', href: '/metaverse', cta: 'Enter Metaverse →' },
+      { key: 'passport', icon: '🐙', title: 'GitHub & Contributor Passport', desc: 'Sign in with GitHub (Google preserved) and explore the opt-in contributor passport path.', badge: 'LOGIN LIVE · PASSPORT PROPOSED', badgeType: 'warning', href: '/social-login', cta: 'Sign in / Profile →' },
+      { key: 'knowledge', icon: '🧠', title: 'Knowledge & Conoscenze', desc: 'Public knowledge graph, verifiable evidence, and community-shared research.', badge: 'ACTIVE · LIVE', href: '/conoscenze', cta: 'Explore Graph →' },
+      { key: 'comics', icon: '📖', title: 'Comics & Visual Story', desc: 'Visual narrative gallery with Daniel & Nicola artworks, GitHub photos, and clear provenance.', badge: 'GALLERY LIVE · TOKENS SEPARATE', href: '/fumetto', cta: 'Read the Comic →' }
+    ],
     featuredEyebrow: 'FEATURED COMMUNITY CATEGORIES & SERVICES',
     featuredTitle: 'Skills and exchanges shared among community members',
     viewAllMarket: 'View all services in the Marketplace →',
@@ -152,10 +178,22 @@ const LANGS = {
     metaverse: '🪐 Metaverso',
     profileOrLogin: '👤 Iniciar sesión / Perfil',
     backToHome: 'Volver al Inicio',
+    askZorgax: '👽 Pregunta a Zorgax',
     heroEyebrow: '🛒 MERCADO DE SERVICIOS Y COMPETENCIAS',
     heroTitle: 'Encuentra u ofrece servicios y habilidades en tu comunidad',
     heroDesc: 'De reparaciones a asistencia técnica, artesanía local y servicios comunitarios. Contacto directo entre personas, anuncios dedicados e intercambio peer-to-peer.',
     heroBadge: 'Plataforma de ayuda mutua de código abierto · Registro gratuito · Asistente Zorgax integrado',
+    sixAreasEyebrow: '6 PUNTOS DE ENTRADA CLAVE',
+    sixAreasTitle: 'Explora las vías principales de MyZubster',
+    sixAreasSubtitle: 'Seis áreas claras con Marketplace y Zorgax destacados para orientación, trueques y colaboración.',
+    sixAreas: [
+      { key: 'marketplace', icon: '🛒', title: 'Marketplace', desc: 'Busca servicios comunitarios reales o publica tu oferta libremente con Seller Free.', badge: 'ACTIVO · LIVE', href: '/marketplace', cta: 'Buscar servicios →', secondaryHref: '/marketplace?action=new', secondaryCta: '➕ Ofrecer servicio' },
+      { key: 'zorgax', icon: '👽', title: 'Copiloto Zorgax', desc: 'Asistente para orientarte en el ecosistema, resolver dudas y guiarte a cada sección.', badge: 'ACTIVO · LIVE', isZorgax: true, href: '/zorgax', cta: 'Abrir Zorgax →' },
+      { key: 'metaverse', icon: '🪐', title: 'Metaverso · Neon Plaza', desc: 'Espacio virtual 3D interactivo y Space Station accesible desde el navegador.', badge: 'ACTIVO · LIVE', href: '/metaverse', cta: 'Entrar al Metaverso →' },
+      { key: 'passport', icon: '🐙', title: 'GitHub y Pasaporte Contribuidor', desc: 'Inicia con GitHub (Google preservado) y conoce la ruta opt-in del pasaporte de habilidades.', badge: 'LOGIN LIVE · PASAPORTE PROPUESTO', badgeType: 'warning', href: '/social-login', cta: 'Acceder / Perfil →' },
+      { key: 'knowledge', icon: '🧠', title: 'Conocimiento y Evidencias', desc: 'Grafo de conocimiento abierto, evidencias territoriales e investigación compartida.', badge: 'ACTIVO · LIVE', href: '/conoscenze', cta: 'Explorar Grafo →' },
+      { key: 'comics', icon: '📖', title: 'Cómic y Narrativa Visual', desc: 'Galería narrativa con arte de Daniel y Nicola, fotos de GitHub y procedencia transparente.', badge: 'GALERÍA LIVE · TOKENS DISTINTOS', href: '/fumetto', cta: 'Leer el Cómic →' }
+    ],
     featuredEyebrow: 'CATEGORÍAS Y SERVICIOS DESTACADOS',
     featuredTitle: 'Competencias e intercambios compartidos en la comunidad',
     viewAllMarket: 'Ver todos los servicios en el Marketplace →',
@@ -213,10 +251,22 @@ const LANGS = {
     metaverse: '🪐 Métavers',
     profileOrLogin: '👤 Connexion / Profil',
     backToHome: 'Retour à l’accueil',
+    askZorgax: '👽 Demander à Zorgax',
     heroEyebrow: '🛒 MARCHÉ DE SERVICES ET COMPÉTENCES',
     heroTitle: 'Trouvez ou proposez des services et compétences dans votre communauté',
     heroDesc: 'Des réparations à l’assistance technique, de l’artisanat local aux services communautaires. Contact direct entre personnes, annonces dédiées et échanges de pair à pair.',
     heroBadge: 'Plateforme d’entraide open source · Inscription gratuite · Assistant Zorgax intégré',
+    sixAreasEyebrow: '6 POINTS D’ENTRÉE CLÉS',
+    sixAreasTitle: 'Découvrez les parcours principaux de MyZubster',
+    sixAreasSubtitle: 'Six domaines distincts avec Marketplace et Zorgax mis en avant pour orientation et entraide.',
+    sixAreas: [
+      { key: 'marketplace', icon: '🛒', title: 'Marketplace', desc: 'Recherchez de vrais services d’entraide ou proposez vos compétences avec Seller Free.', badge: 'ACTIF · LIVE', href: '/marketplace', cta: 'Chercher services →', secondaryHref: '/marketplace?action=new', secondaryCta: '➕ Proposer service' },
+      { key: 'zorgax', icon: '👽', title: 'Copilote Zorgax', desc: 'Assistant d’orientation pour naviguer, poser des questions et trouver chaque ressource.', badge: 'ACTIF · LIVE', isZorgax: true, href: '/zorgax', cta: 'Ouvrir Zorgax →' },
+      { key: 'metaverse', icon: '🪐', title: 'Métavers · Neon Plaza', desc: 'Monde virtuel 3D interactif et Space Station accessible par navigateur sans casque.', badge: 'ACTIF · LIVE', href: '/metaverse', cta: 'Entrer dans le Métavers →' },
+      { key: 'passport', icon: '🐙', title: 'GitHub & Passeport Contributeur', desc: 'Connexion GitHub (Google préservé) et découverte du passeport volontaire de compétences.', badge: 'LOGIN LIVE · PASSEPORT PROPOSÉ', badgeType: 'warning', href: '/social-login', cta: 'Connexion / Profil →' },
+      { key: 'knowledge', icon: '🧠', title: 'Connaissances & Preuves', desc: 'Graphe de connaissances ouvertes, preuves territoriales et recherche partagée.', badge: 'ACTIF · LIVE', href: '/conoscenze', cta: 'Explorer le Graphe →' },
+      { key: 'comics', icon: '📖', title: 'Bande Dessinée & Récit', desc: 'Galerie narrative avec les planches de Daniel et Nicola, photos GitHub et provenance claire.', badge: 'GALERIE LIVE · TOKENS DISTINCTS', href: '/fumetto', cta: 'Lire la BD →' }
+    ],
     featuredEyebrow: 'CATÉGORIES ET SERVICES EN VEDETTE',
     featuredTitle: 'Compétences et échanges partagés au sein de la communauté',
     viewAllMarket: 'Voir tous les services du Marketplace →',
@@ -274,10 +324,22 @@ const LANGS = {
     metaverse: '🪐 Metaversum',
     profileOrLogin: '👤 Anmelden / Profil',
     backToHome: 'Zurück zur Startseite',
+    askZorgax: '👽 Zorgax fragen',
     heroEyebrow: '🛒 MARKTPLATZ FÜR DIENSTE & FÄHIGKEITEN',
     heroTitle: 'Finde oder biete Dienstleistungen und Fähigkeiten in deiner Community an',
     heroDesc: 'Von Reparaturen bis zu technischer Hilfe, lokalem Handwerk und Community-Diensten. Direkter persönlicher Kontakt, dedizierte Angebote und Peer-to-Peer-Austausch.',
     heroBadge: 'Open-Source-Plattform für gegenseitige Hilfe · Kostenlose Registrierung · Integrierter Zorgax-Assistent',
+    sixAreasEyebrow: '6 WICHTIGSTE EINSTIEGSPUNKTE',
+    sixAreasTitle: 'Erkunde die Kernbereiche von MyZubster',
+    sixAreasSubtitle: 'Sechs klare Einstiegspunkte mit Marktplatz und Zorgax im Fokus für Orientierung und Austausch.',
+    sixAreas: [
+      { key: 'marketplace', icon: '🛒', title: 'Marktplatz', desc: 'Finde echte Hilfsdienste in der Community oder biete deine Hilfe mit Seller Free an.', badge: 'AKTIV · LIVE', href: '/marketplace', cta: 'Dienste suchen →', secondaryHref: '/marketplace?action=new', secondaryCta: '➕ Dienst anbieten' },
+      { key: 'zorgax', icon: '👽', title: 'Zorgax Copilot', desc: 'Assistent für Orientierung, Fragen und Navigation durch das gesamte Ökosystem.', badge: 'AKTIV · LIVE', isZorgax: true, href: '/zorgax', cta: 'Zorgax öffnen →' },
+      { key: 'metaverse', icon: '🪐', title: 'Metaversum · Neon Plaza', desc: 'Interaktive 3D-Welt und Space Station direkt im Browser ohne Headset erkunden.', badge: 'AKTIV · LIVE', href: '/metaverse', cta: 'Metaversum betreten →' },
+      { key: 'passport', icon: '🐙', title: 'GitHub & Mitwirkenden-Pass', desc: 'Mit GitHub anmelden (Google beibehalten) und freiwilligen Fähigkeiten-Pass entdecken.', badge: 'LOGIN LIVE · PASS VORGESCHLAGEN', badgeType: 'warning', href: '/social-login', cta: 'Anmelden / Profil →' },
+      { key: 'knowledge', icon: '🧠', title: 'Knowledge & Wissen', desc: 'Offener Wissensgraph, territoriale Nachweise und gemeinsame Forschung.', badge: 'AKTIV · LIVE', href: '/conoscenze', cta: 'Graph erkunden →' },
+      { key: 'comics', icon: '📖', title: 'Comic & Bildgeschichte', desc: 'Visuelle Galerie mit Kunstwerken von Daniel und Nicola, GitHub-Fotos und klarer Herkunft.', badge: 'GALERIE LIVE · TOKEN GETRENNT', href: '/fumetto', cta: 'Comic lesen →' }
+    ],
     featuredEyebrow: 'HERVORGEHOBENE KATEGORIEN & DIENSTE',
     featuredTitle: 'Fähigkeiten und Austauschmöglichkeiten in der Community',
     viewAllMarket: 'Alle Angebote im Marketplace ansehen →',
@@ -343,7 +405,7 @@ const introStyle = { margin: '8px 20px 20px', padding: '26px', borderRadius: '20
 const zorgaxButtonStyle = { position: 'fixed', right: 12, bottom: 'max(12px,env(safe-area-inset-bottom))', zIndex: 1000, border: '1px solid rgba(168,85,247,.55)', borderRadius: 999, padding: '10px 13px', fontWeight: 900, cursor: 'pointer', boxShadow: '0 8px 28px rgba(0,0,0,.25)', maxWidth: 'calc(100vw - 24px)', fontSize: 14 };
 const zorgaxPanelStyle = { position: 'fixed', right: 18, bottom: 76, zIndex: 1000, width: 'min(390px,calc(100vw - 36px))', padding: 18, borderRadius: 18, border: '1px solid rgba(168,85,247,.55)', background: 'rgba(20,20,30,.97)', color: '#fff', boxShadow: '0 16px 45px rgba(0,0,0,.38)' };
 
-function FirstVisitIntro({ t }) {
+function FirstVisitIntro({ t, onOpenZorgax }) {
   const track = (name, action) => trackConversion(name, conversionContext({ placement: 'home_hero', action }));
   return (
     <section style={{ ...introStyle, margin: '16px 20px 24px', padding: '32px 24px', textAlign: 'center' }}>
@@ -363,12 +425,116 @@ function FirstVisitIntro({ t }) {
         <a href="/marketplace?action=new" onClick={() => track('seller_cta_clicked', 'offer_service')} style={{ ...lifeLinkStyle, background: 'rgba(255,255,255,.08)', color: '#fff', fontSize: 16, padding: '13px 22px', border: '1px solid rgba(255,255,255,.25)' }}>
           {t.offerService}
         </a>
+        <button
+          type="button"
+          onClick={() => {
+            track('zorgax_cta_clicked', 'hero_ask');
+            if (onOpenZorgax) onOpenZorgax();
+            else window.location.href = '/zorgax';
+          }}
+          style={{ ...lifeLinkStyle, background: 'rgba(168,85,247,.22)', color: '#d8b4fe', fontSize: 16, padding: '13px 22px', border: '1px solid rgba(168,85,247,.5)', cursor: 'pointer' }}
+        >
+          {t.askZorgax || '👽 Chiedi a Zorgax'}
+        </button>
         <a href="/metaverse" onClick={() => track('metaverse_cta_clicked', 'try_neon_plaza')} style={{ ...lifeLinkStyle, background: 'transparent', color: '#cbd5e1', fontSize: 16, padding: '13px 22px', border: '1px solid rgba(255,255,255,.15)' }}>
           {t.metaverse}
         </a>
       </div>
       <div style={{ marginTop: 16, fontSize: 13, color: '#94a3b8' }}>
         {t.heroBadge}
+      </div>
+    </section>
+  );
+}
+
+function SixEntryPointsGrid({ t, onOpenZorgax }) {
+  const track = (name, action) => trackConversion(name, conversionContext({ placement: 'home_six_entry_points', action }));
+  const areas = t.sixAreas || [];
+
+  return (
+    <section style={{ margin: '0 20px 28px', padding: '24px', borderRadius: 20, border: '1px solid rgba(168,85,247,.25)', background: 'rgba(15,23,42,.75)' }}>
+      <div style={{ marginBottom: 20 }}>
+        <div style={{ fontSize: 12, fontWeight: 900, color: '#c084fc', letterSpacing: '.08em', marginBottom: 4 }}>
+          {t.sixAreasEyebrow || '6 PUNTI DI INGRESSO CHIAVE'}
+        </div>
+        <h3 style={{ margin: '0 0 6px', fontSize: 24, color: '#fff' }}>
+          {t.sixAreasTitle || 'Esplora i percorsi principali di MyZubster'}
+        </h3>
+        <p style={{ margin: 0, fontSize: 14, color: '#94a3b8', maxWidth: 760 }}>
+          {t.sixAreasSubtitle || 'Sei aree chiare con Marketplace e Zorgax in evidenza per orientamento, scambi e contributi.'}
+        </p>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: 16 }}>
+        {areas.map((a, idx) => {
+          const isWarning = a.badgeType === 'warning';
+          const badgeBg = isWarning ? 'rgba(250,204,21,.14)' : 'rgba(56,189,248,.14)';
+          const badgeColor = isWarning ? '#facc15' : '#38bdf8';
+          const badgeBorder = isWarning ? '1px solid rgba(250,204,21,.35)' : '1px solid rgba(56,189,248,.35)';
+
+          return (
+            <div
+              key={a.key || idx}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                padding: 18,
+                borderRadius: 16,
+                border: '1px solid rgba(255,255,255,.1)',
+                background: 'rgba(255,255,255,.03)'
+              }}
+            >
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                  <span style={{ fontSize: 32 }}>{a.icon}</span>
+                  <span style={{ fontSize: 10.5, fontWeight: 900, padding: '3px 8px', borderRadius: 999, background: badgeBg, color: badgeColor, border: badgeBorder, letterSpacing: '.04em' }}>
+                    {a.badge}
+                  </span>
+                </div>
+                <strong style={{ fontSize: 17, color: '#fff', display: 'block', marginBottom: 6 }}>
+                  {a.title}
+                </strong>
+                <p style={{ margin: 0, fontSize: 13.5, color: '#94a3b8', lineHeight: 1.45 }}>
+                  {a.desc}
+                </p>
+              </div>
+
+              <div style={{ marginTop: 16, paddingTop: 12, borderTop: '1px solid rgba(255,255,255,.08)', display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center', justifyContent: 'space-between' }}>
+                {a.isZorgax ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      track('six_areas_clicked', 'zorgax');
+                      if (onOpenZorgax) onOpenZorgax();
+                      else window.location.href = a.href;
+                    }}
+                    style={{ background: 'rgba(168,85,247,.2)', color: '#d8b4fe', border: '1px solid rgba(168,85,247,.4)', borderRadius: 10, padding: '8px 14px', fontSize: 13, fontWeight: 800, cursor: 'pointer' }}
+                  >
+                    {a.cta}
+                  </button>
+                ) : (
+                  <a
+                    href={a.href}
+                    onClick={() => track('six_areas_clicked', a.key)}
+                    style={{ background: a.key === 'marketplace' ? '#0284c7' : 'rgba(255,255,255,.08)', color: '#fff', border: a.key === 'marketplace' ? 'none' : '1px solid rgba(255,255,255,.2)', borderRadius: 10, padding: '8px 14px', fontSize: 13, fontWeight: 800, textDecoration: 'none' }}
+                  >
+                    {a.cta}
+                  </a>
+                )}
+                {a.secondaryHref && (
+                  <a
+                    href={a.secondaryHref}
+                    onClick={() => track('six_areas_clicked', `${a.key}_secondary`)}
+                    style={{ color: '#38bdf8', fontSize: 12.5, fontWeight: 700, textDecoration: 'none' }}
+                  >
+                    {a.secondaryCta}
+                  </a>
+                )}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </section>
   );
@@ -559,29 +725,33 @@ function StoryVisuals() {
     ['Space Station · Bot network', 'https://raw.githubusercontent.com/MyZubster-Ecosystem/myzubster/main/public/comics/community/MyZubster-Space-Station-Comic-Updated.png', '/fumetto']
   ];
   return (
-    <section style={{ margin: '20px 0', padding: 20, borderRadius: 20, background: 'linear-gradient(135deg,#111a35,#102b2a)', color: '#fff' }}>
-      <h2>📖 La nuova storia MyZubster</h2>
-      <p>Spiral Tribe, Hakim Bey e Noel entrano nel racconto come memoria culturale e connessione di community; Facebook e Telegram sono i canali, Yassen il nodo personaggio, la Space Station e i bot l’infrastruttura narrativa.</p>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(180px,1fr))', gap: 12 }}>
-        {cards.map(([title, src, href]) => (
-          <a key={src} href={href} style={{ color: '#fff', textDecoration: 'none', fontWeight: 800 }}>
-            <img src={src} alt={title} style={{ width: '100%', aspectRatio: '16/10', objectFit: 'cover', borderRadius: 12, display: 'block', marginBottom: 8 }} />
-            {title}
+    <section style={{ margin: '20px 0', padding: '24px', borderRadius: 20, border: '1px solid rgba(255,255,255,.1)', background: 'rgba(15,23,42,.4)' }}>
+      <div style={{ fontSize: 12, fontWeight: 900, color: '#7ee7ff', letterSpacing: '.08em', marginBottom: 4 }}>STORIA & PROVENIENZA</div>
+      <h3 style={{ margin: '0 0 14px', fontSize: 22, color: '#fff' }}>Narrazione e radici della community</h3>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: 14 }}>
+        {cards.map(([title, img, href]) => (
+          <a key={title} href={href} style={{ textDecoration: 'none', color: 'inherit', padding: 14, borderRadius: 14, border: '1px solid rgba(255,255,255,.08)', background: 'rgba(255,255,255,.02)', display: 'block' }}>
+            <img src={img} alt={title} style={{ width: '100%', aspectRatio: '16/9', objectFit: 'cover', borderRadius: 10, marginBottom: 10, background: '#02040a' }} />
+            <strong style={{ color: '#fff', fontSize: 14, display: 'block' }}>{title}</strong>
           </a>
         ))}
       </div>
-      <p><a href="/fumetto" style={{ color: '#7ee7ff', fontWeight: 900 }}>Leggi il fumetto completo →</a></p>
+      <p style={{ marginTop: 14, marginBottom: 0 }}><a href="/fumetto" style={{ color: '#7ee7ff', fontWeight: 900, textDecoration: 'none' }}>Leggi il fumetto completo →</a></p>
     </section>
   );
 }
 
 function EcosystemPage({ t, onChooseTab }) {
   return (
-    <div style={{ maxWidth: 1200, margin: '0 auto', padding: '24px 20px', color: '#fff' }}>
+    <div style={{ maxWidth: 1200, margin: '0 auto', padding: '24px 20px 60px', color: '#fff' }}>
       <header style={{ marginBottom: 24 }}>
-        <a href="/" style={{ color: '#38bdf8', textDecoration: 'none', fontSize: 14, fontWeight: 800 }}>← {t.backToHome || 'Torna alla Home'}</a>
-        <h1 style={{ fontSize: 'clamp(26px, 4vw, 36px)', margin: '14px 0 8px' }}>{t.footerEcosystem || 'Ecosistema & Progetti MyZubster'}</h1>
-        <p style={{ color: '#94a3b8', fontSize: 16, margin: 0, maxWidth: 800 }}>
+        <a href="/" style={{ color: '#38bdf8', textDecoration: 'none', fontWeight: 800, fontSize: 14, display: 'inline-block', marginBottom: 12 }}>
+          {t.backToHome || '← Torna alla Home'}
+        </a>
+        <h1 style={{ fontSize: 'clamp(28px, 4vw, 42px)', margin: '0 0 10px', color: '#fff' }}>
+          {t.footerEcosystem || 'Ecosistema & Progetti MyZubster'}
+        </h1>
+        <p style={{ fontSize: 16, color: '#94a3b8', lineHeight: 1.5, margin: 0, maxWidth: 800 }}>
           {t.intro || 'Spazi correlati, percorsi di community, progetti ambientali, ricerca e iniziative aperte.'}
         </p>
       </header>
@@ -652,6 +822,8 @@ const COPILOT_ACTIONS = [
   { test: /seller|vend|sell|vender|vendre|verkauf/i, label: '💼 Seller · Marketplace', href: '/marketplace', action: 'seller' },
   { test: /market|prodot|product|serviz|compr|buy|acheter|kauf/i, label: '🛒 Marketplace', href: '/marketplace', action: 'marketplace' },
   { test: /metavers|avatar|space/i, label: '🪐 Metaverse', href: '/metaverse', action: 'metaverse' },
+  { test: /fumett|comic|storia|disegn/i, label: '📖 Fumetto Universe', href: '/fumetto', action: 'comics' },
+  { test: /conoscenz|knowledge|grafo|paper/i, label: '🧠 Knowledge Graph', href: '/conoscenze', action: 'knowledge' },
   { test: /life|ambiente|environment|environnement|umwelt|acqua|water|agua|eau|mrv|pilot/i, label: '🌱 LIFE Pilot', href: '/life-pilot', action: 'life' },
   { test: /registr|login|account|comunit|community|communaut|gemeinschaft|unirse|join|rejoindre/i, label: '🔐 Community', href: '/social-login', action: 'join' }
 ];
@@ -662,6 +834,12 @@ function ZorgaxAssistant({ t }) {
   const [busy, setBusy] = useState(false);
   const [messages, setMessages] = useState([{ role: 'assistant', content: t.hello }]);
   const [suggestion, setSuggestion] = useState(null);
+
+  useEffect(() => {
+    const handler = () => setOpen(true);
+    window.addEventListener('myzubster:open-zorgax', handler);
+    return () => window.removeEventListener('myzubster:open-zorgax', handler);
+  }, []);
 
   const send = async (e) => {
     e.preventDefault();
@@ -754,6 +932,10 @@ function App() {
     document.documentElement.lang = l;
   };
 
+  const openZorgax = () => {
+    window.dispatchEvent(new CustomEvent('myzubster:open-zorgax'));
+  };
+
   const path = window.location.pathname.replace(/\/+$/, '') || '/';
   if (path === '/social-login' || path === '/social-login.html') return <SocialLoginPage />;
   if (path === '/life-pilot' || path === '/zorgax/life-pilot') return <ZorgaxLifePilotPage />;
@@ -761,6 +943,7 @@ function App() {
   if (path === '/conoscenze' || path === '/knowledge') return <KnowledgeGraphPage />;
   if (path === '/marketplace') return <MarketplacePage />;
   if (path === '/metaverse') return <MetaversePage />;
+  if (path === '/fumetto' || path === '/comic' || path === '/fumetto.html' || path === '/comic.html') return <ComicsPage />;
   if (path === '/metaverse/rooms/new') return <MetaverseRoomCreatePage />;
   if (path.startsWith('/metaverse/rooms/')) return <MetaverseRoomPage roomKey={decodeURIComponent(path.split('/').pop())} />;
 
@@ -786,6 +969,9 @@ function App() {
               <a href="/marketplace?action=new" style={{ ...lifeLinkStyle, background: 'rgba(255,255,255,.08)', color: '#fff', fontSize: 14, padding: '8px 16px', border: '1px solid rgba(255,255,255,.25)' }}>
                 {t.offerService}
               </a>
+              <button onClick={() => openZorgax()} style={{ ...lifeLinkStyle, background: 'rgba(168,85,247,.15)', color: '#d8b4fe', fontSize: 14, padding: '8px 16px', border: '1px solid rgba(168,85,247,.4)', cursor: 'pointer' }}>
+                {t.askZorgax || '👽 Chiedi a Zorgax'}
+              </button>
               <a href="/metaverse" style={{ ...lifeLinkStyle, background: 'transparent', color: '#cbd5e1', fontSize: 14, padding: '8px 16px', border: '1px solid rgba(255,255,255,.25)' }}>
                 {t.metaverse}
               </a>
@@ -869,7 +1055,10 @@ function App() {
             <a href="/marketplace?action=new" style={{ ...lifeLinkStyle, background: 'rgba(255,255,255,.08)', color: '#fff', fontSize: 14, padding: '8px 16px', border: '1px solid rgba(255,255,255,.25)' }}>
               {t.offerService}
             </a>
-            <button onClick={()=>window.location.assign('/metaverse')} style={{ ...lifeLinkStyle, background: 'transparent', color: '#cbd5e1', fontSize: 14, padding: '8px 16px', border: '1px solid rgba(255,255,255,.25)', cursor: 'pointer' }}>
+            <button onClick={() => openZorgax()} style={{ ...lifeLinkStyle, background: 'rgba(168,85,247,.15)', color: '#d8b4fe', fontSize: 14, padding: '8px 16px', border: '1px solid rgba(168,85,247,.4)', cursor: 'pointer' }}>
+              {t.askZorgax || '👽 Chiedi a Zorgax'}
+            </button>
+            <button onClick={() => window.location.assign('/metaverse')} style={{ ...lifeLinkStyle, background: 'transparent', color: '#cbd5e1', fontSize: 14, padding: '8px 16px', border: '1px solid rgba(255,255,255,.25)', cursor: 'pointer' }}>
               {t.metaverse}
             </button>
             <a href="/social-login" style={{ ...lifeLinkStyle, background: 'rgba(168,85,247,.15)', color: '#d8b4fe', fontSize: 14, padding: '8px 16px', border: '1px solid rgba(168,85,247,.4)' }}>
@@ -880,7 +1069,8 @@ function App() {
       </header>
 
       <main style={{ flex: 1 }}>
-        <FirstVisitIntro t={t} />
+        <FirstVisitIntro t={t} onOpenZorgax={openZorgax} />
+        <SixEntryPointsGrid t={t} onOpenZorgax={openZorgax} />
         <FeaturedServicesGrid t={t} />
         {activeTab === TABS.EXPLORE && <MapPage />}
         {activeTab === TABS.GARDENS && <GardensPage />}
@@ -899,12 +1089,14 @@ export {
   LANGS,
   detectLang,
   FeaturedServicesGrid,
+  SixEntryPointsGrid,
   DirectionIndex,
   EcosystemHub,
   MyzUtilitySpotlight,
   StoryVisuals,
   EcosystemPage,
-  MarketplaceFooter
+  MarketplaceFooter,
+  ComicsPage
 };
 
 export default App;

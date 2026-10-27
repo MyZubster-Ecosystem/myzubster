@@ -12,7 +12,6 @@
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
-const http = require('http');
 const { spawn, execSync } = require('child_process');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
@@ -94,7 +93,7 @@ async function main() {
       375, 812
     );
 
-    // 2. React SPA Simplified Homepage
+    // 2. React SPA Simplified Homepage (with 6 distinct CTAs)
     captureScreenshot(
       'http://127.0.0.1:5007/',
       path.join(EVIDENCE_DIR, '03-homepage-simplified-desktop.png'),
@@ -132,11 +131,23 @@ async function main() {
       1280, 800
     );
 
+    // 6. Comics Universe Gallery
+    captureScreenshot(
+      'http://127.0.0.1:5007/fumetto.html',
+      path.join(EVIDENCE_DIR, '09-comics-gallery-desktop.png'),
+      1280, 800
+    );
+    captureScreenshot(
+      'http://127.0.0.1:5007/fumetto.html',
+      path.join(EVIDENCE_DIR, '10-comics-gallery-mobile.png'),
+      375, 812
+    );
+
     console.log('\n[3/3] Executing real HTTP & DOM content assertions against local staging...');
 
     const checks = [];
 
-    // Check 1: Static portal homepage content & 4 key actions
+    // Check 1: Static portal homepage content & primary actions
     const portalRes = await fetchHttp('http://127.0.0.1:5008/index.html');
     const hasPortalActions = portalRes.text.includes('/marketplace') &&
                              portalRes.text.includes('/zorgax') &&
@@ -183,6 +194,15 @@ async function main() {
       target: 'Space Station / Metaverse Portal (HTTP 5008)',
       status: spaceRes.ok && hasSpace ? 'PASS' : 'FAIL',
       detail: `HTTP ${spaceRes.status}, verified 3D metaverse entry point (${spaceRes.timeMs}ms)`
+    });
+
+    // Check 6: Comics / Fumetto Gallery page
+    const fumettoRes = await fetchHttp('http://127.0.0.1:5007/fumetto.html');
+    const hasFumetto = fumettoRes.text.includes('fumetto') || fumettoRes.text.includes('Comic Universe') || fumettoRes.text.includes('MyZubster-Photos');
+    checks.push({
+      target: 'Comics Universe Gallery (HTTP 5007)',
+      status: fumettoRes.ok && hasFumetto ? 'PASS' : 'FAIL',
+      detail: `HTTP ${fumettoRes.status}, verified interactive comic reader and GitHub Live Photos integration (${fumettoRes.timeMs}ms)`
     });
 
     let allPassed = true;

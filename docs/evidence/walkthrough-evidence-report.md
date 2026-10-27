@@ -3,26 +3,41 @@
 **Repository**: `MyZubster-Ecosystem/myzubster`  
 **Pull Request**: [PR #1627: feat(marketplace): simplify navigation to 4 key actions and add featured services showcase (#1626)](https://github.com/MyZubster-Ecosystem/myzubster/pull/1627)  
 **Author**: `@wasim-builds`  
-**Date**: 27 October 2026  
-**Scope**: Complete technical evidence report addressing maintainer review directives: local HTTP staging visual verification, real DOM & HTTP assertions, backwards-compatible pagination audit with deterministic tie-breaking, isolated MongoMemoryReplSet 15-step runtime walkthrough, and external Vercel preview authorization status.
+**Date**: 28 October 2026  
+**Scope**: Complete technical evidence report addressing maintainer review directives: local HTTP staging visual verification, 6-entry-point architecture audit, `/fumetto` route resolution, Contributor Passport roadmap disclosure, real DOM & HTTP assertions, backwards-compatible pagination audit with deterministic tie-breaking, isolated MongoMemoryReplSet 15-step runtime walkthrough, and external Vercel preview authorization status.
 
 ---
 
-## 1. Verification Surfaces & Evidence Boundaries
+## 1. Six-Area Gap Audit & Route-Resolution Outcomes
+
+In accordance with maintainer UX clarifications (Comments [#6448786951](https://github.com/MyZubster-Ecosystem/myzubster/pull/1627#issuecomment-6448786951) & [#6448849923](https://github.com/MyZubster-Ecosystem/myzubster/pull/1627#issuecomment-6448849923)), the six core user-facing entry points are structured with Marketplace and Zorgax at highest visibility:
+
+| Area | Entry Point & Route | Link Behavior | Status (Live vs Proposed) | Wiring & Resolution Outcome |
+|---|---|---|---|---|
+| **1. Marketplace** | `/marketplace` & `/marketplace?action=new` | SPA navigation or direct URL; loads `MarketplacePage` | **LIVE** | Fully operational catalog with category filters, Seller Free onboarding (`action=new`), and direct crypto agreements. |
+| **2. Zorgax** | `<ZorgaxAssistant>` floating copilot, header action, and `/zorgax` | Click opens floating chat or direct `/zorgax` | **LIVE** | Prominent in hero (`t.askZorgax`), sticky navbar, and floating FAB with natural language tool routing. |
+| **3. Metaverse** | `/metaverse` (Neon Plaza & Space Station) | SPA navigation or direct URL; loads `MetaversePage` | **LIVE** | Interactive 3D virtual world and Space Station accessible in browser without VR headset. |
+| **4. GitHub / Passport** | `/social-login` | Sign-in portal with GitHub, Google & password | **LIVE (GitHub login)<br/>PROPOSED (Passport roadmap)** | Honest disclosure: GitHub OAuth is live for developer authentication. Contributor Passport is clearly labeled as an opt-in roadmap (skills, repos, accepted PRs, seller offers) without unverified on-chain governance claims. Existing Google and password auth are fully preserved. |
+| **5. Knowledge** | `/conoscenze` (and `/knowledge`) | SPA navigation or direct URL; loads `KnowledgeGraphPage` | **LIVE** | Prominent top-level CTA on homepage linking directly to verified public knowledge graph and evidence articles. |
+| **6. Comics** | `/fumetto` (and `/comic`) | SPA route `ComicsPage` + static server fallback `/fumetto.html` | **LIVE** | Added explicit React route `ComicsPage.js` with embedded interactive reader, 13 verified narrative chapters, and token transparency notice distinguishing actual Base Sepolia minted tokens from narrative concept art. |
+
+---
+
+## 2. Verification Surfaces & Evidence Boundaries
 
 To maintain rigorous transparency, this report strictly separates and labels the verification surfaces:
 
 | Surface Layer | Environment | Status | Verification Scope |
 |---|---|---|---|
 | **Layer 1: Isolated E2E Runtime** | Express + MongoMemoryReplSet | **PASS (15/15)** | Full seller lifecycle, registration, Seller Free activation, service publishing, direct crypto agreement, fail-closed guards, ecosystem routes. |
-| **Layer 2: Local HTTP Browser Staging** | Headless Chromium over HTTP (`:5007`, `:5008`) | **PASS (5/5)** | Real HTTP fetches, DOM assertions (4 key actions, load-more, filters, viewport meta), responsive desktop (1280x800) and mobile (375x812) renders. |
+| **Layer 2: Local HTTP Browser Staging** | Headless Chromium over HTTP (`:5007`, `:5008`) | **PASS (6/6)** | Real HTTP fetches, DOM assertions (6 key actions, comics gallery, load-more, filters, viewport meta), responsive desktop (1280x800) and mobile (375x812) renders. |
 | **Layer 3: Pagination Compatibility** | Automated Jest Suite (`marketplacePaginationCompatibility.test.js`) | **PASS (5/5)** | Legacy unpaginated callers (default limit 200 preserved, no silent listing loss), paginated callers (limit 50, page 1/2), deterministic `_id: -1` secondary sort. |
 | **Layer 4: Continuous Integration (CI)** | GitHub Actions Head Check Runs | **PASS (100% Green)** | `Test, lint and build`, `Continuous Evidence Gate`, `MYZ-164 Seller Free policy`, `Security Audit` (0 vulnerabilities). |
 | **Layer 5: Deployed Vercel Preview** | Vercel External Fork Deployment | **PENDING AUTHORIZATION** | External forks require 1-click authorization by a team member with Vercel team access. |
 
 ---
 
-## 2. GET `/api/listings` Backwards-Compatibility Strategy & Audit
+## 3. GET `/api/listings` Backwards-Compatibility Strategy & Audit
 
 ### A. Strategy Specification
 In response to maintainer review finding #3:
@@ -38,35 +53,37 @@ In response to maintainer review finding #3:
 
 ---
 
-## 3. Real Browser Navigation Assertions (Local HTTP Staging)
+## 4. Real Browser Navigation Assertions (Local HTTP Staging)
 
 Executed via `node scripts/capture-staging-evidence.js` against live local HTTP servers (port 5007 for React SPA build, port 5008 for static public portal). Old screenshots are deleted prior to execution; failures to render or capture fail the script immediately.
 
 | Target Surface | Endpoint | Method / Viewport | Assertions Evaluated | Result |
 |---|---|---|---|---|
 | **Static Portal Homepage** | `http://127.0.0.1:5008/index.html` | HTTP GET / Desktop & Mobile | HTTP 200, contains 4 primary ecosystem navigation actions (`/community-marketplace.html`, `Marketplace`, `/space-station.html`, `/zorgax.html`) | **PASS** |
-| **React SPA Homepage** | `http://127.0.0.1:5007/` | HTTP GET / Desktop & Mobile | HTTP 200, `<div id="root">` mounted, production JS bundle referenced, responsive viewport meta | **PASS** |
+| **React SPA Homepage** | `http://127.0.0.1:5007/` | HTTP GET / Desktop & Mobile | HTTP 200, `<div id="root">` mounted, production JS bundle referenced, responsive viewport meta, 6 entry point CTAs | **PASS** |
 | **Community Marketplace** | `http://127.0.0.1:5008/community-marketplace.html` | HTTP GET / Desktop & Mobile | HTTP 200, `loadMoreBtn` pagination container, `digital_services` category filter button, mobile viewport meta | **PASS** |
 | **Zorgax Assistant Page** | `http://127.0.0.1:5008/zorgax.html` | HTTP GET / Desktop | HTTP 200, interactive assistant portal and onboarding card containers verified | **PASS** |
 | **Space Station / Metaverse** | `http://127.0.0.1:5008/space-station.html` | HTTP GET / Desktop | HTTP 200, 3D metaverse canvas and space station gateway verified | **PASS** |
+| **Comics Universe Gallery** | `http://127.0.0.1:5007/fumetto.html` | HTTP GET / Desktop & Mobile | HTTP 200, interactive comic reader, GitHub Live Photos integration, and 13 chapters verified | **PASS** |
 
 ---
 
-## 4. Visual Staging Render Evidence (Chromium Headless)
+## 5. Visual Staging Render Evidence (Chromium Headless)
 
 All visual artifacts are captured over HTTP and persisted under `docs/evidence/walkthrough-screenshots/`:
 
 | Surface | Desktop (1280x800) | Mobile (375x812) | Local Render Description |
 |---|---|---|---|
 | **Portal Homepage** | [01-homepage-portal-desktop.png](walkthrough-screenshots/01-homepage-portal-desktop.png) | [02-homepage-portal-mobile.png](walkthrough-screenshots/02-homepage-portal-mobile.png) | Static portal homepage showing 4 key actions, hero section, and community introduction. |
-| **Simplified React Homepage** | [03-homepage-simplified-desktop.png](walkthrough-screenshots/03-homepage-simplified-desktop.png) | [04-homepage-simplified-mobile.png](walkthrough-screenshots/04-homepage-simplified-mobile.png) | React SPA simplified homepage showing clean category sample cards without fake prices or badges. |
+| **Simplified React Homepage (6 CTAs)** | [03-homepage-simplified-desktop.png](walkthrough-screenshots/03-homepage-simplified-desktop.png) | [04-homepage-simplified-mobile.png](walkthrough-screenshots/04-homepage-simplified-mobile.png) | React SPA homepage showing 6 distinct labeled entry points (Marketplace, Zorgax, Metaverse, GitHub/Passport, Knowledge, Comics). |
 | **Community Marketplace** | [05-marketplace-catalog-desktop.png](walkthrough-screenshots/05-marketplace-catalog-desktop.png) | [06-marketplace-catalog-mobile.png](walkthrough-screenshots/06-marketplace-catalog-mobile.png) | Marketplace catalog with category filters (`digital_services`), direct listings, and load-more pagination. |
 | **Zorgax Assistant** | [07-zorgax-assistant-desktop.png](walkthrough-screenshots/07-zorgax-assistant-desktop.png) | — | Zorgax interactive assistant and character ecosystem preserved. |
 | **Metaverse / Space Station** | [08-metaverse-portal-desktop.png](walkthrough-screenshots/08-metaverse-portal-desktop.png) | — | 3D Space Station / Metaverse entry point preserved. |
+| **Comics Universe Gallery** | [09-comics-gallery-desktop.png](walkthrough-screenshots/09-comics-gallery-desktop.png) | [10-comics-gallery-mobile.png](walkthrough-screenshots/10-comics-gallery-mobile.png) | Dedicated comics viewer with chapter index, token provenance disclosure, and GitHub Live Photos. |
 
 ---
 
-## 5. Live Runtime Walkthrough Results (`npm run walkthrough:seller`)
+## 6. Live Runtime Walkthrough Results (`npm run walkthrough:seller`)
 
 15/15 lifecycle checks pass against live Express + MongoMemoryReplSet:
 
@@ -88,7 +105,7 @@ All visual artifacts are captured over HTTP and persisted under `docs/evidence/w
 
 ---
 
-## 6. Vercel Preview Authorization Status (External Fork Gate)
+## 7. Vercel Preview Authorization Status (External Fork Gate)
 
 On public GitHub repositories, Vercel requires team authorization before deploying commits submitted from outside forks:
 
