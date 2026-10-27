@@ -90,14 +90,23 @@ router.get('/', async (req,res)=>{
   if(category)query.category=category;
   if(currency)query.currency=String(currency).toUpperCase();
   if(location)query.location={$regex:String(location).replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),$options:'i'};
-  const parsedLimit=parseInt(rawLimit,10);
-  const limit=Number.isFinite(parsedLimit)&&parsedLimit>0?Math.min(parsedLimit,100):50;
-  const parsedPage=parseInt(rawPage,10);
-  const parsedSkip=parseInt(rawSkip,10);
-  const page=Number.isFinite(parsedPage)&&parsedPage>0?parsedPage:1;
-  const skip=Number.isFinite(parsedSkip)&&parsedSkip>=0?parsedSkip:(page-1)*limit;
-  const total=await MarketplaceListing.countDocuments(query);
-  const listings=await MarketplaceListing.find(query).sort({createdAt:-1}).skip(skip).limit(limit).lean();
+
+  // Explicit backwards-compatibility strategy:
+  // Legacy unpaginated callers (no limit, page, or skip provided) retain the original default limit of 200 items,
+  // preventing silent listing truncation for existing consumers.
+  // Paginated callers (providing limit, page, or skip) default to limit=50 (capped at 200).
+  const hasExplicitPagination = rawLimit !== undefined || rawPage !== undefined || rawSkip !== undefined;
+  const parsedLimit = parseInt(rawLimit, 10);
+  const defaultLimit = hasExplicitPagination ? 50 : 200;
+  const limit = Number.isFinite(parsedLimit) && parsedLimit > 0 ? Math.min(parsedLimit, 200) : defaultLimit;
+  const parsedPage = parseInt(rawPage, 10);
+  const parsedSkip = parseInt(rawSkip, 10);
+  const page = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
+  const skip = Number.isFinite(parsedSkip) && parsedSkip >= 0 ? parsedSkip : (page - 1) * limit;
+
+  const total = await MarketplaceListing.countDocuments(query);
+  // Stable secondary sort on _id ensures deterministic pagination ordering across pages when createdAt matches
+  const listings = await MarketplaceListing.find(query).sort({ createdAt: -1, _id: -1 }).skip(skip).limit(limit).lean();
   res.json({
    success:true,
    count:listings.length,

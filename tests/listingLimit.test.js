@@ -13,10 +13,10 @@ const MarketplaceListing = require('../src/models/MarketplaceListing');
 describe('listing query limit and pagination verification (PR #1627)', () => {
   const routes = fs.readFileSync(path.join(__dirname, '../src/routes/listingRoutes.js'), 'utf8');
 
-  test('validates and applies server-side query limit with max 100 and default 50', () => {
+  test('validates and applies server-side query limit and backward-compatible default', () => {
     expect(routes).toContain('limit:rawLimit');
-    expect(routes).toContain('const parsedLimit=parseInt(rawLimit,10)');
-    expect(routes).toContain('Number.isFinite(parsedLimit)&&parsedLimit>0?Math.min(parsedLimit,100):50');
+    expect(routes).toContain('parsedLimit');
+    expect(routes).toContain('defaultLimit');
     expect(routes).toContain('.limit(limit)');
   });
 

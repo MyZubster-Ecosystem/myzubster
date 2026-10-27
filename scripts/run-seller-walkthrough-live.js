@@ -304,11 +304,12 @@ async function run() {
       throw new Error(`Crypto listing failed: ${JSON.stringify(cryptoRes.data)}`);
     }
 
-    // Step 13: Server pagination defaults (50 vs prior 200) & load-more traversal verification
-    console.log('\n[Step 13/15] Verifying server pagination defaults (50 vs 200) and load-more page traversal...');
+    // Step 13: Backward-compatible pagination & load-more traversal verification
+    console.log('\n[Step 13/15] Verifying backward-compatible pagination (legacy limit=200, paginated limit=50) and stable sort...');
     const t10 = Date.now();
-    // Seed 52 additional synthetic active listings to exceed default limit of 50
+    // Seed 52 additional synthetic active listings to exceed 50 items (total 54 listings)
     const bulkDocs = [];
+    const baseTime = Date.now();
     for (let i = 1; i <= 52; i++) {
       bulkDocs.push({
         ownerId: new mongoose.Types.ObjectId(),
@@ -318,31 +319,44 @@ async function run() {
         currency: 'FREE',
         price: 0,
         status: 'active',
-        createdAt: new Date(Date.now() - i * 1000)
+        // Alternate identical timestamps to verify stable deterministic tie-breaking on _id
+        createdAt: new Date(baseTime - Math.floor(i / 2) * 1000)
       });
     }
     await MarketplaceListing.insertMany(bulkDocs);
 
-    // Query default page 1 without limit parameter
-    const page1Res = await fetchJson(`${BASE_URL}/api/listings`);
+    // 1. Legacy unpaginated caller (no limit, page, or skip passed) retains limit=200 and returns all items
+    const legacyRes = await fetchJson(`${BASE_URL}/api/listings`);
+    // 2. Explicitly paginated caller (passes page=1 or page=2) defaults to limit=50
+    const page1Res = await fetchJson(`${BASE_URL}/api/listings?page=1`);
     const page2Res = await fetchJson(`${BASE_URL}/api/listings?page=2`);
     const d10 = Date.now() - t10;
 
+    const page1Ids = new Set((page1Res.data?.listings || []).map(l => l.id || l._id));
+    const page2Ids = new Set((page2Res.data?.listings || []).map(l => l.id || l._id));
+    const overlap = [...page1Ids].filter(id => page2Ids.has(id));
+
     if (
+      legacyRes.status === 200 &&
+      legacyRes.data?.limit === 200 &&
+      legacyRes.data?.count === 54 &&
+      legacyRes.data?.hasMore === false &&
       page1Res.status === 200 &&
       page1Res.data?.limit === 50 &&
       page1Res.data?.count === 50 &&
       page1Res.data?.hasMore === true &&
       page2Res.status === 200 &&
       page2Res.data?.page === 2 &&
+      page2Res.data?.count === 4 &&
       page2Res.data?.hasMore === false &&
-      page2Res.data?.count >= 4 // 54 total listings (2 initial + 52 seeded)
+      overlap.length === 0
     ) {
-      console.log(`  ✓ Page 1 defaulted to limit=50 (count: ${page1Res.data.count}, hasMore: ${page1Res.data.hasMore})`);
-      console.log(`  ✓ Page 2 loaded remaining items (count: ${page2Res.data.count}, hasMore: ${page2Res.data.hasMore}, total: ${page1Res.data.total})`);
-      steps.push({ step: 13, name: 'Server pagination defaults (50 vs 200) & load-more', status: 'PASS', httpStatus: 200, timeMs: d10 });
+      console.log(`  ✓ Legacy unpaginated query preserved default limit=200 (returned all ${legacyRes.data.count}/54 items, hasMore: false)`);
+      console.log(`  ✓ Paginated query defaulted to limit=50 (page 1 count: 50, hasMore: true; page 2 count: 4, hasMore: false)`);
+      console.log(`  ✓ Stable secondary sort on _id verified across pages (0 overlapping items in pagination tie-break)`);
+      steps.push({ step: 13, name: 'Backward-compatible pagination & stable sort', status: 'PASS', httpStatus: 200, timeMs: d10 });
     } else {
-      throw new Error(`Pagination verification failed: page1=${JSON.stringify(page1Res.data)}, page2=${JSON.stringify(page2Res.data)}`);
+      throw new Error(`Pagination verification failed: legacyCount=${legacyRes.data?.count}, p1Count=${page1Res.data?.count}, p2Count=${page2Res.data?.count}, overlap=${overlap.length}`);
     }
 
     // Step 14: Mobile navigation & responsive layout asset delivery
