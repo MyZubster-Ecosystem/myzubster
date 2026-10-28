@@ -435,5 +435,22 @@ describe('interopBridgeHarness (Issue #1659 — Milestone M2)', () => {
       expect(result.code).toBe('PAYLOAD_VERIFICATION_FAILED');
       expect(mockReceiver).not.toHaveBeenCalled();
     });
+
+    test('enforces cryptographic authentication and fails closed in production runtime even when requireAuth is false', () => {
+      const originalEnv = process.env.NODE_ENV;
+      process.env.NODE_ENV = 'production';
+      try {
+        const payload = createBridgePayload({
+          contributorId: 'wasim-builds',
+          displayName: 'Wasim',
+          commitSha: sampleCommitSha
+        });
+        const result = verifyBridgePayload(payload, { requireAuth: false });
+        expect(result.valid).toBe(false);
+        expect(result.reason).toContain('mock-only mode requireAuth=false fails closed in production');
+      } finally {
+        process.env.NODE_ENV = originalEnv;
+      }
+    });
   });
 });

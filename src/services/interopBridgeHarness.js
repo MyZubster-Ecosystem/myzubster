@@ -7,11 +7,40 @@
  * Provides deterministic RFC 8785 (JCS) canonicalization, SHA-256 integrity digests,
  * sender authenticity via HMAC-SHA256 and Ed25519 signatures, replay protection/idempotency guards,
  * and disconnect/retry resilience for lab pilots.
+ *
+ * ARCHITECTURAL SPECIFICATIONS FOR PRODUCTION PEER INTEGRATION:
+ * 1. Peer Key Identity & Trust Anchor:
+ *    - In real peer topologies, contributor IDs must be strictly mapped to out-of-band verified
+ *      public keys (e.g. Ed25519 SPKI PEM) stored in a secure local trust store or signed by a root CA.
+ *    - Payloads presenting an unknown or mismatched contributor public key must be rejected immediately.
+ * 2. Key Rotation Protocol:
+ *    - Key rotation requires a dual-signed transition checkpoint: the new key must be signed by
+ *      the preceding active key before retirement, with an explicit monotonic sequence number and validity window.
+ * 3. Replay Protection & Persistence Across Restarts:
+ *    - The in-memory Map in this harness is strictly for local unit testing and mock lab execution.
+ *    - Production-facing callers must bind idempotency digests to persistent storage (e.g., Redis `SET NX EX`
+ *      or MongoDB unique TTL index on `integrity.digest`) with mandatory clock skew / expiry validation (<= 300s).
+ * 4. Production Fail-Closed Boundary:
+ *    - `requireAuth=false` is strictly mock-only. In production/serverless runtimes, `verifyBridgePayload`
+ *      and `InteropBridgeDispatcher` automatically enforce `requireAuth=true` and fail closed.
  */
 
 const crypto = require('crypto');
 
 const INTEROP_SCHEMA_V1 = 'myzubster.interoperability-checkpoint.v1';
+
+/**
+ * Detects whether execution is occurring in a production, preview, or cloud serverless environment.
+ */
+function isProductionEnvironment() {
+  return Boolean(
+    process.env.NODE_ENV === 'production' ||
+    process.env.VERCEL === '1' ||
+    process.env.VERCEL_ENV ||
+    process.env.AWS_LAMBDA_FUNCTION_NAME ||
+    process.env.LAMBDA_TASK_ROOT
+  );
+}
 
 /**
  * Serializes string with lone surrogate checks per RFC 8785 Section 3.2.2.2.
@@ -289,10 +318,12 @@ function verifyBridgePayload(payload, { authSecret, publicKey, requireAuth = fal
   }
 
   // Handle Authentication / Sender Authenticity
-  if (requireAuth && !authentication) {
+  // In production or cloud deployments, requireAuth=false is forbidden. Callers must supply cryptographic proof.
+  const enforcedRequireAuth = requireAuth || isProductionEnvironment();
+  if (enforcedRequireAuth && !authentication) {
     return {
       valid: false,
-      reason: 'Cryptographic authentication required: unkeyed digest alone does not prove sender authenticity'
+      reason: 'Cryptographic authentication required: unkeyed digest alone does not prove sender authenticity (mock-only mode requireAuth=false fails closed in production)'
     };
   }
 
@@ -382,7 +413,7 @@ class InteropBridgeDispatcher {
   constructor({ maxRetries = 3, retryDelayMs = 10, requireAuth = false, authSecret = null, publicKey = null } = {}) {
     this.maxRetries = maxRetries;
     this.retryDelayMs = retryDelayMs;
-    this.requireAuth = requireAuth;
+    this.requireAuth = requireAuth || isProductionEnvironment();
     this.authSecret = authSecret;
     this.publicKey = publicKey;
     this.processedDigests = new Map();

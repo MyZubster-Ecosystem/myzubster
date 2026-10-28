@@ -3,13 +3,13 @@
 **Owner / Author**: Mohammed Wasim Khan (`@wasim-builds`)  
 **Context**: [Issue #1659](https://github.com/MyZubster-Ecosystem/myzubster/issues/1659) — Gangkor isolated security & interoperability lab with Wasim  
 **Status**: Milestone M1 (Baseline Isolation, Threat Model & Least-Privilege Verification)  
-**Target Environment**: Isolated Virtual Machine (`myzubster-wasim-dev` via Tailscale `100.70.67.8`)
+**Target Environment**: Isolated Development Lab VM (`isolated-lab-vm` via private mesh overlay `100.x.y.z`)
 
 ---
 
 ## 1. Executive Summary & Boundaries
 
-In accordance with [Issue #1659](https://github.com/MyZubster-Ecosystem/myzubster/issues/1659), this specification establishes the security boundaries, network access policies, least-privilege accounting, and threat model for the isolated development virtual machine (`myzubster-wasim-dev`).
+In accordance with [Issue #1659](https://github.com/MyZubster-Ecosystem/myzubster/issues/1659), this specification establishes the security boundaries, network access policies, least-privilege accounting, and threat model for the isolated development virtual machine (`isolated-lab-vm`).
 
 ### Zero-Trust Operational Principles:
 1. **Zero Cloud/VPS Spend**: Runs within the pre-provisioned isolated development VM without creating new cloud expenses or third-party paid subscriptions.
@@ -30,9 +30,9 @@ In accordance with [Issue #1659](https://github.com/MyZubster-Ecosystem/myzubste
                                │ (DERP / Direct UDP peer-to-peer)
                                ▼
 ┌─────────────────────────────────────────────────────────────┐
-│ Isolated Development VM: `myzubster-wasim-dev`              │
-│ IP: 100.70.67.8 (Tailscale interface only)                 │
-│ OS: Ubuntu 24.04 LTS x86_64 (Linux 6.8.0-147-generic)       │
+│ Isolated Development VM: `isolated-lab-vm`                  │
+│ IP: 100.x.y.z (Tailscale private interface only)            │
+│ OS: Ubuntu 24.04 LTS x86_64 (Linux kernel 6.8.0)            │
 │ User: wasim (uid=1001, gid=1001, sudo disabled)             │
 │ Storage: 24GB virtual disk (2.0GB used, 22GB available)     │
 │ Runtime: Node.js 22 LTS (v22.23.4) in ~/.local/bin/         │
@@ -113,11 +113,11 @@ This isolated lab is strictly air-gapped from production environments:
 
 ## 5. Isolated CI Runner Feasibility Assessment
 
-As requested in [Issue #1659](https://github.com/MyZubster-Ecosystem/myzubster/issues/1659), we evaluated the feasibility of hosting an isolated GitHub Actions runner inside `myzubster-wasim-dev`:
+As requested in [Issue #1659](https://github.com/MyZubster-Ecosystem/myzubster/issues/1659), we evaluated the feasibility of hosting an isolated GitHub Actions runner inside `isolated-lab-vm`:
 
 1. **User Space Feasibility**: GitHub Actions runner v2.338.0+ supports headless user-space execution without requiring root or daemon-level permissions.
 2. **Resource Adequacy**: With 22 GB free disk space and a modern x86_64 Linux kernel (Ubuntu 24.04), the VM can comfortably execute unit, integration, and linter jobs.
-3. **Isolation Benefit**: Running fork PR tests on `myzubster-wasim-dev` provides complete isolation from maintainer local machines and production servers, ensuring untrusted PR code never touches production environments.
+3. **Isolation Benefit**: Running fork PR tests on `isolated-lab-vm` provides complete isolation from maintainer local machines and production servers, ensuring untrusted PR code never touches production environments.
 4. **Recommendation**: If maintainers choose to activate a runner here, it should be configured as a repository-level runner scoped exclusively to the contributor fork or isolated testing workflows.
 
 ---
