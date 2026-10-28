@@ -64,6 +64,51 @@ function calculatePlatformCommission(amount) {
   return Math.round(value * MARKETPLACE_PLATFORM_COMMISSION_RATE * 100) / 100;
 }
 
+function atomicInteger(value, field) {
+  if (typeof value === 'bigint' && value >= 0n) return value;
+  if (typeof value === 'number' && Number.isSafeInteger(value) && value >= 0) return BigInt(value);
+  if (typeof value === 'string' && /^(0|[1-9][0-9]*)$/.test(value) && !/\s/.test(value)) {
+    return BigInt(value);
+  }
+  throw new TypeError(`${field} must be a non-negative integer in atomic units (bigint, canonical decimal string, or safe integer number)`);
+}
+
+// Offline arithmetic only: neither payment eligibility nor settlement evidence.
+// Fees must be exact; rounding and refund allocation require separate policy.
+function calculateAtomicPlatformQuote(input) {
+  if (!input || typeof input !== 'object' || Array.isArray(input)) {
+    throw new TypeError('Quote input must be an object');
+  }
+  const { unitAmountAtomic, quantity = 1, exchangeType } = input;
+  if (!['PAID', 'FREE', 'BARTER'].includes(exchangeType)) {
+    throw new TypeError('exchangeType must be PAID, FREE, or BARTER');
+  }
+  const unitAmount = atomicInteger(unitAmountAtomic, 'unitAmountAtomic');
+  const units = atomicInteger(quantity, 'quantity');
+  if (units === 0n) throw new TypeError('quantity must be a positive integer');
+
+  const gross = unitAmount * units;
+  let fee = 0n;
+  if (exchangeType === 'PAID') {
+    const numerator = gross * BigInt(MARKETPLACE_PLATFORM_COMMISSION_PERCENT);
+    if (numerator % 100n !== 0n) {
+      const error = new Error('ROUNDING_POLICY_REQUIRED: platform fee is not an integer atomic amount');
+      error.code = 'ROUNDING_POLICY_REQUIRED';
+      throw error;
+    }
+    fee = numerator / 100n;
+  }
+
+  return {
+    status: 'QUOTE_ONLY',
+    grossAtomic: gross.toString(),
+    platformFeeAtomic: fee.toString(),
+    sellerNetAtomic: (gross - fee).toString(),
+    networkCostsAtomic: null,
+    processorCostsAtomic: null
+  };
+}
+
 module.exports = {
   FREE_SELLER_ACTIVE_LISTING_LIMIT,
   MARKETPLACE_PLATFORM_COMMISSION_RATE,
@@ -72,5 +117,6 @@ module.exports = {
   isFreeSellerActive,
   canPublishCommercialListing,
   requiresPaymentOnboarding,
-  calculatePlatformCommission
+  calculatePlatformCommission,
+  calculateAtomicPlatformQuote
 };

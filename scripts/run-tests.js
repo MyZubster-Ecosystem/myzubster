@@ -1,6 +1,7 @@
 const { spawnSync } = require('node:child_process');
 
 const esmTests = [
+  'test/atomicPlatformQuote.test.mjs',
   'identity/credential/credential.test.mjs',
   'identity/verifier/verify.test.mjs',
   'identity/hash-verification/verify-hash.test.mjs',
