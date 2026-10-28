@@ -181,6 +181,32 @@ describe('ImageValidationService Unit Tests', () => {
       expect(normalized).toHaveLength(1);
       expect(normalized[0].url).toBe(`/api/listings/images/${sellerId}/photo.jpg`);
     });
+
+    test('rejects Vercel Blob URLs with missing or mismatched owner segment when ownerId is specified', () => {
+      const sellerId = 'seller_12345';
+      const input = [
+        { url: 'https://store.public.blob.vercel-storage.com/marketplace/unowned_file.jpg' },
+        { url: 'https://store.public.blob.vercel-storage.com/marketplace/other_user/photo.jpg' },
+        { url: `https://store.public.blob.vercel-storage.com/marketplace/${sellerId}/valid.jpg` }
+      ];
+      const normalized = normalizeListingImages(input, 'Fallback', { ownerId: sellerId });
+      expect(normalized).toHaveLength(1);
+      expect(normalized[0].url).toBe(`https://store.public.blob.vercel-storage.com/marketplace/${sellerId}/valid.jpg`);
+    });
+
+    test('enforces verifiedUploadUrls set and rejects unverified platform/blob URLs', () => {
+      const sellerId = 'seller_12345';
+      const verifiedUrl = `https://store.public.blob.vercel-storage.com/marketplace/${sellerId}/verified.jpg`;
+      const unverifiedUrl = `https://store.public.blob.vercel-storage.com/marketplace/${sellerId}/unverified.jpg`;
+      const input = [
+        { url: verifiedUrl },
+        { url: unverifiedUrl }
+      ];
+      const verifiedUploadUrls = new Set([verifiedUrl]);
+      const normalized = normalizeListingImages(input, 'Fallback', { ownerId: sellerId, verifiedUploadUrls });
+      expect(normalized).toHaveLength(1);
+      expect(normalized[0].url).toBe(verifiedUrl);
+    });
   });
 });
 
@@ -313,6 +339,27 @@ describe('Marketplace Photo Upload & Route Integration Tests', () => {
         expect(res.body.code).toBe('STORAGE_CONFIGURATION_ERROR');
       } finally {
         process.env.NODE_ENV = prevEnv;
+        if (prevToken) process.env.BLOB_READ_WRITE_TOKEN = prevToken;
+      }
+    });
+
+    test('returns 503 STORAGE_CONFIGURATION_ERROR in Vercel preview environments (VERCEL=1) when Blob token is missing', async () => {
+      const prevVercel = process.env.VERCEL;
+      const prevToken = process.env.BLOB_READ_WRITE_TOKEN;
+      try {
+        process.env.VERCEL = '1';
+        delete process.env.BLOB_READ_WRITE_TOKEN;
+
+        const res = await request(app)
+          .post('/api/listings/images/upload')
+          .set('Authorization', `Bearer ${tokenFor(sellerUser)}`)
+          .set('Content-Type', 'image/jpeg')
+          .send(SYNTHETIC_JPEG);
+        expect(res.status).toBe(503);
+        expect(res.body.code).toBe('STORAGE_CONFIGURATION_ERROR');
+      } finally {
+        if (prevVercel !== undefined) process.env.VERCEL = prevVercel;
+        else delete process.env.VERCEL;
         if (prevToken) process.env.BLOB_READ_WRITE_TOKEN = prevToken;
       }
     });

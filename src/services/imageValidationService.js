@@ -154,6 +154,14 @@ function normalizeListingImages(images, fallbackAlt = '', options = {}) {
         if (expectedOwnerId && imageUserId !== expectedOwnerId) {
           return null;
         }
+        if (options.verifiedUploadUrls) {
+          const verifiedSet = options.verifiedUploadUrls instanceof Set
+            ? options.verifiedUploadUrls
+            : new Set(options.verifiedUploadUrls);
+          if (!verifiedSet.has(rawUrl)) {
+            return null;
+          }
+        }
         return {
           url: rawUrl,
           alt: rawAlt.slice(0, MAX_ALT_LENGTH)
@@ -163,10 +171,19 @@ function normalizeListingImages(images, fallbackAlt = '', options = {}) {
       // Check if URL points to Vercel Blob public storage
       const isBlobStorage = /^https:\/\/[a-z0-9_-]+\.public\.blob\.vercel-storage\.com\/marketplace\//i.test(rawUrl);
       if (isBlobStorage) {
-        // Enforce owner prefix if present in blob path: marketplace/:userId/...
+        // Enforce owner prefix in blob path: marketplace/:userId/...
         if (expectedOwnerId) {
           const blobUserMatch = rawUrl.match(/\/marketplace\/([a-zA-Z0-9_-]+)\//i);
-          if (blobUserMatch && blobUserMatch[1] !== expectedOwnerId) {
+          if (!blobUserMatch || blobUserMatch[1] !== expectedOwnerId) {
+            return null;
+          }
+        }
+        // Require verified server-side upload record bound to the authenticated seller
+        if (options.verifiedUploadUrls) {
+          const verifiedSet = options.verifiedUploadUrls instanceof Set
+            ? options.verifiedUploadUrls
+            : new Set(options.verifiedUploadUrls);
+          if (!verifiedSet.has(rawUrl)) {
             return null;
           }
         }
