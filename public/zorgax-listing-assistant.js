@@ -23,6 +23,7 @@
   const categoryHints = {
     services: ['Che servizio offri o cerchi?', 'Dove sei disponibile?', 'Indica tempi e condizioni.'],
     development_services: ['Che problema digitale risolvi?', 'Quali tecnologie o attività includi?', 'Indica disponibilità e area.'],
+    digital_services: ['Che servizio o competenza digitale offri?', 'Quali strumenti o risultati sono inclusi?', 'Indica modalità di consegna (es. da remoto).'],
     event_support: ['Che attrezzatura o supporto offri?', 'Per quale tipo di evento?', 'Indica area, disponibilità e condizioni.'],
     agriculture_support: ['Che supporto agricolo offri o cerchi?', 'Indica coltura, attività e area.', 'Specifica disponibilità e condizioni.'],
     arts: ['Che opera, attività o competenza artistica proponi?', 'Indica formato e disponibilità.', 'Specifica condizioni e area.'],
@@ -48,6 +49,7 @@
       ['pet_lost_found', /\b(smarrit|pers[oa]|trovat[oa]|animale perso)\b/i],
       ['pet_services', /\b(dog\s*sitter|dogsitter|pet\s*sitter|petsitter|toelett|veterinar|passeggiat)\b/i],
       ['pet_adoption', /\b(adozione|adottare|adotta)\b/i],
+      ['digital_services', /\b(digitale|digital|seo|grafica|design|marketing|social\s*media|copywriting|consulenza\s*digitale)\b/i],
       ['development_services', /\b(sito|website|app|software|svilupp|programmaz|docker|github|server|api|automaz)\b/i],
       ['knowledge', /\b(conoscenz|know[- ]?how|guida|tutorial|metodo|manuale|competenza|sapere pratico)\b/i],
       ['research_project', /\b(ricerca|research|dataset|studio scientific|protocollo|laboratorio scientific)\b/i],

@@ -9,7 +9,7 @@ const { authenticate, isAdmin } = require('../middleware/auth');
 const { freeSellerPlan, canPublishCommercialListing } = require('../services/freeSellerPolicy');
 
 const ALLOWED_CURRENCIES = new Set(['EUR', 'ETH', 'BTC', 'XMR', 'MYZ', 'TARI', 'BARTER', 'FREE']);
-const ALLOWED_CATEGORIES = new Set(['health_products','electronics','kefir_culture_donation','seeds','plants','produce','clothing','accessories','event_equipment','tools','services','development_services','event_support','agriculture_support','art','arts','wellness','knowledge','help_request','university_course','thesis_project','research_project','internship','volunteering','pet_adoption','pet_lost_found','pet_services']);
+const ALLOWED_CATEGORIES = new Set(['health_products','electronics','kefir_culture_donation','seeds','plants','produce','clothing','accessories','event_equipment','tools','services','development_services','digital_services','event_support','agriculture_support','art','arts','wellness','knowledge','help_request','university_course','thesis_project','research_project','internship','volunteering','pet_adoption','pet_lost_found','pet_services']);
 
 function containsPrivateKeyMaterial(value) { const text=String(value||'').toUpperCase(); return /PRIVATE KEY|BEGIN PGP PRIVATE|BEGIN OPENSSH PRIVATE|SEED PHRASE|MNEMONIC/.test(text); }
 function isCommunityExchange(category, currency) { const normalized=String(currency||'').toUpperCase(); return category==='kefir_culture_donation' || (category==='seeds' && ['FREE','BARTER'].includes(normalized)); }
@@ -83,7 +83,43 @@ router.get('/categories/mine',authenticate,async(req,res)=>{try{const proposals=
 router.get('/categories/proposals',authenticate,isAdmin,async(_req,res)=>{try{const proposals=await MarketplaceCategoryProposal.find({}).sort({createdAt:-1}).limit(250).lean();res.json({success:true,proposals});}catch(_error){res.status(500).json({success:false,message:'Proposte categoria non disponibili'});}});
 router.patch('/categories/proposals/:id',authenticate,isAdmin,async(req,res)=>{try{const status=String(req.body?.status||'').trim().toLowerCase();if(!['approved','rejected'].includes(status))return res.status(400).json({success:false,message:'Stato proposta non valido'});const proposal=await MarketplaceCategoryProposal.findByIdAndUpdate(req.params.id,{$set:{status}},{new:true,runValidators:true});if(!proposal)return res.status(404).json({success:false,message:'Proposta categoria non trovata'});res.json({success:true,proposal});}catch(error){res.status(400).json({success:false,message:error.message||'Proposta categoria non aggiornata'});}});
 
-router.get('/', async (req,res)=>{ try { const {category,currency,location}=req.query; const query={status:'active'}; if(category)query.category=category; if(currency)query.currency=String(currency).toUpperCase(); if(location)query.location={$regex:String(location).replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),$options:'i'}; const listings=await MarketplaceListing.find(query).sort({createdAt:-1}).limit(200).lean(); res.json({success:true,count:listings.length,listings:listings.map(item=>({...item,id:String(item._id)}))}); } catch(_error){res.status(500).json({success:false,message:'Marketplace non disponibile'});} });
+router.get('/', async (req,res)=>{
+ try {
+  const {category,currency,location,limit:rawLimit,page:rawPage,skip:rawSkip}=req.query;
+  const query={status:'active'};
+  if(category)query.category=category;
+  if(currency)query.currency=String(currency).toUpperCase();
+  if(location)query.location={$regex:String(location).replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),$options:'i'};
+
+  // Explicit backwards-compatibility strategy:
+  // Legacy unpaginated callers (no limit, page, or skip provided) retain the original default limit of 200 items,
+  // preventing silent listing truncation for existing consumers.
+  // Paginated callers (providing limit, page, or skip) default to limit=50 (capped at 200).
+  const hasExplicitPagination = rawLimit !== undefined || rawPage !== undefined || rawSkip !== undefined;
+  const parsedLimit = parseInt(rawLimit, 10);
+  const defaultLimit = hasExplicitPagination ? 50 : 200;
+  const limit = Number.isFinite(parsedLimit) && parsedLimit > 0 ? Math.min(parsedLimit, 200) : defaultLimit;
+  const parsedPage = parseInt(rawPage, 10);
+  const parsedSkip = parseInt(rawSkip, 10);
+  const page = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
+  const skip = Number.isFinite(parsedSkip) && parsedSkip >= 0 ? parsedSkip : (page - 1) * limit;
+
+  const total = await MarketplaceListing.countDocuments(query);
+  // Stable secondary sort on _id ensures deterministic pagination ordering across pages when createdAt matches
+  const listings = await MarketplaceListing.find(query).sort({ createdAt: -1, _id: -1 }).skip(skip).limit(limit).lean();
+  res.json({
+   success:true,
+   count:listings.length,
+   total,
+   page,
+   limit,
+   hasMore:skip+listings.length<total,
+   listings:listings.map(item=>({...item,id:String(item._id)}))
+  });
+ } catch(_error){
+  res.status(500).json({success:false,message:'Marketplace non disponibile'});
+ }
+});
 router.get('/mine',authenticate,async(req,res)=>{try{const listings=await MarketplaceListing.find({ownerId:req.userId}).sort({createdAt:-1}).lean();res.json({success:true,listings:listings.map(item=>({...item,id:String(item._id)}))});}catch(_error){res.status(500).json({success:false,message:'Impossibile recuperare i tuoi annunci'});}});
 router.get('/profile/me',authenticate,async(req,res)=>{try{const user=await User.findById(req.userId).select('username moneroWallet communityProfile');if(!user)return res.status(404).json({success:false,message:'Utente non trovato'});res.json({success:true,profile:user});}catch(_error){res.status(500).json({success:false,message:'Errore nel recupero del profilo community'});}});
 router.patch('/profile/me',authenticate,async(req,res)=>{try{const{pgpPublicKey='',tariWallet='',myzWallet='',displayLocation='',bio='',seedExchangeEnabled=false,petCommunityEnabled=false,kefirDonorEnabled=false}=req.body||{};if([pgpPublicKey,tariWallet,myzWallet,bio].some(containsPrivateKeyMaterial))return res.status(400).json({success:false,message:'Inserisci solo chiavi PGP pubbliche e indirizzi wallet pubblici. Seed phrase e chiavi private sono vietati.'});if(pgpPublicKey&&!String(pgpPublicKey).includes('BEGIN PGP PUBLIC KEY BLOCK'))return res.status(400).json({success:false,message:'La chiave PGP deve essere una chiave pubblica ASCII-armored.'});const user=await User.findByIdAndUpdate(req.userId,{$set:{communityProfile:{pgpPublicKey:String(pgpPublicKey).trim(),tariWallet:String(tariWallet).trim(),myzWallet:String(myzWallet).trim(),displayLocation:String(displayLocation).trim(),bio:String(bio).trim(),seedExchangeEnabled:Boolean(seedExchangeEnabled),petCommunityEnabled:Boolean(petCommunityEnabled),kefirDonorEnabled:Boolean(kefirDonorEnabled),updatedAt:new Date()}}},{new:true,runValidators:true}).select('username moneroWallet communityProfile');if(!user)return res.status(404).json({success:false,message:'Utente non trovato'});res.json({success:true,profile:user});}catch(error){res.status(400).json({success:false,message:error.message||'Profilo community non aggiornato'});}});
