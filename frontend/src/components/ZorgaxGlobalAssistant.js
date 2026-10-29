@@ -34,7 +34,7 @@ export default function ZorgaxGlobalAssistant({ embedded = false }) {
         body: JSON.stringify({ message: text, context: { page, source: embedded ? 'home' : 'global' } }),
       });
       const data = await response.json();
-      const answer = data.answer || data.message || data.reply || 'Posso accompagnarti nelle sezioni di MyZubster.';
+      const answer = data.response || data.answer || data.message || data.reply || 'Posso accompagnarti nelle sezioni di MyZubster.';
       setMessages((items) => [...items, { role: 'assistant', text: answer }]);
     } catch (_) {
       setMessages((items) => [...items, { role: 'assistant', text: 'Il collegamento con Zorgax non e disponibile in questo momento. Puoi comunque usare i percorsi rapidi qui sotto.' }]);
