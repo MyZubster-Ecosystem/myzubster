@@ -10,6 +10,7 @@ function monthStart(date = new Date()) {
 }
 
 async function getAstraMonthlySpend(date = new Date()) {
+  if (mongoose.connection.readyState !== 1) return 0;
   const rows = await ZorgaxAIUsage.aggregate([
     { $match: { provider: 'openai', createdAt: { $gte: monthStart(date) } } },
     { $group: { _id: null, total: { $sum: '$costUsd' } } }
