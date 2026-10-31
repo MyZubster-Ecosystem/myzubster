@@ -122,4 +122,4 @@ exports.callback=async(req,res)=>{
 };
 
 exports.exchangeTicket=async(req,res)=>{try{const data=jwt.verify(req.body?.ticket,secret());if(data.purpose!=='social-login-result')throw new Error();res.json({success:true,data:{token:data.token,userId:data.userId,characterId:data.characterId,provider:data.provider,metaverseVerified:true}});}catch(_){res.status(400).json({success:false,message:'Ticket login scaduto o non valido'});}};
-exports._test={safeMetaText,logFacebookOAuthError,captureGithubSnapshot};
+exports._test={safeMetaText,logFacebookOAuthError,captureGithubSnapshot,previewOrigin,frontend,state,verifyState,redirectError};
