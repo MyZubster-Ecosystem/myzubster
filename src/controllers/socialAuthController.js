@@ -10,11 +10,19 @@ const OAUTH_ENV_KEYS = [
 for (const key of OAUTH_ENV_KEYS) if (typeof process.env[key] === 'string') process.env[key] = process.env[key].trim();
 
 function secret(){if(!process.env.JWT_SECRET)throw new Error('JWT_SECRET non configurato');return process.env.JWT_SECRET;}
-function frontend(req){
-  // A preview OAuth flow must return to its own origin, not production.
-  const host = String(req?.headers?.['x-forwarded-host'] || req?.headers?.host || '').split(',')[0].trim().toLowerCase();
-  const preview = process.env.VERCEL_ENV === 'preview' && /^([a-z0-9-]+\.)+vercel\.app(?::\d+)?$/.test(host);
-  if (preview) return `https://${host}`;
+function previewOrigin(req) {
+  if (process.env.VERCEL_ENV !== 'preview') return '';
+  const host = String(req?.headers?.host || '').trim().toLowerCase();
+  const allowed = [process.env.VERCEL_URL, process.env.VERCEL_BRANCH_URL]
+    .filter(Boolean).map(value => String(value).toLowerCase().replace(/^https?:\/\//, '').replace(/\/$/, ''));
+  if (!allowed.includes(host) || !/^[a-z0-9-]+(?:\.[a-z0-9-]+)*\.vercel\.app$/.test(host)) return '';
+  return `https://${host}`;
+}
+function frontend(req, verifiedState) {
+  const origin = verifiedState?.previewOrigin;
+  if (process.env.VERCEL_ENV === 'preview' && typeof origin === 'string' &&
+      [process.env.VERCEL_URL, process.env.VERCEL_BRANCH_URL].filter(Boolean)
+        .some(value => origin === `https://${String(value).replace(/^https?:\/\//, '').replace(/\/$/, '').toLowerCase()}`)) return origin;
   return (process.env.FRONTEND_URL || process.env.PUBLIC_APP_URL || 'https://myzubster.com').replace(/\/$/, '');
 }
 function callback(provider){
@@ -36,8 +44,8 @@ function verifyState(value,provider){
   try{const data=jwt.verify(value,process.env.OAUTH_STATE_SECRET||secret());if(data.purpose!=='social-login'||data.provider!==provider)throw new Error('OAuth state non valido');return data;}
   catch(error){if(error?.message==='OAuth state non valido')throw error;if(error?.name==='TokenExpiredError')throw new Error('Sessione OAuth scaduta. Riavvia il login dal pulsante MyZubster.');throw new Error('Sessione OAuth non valida. Riavvia il login dal pulsante MyZubster.');}
 }
-function redirectSuccess(req,res,result,provider){const ticket=jwt.sign({purpose:'social-login-result',token:result.token,userId:String(result.user._id),characterId:result.character.characterId,provider},secret(),{expiresIn:'2m'});const url=new URL('/social-login',`${frontend(req)}/`);url.searchParams.set('social_login','verified');url.searchParams.set('provider',provider);url.searchParams.set('social_login_ticket',ticket);res.redirect(url.toString());}
-function redirectError(req,res,message,provider=''){const url=new URL('/social-login',`${frontend(req)}/`);url.searchParams.set('social_login','error');if(provider)url.searchParams.set('provider',provider);url.searchParams.set('social_login_message',String(message).slice(0,180));res.redirect(url.toString());}
+function redirectSuccess(req,res,result,provider,verifiedState){const ticket=jwt.sign({purpose:'social-login-result',token:result.token,userId:String(result.user._id),characterId:result.character.characterId,provider},secret(),{expiresIn:'2m'});const url=new URL('/social-login',`${frontend(req,verifiedState)}/`);url.searchParams.set('social_login','verified');url.searchParams.set('provider',provider);url.searchParams.set('social_login_ticket',ticket);res.redirect(url.toString());}
+function redirectError(req,res,message,provider='',verifiedState){const url=new URL('/social-login',`${frontend(req,verifiedState)}/`);url.searchParams.set('social_login','error');if(provider)url.searchParams.set('provider',provider);url.searchParams.set('social_login_message',String(message).slice(0,180));res.redirect(url.toString());}
 function providerCallbackError(query={}){if(!query.error)return null;if(query.error==='access_denied')return 'Accesso annullato o non autorizzato dal provider.';return 'Il provider OAuth non ha autorizzato il login. Riprova dal pulsante MyZubster.';}
 function safeMetaText(value){return String(value||'').replace(/[\r\n\t]+/g,' ').slice(0,240);}
 function logFacebookOAuthError(stage,response,payload){const meta=payload?.error&&typeof payload.error==='object'?payload.error:{};console.error('[facebook-oauth]',JSON.stringify({stage,httpStatus:Number(response?.status)||null,type:safeMetaText(meta.type),code:Number.isFinite(Number(meta.code))?Number(meta.code):null,errorSubcode:Number.isFinite(Number(meta.error_subcode))?Number(meta.error_subcode):null,message:safeMetaText(meta.message),fbtraceId:safeMetaText(meta.fbtrace_id)}));}
@@ -51,16 +59,16 @@ exports.start=(req,res)=>{
     if(provider==='google'){
       const clientId=process.env.GOOGLE_LOGIN_CLIENT_ID||process.env.GOOGLE_OAUTH_CLIENT_ID;const clientSecret=process.env.GOOGLE_LOGIN_CLIENT_SECRET||process.env.GOOGLE_OAUTH_CLIENT_SECRET;
       if(!clientId||!clientSecret||!callback('google').startsWith('http'))throw new Error('Google Login non configurato');
-      const params=new URLSearchParams({client_id:clientId,redirect_uri:callback('google'),response_type:'code',scope:'openid email profile',state:state('google'),prompt:'select_account'});return res.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${params}`);
+      const params=new URLSearchParams({client_id:clientId,redirect_uri:callback('google'),response_type:'code',scope:'openid email profile',state:state('google',{previewOrigin:previewOrigin(req)}),prompt:'select_account'});return res.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${params}`);
     }
     if(provider==='github'){
       const clientId=githubClientId();
       if(!clientId||!process.env.GITHUB_OAUTH_CLIENT_SECRET||!callback('github').startsWith('http'))throw new Error('GitHub Login non configurato');
-      const writeProfile=req.query?.write_profile==='1';const params=new URLSearchParams({client_id:clientId,redirect_uri:callback('github'),scope:writeProfile?'user repo':'read:user user:email',state:state('github',writeProfile?{writeProfile:true,userId:String(req.query?.myz_user||'')}: {})});return res.redirect(`https://github.com/login/oauth/authorize?${params}`);
+      const writeProfile=req.query?.write_profile==='1';const params=new URLSearchParams({client_id:clientId,redirect_uri:callback('github'),scope:writeProfile?'user repo':'read:user user:email',state:state('github',{...(writeProfile?{writeProfile:true,userId:String(req.query?.myz_user||'')}: {}),previewOrigin:previewOrigin(req)})});return res.redirect(`https://github.com/login/oauth/authorize?${params}`);
     }
     if(provider==='facebook'){
       if(!process.env.FACEBOOK_LOGIN_APP_ID||!process.env.FACEBOOK_LOGIN_APP_SECRET||!callback('facebook').startsWith('http'))throw new Error('Facebook Login non configurato');
-      const params=new URLSearchParams({client_id:process.env.FACEBOOK_LOGIN_APP_ID,redirect_uri:callback('facebook'),response_type:'code',scope:'public_profile,pages_show_list',state:state('facebook')});return res.redirect(`https://www.facebook.com/dialog/oauth?${params}`);
+      const params=new URLSearchParams({client_id:process.env.FACEBOOK_LOGIN_APP_ID,redirect_uri:callback('facebook'),response_type:'code',scope:'public_profile,pages_show_list',state:state('facebook',{previewOrigin:previewOrigin(req)})});return res.redirect(`https://www.facebook.com/dialog/oauth?${params}`);
     }
     res.status(404).json({success:false,message:'Provider non supportato'});
   }catch(error){res.status(503).json({success:false,message:error.message});}
@@ -88,7 +96,7 @@ exports.callback=async(req,res)=>{
   const provider=String(req.params.provider||'').toLowerCase();
   try{
     if(!['google','github','facebook'].includes(provider))throw new Error('Provider non supportato');
-    const providerError=providerCallbackError(req.query);if(providerError)throw new Error(providerError);if(!req.query.state)throw new Error('Sessione OAuth mancante. Riavvia il login dal pulsante MyZubster.');if(!req.query.code)throw new Error('OAuth callback incompleto. Riavvia il login dal pulsante MyZubster.');const verifiedState=verifyState(req.query.state,provider);
+    const providerError=providerCallbackError(req.query);if(providerError)throw new Error(providerError);if(!req.query.state)throw new Error('Sessione OAuth mancante. Riavvia il login dal pulsante MyZubster.');if(!req.query.code)throw new Error('OAuth callback incompleto. Riavvia il login dal pulsante MyZubster.');verifiedState=verifyState(req.query.state,provider);
     let profile; let githubWriteToken=null;
     if(provider==='google'){
       const clientId=process.env.GOOGLE_LOGIN_CLIENT_ID||process.env.GOOGLE_OAUTH_CLIENT_ID;const clientSecret=process.env.GOOGLE_LOGIN_CLIENT_SECRET||process.env.GOOGLE_OAUTH_CLIENT_SECRET;
@@ -109,8 +117,8 @@ exports.callback=async(req,res)=>{
     }
     const result=await upsertVerifiedAccount(provider,profile);
     if(provider==='github'&&verifiedState.writeProfile===true&&githubWriteToken){if(!verifiedState.userId||String(result.user._id)!==String(verifiedState.userId))throw new Error('Autorizzazione GitHub non associata all’account MyZubster corretto');const target=await User.findById(result.user._id).select('+githubAutomation.accessTokenEncrypted');target.githubAutomation=target.githubAutomation||{};target.githubAutomation.accessTokenEncrypted=encryptToken(githubWriteToken);target.githubAutomation.writeAuthorizedAt=new Date();target.githubAutomation.updatedAt=new Date();await target.save();}
-    redirectSuccess(req,res,result,provider);
-  }catch(error){redirectError(req,res,error.message,provider);}
+    redirectSuccess(req,res,result,provider,verifiedState);
+  }catch(error){redirectError(req,res,error.message,provider,verifiedState);}
 };
 
 exports.exchangeTicket=async(req,res)=>{try{const data=jwt.verify(req.body?.ticket,secret());if(data.purpose!=='social-login-result')throw new Error();res.json({success:true,data:{token:data.token,userId:data.userId,characterId:data.characterId,provider:data.provider,metaverseVerified:true}});}catch(_){res.status(400).json({success:false,message:'Ticket login scaduto o non valido'});}};
