@@ -1,0 +1,54 @@
+name: PR 1679 dependency remediation (preview only)
+
+on:
+  push:
+    branches:
+      - fix/preview-google-oauth-origin-20261031
+    paths:
+      - .github/workflows/pr-1679-dependency-remediation.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    if: github.repository == 'MyZubster-Ecosystem/myzubster' && github.ref == 'refs/heads/fix/preview-google-oauth-origin-20261031'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: package.json
+          cache: npm
+      - name: Validate existing lockfile
+        run: npm ci --ignore-scripts
+      - name: Apply nonbreaking npm audit remediation
+        run: |
+          npm audit fix --omit=dev
+          npm install --package-lock-only --ignore-scripts
+      - name: Verify clean installation and security audit
+        run: |
+          npm ci --ignore-scripts
+          npm audit --omit=dev --audit-level=high
+      - name: Run focused OAuth regression tests
+        run: npm test -- --runInBand test/socialOAuthPreviewOrigin.test.js
+        env:
+          NODE_ENV: test
+          CI: 'true'
+      - name: Commit only package manifest and lockfile to PR branch
+        shell: bash
+        run: |
+          git add -- package.json package-lock.json
+          if git diff --cached --quiet; then
+            echo 'No dependency changes required.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'fix(deps): remediate production audit vulnerabilities on PR 1679'
+          git push origin HEAD:fix/preview-google-oauth-origin-20261031
