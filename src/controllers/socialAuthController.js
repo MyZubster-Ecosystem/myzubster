@@ -94,6 +94,7 @@ async function captureGithubSnapshot(user,headers){
 
 exports.callback=async(req,res)=>{
   const provider=String(req.params.provider||'').toLowerCase();
+  let verifiedState;
   try{
     if(!['google','github','facebook'].includes(provider))throw new Error('Provider non supportato');
     const providerError=providerCallbackError(req.query);if(providerError)throw new Error(providerError);if(!req.query.state)throw new Error('Sessione OAuth mancante. Riavvia il login dal pulsante MyZubster.');if(!req.query.code)throw new Error('OAuth callback incompleto. Riavvia il login dal pulsante MyZubster.');verifiedState=verifyState(req.query.state,provider);
