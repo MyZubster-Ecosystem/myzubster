@@ -100,3 +100,57 @@ jobs:
           curl -fsS -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
             --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}" \
             --data-urlencode "text=MyZubster CI: ${BUILD_STATUS} — ${GITHUB_REPOSITORY}@${GITHUB_SHA}"
+
+  dependency-remediation-pr1679:
+    name: Remediate vulnerable dependencies (PR 1679 only)
+    if: github.event_name == 'pull_request' && github.event.pull_request.number == 1679 && github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'fix/preview-google-oauth-origin-20261031'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/preview-google-oauth-origin-20261031
+          persist-credentials: true
+          submodules: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: package.json
+          cache: npm
+      - name: Update security-constrained dependency manifest
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const file = 'package.json';
+          const pkg = JSON.parse(fs.readFileSync(file, 'utf8'));
+          pkg.dependencies.nodemailer = '^10.1.4';
+          pkg.overrides = {
+            ...pkg.overrides,
+            qs: '^6.16.1',
+            'body-parser': '^1.20.9',
+            'follow-redirects': '^1.16.2',
+            'ip-address': '^10.7.4',
+            '@vercel/cli-config': { zod: '^4.6.6' }
+          };
+          fs.writeFileSync(file, JSON.stringify(pkg, null, 2) + '\n');
+          NODE
+          npm install --package-lock-only --ignore-scripts --no-audit
+      - name: Verify lockfile, production audit and OAuth regression
+        run: |
+          npm ci --ignore-scripts
+          npm audit --omit=dev --audit-level=high
+          npm test -- --runInBand --testPathIgnorePatterns=/frontend/
+        env:
+          CI: 'true'
+          NODE_ENV: test
+      - name: Commit validated dependency changes to PR branch only
+        run: |
+          git add -- package.json package-lock.json
+          if git diff --cached --quiet; then
+            echo 'No dependency changes.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'fix(deps): remediate audited production dependencies for PR 1679'
+          git push origin HEAD:fix/preview-google-oauth-origin-20261031

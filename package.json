@@ -37,7 +37,7 @@
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^7.8.11",
     "morgan": "^1.11.0",
-    "nodemailer": "^10.0.9",
+    "nodemailer": "^10.1.4",
     "redis": "^4.7.0",
     "socket.io": "^4.7.2",
     "uuid": "^14.0.2"
@@ -77,7 +77,7 @@
     "url": "https://github.com/MyZubster-Ecosystem/MyZubsterGateway"
   },
   "overrides": {
-    "qs": "6.16.0",
+    "qs": "^6.16.1",
     "hardhat": {
       "adm-zip": "0.6.1",
       "solc": {
@@ -87,6 +87,12 @@
         "serialize-javascript": "7.0.5"
       }
     },
-    "braces": "3.0.3"
+    "braces": "3.0.3",
+    "body-parser": "^1.20.9",
+    "follow-redirects": "^1.16.2",
+    "ip-address": "^10.7.4",
+    "@vercel/cli-config": {
+      "zod": "^4.6.6"
+    }
   }
 }
