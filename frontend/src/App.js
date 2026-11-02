@@ -1024,6 +1024,8 @@ function App() {
               <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', marginTop: 12 }}>
                 <a href="/social-login">🔄 Cambia/collega account</a>
                 <a href="/marketplace">🛒 Marketplace</a>
+                <a href="/marketplace?view=requests">📤 Le mie richieste</a>
+                <a href="/marketplace?view=orders">📥 Richieste ricevute</a>
                 <a href="/life-pilot">🌱 LIFE Pilot</a>
                 <a href="/zorgax">👽 Zorgax</a>
                 {account.user.role === 'admin' && (
