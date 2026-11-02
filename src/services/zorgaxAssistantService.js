@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const { selectModel, estimateAstraCost } = require('./aiModelRouter');
 const { getAstraMonthlySpend, recordAstraUsage, reserveAstraBudget, settleAstraBudget, releaseAstraBudget } = require('./zorgaxAIUsageService');
+const { loadMyZubsterGuide, matchCanonicalQuestion } = require('./zorgaxKnowledgeBase');
 
 const DEFAULT_GATEWAY = 'https://myzubster-gateway.vercel.app';
 const DEFAULT_GATEWAY_TIMEOUT_MS = 6000;
@@ -51,10 +52,11 @@ function buildSourceContext(sources=[]){
 }
 function buildAssistantPrompt(message,sources=[],userContext=''){
   const persona=loadZorgaxPersona();
+  const guide=loadMyZubsterGuide();
   const runtime=buildRuntimeProductContext();
   const kefirContext=kefirIntent(message)?`\n\nACTIVE SPECIALIST MODE: KEFIR / CIRCULAR FOOD\n${loadKefirModule()}`:'';
   const identityContext=cleanText(userContext,8000);
-  return `${persona}${runtime}${kefirContext}${identityContext?`\\n\\n${identityContext}`:''}\\n\\nUSER MESSAGE:\\n${cleanText(message)}${buildSourceContext(sources)}`;
+  return `${persona}\n\n${guide}\n\n${runtime}${kefirContext}${identityContext?`\\n\\n${identityContext}`:''}\\n\\nUSER MESSAGE:\\n${cleanText(message)}${buildSourceContext(sources)}`;
 }
 
 function extractOpenAIText(json){
@@ -126,6 +128,11 @@ async function askOpenAI(message,sources=[],history=[],reservationUsd=0,userCont
 }
 
 function buildDegradedFallback(message, reason = 'unavailable') {
+  const canonical = matchCanonicalQuestion(message);
+  if (canonical) {
+    return canonical.answer;
+  }
+
   const text = String(message || '').toLowerCase();
   let specificHelp = '';
   if (/market|annunci|offert|prezz|compr|serviz/i.test(text)) {
@@ -256,6 +263,32 @@ async function answer({ message, useWeb = true, history = [], limit = 5, userCon
   }
 
   const research = useWeb ? await searchWeb(text, limit) : { query: text, sources: [], errors: [], live_search_available: false, providers_used: [] };
+
+  const canonical = matchCanonicalQuestion(text);
+  if (canonical && !process.env.OPENAI_API_KEY && !process.env.ZORGAX_PUBLIC_AI_URL) {
+    const latencyMs = Date.now() - startTime;
+    return {
+      response: canonical.answer,
+      answer: canonical.answer,
+      message: canonical.answer,
+      status: 'canonical_knowledge_success',
+      ai_generation_succeeded: true,
+      execution_type: 'knowledge_base',
+      latency_ms: latencyMs,
+      ai_provider: 'knowledge_base',
+      ai_model: 'myzubster_guide_v2',
+      ai_budget_remaining_usd: 25,
+      ai_fallback_reason: null,
+      sources: research.sources,
+      search_errors: research.errors,
+      web_research_requested: Boolean(useWeb),
+      web_research_available: Boolean(research.live_search_available),
+      web_providers_used: research.providers_used,
+      specialist_mode: kefirIntent(text) ? 'kefir-circular-food' : null,
+      action_required: null
+    };
+  }
+
   const astraSpentUsd = await getAstraMonthlySpend().catch(() => 0);
   const route = selectModel({ message: text, useResearch: useWeb, astraSpentUsd });
 
@@ -351,6 +384,8 @@ module.exports = {
   answer,
   askGeneralAI,
   buildDegradedFallback,
+  loadMyZubsterGuide,
+  matchCanonicalQuestion,
   searchWeb,
   previewData,
   digestPreview,
