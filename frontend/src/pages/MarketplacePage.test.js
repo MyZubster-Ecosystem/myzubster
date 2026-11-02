@@ -1,4 +1,6 @@
-import{DEMO_SELLERS,MARKETPLACE_CATEGORIES,MARKETPLACE_COPY,demoPaymentMode,filterDemoSellers,isDemoDeepLink,getInitialCategory,resolveFilterCategories}from'./MarketplacePage';
+import React from 'react';
+import ReactDOMServer from 'react-dom/server';
+import MarketplacePage, {DEMO_SELLERS,MARKETPLACE_CATEGORIES,MARKETPLACE_COPY,demoPaymentMode,filterDemoSellers,isDemoDeepLink,getInitialCategory,resolveFilterCategories}from'./MarketplacePage';
 
 describe('Marketplace Demo v2 & Category Filter Deep Links (PR #1627)',()=>{
   test('provides at least one demo seller for every category',()=>{const covered=new Set(DEMO_SELLERS.map(s=>s.category));expect(MARKETPLACE_CATEGORIES.filter(c=>!covered.has(c))).toEqual([])});
@@ -46,5 +48,90 @@ describe('Marketplace Demo v2 & Category Filter Deep Links (PR #1627)',()=>{
     expect(MARKETPLACE_COPY.de.barter).toBe('Tausch');
     expect(MARKETPLACE_COPY.de.loadMore).toBe('Weitere Anzeigen laden');
     expect(MARKETPLACE_COPY.de.activeCategoryFilter).toBe('Aktiver Kategoriefilter');
+  });
+
+  test('localizes unread message badges and inbox copy across all 5 languages without leaks', () => {
+    const unreadKeys = [
+      'ordersTitle',
+      'refreshOrders',
+      'receivedRequests',
+      'myRequests',
+      'noOrders',
+      'messages',
+      'unreadBadge',
+      'unreadNotice',
+      'conversationTitle',
+      'refreshMessages',
+      'loadingMessages',
+      'noMessages',
+      'writeMessage',
+      'sendMessage',
+      'sendingMessage',
+      'conversationClosed',
+      'acceptOrder',
+      'rejectOrder',
+      'cancelOrder'
+    ];
+
+    for (const lang of ['it', 'en', 'es', 'fr', 'de']) {
+      for (const key of unreadKeys) {
+        expect(typeof MARKETPLACE_COPY[lang][key]).toBe('string');
+        expect(MARKETPLACE_COPY[lang][key].trim().length).toBeGreaterThan(0);
+      }
+    }
+
+    // Explicit check on Italian translations
+    expect(MARKETPLACE_COPY.it.ordersTitle).toBe('Richieste Marketplace');
+    expect(MARKETPLACE_COPY.it.messages).toBe('Messaggi');
+    expect(MARKETPLACE_COPY.it.unreadBadge).toBe('non letti');
+    expect(MARKETPLACE_COPY.it.conversationTitle).toBe('Conversazione');
+
+    // Explicit check on English translations
+    expect(MARKETPLACE_COPY.en.ordersTitle).toBe('Marketplace requests');
+    expect(MARKETPLACE_COPY.en.messages).toBe('Messages');
+    expect(MARKETPLACE_COPY.en.unreadBadge).toBe('unread');
+    expect(MARKETPLACE_COPY.en.conversationTitle).toBe('Conversation');
+
+    // Explicit check on Spanish translations
+    expect(MARKETPLACE_COPY.es.ordersTitle).toBe('Solicitudes del Marketplace');
+    expect(MARKETPLACE_COPY.es.messages).toBe('Mensajes');
+    expect(MARKETPLACE_COPY.es.unreadBadge).toBe('no leídos');
+
+    // Explicit check on French translations
+    expect(MARKETPLACE_COPY.fr.ordersTitle).toBe('Demandes du Marketplace');
+    expect(MARKETPLACE_COPY.fr.messages).toBe('Messages');
+    expect(MARKETPLACE_COPY.fr.unreadBadge).toBe('non lus');
+
+    // Explicit check on German translations
+    expect(MARKETPLACE_COPY.de.ordersTitle).toBe('Marketplace-Anfragen');
+    expect(MARKETPLACE_COPY.de.messages).toBe('Nachrichten');
+    expect(MARKETPLACE_COPY.de.unreadBadge).toBe('ungelesen');
+  });
+
+  test('MarketplacePage renders authenticated orders section with unread notifications container when token is present', () => {
+    const originalStorage = global.localStorage;
+    try {
+      localStorage.setItem('myzubster-token', 'mock-valid-token');
+      localStorage.setItem('myzubster-language', 'it');
+      const html = ReactDOMServer.renderToString(<MarketplacePage />);
+      expect(html).toContain('id="marketplace-orders"');
+      expect(html).toContain('Richieste Marketplace');
+      expect(html).toContain('Aggiorna richieste');
+      expect(html).toContain('Richieste ricevute');
+      expect(html).toContain('Le mie richieste');
+    } finally {
+      global.localStorage = originalStorage;
+    }
+  });
+
+  test('MarketplacePage does not render orders section when unauthenticated', () => {
+    const originalStorage = global.localStorage;
+    try {
+      localStorage.removeItem('myzubster-token');
+      const html = ReactDOMServer.renderToString(<MarketplacePage />);
+      expect(html).not.toContain('id="marketplace-orders"');
+    } finally {
+      global.localStorage = originalStorage;
+    }
   });
 });
