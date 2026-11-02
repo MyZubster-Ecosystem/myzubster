@@ -13,6 +13,7 @@ describe('marketplace category mapping', () => {
   test('backend accepts categories exposed by the marketplace form', () => {
     [
       'development_services',
+      'digital_services',
       'event_support',
       'agriculture_support',
       'arts',

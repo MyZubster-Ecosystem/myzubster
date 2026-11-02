@@ -35,3 +35,6 @@ jobs:
 
       - name: Run MYZ-164 backend, UI and E2E regression tests
         run: npx jest tests/sellerMembership.test.js test/sellerMonetizationGuard.test.js test/marketplaceSellerCheckoutUi.test.js --runInBand
+
+      - name: Run Seller-Free Live Walkthrough Verifier
+        run: npm run walkthrough:seller
