@@ -326,9 +326,23 @@ router.post('/chat', optionalAuthenticate, loadZorgaxAccess, async (req, res) =>
       sourceCount: Array.isArray(result.sources) ? result.sources.length : 0,
       aiProvider: result.ai_provider || null,
       aiModel: result.ai_model || null,
-      aiFallbackReason: result.ai_fallback_reason || null
+      aiFallbackReason: result.ai_fallback_reason || null,
+      status: result.status || null,
+      aiGenerationSucceeded: result.ai_generation_succeeded ?? null,
+      latencyMs: result.latency_ms || null
     });
-    res.json({ ok: true, entity: 'ZORGAX-001', ...result, external_sources: result.sources, access: publicAccess(req.zorgaxAccess), featureAccess: policy, accessNotice });
+    res.json({
+      ok: true,
+      entity: 'ZORGAX-001',
+      ...result,
+      answer: result.response,
+      message: result.response,
+      response: result.response,
+      external_sources: result.sources,
+      access: publicAccess(req.zorgaxAccess),
+      featureAccess: policy,
+      accessNotice
+    });
   }
   catch (error) { res.status(502).json({ ok: false, error: error.message }); }
 });
