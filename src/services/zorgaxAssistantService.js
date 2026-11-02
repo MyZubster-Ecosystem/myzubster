@@ -3,8 +3,11 @@ const fs = require('fs');
 const path = require('path');
 const { selectModel, estimateAstraCost } = require('./aiModelRouter');
 const { getAstraMonthlySpend, recordAstraUsage, reserveAstraBudget, settleAstraBudget, releaseAstraBudget } = require('./zorgaxAIUsageService');
+const { loadMyZubsterGuide, matchCanonicalQuestion } = require('./zorgaxKnowledgeBase');
 
 const DEFAULT_GATEWAY = 'https://myzubster-gateway.vercel.app';
+const DEFAULT_GATEWAY_TIMEOUT_MS = 6000;
+const MAX_GATEWAY_RETRIES = 2;
 const MAX_SOURCES = 8;
 const OPENAI_MAX_INPUT_CHARS = 24000;
 const OPENAI_MAX_OUTPUT_TOKENS = Math.max(256, Math.min(Number(process.env.ZORGAX_ASTRA_MAX_OUTPUT_TOKENS) || 2048, 8192));
@@ -49,10 +52,11 @@ function buildSourceContext(sources=[]){
 }
 function buildAssistantPrompt(message,sources=[],userContext=''){
   const persona=loadZorgaxPersona();
+  const guide=loadMyZubsterGuide();
   const runtime=buildRuntimeProductContext();
   const kefirContext=kefirIntent(message)?`\n\nACTIVE SPECIALIST MODE: KEFIR / CIRCULAR FOOD\n${loadKefirModule()}`:'';
   const identityContext=cleanText(userContext,8000);
-  return `${persona}${runtime}${kefirContext}${identityContext?`\\n\\n${identityContext}`:''}\\n\\nUSER MESSAGE:\\n${cleanText(message)}${buildSourceContext(sources)}`;
+  return `${persona}\n\n${guide}\n\n${runtime}${kefirContext}${identityContext?`\\n\\n${identityContext}`:''}\\n\\nUSER MESSAGE:\\n${cleanText(message)}${buildSourceContext(sources)}`;
 }
 
 function extractOpenAIText(json){
@@ -123,11 +127,274 @@ async function askOpenAI(message,sources=[],history=[],reservationUsd=0,userCont
   throw lastError||new Error('OpenAI request failed');
 }
 
-async function askGeneralAI(message,sources=[],history=[],webRequested=false,userContext=''){
-  const gateway=String(process.env.ZORGAX_PUBLIC_AI_URL||DEFAULT_GATEWAY).replace(/\/$/,'');
-  const prompt=buildAssistantPrompt(message,sources,userContext);
-  const response=await fetch(`${gateway}/api/zargox/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:prompt,useWeb:false,history:Array.isArray(history)?history.slice(-12):[]})});
-  const json=await response.json().catch(()=>({}));if(!response.ok)throw new Error(`AI gateway HTTP ${response.status}`);return json.response||json.message||json.answer||'';
+function buildDegradedFallback(message, reason = 'unavailable') {
+  const canonical = matchCanonicalQuestion(message);
+  if (canonical) {
+    return canonical.answer;
+  }
+
+  const text = String(message || '').toLowerCase();
+  let specificHelp = '';
+  if (/market|annunci|offert|prezz|compr|serviz/i.test(text)) {
+    specificHelp = '\n• Esplora gli annunci o proponi una tua offerta visitando la sezione /marketplace.';
+  } else if (/seller|venditor|spazio seller/i.test(text)) {
+    specificHelp = '\n• Per diventare Seller gratuito e pubblicare offerte, vai su /marketplace e premi "Diventa Seller".';
+  } else if (/metavers|stanza|3d|avatar/i.test(text)) {
+    specificHelp = '\n• Per esplorare gli spazi 3D e la community del Metaverso, visita la sezione /metaverse.';
+  } else if (/life|pilot|nicola|orto|giardin/i.test(text)) {
+    specificHelp = '\n• Per i progetti LIFE e la sperimentazione locale di Nicola, visita /life-pilot.';
+  } else if (/login|acced|google|github|account/i.test(text)) {
+    specificHelp = '\n• Per accedere o creare un account con Google o GitHub, vai su /social-login.';
+  } else if (/kefir|ferment/i.test(text)) {
+    specificHelp = '\n• Per il kefir e le fermentazioni circolari, consulta la guida e gli annunci di scambio su /marketplace.';
+  } else {
+    specificHelp = '\n• Percorsi live principali: /marketplace (annunci e offerte), /metaverse (stanze 3D), /life-pilot (progetti pilota), /social-login (accesso).';
+  }
+
+  const reasonNotice = reason === 'timeout'
+    ? 'Il modello AI locale ha impiegato più tempo del previsto (timeout del gateway).'
+    : 'Il gateway AI locale non è raggiungibile al momento.';
+
+  return `Nota Zorgax: ${reasonNotice} Non è stato possibile generare una risposta dinamica con il modello linguistico, ma ecco i riferimenti utili per la tua richiesta:${specificHelp}`;
 }
-async function answer({message,useWeb=true,history=[],limit=5,userContext=''}){const text=cleanText(message);if(!text)throw new Error('Messaggio mancante');if(dataIntent(text)){const dataPreview=previewData(text.replace(/^.*?\b(?:salva|inserisci|registra|memorizza|immetti)\b\s*/i,''));return{response:`Ho preparato l'anteprima dei dati. Non ho salvato nulla. Per renderli persistenti devi confermare esplicitamente con: ${dataPreview.confirmation}`,data_preview:dataPreview,action_required:'human_confirmation',sources:[]};}const research=useWeb?await searchWeb(text,limit):{query:text,sources:[],errors:[],live_search_available:false,providers_used:[]};const astraSpentUsd=await getAstraMonthlySpend().catch(()=>0);const route=selectModel({message:text,useResearch:useWeb,astraSpentUsd});let response;if(route.provider==='openai'){const worstCaseInputTokens=Buffer.byteLength(cleanText(buildAssistantPrompt(text,research.sources,userContext),OPENAI_MAX_INPUT_CHARS),'utf8');const worstCaseUsd=estimateAstraCost({inputTokens:worstCaseInputTokens,outputTokens:OPENAI_MAX_OUTPUT_TOKENS,model:route.model});const configuredReserve=Math.max(0,Number(process.env.ZORGAX_ASTRA_REQUEST_RESERVE_USD)||1);const reservationUsd=Math.max(configuredReserve,worstCaseUsd);const reservation=reservationUsd<=route.remainingBudgetUsd?await reserveAstraBudget({amountUsd:reservationUsd,budgetUsd:route.budgetUsd}):null;if(!reservation){route.fallbackReason='budget_reservation_failed';route.provider='ollama';route.model=process.env.OLLAMA_MODEL||'qwen2.5:3b';response=await askGeneralAI(text,research.sources,history,useWeb,userContext);}else{if(reservation.untracked)route.fallbackReason=reservation.reason||'budget_db_unavailable';try{const openaiResult=await askOpenAI(text,research.sources,history,reservation.untracked?0:reservationUsd,userContext);response=openaiResult.text;route.model=openaiResult.model;}catch(error){await releaseAstraBudget({reservedUsd:reservationUsd}).catch(()=>{});console.error('[zorgax-openai-fallback]',JSON.stringify({status:error.status||null,code:error.code||null,type:error.type||null,requestId:error.requestId||null,fallbackReason:error.fallbackReason||'openai_error'}));response=await askGeneralAI(text,research.sources,history,useWeb,userContext);route.fallbackReason=error.fallbackReason||'openai_error';route.provider='ollama';route.model=process.env.OLLAMA_MODEL||'qwen2.5:3b';}}}else{response=await askGeneralAI(text,research.sources,history,useWeb,userContext);}return{response,ai_provider:route.provider,ai_model:route.model,ai_budget_remaining_usd:route.remainingBudgetUsd,ai_fallback_reason:route.fallbackReason||null,sources:research.sources,search_errors:research.errors,web_research_requested:Boolean(useWeb),web_research_available:Boolean(research.live_search_available),web_providers_used:research.providers_used,specialist_mode:kefirIntent(text)?'kefir-circular-food':null,action_required:null};}
-module.exports={answer,searchWeb,previewData,digestPreview,dataIntent,kefirIntent,inferCategory,looksTimeSensitive,googleNewsSearch,openAIFallbackReason,buildRuntimeProductContext,buildAssistantPrompt};
+
+async function askGeneralAI(message, sources = [], history = [], webRequested = false, userContext = '') {
+  const gateway = String(process.env.ZORGAX_PUBLIC_AI_URL || DEFAULT_GATEWAY).replace(/\/$/, '');
+  const prompt = buildAssistantPrompt(message, sources, userContext);
+  const timeoutMs = Math.max(1000, Math.min(Number(process.env.ZORGAX_GATEWAY_TIMEOUT_MS) || DEFAULT_GATEWAY_TIMEOUT_MS, 30000));
+  const startTime = Date.now();
+  let lastError = null;
+
+  for (let attempt = 1; attempt <= MAX_GATEWAY_RETRIES; attempt += 1) {
+    try {
+      let timeoutId;
+      const controller = new AbortController();
+      timeoutId = setTimeout(() => {
+        const timeoutError = new Error('Gateway timeout');
+        timeoutError.name = 'TimeoutError';
+        controller.abort(timeoutError);
+      }, timeoutMs);
+
+      const response = await fetch(`${gateway}/api/zargox/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: prompt, useWeb: false, history: Array.isArray(history) ? history.slice(-12) : [] }),
+        signal: controller.signal
+      }).finally(() => clearTimeout(timeoutId));
+
+      const json = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const error = new Error(`AI gateway HTTP ${response.status}`);
+        error.status = response.status;
+        throw error;
+      }
+
+      const reply = json.response || json.message || json.answer;
+      if (typeof reply === 'string' && reply.trim().length > 0) {
+        const latencyMs = Date.now() - startTime;
+        return {
+          text: reply,
+          ai_generation_succeeded: true,
+          status: 'ai_success',
+          execution_type: 'ai_live',
+          latency_ms: latencyMs,
+          attempts: attempt,
+          fallbackReason: null
+        };
+      }
+      throw new Error('Risposta vuota dal gateway AI');
+    } catch (err) {
+      lastError = err;
+      const isTimeout = err.name === 'AbortError' || err.name === 'TimeoutError' || /timeout/i.test(err.message);
+      const isRetryable = isTimeout || (err.status && err.status >= 500);
+
+      // Sanitized attempt log: no prompts, no user PII
+      console.warn('[zorgax-gateway-attempt]', JSON.stringify({
+        attempt,
+        maxRetries: MAX_GATEWAY_RETRIES,
+        status: err.status || (isTimeout ? 'timeout' : 'network_error'),
+        isTimeout,
+        willRetry: isRetryable && attempt < MAX_GATEWAY_RETRIES
+      }));
+
+      if (isRetryable && attempt < MAX_GATEWAY_RETRIES) {
+        await sleep(300 * attempt);
+        continue;
+      }
+      break;
+    }
+  }
+
+  const latencyMs = Date.now() - startTime;
+  const isTimeout = lastError?.name === 'AbortError' || lastError?.name === 'TimeoutError' || /timeout/i.test(lastError?.message);
+  const fallbackReason = isTimeout ? 'gateway_timeout' : (lastError?.status ? `gateway_http_${lastError.status}` : 'gateway_unavailable');
+  const status = isTimeout ? 'timeout' : 'gateway_unavailable';
+
+  return {
+    text: buildDegradedFallback(message, isTimeout ? 'timeout' : 'unavailable'),
+    ai_generation_succeeded: false,
+    status,
+    execution_type: 'degraded_fallback',
+    latency_ms: latencyMs,
+    fallbackReason
+  };
+}
+
+async function answer({ message, useWeb = true, history = [], limit = 5, userContext = '' }) {
+  const startTime = Date.now();
+  const text = cleanText(message);
+  if (!text) throw new Error('Messaggio mancante');
+
+  if (dataIntent(text)) {
+    const dataPreview = previewData(text.replace(/^.*?\b(?:salva|inserisci|registra|memorizza|immetti)\b\s*/i, ''));
+    const dataAnswer = `Ho preparato l'anteprima dei dati. Non ho salvato nulla. Per renderli persistenti devi confermare esplicitamente con: ${dataPreview.confirmation}`;
+    return {
+      response: dataAnswer,
+      answer: dataAnswer,
+      message: dataAnswer,
+      data_preview: dataPreview,
+      action_required: 'human_confirmation',
+      sources: [],
+      status: 'data_confirmation_required',
+      ai_generation_succeeded: false,
+      execution_type: 'data_intent',
+      latency_ms: Date.now() - startTime
+    };
+  }
+
+  const research = useWeb ? await searchWeb(text, limit) : { query: text, sources: [], errors: [], live_search_available: false, providers_used: [] };
+
+  const canonical = matchCanonicalQuestion(text);
+  if (canonical && !process.env.OPENAI_API_KEY && !process.env.ZORGAX_PUBLIC_AI_URL) {
+    const latencyMs = Date.now() - startTime;
+    return {
+      response: canonical.answer,
+      answer: canonical.answer,
+      message: canonical.answer,
+      status: 'canonical_knowledge_success',
+      ai_generation_succeeded: true,
+      execution_type: 'knowledge_base',
+      latency_ms: latencyMs,
+      ai_provider: 'knowledge_base',
+      ai_model: 'myzubster_guide_v2',
+      ai_budget_remaining_usd: 25,
+      ai_fallback_reason: null,
+      sources: research.sources,
+      search_errors: research.errors,
+      web_research_requested: Boolean(useWeb),
+      web_research_available: Boolean(research.live_search_available),
+      web_providers_used: research.providers_used,
+      specialist_mode: kefirIntent(text) ? 'kefir-circular-food' : null,
+      action_required: null
+    };
+  }
+
+  const astraSpentUsd = await getAstraMonthlySpend().catch(() => 0);
+  const route = selectModel({ message: text, useResearch: useWeb, astraSpentUsd });
+
+  let executionResult;
+
+  if (route.provider === 'openai') {
+    const worstCaseInputTokens = Buffer.byteLength(cleanText(buildAssistantPrompt(text, research.sources, userContext), OPENAI_MAX_INPUT_CHARS), 'utf8');
+    const worstCaseUsd = estimateAstraCost({ inputTokens: worstCaseInputTokens, outputTokens: OPENAI_MAX_OUTPUT_TOKENS, model: route.model });
+    const configuredReserve = Math.max(0, Number(process.env.ZORGAX_ASTRA_REQUEST_RESERVE_USD) || 1);
+    const reservationUsd = Math.max(configuredReserve, worstCaseUsd);
+    const reservation = reservationUsd <= route.remainingBudgetUsd ? await reserveAstraBudget({ amountUsd: reservationUsd, budgetUsd: route.budgetUsd }) : null;
+
+    if (!reservation) {
+      route.fallbackReason = 'budget_reservation_failed';
+      route.provider = 'ollama';
+      route.model = process.env.OLLAMA_MODEL || 'qwen2.5:3b';
+      executionResult = await askGeneralAI(text, research.sources, history, useWeb, userContext);
+      if (executionResult.fallbackReason) route.fallbackReason = executionResult.fallbackReason;
+    } else {
+      if (reservation.untracked) route.fallbackReason = reservation.reason || 'budget_db_unavailable';
+      try {
+        const openaiResult = await askOpenAI(text, research.sources, history, reservation.untracked ? 0 : reservationUsd, userContext);
+        executionResult = {
+          text: openaiResult.text,
+          ai_generation_succeeded: true,
+          status: 'ai_success',
+          execution_type: 'ai_live',
+          latency_ms: Date.now() - startTime,
+          fallbackReason: null
+        };
+        route.model = openaiResult.model;
+      } catch (error) {
+        await releaseAstraBudget({ reservedUsd: reservationUsd }).catch(() => {});
+        console.error('[zorgax-openai-fallback]', JSON.stringify({
+          status: error.status || null,
+          code: error.code || null,
+          type: error.type || null,
+          requestId: error.requestId || null,
+          fallbackReason: error.fallbackReason || 'openai_error'
+        }));
+        executionResult = await askGeneralAI(text, research.sources, history, useWeb, userContext);
+        route.fallbackReason = executionResult.fallbackReason || error.fallbackReason || 'openai_error';
+        route.provider = 'ollama';
+        route.model = process.env.OLLAMA_MODEL || 'qwen2.5:3b';
+      }
+    }
+  } else {
+    executionResult = await askGeneralAI(text, research.sources, history, useWeb, userContext);
+    if (executionResult.fallbackReason) {
+      route.fallbackReason = executionResult.fallbackReason;
+    }
+  }
+
+  const latencyMs = Date.now() - startTime;
+
+  // Sanitized metrics logging without personal data or prompt text
+  console.info('[zorgax-ai-metrics]', JSON.stringify({
+    event: 'zorgax_chat_execution',
+    provider: route.provider,
+    model: route.model,
+    status: executionResult.status,
+    generationSucceeded: executionResult.ai_generation_succeeded,
+    executionType: executionResult.execution_type,
+    fallbackReason: route.fallbackReason || null,
+    latencyMs,
+    sourcesCount: Array.isArray(research.sources) ? research.sources.length : 0,
+    webResearchRequested: Boolean(useWeb)
+  }));
+
+  return {
+    response: executionResult.text,
+    answer: executionResult.text,
+    message: executionResult.text,
+    status: executionResult.status,
+    ai_generation_succeeded: executionResult.ai_generation_succeeded,
+    execution_type: executionResult.execution_type,
+    latency_ms: latencyMs,
+    ai_provider: route.provider,
+    ai_model: route.model,
+    ai_budget_remaining_usd: route.remainingBudgetUsd,
+    ai_fallback_reason: route.fallbackReason || null,
+    sources: research.sources,
+    search_errors: research.errors,
+    web_research_requested: Boolean(useWeb),
+    web_research_available: Boolean(research.live_search_available),
+    web_providers_used: research.providers_used,
+    specialist_mode: kefirIntent(text) ? 'kefir-circular-food' : null,
+    action_required: null
+  };
+}
+
+module.exports = {
+  answer,
+  askGeneralAI,
+  buildDegradedFallback,
+  loadMyZubsterGuide,
+  matchCanonicalQuestion,
+  searchWeb,
+  previewData,
+  digestPreview,
+  dataIntent,
+  kefirIntent,
+  inferCategory,
+  looksTimeSensitive,
+  googleNewsSearch,
+  openAIFallbackReason,
+  buildRuntimeProductContext,
+  buildAssistantPrompt
+};
