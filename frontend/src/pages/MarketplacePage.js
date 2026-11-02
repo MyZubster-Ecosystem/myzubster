@@ -110,7 +110,7 @@ const BASE_COPY={
   requestQuantity:'Quantity',
   requestSend:'Send request',
   requestSending:'Sending request…',
-  requestSuccess:'✓ Request sent successfully! The seller has been notified. You can track this in your orders.',
+  requestSuccess:'✓ Request submitted successfully! The seller can review it under incoming requests. You can track this in your orders.',
   requestLoginPrompt:'Please sign in to contact the seller or request this listing.',
   loginToRequest:'Sign in to request',
   selfRequestError:'You cannot request your own listing.',
@@ -183,6 +183,7 @@ const BASE_COPY={
   cancelOrder:'Cancel request',
   orderAccepted:'Request accepted successfully.',
   orderDeclined:'Request declined.',
+  orderCompleted:'Request completed successfully.',
   orderCancelled:'Request cancelled.',
   orderReference:'Order reference',
   statusRequested:'Pending approval',
@@ -225,7 +226,7 @@ const C={
     requestQuantity:'Quantità',
     requestSend:'Invia richiesta',
     requestSending:'Invio richiesta in corso…',
-    requestSuccess:'✓ Richiesta inviata con successo! Il venditore riceverà la tua notifica. Puoi seguire lo stato e i messaggi nelle tue richieste.',
+    requestSuccess:'✓ Richiesta registrata con successo! Il venditore potrà esaminarla nelle sue richieste ricevute. Puoi seguire lo stato nei tuoi ordini.',
     requestLoginPrompt:'Accedi per contattare il venditore o inviare una richiesta per questo annuncio.',
     loginToRequest:'Accedi per richiedere',
     selfRequestError:'Non puoi richiedere il tuo stesso annuncio.',
@@ -297,6 +298,7 @@ const C={
     cancelOrder:'Annulla richiesta',
     orderAccepted:'Richiesta accettata con successo.',
     orderDeclined:'Richiesta rifiutata.',
+    orderCompleted:'Scambio completato con successo.',
     orderCancelled:'Richiesta annullata.',
     orderReference:'Riferimento ordine',
     statusRequested:'In attesa di approvazione',
@@ -336,7 +338,7 @@ const C={
     requestQuantity:'Cantidad',
     requestSend:'Enviar solicitud',
     requestSending:'Enviando solicitud…',
-    requestSuccess:'✓ ¡Solicitud enviada con éxito! El vendedor ha sido notificado. Puedes seguir el estado en tus pedidos.',
+    requestSuccess:'✓ ¡Solicitud registrada con éxito! El vendedor podrá revisarla en sus solicitudes recibidas. Puedes seguir el estado en tus pedidos.',
     requestLoginPrompt:'Inicia sesión para contactar al vendedor o solicitar este anuncio.',
     loginToRequest:'Iniciar sesión para solicitar',
     selfRequestError:'No puedes solicitar tu propio anuncio.',
@@ -396,6 +398,7 @@ const C={
     cancelOrder:'Cancelar solicitud',
     orderAccepted:'Solicitud aceptada con éxito.',
     orderDeclined:'Solicitud rechazada.',
+    orderCompleted:'Solicitud completada con éxito.',
     orderCancelled:'Solicitud cancelada.',
     orderReference:'Referencia del pedido',
     statusRequested:'Pendiente de aprobación',
@@ -435,7 +438,7 @@ const C={
     requestQuantity:'Quantité',
     requestSend:'Envoyer la demande',
     requestSending:'Envoi de la demande…',
-    requestSuccess:'✓ Demande envoyée avec succès ! Le vendeur a été notifié. Vous pouvez suivre l’état dans vos commandes.',
+    requestSuccess:'✓ Demande enregistrée avec succès ! Le vendeur pourra l’examiner dans ses demandes reçues. Vous pouvez suivre l’état dans vos commandes.',
     requestLoginPrompt:'Connectez-vous pour contacter le vendeur ou demander cette annonce.',
     loginToRequest:'Se connecter pour demander',
     selfRequestError:'Vous ne pouvez pas demander votre propre annonce.',
@@ -495,6 +498,7 @@ const C={
     cancelOrder:'Annuler la demande',
     orderAccepted:'Demande acceptée avec succès.',
     orderDeclined:'Demande refusée.',
+    orderCompleted:'Demande complétée avec succès.',
     orderCancelled:'Demande annulée.',
     orderReference:'Référence de la commande',
     statusRequested:'En attente d’approbation',
@@ -534,7 +538,7 @@ const C={
     requestQuantity:'Menge',
     requestSend:'Anfrage senden',
     requestSending:'Anfrage wird gesendet…',
-    requestSuccess:'✓ Anfrage erfolgreich gesendet! Der Verkäufer wurde benachrichtigt. Du kannst den Status in deinen Bestellungen verfolgen.',
+    requestSuccess:'✓ Anfrage erfolgreich gespeichert! Der Verkäufer kann sie unter eingehenden Anfragen prüfen. Du kannst den Status in deinen Bestellungen verfolgen.',
     requestLoginPrompt:'Bitte melden Sie sich an, um den Verkäufer zu kontaktieren oder dieses Angebot anzufragen.',
     loginToRequest:'Anmelden zum Anfragen',
     selfRequestError:'Du kannst dein eigenes Angebot nicht anfragen.',
@@ -594,6 +598,7 @@ const C={
     cancelOrder:'Anfrage stornieren',
     orderAccepted:'Anfrage erfolgreich angenommen.',
     orderDeclined:'Anfrage abgelehnt.',
+    orderCompleted:'Anfrage erfolgreich abgeschlossen.',
     orderCancelled:'Anfrage storniert.',
     orderReference:'Bestellreferenz',
     statusRequested:'Wartet auf Genehmigung',
@@ -892,7 +897,7 @@ function MarketplacePage(){
       });
       const d=await r.json().catch(()=>({}));
       if(!r.ok)throw new Error(d.message||d.error||'Failed to update order');
-      setMessage(nextStatus==='ACCEPTED'?t.orderAccepted:nextStatus==='REJECTED'?t.orderDeclined:t.orderCancelled);
+      setMessage(nextStatus==='ACCEPTED'?t.orderAccepted:nextStatus==='REJECTED'?t.orderDeclined:nextStatus==='COMPLETED'?t.orderCompleted:t.orderCancelled);
       await loadOrders();
     }catch(err){
       setMessage(err.message);

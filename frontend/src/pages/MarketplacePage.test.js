@@ -115,6 +115,7 @@ describe('Marketplace Order Views & Request Lifecycle (Issue #1683)', () => {
     'cancelOrder',
     'orderAccepted',
     'orderDeclined',
+    'orderCompleted',
     'orderCancelled',
     'orderReference',
     'statusRequested',
@@ -145,6 +146,7 @@ describe('Marketplace Order Views & Request Lifecycle (Issue #1683)', () => {
     expect(MARKETPLACE_COPY.it.accept).toBe('Accetta');
     expect(MARKETPLACE_COPY.it.decline).toBe('Rifiuta');
     expect(MARKETPLACE_COPY.it.cancelOrder).toBe('Annulla richiesta');
+    expect(MARKETPLACE_COPY.it.orderCompleted).toBe('Scambio completato con successo.');
     expect(MARKETPLACE_COPY.it.statusRequested).toBe('In attesa di approvazione');
     expect(MARKETPLACE_COPY.it.statusAccepted).toBe('Accettata');
     expect(MARKETPLACE_COPY.it.duplicateRequestError).toBe('Hai già una richiesta aperta per questo annuncio.');
