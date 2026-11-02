@@ -48,3 +48,45 @@ describe('Marketplace Demo v2 & Category Filter Deep Links (PR #1627)',()=>{
     expect(MARKETPLACE_COPY.de.activeCategoryFilter).toBe('Aktiver Kategoriefilter');
   });
 });
+
+describe('Marketplace Request / Contact Seller Button (Issue #1680)', () => {
+  test('localizes request button and request modal copy across all 5 languages', () => {
+    const requiredKeys = [
+      'request',
+      'requestListingModal',
+      'requestNotePlaceholder',
+      'requestQuantity',
+      'requestSend',
+      'requestSending',
+      'requestSuccess',
+      'requestLoginPrompt',
+      'loginToRequest',
+      'selfRequestError'
+    ];
+
+    for (const lang of ['en', 'it', 'es', 'fr', 'de']) {
+      for (const key of requiredKeys) {
+        expect(typeof MARKETPLACE_COPY[lang][key]).toBe('string');
+        expect(MARKETPLACE_COPY[lang][key].trim().length).toBeGreaterThan(0);
+      }
+    }
+
+    // Verify language-specific translations
+    expect(MARKETPLACE_COPY.it.request).toBe('Richiedi');
+    expect(MARKETPLACE_COPY.it.requestSend).toBe('Invia richiesta');
+    expect(MARKETPLACE_COPY.it.selfRequestError).toBe('Non puoi richiedere il tuo stesso annuncio.');
+
+    expect(MARKETPLACE_COPY.en.request).toBe('Request');
+    expect(MARKETPLACE_COPY.en.requestSend).toBe('Send request');
+    expect(MARKETPLACE_COPY.en.selfRequestError).toBe('You cannot request your own listing.');
+
+    expect(MARKETPLACE_COPY.es.request).toBe('Solicitar');
+    expect(MARKETPLACE_COPY.es.requestSend).toBe('Enviar solicitud');
+
+    expect(MARKETPLACE_COPY.fr.request).toBe('Demander');
+    expect(MARKETPLACE_COPY.fr.requestSend).toBe('Envoyer la demande');
+
+    expect(MARKETPLACE_COPY.de.request).toBe('Anfragen');
+    expect(MARKETPLACE_COPY.de.requestSend).toBe('Anfrage senden');
+  });
+});
