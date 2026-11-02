@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
-import MarketplacePage, {DEMO_SELLERS,MARKETPLACE_CATEGORIES,MARKETPLACE_COPY,demoPaymentMode,filterDemoSellers,isDemoDeepLink,getInitialCategory,resolveFilterCategories}from'./MarketplacePage';
+import MarketplacePage, {DEMO_SELLERS,MARKETPLACE_CATEGORIES,MARKETPLACE_COPY,demoPaymentMode,filterDemoSellers,isDemoDeepLink,getInitialCategory,resolveFilterCategories,getOrderStatusConfig}from'./MarketplacePage';
 
 describe('Marketplace Demo v2 & Category Filter Deep Links (PR #1627)',()=>{
   test('provides at least one demo seller for every category',()=>{const covered=new Set(DEMO_SELLERS.map(s=>s.category));expect(MARKETPLACE_CATEGORIES.filter(c=>!covered.has(c))).toEqual([])});
@@ -130,6 +130,83 @@ describe('Marketplace Demo v2 & Category Filter Deep Links (PR #1627)',()=>{
       localStorage.removeItem('myzubster-token');
       const html = ReactDOMServer.renderToString(<MarketplacePage />);
       expect(html).not.toContain('id="marketplace-orders"');
+    } finally {
+      global.localStorage = originalStorage;
+    }
+  });
+
+  test('getOrderStatusConfig maps each order status to accessible human-readable labels, colors and icons (Issue #1687)', () => {
+    const it = MARKETPLACE_COPY.it;
+    const req = getOrderStatusConfig('REQUESTED', it);
+    expect(req.label).toBe('In attesa di approvazione');
+    expect(req.icon).toBe('⏳');
+    expect(req.color).toBeTruthy();
+
+    const acc = getOrderStatusConfig('ACCEPTED', it);
+    expect(acc.label).toBe('Richiesta accettata');
+    expect(acc.icon).toBe('🤝');
+
+    const comp = getOrderStatusConfig('COMPLETED', it);
+    expect(comp.label).toBe('Scambio completato');
+    expect(comp.icon).toBe('✓');
+
+    const rej = getOrderStatusConfig('REJECTED', it);
+    expect(rej.label).toBe('Richiesta rifiutata');
+    expect(rej.icon).toBe('✕');
+
+    const can = getOrderStatusConfig('CANCELLED', it);
+    expect(can.label).toBe('Richiesta annullata');
+    expect(can.icon).toBe('🚫');
+  });
+
+  test('localizes order completion, confirmation prompts and contextual guidance across all 5 languages (Issue #1687)', () => {
+    const uxKeys = [
+      'statusRequested',
+      'statusAccepted',
+      'statusCompleted',
+      'statusRejected',
+      'statusCancelled',
+      'completeOrder',
+      'confirmRejectPrompt',
+      'confirmCancelPrompt',
+      'confirmCompletePrompt',
+      'acceptedSellerGuideTitle',
+      'acceptedSellerGuideDesc',
+      'acceptedBuyerGuideTitle',
+      'acceptedBuyerGuideDesc',
+      'directExchangeNoticeTitle',
+      'directExchangeNoticeDesc',
+      'requestStatusLabel'
+    ];
+
+    for (const lang of ['it', 'en', 'es', 'fr', 'de']) {
+      for (const key of uxKeys) {
+        expect(typeof MARKETPLACE_COPY[lang][key]).toBe('string');
+        expect(MARKETPLACE_COPY[lang][key].trim().length).toBeGreaterThan(0);
+      }
+    }
+
+    // Italian copy checks
+    expect(MARKETPLACE_COPY.it.completeOrder).toBe('Completa scambio');
+    expect(MARKETPLACE_COPY.it.directExchangeNoticeTitle).toBe('Accordi diretti tra utenti');
+    expect(MARKETPLACE_COPY.it.confirmRejectPrompt).toContain('rifiutare');
+    expect(MARKETPLACE_COPY.it.confirmCancelPrompt).toContain('annullare');
+
+    // English copy checks
+    expect(MARKETPLACE_COPY.en.completeOrder).toBe('Complete exchange');
+    expect(MARKETPLACE_COPY.en.directExchangeNoticeTitle).toBe('Direct community exchanges');
+    expect(MARKETPLACE_COPY.en.confirmRejectPrompt).toContain('decline');
+    expect(MARKETPLACE_COPY.en.confirmCancelPrompt).toContain('cancel');
+  });
+
+  test('MarketplacePage orders section renders direct exchange notice for transparency', () => {
+    const originalStorage = global.localStorage;
+    try {
+      localStorage.setItem('myzubster-token', 'mock-valid-token');
+      localStorage.setItem('myzubster-language', 'it');
+      const html = ReactDOMServer.renderToString(<MarketplacePage />);
+      expect(html).toContain('Accordi diretti tra utenti');
+      expect(html).toContain('Checkout ed escrow automatici non sono attivi in anteprima');
     } finally {
       global.localStorage = originalStorage;
     }
