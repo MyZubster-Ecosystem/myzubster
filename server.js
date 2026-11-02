@@ -11,6 +11,9 @@ const { captureFunnelEvent } = require('./src/services/posthogAnalyticsService')
 require('dotenv').config();
 
 const app = express();
+// Vercel runs Express behind its edge proxy. Trust only the immediate hop
+// so express-rate-limit can interpret forwarded client IPs correctly.
+if (process.env.VERCEL === '1') app.set('trust proxy', 1);
 app.use('/api/passports', publicPassportRoutes);
 app.use(cors());
 app.use('/api/github-bounties/webhook', express.json({ verify: (req, res, buf) => { req.rawBody = Buffer.from(buf); } }));
