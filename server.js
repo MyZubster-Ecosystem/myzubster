@@ -11,6 +11,10 @@ const { captureFunnelEvent } = require('./src/services/posthogAnalyticsService')
 require('dotenv').config();
 
 const app = express();
+// Vercel terminates the incoming connection at its proxy. Trust only the
+// immediate proxy hop so express-rate-limit can interpret X-Forwarded-For.
+// Do not enable this setting for direct/local connections.
+if (process.env.VERCEL === '1') app.set('trust proxy', 1);
 app.use('/api/passports', publicPassportRoutes);
 app.use(cors());
 app.use('/api/github-bounties/webhook', express.json({ verify: (req, res, buf) => { req.rawBody = Buffer.from(buf); } }));
