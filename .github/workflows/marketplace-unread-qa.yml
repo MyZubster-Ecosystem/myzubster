@@ -3,7 +3,7 @@ name: Marketplace unread notifications QA (isolated)
 on:
   push:
     branches:
-      - test/marketplace-unread-isolated-20261103
+      - test/integration-wasim-google-oauth-20261101
   workflow_dispatch:
 
 permissions:
