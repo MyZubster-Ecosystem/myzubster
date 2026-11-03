@@ -642,11 +642,15 @@ function MarketplacePage(){
   const[requestSubmitting,setRequestSubmitting]=useState(false);
   const[requestError,setRequestError]=useState('');
   const[confirmedOrder,setConfirmedOrder]=useState(null);
+  // Invalidate pending responses whenever the request dialog changes.
+  const requestSessionRef=useRef(0);
+  const requestInFlightRef=useRef(false);
 
   const demoDeepLink=useMemo(()=>isDemoDeepLink(window.location.search),[]);
   const demoSectionRef=useRef(null),demoDialogRef=useRef(null),requestDialogRef=useRef(null);
   const sellerSource=params.get('from')||params.get('utm_source')||'';
   const fromZorgax=sellerSource.toLowerCase().includes('zorgax')||params.get('intent')==='seller';
+  const[chatOrder,setChatOrder]=useState(null),[chatMessages,setChatMessages]=useState([]),[chatText,setChatText]=useState(''),[chatLoading,setChatLoading]=useState(false),[chatSending,setChatSending]=useState(false),[chatError,setChatError]=useState('');
   const[page,setPage]=useState(1),[hasMore,setHasMore]=useState(false),[loadingMore,setLoadingMore]=useState(false);
   const filterCategories=useMemo(()=>resolveFilterCategories(category,categoryCatalog,demoCategories),[category,categoryCatalog]);
   const filteredDemos=useMemo(()=>filterDemoSellers(DEMO_SELLERS,{category,location,query:demoQuery,payment:demoPayment}),[category,location,demoQuery,demoPayment]);
@@ -660,6 +664,9 @@ function MarketplacePage(){
   const loadSeller=useCallback(async()=>{try{const r=await fetch('/api/marketplace/seller/plan'),d=await r.json().catch(()=>({}));if(r.ok)setSellerPlan(d.plan||null);if(!localStorage.getItem('myzubster-token'))return;const sr=await fetch('/api/marketplace/seller/me',{headers:authHeaders()}),sd=await sr.json().catch(()=>({}));if(sr.ok){setSellerState(sd);if(sd.active)trackConversionOnce('seller_free_active',{source:'seller_state'})}}catch(_){}},[]);
   const loadCategories=useCallback(async()=>{try{const r=await fetch('/api/listings/categories'),d=await r.json().catch(()=>({}));if(!r.ok)return;const standard=Array.isArray(d.standard)?d.standard:[];const custom=Array.isArray(d.custom)?d.custom.map(item=>item.slug).filter(Boolean):[];let mine=[];if(localStorage.getItem('myzubster-token')){const mr=await fetch('/api/listings/categories/mine',{headers:authHeaders()}),md=await mr.json().catch(()=>({}));if(mr.ok&&Array.isArray(md.proposals))mine=md.proposals.filter(item=>['pending','approved'].includes(item.status)).map(item=>item.slug).filter(Boolean)}setCategoryCatalog([...new Set([...categories,...standard,...custom,...mine])])}catch(_){}},[]);
   const loadKnowledge=useCallback(async()=>{if(!localStorage.getItem('myzubster-token'))return;try{const r=await fetch('/api/knowledge-rewards/mine',{headers:authHeaders()}),d=await r.json().catch(()=>({}));if(r.ok)setKnowledgeItems(Array.isArray(d.items)?d.items:[])}catch(_){}},[]);
+  const loadChat=async(id)=>{setChatLoading(true);setChatError('');try{const r=await fetch(`/api/marketplace/orders/${encodeURIComponent(id)}/messages`,{headers:authHeaders()}),d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.message||d.error||'Conversazione non disponibile');setChatMessages(Array.isArray(d.messages)?d.messages:[])}catch(e){setChatError(e.message)}finally{setChatLoading(false)}};
+  const openChat=async(o)=>{setChatOrder(o);setChatText('');setChatMessages([]);await loadChat(o._id)};
+  const sendChat=async(e)=>{e.preventDefault();if(!chatOrder||!chatText.trim()||chatSending)return;setChatSending(true);setChatError('');try{const r=await fetch(`/api/marketplace/orders/${encodeURIComponent(chatOrder._id)}/messages`,{method:'POST',headers:authHeaders({'Content-Type':'application/json'}),body:JSON.stringify({body:chatText.trim()})}),d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.message||d.error||'Messaggio non inviato');setChatText('');await loadChat(chatOrder._id)}catch(e){setChatError(e.message)}finally{setChatSending(false)}};
   const loadMyListings=useCallback(async()=>{if(!localStorage.getItem('myzubster-token'))return;try{const r=await fetch('/api/listings/mine',{headers:authHeaders()}),d=await r.json().catch(()=>({}));if(r.ok&&Array.isArray(d.listings))setMyListings(d.listings)}catch(_){}},[]);
 
   const loadOrders=useCallback(async()=>{
@@ -818,6 +825,9 @@ function MarketplacePage(){
   function openRequestDialog(l){
     const isMine=myListings.some(m=>(m.id||m._id)===(l.id||l._id));
     if(isMine){setMessage(t.selfRequestError);return}
+    requestSessionRef.current+=1;
+    requestInFlightRef.current=false;
+    setRequestSubmitting(false);
     setActiveRequestListing(l);
     setRequestQuantity(1);
     setRequestNote('');
@@ -826,6 +836,8 @@ function MarketplacePage(){
   }
 
   function closeRequestDialog(){
+    requestSessionRef.current+=1;
+    requestInFlightRef.current=false;
     setActiveRequestListing(null);
     setRequestSubmitting(false);
     setRequestError('');
@@ -834,13 +846,15 @@ function MarketplacePage(){
 
   async function submitOrderRequest(e){
     if(e)e.preventDefault();
-    if(!activeRequestListing)return;
+    if(!activeRequestListing||requestInFlightRef.current)return;
+    const session=requestSessionRef.current;
     const returnTo=`${window.location.pathname}${window.location.search}${window.location.hash}`;
     if(!localStorage.getItem('myzubster-token')){
       setMessage(t.requestLoginPrompt);
       window.location.assign(`/social-login?returnTo=${encodeURIComponent(returnTo)}`);
       return;
     }
+    requestInFlightRef.current=true;
     setRequestSubmitting(true);
     setRequestError('');
     try{
@@ -849,6 +863,7 @@ function MarketplacePage(){
         quantity:Number(requestQuantity)||1,
         note:requestNote.trim()
       });
+      if(session!==requestSessionRef.current)return;
       const created=res.order||{
         _id:`ord-${Date.now()}`,
         quantity:Number(requestQuantity)||1,
@@ -870,6 +885,7 @@ function MarketplacePage(){
       setMessage(t.requestSuccess);
       await loadOrders();
     }catch(err){
+      if(session!==requestSessionRef.current)return;
       if(err.status===401){
         localStorage.removeItem('myzubster-token');
         setMessage(t.requestLoginPrompt);
@@ -883,7 +899,10 @@ function MarketplacePage(){
       }
       setMessage(err.message);
     }finally{
-      setRequestSubmitting(false);
+      if(session===requestSessionRef.current){
+        requestInFlightRef.current=false;
+        setRequestSubmitting(false);
+      }
     }
   }
 
@@ -1108,6 +1127,7 @@ function MarketplacePage(){
       </form>
     </section>}
 
+    {chatOrder&&<section aria-label="Conversazione Marketplace" style={{border:'2px solid #047857',borderRadius:14,padding:16,margin:'16px 0'}}><div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:10}}><h3>💬 Conversazione — {chatOrder.snapshot?.title||chatOrder.listingId?.title||'Richiesta'}</h3><button type="button" onClick={()=>setChatOrder(null)}>Chiudi</button></div><p>Stato richiesta: {chatOrder.status}</p><button type="button" disabled={chatLoading} onClick={()=>loadChat(chatOrder._id)}>Aggiorna messaggi</button>{chatError&&<p role="alert">{chatError}</p>}<div aria-live="polite" style={{margin:'12px 0',maxHeight:320,overflowY:'auto'}}>{chatLoading&&<p>Caricamento messaggi…</p>}{!chatLoading&&!chatMessages.length&&<p>Nessun messaggio. Scrivi per iniziare la conversazione.</p>}{chatMessages.map(m=><article key={m._id} style={{border:'1px solid #888',borderRadius:8,padding:10,margin:'8px 0',overflowWrap:'anywhere'}}><p style={{whiteSpace:'pre-wrap',margin:'0 0 6px'}}>{m.body}</p><small>{m.createdAt?new Date(m.createdAt).toLocaleString():''}</small></article>)}</div>{!['REJECTED','CANCELLED'].includes(chatOrder.status)?<form onSubmit={sendChat} style={{display:'grid',gap:8}}><label htmlFor="marketplace-chat-text">Scrivi un messaggio al cliente o venditore</label><textarea id="marketplace-chat-text" value={chatText} maxLength={2000} rows={3} onChange={e=>setChatText(e.target.value)} required/><button type="submit" disabled={chatSending||!chatText.trim()}>{chatSending?'Invio…':'Invia messaggio'}</button></form>:<p>Questa conversazione è chiusa.</p>}</section>}
     {message&&<p role="status">{message}</p>}
 
     {/* Section: Incoming Requests for Sellers (Issue #1683) */}
@@ -1160,6 +1180,7 @@ function MarketplacePage(){
                     </div>
                   ):null}
                   <div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:'auto',paddingTop:8}}>
+                    <button type="button" onClick={()=>openChat(order)}>💬 Messaggi</button>
                     {isPending&&(
                       <>
                         <button
@@ -1262,7 +1283,8 @@ function MarketplacePage(){
                     </div>
                   ):null}
                   <div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:'auto',paddingTop:8}}>
-                    {isPending&&(
+                    <button type="button" onClick={()=>openChat(order)}>💬 Messaggi</button>
+                    {(isPending||isAccepted)&&(
                       <button
                         type="button"
                         disabled={isUpdating}
