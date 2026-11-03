@@ -1,0 +1,56 @@
+name: Marketplace unread notifications QA (isolated)
+
+on:
+  push:
+    branches:
+      - test/marketplace-unread-isolated-20261103
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: marketplace-unread-qa-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unread-backend:
+    name: Buyer, seller & unauthorized third-user API tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      NODE_ENV: test
+      CI: "true"
+      MONGOMS_DOWNLOAD_IGNORE_MISSING_HEADER: "true"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Install backend dependencies
+        run: npm ci
+      - name: Run Marketplace unread messages integration suite
+        run: npx jest --runInBand --runTestsByPath tests/marketplaceUnreadMessages.test.js
+
+  unread-frontend:
+    name: Unread badges & multilingual frontend tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CI: "true"
+      NODE_ENV: test
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install frontend dependencies
+        run: npm ci
+      - name: Run Marketplace page and unread UI tests
+        run: npm test -- --watchAll=false --runInBand --runTestsByPath src/pages/MarketplacePage.test.js
