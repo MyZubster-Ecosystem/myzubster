@@ -115,7 +115,7 @@ describe('Marketplace Demo v2 & Category Filter Deep Links (PR #1627)',()=>{
       localStorage.setItem('myzubster-language', 'it');
       const html = ReactDOMServer.renderToString(<MarketplacePage />);
       expect(html).toContain('id="marketplace-orders"');
-      expect(html).toContain('Richieste Marketplace');
+      expect(html).toContain('Richieste e messaggi');
       expect(html).toContain('Aggiorna richieste');
       expect(html).toContain('Richieste ricevute');
       expect(html).toContain('Le mie richieste');
