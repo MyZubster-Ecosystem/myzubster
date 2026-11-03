@@ -1,4 +1,15 @@
-import{DEMO_SELLERS,MARKETPLACE_CATEGORIES,MARKETPLACE_COPY,demoPaymentMode,filterDemoSellers,isDemoDeepLink,getInitialCategory,resolveFilterCategories}from'./MarketplacePage';
+import React from 'react';
+import ReactDOMServer from 'react-dom/server';
+import MarketplacePage, {
+  DEMO_SELLERS,
+  MARKETPLACE_CATEGORIES,
+  MARKETPLACE_COPY,
+  demoPaymentMode,
+  filterDemoSellers,
+  isDemoDeepLink,
+  getInitialCategory,
+  resolveFilterCategories
+} from './MarketplacePage';
 
 describe('Marketplace Demo v2 & Category Filter Deep Links (PR #1627)',()=>{
   test('provides at least one demo seller for every category',()=>{const covered=new Set(DEMO_SELLERS.map(s=>s.category));expect(MARKETPLACE_CATEGORIES.filter(c=>!covered.has(c))).toEqual([])});
@@ -46,5 +57,162 @@ describe('Marketplace Demo v2 & Category Filter Deep Links (PR #1627)',()=>{
     expect(MARKETPLACE_COPY.de.barter).toBe('Tausch');
     expect(MARKETPLACE_COPY.de.loadMore).toBe('Weitere Anzeigen laden');
     expect(MARKETPLACE_COPY.de.activeCategoryFilter).toBe('Aktiver Kategoriefilter');
+  });
+});
+
+describe('Marketplace Request / Contact Seller Button (Issue #1680)', () => {
+  test('localizes request button and request modal copy across all 5 languages', () => {
+    const requiredKeys = [
+      'request',
+      'requestListingModal',
+      'requestNotePlaceholder',
+      'requestQuantity',
+      'requestSend',
+      'requestSending',
+      'requestSuccess',
+      'requestLoginPrompt',
+      'loginToRequest',
+      'selfRequestError'
+    ];
+
+    for (const lang of ['en', 'it', 'es', 'fr', 'de']) {
+      for (const key of requiredKeys) {
+        expect(typeof MARKETPLACE_COPY[lang][key]).toBe('string');
+        expect(MARKETPLACE_COPY[lang][key].trim().length).toBeGreaterThan(0);
+      }
+    }
+
+    // Verify language-specific translations
+    expect(MARKETPLACE_COPY.it.request).toBe('Richiedi');
+    expect(MARKETPLACE_COPY.it.requestSend).toBe('Invia richiesta');
+    expect(MARKETPLACE_COPY.it.selfRequestError).toBe('Non puoi richiedere il tuo stesso annuncio.');
+
+    expect(MARKETPLACE_COPY.en.request).toBe('Request');
+    expect(MARKETPLACE_COPY.en.requestSend).toBe('Send request');
+    expect(MARKETPLACE_COPY.en.selfRequestError).toBe('You cannot request your own listing.');
+
+    expect(MARKETPLACE_COPY.es.request).toBe('Solicitar');
+    expect(MARKETPLACE_COPY.es.requestSend).toBe('Enviar solicitud');
+
+    expect(MARKETPLACE_COPY.fr.request).toBe('Demander');
+    expect(MARKETPLACE_COPY.fr.requestSend).toBe('Envoyer la demande');
+
+    expect(MARKETPLACE_COPY.de.request).toBe('Anfragen');
+    expect(MARKETPLACE_COPY.de.requestSend).toBe('Anfrage senden');
+  });
+});
+
+describe('Marketplace Order Views & Request Lifecycle (Issue #1683)', () => {
+  const orderViewKeys = [
+    'incomingRequests',
+    'myRequests',
+    'browseListings',
+    'noIncomingRequests',
+    'noMyRequests',
+    'loadingOrders',
+    'accept',
+    'decline',
+    'cancelOrder',
+    'orderAccepted',
+    'orderDeclined',
+    'orderCompleted',
+    'orderCancelled',
+    'orderReference',
+    'statusRequested',
+    'statusAccepted',
+    'statusRejected',
+    'statusCompleted',
+    'statusCancelled',
+    'duplicateRequestError',
+    'viewMyRequests',
+    'viewIncomingRequests',
+    'buyerRoleLabel',
+    'sellerRoleLabel',
+    'refreshOrders'
+  ];
+
+  test('localizes all order and request view copy across all 5 languages', () => {
+    for (const lang of ['en', 'it', 'es', 'fr', 'de']) {
+      for (const key of orderViewKeys) {
+        expect(typeof MARKETPLACE_COPY[lang][key]).toBe('string');
+        expect(MARKETPLACE_COPY[lang][key].trim().length).toBeGreaterThan(0);
+      }
+    }
+
+    // Italian
+    expect(MARKETPLACE_COPY.it.incomingRequests).toBe('Richieste ricevute');
+    expect(MARKETPLACE_COPY.it.myRequests).toBe('Le mie richieste');
+    expect(MARKETPLACE_COPY.it.browseListings).toBe('Catalogo annunci');
+    expect(MARKETPLACE_COPY.it.accept).toBe('Accetta');
+    expect(MARKETPLACE_COPY.it.decline).toBe('Rifiuta');
+    expect(MARKETPLACE_COPY.it.cancelOrder).toBe('Annulla richiesta');
+    expect(MARKETPLACE_COPY.it.orderCompleted).toBe('Scambio completato con successo.');
+    expect(MARKETPLACE_COPY.it.statusRequested).toBe('In attesa di approvazione');
+    expect(MARKETPLACE_COPY.it.statusAccepted).toBe('Accettata');
+    expect(MARKETPLACE_COPY.it.duplicateRequestError).toBe('Hai già una richiesta aperta per questo annuncio.');
+
+    // English
+    expect(MARKETPLACE_COPY.en.incomingRequests).toBe('Incoming requests');
+    expect(MARKETPLACE_COPY.en.myRequests).toBe('My requests');
+    expect(MARKETPLACE_COPY.en.browseListings).toBe('Browse listings');
+    expect(MARKETPLACE_COPY.en.accept).toBe('Accept');
+    expect(MARKETPLACE_COPY.en.decline).toBe('Decline');
+
+    // Spanish
+    expect(MARKETPLACE_COPY.es.incomingRequests).toBe('Solicitudes recibidas');
+    expect(MARKETPLACE_COPY.es.myRequests).toBe('Mis solicitudes');
+
+    // French
+    expect(MARKETPLACE_COPY.fr.incomingRequests).toBe('Demandes reçues');
+    expect(MARKETPLACE_COPY.fr.myRequests).toBe('Mes demandes');
+
+    // German
+    expect(MARKETPLACE_COPY.de.incomingRequests).toBe('Eingehende Anfragen');
+    expect(MARKETPLACE_COPY.de.myRequests).toBe('Meine Anfragen');
+  });
+
+  test('renders navigation tabs and browse catalog for unauthenticated visitor', () => {
+    const originalStorage = global.localStorage;
+    try {
+      localStorage.setItem('myzubster-language', 'it');
+      localStorage.removeItem('myzubster-token');
+      const html = ReactDOMServer.renderToString(<MarketplacePage />);
+      expect(html).toContain('MYZUBSTER MARKETPLACE');
+      expect(html).toContain('Catalogo annunci');
+      expect(html).toContain('🏠 Home');
+      // Buyer and seller tabs are gated for authenticated users
+      expect(html).not.toContain('Richieste ricevute');
+      expect(html).not.toContain('Le mie richieste');
+    } finally {
+      global.localStorage = originalStorage;
+    }
+  });
+
+  test('renders authenticated navigation with buyer and seller tabs', () => {
+    const originalStorage = global.localStorage;
+    try {
+      localStorage.setItem('myzubster-language', 'it');
+      localStorage.setItem('myzubster-token', 'mock-token-xyz');
+      const html = ReactDOMServer.renderToString(<MarketplacePage />);
+      expect(html).toContain('Catalogo annunci');
+      expect(html).toContain('Richieste ricevute');
+      expect(html).toContain('Le mie richieste');
+    } finally {
+      global.localStorage = originalStorage;
+    }
+  });
+
+  test('renders English navigation labels when English is selected', () => {
+    const originalStorage = global.localStorage;
+    try {
+      localStorage.setItem('myzubster-language', 'en');
+      localStorage.setItem('myzubster-token', 'mock-token-xyz');
+      const html = ReactDOMServer.renderToString(<MarketplacePage />);
+      expect(html).toContain('Browse listings');
+      expect(html).toContain('Incoming requests');
+      expect(html).toContain('My requests');
+    } finally {
+      global.localStorage = originalStorage;
+    }
   });
 });
