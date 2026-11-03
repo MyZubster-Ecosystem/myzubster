@@ -87,6 +87,11 @@
         "serialize-javascript": "7.0.5"
       }
     },
-    "braces": "3.0.3"
+    "braces": "3.0.3",
+    "body-parser": "1.20.9",
+    "follow-redirects": "1.16.2",
+    "@vercel/cli-config": {
+      "zod": "4.6.7"
+    }
   }
 }
