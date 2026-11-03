@@ -21,7 +21,7 @@ export default function MarketplaceInbox({lang='it',requestTarget=null}){
   const[orders,setOrders]=useState([]),[loading,setLoading]=useState(false),[error,setError]=useState('');
   const[unread,setUnread]=useState(null),[unreadError,setUnreadError]=useState(false);
   const[chatId,setChatId]=useState(null),[messages,setMessages]=useState([]),[chatLoading,setChatLoading]=useState(false),[chatError,setChatError]=useState(''),[text,setText]=useState(''),[sending,setSending]=useState(false),[busy,setBusy]=useState(null);
-  const sectionRef=useRef(null),chatRef=useRef(null),sessionRef=useRef(0),sendRef=useRef(false),targetRef=useRef(0),ordersRef=useRef(0),unreadRef=useRef(0);
+  const sectionRef=useRef(null),chatRef=useRef(null),sessionRef=useRef(0),sendRef=useRef(false),targetRef=useRef(0),ordersRef=useRef(0),unreadRef=useRef(0),readRef=useRef(0);
   const selected=useMemo(()=>orders.find(o=>String(o._id)===chatId),[orders,chatId]);
   const loadOrders=useCallback(async()=>{
     const seq=++ordersRef.current;setLoading(true);setError('');
@@ -37,16 +37,18 @@ export default function MarketplaceInbox({lang='it',requestTarget=null}){
   const refresh=useCallback(()=>{loadOrders().catch(()=>{});loadUnread();},[loadOrders,loadUnread]);
   useEffect(()=>{
     refresh();
+    const counters=[sessionRef,targetRef,ordersRef,unreadRef,readRef];
     const sync=()=>{if(!document.hidden)refresh();};
     window.addEventListener('focus',sync);
     const timer=window.setInterval(sync,45000);
-    return()=>{window.removeEventListener('focus',sync);window.clearInterval(timer);sessionRef.current++;targetRef.current++;ordersRef.current++;unreadRef.current++;};
+    return()=>{window.removeEventListener('focus',sync);window.clearInterval(timer);for(const ref of counters)ref.current++;};
   },[refresh]);
   const readChat=useCallback(async(id,session)=>{
+    const seq=++readRef.current;
     setChatLoading(true);setChatError('');
-    try{const d=await api(`/api/marketplace/orders/${encodeURIComponent(id)}/messages`);if(session!==sessionRef.current)return;setMessages(Array.isArray(d.messages)?d.messages:[]);await loadUnread();}
-    catch(e){if(session===sessionRef.current)setChatError(e.message);}
-    finally{if(session===sessionRef.current)setChatLoading(false);}
+    try{const d=await api(`/api/marketplace/orders/${encodeURIComponent(id)}/messages`);if(session!==sessionRef.current||seq!==readRef.current)return;setMessages(Array.isArray(d.messages)?d.messages:[]);await loadUnread();}
+    catch(e){if(session===sessionRef.current&&seq===readRef.current)setChatError(e.message);}
+    finally{if(session===sessionRef.current&&seq===readRef.current)setChatLoading(false);}
   },[loadUnread]);
   const openChat=useCallback(order=>{
     const id=String(order._id),session=++sessionRef.current;

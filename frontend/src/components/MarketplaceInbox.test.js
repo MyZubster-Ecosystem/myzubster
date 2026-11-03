@@ -101,6 +101,18 @@ describe('Public Marketplace request, inbox and chat',()=>{
     expect(chat.textContent).toContain('Conversation two');
     expect(chat.textContent).not.toContain('Wrong conversation');
   });
+  test('an older read cannot overwrite messages reloaded after sending',async()=>{
+    await render();readOverride=deferred();const old=readOverride;
+    await click(findButton('Messaggi (2 messaggi non letti)'));
+    readOverride=null;
+    const input=container.querySelector('#marketplace-chat-text');
+    await act(async()=>Simulate.change(input,{target:{value:'New reply'}}));
+    await act(async()=>Simulate.submit(input.closest('form')));
+    await act(async()=>old.resolve(response({messages:[{_id:'stale',body:'Stale history'}]})));
+    const chat=container.querySelector('[aria-label="Conversazione"]');
+    expect(chat.textContent).toContain('Conversation one');
+    expect(chat.textContent).not.toContain('Stale history');
+  });
   test('unread endpoint failure remains visible instead of claiming zero notifications',async()=>{
     const fetch=global.fetch;
     global.fetch=jest.fn((url,options)=>url==='/api/marketplace/orders/messages/unread'?Promise.resolve(response({message:'unavailable'},503)):fetch(url,options));
