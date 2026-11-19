@@ -136,11 +136,12 @@ function normalizeListingImages(images, fallbackAlt = '', options = {}) {
   const expectedOwnerId = options.ownerId ? String(options.ownerId) : null;
   const strictPlatformOnly = Boolean(options.strictPlatformOnly || process.env.MARKETPLACE_STRICT_IMAGE_ORIGIN === 'true');
 
-  return images
+  const normalized = images
     .slice(0, MAX_IMAGES_PER_LISTING)
     .map((item) => {
       const rawUrl = String(item?.url || '').trim();
       const rawAlt = String(item?.alt !== undefined ? item.alt : fallbackAlt).trim();
+      const isCover = Boolean(item?.isCover || item?.cover);
 
       if (!rawUrl || rawUrl.length > MAX_URL_LENGTH) {
         return null;
@@ -164,7 +165,8 @@ function normalizeListingImages(images, fallbackAlt = '', options = {}) {
         }
         return {
           url: rawUrl,
-          alt: rawAlt.slice(0, MAX_ALT_LENGTH)
+          alt: rawAlt.slice(0, MAX_ALT_LENGTH),
+          isCover
         };
       }
 
@@ -189,7 +191,8 @@ function normalizeListingImages(images, fallbackAlt = '', options = {}) {
         }
         return {
           url: rawUrl,
-          alt: rawAlt.slice(0, MAX_ALT_LENGTH)
+          alt: rawAlt.slice(0, MAX_ALT_LENGTH),
+          isCover
         };
       }
 
@@ -219,13 +222,23 @@ function normalizeListingImages(images, fallbackAlt = '', options = {}) {
 
         return {
           url: rawUrl,
-          alt: rawAlt.slice(0, MAX_ALT_LENGTH)
+          alt: rawAlt.slice(0, MAX_ALT_LENGTH),
+          isCover
         };
       } catch (_) {
         return null;
       }
     })
     .filter(Boolean);
+
+  const coverIndex = normalized.findIndex(img => img.isCover);
+  if (coverIndex > 0) {
+    const [coverItem] = normalized.splice(coverIndex, 1);
+    normalized.unshift(coverItem);
+  } else if (normalized.length > 0 && !normalized.some(img => img.isCover)) {
+    normalized[0].isCover = true;
+  }
+  return normalized;
 }
 
 module.exports = {

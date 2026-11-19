@@ -14,7 +14,8 @@ const marketplaceListingSchema = new mongoose.Schema({
   images: {
     type: [{
       url: { type: String, required: true, maxlength: 2048 },
-      alt: { type: String, default: '', maxlength: 160 }
+      alt: { type: String, default: '', maxlength: 160 },
+      isCover: { type: Boolean, default: false }
     }],
     default: [],
     validate: [v => Array.isArray(v) && v.length <= 5, 'Massimo 5 immagini per annuncio']

@@ -207,6 +207,36 @@ describe('ImageValidationService Unit Tests', () => {
       expect(normalized).toHaveLength(1);
       expect(normalized[0].url).toBe(verifiedUrl);
     });
+
+    test('preserves isCover and enforces selected-first invariant when second image is selected as cover', () => {
+      const sellerId = 'seller_12345';
+      const input = [
+        { url: `https://store.public.blob.vercel-storage.com/marketplace/${sellerId}/img-1.jpg`, alt: 'Image 1', isCover: false },
+        { url: `https://store.public.blob.vercel-storage.com/marketplace/${sellerId}/img-2.jpg`, alt: 'Image 2', isCover: true }
+      ];
+      const verifiedUploadUrls = new Set([
+        `https://store.public.blob.vercel-storage.com/marketplace/${sellerId}/img-1.jpg`,
+        `https://store.public.blob.vercel-storage.com/marketplace/${sellerId}/img-2.jpg`
+      ]);
+      const normalized = normalizeListingImages(input, 'Fallback', { ownerId: sellerId, verifiedUploadUrls });
+      expect(normalized).toHaveLength(2);
+      expect(normalized[0].url).toBe(`https://store.public.blob.vercel-storage.com/marketplace/${sellerId}/img-2.jpg`);
+      expect(normalized[0].isCover).toBe(true);
+      expect(normalized[1].url).toBe(`https://store.public.blob.vercel-storage.com/marketplace/${sellerId}/img-1.jpg`);
+      expect(normalized[1].isCover).toBe(false);
+    });
+
+    test('defaults first image to isCover true when no image explicitly flags cover', () => {
+      const input = [
+        { url: 'https://images.example.test/pic1.jpg' },
+        { url: 'https://images.example.test/pic2.jpg' }
+      ];
+      const normalized = normalizeListingImages(input, 'Fallback');
+      expect(normalized).toHaveLength(2);
+      expect(normalized[0].url).toBe('https://images.example.test/pic1.jpg');
+      expect(normalized[0].isCover).toBe(true);
+      expect(normalized[1].isCover).toBe(false);
+    });
   });
 });
 
@@ -511,6 +541,56 @@ describe('Marketplace Photo Upload & Route Integration Tests', () => {
       expect(res.body.listing.images).toHaveLength(1);
       expect(res.body.listing.images[0].url).toBe('https://images.example.test/new-cover.jpg');
       expect(res.body.listing.images[0].alt).toBe('New Cover Photo');
+    });
+
+    test('selecting second image as cover persists isCover and selected-first across create and database reload', async () => {
+      const sellerId = String(sellerUser._id);
+      const url1 = `/api/listings/images/${sellerId}/photo1.jpg`;
+      const url2 = `/api/listings/images/${sellerId}/photo2.jpg`;
+
+      const MarketplaceUpload = require('../src/models/MarketplaceUpload');
+      await MarketplaceUpload.create([
+        { url: url1, ownerId: sellerUser._id, mimeType: 'image/jpeg', format: 'jpg', size: 1024, status: 'active' },
+        { url: url2, ownerId: sellerUser._id, mimeType: 'image/jpeg', format: 'jpg', size: 1024, status: 'active' }
+      ]);
+
+      const res = await request(app)
+        .post('/api/listings/create')
+        .set('Authorization', `Bearer ${tokenFor(sellerUser)}`)
+        .send({
+          title: 'Handmade Wooden Chair',
+          category: 'tools',
+          price: 75,
+          currency: 'EUR',
+          description: 'Solid oak chair.',
+          images: [
+            { url: url1, alt: 'Side View', isCover: false },
+            { url: url2, alt: 'Front Cover View', isCover: true }
+          ]
+        });
+
+      expect(res.status).toBe(201);
+      expect(res.body.listing.images).toHaveLength(2);
+      expect(res.body.listing.images[0].url).toBe(url2);
+      expect(res.body.listing.images[0].isCover).toBe(true);
+      expect(res.body.listing.images[1].url).toBe(url1);
+      expect(res.body.listing.images[1].isCover).toBe(false);
+
+      const MarketplaceListing = require('../src/models/MarketplaceListing');
+      const loaded = await MarketplaceListing.findById(res.body.listing.id);
+      expect(loaded).toBeTruthy();
+      expect(loaded.images).toHaveLength(2);
+      expect(loaded.images[0].url).toBe(url2);
+      expect(loaded.images[0].isCover).toBe(true);
+      expect(loaded.images[1].url).toBe(url1);
+      expect(loaded.images[1].isCover).toBe(false);
+
+      const getRes = await request(app).get('/api/listings');
+      expect(getRes.status).toBe(200);
+      const foundInList = getRes.body.listings.find(l => (l.id || l._id) === (res.body.listing.id || res.body.listing._id));
+      expect(foundInList).toBeTruthy();
+      expect(foundInList.images[0].url).toBe(url2);
+      expect(foundInList.images[0].isCover).toBe(true);
     });
   });
 });
