@@ -938,6 +938,7 @@ function App() {
 
   const path = window.location.pathname.replace(/\/+$/, '') || '/';
   if (path === '/social-login' || path === '/social-login.html') return <SocialLoginPage />;
+  if (path === '/qa-login' && process.env.REACT_APP_MARKETPLACE_QA === 'true') return <SocialLoginPage />;
   if (path === '/life-pilot' || path === '/zorgax/life-pilot') return <ZorgaxLifePilotPage />;
   if (path === '/apps') return <AppsDownloadPage />;
   if (path === '/conoscenze' || path === '/knowledge') return <KnowledgeGraphPage />;

@@ -1,11 +1,18 @@
 function createMongoConnector({
   mongoose,
   mongoUri,
+  dbName,
+  qaDatabase,
+  vercelEnv,
   serverSelectionTimeoutMS = 5000,
   connectTimeoutMS = 5000,
   socketTimeoutMS = 15000,
   logger = console
 }) {
+  const selectedDatabase=String(dbName||'').trim();
+  if(qaDatabase&&(vercelEnv!=='preview'||!selectedDatabase||selectedDatabase!==qaDatabase)){
+    throw new Error('Marketplace QA requires Preview and its explicit isolated database');
+  }
   let mongoConnectionPromise = null;
 
   return function connectMongo() {
@@ -19,6 +26,7 @@ function createMongoConnector({
     }
 
     mongoConnectionPromise = mongoose.connect(mongoUri, {
+      ...(selectedDatabase?{dbName:selectedDatabase}:{}),
       serverSelectionTimeoutMS,
       connectTimeoutMS,
       socketTimeoutMS,

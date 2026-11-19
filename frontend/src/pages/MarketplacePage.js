@@ -1,4 +1,5 @@
 import React,{useCallback,useEffect,useMemo,useRef,useState}from'react';
+import MarketplaceInbox from '../components/MarketplaceInbox';
 import WalletHubPanel from'../components/WalletHubPanel';
 import{trackConversion,trackConversionOnce}from'../analytics/conversionAnalytics';
 import{getLanguage,LANGUAGE_NAMES,setLanguage}from'../i18n';
@@ -196,7 +197,23 @@ const BASE_COPY={
   viewIncomingRequests:'View incoming requests',
   buyerRoleLabel:'Buyer',
   sellerRoleLabel:'Seller',
-  refreshOrders:'Refresh requests'
+  refreshOrders:'Refresh requests',
+  ordersTitle:'Marketplace requests',
+  receivedRequests:'Incoming requests',
+  noOrders:'No requests present.',
+  messages:'Messages',
+  unreadBadge:'unread',
+  unreadNotice:'unread messages across your requests.',
+  conversationTitle:'Conversation',
+  refreshMessages:'Refresh messages',
+  loadingMessages:'Loading messages…',
+  noMessages:'No messages yet. Write to start the conversation.',
+  writeMessage:'Write a message to buyer or seller',
+  sendMessage:'Send message',
+  sendingMessage:'Sending…',
+  conversationClosed:'This conversation is closed.',
+  acceptOrder:'Accept',
+  rejectOrder:'Decline',
 };
 
 const C={
@@ -311,7 +328,23 @@ const C={
     viewIncomingRequests:'Visualizza richieste ricevute',
     buyerRoleLabel:'Acquirente',
     sellerRoleLabel:'Venditore',
-    refreshOrders:'Aggiorna richieste'
+    refreshOrders:'Aggiorna richieste',
+    ordersTitle:'Richieste Marketplace',
+    receivedRequests:'Richieste ricevute',
+    noOrders:'Nessuna richiesta presente.',
+    messages:'Messaggi',
+    unreadBadge:'non letti',
+    unreadNotice:'messaggi non letti nelle tue richieste.',
+    conversationTitle:'Conversazione',
+    refreshMessages:'Aggiorna messaggi',
+    loadingMessages:'Caricamento messaggi…',
+    noMessages:'Nessun messaggio. Scrivi per iniziare la conversazione.',
+    writeMessage:'Scrivi un messaggio al cliente o venditore',
+    sendMessage:'Invia messaggio',
+    sendingMessage:'Invio…',
+    conversationClosed:'Questa conversazione è chiusa.',
+    acceptOrder:'Accetta',
+    rejectOrder:'Rifiuta',
   },
   es:{
     ...BASE_COPY,
@@ -411,7 +444,23 @@ const C={
     viewIncomingRequests:'Ver solicitudes recibidas',
     buyerRoleLabel:'Comprador',
     sellerRoleLabel:'Vendedor',
-    refreshOrders:'Actualizar solicitudes'
+    refreshOrders:'Actualizar solicitudes',
+    ordersTitle:'Solicitudes del Marketplace',
+    receivedRequests:'Solicitudes recibidas',
+    noOrders:'No hay solicitudes presentes.',
+    messages:'Mensajes',
+    unreadBadge:'no leídos',
+    unreadNotice:'mensajes no leídos en tus solicitudes.',
+    conversationTitle:'Conversación',
+    refreshMessages:'Actualizar mensajes',
+    loadingMessages:'Cargando mensajes…',
+    noMessages:'No hay mensajes. Escribe para iniciar la conversación.',
+    writeMessage:'Escribe un mensaje al cliente o vendedor',
+    sendMessage:'Enviar mensaje',
+    sendingMessage:'Enviando…',
+    conversationClosed:'Esta conversación está cerrada.',
+    acceptOrder:'Aceptar',
+    rejectOrder:'Rechazar',
   },
   fr:{
     ...BASE_COPY,
@@ -511,7 +560,23 @@ const C={
     viewIncomingRequests:'Voir les demandes reçues',
     buyerRoleLabel:'Acheteur',
     sellerRoleLabel:'Vendeur',
-    refreshOrders:'Actualiser les demandes'
+    refreshOrders:'Actualiser les demandes',
+    ordersTitle:'Demandes du Marketplace',
+    receivedRequests:'Demandes reçues',
+    noOrders:'Aucune demande présente.',
+    messages:'Messages',
+    unreadBadge:'non lus',
+    unreadNotice:'messages non lus dans vos demandes.',
+    conversationTitle:'Conversation',
+    refreshMessages:'Actualiser les messages',
+    loadingMessages:'Chargement des messages…',
+    noMessages:'Aucun message. Écrivez pour commencer la conversation.',
+    writeMessage:'Écrivez un message au client ou vendeur',
+    sendMessage:'Envoyer le message',
+    sendingMessage:'Envoi…',
+    conversationClosed:'Cette conversation est fermée.',
+    acceptOrder:'Accepter',
+    rejectOrder:'Refuser',
   },
   de:{
     ...BASE_COPY,
@@ -611,7 +676,23 @@ const C={
     viewIncomingRequests:'Eingehende Anfragen anzeigen',
     buyerRoleLabel:'Käufer',
     sellerRoleLabel:'Verkäufer',
-    refreshOrders:'Anfragen aktualisieren'
+    refreshOrders:'Anfragen aktualisieren',
+    ordersTitle:'Marketplace-Anfragen',
+    receivedRequests:'Eingegangene Anfragen',
+    noOrders:'Keine Anfragen vorhanden.',
+    messages:'Nachrichten',
+    unreadBadge:'ungelesen',
+    unreadNotice:'ungelesene Nachrichten in deinen Anfragen.',
+    conversationTitle:'Konversation',
+    refreshMessages:'Nachrichten aktualisieren',
+    loadingMessages:'Nachrichten werden geladen…',
+    noMessages:'Noch keine Nachrichten. Schreibe, um das Gespräch zu beginnen.',
+    writeMessage:'Schreibe eine Nachricht an den Käufer oder Verkäufer',
+    sendMessage:'Nachricht senden',
+    sendingMessage:'Wird gesendet…',
+    conversationClosed:'Diese Konversation ist geschlossen.',
+    acceptOrder:'Annehmen',
+    rejectOrder:'Ablehnen',
   }
 };
 
@@ -642,6 +723,10 @@ function MarketplacePage(){
   const[requestSubmitting,setRequestSubmitting]=useState(false);
   const[requestError,setRequestError]=useState('');
   const[confirmedOrder,setConfirmedOrder]=useState(null);
+  const[requestBusy,setRequestBusy]=useState(false);
+  const[requestTarget,setRequestTarget]=useState(null);
+  const requestLock=useRef(false);
+  const requestSequence=useRef(0);
 
   const demoDeepLink=useMemo(()=>isDemoDeepLink(window.location.search),[]);
   const demoSectionRef=useRef(null),demoDialogRef=useRef(null),requestDialogRef=useRef(null);
@@ -815,6 +900,22 @@ function MarketplacePage(){
     }catch(e){setMessage(e.message)}
   }
 
+  async function requestListing(l){
+    if(requestLock.current)return;
+    const returnTo=`${window.location.pathname}${window.location.search}${window.location.hash}`;
+    const login=()=>window.location.assign(`/social-login?returnTo=${encodeURIComponent(returnTo)}`);
+    if(!localStorage.getItem('myzubster-token')){login();return;}
+    requestLock.current=true;setRequestBusy(true);setMessage('');
+    try{
+      const payload=await apiAction('/api/marketplace/orders',{listingId:l.id||l._id,quantity:1,note:''});
+      setRequestTarget({listingId:l.id||l._id,orderId:payload.order?._id,sequence:++requestSequence.current});
+    }catch(e){
+      if(e.status===409){setRequestTarget({listingId:l.id||l._id,sequence:++requestSequence.current});}
+      else if(e.status===401){localStorage.removeItem('myzubster-token');login();}
+      else setMessage(e.message);
+    }finally{requestLock.current=false;setRequestBusy(false);}
+  }
+
   function openRequestDialog(l){
     const isMine=myListings.some(m=>(m.id||m._id)===(l.id||l._id));
     if(isMine){setMessage(t.selfRequestError);return}
@@ -861,6 +962,11 @@ function MarketplacePage(){
         }
       };
       setConfirmedOrder(created);
+      setRequestTarget({
+        listingId: activeRequestListing.id || activeRequestListing._id,
+        orderId: created._id,
+        sequence: ++requestSequence.current
+      });
       trackConversion('marketplace_listing_requested',{
         listingId:activeRequestListing.id||activeRequestListing._id,
         currency:activeRequestListing.currency,
@@ -916,6 +1022,13 @@ function MarketplacePage(){
   const cardStyle={border:'1px dashed #2f9e66',padding:16,borderRadius:16,display:'flex',flexDirection:'column',gap:8,minWidth:0};
 
   return <main style={{padding:'clamp(14px,3vw,24px)',maxWidth:1100,margin:'0 auto'}}>
+    {process.env.REACT_APP_MARKETPLACE_QA === 'true' && (
+      <aside role="note" style={{padding: 16, border: '2px solid #0284c7', borderRadius: 12, marginBottom: 18}}>
+        <strong>Ambiente di prova — annunci e account separati dal sito pubblico.</strong>
+        <p>Usa gli account di test con email e password MyZubster. Gli annunci qui sono esempi, non offerte reali.</p>
+        <a href="/qa-login?returnTo=%2Fmarketplace">Accedi con un account di prova</a>
+      </aside>
+    )}
     <header>
       <div style={{display:'flex',justifyContent:'space-between',gap:12,flexWrap:'wrap'}}>
         <div>MYZUBSTER MARKETPLACE</div>
@@ -1109,6 +1222,12 @@ function MarketplacePage(){
     </section>}
 
     {message&&<p role="status">{message}</p>}
+
+    {/* Real-time Order Messaging and Unread Notifications (PR #1689 & #1688) */}
+    {localStorage.getItem('myzubster-token') && (
+      <MarketplaceInbox lang={lang} requestTarget={requestTarget} />
+    )}
+
 
     {/* Section: Incoming Requests for Sellers (Issue #1683) */}
     {activeSection==='incoming_orders'&&(
@@ -1370,7 +1489,12 @@ function MarketplacePage(){
               {l.description&&<p>{l.description}</p>}
               <strong>{l.currency==='FREE'?t.free:l.currency==='BARTER'?t.barter:`${l.price} ${l.currency}`}</strong>
               <div style={{marginTop:8,display:'flex',gap:8}}>
-                {isMine?<button type="button" onClick={()=>startEdit(l)}>✏️ {t.edit}</button>:<button onClick={()=>openRequestDialog(l)}>{t.request}</button>}
+                {isMine?<button type="button" onClick={()=>startEdit(l)}>✏️ {t.edit}</button>:(
+                  <>
+                    <button disabled={requestBusy} onClick={()=>requestListing(l)}>{t.request}</button>
+                    <button type="button" onClick={()=>openRequestDialog(l)} title={t.requestListingModal} style={{fontSize:12,padding:'4px 8px'}}>📝</button>
+                  </>
+                )}
               </div>
             </article>;
           })}
