@@ -92,8 +92,18 @@ describe('social OAuth callback safety', () => {
 
     await socialAuthController.callback(req, res);
 
-    expect(errorSpy).toHaveBeenCalledTimes(1);
-    const logLine = errorSpy.mock.calls[0].join(' ');
+    expect(errorSpy).toHaveBeenCalledTimes(2);
+    expect(errorSpy.mock.calls[0][0]).toBe('[facebook-oauth]');
+    expect(errorSpy.mock.calls[1][0]).toBe('[social-oauth] callback failed');
+    expect(JSON.parse(errorSpy.mock.calls[1][1])).toEqual({
+      provider: 'facebook',
+      stage: 'provider_token_exchange',
+      hasVerifiedState: true,
+      errorType: 'Error',
+      errorMessage: 'Login Facebook non riuscito'
+    });
+    // Check every diagnostic, including the shared callback failure log.
+    const logLine = errorSpy.mock.calls.map(call => call.join(' ')).join('\n');
     expect(logLine).toContain('token_exchange');
     expect(logLine).toContain('OAuthException');
     expect(logLine).toContain('36008');
