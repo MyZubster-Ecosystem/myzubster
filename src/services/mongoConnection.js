@@ -26,7 +26,8 @@ function createMongoConnector({
     }
 
     mongoConnectionPromise = mongoose.connect(mongoUri, {
-      ...(selectedDatabase?{dbName:selectedDatabase}:{}),
+      // Production uses the database in the connection URI, as before the QA override.
+      ...(selectedDatabase && vercelEnv !== 'production' ? { dbName: selectedDatabase } : {}),
       serverSelectionTimeoutMS,
       connectTimeoutMS,
       socketTimeoutMS,
