@@ -11,6 +11,7 @@ const { authenticate } = require('../middleware/auth');
 
 const mutationLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 40, standardHeaders: true, legacyHeaders: false, message: { success: false, message: 'Troppe operazioni Marketplace. Riprova tra poco.' } });
 const messageLimiter = rateLimit({ windowMs: 60 * 1000, max: 12, standardHeaders: true, legacyHeaders: false, message: { success: false, message: 'Troppi messaggi. Attendi un minuto.' } });
+const unreadLimiter = rateLimit({ windowMs: 60 * 1000, max: 120, standardHeaders: true, legacyHeaders: false, message: { success: false, message: 'Troppe richieste di sincronizzazione messaggi.' } });
 const reportLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 10, standardHeaders: true, legacyHeaders: false, message: { success: false, message: 'Limite segnalazioni raggiunto. Riprova più tardi.' } });
 
 function requireModerator(req, res, next) {
@@ -77,6 +78,28 @@ router.patch('/orders/:id/status', authenticate, mutationLimiter, async (req, re
     if (next === 'ACCEPTED') order.acceptedAt = new Date(); if (next === 'REJECTED') order.rejectedAt = new Date(); if (next === 'COMPLETED') order.completedAt = new Date(); if (next === 'CANCELLED') order.cancelledAt = new Date();
     await order.save(); res.json({ success: true, order });
   } catch (_error) { res.status(400).json({ success: false, message: 'Impossibile aggiornare la richiesta' }); }
+});
+
+router.get('/orders/messages/unread', authenticate, unreadLimiter, async (req, res) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.userId)) {
+      return res.status(400).json({ success: false, message: 'Identificativo utente non valido' });
+    }
+    const unread = await MarketplaceMessage.aggregate([
+      { $match: { recipientId: new mongoose.Types.ObjectId(req.userId), readAt: null } },
+      { $group: { _id: '$orderId', count: { $sum: 1 } } }
+    ]);
+    const byOrder = {};
+    let totalUnread = 0;
+    for (const item of unread) {
+      const orderIdStr = String(item._id);
+      byOrder[orderIdStr] = item.count;
+      totalUnread += item.count;
+    }
+    res.json({ success: true, totalUnread, byOrder });
+  } catch (_err) {
+    res.status(500).json({ success: false, message: 'Impossibile recuperare il conteggio dei messaggi non letti' });
+  }
 });
 
 router.get('/orders/:id/messages', authenticate, async (req, res) => {
