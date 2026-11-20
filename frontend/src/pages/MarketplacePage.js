@@ -983,7 +983,10 @@ function MarketplacePage(){
         return;
       }
       if(err.status===409){
-        setRequestError(t.duplicateRequestError||err.message);
+        const listingId = activeRequestListing.id || activeRequestListing._id;
+        closeRequestDialog();
+        setRequestTarget({ listingId, sequence: ++requestSequence.current });
+        return;
       }else{
         setRequestError(err.message||'Request failed');
       }

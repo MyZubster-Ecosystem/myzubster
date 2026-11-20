@@ -51,6 +51,19 @@ describe('Public Marketplace request, inbox and chat',()=>{
     expect(global.fetch.mock.calls.filter(([u,o])=>u==='/api/marketplace/orders'&&o?.method==='POST')).toHaveLength(1);
     expect(container.textContent).not.toContain('2 messaggi non letti');
   });
+  test('the detailed request dialog closes and opens the existing order chat on a duplicate', async () => {
+    await render();
+    await click(container.querySelector('button[title="Richiedi annuncio / Contatta venditore"]'));
+    const dialog = container.querySelector('[role="dialog"]');
+    await act(async () => Simulate.submit(dialog.querySelector('form')));
+    expect(container.querySelector('[role="dialog"]')).toBeNull();
+    expect(container.querySelector('[aria-label="Conversazione"]').textContent).toContain('Conversation one');
+    const submissions = global.fetch.mock.calls.filter(([url, options]) =>
+      url === '/api/marketplace/orders' && options?.method === 'POST'
+    );
+    expect(submissions).toHaveLength(1);
+  });
+
   test('successful new request opens its persisted order chat',async()=>{
     requestStatus=201;await render();await click(findButton('Richiedi'));
     expect(container.querySelector('[aria-label="Conversazione"]').textContent).toContain('Service 1');
